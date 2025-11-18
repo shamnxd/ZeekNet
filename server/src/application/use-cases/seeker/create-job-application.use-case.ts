@@ -52,7 +52,10 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       resume_filename: data.resume_filename,
     });
 
-    await this._jobPostingRepository.incrementApplicationCount(data.job_id);
+    // Increment application count
+    await this._jobPostingRepository.update(data.job_id, { 
+      application_count: job.application_count + 1 
+    });
 
     const companyProfile = await this._companyProfileRepository.getProfileById(job.company_id);
     if (companyProfile) {

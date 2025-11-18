@@ -1,17 +1,12 @@
-import { IJobPostingSearchRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { AppError } from '../../../domain/errors/errors';
 
 export class AdminGetJobStatsUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingSearchRepository) {}
+  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute() {
     try {
-      const allJobs = await this._jobPostingRepository.findAll({
-        page: 1,
-        limit: 10000,
-      });
-
-      const jobs = allJobs.jobs;
+      const jobs = await this._jobPostingRepository.findMany({});
 
       const stats = {
         total: jobs.length,
