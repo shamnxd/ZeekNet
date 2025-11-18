@@ -12,28 +12,17 @@ export interface IUserData {
   refreshToken: string | null;
 }
 
+// Thin CRUD repository interface
 export interface IUserRepository {
-  create(userData: IUserData): Promise<User>;
-  save(userData: Partial<IUserData>): Promise<User>;
+  create(userData: Partial<User>): Promise<User>;
   findById(id: string): Promise<User | null>;
+  findOne(criteria: Partial<User>): Promise<User | null>;
+  findMany(criteria: Partial<User>): Promise<User[]>;
+  update(id: string, data: Partial<User>): Promise<User | null>;
+  delete(id: string): Promise<void>;
+  exists(criteria: Partial<User>): Promise<boolean>;
+  count(criteria: Partial<User>): Promise<number>;
+  
+  // Convenience method (wraps findOne)
   findByEmail(email: string): Promise<User | null>;
-  updateVerificationStatus(userId: string, isVerified: boolean): Promise<void>;
-  updateName(userId: string, name: string): Promise<void>;
-}
-
-export interface IUserAuthRepository {
-  updateRefreshToken(userId: string, refreshToken: string | null): Promise<void>;
-  updatePassword(userId: string, hashedPassword: string): Promise<void>;
-  updateVerificationStatus(email: string, isVerified: boolean): Promise<void>;
-  findByRefreshToken(refreshToken: string): Promise<User | null>;
-}
-
-export interface IUserManagementRepository {
-  getAllUsers(options: { page: number; limit: number; search?: string; role?: UserRole; isVerified?: boolean; isBlocked?: boolean }): Promise<{ users: User[]; total: number }>;
-
-  findAllUsers(options: { page: number; limit: number; search?: string; role?: UserRole; isBlocked?: boolean }): Promise<{ users: User[]; total: number }>;
-
-  blockUser(userId: string, isBlocked: boolean): Promise<void>;
-  updateUserBlockStatus(userId: string, isBlocked: boolean): Promise<void>;
-  deleteUser(userId: string): Promise<void>;
 }

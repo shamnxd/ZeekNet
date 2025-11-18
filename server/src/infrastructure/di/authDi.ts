@@ -37,19 +37,19 @@ const passwordResetService = new PasswordResetServiceImpl(mailerService);
 
 const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService);
 
-const loginUserUseCase = new LoginUserUseCase(userRepository, userRepository, passwordHasher, tokenService, otpService, mailerService);
+const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
 
-const adminLoginUseCase = new AdminLoginUseCase(userRepository, userRepository, passwordHasher, tokenService, otpService, mailerService);
+const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
 
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepository, passwordResetService);
 
 const resetPasswordUseCase = new ResetPasswordUseCase(passwordHasher, passwordResetService, userRepository);
 
-const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository, userRepository);
+const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository);
 
-const googleLoginUseCase = new GoogleLoginUseCase(userRepository, userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
+const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
 
-const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, userRepository, tokenService, passwordHasher);
+const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, tokenService, passwordHasher);
 
 const logoutUseCase = new LogoutUseCase(userRepository);
 

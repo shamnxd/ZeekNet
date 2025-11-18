@@ -1,6 +1,5 @@
 import { LoginResult } from '../../dto/auth/auth-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IUserAuthRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IGoogleTokenVerifier } from '../../../domain/interfaces/services/IGoogleTokenVerifier';
@@ -15,7 +14,6 @@ import { UserMapper } from '../../mappers/user.mapper';
 export class GoogleLoginUseCase implements IGoogleLoginUseCase {
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _userAuthRepository: IUserAuthRepository,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _tokenService: ITokenService,
     private readonly _googleVerifier: IGoogleTokenVerifier,
@@ -27,7 +25,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     const profile = await this._googleVerifier.verifyIdToken(idToken);
     let user = await this._userRepository.findByEmail(profile.email);
     if (!user) {
-      user = await this._userRepository.save({
+      user = await this._userRepository.create({
         name: profile.name,
         email: profile.email,
         password: await this._passwordHasher.hash('oauth-google'),
@@ -52,7 +50,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
-    await this._userAuthRepository.updateRefreshToken(user.id, hashedRefresh);
+    await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
     return { tokens: { accessToken, refreshToken }, user: UserMapper.toDto(user) };
   }
 }

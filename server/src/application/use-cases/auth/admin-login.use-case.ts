@@ -1,6 +1,5 @@
 import { LoginResult } from '../../dto/auth/auth-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IUserAuthRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
@@ -13,7 +12,6 @@ import { UserMapper } from '../../mappers/user.mapper';
 export class AdminLoginUseCase implements IAdminLoginUseCase {
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _userAuthRepository: IUserAuthRepository,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _tokenService: ITokenService,
     private readonly _otpService: IOtpService,
@@ -42,7 +40,7 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
-    await this._userAuthRepository.updateRefreshToken(user.id, hashedRefresh);
+    await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
 
     return {
       tokens: { accessToken, refreshToken },
