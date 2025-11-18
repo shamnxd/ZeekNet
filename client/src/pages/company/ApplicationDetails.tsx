@@ -642,11 +642,11 @@ const ApplicationDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Date of Birth</p>
-                          <p className="text-sm font-medium text-[#25324B]">Coming soon</p>
+                          <p className="text-sm font-medium text-[#25324B]">--</p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Gender</p>
-                          <p className="text-sm font-medium text-[#25324B]">Coming soon</p>
+                          <p className="text-sm font-medium text-[#25324B]">--</p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Language</p>

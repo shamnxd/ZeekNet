@@ -51,7 +51,7 @@ export interface JobApplicationDetailResponseDto {
   interviews: InterviewScheduleResponseDto[];
   // Seeker profile data (joined)
   full_name?: string;
-  date_of_birth?: string;
+  date_of_birth?: Date;
   gender?: string;
   languages?: string[];
   address?: string;

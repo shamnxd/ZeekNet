@@ -48,6 +48,8 @@ export class JobApplicationMapper {
       summary?: string;
       skills?: string[];
       languages?: string[];
+      date_of_birth?: Date;
+      gender?: string;
       experiences?: Array<{
         title: string;
         company: string;

@@ -154,6 +154,8 @@ export class CompanyJobApplicationController {
           summary: profile?.summary || undefined,
           skills: profile?.skills || undefined,
           languages: profile?.languages || undefined,
+          date_of_birth: profile?.dateOfBirth || undefined,
+          gender: profile?.gender || undefined,
           experiences,
           education,
         },
@@ -164,6 +166,8 @@ export class CompanyJobApplicationController {
           employmentTypes: job?.employment_types,
         },
       );
+
+      console.log(response);
 
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {
