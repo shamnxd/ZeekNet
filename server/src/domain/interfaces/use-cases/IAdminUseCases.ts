@@ -3,6 +3,7 @@ import { CompanyProfile } from '../../entities/company-profile.entity';
 import { JobPosting, PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
 import { Skill } from '../../entities/skill.entity';
 import { JobRole } from '../../entities/job-role.entity';
+import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
 
 export interface PaginatedSkills {
   skills: Skill[];
@@ -124,7 +125,15 @@ export interface IVerifyCompanyUseCase {
 }
 
 export interface IAdminGetAllJobsUseCase {
-  execute(query: JobPostingFilters): Promise<PaginatedJobPostings>;
+  execute(query: JobPostingFilters): Promise<{
+    jobs: JobPostingResponseDto[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>;
 }
 
 export interface IAdminGetJobByIdUseCase {
