@@ -60,7 +60,7 @@ const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseC
 
 const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
 
-const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository);
+const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
 
 const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
 

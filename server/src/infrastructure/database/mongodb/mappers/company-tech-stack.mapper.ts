@@ -3,7 +3,7 @@ import { CompanyTechStackDocument } from '../models/company-tech-stack.model';
 
 export class CompanyTechStackMapper {
   static toEntity(doc: CompanyTechStackDocument): CompanyTechStack {
-    return CompanyTechStack.fromJSON({
+    return CompanyTechStack.create({
       id: String(doc._id),
       companyId: doc.companyId.toString(),
       techStack: doc.techStack,

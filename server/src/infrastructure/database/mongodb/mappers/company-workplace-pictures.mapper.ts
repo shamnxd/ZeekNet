@@ -3,7 +3,7 @@ import { CompanyWorkplacePicturesDocument } from '../models/company-workplace-pi
 
 export class CompanyWorkplacePicturesMapper {
   static toEntity(doc: CompanyWorkplacePicturesDocument): CompanyWorkplacePictures {
-    return CompanyWorkplacePictures.fromJSON({
+    return CompanyWorkplacePictures.create({
       id: String(doc._id),
       companyId: doc.companyId.toString(),
       pictureUrl: doc.pictureUrl,

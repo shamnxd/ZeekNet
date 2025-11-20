@@ -1,22 +1,5 @@
 import { CompanyProfile } from '../../../../domain/entities/company-profile.entity';
-import { Document } from 'mongoose';
-
-export interface CompanyProfileDocument extends Document {
-  _id: unknown;
-  userId: string;
-  companyName: string;
-  logo: string;
-  banner: string;
-  websiteLink: string;
-  employeeCount: number;
-  industry: string;
-  organisation: string;
-  aboutUs: string;
-  isVerified: 'pending' | 'rejected' | 'verified';
-  rejectionReason?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { CompanyProfileDocument } from '../models/company-profile.model';
 
 export class CompanyProfileMapper {
   static toEntity(doc: CompanyProfileDocument): CompanyProfile {

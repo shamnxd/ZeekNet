@@ -1,4 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IAdminGetAllJobsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPostingMapper } from '../../mappers/job-posting.mapper';
@@ -19,7 +20,10 @@ export interface GetAllJobsQuery {
 }
 
 export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
+  constructor(
+    private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
+  ) {}
 
   async execute(query: GetAllJobsQuery) {
     try {
@@ -88,8 +92,23 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       const startIndex = (page - 1) * limit;
       const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
+      // Fetch company data for paginated jobs
+      const companyIds = [...new Set(paginatedJobs.map(job => job.companyId))];
+      const companies = await Promise.all(
+        companyIds.map(id => this._companyProfileRepository.findById(id))
+      );
+      
+      const companyMap = new Map(
+        companies.filter(c => c !== null).map(c => [c!.id, { companyName: c!.companyName, logo: c!.logo }])
+      );
+
+      // Map to DTOs with company data
+      const jobDtos: JobPostingResponseDto[] = paginatedJobs.map(job => 
+        JobPostingMapper.toDto(job, companyMap.get(job.companyId))
+      );
+
       return {
-        jobs: paginatedJobs,
+        jobs: jobDtos,
         pagination: {
           page,
           limit,

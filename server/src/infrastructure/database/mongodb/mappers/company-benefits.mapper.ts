@@ -3,7 +3,7 @@ import { CompanyBenefitsDocument } from '../models/company-benefits.model';
 
 export class CompanyBenefitsMapper {
   static toEntity(doc: CompanyBenefitsDocument): CompanyBenefits {
-    return CompanyBenefits.fromJSON({
+    return CompanyBenefits.create({
       id: String(doc._id),
       companyId: doc.companyId.toString(),
       perk: doc.perk,

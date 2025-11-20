@@ -20,26 +20,31 @@ export class JobPostingMapper {
     };
   }
 
-  static toDto(domain: JobPosting): JobPostingResponseDto {
+  static toDto(
+    domain: JobPosting,
+    companyData?: { companyName: string; logo: string }
+  ): JobPostingResponseDto {
     return {
-      id: domain._id,
-      company_id: domain.company_id,
+      id: domain.id,
+      company_id: domain.companyId,
+      company_name: companyData?.companyName,
+      company_logo: companyData?.logo,
       title: domain.title,
       description: domain.description,
       responsibilities: domain.responsibilities,
       qualifications: domain.qualifications,
-      nice_to_haves: domain.nice_to_haves,
+      nice_to_haves: domain.niceToHaves,
       benefits: domain.benefits,
       salary: domain.salary,
-      employment_types: domain.employment_types,
+      employment_types: domain.employmentTypes,
       location: domain.location,
-      skills_required: domain.skills_required,
-      category_ids: domain.category_ids,
-      is_active: domain.is_active,
-      admin_blocked: domain.admin_blocked,
-      unpublish_reason: domain.unpublish_reason,
-      view_count: domain.view_count,
-      application_count: domain.application_count,
+      skills_required: domain.skillsRequired,
+      category_ids: domain.categoryIds,
+      is_active: domain.isActive,
+      admin_blocked: domain.adminBlocked,
+      unpublish_reason: domain.unpublishReason,
+      view_count: domain.viewCount,
+      application_count: domain.applicationCount,
       createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
     };

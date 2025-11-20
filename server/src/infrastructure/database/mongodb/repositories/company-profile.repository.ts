@@ -30,7 +30,6 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Com
     return CompanyProfileMapper.toEntity(doc as unknown as CompanyProfileDocument);
   }
 
-  // Complex query with pagination, search, filtering, and population
   async getAllCompanies(options: {
     page: number;
     limit: number;

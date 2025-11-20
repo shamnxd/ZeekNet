@@ -3,7 +3,7 @@ import { CompanyOfficeLocationDocument } from '../models/company-office-location
 
 export class CompanyOfficeLocationMapper {
   static toEntity(doc: CompanyOfficeLocationDocument): CompanyOfficeLocation {
-    return CompanyOfficeLocation.fromJSON({
+    return CompanyOfficeLocation.create({
       id: String(doc._id),
       companyId: doc.companyId.toString(),
       location: doc.location,

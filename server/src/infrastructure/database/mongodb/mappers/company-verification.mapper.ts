@@ -1,14 +1,5 @@
-import { CompanyVerification } from '../../../../domain/entities/company-profile.entity';
-import { Document } from 'mongoose';
-
-export interface CompanyVerificationDocument extends Document {
-  _id: unknown;
-  companyId: string;
-  taxId: string;
-  businessLicenseUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { CompanyVerification } from '../../../../domain/entities/company-verification.entity';
+import { CompanyVerificationDocument } from '../models/company-verification.model';
 
 export class CompanyVerificationMapper {
   static toEntity(doc: CompanyVerificationDocument): CompanyVerification {
@@ -16,7 +7,7 @@ export class CompanyVerificationMapper {
       id: String(doc._id),
       companyId: doc.companyId,
       taxId: doc.taxId,
-      businessLicenseUrl: doc.businessLicenseUrl ?? '',
+      businessLicenseUrl: doc.businessLicenseUrl,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
