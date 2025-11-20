@@ -27,11 +27,11 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
@@ -43,9 +43,9 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     const updatedApplication = await this._jobApplicationRepository.addInterview(applicationId, {
       date: interviewDate,
       time: interviewData.time,
-      interview_type: interviewData.interview_type,
+      interviewType: interviewData.interview_type,
       location: interviewData.location,
-      interviewer_name: interviewData.interviewer_name,
+      interviewerName: interviewData.interviewer_name,
       status: 'scheduled',
     });
 
@@ -58,12 +58,12 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     await notificationService.sendNotification(
       this._notificationRepository,
       {
-        user_id: application.seeker_id,
+        user_id: application.seekerId,
         type: NotificationType.INTERVIEW_SCHEDULED,
         title: 'Interview Scheduled',
         message: `An interview has been scheduled for ${job.title}`,
         data: {
-          job_id: job._id,
+          job_id: job.id,
           application_id: application.id,
           interview_id: newInterview.id,
           interview_date: interviewDate.toISOString(),

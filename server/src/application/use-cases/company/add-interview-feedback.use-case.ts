@@ -24,11 +24,11 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
@@ -46,10 +46,10 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     }
 
     const updatedApplication = await this._jobApplicationRepository.addInterviewFeedback(applicationId, interviewId, {
-      reviewer_name: feedbackData.reviewer_name,
+      reviewerName: feedbackData.reviewer_name,
       rating: feedbackData.rating,
       comment: feedbackData.comment,
-      reviewed_at: new Date(),
+      reviewedAt: new Date(),
     });
 
     if (!updatedApplication) {

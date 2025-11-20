@@ -23,11 +23,11 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
