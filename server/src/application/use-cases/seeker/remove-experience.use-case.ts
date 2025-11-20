@@ -11,7 +11,7 @@ export class RemoveExperienceUseCase implements IRemoveExperienceUseCase {
 
   async execute(userId: string, experienceId: string): Promise<void> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -29,3 +29,5 @@ export class RemoveExperienceUseCase implements IRemoveExperienceUseCase {
     await this._seekerExperienceRepository.delete(experienceId);
   }
 }
+
+

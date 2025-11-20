@@ -13,6 +13,7 @@ export class JobRoleRepository extends RepositoryBase<JobRole, JobRoleDocument> 
     return JobRoleMapper.toEntity(doc as unknown as JobRoleDocument);
   }
 
+  // Keep findByName - it has special regex logic for case-insensitive exact match
   async findByName(name: string): Promise<JobRole | null> {
     const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const doc = await this.model.findOne({ 

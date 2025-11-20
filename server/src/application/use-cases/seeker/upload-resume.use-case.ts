@@ -12,7 +12,7 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
 
   async execute(userId: string, resume: ResumeMeta): Promise<ResumeMetaResponseDto> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -23,7 +23,9 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
       throw new ValidationError('Resume must be a PDF, DOC, or DOCX file');
     }
 
-    const updatedResume = await this._seekerProfileRepository.updateResume(userId, resume);
-    return SeekerProfileMapper.resumeMetaToDto(updatedResume);
+    await this._seekerProfileRepository.update(profile.id, { resume });
+    return SeekerProfileMapper.resumeMetaToDto(resume);
   }
 }
+
+

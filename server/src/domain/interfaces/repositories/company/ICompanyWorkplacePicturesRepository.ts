@@ -2,5 +2,5 @@ import { CompanyWorkplacePictures } from '../../../entities/company-workplace-pi
 import { IBaseRepository } from '../IBaseRepository';
 
 export interface ICompanyWorkplacePicturesRepository extends IBaseRepository<CompanyWorkplacePictures> {
-  findByCompanyId(companyId: string): Promise<CompanyWorkplacePictures[]>;
+  // Use findMany({ companyId }) from base instead
 }

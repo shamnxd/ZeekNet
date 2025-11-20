@@ -12,7 +12,7 @@ export class GetCompanyJobPostingsUseCase {
 
   async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedJobPostings> {
     try {
-      const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+      const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
         throw new AppError('Company profile not found', 404);
@@ -30,13 +30,13 @@ export class GetCompanyJobPostingsUseCase {
       // Apply filters in use case
       if (query.category_ids && query.category_ids.length > 0) {
         jobs = jobs.filter(job => 
-          job.category_ids.some(cat => query.category_ids!.includes(cat))
+          job.category_ids.some(cat => query.category_ids!.includes(cat)),
         );
       }
 
       if (query.employment_types && query.employment_types.length > 0) {
         jobs = jobs.filter(job => 
-          job.employment_types.some(type => query.employment_types!.includes(type as any))
+          job.employment_types.some(type => query.employment_types!.includes(type as any)),
         );
       }
 
@@ -53,7 +53,7 @@ export class GetCompanyJobPostingsUseCase {
         jobs = jobs.filter(job => 
           job.title.toLowerCase().includes(searchLower) ||
           job.description.toLowerCase().includes(searchLower) ||
-          job.location.toLowerCase().includes(searchLower)
+          job.location.toLowerCase().includes(searchLower),
         );
       }
 
@@ -81,3 +81,4 @@ export class GetCompanyJobPostingsUseCase {
     }
   }
 }
+

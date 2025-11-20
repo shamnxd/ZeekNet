@@ -1,6 +1,5 @@
 import { UserRepository } from '../database/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanyListingRepository } from '../database/mongodb/repositories/company-listing.repository';
 import { CompanyVerificationRepository } from '../database/mongodb/repositories/company-verification.repository';
 import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
 import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
@@ -37,10 +36,10 @@ import { AdminJobController } from '../../presentation/controllers/admin/admin-j
 import { AdminJobCategoryController } from '../../presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
+import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
-const companyListingRepository = new CompanyListingRepository();
 const companyVerificationRepository = new CompanyVerificationRepository();
 const jobPostingRepository = new JobPostingRepository();
 const jobCategoryRepository = new JobCategoryRepository();
@@ -55,7 +54,9 @@ const blockUserUseCase = new BlockUserUseCase(userRepository);
 
 const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 
-const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyListingRepository, companyVerificationRepository, s3Service);
+const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository);
+
+const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
 const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
 

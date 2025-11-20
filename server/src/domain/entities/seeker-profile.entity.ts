@@ -94,47 +94,4 @@ export class SeekerProfile {
     );
   }
 
-  toJSON(): Record<string, unknown> {
-    return {
-      id: this.id,
-      userId: this.userId,
-      headline: this.headline,
-      summary: this.summary,
-      location: this.location,
-      phone: this.phone,
-      email: this.email,
-      avatarFileName: this.avatarFileName,
-      bannerFileName: this.bannerFileName,
-      dateOfBirth: this.dateOfBirth,
-      gender: this.gender,
-      skills: this.skills,
-      languages: this.languages,
-      socialLinks: this.socialLinks,
-      resume: this.resume,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-    };
-  }
-
-  static fromJSON(data: Record<string, unknown>): SeekerProfile {
-    return new SeekerProfile(
-      data.id as string,
-      data.userId as string,
-      (data.headline as string) ?? null,
-      (data.summary as string) ?? null,
-      (data.location as string) ?? null,
-      (data.phone as string) ?? null,
-      (data.email as string) || null,
-      (data.avatarFileName as string) ?? null,
-      (data.bannerFileName as string) ?? null,
-      data.dateOfBirth ? new Date(data.dateOfBirth as string) : null,
-      (data.gender as string) ?? null,
-      (data.skills as string[]) ?? [],
-      (data.languages as string[]) ?? [],
-      (data.socialLinks as SocialLink[]) ?? [],
-      (data.resume as ResumeMeta) ?? null,
-      new Date(data.createdAt as string),
-      new Date(data.updatedAt as string),
-    );
-  }
 }

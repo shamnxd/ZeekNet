@@ -9,12 +9,14 @@ export class UpdateLanguagesUseCase implements IUpdateLanguagesUseCase {
 
   async execute(userId: string, languages: string[]): Promise<string[]> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
 
-    const updatedLanguages = await this._seekerProfileRepository.updateLanguages(userId, languages);
-    return updatedLanguages;
+    await this._seekerProfileRepository.update(profile.id, { languages });
+    return languages;
   }
 }
+
+

@@ -41,3 +41,5 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
   }
 }
 
+
+

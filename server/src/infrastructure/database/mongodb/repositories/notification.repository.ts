@@ -29,35 +29,45 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
     return this.mapToEntity(notification);
   }
 
-  async findByUserId(userId: string, limit: number = 50, skip: number = 0): Promise<Notification[]> {
-    const notifications = await this.model.find({ user_id: new Types.ObjectId(userId) })
-      .sort({ created_at: -1 })
-      .limit(limit)
-      .skip(skip)
-      .lean();
+  async findById(id: string): Promise<Notification | null> {
+    return await super.findById(id);
+  }
 
-    return notifications.map((doc) => NotificationMapper.toDomain(doc));
+  async update(id: string, data: Partial<Notification>): Promise<Notification | null> {
+    return await super.update(id, data);
+  }
+
+  async findByUserId(userId: string, limit: number, skip: number): Promise<Notification[]> {
+    const notifications = await NotificationModel.find({ user_id: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip);
+    
+    return notifications.map(doc => this.mapToEntity(doc));
   }
 
   async markAsRead(notificationId: string, userId: string): Promise<Notification | null> {
-    const notification = await this.model.findOneAndUpdate(
-      { _id: notificationId, user_id: new Types.ObjectId(userId), is_read: false },
-      { is_read: true, read_at: new Date() },
-      { new: true },
-    ).lean();
-
-    return notification ? NotificationMapper.toDomain(notification) : null;
+    const notification = await NotificationModel.findOneAndUpdate(
+      { _id: notificationId, user_id: new Types.ObjectId(userId) },
+      { is_read: true },
+      { new: true }
+    );
+    
+    return notification ? this.mapToEntity(notification) : null;
   }
 
   async markAllAsRead(userId: string): Promise<void> {
-    await this.model.updateMany(
+    await NotificationModel.updateMany(
       { user_id: new Types.ObjectId(userId), is_read: false },
-      { is_read: true, read_at: new Date() },
+      { is_read: true }
     );
   }
 
   async getUnreadCount(userId: string): Promise<number> {
-    return this.countDocuments({ user_id: new Types.ObjectId(userId), is_read: false });
+    return await NotificationModel.countDocuments({
+      user_id: new Types.ObjectId(userId),
+      is_read: false
+    });
   }
 }
 

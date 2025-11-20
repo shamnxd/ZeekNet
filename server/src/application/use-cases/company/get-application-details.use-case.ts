@@ -13,7 +13,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
   ) {}
 
   async execute(userId: string, applicationId: string): Promise<JobApplication> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -34,4 +34,5 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
     return application;
   }
 }
+
 

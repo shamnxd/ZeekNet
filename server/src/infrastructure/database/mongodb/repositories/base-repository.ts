@@ -75,18 +75,28 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
     return await this.model.countDocuments();
   }
 
-  protected async findOne(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<T | null> {
+  async findOne(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<T | null> {
     const document = await this.model.findOne(filter as FilterQuery<TDocument>);
     return document ? this.mapToEntity(document) : null;
   }
 
-  protected async findMany(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<T[]> {
+  async findMany(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<T[]> {
     const documents = await this.model.find(filter as FilterQuery<TDocument>);
     return documents.map((doc) => this.mapToEntity(doc));
   }
 
-  protected async countDocuments(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<number> {
+  async countDocuments(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<number> {
     return await this.model.countDocuments(filter as FilterQuery<TDocument>);
+  }
+
+  async deleteMany(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<number> {
+    const result = await this.model.deleteMany(filter as FilterQuery<TDocument>);
+    return result.deletedCount || 0;
+  }
+
+  async updateMany(filter: FilterQuery<TDocument> | Record<string, unknown>, update: Record<string, unknown>): Promise<number> {
+    const result = await this.model.updateMany(filter as FilterQuery<TDocument>, update);
+    return result.modifiedCount || 0;
   }
 
   
@@ -134,7 +144,7 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
     } as unknown as R;
   }
 
-  protected async exists(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<boolean> {
+  async exists(filter: FilterQuery<TDocument> | Record<string, unknown>): Promise<boolean> {
     const count = await this.model.countDocuments(filter as FilterQuery<TDocument>);
     return count > 0;
   }

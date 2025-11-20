@@ -13,6 +13,7 @@ export class SkillRepository extends RepositoryBase<Skill, SkillDocument> implem
     return SkillMapper.toEntity(doc as unknown as SkillDocument);
   }
 
+  // Keep findByName - it has special regex logic for case-insensitive exact match
   async findByName(name: string): Promise<Skill | null> {
     const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const doc = await this.model.findOne({ 

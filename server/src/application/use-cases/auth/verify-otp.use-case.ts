@@ -12,7 +12,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   ) {}
 
   async execute(email: string, code: string): Promise<UserResponseDto> {
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -24,7 +24,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     // Update user verification status using thin repository
     await this._userRepository.update(user.id, { isVerified: true });
 
-    const updatedUser = await this._userRepository.findByEmail(email);
+    const updatedUser = await this._userRepository.findOne({ email });
     if (!updatedUser) {
       throw new NotFoundError('User not found after verification');
     }

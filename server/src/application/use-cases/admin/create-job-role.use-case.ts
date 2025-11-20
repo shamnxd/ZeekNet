@@ -18,7 +18,7 @@ export class CreateJobRoleUseCase implements ICreateJobRoleUseCase {
       throw new AppError('Job role with this name already exists', 409);
     }
 
-    return await this._jobRoleRepository.create({ name: normalizedName });
+    return await this._jobRoleRepository.create({ name: normalizedName } as Omit<JobRole, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
   }
 }
 

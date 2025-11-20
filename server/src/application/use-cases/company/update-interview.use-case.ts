@@ -18,7 +18,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
 
   async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplication> {
 
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -96,4 +96,5 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     return updatedApplication;
   }
 }
+
 

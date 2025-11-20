@@ -4,9 +4,39 @@ import { SeekerEducationModel, SeekerEducationDocument } from '../models/seeker-
 import { Types } from 'mongoose';
 
 export class SeekerEducationRepository implements ISeekerEducationRepository {
-  constructor(private readonly model = SeekerEducationModel) {}
+  constructor() {}
 
-  protected mapToEntity(doc: SeekerEducationDocument): Education {
+  async createForProfile(seekerProfileId: string, education: Omit<Education, 'id'>): Promise<Education> {
+    const educationDoc = new SeekerEducationModel({
+      ...education,
+      seekerProfileId: new Types.ObjectId(seekerProfileId),
+    });
+    
+    await educationDoc.save();
+    return this.mapToEntity(educationDoc);
+  }
+
+  async findById(id: string): Promise<Education | null> {
+    const doc = await SeekerEducationModel.findById(id);
+    return doc ? this.mapToEntity(doc) : null;
+  }
+
+  async findMany(filter: Record<string, unknown>): Promise<Education[]> {
+    const docs = await SeekerEducationModel.find(filter);
+    return docs.map(doc => this.mapToEntity(doc));
+  }
+
+  async update(id: string, data: Partial<Education>): Promise<Education | null> {
+    const doc = await SeekerEducationModel.findByIdAndUpdate(id, data, { new: true });
+    return doc ? this.mapToEntity(doc) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await SeekerEducationModel.findByIdAndDelete(id);
+    return !!result;
+  }
+
+  private mapToEntity(doc: SeekerEducationDocument): Education {
     return {
       id: String(doc._id),
       school: doc.school,
@@ -16,53 +46,5 @@ export class SeekerEducationRepository implements ISeekerEducationRepository {
       endDate: doc.endDate,
       grade: doc.grade,
     };
-  }
-
-  async create(seekerProfileId: string, education: Omit<Education, 'id'>): Promise<Education> {
-    const created = await this.model.create({
-      seekerProfileId: new Types.ObjectId(seekerProfileId),
-      school: education.school,
-      degree: education.degree,
-      fieldOfStudy: education.fieldOfStudy,
-      startDate: education.startDate,
-      endDate: education.endDate,
-      grade: education.grade,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    return this.mapToEntity(created);
-  }
-
-  async findById(educationId: string): Promise<Education | null> {
-    const doc = await this.model.findById(educationId).exec();
-    return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async findBySeekerProfileId(seekerProfileId: string): Promise<Education[]> {
-    const docs = await this.model.find({ seekerProfileId: new Types.ObjectId(seekerProfileId) }).sort({ createdAt: -1 }).exec();
-    return docs.map(doc => this.mapToEntity(doc));
-  }
-
-  async update(educationId: string, updates: Partial<Education>): Promise<Education> {
-    const updateData: Record<string, unknown> = { ...updates, updatedAt: new Date() };
-    delete updateData.id; 
-    
-    Object.keys(updateData).forEach(key => {
-      if (updateData[key] === undefined) {
-        delete updateData[key];
-      }
-    });
-
-    const updated = await this.model.findByIdAndUpdate(educationId, updateData, { new: true }).exec();
-    if (!updated) throw new Error('Education not found');
-    return this.mapToEntity(updated);
-  }
-
-  async delete(educationId: string): Promise<void> {
-    await this.model.findByIdAndDelete(educationId).exec();
-  }
-
-  async deleteBySeekerProfileId(seekerProfileId: string): Promise<void> {
-    await this.model.deleteMany({ seekerProfileId: new Types.ObjectId(seekerProfileId) }).exec();
   }
 }

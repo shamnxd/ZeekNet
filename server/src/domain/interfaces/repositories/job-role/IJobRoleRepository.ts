@@ -1,4 +1,5 @@
 import { JobRole } from '../../../entities/job-role.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
 export interface JobRoleQueryFilters {
   page?: number;
@@ -16,13 +17,10 @@ export interface PaginatedJobRoles {
   totalPages: number;
 }
 
-export interface IJobRoleRepository {
-  findById(id: string): Promise<JobRole | null>;
+export interface IJobRoleRepository extends IBaseRepository<JobRole> {
+  // Special method with case-insensitive regex matching
   findByName(name: string): Promise<JobRole | null>;
-  create(data: { name: string }): Promise<JobRole>;
-  update(id: string, updates: { name: string }): Promise<JobRole | null>;
-  delete(id: string): Promise<boolean>;
-  count(): Promise<number>;
+  // Complex pagination query
   findAllWithPagination(filters?: JobRoleQueryFilters): Promise<PaginatedJobRoles>;
 }
 

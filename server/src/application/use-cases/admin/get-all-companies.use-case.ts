@@ -1,8 +1,8 @@
-import { ICompanyListingRepository } from '../../../domain/interfaces/repositories/company/ICompanyListingRepository';
+import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyQueryOptions, PaginatedCompanies, IGetAllCompaniesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 
 export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
-  constructor(private readonly _companyListingRepository: ICompanyListingRepository) {}
+  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
 
   async execute(options: CompanyQueryOptions): Promise<PaginatedCompanies> {
     const page = options.page || 1;
@@ -18,7 +18,7 @@ export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
       sortOrder: options.sortOrder,
     };
 
-    const result = await this._companyListingRepository.getAllCompanies(convertedOptions);
+    const result = await this._companyProfileRepository.getAllCompanies(convertedOptions);
 
     return {
       companies: result.companies,

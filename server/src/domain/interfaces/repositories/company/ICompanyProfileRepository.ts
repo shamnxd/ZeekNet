@@ -1,11 +1,18 @@
 import { CompanyProfile } from '../../../entities/company-profile.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
-export interface ICompanyProfileRepository {
-  createProfile(profile: { userId: string; companyName: string; logo: string; banner: string; websiteLink: string; employeeCount: number; industry: string; organisation: string; aboutUs: string; isVerified: 'pending' | 'rejected' | 'verified' }): Promise<CompanyProfile>;
-
-  getProfileByUserId(userId: string): Promise<CompanyProfile | null>;
-  getProfileById(profileId: string): Promise<CompanyProfile | null>;
-  updateProfile(profileId: string, updates: Partial<CompanyProfile>): Promise<CompanyProfile>;
-  deleteProfile(profileId: string): Promise<void>;
-  existsByUserId(userId: string): Promise<boolean>;
+export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfile> {
+  // Use findOne({ userId }) and exists({ userId }) from base instead
+  
+  // Complex query with pagination, search, filtering, and population
+  getAllCompanies(options: {
+    page: number;
+    limit: number;
+    search?: string;
+    industry?: string;
+    isVerified?: 'pending' | 'rejected' | 'verified';
+    isBlocked?: boolean;
+    sortBy?: 'createdAt' | 'companyName' | 'employeeCount';
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<{ companies: CompanyProfile[]; total: number }>;
 }

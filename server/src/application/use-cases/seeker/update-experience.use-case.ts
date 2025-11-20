@@ -14,7 +14,7 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
 
   async execute(userId: string, experienceId: string, data: UpdateExperienceData): Promise<ExperienceResponseDto> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -48,3 +48,5 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
     return SeekerProfileMapper.experienceToDto(updatedExperience);
   }
 }
+
+

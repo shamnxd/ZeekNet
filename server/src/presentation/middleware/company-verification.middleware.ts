@@ -31,7 +31,7 @@ export class CompanyVerificationMiddleware {
         return;
       }
 
-      const companyProfile = await this._companyRepository.getProfileByUserId(userId);
+      const companyProfile = await this._companyRepository.findOne({ userId });
 
       if (!companyProfile) {
         res.status(403).json({

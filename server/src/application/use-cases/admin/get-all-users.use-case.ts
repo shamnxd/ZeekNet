@@ -11,7 +11,7 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
     const limit = options.limit || 10;
 
     // Build query criteria
-    const criteria: Partial<User> = {};
+    const criteria: Record<string, unknown> = {};
     if (options.role) {
       criteria.role = options.role as UserRole;
     }
@@ -28,7 +28,7 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
       const searchLower = options.search.toLowerCase();
       users = users.filter(u => 
         u.name.toLowerCase().includes(searchLower) || 
-        u.email.toLowerCase().includes(searchLower)
+        u.email.toLowerCase().includes(searchLower),
       );
     }
 

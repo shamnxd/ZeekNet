@@ -19,7 +19,7 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
   ) {}
 
   async execute(email: string, password: string): Promise<LoginResult> {
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AuthenticationError('Invalid credentials');
     }

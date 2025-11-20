@@ -21,7 +21,7 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
   ) {}
 
   async execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplications> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -47,4 +47,5 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     };
   }
 }
+
 

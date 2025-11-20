@@ -30,3 +30,4 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     }
   }
 }
+

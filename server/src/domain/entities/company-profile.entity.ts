@@ -23,51 +23,6 @@ export class CompanyProfile {
 
   static create(data: {
     id: string;
-    userId: string;
-    companyName: string;
-    logo: string;
-    banner: string;
-    websiteLink: string;
-    employeeCount: number;
-    industry: string;
-    organisation: string;
-    aboutUs: string;
-    foundedDate?: Date;
-    phone?: string;
-    isVerified?: 'pending' | 'rejected' | 'verified';
-    createdAt?: Date;
-    updatedAt?: Date;
-    rejectionReason?: string;
-  }): CompanyProfile {
-    const now = new Date();
-    return new CompanyProfile(
-      data.id,
-      data.userId,
-      data.companyName,
-      data.logo,
-      data.banner,
-      data.websiteLink,
-      data.employeeCount,
-      data.industry,
-      data.organisation,
-      data.aboutUs,
-      data.isVerified ?? 'pending',
-      data.createdAt ?? now,
-      data.updatedAt ?? now,
-      '', 
-      false, 
-      data.foundedDate,
-      data.phone,
-      data.rejectionReason,
-    );
-  }
-
-  toJSON() {
-    return {
-      id: this.id,
-      userId: this.userId,
-      companyName: this.companyName,
-      logo: this.logo,
       banner: this.banner,
       websiteLink: this.websiteLink,
       employeeCount: this.employeeCount,

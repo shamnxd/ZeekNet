@@ -10,7 +10,7 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
   ) {}
 
   async execute(userId: string, verificationData: CompanyVerificationData): Promise<CompanyProfile> {
-    const existingProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
       throw new Error('Company profile not found');
     }
@@ -20,15 +20,18 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
     }
 
     if (verificationData.taxId || verificationData.businessLicenseUrl) {
-      await this._companyVerificationRepository.updateVerification(existingProfile.id, {
-        taxId: verificationData.taxId,
-        businessLicenseUrl: verificationData.businessLicenseUrl,
-      });
+      const verification = await this._companyVerificationRepository.findOne({ companyId: existingProfile.id });
+      if (verification) {
+        await this._companyVerificationRepository.update(verification.id, {
+          taxId: verificationData.taxId,
+          businessLicenseUrl: verificationData.businessLicenseUrl,
+        });
+      }
     }
 
     await this._companyVerificationRepository.updateVerificationStatus(existingProfile.id, 'pending');
 
-    const updatedProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const updatedProfile = await this._companyProfileRepository.findOne({ userId });
     if (!updatedProfile) {
       throw new Error('Failed to retrieve updated profile');
     }
@@ -36,3 +39,4 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
     return updatedProfile;
   }
 }
+

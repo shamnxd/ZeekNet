@@ -6,10 +6,11 @@ export class GetCompanyWorkplacePictureUseCase implements IGetCompanyWorkplacePi
   constructor(private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository) {}
 
   async executeByCompanyId(companyId: string): Promise<CompanyWorkplacePictures[]> {
-    return this._companyWorkplacePicturesRepository.findByCompanyId(companyId);
+    return this._companyWorkplacePicturesRepository.findMany({ companyId });
   }
 
   async executeById(pictureId: string): Promise<CompanyWorkplacePictures | null> {
     return this._companyWorkplacePicturesRepository.findById(pictureId);
   }
 }
+

@@ -28,7 +28,7 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     jobId: string,
     filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number },
   ): Promise<PaginatedApplications> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -62,4 +62,5 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     };
   }
 }
+
 

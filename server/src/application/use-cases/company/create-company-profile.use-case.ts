@@ -16,7 +16,7 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
   ) {}
 
   async execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile> {
-    const profile = await this._companyProfileRepository.createProfile({
+    const profile = await this._companyProfileRepository.create({
       userId,
       companyName: profileData.companyName,
       logo: profileData.logo,
@@ -27,10 +27,10 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
       organisation: profileData.organisation,
       aboutUs: profileData.aboutUs,
       isVerified: 'pending',
-    });
+    } as unknown as Omit<CompanyProfile, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
 
     if (profileData.taxId || profileData.businessLicenseUrl) {
-      await this._companyVerificationRepository.createVerification({
+      await this._companyVerificationRepository.create({
         companyId: profile.id,
         taxId: profileData.taxId || '',
         businessLicenseUrl: profileData.businessLicenseUrl || '',
@@ -57,3 +57,4 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     return profile;
   }
 }
+

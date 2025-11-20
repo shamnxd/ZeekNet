@@ -25,10 +25,10 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
       throw new NotFoundError('User not found');
     }
 
-    let profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    let profile = await this._seekerProfileRepository.findOne({ userId });
 
     if (!profile) {
-      profile = await this._seekerProfileRepository.createProfile({
+      profile = await this._seekerProfileRepository.create({
         userId,
         
         skills: [],
@@ -52,3 +52,5 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     };
   }
 }
+
+

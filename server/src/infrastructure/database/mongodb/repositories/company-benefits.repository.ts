@@ -13,16 +13,4 @@ export class CompanyBenefitsRepository extends RepositoryBase<CompanyBenefits, C
   protected mapToEntity(doc: CompanyBenefitsDocument): CompanyBenefits {
     return CompanyBenefitsMapper.toEntity(doc);
   }
-
-  protected convertToObjectIds(data: Partial<CompanyBenefits>): Partial<CompanyBenefits> {
-    const converted = { ...data };
-    if (converted.companyId && typeof converted.companyId === 'string') {
-      (converted as Record<string, unknown>).companyId = new Types.ObjectId(converted.companyId);
-    }
-    return converted;
-  }
-
-  async findByCompanyId(companyId: string): Promise<CompanyBenefits[]> {
-    return await this.findMany({ companyId: new Types.ObjectId(companyId) });
-  }
 }

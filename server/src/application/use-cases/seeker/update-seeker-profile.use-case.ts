@@ -15,7 +15,7 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
   ) {}
 
   async execute(userId: string, data: UpdateSeekerProfileData): Promise<SeekerProfileResponseDto> {
-    const existingProfile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     
     if (!existingProfile) {
       throw new NotFoundError('Seeker profile not found');
@@ -40,8 +40,10 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     if (data.languages !== undefined) updateData.languages = data.languages || [];
     if (data.socialLinks !== undefined) updateData.socialLinks = data.socialLinks || [];
 
-    const updatedProfile = await this._seekerProfileRepository.updateProfile(existingProfile.id, updateData as Partial<SeekerProfile>);
+    const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData as Partial<SeekerProfile>);
     
     return SeekerProfileMapper.toDto(updatedProfile, this._s3Service);
   }
 }
+
+

@@ -29,7 +29,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
 
       // Increment view count
       await this._jobPostingRepository.update(jobId, { 
-        view_count: jobPosting.view_count + 1 
+        view_count: jobPosting.view_count + 1, 
       });
 
       // Build detailed response DTO (business logic in use case)

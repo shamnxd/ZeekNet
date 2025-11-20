@@ -17,7 +17,7 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
   ) {}
 
   async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplication> {  
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -79,4 +79,5 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     return updatedApplication;
   }
 }
+
 

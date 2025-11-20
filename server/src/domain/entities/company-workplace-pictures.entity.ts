@@ -29,25 +29,4 @@ export class CompanyWorkplacePictures {
     );
   }
 
-  toJSON() {
-    return {
-      id: this.id,
-      companyId: this.companyId,
-      pictureUrl: this.pictureUrl,
-      caption: this.caption,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-    };
-  }
-
-  static fromJSON(data: {
-    id: string;
-    companyId: string;
-    pictureUrl: string;
-    caption?: string;
-    createdAt: string | Date;
-    updatedAt: string | Date;
-  }): CompanyWorkplacePictures {
-    return new CompanyWorkplacePictures(data.id, data.companyId, data.pictureUrl, new Date(data.createdAt), new Date(data.updatedAt), data.caption);
-  }
 }

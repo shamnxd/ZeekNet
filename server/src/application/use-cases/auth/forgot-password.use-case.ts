@@ -9,7 +9,7 @@ export class ForgotPasswordUseCase {
   ) {}
 
   async execute(email: string): Promise<void> {
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new NotFoundError('Email not found');
     }

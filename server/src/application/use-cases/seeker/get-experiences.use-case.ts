@@ -13,7 +13,7 @@ export class GetExperiencesUseCase implements IGetExperiencesUseCase {
 
   async execute(userId: string): Promise<ExperienceResponseDto[]> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -22,3 +22,5 @@ export class GetExperiencesUseCase implements IGetExperiencesUseCase {
     return experiences.map(exp => SeekerProfileMapper.experienceToDto(exp));
   }
 }
+
+

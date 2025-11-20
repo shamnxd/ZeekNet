@@ -13,7 +13,7 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
   ) {}
 
   async execute(userId: string, applicationId: string, interviewId: string): Promise<JobApplication> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -45,4 +45,5 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
     return updatedApplication;
   }
 }
+
 

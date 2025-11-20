@@ -38,7 +38,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('This job posting has been blocked');
     }
 
-    const existingApplication = await this._jobApplicationRepository.checkDuplicateApplication(seekerId, data.job_id);
+    const existingApplication = await this._jobApplicationRepository.findOne({ seeker_id: seekerId, job_id: data.job_id });
     if (existingApplication) {
       throw new ValidationError('You have already applied for this job');
     }
@@ -50,14 +50,17 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       cover_letter: data.cover_letter,
       resume_url: data.resume_url,
       resume_filename: data.resume_filename,
+      stage: 'applied',
+      interviews: [],
+      applied_date: new Date(),
     });
 
     // Increment application count
     await this._jobPostingRepository.update(data.job_id, { 
-      application_count: job.application_count + 1 
+      application_count: job.application_count + 1, 
     });
 
-    const companyProfile = await this._companyProfileRepository.getProfileById(job.company_id);
+    const companyProfile = await this._companyProfileRepository.findById(job.company_id);
     if (companyProfile) {
       // Send notification to company user
       await notificationService.sendNotification(
@@ -79,4 +82,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     return application;
   }
 }
+
+
 

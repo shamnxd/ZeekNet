@@ -13,7 +13,7 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
   ) {}
 
   async execute(userId: string, applicationId: string, score: number): Promise<JobApplication> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -44,4 +44,5 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
     return updatedApplication;
   }
 }
+
 

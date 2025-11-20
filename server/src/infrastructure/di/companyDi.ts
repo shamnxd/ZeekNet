@@ -1,6 +1,5 @@
 import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
 import { CompanyContactRepository } from '../database/mongodb/repositories/company-contact.repository';
-import { CompanyListingRepository } from '../database/mongodb/repositories/company-listing.repository';
 import { CompanyVerificationRepository } from '../database/mongodb/repositories/company-verification.repository';
 import { CompanyTechStackRepository } from '../database/mongodb/repositories/company-tech-stack.repository';
 import { CompanyOfficeLocationRepository } from '../database/mongodb/repositories/company-office-location.repository';
@@ -58,7 +57,6 @@ import { AddInterviewFeedbackUseCase } from '../../application/use-cases/company
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
-const companyListingRepository = new CompanyListingRepository();
 const companyVerificationRepository = new CompanyVerificationRepository();
 const companyTechStackRepository = new CompanyTechStackRepository();
 const companyOfficeLocationRepository = new CompanyOfficeLocationRepository();
@@ -180,4 +178,4 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   s3Service,
 );
 
-export { companyController, companyJobPostingController, companyJobApplicationController, companyProfileRepository, companyProfileRepository as companyRepository, companyListingRepository, companyVerificationRepository };
+export { companyController, companyJobPostingController, companyJobApplicationController, companyProfileRepository, companyProfileRepository as companyRepository, companyVerificationRepository };

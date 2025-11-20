@@ -35,13 +35,13 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       // Apply filters in use case
       if (query.category_ids && query.category_ids.length > 0) {
         jobs = jobs.filter(job => 
-          job.category_ids.some(cat => query.category_ids!.includes(cat))
+          job.category_ids.some(cat => query.category_ids!.includes(cat)),
         );
       }
 
       if (query.employment_types && query.employment_types.length > 0) {
         jobs = jobs.filter(job => 
-          job.employment_types.some(type => query.employment_types!.includes(type as any))
+          job.employment_types.some(type => query.employment_types!.includes(type as any)),
         );
       }
 
@@ -55,7 +55,7 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
 
       if (query.location) {
         jobs = jobs.filter(job => 
-          job.location.toLowerCase().includes(query.location!.toLowerCase())
+          job.location.toLowerCase().includes(query.location!.toLowerCase()),
         );
       }
 
@@ -64,7 +64,7 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
         jobs = jobs.filter(job => 
           job.title.toLowerCase().includes(searchLower) ||
           job.description.toLowerCase().includes(searchLower) ||
-          job.location.toLowerCase().includes(searchLower)
+          job.location.toLowerCase().includes(searchLower),
         );
       }
 

@@ -16,3 +16,4 @@ export class IncrementJobViewCountUseCase {
     }
   }
 }
+

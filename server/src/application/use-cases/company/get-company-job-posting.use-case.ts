@@ -22,3 +22,4 @@ export class GetCompanyJobPostingUseCase {
     return jobPosting;
   }
 }
+

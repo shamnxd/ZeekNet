@@ -9,7 +9,7 @@ export class RemoveResumeUseCase implements IRemoveResumeUseCase {
 
   async execute(userId: string): Promise<void> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -21,3 +21,5 @@ export class RemoveResumeUseCase implements IRemoveResumeUseCase {
     await this._seekerProfileRepository.removeResume(userId);
   }
 }
+
+

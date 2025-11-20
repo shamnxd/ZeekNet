@@ -18,6 +18,6 @@ export class CreateSkillUseCase implements ICreateSkillUseCase {
       throw new AppError('Skill with this name already exists', 409);
     }
 
-    return await this._skillRepository.create({ name: normalizedName });
+    return await this._skillRepository.create({ name: normalizedName } as Omit<Skill, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
   }
 }

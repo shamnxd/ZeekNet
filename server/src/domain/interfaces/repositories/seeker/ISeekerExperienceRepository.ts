@@ -1,10 +1,9 @@
 import { Experience } from '../../../entities/seeker-profile.entity';
 
 export interface ISeekerExperienceRepository {
-  create(seekerProfileId: string, experience: Omit<Experience, 'id'>): Promise<Experience>;
-  findById(experienceId: string): Promise<Experience | null>;
-  findBySeekerProfileId(seekerProfileId: string): Promise<Experience[]>;
-  update(experienceId: string, updates: Partial<Experience>): Promise<Experience>;
-  delete(experienceId: string): Promise<void>;
-  deleteBySeekerProfileId(seekerProfileId: string): Promise<void>;
+  createForProfile(seekerProfileId: string, experience: Omit<Experience, 'id'>): Promise<Experience>;
+  findById(id: string): Promise<Experience | null>;
+  findMany(filter: Record<string, unknown>): Promise<Experience[]>;
+  update(id: string, data: Partial<Experience>): Promise<Experience | null>;
+  delete(id: string): Promise<boolean>;
 }

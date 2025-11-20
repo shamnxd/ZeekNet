@@ -20,3 +20,4 @@ export class GetJobPostingUseCase implements IGetJobPostingUseCase {
     return jobPosting;
   }
 }
+

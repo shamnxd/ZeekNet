@@ -13,7 +13,7 @@ export class AddEducationUseCase implements IAddEducationUseCase {
 
   async execute(userId: string, data: AddEducationData): Promise<EducationResponseDto> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -22,7 +22,7 @@ export class AddEducationUseCase implements IAddEducationUseCase {
       throw new ValidationError('End date must be after start date');
     }
 
-    const education = await this._seekerEducationRepository.create(profile.id, {
+    const education = await this._seekerEducationRepository.createForProfile(profile.id, {
       school: data.school,
       degree: data.degree,
       fieldOfStudy: data.fieldOfStudy,
@@ -34,3 +34,5 @@ export class AddEducationUseCase implements IAddEducationUseCase {
     return SeekerProfileMapper.educationToDto(education);
   }
 }
+
+
