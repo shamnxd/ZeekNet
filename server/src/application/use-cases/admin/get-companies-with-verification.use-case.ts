@@ -31,8 +31,6 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
       result.companies.map(async (company: CompanyProfile) => {
         const verification = await this._companyVerificationRepository.findOne({ companyId: company.id });
 
-        const companyData = company.toJSON();
-
         let businessLicenseUrl: string | undefined;
         if (verification?.businessLicenseUrl) {
           try {
@@ -45,19 +43,19 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
         }
 
         return {
-          id: companyData.id as string,
-          userId: companyData.userId as string,
-          companyName: companyData.companyName as string,
-          logo: companyData.logo as string,
-          websiteLink: companyData.websiteLink as string,
-          employeeCount: companyData.employeeCount as number,
-          industry: companyData.industry as string,
-          organisation: companyData.organisation as string,
-          aboutUs: companyData.aboutUs as string,
-          isVerified: companyData.isVerified as 'pending' | 'rejected' | 'verified',
-          isBlocked: (companyData.userIsBlocked as boolean) ?? false,
-          createdAt: companyData.createdAt as string,
-          updatedAt: companyData.updatedAt as string,
+          id: company.id,
+          userId: company.userId,
+          companyName: company.companyName,
+          logo: company.logo,
+          websiteLink: company.websiteLink,
+          employeeCount: company.employeeCount,
+          industry: company.industry,
+          organisation: company.organisation,
+          aboutUs: company.aboutUs,
+          isVerified: company.isVerified,
+          isBlocked: company.isBlocked,
+          createdAt: company.createdAt.toISOString(),
+          updatedAt: company.updatedAt.toISOString(),
           ...(verification && {
             verification: {
               taxId: verification.taxId,
