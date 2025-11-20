@@ -12,9 +12,9 @@ export class GetCompanyJobPostingUseCase {
       throw new AppError('Job posting not found', 404);
     }
 
-    if (jobPosting.company_id !== companyId) {
+    if (jobPosting.companyId !== companyId) {
       
-      if (jobPosting.admin_blocked) {
+      if (jobPosting.adminBlocked) {
         throw new AppError('Job posting not found', 404);
       }
     }

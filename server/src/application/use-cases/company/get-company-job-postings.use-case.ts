@@ -19,9 +19,9 @@ export class GetCompanyJobPostingsUseCase {
       }
 
       // Build filter criteria
-      const criteria: Partial<any> = { company_id: companyProfile.id };
+      const criteria: Partial<any> = { companyId: companyProfile.id };
       if (query.is_active !== undefined) {
-        criteria.is_active = query.is_active;
+        criteria.isActive = query.is_active;
       }
 
       // Get jobs using thin repository
@@ -30,13 +30,13 @@ export class GetCompanyJobPostingsUseCase {
       // Apply filters in use case
       if (query.category_ids && query.category_ids.length > 0) {
         jobs = jobs.filter(job => 
-          job.category_ids.some(cat => query.category_ids!.includes(cat)),
+          job.categoryIds.some(cat => query.category_ids!.includes(cat)),
         );
       }
 
       if (query.employment_types && query.employment_types.length > 0) {
         jobs = jobs.filter(job => 
-          job.employment_types.some(type => query.employment_types!.includes(type as any)),
+          job.employmentTypes.some(type => query.employment_types!.includes(type as any)),
         );
       }
 
