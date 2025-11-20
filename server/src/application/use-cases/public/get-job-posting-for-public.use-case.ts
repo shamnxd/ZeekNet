@@ -19,40 +19,40 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       }
 
       // Business logic: Check if job is visible to public
-      if (jobPosting.admin_blocked) {
+      if (jobPosting.adminBlocked) {
         throw new AppError('Job posting not found', 404);
       }
 
-      if (!jobPosting.is_active) {
+      if (!jobPosting.isActive) {
         throw new AppError('Job posting not found', 404);
       }
 
       // Increment view count
       await this._jobPostingRepository.update(jobId, { 
-        view_count: jobPosting.view_count + 1, 
+        viewCount: jobPosting.viewCount + 1, 
       });
 
       // Build detailed response DTO (business logic in use case)
-      const company = await this.getCompanyDetails(jobPosting.company_id);
+      const company = await this.getCompanyDetails(jobPosting.companyId);
 
       return {
-        id: jobPosting._id,
+        id: jobPosting.id,
         title: jobPosting.title,
         description: jobPosting.description,
         responsibilities: jobPosting.responsibilities,
         qualifications: jobPosting.qualifications,
-        nice_to_haves: jobPosting.nice_to_haves,
+        nice_to_haves: jobPosting.niceToHaves,
         benefits: jobPosting.benefits,
         salary: jobPosting.salary,
-        employment_types: jobPosting.employment_types,
+        employment_types: jobPosting.employmentTypes,
         location: jobPosting.location,
-        skills_required: jobPosting.skills_required,
-        category_ids: jobPosting.category_ids,
-        is_active: jobPosting.is_active,
-        admin_blocked: jobPosting.admin_blocked,
-        unpublish_reason: jobPosting.unpublish_reason,
-        view_count: jobPosting.view_count + 1,
-        application_count: jobPosting.application_count,
+        skills_required: jobPosting.skillsRequired,
+        category_ids: jobPosting.categoryIds,
+        is_active: jobPosting.isActive,
+        admin_blocked: jobPosting.adminBlocked,
+        unpublish_reason: jobPosting.unpublishReason,
+        view_count: jobPosting.viewCount + 1,
+        application_count: jobPosting.applicationCount,
         createdAt: jobPosting.createdAt?.toISOString() || new Date().toISOString(),
         updatedAt: jobPosting.updatedAt?.toISOString() || new Date().toISOString(),
         company,

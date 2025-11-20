@@ -9,35 +9,35 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   async execute(query: JobPostingFilters): Promise<PaginatedJobPostings> {
     try {
       // Build criteria for active, non-blocked jobs
-      const criteria: Partial<any> = {
-        is_active: query.is_active ?? true,
+      const criteria: Record<string, unknown> = {
+        isActive: query.isActive ?? true,
       };
 
       // Get jobs using thin repository
       let jobs = await this._jobPostingRepository.findMany(criteria);
 
       // Filter out admin-blocked jobs
-      jobs = jobs.filter(job => !job.admin_blocked);
+      jobs = jobs.filter(job => !job.adminBlocked);
 
       // Apply additional filters in use case
-      if (query.category_ids && query.category_ids.length > 0) {
+      if (query.categoryIds && query.categoryIds.length > 0) {
         jobs = jobs.filter(job => 
-          job.category_ids.some(cat => query.category_ids!.includes(cat)),
+          job.categoryIds.some((cat: string) => query.categoryIds!.includes(cat)),
         );
       }
 
-      if (query.employment_types && query.employment_types.length > 0) {
+      if (query.employmentTypes && query.employmentTypes.length > 0) {
         jobs = jobs.filter(job => 
-          job.employment_types.some(type => query.employment_types!.includes(type as any)),
+          job.employmentTypes.some((type: string) => query.employmentTypes!.includes(type)),
         );
       }
 
-      if (query.salary_min !== undefined) {
-        jobs = jobs.filter(job => job.salary.min >= query.salary_min!);
+      if (query.salaryMin !== undefined) {
+        jobs = jobs.filter(job => job.salary.min >= query.salaryMin!);
       }
 
-      if (query.salary_max !== undefined) {
-        jobs = jobs.filter(job => job.salary.max <= query.salary_max!);
+      if (query.salaryMax !== undefined) {
+        jobs = jobs.filter(job => job.salary.max <= query.salaryMax!);
       }
 
       if (query.location) {

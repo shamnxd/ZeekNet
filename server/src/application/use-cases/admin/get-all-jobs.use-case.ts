@@ -28,7 +28,7 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   async execute(query: GetAllJobsQuery) {
     try {
       // Build criteria
-      const criteria: Partial<any> = {};
+      const criteria: Record<string, unknown> = {};
       if (query.is_active !== undefined) {
         criteria.isActive = query.is_active;
       }
@@ -45,7 +45,7 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
 
       if (query.employment_types && query.employment_types.length > 0) {
         jobs = jobs.filter(job => 
-          job.employmentTypes.some(type => query.employment_types!.includes(type as any)),
+          job.employmentTypes.some(type => query.employment_types!.includes(type)),
         );
       }
 
@@ -76,12 +76,12 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       const sortBy = query.sortBy || 'createdAt';
       const sortOrder = query.sortOrder || 'desc';
       jobs.sort((a, b) => {
-        const aValue = (a as any)[sortBy];
-        const bValue = (b as any)[sortBy];
+        const aValue = (a as unknown as Record<string, unknown>)[sortBy];
+        const bValue = (b as unknown as Record<string, unknown>)[sortBy];
         if (sortOrder === 'asc') {
-          return aValue > bValue ? 1 : -1;
+          return (aValue as number | string) > (bValue as number | string) ? 1 : -1;
         } else {
-          return aValue < bValue ? 1 : -1;
+          return (aValue as number | string) < (bValue as number | string) ? 1 : -1;
         }
       });
 
@@ -95,16 +95,16 @@ export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       // Fetch company data for paginated jobs
       const companyIds = [...new Set(paginatedJobs.map(job => job.companyId))];
       const companies = await Promise.all(
-        companyIds.map(id => this._companyProfileRepository.findById(id))
+        companyIds.map(id => this._companyProfileRepository.findById(id)),
       );
       
       const companyMap = new Map(
-        companies.filter(c => c !== null).map(c => [c!.id, { companyName: c!.companyName, logo: c!.logo }])
+        companies.filter(c => c !== null).map(c => [c!.id, { companyName: c!.companyName, logo: c!.logo }]),
       );
 
       // Map to DTOs with company data
       const jobDtos: JobPostingResponseDto[] = paginatedJobs.map(job => 
-        JobPostingMapper.toDto(job, companyMap.get(job.companyId))
+        JobPostingMapper.toDto(job, companyMap.get(job.companyId)),
       );
 
       return {

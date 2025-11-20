@@ -19,7 +19,7 @@ export class GetCompanyJobPostingsUseCase {
       }
 
       // Build filter criteria
-      const criteria: Partial<any> = { companyId: companyProfile.id };
+      const criteria: Record<string, unknown> = { companyId: companyProfile.id };
       if (query.is_active !== undefined) {
         criteria.isActive = query.is_active;
       }
@@ -36,7 +36,7 @@ export class GetCompanyJobPostingsUseCase {
 
       if (query.employment_types && query.employment_types.length > 0) {
         jobs = jobs.filter(job => 
-          job.employmentTypes.some(type => query.employment_types!.includes(type as any)),
+          job.employmentTypes.some(type => (query.employment_types as string[]).includes(type)),
         );
       }
 

@@ -8,7 +8,7 @@ export class IncrementJobViewCountUseCase {
       if (userRole === 'seeker') {
         const job = await this._jobPostingRepository.findById(id);
         if (job) {
-          await this._jobPostingRepository.update(id, { view_count: job.view_count + 1 });
+          await this._jobPostingRepository.update(id, { viewCount: job.viewCount + 1 });
         }
       }
     } catch (error) {

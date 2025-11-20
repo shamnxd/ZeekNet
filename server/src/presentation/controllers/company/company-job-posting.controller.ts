@@ -33,7 +33,7 @@ export class CompanyJobPostingController {
         return;
       }
 
-      const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+      const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
         badRequest(res, 'Company profile not found');
         return;
@@ -58,7 +58,7 @@ export class CompanyJobPostingController {
         return;
       }
 
-      const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+      const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
         badRequest(res, 'Company profile not found');
         return;

@@ -21,10 +21,10 @@ export class DeleteJobPostingUseCase {
       throw new AppError('Job posting not found', 404);
     }
 
-    if (!existingJob.company_id || existingJob.company_id === '') {
-      await this._jobPostingRepository.update(id, { company_id: companyProfile.id });
-    } else if (existingJob.company_id !== companyProfile.id) {
-      if (existingJob.company_id !== userId) {
+    if (!existingJob.companyId || existingJob.companyId === '') {
+      await this._jobPostingRepository.update(id, { companyId: companyProfile.id });
+    } else if (existingJob.companyId !== companyProfile.id) {
+      if (existingJob.companyId !== userId) {
         throw new AppError('Unauthorized to delete this job posting', 403);
       }
     }

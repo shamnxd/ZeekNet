@@ -22,7 +22,7 @@ export class JobPostingMapper {
 
   static toDto(
     domain: JobPosting,
-    companyData?: { companyName: string; logo: string }
+    companyData?: { companyName: string; logo: string },
   ): JobPostingResponseDto {
     return {
       id: domain.id,
