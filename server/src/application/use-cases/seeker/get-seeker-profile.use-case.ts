@@ -30,10 +30,19 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     if (!profile) {
       profile = await this._seekerProfileRepository.create({
         userId,
-        
+        headline: null,
+        summary: null,
+        location: null,
+        phone: null,
+        email: null,
+        avatarFileName: null,
+        bannerFileName: null,
+        dateOfBirth: null,
+        gender: null,
         skills: [],
         languages: [],
         socialLinks: [],
+        resume: null,
       });
     }
 

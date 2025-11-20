@@ -45,6 +45,11 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
     }
 
     const updatedExperience = await this._seekerExperienceRepository.update(experienceId, data);
+    
+    if (!updatedExperience) {
+      throw new NotFoundError('Failed to update experience');
+    }
+    
     return SeekerProfileMapper.experienceToDto(updatedExperience);
   }
 }

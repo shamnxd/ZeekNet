@@ -30,7 +30,7 @@ export class SeekerExperienceRepository extends RepositoryBase<Experience, Seeke
 
   async findBySeekerProfileId(seekerProfileId: string): Promise<Experience[]> {
     const docs = await SeekerExperienceModel.find({ 
-      seekerProfileId: new Types.ObjectId(seekerProfileId) 
+      seekerProfileId: new Types.ObjectId(seekerProfileId), 
     }).sort({ startDate: -1 });
     
     return docs.map(doc => this.mapToEntity(doc));

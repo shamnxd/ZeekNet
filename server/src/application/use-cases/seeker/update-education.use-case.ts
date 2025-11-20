@@ -41,6 +41,11 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
     }
 
     const updatedEducation = await this._seekerEducationRepository.update(educationId, data);
+    
+    if (!updatedEducation) {
+      throw new NotFoundError('Failed to update education');
+    }
+    
     return SeekerProfileMapper.educationToDto(updatedEducation);
   }
 }

@@ -18,7 +18,8 @@ export class RemoveResumeUseCase implements IRemoveResumeUseCase {
       throw new NotFoundError('No resume found to remove');
     }
 
-    await this._seekerProfileRepository.removeResume(userId);
+    // Use update method from base repository to set resume to null
+    await this._seekerProfileRepository.update(profile.id, { resume: null });
   }
 }
 

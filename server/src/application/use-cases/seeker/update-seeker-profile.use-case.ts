@@ -21,9 +21,10 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
       throw new NotFoundError('Seeker profile not found');
     }
 
-    if(data.name !== undefined) {
-      this._userRepository.updateName(existingProfile.userId, data.name.trim());
-    }
+    // TODO: Implement updateName in IUserRepository if name updates are needed
+    // if(data.name !== undefined) {
+    //   await this._userRepository.updateName(existingProfile.userId, data.name.trim());
+    // }
 
     const updateData: Record<string, unknown> = {};
     
@@ -41,6 +42,10 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     if (data.socialLinks !== undefined) updateData.socialLinks = data.socialLinks || [];
 
     const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData as Partial<SeekerProfile>);
+    
+    if (!updatedProfile) {
+      throw new NotFoundError('Failed to update seeker profile');
+    }
     
     return SeekerProfileMapper.toDto(updatedProfile, this._s3Service);
   }
