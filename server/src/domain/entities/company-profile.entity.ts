@@ -56,7 +56,7 @@ export class CompanyProfile {
       data.isVerified ?? 'pending',
       data.createdAt ?? now,
       data.updatedAt ?? now,
-      data.email,
+      data.email ?? '',
       data.isBlocked ?? false,
       data.foundedDate,
       data.phone,

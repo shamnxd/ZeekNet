@@ -10,11 +10,11 @@ export interface JobCategoryDocument extends Document {
 
 export class JobCategoryMapper {
   static toEntity(doc: JobCategoryDocument): JobCategory {
-    return new JobCategory(
-      String(doc._id),
-      doc.name,
-      doc.createdAt,
-      doc.updatedAt,
-    );
+    return JobCategory.create({
+      id: String(doc._id),
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
   }
 }
