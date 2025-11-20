@@ -1,5 +1,6 @@
 import { SimpleCompanyProfileRequestDto } from '../dto/company/create-company.dto';
-import { CompanyProfile, CompanyVerification } from '../../domain/entities/company-profile.entity';
+import { CompanyProfile } from '../../domain/entities/company-profile.entity';
+import { CompanyVerification } from '../../domain/entities/company-verification.entity';
 import { CompanyContact } from '../../domain/entities/company-contact.entity';
 import { CompanyTechStack } from '../../domain/entities/company-tech-stack.entity';
 import { CompanyOfficeLocation } from '../../domain/entities/company-office-location.entity';
@@ -112,14 +113,14 @@ export class CompanyProfileMapper {
       })),
       jobPostings: domain.jobPostings
         ? domain.jobPostings.map((job) => ({
-          id: job._id,
+          id: job.id,
           title: job.title,
           description: job.description,
           location: job.location,
-          employmentType: job.employment_types?.[0] || '',
+          employmentType: job.employmentTypes?.[0] || '',
           salaryMin: job.salary?.min,
           salaryMax: job.salary?.max,
-          isActive: job.is_active,
+          isActive: job.isActive,
           createdAt: job.createdAt.toISOString(),
           updatedAt: job.updatedAt.toISOString(),
         }))
