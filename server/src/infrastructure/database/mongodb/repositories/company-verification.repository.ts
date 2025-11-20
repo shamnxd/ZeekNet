@@ -1,5 +1,5 @@
 import { ICompanyVerificationRepository } from '../../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
-import { CompanyVerification } from '../../../../domain/entities/company-profile.entity';
+import { CompanyVerification } from '../../../../domain/entities/company-verification.entity';
 import { CompanyVerificationModel, CompanyVerificationDocument } from '../models/company-verification.model';
 import { CompanyProfileModel } from '../models/company-profile.model';
 import { CompanyVerificationMapper } from '../mappers/company-verification.mapper';

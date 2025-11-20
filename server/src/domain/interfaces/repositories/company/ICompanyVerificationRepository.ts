@@ -1,4 +1,4 @@
-import { CompanyVerification } from '../../../entities/company-profile.entity';
+import { CompanyVerification } from '../../../entities/company-verification.entity';
 import { IBaseRepository } from '../IBaseRepository';
 
 export interface ICompanyVerificationRepository extends IBaseRepository<CompanyVerification> {

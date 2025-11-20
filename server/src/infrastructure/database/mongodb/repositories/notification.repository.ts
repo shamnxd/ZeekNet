@@ -17,12 +17,12 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
   protected mapToDocument(entity: Partial<Notification>): Partial<NotificationDocument> {
     const doc: Partial<NotificationDocument> = {};
 
-    if (entity.user_id !== undefined) doc.user_id = new Types.ObjectId(entity.user_id);
+    if (entity.userId !== undefined) doc.user_id = new Types.ObjectId(entity.userId);
     if (entity.type !== undefined) doc.type = entity.type;
     if (entity.title !== undefined) doc.title = entity.title;
     if (entity.message !== undefined) doc.message = entity.message;
     if (entity.data !== undefined) doc.data = entity.data;
-    if (entity.is_read !== undefined) doc.is_read = entity.is_read;
+    if (entity.isRead !== undefined) doc.is_read = entity.isRead;
 
     return doc;
   }
