@@ -11,7 +11,7 @@ import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.en
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
-import { CompanyVerification } from '../../../domain/entities/company-profile.entity';
+import { CompanyVerification } from '../../../domain/entities/company-verification.entity';
 
 interface CompanyProfileWithDetails {
   profile: CompanyProfile;
