@@ -107,10 +107,14 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
         } as ModelDocument;
         const entity = this.mapToEntity(docForMapper);
 
-        entity.email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
-        entity.isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
+        const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
+        const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
 
-        return entity;
+        return CompanyProfile.create({
+          ...entity,
+          email,
+          isBlocked,
+        });
       });
 
       return { companies, total };
@@ -161,10 +165,14 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
         } as ModelDocument;
         const entity = this.mapToEntity(docForMapper);
 
-        entity.email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
-        entity.isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
+        const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
+        const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
 
-        return entity;
+        return CompanyProfile.create({
+          ...entity,
+          email,
+          isBlocked,
+        });
       });
 
       return { companies, total };
