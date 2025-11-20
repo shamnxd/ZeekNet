@@ -27,7 +27,8 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
     return doc;
   }
 
-  // Override to match interface signature
+  // Override to match interface signature with custom CreateNotificationData
+  // @ts-expect-error - INotificationRepository uses Omit to allow custom create signature
   async create(data: CreateNotificationData): Promise<Notification> {
     const notification = new NotificationModel({
       user_id: new Types.ObjectId(data.user_id),
@@ -55,7 +56,7 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
     const notification = await NotificationModel.findOneAndUpdate(
       { _id: notificationId, user_id: new Types.ObjectId(userId) },
       { is_read: true },
-      { new: true }
+      { new: true },
     );
     
     return notification ? this.mapToEntity(notification) : null;
@@ -64,14 +65,14 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
   async markAllAsRead(userId: string): Promise<void> {
     await NotificationModel.updateMany(
       { user_id: new Types.ObjectId(userId), is_read: false },
-      { is_read: true }
+      { is_read: true },
     );
   }
 
   async getUnreadCount(userId: string): Promise<number> {
     return await NotificationModel.countDocuments({
       user_id: new Types.ObjectId(userId),
-      is_read: false
+      is_read: false,
     });
   }
 }

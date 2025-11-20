@@ -1,6 +1,6 @@
 import { Notification } from '../../../entities/notification.entity';
 import { IBaseRepository } from '../IBaseRepository';
-import { NotificationType } from '../../../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationType } from '../../../entities/notification.entity';
 
 export interface CreateNotificationData {
   user_id: string;
