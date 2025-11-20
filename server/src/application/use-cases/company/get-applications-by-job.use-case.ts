@@ -37,7 +37,7 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only view applications for your own job postings');
     }
 

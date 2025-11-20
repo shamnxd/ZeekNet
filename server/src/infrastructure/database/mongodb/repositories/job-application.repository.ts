@@ -30,7 +30,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findByIdAndUpdate(
       applicationId,
       { $push: { interviews: interview }, updatedAt: new Date() },
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -43,10 +43,10 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         $set: { 
           'interviews.$.feedback': feedbackData,
           'interviews.$.updated_at': new Date(),
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       },
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -57,9 +57,9 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
       applicationId,
       { 
         $pull: { interviews: { id: interviewId } },
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -76,7 +76,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findOneAndUpdate(
       { _id: applicationId, 'interviews.id': interviewId },
       { $set: updateFields },
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -92,7 +92,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         .skip(skip)
         .limit(filters.limit)
         .sort({ applied_date: -1 }),
-      JobApplicationModel.countDocuments(query)
+      JobApplicationModel.countDocuments(query),
     ]);
 
     return {
@@ -101,8 +101,8 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         total,
         page: filters.page,
         limit: filters.limit,
-        totalPages: Math.ceil(total / filters.limit)
-      }
+        totalPages: Math.ceil(total / filters.limit),
+      },
     };
   }
 
@@ -116,7 +116,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         .skip(skip)
         .limit(filters.limit)
         .sort({ applied_date: -1 }),
-      JobApplicationModel.countDocuments(query)
+      JobApplicationModel.countDocuments(query),
     ]);
 
     return {
@@ -125,8 +125,8 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         total,
         page: filters.page,
         limit: filters.limit,
-        totalPages: Math.ceil(total / filters.limit)
-      }
+        totalPages: Math.ceil(total / filters.limit),
+      },
     };
   }
 
@@ -134,7 +134,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findByIdAndUpdate(
       applicationId,
       { score, updatedAt: new Date() },
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -149,7 +149,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findByIdAndUpdate(
       applicationId,
       updateData,
-      { new: true }
+      { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
@@ -165,7 +165,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         .skip(skip)
         .limit(filters.limit)
         .sort({ applied_date: -1 }),
-      JobApplicationModel.countDocuments(query)
+      JobApplicationModel.countDocuments(query),
     ]);
 
     return {
@@ -174,8 +174,8 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
         total,
         page: filters.page,
         limit: filters.limit,
-        totalPages: Math.ceil(total / filters.limit)
-      }
+        totalPages: Math.ceil(total / filters.limit),
+      },
     };
   }
 }

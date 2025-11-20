@@ -98,12 +98,12 @@ export class SeekerJobApplicationController {
 
       const applications: JobApplicationListResponseDto[] = [];
       for (const app of result.applications) {
-        const job = await this._jobPostingRepository.findById(app.job_id);
+        const job = await this._jobPostingRepository.findById(app.jobId);
         applications.push(
           JobApplicationMapper.toListDto(app, {
             jobTitle: job?.title,
-            companyName: job?.company_name,
-            companyLogo: job?.company_logo,
+            companyName: job?.companyName,
+            companyLogo: job?.companyLogo,
           }),
         );
       }

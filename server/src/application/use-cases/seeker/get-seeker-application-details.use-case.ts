@@ -12,7 +12,7 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
       throw new NotFoundError('Application not found');
     }
 
-    if (application.seeker_id !== seekerId) {
+    if (application.seekerId !== seekerId) {
       throw new ValidationError('You can only view your own applications');
     }
 

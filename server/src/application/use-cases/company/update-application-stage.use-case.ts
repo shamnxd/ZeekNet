@@ -6,7 +6,7 @@ import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-c
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
   constructor(
@@ -32,11 +32,11 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only update applications for your own job postings');
     }
 
@@ -70,12 +70,12 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       await notificationService.sendNotification(
         this._notificationRepository,
         {
-          user_id: application.seeker_id,
-          type: NotificationType.APPLICATION_STATUS_CHANGED,
+          user_id: application.seekerId,
+          type: NotificationType.APPLICATION_STATUS,
           title: notification.title,
           message: notification.message,
           data: {
-            job_id: job._id,
+            job_id: job.id,
             application_id: application.id,
             stage: stage,
             job_title: job.title,

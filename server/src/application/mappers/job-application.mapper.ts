@@ -9,6 +9,7 @@ import { CreateJobApplicationRequestDto } from '../dto/job-application/create-jo
 import { AddInterviewRequestDto } from '../dto/job-application/add-interview.dto';
 import { UpdateInterviewRequestDto } from '../dto/job-application/update-interview.dto';
 import { AddInterviewFeedbackRequestDto } from '../dto/job-application/add-interview-feedback.dto';
+import { AddInterviewFeedbackData } from '../../domain/interfaces/use-cases/IJobApplicationUseCases';
 
 export class JobApplicationMapper {
   static toListDto(
@@ -190,12 +191,11 @@ export class JobApplicationMapper {
     return data;
   }
 
-  static feedbackDataFromDto(dto: AddInterviewFeedbackRequestDto): InterviewFeedback {
+  static feedbackDataFromDto(dto: AddInterviewFeedbackRequestDto): AddInterviewFeedbackData {
     return {
-      reviewerName: dto.reviewer_name,
+      reviewer_name: dto.reviewer_name,
       rating: dto.rating,
       comment: dto.comment,
-      reviewedAt: new Date(),
     };
   }
 }

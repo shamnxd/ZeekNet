@@ -81,9 +81,9 @@ export class CompanyJobApplicationController {
       const applications: JobApplicationListResponseDto[] = [];
       for (const app of result.applications) {
         const [user, job, profile] = await Promise.all([
-          this._userRepository.findById(app.seeker_id),
-          this._jobPostingRepository.findById(app.job_id),
-          this._seekerProfileRepository.getProfileByUserId(app.seeker_id),
+          this._userRepository.findById(app.seekerId),
+          this._jobPostingRepository.findById(app.jobId),
+          this._seekerProfileRepository.findOne({ userId: app.seekerId }),
         ]);
         applications.push(
           JobApplicationMapper.toListDto(app, {
@@ -113,9 +113,9 @@ export class CompanyJobApplicationController {
       const application = await this._getApplicationDetailsUseCase.execute(userId, id);
 
       const [user, profile, job] = await Promise.all([
-        this._userRepository.findById(application.seeker_id),
-        this._seekerProfileRepository.getProfileByUserId(application.seeker_id),
-        this._jobPostingRepository.findById(application.job_id),
+        this._userRepository.findById(application.seekerId),
+        this._seekerProfileRepository.findOne({ userId: application.seekerId }),
+        this._jobPostingRepository.findById(application.jobId),
       ]);
 
       let experiences: Array<{ title: string; company: string; startDate: Date; endDate?: Date; location?: string; description?: string; }> = [];
@@ -161,9 +161,9 @@ export class CompanyJobApplicationController {
         },
         {
           title: job?.title,
-          companyName: job?.company_name,
+          companyName: job?.companyName,
           location: job?.location,
-          employmentTypes: job?.employment_types,
+          employmentTypes: job?.employmentTypes,
         },
       );
 

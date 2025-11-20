@@ -7,7 +7,7 @@ import { ICreateJobApplicationUseCase, CreateJobApplicationData } from '../../..
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -31,10 +31,10 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (!job.is_active) {
+    if (!job.isActive) {
       throw new ValidationError('This job posting is no longer active');
     }
-    if (job.admin_blocked) {
+    if (job.adminBlocked) {
       throw new ValidationError('This job posting has been blocked');
     }
 
@@ -44,34 +44,34 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
 
     const application = await this._jobApplicationRepository.create({
-      seeker_id: seekerId,
-      job_id: data.job_id,
-      company_id: job.company_id,
-      cover_letter: data.cover_letter,
-      resume_url: data.resume_url,
-      resume_filename: data.resume_filename,
+      seekerId: seekerId,
+      jobId: data.job_id,
+      companyId: job.companyId,
+      coverLetter: data.cover_letter,
+      resumeUrl: data.resume_url,
+      resumeFilename: data.resume_filename,
       stage: 'applied',
       interviews: [],
-      applied_date: new Date(),
+      appliedDate: new Date(),
     });
 
     // Increment application count
     await this._jobPostingRepository.update(data.job_id, { 
-      application_count: job.application_count + 1, 
+      applicationCount: job.applicationCount + 1, 
     });
 
-    const companyProfile = await this._companyProfileRepository.findById(job.company_id);
+    const companyProfile = await this._companyProfileRepository.findById(job.companyId);
     if (companyProfile) {
       // Send notification to company user
       await notificationService.sendNotification(
         this._notificationRepository,
         {
           user_id: companyProfile.userId,
-          type: NotificationType.JOB_APPLICATION_RECEIVED,
+          type: NotificationType.JOB_APPLICATION,
           title: 'New Job Application',
           message: `You have received a new application for ${job.title}`,
           data: {
-            job_id: job._id,
+            job_id: job.id,
             application_id: application.id,
             job_title: job.title,
           },
