@@ -14,17 +14,17 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
         throw new AppError('Job not found', 404);
       }
 
-      const updateData: { is_active: boolean; admin_blocked?: boolean; unpublish_reason?: string } = {
-        is_active: isActive,
+      const updateData: { isActive: boolean; adminBlocked?: boolean; unpublishReason?: string } = {
+        isActive: isActive,
       };
 
       if (!isActive && unpublishReason) {
-        updateData.admin_blocked = true;
-        updateData.unpublish_reason = unpublishReason;
+        updateData.adminBlocked = true;
+        updateData.unpublishReason = unpublishReason;
       } else if (isActive) {
         
-        updateData.admin_blocked = false;
-        updateData.unpublish_reason = undefined;
+        updateData.adminBlocked = false;
+        updateData.unpublishReason = undefined;
       }
 
       const updatedJob = await this._jobPostingRepository.update(jobId, updateData);

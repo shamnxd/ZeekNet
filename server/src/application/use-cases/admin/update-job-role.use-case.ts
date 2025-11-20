@@ -20,7 +20,7 @@ export class UpdateJobRoleUseCase implements IUpdateJobRoleUseCase {
 
     const jobRoleWithSameName = await this._jobRoleRepository.findByName(normalizedName);
     
-    if (jobRoleWithSameName && jobRoleWithSameName._id !== jobRoleId) {
+    if (jobRoleWithSameName && jobRoleWithSameName.id !== jobRoleId) {
       throw new AppError('Job role with this name already exists', 409);
     }
 
