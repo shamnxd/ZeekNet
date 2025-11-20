@@ -1,45 +1,78 @@
 export type ApplicationStage = 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
 
 export interface InterviewFeedback {
-  reviewer_name: string;
+  reviewerName: string;
   rating?: number;
   comment: string;
-  reviewed_at: Date;
+  reviewedAt: Date;
 }
 
 export interface InterviewSchedule {
   id?: string;
   date: Date;
   time: string;
-  interview_type: string;
+  interviewType: string;
   location: string;
-  interviewer_name?: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+  interviewerName?: string;
+  status: InterviewStatus;
   feedback?: InterviewFeedback;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface JobApplication {
-  id: string;
-  seeker_id: string;
-  job_id: string;
-  company_id: string;
+export class JobApplication {
+  constructor(
+    public readonly id: string,
+    public readonly seekerId: string,
+    public readonly jobId: string,
+    public readonly companyId: string,
+    public readonly coverLetter: string,
+    public readonly resumeUrl: string,
+    public readonly resumeFilename: string,
+    public readonly stage: ApplicationStage,
+    public readonly interviews: InterviewSchedule[],
+    public readonly appliedDate: Date,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    public readonly score?: number,
+    public readonly rejectionReason?: string,
+  ) {}
 
-  cover_letter: string;
-  resume_url: string;
-  resume_filename: string;
-
-  stage: ApplicationStage;
-  score?: number;
-
-  interviews: InterviewSchedule[];
-
-  rejection_reason?: string;
-
-  applied_date: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  static create(data: {
+    id: string;
+    seekerId: string;
+    jobId: string;
+    companyId: string;
+    coverLetter: string;
+    resumeUrl: string;
+    resumeFilename: string;
+    stage?: ApplicationStage;
+    interviews?: InterviewSchedule[];
+    appliedDate?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+    score?: number;
+    rejectionReason?: string;
+  }): JobApplication {
+    const now = new Date();
+    return new JobApplication(
+      data.id,
+      data.seekerId,
+      data.jobId,
+      data.companyId,
+      data.coverLetter,
+      data.resumeUrl,
+      data.resumeFilename,
+      data.stage ?? 'applied',
+      data.interviews ?? [],
+      data.appliedDate ?? now,
+      data.createdAt ?? now,
+      data.updatedAt ?? now,
+      data.score,
+      data.rejectionReason,
+    );
+  }
 }
 
 

@@ -1,16 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export class CompanyContact {
-  private constructor(
+  constructor(
     public readonly id: string,
     public readonly companyId: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public twitterLink?: string,
-    public facebookLink?: string,
-    public linkedin?: string,
-    public email?: string,
-    public phone?: string,
+    public readonly twitterLink?: string,
+    public readonly facebookLink?: string,
+    public readonly linkedin?: string,
+    public readonly email?: string,
+    public readonly phone?: string,
   ) {}
 
   static create(data: {

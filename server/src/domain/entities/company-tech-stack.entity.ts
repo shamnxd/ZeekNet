@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export class CompanyTechStack {
-  private constructor(
+  constructor(
     public readonly id: string,
     public readonly companyId: string,
-    public techStack: string,
+    public readonly techStack: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}

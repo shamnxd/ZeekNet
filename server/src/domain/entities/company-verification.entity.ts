@@ -1,32 +1,29 @@
-import { v4 as uuidv4 } from 'uuid';
-
-export class CompanyWorkplacePictures {
+export class CompanyVerification {
   constructor(
     public readonly id: string,
     public readonly companyId: string,
-    public readonly pictureUrl: string,
+    public readonly taxId: string,
+    public readonly businessLicenseUrl: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public readonly caption?: string,
   ) {}
 
   static create(data: {
-    id?: string;
+    id: string;
     companyId: string;
-    pictureUrl: string;
-    caption?: string;
+    taxId?: string;
+    businessLicenseUrl?: string;
     createdAt?: Date;
     updatedAt?: Date;
-  }): CompanyWorkplacePictures {
+  }): CompanyVerification {
     const now = new Date();
-    return new CompanyWorkplacePictures(
-      data.id || uuidv4(),
+    return new CompanyVerification(
+      data.id,
       data.companyId,
-      data.pictureUrl,
+      data.taxId ?? '',
+      data.businessLicenseUrl ?? '',
       data.createdAt ?? now,
       data.updatedAt ?? now,
-      data.caption,
     );
   }
-
 }

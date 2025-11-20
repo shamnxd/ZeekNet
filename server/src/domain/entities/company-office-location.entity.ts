@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export class CompanyOfficeLocation {
-  private constructor(
+  constructor(
     public readonly id: string,
     public readonly companyId: string,
-    public location: string,
-    public isHeadquarters: boolean,
+    public readonly location: string,
+    public readonly isHeadquarters: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public officeName?: string,
-    public address?: string,
+    public readonly officeName?: string,
+    public readonly address?: string,
   ) {}
 
   static create(data: {
