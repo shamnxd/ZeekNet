@@ -6,7 +6,7 @@ import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/in
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
@@ -28,11 +28,11 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
@@ -48,14 +48,14 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     if (interviewData.time !== undefined) {
       updateData.time = interviewData.time;
     }
-    if (interviewData.interview_type !== undefined) {
-      updateData.interview_type = interviewData.interview_type;
+    if (interviewData.interviewType !== undefined) {
+      updateData.interviewType = interviewData.interviewType;
     }
     if (interviewData.location !== undefined) {
       updateData.location = interviewData.location;
     }
-    if (interviewData.interviewer_name !== undefined) {
-      updateData.interviewer_name = interviewData.interviewer_name;
+    if (interviewData.interviewerName !== undefined) {
+      updateData.interviewerName = interviewData.interviewerName;
     }
     if (interviewData.status !== undefined) {
       updateData.status = interviewData.status;
@@ -73,19 +73,19 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       await notificationService.sendNotification(
         this._notificationRepository,
         {
-          user_id: application.seeker_id,
+          user_id: application.seekerId,
           type: NotificationType.INTERVIEW_SCHEDULED,
           title: 'Interview Updated',
           message: `Interview details for ${job.title} have been updated`,
           data: {
-            job_id: job._id,
+            job_id: job.id,
             application_id: application.id,
             interview_id: interviewId,
             interview_date: updatedInterview.date?.toISOString(),
             interview_time: updatedInterview.time,
-            interview_type: updatedInterview.interview_type,
+            interview_type: updatedInterview.interviewType,
             location: updatedInterview.location,
-            interviewer_name: updatedInterview.interviewer_name,
+            interviewer_name: updatedInterview.interviewerName,
             status: updatedInterview.status,
             job_title: job.title,
           },

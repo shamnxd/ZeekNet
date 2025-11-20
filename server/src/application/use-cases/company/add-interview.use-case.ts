@@ -6,7 +6,7 @@ import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfac
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {
   constructor(
@@ -43,9 +43,9 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     const updatedApplication = await this._jobApplicationRepository.addInterview(applicationId, {
       date: interviewDate,
       time: interviewData.time,
-      interviewType: interviewData.interview_type,
+      interviewType: interviewData.interviewType,
       location: interviewData.location,
-      interviewerName: interviewData.interviewer_name,
+      interviewerName: interviewData.interviewerName,
       status: 'scheduled',
     });
 
@@ -68,9 +68,9 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
           interview_id: newInterview.id,
           interview_date: interviewDate.toISOString(),
           interview_time: interviewData.time,
-          interview_type: interviewData.interview_type,
+          interview_type: interviewData.interviewType,
           location: interviewData.location,
-          interviewer_name: interviewData.interviewer_name,
+          interviewer_name: interviewData.interviewerName,
           job_title: job.title,
         },
       },
