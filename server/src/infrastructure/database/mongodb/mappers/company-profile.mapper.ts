@@ -20,4 +20,20 @@ export class CompanyProfileMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: CompanyProfile): Partial<CompanyProfileDocument> {
+    return {
+      userId: entity.userId,
+      companyName: entity.companyName,
+      logo: entity.logo,
+      banner: entity.banner,
+      websiteLink: entity.websiteLink,
+      employeeCount: entity.employeeCount,
+      industry: entity.industry,
+      organisation: entity.organisation,
+      aboutUs: entity.aboutUs,
+      isVerified: entity.isVerified,
+      rejectionReason: entity.rejectionReason,
+    };
+  }
 }

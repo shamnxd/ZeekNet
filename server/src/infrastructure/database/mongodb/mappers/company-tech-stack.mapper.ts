@@ -11,4 +11,11 @@ export class CompanyTechStackMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: CompanyTechStack): Partial<CompanyTechStackDocument> {
+    return {
+      companyId: entity.companyId,
+      techStack: entity.techStack,
+    };
+  }
 }

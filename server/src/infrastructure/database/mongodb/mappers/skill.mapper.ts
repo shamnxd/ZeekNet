@@ -10,4 +10,10 @@ export class SkillMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: Skill): Partial<SkillDocument> {
+    return {
+      name: entity.name,
+    };
+  }
 }

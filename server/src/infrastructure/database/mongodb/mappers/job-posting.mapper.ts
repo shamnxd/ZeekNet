@@ -1,5 +1,6 @@
 import { JobPosting } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
+import { Types } from 'mongoose';
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument): JobPosting {
@@ -25,5 +26,27 @@ export class JobPostingMapper {
       adminBlocked: doc.admin_blocked,
       unpublishReason: doc.unpublish_reason,
     });
+  }
+
+  static toDocument(entity: JobPosting): Partial<JobPostingDocument> {
+    return {
+      company_id: new Types.ObjectId(entity.companyId),
+      title: entity.title,
+      description: entity.description,
+      responsibilities: entity.responsibilities,
+      qualifications: entity.qualifications,
+      nice_to_haves: entity.niceToHaves,
+      benefits: entity.benefits,
+      salary: entity.salary,
+      employment_types: entity.employmentTypes,
+      location: entity.location,
+      skills_required: entity.skillsRequired,
+      category_ids: entity.categoryIds,
+      is_active: entity.isActive,
+      admin_blocked: entity.adminBlocked,
+      unpublish_reason: entity.unpublishReason,
+      view_count: entity.viewCount,
+      application_count: entity.applicationCount,
+    };
   }
 }

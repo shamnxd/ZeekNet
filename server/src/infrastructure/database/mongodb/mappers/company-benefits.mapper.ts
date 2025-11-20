@@ -1,6 +1,8 @@
 import { CompanyBenefits } from '../../../../domain/entities/company-benefits.entity';
 import { CompanyBenefitsDocument } from '../models/company-benefits.model';
 
+import { Types } from 'mongoose';
+
 export class CompanyBenefitsMapper {
   static toEntity(doc: CompanyBenefitsDocument): CompanyBenefits {
     return CompanyBenefits.create({
@@ -11,5 +13,13 @@ export class CompanyBenefitsMapper {
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     });
+  }
+
+  static toDocument(entity: CompanyBenefits): Partial<CompanyBenefitsDocument> {
+    return {
+      companyId: new Types.ObjectId(entity.companyId),
+      perk: entity.perk,
+      description: entity.description,
+    };
   }
 }

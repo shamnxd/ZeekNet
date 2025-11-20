@@ -12,4 +12,12 @@ export class CompanyVerificationMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: CompanyVerification): Partial<CompanyVerificationDocument> {
+    return {
+      companyId: entity.companyId,
+      taxId: entity.taxId,
+      businessLicenseUrl: entity.businessLicenseUrl,
+    };
+  }
 }

@@ -15,4 +15,15 @@ export class CompanyContactMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: CompanyContact): Partial<CompanyContactDocument> {
+    return {
+      companyId: entity.companyId,
+      twitterLink: entity.twitterLink,
+      facebookLink: entity.facebookLink,
+      linkedin: entity.linkedin,
+      email: entity.email,
+      phone: entity.phone,
+    };
+  }
 }

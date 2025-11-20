@@ -10,4 +10,10 @@ export class JobCategoryMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: JobCategory): Partial<JobCategoryDocument> {
+    return {
+      name: entity.name,
+    };
+  }
 }

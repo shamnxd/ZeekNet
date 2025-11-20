@@ -1,5 +1,6 @@
 import { JobApplication } from '../../../../domain/entities/job-application.entity';
 import type { JobApplicationDocument } from '../models/job-application.model';
+import { Types } from 'mongoose';
 
 export class JobApplicationMapper {
   static toEntity(doc: JobApplicationDocument): JobApplication {
@@ -38,6 +39,37 @@ export class JobApplicationMapper {
       updatedAt: new Date(doc.updatedAt),
     });
   }
+
+  static toDocument(entity: JobApplication): Partial<JobApplicationDocument> {
+    return {
+      seeker_id: new Types.ObjectId(entity.seekerId),
+      job_id: new Types.ObjectId(entity.jobId),
+      company_id: new Types.ObjectId(entity.companyId),
+      cover_letter: entity.coverLetter,
+      resume_url: entity.resumeUrl,
+      resume_filename: entity.resumeFilename,
+      stage: entity.stage,
+      score: entity.score,
+      interviews: entity.interviews.map(i => ({
+        date: i.date,
+        time: i.time,
+        interview_type: i.interviewType,
+        location: i.location,
+        interviewer_name: i.interviewerName,
+        status: i.status,
+        feedback: i.feedback
+          ? {
+            reviewer_name: i.feedback.reviewerName,
+            rating: i.feedback.rating,
+            comment: i.feedback.comment,
+            reviewed_at: i.feedback.reviewedAt,
+          }
+          : undefined,
+        created_at: i.createdAt,
+        updated_at: i.updatedAt,
+      })),
+      rejection_reason: entity.rejectionReason,
+      applied_date: entity.appliedDate,
+    };
+  }
 }
-
-
