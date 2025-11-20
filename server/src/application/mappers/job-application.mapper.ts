@@ -23,16 +23,16 @@ export class JobApplicationMapper {
   ): JobApplicationListResponseDto {
     return {
       id: application.id,
-      seeker_id: params?.seekerName ? application.seeker_id : undefined,
+      seeker_id: params?.seekerName ? application.seekerId : undefined,
       seeker_name: params?.seekerName,
       seeker_avatar: params?.seekerAvatar,
-      job_id: application.job_id,
+      job_id: application.jobId,
       job_title: params?.jobTitle || '',
       company_name: params?.companyName,
       company_logo: params?.companyLogo,
       score: application.score,
       stage: application.stage,
-      applied_date: application.applied_date.toISOString(),
+      applied_date: application.appliedDate.toISOString(),
     };
   }
 
@@ -75,22 +75,22 @@ export class JobApplicationMapper {
   ): JobApplicationDetailResponseDto {
     return {
       id: application.id,
-      seeker_id: application.seeker_id,
+      seeker_id: application.seekerId,
       seeker_name: seekerData?.name || '',
       seeker_avatar: seekerData?.avatar,
       seeker_headline: seekerData?.headline,
-      job_id: application.job_id,
+      job_id: application.jobId,
       job_title: jobData?.title || '',
       job_company: jobData?.companyName,
       job_location: jobData?.location,
       job_type: jobData?.employmentTypes?.[0],
-      cover_letter: application.cover_letter,
-      resume_url: application.resume_url,
-      resume_filename: application.resume_filename,
+      cover_letter: application.coverLetter,
+      resume_url: application.resumeUrl,
+      resume_filename: application.resumeFilename,
       score: application.score,
       stage: application.stage,
-      applied_date: application.applied_date.toISOString(),
-      rejection_reason: application.rejection_reason,
+      applied_date: application.appliedDate.toISOString(),
+      rejection_reason: application.rejectionReason,
       interviews: application.interviews.map((interview) => this.interviewToDto(interview)),
       // Seeker profile data
       full_name: seekerData?.name,
@@ -126,20 +126,20 @@ export class JobApplicationMapper {
       id: interview.id || '',
       date: interview.date.toISOString(),
       time: interview.time,
-      interview_type: interview.interview_type,
+      interview_type: interview.interviewType,
       location: interview.location,
-      interviewer_name: interview.interviewer_name,
+      interviewer_name: interview.interviewerName,
       status: interview.status || 'scheduled',
       feedback: interview.feedback
         ? {
-          reviewer_name: interview.feedback.reviewer_name,
+          reviewer_name: interview.feedback.reviewerName,
           rating: interview.feedback.rating,
           comment: interview.feedback.comment,
-          reviewed_at: interview.feedback.reviewed_at.toISOString(),
+          reviewed_at: interview.feedback.reviewedAt.toISOString(),
         }
         : undefined,
-      created_at: interview.created_at?.toISOString(),
-      updated_at: interview.updated_at?.toISOString(),
+      created_at: interview.createdAt?.toISOString(),
+      updated_at: interview.updatedAt?.toISOString(),
     };
   }
 
@@ -154,13 +154,13 @@ export class JobApplicationMapper {
     };
   }
 
-  static interviewDataFromDto(dto: AddInterviewRequestDto): Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at'> {
+  static interviewDataFromDto(dto: AddInterviewRequestDto): Omit<InterviewSchedule, 'id' | 'createdAt' | 'updatedAt'> {
     return {
       date: dto.date instanceof Date ? dto.date : new Date(dto.date),
       time: dto.time,
-      interview_type: dto.interview_type,
+      interviewType: dto.interview_type,
       location: dto.location,
-      interviewer_name: dto.interviewer_name,
+      interviewerName: dto.interviewer_name,
       status: 'scheduled',
     };
   }
@@ -175,13 +175,13 @@ export class JobApplicationMapper {
       data.time = dto.time;
     }
     if (dto.interview_type !== undefined) {
-      data.interview_type = dto.interview_type;
+      data.interviewType = dto.interview_type;
     }
     if (dto.location !== undefined) {
       data.location = dto.location;
     }
     if (dto.interviewer_name !== undefined) {
-      data.interviewer_name = dto.interviewer_name;
+      data.interviewerName = dto.interviewer_name;
     }
     if (dto.status !== undefined) {
       data.status = dto.status;
@@ -192,10 +192,10 @@ export class JobApplicationMapper {
 
   static feedbackDataFromDto(dto: AddInterviewFeedbackRequestDto): InterviewFeedback {
     return {
-      reviewer_name: dto.reviewer_name,
+      reviewerName: dto.reviewer_name,
       rating: dto.rating,
       comment: dto.comment,
-      reviewed_at: new Date(),
+      reviewedAt: new Date(),
     };
   }
 }
