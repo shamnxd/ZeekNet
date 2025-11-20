@@ -23,44 +23,44 @@ export class CompanyProfile {
 
   static create(data: {
     id: string;
-      banner: this.banner,
-      websiteLink: this.websiteLink,
-      employeeCount: this.employeeCount,
-      industry: this.industry,
-      organisation: this.organisation,
-      aboutUs: this.aboutUs,
-      isVerified: this.isVerified,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-      userEmail: this.email,
-      userIsBlocked: this.isBlocked,
-      foundedDate: this.foundedDate?.toISOString(),
-      phone: this.phone,
-      rejectionReason: this.rejectionReason,
-    };
-  }
-
-
-  static fromJSON(data: Record<string, unknown>): CompanyProfile {
+    userId: string;
+    companyName: string;
+    logo: string;
+    banner: string;
+    websiteLink: string;
+    employeeCount: number;
+    industry: string;
+    organisation: string;
+    aboutUs: string;
+    isVerified?: 'pending' | 'rejected' | 'verified';
+    createdAt?: Date;
+    updatedAt?: Date;
+    email?: string;
+    isBlocked?: boolean;
+    foundedDate?: Date;
+    phone?: string;
+    rejectionReason?: string;
+  }): CompanyProfile {
+    const now = new Date();
     return new CompanyProfile(
-      data.id as string,
-      data.userId as string,
-      data.companyName as string,
-      data.logo as string,
-      data.banner as string,
-      data.websiteLink as string,
-      data.employeeCount as number,
-      data.industry as string,
-      data.organisation as string,
-      data.aboutUs as string,
-      data.isVerified as 'pending' | 'rejected' | 'verified',
-      new Date(data.createdAt as string),
-      new Date(data.updatedAt as string),
-      (data.userEmail as string) || '', 
-      (data.userIsBlocked as boolean) ?? false, 
-      data.foundedDate ? new Date(data.foundedDate as string | Date) : undefined,
-      data.phone as string,
-      data.rejectionReason as string | undefined,
+      data.id,
+      data.userId,
+      data.companyName,
+      data.logo,
+      data.banner,
+      data.websiteLink,
+      data.employeeCount,
+      data.industry,
+      data.organisation,
+      data.aboutUs,
+      data.isVerified ?? 'pending',
+      data.createdAt ?? now,
+      data.updatedAt ?? now,
+      data.email ?? '',
+      data.isBlocked ?? false,
+      data.foundedDate,
+      data.phone,
+      data.rejectionReason,
     );
   }
 }
