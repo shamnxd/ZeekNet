@@ -14,6 +14,19 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
     return NotificationMapper.toDomain(document);
   }
 
+  protected mapToDocument(entity: Partial<Notification>): Partial<NotificationDocument> {
+    const doc: Partial<NotificationDocument> = {};
+
+    if (entity.user_id !== undefined) doc.user_id = new Types.ObjectId(entity.user_id);
+    if (entity.type !== undefined) doc.type = entity.type;
+    if (entity.title !== undefined) doc.title = entity.title;
+    if (entity.message !== undefined) doc.message = entity.message;
+    if (entity.data !== undefined) doc.data = entity.data;
+    if (entity.is_read !== undefined) doc.is_read = entity.is_read;
+
+    return doc;
+  }
+
   // Override to match interface signature
   async create(data: CreateNotificationData): Promise<Notification> {
     const notification = new NotificationModel({
@@ -27,14 +40,6 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
 
     await notification.save();
     return this.mapToEntity(notification);
-  }
-
-  async findById(id: string): Promise<Notification | null> {
-    return await super.findById(id);
-  }
-
-  async update(id: string, data: Partial<Notification>): Promise<Notification | null> {
-    return await super.update(id, data);
   }
 
   async findByUserId(userId: string, limit: number, skip: number): Promise<Notification[]> {

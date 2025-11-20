@@ -2,13 +2,25 @@ import { ISeekerEducationRepository } from '../../../../domain/interfaces/reposi
 import { Education } from '../../../../domain/entities/seeker-profile.entity';
 import { SeekerEducationModel, SeekerEducationDocument } from '../models/seeker-education.model';
 import { Types } from 'mongoose';
+import { RepositoryBase } from './base-repository';
+import { SeekerEducationMapper } from '../mappers/seeker-education.mapper';
 
-export class SeekerEducationRepository implements ISeekerEducationRepository {
-  constructor() {}
+export class SeekerEducationRepository extends RepositoryBase<Education, SeekerEducationDocument> implements ISeekerEducationRepository {
+  constructor() {
+    super(SeekerEducationModel);
+  }
+
+  protected mapToEntity(doc: SeekerEducationDocument): Education {
+    return SeekerEducationMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<Education>): Partial<SeekerEducationDocument> {
+    return SeekerEducationMapper.toDocument(entity);
+  }
 
   async createForProfile(seekerProfileId: string, education: Omit<Education, 'id'>): Promise<Education> {
     const educationDoc = new SeekerEducationModel({
-      ...education,
+      ...this.mapToDocument(education as Education),
       seekerProfileId: new Types.ObjectId(seekerProfileId),
     });
     
@@ -16,35 +28,11 @@ export class SeekerEducationRepository implements ISeekerEducationRepository {
     return this.mapToEntity(educationDoc);
   }
 
-  async findById(id: string): Promise<Education | null> {
-    const doc = await SeekerEducationModel.findById(id);
-    return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async findMany(filter: Record<string, unknown>): Promise<Education[]> {
-    const docs = await SeekerEducationModel.find(filter);
+  async findBySeekerProfileId(seekerProfileId: string): Promise<Education[]> {
+    const docs = await SeekerEducationModel.find({ 
+      seekerProfileId: new Types.ObjectId(seekerProfileId) 
+    }).sort({ startDate: -1 });
+    
     return docs.map(doc => this.mapToEntity(doc));
-  }
-
-  async update(id: string, data: Partial<Education>): Promise<Education | null> {
-    const doc = await SeekerEducationModel.findByIdAndUpdate(id, data, { new: true });
-    return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await SeekerEducationModel.findByIdAndDelete(id);
-    return !!result;
-  }
-
-  private mapToEntity(doc: SeekerEducationDocument): Education {
-    return {
-      id: String(doc._id),
-      school: doc.school,
-      degree: doc.degree,
-      fieldOfStudy: doc.fieldOfStudy,
-      startDate: doc.startDate,
-      endDate: doc.endDate,
-      grade: doc.grade,
-    };
   }
 }

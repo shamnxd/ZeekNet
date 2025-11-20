@@ -2,13 +2,25 @@ import { ISeekerExperienceRepository } from '../../../../domain/interfaces/repos
 import { Experience } from '../../../../domain/entities/seeker-profile.entity';
 import { SeekerExperienceModel, SeekerExperienceDocument } from '../models/seeker-experience.model';
 import { Types } from 'mongoose';
+import { RepositoryBase } from './base-repository';
+import { SeekerExperienceMapper } from '../mappers/seeker-experience.mapper';
 
-export class SeekerExperienceRepository implements ISeekerExperienceRepository {
-  constructor() {}
+export class SeekerExperienceRepository extends RepositoryBase<Experience, SeekerExperienceDocument> implements ISeekerExperienceRepository {
+  constructor() {
+    super(SeekerExperienceModel);
+  }
+
+  protected mapToEntity(doc: SeekerExperienceDocument): Experience {
+    return SeekerExperienceMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<Experience>): Partial<SeekerExperienceDocument> {
+    return SeekerExperienceMapper.toDocument(entity);
+  }
 
   async createForProfile(seekerProfileId: string, experience: Omit<Experience, 'id'>): Promise<Experience> {
     const experienceDoc = new SeekerExperienceModel({
-      ...experience,
+      ...this.mapToDocument(experience as Experience),
       seekerProfileId: new Types.ObjectId(seekerProfileId),
     });
     
@@ -16,38 +28,11 @@ export class SeekerExperienceRepository implements ISeekerExperienceRepository {
     return this.mapToEntity(experienceDoc);
   }
 
-  async findById(id: string): Promise<Experience | null> {
-    const doc = await SeekerExperienceModel.findById(id);
-    return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async findMany(filter: Record<string, unknown>): Promise<Experience[]> {
-    const docs = await SeekerExperienceModel.find(filter);
+  async findBySeekerProfileId(seekerProfileId: string): Promise<Experience[]> {
+    const docs = await SeekerExperienceModel.find({ 
+      seekerProfileId: new Types.ObjectId(seekerProfileId) 
+    }).sort({ startDate: -1 });
+    
     return docs.map(doc => this.mapToEntity(doc));
-  }
-
-  async update(id: string, data: Partial<Experience>): Promise<Experience | null> {
-    const doc = await SeekerExperienceModel.findByIdAndUpdate(id, data, { new: true });
-    return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await SeekerExperienceModel.findByIdAndDelete(id);
-    return !!result;
-  }
-
-  private mapToEntity(doc: SeekerExperienceDocument): Experience {
-    return {
-      id: String(doc._id),
-      title: doc.title,
-      company: doc.company,
-      startDate: doc.startDate,
-      endDate: doc.endDate,
-      employmentType: doc.employmentType,
-      location: doc.location,
-      description: doc.description,
-      technologies: doc.technologies || [],
-      isCurrent: doc.isCurrent,
-    };
   }
 }

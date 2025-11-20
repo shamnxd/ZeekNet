@@ -1,9 +1,7 @@
 import { Experience } from '../../../entities/seeker-profile.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
-export interface ISeekerExperienceRepository {
+export interface ISeekerExperienceRepository extends IBaseRepository<Experience> {
   createForProfile(seekerProfileId: string, experience: Omit<Experience, 'id'>): Promise<Experience>;
-  findById(id: string): Promise<Experience | null>;
-  findMany(filter: Record<string, unknown>): Promise<Experience[]>;
-  update(id: string, data: Partial<Experience>): Promise<Experience | null>;
-  delete(id: string): Promise<boolean>;
+  findBySeekerProfileId(seekerProfileId: string): Promise<Experience[]>;
 }

@@ -34,4 +34,25 @@ export class SeekerProfileRepository extends RepositoryBase<SeekerProfile, Model
       updatedAt: doc.updatedAt,
     });
   }
+
+  protected mapToDocument(entity: Partial<SeekerProfile>): Partial<ModelDocument> {
+    const doc: Partial<ModelDocument> = {};
+
+    if (entity.userId !== undefined) doc.userId = new Types.ObjectId(entity.userId);
+    if (entity.headline !== undefined) doc.headline = entity.headline;
+    if (entity.summary !== undefined) doc.summary = entity.summary;
+    if (entity.location !== undefined) doc.location = entity.location;
+    if (entity.phone !== undefined) doc.phone = entity.phone;
+    if (entity.email !== undefined) doc.email = entity.email;
+    if (entity.avatarFileName !== undefined) doc.avatarFileName = entity.avatarFileName;
+    if (entity.bannerFileName !== undefined) doc.bannerFileName = entity.bannerFileName;
+    if (entity.dateOfBirth !== undefined) doc.dateOfBirth = entity.dateOfBirth;
+    if (entity.gender !== undefined) doc.gender = entity.gender;
+    if (entity.skills !== undefined) doc.skills = entity.skills;
+    if (entity.languages !== undefined) doc.languages = entity.languages;
+    if (entity.socialLinks !== undefined) doc.socialLinks = entity.socialLinks;
+    if (entity.resume !== undefined) doc.resume = entity.resume;
+
+    return doc;
+  }
 }
