@@ -13,4 +13,8 @@ export class CompanyContactRepository extends RepositoryBase<CompanyContact, Com
   protected mapToEntity(doc: CompanyContactDocument): CompanyContact {
     return CompanyContactMapper.toEntity(doc);
   }
+
+  protected mapToDocument(entity: Partial<CompanyContact>): Partial<CompanyContactDocument> {
+    return CompanyContactMapper.toDocument(entity as CompanyContact);
+  }
 }

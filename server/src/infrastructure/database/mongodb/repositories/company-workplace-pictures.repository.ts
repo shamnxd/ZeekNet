@@ -13,4 +13,8 @@ export class CompanyWorkplacePicturesRepository extends RepositoryBase<CompanyWo
   protected mapToEntity(doc: CompanyWorkplacePicturesDocument): CompanyWorkplacePictures {
     return CompanyWorkplacePicturesMapper.toEntity(doc);
   }
+
+  protected mapToDocument(entity: Partial<CompanyWorkplacePictures>): Partial<CompanyWorkplacePicturesDocument> {
+    return CompanyWorkplacePicturesMapper.toDocument(entity as CompanyWorkplacePictures);
+  }
 }

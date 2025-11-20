@@ -14,6 +14,10 @@ export class CompanyVerificationRepository extends RepositoryBase<CompanyVerific
     return CompanyVerificationMapper.toEntity(doc as unknown as Parameters<typeof CompanyVerificationMapper.toEntity>[0]);
   }
 
+  protected mapToDocument(entity: Partial<CompanyVerification>): Partial<CompanyVerificationDocument> {
+    return CompanyVerificationMapper.toDocument(entity as CompanyVerification);
+  }
+
   async updateVerificationStatus(companyId: string, isVerified: 'pending' | 'rejected' | 'verified', rejectionReason?: string): Promise<void> {
     const updateData: { isVerified: 'pending' | 'rejected' | 'verified'; rejectionReason?: string; updatedAt: Date } = {
       isVerified,

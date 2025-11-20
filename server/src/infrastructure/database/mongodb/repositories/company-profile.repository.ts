@@ -1,7 +1,7 @@
 import { ICompanyProfileRepository } from '../../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyProfile } from '../../../../domain/entities/company-profile.entity';
 import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from '../models/company-profile.model';
-import { CompanyProfileMapper, CompanyProfileDocument } from '../mappers/company-profile.mapper';
+import { CompanyProfileMapper } from '../mappers/company-profile.mapper';
 import { RepositoryBase } from './base-repository';
 import { Types } from 'mongoose';
 
@@ -17,17 +17,21 @@ interface PopulatedUser {
   isBlocked: boolean;
 }
 
-interface PopulatedCompanyDocument extends Omit<CompanyProfileDocument, 'userId'> {
+interface PopulatedCompanyDocument extends Omit<ModelDocument, 'userId'> {
   userId: PopulatedUser | null;
 }
 
-export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, CompanyProfileDocument> implements ICompanyProfileRepository {
+export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, ModelDocument> implements ICompanyProfileRepository {
   constructor() {
     super(CompanyProfileModel);
   }
 
   protected mapToEntity(doc: ModelDocument): CompanyProfile {
-    return CompanyProfileMapper.toEntity(doc as unknown as CompanyProfileDocument);
+    return CompanyProfileMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<CompanyProfile>): Partial<ModelDocument> {
+    return CompanyProfileMapper.toDocument(entity as CompanyProfile);
   }
 
   async getAllCompanies(options: {
@@ -85,7 +89,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Com
           docId = rawDoc.id || populatedDoc._id;
         }
 
-        const docForMapper: CompanyProfileDocument = {
+        const docForMapper: ModelDocument = {
           _id: docId,
           userId: userId,
           companyName: populatedDoc.companyName,
@@ -100,7 +104,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Com
           rejectionReason: populatedDoc.rejectionReason,
           createdAt: populatedDoc.createdAt,
           updatedAt: populatedDoc.updatedAt,
-        } as CompanyProfileDocument;
+        } as ModelDocument;
         const entity = this.mapToEntity(docForMapper);
 
         entity.email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
@@ -139,7 +143,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Com
           docId = rawDoc.id || populatedDoc._id;
         }
 
-        const docForMapper: CompanyProfileDocument = {
+        const docForMapper: ModelDocument = {
           _id: docId,
           userId: userId,
           companyName: populatedDoc.companyName,
@@ -154,7 +158,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Com
           rejectionReason: populatedDoc.rejectionReason,
           createdAt: populatedDoc.createdAt,
           updatedAt: populatedDoc.updatedAt,
-        } as CompanyProfileDocument;
+        } as ModelDocument;
         const entity = this.mapToEntity(docForMapper);
 
         entity.email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';

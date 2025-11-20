@@ -12,7 +12,11 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
   }
 
   protected mapToEntity(doc: JobApplicationDocument): JobApplication {
-    return JobApplicationMapper.toDomain(doc);
+    return JobApplicationMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<JobApplication>): Partial<JobApplicationDocument> {
+    return JobApplicationMapper.toDocument(entity as JobApplication);
   }
 
   async addInterview(applicationId: string, interviewData: Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at'>): Promise<JobApplication | null> {

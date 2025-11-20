@@ -13,4 +13,8 @@ export class CompanyBenefitsRepository extends RepositoryBase<CompanyBenefits, C
   protected mapToEntity(doc: CompanyBenefitsDocument): CompanyBenefits {
     return CompanyBenefitsMapper.toEntity(doc);
   }
+
+  protected mapToDocument(entity: Partial<CompanyBenefits>): Partial<CompanyBenefitsDocument> {
+    return CompanyBenefitsMapper.toDocument(entity as CompanyBenefits);
+  }
 }

@@ -1,16 +1,20 @@
 import { ISkillRepository, SkillQueryFilters, PaginatedSkills } from '../../../../domain/interfaces/repositories/skill/ISkillRepository';
 import { Skill } from '../../../../domain/entities/skill.entity';
 import { SkillModel, SkillDocument as ModelDocument } from '../models/skill.model';
-import { SkillMapper, SkillDocument } from '../mappers/skill.mapper';
+import { SkillMapper } from '../mappers/skill.mapper';
 import { RepositoryBase } from './base-repository';
 
-export class SkillRepository extends RepositoryBase<Skill, SkillDocument> implements ISkillRepository {
+export class SkillRepository extends RepositoryBase<Skill, ModelDocument> implements ISkillRepository {
   constructor() {
     super(SkillModel);
   }
 
   protected mapToEntity(doc: ModelDocument): Skill {
-    return SkillMapper.toEntity(doc as unknown as SkillDocument);
+    return SkillMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<Skill>): Partial<ModelDocument> {
+    return SkillMapper.toDocument(entity as Skill);
   }
 
   // Keep findByName - it has special regex logic for case-insensitive exact match

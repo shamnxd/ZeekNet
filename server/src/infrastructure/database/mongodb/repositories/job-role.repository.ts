@@ -1,16 +1,20 @@
 import { IJobRoleRepository, JobRoleQueryFilters, PaginatedJobRoles } from '../../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { JobRole } from '../../../../domain/entities/job-role.entity';
 import { JobRoleModel, JobRoleDocument as ModelDocument } from '../models/job-role.model';
-import { JobRoleMapper, JobRoleDocument } from '../mappers/job-role.mapper';
+import { JobRoleMapper } from '../mappers/job-role.mapper';
 import { RepositoryBase } from './base-repository';
 
-export class JobRoleRepository extends RepositoryBase<JobRole, JobRoleDocument> implements IJobRoleRepository {
+export class JobRoleRepository extends RepositoryBase<JobRole, ModelDocument> implements IJobRoleRepository {
   constructor() {
     super(JobRoleModel);
   }
 
   protected mapToEntity(doc: ModelDocument): JobRole {
-    return JobRoleMapper.toEntity(doc as unknown as JobRoleDocument);
+    return JobRoleMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<JobRole>): Partial<ModelDocument> {
+    return JobRoleMapper.toDocument(entity as JobRole);
   }
 
   // Keep findByName - it has special regex logic for case-insensitive exact match

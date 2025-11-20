@@ -13,4 +13,8 @@ export class CompanyTechStackRepository extends RepositoryBase<CompanyTechStack,
   protected mapToEntity(doc: CompanyTechStackDocument): CompanyTechStack {
     return CompanyTechStackMapper.toEntity(doc);
   }
+
+  protected mapToDocument(entity: Partial<CompanyTechStack>): Partial<CompanyTechStackDocument> {
+    return CompanyTechStackMapper.toDocument(entity as CompanyTechStack);
+  }
 }

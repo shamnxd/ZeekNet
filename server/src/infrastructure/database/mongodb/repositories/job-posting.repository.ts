@@ -14,6 +14,10 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return JobPostingMapper.toEntity(doc);
   }
 
+  protected mapToDocument(entity: Partial<JobPosting>): Partial<JobPostingDocument> {
+    return JobPostingMapper.toDocument(entity as JobPosting);
+  }
+
   // Override findById to add populate
   async findById(id: string): Promise<JobPosting | null> {
     if (!Types.ObjectId.isValid(id)) {

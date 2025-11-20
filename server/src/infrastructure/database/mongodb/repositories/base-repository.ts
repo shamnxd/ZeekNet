@@ -22,10 +22,10 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
   }
 
   async create(data: Omit<T, '_id' | 'id' | 'createdAt' | 'updatedAt'>): Promise<T> {
-    const convertedData = this.convertToObjectIds(data as Record<string, unknown>);
+    const documentData = this.mapToDocument(data as Partial<T>);
     
     const document = new this.model({
-      ...convertedData,
+      ...documentData,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -53,9 +53,11 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
       return null;
     }
 
+    const documentData = this.mapToDocument(data);
+
     const document = await this.model.findByIdAndUpdate(
       id,
-      { ...data, updatedAt: new Date() },
+      { ...documentData, updatedAt: new Date() },
       { new: true },
     );
 
@@ -154,4 +156,5 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
   }
 
   protected abstract mapToEntity(document: TDocument): T;
+  protected abstract mapToDocument(entity: Partial<T>): Partial<TDocument>;
 }

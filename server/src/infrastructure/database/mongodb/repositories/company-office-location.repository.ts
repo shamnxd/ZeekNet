@@ -13,4 +13,8 @@ export class CompanyOfficeLocationRepository extends RepositoryBase<CompanyOffic
   protected mapToEntity(doc: CompanyOfficeLocationDocument): CompanyOfficeLocation {
     return CompanyOfficeLocationMapper.toEntity(doc);
   }
+
+  protected mapToDocument(entity: Partial<CompanyOfficeLocation>): Partial<CompanyOfficeLocationDocument> {
+    return CompanyOfficeLocationMapper.toDocument(entity as CompanyOfficeLocation);
+  }
 }

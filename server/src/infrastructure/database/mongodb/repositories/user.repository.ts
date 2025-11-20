@@ -13,4 +13,8 @@ export class UserRepository extends RepositoryBase<User, UserDocument> implement
   protected mapToEntity(document: UserDocument): User {
     return UserMapper.toEntity(document);
   }
+
+  protected mapToDocument(entity: Partial<User>): Partial<UserDocument> {
+    return UserMapper.toDocument(entity as User);
+  }
 }
