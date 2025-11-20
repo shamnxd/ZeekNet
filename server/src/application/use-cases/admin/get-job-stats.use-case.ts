@@ -1,10 +1,11 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { AppError } from '../../../domain/errors/errors';
+import { IAdminGetJobStatsUseCase, AdminJobStats } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 
-export class AdminGetJobStatsUseCase {
+export class AdminGetJobStatsUseCase implements IAdminGetJobStatsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute() {
+  async execute(): Promise<AdminJobStats> {
     try {
       const jobs = await this._jobPostingRepository.findMany({});
 

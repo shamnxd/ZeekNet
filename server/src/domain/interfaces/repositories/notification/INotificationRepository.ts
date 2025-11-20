@@ -10,7 +10,7 @@ export interface CreateNotificationData {
   data?: Record<string, unknown>;
 }
 
-export interface INotificationRepository extends IBaseRepository<Notification> {
+export interface INotificationRepository extends Omit<IBaseRepository<Notification>, 'create'> {
   // Custom create signature for notifications
   create(data: CreateNotificationData): Promise<Notification>;
   
