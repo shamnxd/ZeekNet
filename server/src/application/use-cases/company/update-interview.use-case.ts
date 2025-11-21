@@ -84,10 +84,10 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
           interview_type: updatedInterview.interviewType,
           location: updatedInterview.location,
           interviewer_name: updatedInterview.interviewerName,
-            status: updatedInterview.status,
-            job_title: job.title,
-          },
+          status: updatedInterview.status,
+          job_title: job.title,
         },
+      },
       );
     }
 

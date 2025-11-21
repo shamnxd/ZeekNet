@@ -69,9 +69,9 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
         interview_type: interviewData.interviewType,
         location: interviewData.location,
         interviewer_name: interviewData.interviewerName,
-          job_title: job.title,
-        },
+        job_title: job.title,
       },
+    },
     );
 
     return updatedApplication;
