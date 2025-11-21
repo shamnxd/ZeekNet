@@ -15,32 +15,18 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
   }
 
   protected mapToDocument(entity: Partial<Notification>): Partial<NotificationDocument> {
-    const doc: Partial<NotificationDocument> = {};
-
-    if (entity.userId !== undefined) doc.user_id = new Types.ObjectId(entity.userId);
-    if (entity.type !== undefined) doc.type = entity.type;
-    if (entity.title !== undefined) doc.title = entity.title;
-    if (entity.message !== undefined) doc.message = entity.message;
-    if (entity.data !== undefined) doc.data = entity.data;
-    if (entity.isRead !== undefined) doc.is_read = entity.isRead;
-
-    return doc;
+    return NotificationMapper.toPersistence(entity);
   }
 
-  // Override to match interface signature with custom CreateNotificationData
-  // @ts-expect-error - INotificationRepository uses Omit to allow custom create signature
   async create(data: CreateNotificationData): Promise<Notification> {
-    const notification = new NotificationModel({
-      user_id: new Types.ObjectId(data.user_id),
+    return super.create({
+      userId: data.user_id,
       type: data.type,
       title: data.title,
       message: data.message,
       data: data.data || {},
-      is_read: false,
-    });
-
-    await notification.save();
-    return this.mapToEntity(notification);
+      isRead: false,
+    } as Omit<Notification, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
   }
 
   async findByUserId(userId: string, limit: number, skip: number): Promise<Notification[]> {
@@ -70,7 +56,7 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
   }
 
   async getUnreadCount(userId: string): Promise<number> {
-    return await NotificationModel.countDocuments({
+    return this.countDocuments({
       user_id: new Types.ObjectId(userId),
       is_read: false,
     });

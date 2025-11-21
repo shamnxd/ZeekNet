@@ -1,11 +1,14 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
+import { IGetNotificationsUseCase, IMarkNotificationAsReadUseCase, IMarkAllNotificationsAsReadUseCase, IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
 import { sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
 
 export class NotificationController {
   constructor(
-    private readonly _notificationRepository: INotificationRepository,
+    private readonly _getNotificationsUseCase: IGetNotificationsUseCase,
+    private readonly _markNotificationAsReadUseCase: IMarkNotificationAsReadUseCase,
+    private readonly _markAllNotificationsAsReadUseCase: IMarkAllNotificationsAsReadUseCase,
+    private readonly _getUnreadNotificationCountUseCase: IGetUnreadNotificationCountUseCase,
   ) {}
 
   getNotifications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -18,7 +21,7 @@ export class NotificationController {
       const limit = parseInt(req.query.limit as string) || 50;
       const skip = parseInt(req.query.skip as string) || 0;
 
-      const notifications = await this._notificationRepository.findByUserId(userId, limit, skip);
+      const notifications = await this._getNotificationsUseCase.execute(userId, limit, skip);
       sendSuccessResponse(res, 'Notifications retrieved successfully', notifications);
     } catch (error) {
       handleAsyncError(error, next);
@@ -34,12 +37,7 @@ export class NotificationController {
         return;
       }
 
-      const notification = await this._notificationRepository.markAsRead(notificationId, userId);
-      if (!notification) {
-        sendSuccessResponse(res, 'Notification not found or already read', null, undefined, 404);
-        return;
-      }
-
+      const notification = await this._markNotificationAsReadUseCase.execute(userId, notificationId);
       sendSuccessResponse(res, 'Notification marked as read', notification);
     } catch (error) {
       handleAsyncError(error, next);
@@ -53,7 +51,7 @@ export class NotificationController {
         return;
       }
 
-      await this._notificationRepository.markAllAsRead(userId);
+      await this._markAllNotificationsAsReadUseCase.execute(userId);
       sendSuccessResponse(res, 'All notifications marked as read', null);
     } catch (error) {
       handleAsyncError(error, next);
@@ -67,7 +65,7 @@ export class NotificationController {
         return;
       }
 
-      const count = await this._notificationRepository.getUnreadCount(userId);
+      const count = await this._getUnreadNotificationCountUseCase.execute(userId);
       sendSuccessResponse(res, 'Unread count retrieved successfully', { count });
     } catch (error) {
       handleAsyncError(error, next);
