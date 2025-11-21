@@ -118,9 +118,9 @@ const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPosting
 const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository);
 
 // Job Application Use Cases
-const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository);
-const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
+const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
+const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
 const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
 const updateApplicationScoreUseCase = new UpdateApplicationScoreUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
@@ -170,12 +170,6 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   updateInterviewUseCase,
   deleteInterviewUseCase,
   addInterviewFeedbackUseCase,
-  userRepository,
-  seekerProfileRepository,
-  jobPostingRepository,
-  seekerExperienceRepository,
-  seekerEducationRepository,
-  s3Service,
 );
 
 export { companyController, companyJobPostingController, companyJobApplicationController, companyProfileRepository, companyProfileRepository as companyRepository, companyVerificationRepository };

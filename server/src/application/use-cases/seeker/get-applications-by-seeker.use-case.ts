@@ -1,26 +1,21 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
 import { Types } from 'mongoose';
 
-export interface PaginatedApplications {
-  applications: JobApplication[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
 export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerUseCase {
-  constructor(private readonly _jobApplicationRepository: IJobApplicationRepository) {}
+  constructor(
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
+  ) {}
 
   async execute(
     seekerId: string,
     filters: { stage?: ApplicationStage; page?: number; limit?: number },
-  ): Promise<PaginatedApplications> {
+  ): Promise<PaginatedApplicationsResponseDto> {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
@@ -34,8 +29,20 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
       sortOrder: 'desc',
     });
 
+    const applications: JobApplicationListResponseDto[] = [];
+    for (const app of result.data) {
+      const job = await this._jobPostingRepository.findById(app.jobId);
+      applications.push(
+        JobApplicationMapper.toListDto(app, {
+          jobTitle: job?.title,
+          companyName: job?.companyName,
+          companyLogo: job?.companyLogo,
+        }),
+      );
+    }
+
     return {
-      applications: result.data,
+      applications,
       pagination: {
         page: result.page,
         limit: result.limit,

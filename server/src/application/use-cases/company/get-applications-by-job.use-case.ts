@@ -1,34 +1,31 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByJobUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
 import { Types } from 'mongoose';
-
-export interface PaginatedApplications {
-  applications: JobApplication[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
 
 export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(
     userId: string,
     jobId: string,
     filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number },
-  ): Promise<PaginatedApplications> {
+  ): Promise<PaginatedApplicationsResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -55,8 +52,23 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
       sortOrder: 'desc',
     });
 
+    const applications: JobApplicationListResponseDto[] = [];
+    for (const app of result.data) {
+      const [user, profile] = await Promise.all([
+        this._userRepository.findById(app.seekerId),
+        this._seekerProfileRepository.findOne({ userId: app.seekerId }),
+      ]);
+      applications.push(
+        JobApplicationMapper.toListDto(app, {
+          seekerName: user?.name,
+          seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+          jobTitle: job?.title,
+        }),
+      );
+    }
+
     return {
-      applications: result.data,
+      applications,
       pagination: {
         page: result.page,
         limit: result.limit,

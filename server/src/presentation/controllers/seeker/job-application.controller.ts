@@ -19,12 +19,6 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { UploadService } from '../../../shared/services/upload.service';
 import { CreateJobApplicationDto } from '../../../application/dto/job-application/create-job-application.dto';
 import { ApplicationFiltersDto } from '../../../application/dto/job-application/application-filters.dto';
-import { JobApplicationMapper } from '../../../application/mappers/job-application.mapper';
-import {
-  JobApplicationListResponseDto,
-  JobApplicationDetailResponseDto,
-  PaginatedApplicationsResponseDto,
-} from '../../../application/dto/job-application/job-application-response.dto';
 
 export class SeekerJobApplicationController {
   constructor(
@@ -96,24 +90,7 @@ export class SeekerJobApplicationController {
         limit: filters.data.limit,
       });
 
-      const applications: JobApplicationListResponseDto[] = [];
-      for (const app of result.applications) {
-        const job = await this._jobPostingRepository.findById(app.jobId);
-        applications.push(
-          JobApplicationMapper.toListDto(app, {
-            jobTitle: job?.title,
-            companyName: job?.companyName,
-            companyLogo: job?.companyLogo,
-          }),
-        );
-      }
-
-      const response: PaginatedApplicationsResponseDto = {
-        applications,
-        pagination: result.pagination,
-      };
-
-      sendSuccessResponse(res, 'Applications retrieved successfully', response);
+      sendSuccessResponse(res, 'Applications retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -124,9 +101,7 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._getApplicationDetailsUseCase.execute(userId, id);
-
-      const response: JobApplicationDetailResponseDto = JobApplicationMapper.toDetailDto(application);
+      const response = await this._getApplicationDetailsUseCase.execute(userId, id);
 
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {

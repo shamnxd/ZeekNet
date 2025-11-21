@@ -1,4 +1,9 @@
 import type { ApplicationStage, InterviewSchedule, JobApplication } from '../../entities/job-application.entity';
+import type { 
+  JobApplicationListResponseDto, 
+  JobApplicationDetailResponseDto, 
+  PaginatedApplicationsResponseDto 
+} from '../../../application/dto/job-application/job-application-response.dto';
 
 export interface CreateJobApplicationData {
   job_id: string;
@@ -20,32 +25,23 @@ export interface ICreateJobApplicationUseCase {
 }
 
 export interface IGetApplicationsByJobUseCase {
-  execute(userId: string, jobId: string, filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<{
-    applications: JobApplication[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>;
+  execute(userId: string, jobId: string, filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationsBySeekerUseCase {
-  execute(seekerId: string, filters: { stage?: ApplicationStage; page?: number; limit?: number }): Promise<{
-    applications: JobApplication[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>;
+  execute(seekerId: string, filters: { stage?: ApplicationStage; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationsByCompanyUseCase {
-  execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<{
-    applications: JobApplication[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>;
+  execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationDetailsUseCase {
-  execute(userId: string, applicationId: string): Promise<JobApplication>;
+  execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IGetSeekerApplicationDetailsUseCase {
-  execute(seekerId: string, applicationId: string): Promise<JobApplication>;
+  execute(seekerId: string, applicationId: string): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateApplicationStageUseCase {

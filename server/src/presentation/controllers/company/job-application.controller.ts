@@ -4,7 +4,6 @@ import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
-  sendNotFoundResponse,
   validateUserId,
 } from '../../../shared/utils/controller.utils';
 import {
@@ -25,17 +24,6 @@ import { AddInterviewDto } from '../../../application/dto/job-application/add-in
 import { UpdateInterviewDto } from '../../../application/dto/job-application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/job-application/add-interview-feedback.dto';
 import { JobApplicationMapper } from '../../../application/mappers/job-application.mapper';
-import {
-  JobApplicationListResponseDto,
-  JobApplicationDetailResponseDto,
-  PaginatedApplicationsResponseDto,
-} from '../../../application/dto/job-application/job-application-response.dto';
-import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -48,12 +36,6 @@ export class CompanyJobApplicationController {
     private readonly _updateInterviewUseCase: IUpdateInterviewUseCase,
     private readonly _deleteInterviewUseCase: IDeleteInterviewUseCase,
     private readonly _addInterviewFeedbackUseCase: IAddInterviewFeedbackUseCase,
-    private readonly _userRepository: IUserRepository,
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
-    private readonly _seekerEducationRepository: ISeekerEducationRepository,
-    private readonly _s3Service: IS3Service,
   ) {}
 
   getApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -61,7 +43,6 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { job_id } = req.query;
 
-      // Parse query parameters
       const filters = ApplicationFiltersDto.safeParse(req.query);
       if (!filters.success) {
         return handleValidationError(
@@ -74,32 +55,10 @@ export class CompanyJobApplicationController {
       if (job_id) {
         result = await this._getApplicationsByJobUseCase.execute(userId, job_id as string, filters.data);
       } else {
-
         result = await this._getApplicationsByCompanyUseCase.execute(userId, filters.data);
       }
 
-      const applications: JobApplicationListResponseDto[] = [];
-      for (const app of result.applications) {
-        const [user, job, profile] = await Promise.all([
-          this._userRepository.findById(app.seekerId),
-          this._jobPostingRepository.findById(app.jobId),
-          this._seekerProfileRepository.findOne({ userId: app.seekerId }),
-        ]);
-        applications.push(
-          JobApplicationMapper.toListDto(app, {
-            seekerName: user?.name,
-            seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
-            jobTitle: job?.title,
-          }),
-        );
-      }
-
-      const response: PaginatedApplicationsResponseDto = {
-        applications,
-        pagination: result.pagination,
-      };
-
-      sendSuccessResponse(res, 'Applications retrieved successfully', response);
+      sendSuccessResponse(res, 'Applications retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -110,64 +69,7 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._getApplicationDetailsUseCase.execute(userId, id);
-
-      const [user, profile, job] = await Promise.all([
-        this._userRepository.findById(application.seekerId),
-        this._seekerProfileRepository.findOne({ userId: application.seekerId }),
-        this._jobPostingRepository.findById(application.jobId),
-      ]);
-
-      let experiences: Array<{ title: string; company: string; startDate: Date; endDate?: Date; location?: string; description?: string; }> = [];
-      let education: Array<{ school: string; degree?: string; startDate: Date; endDate?: Date; location?: string; }> = [];
-      if (profile) {
-        const [exps, edus] = await Promise.all([
-          this._seekerExperienceRepository.findBySeekerProfileId(profile.id),
-          this._seekerEducationRepository.findBySeekerProfileId(profile.id),
-        ]);
-        experiences = exps.map((e) => ({
-          title: e.title,
-          company: e.company,
-          startDate: e.startDate,
-          endDate: e.endDate,
-          location: e.location,
-          description: e.description,
-        }));
-        education = edus.map((d) => ({
-          school: d.school,
-          degree: d.degree,
-          startDate: d.startDate,
-          endDate: d.endDate,
-          location: undefined,
-        }));
-      }
-
-      const response: JobApplicationDetailResponseDto = JobApplicationMapper.toDetailDto(
-        application,
-        {
-          name: user?.name,
-          avatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
-          headline: profile?.headline || undefined,
-          email: profile?.email || undefined,
-          phone: profile?.phone || undefined,
-          location: profile?.location || undefined,
-          summary: profile?.summary || undefined,
-          skills: profile?.skills || undefined,
-          languages: profile?.languages || undefined,
-          date_of_birth: profile?.dateOfBirth || undefined,
-          gender: profile?.gender || undefined,
-          experiences,
-          education,
-        },
-        {
-          title: job?.title,
-          companyName: job?.companyName,
-          location: job?.location,
-          employmentTypes: job?.employmentTypes,
-        },
-      );
-
-      console.log(response);
+      const response = await this._getApplicationDetailsUseCase.execute(userId, id);
 
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {
