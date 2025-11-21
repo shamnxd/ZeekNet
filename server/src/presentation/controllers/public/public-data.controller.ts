@@ -22,7 +22,7 @@ export class PublicDataController {
       }
 
       const result = await this._getAllSkillsUseCase.execute(query.data);
-      const skillNames = result.skills.map(skill => skill.name);
+      const skillNames = result.data.map((skill) => skill.name);
       success(res, skillNames, 'Skills retrieved successfully');
     } catch (error) {
       handleError(res, error);
@@ -33,7 +33,7 @@ export class PublicDataController {
     try {
       const query = req.query as unknown as { page?: number; limit?: number; search?: string };
       const result = await this._getAllJobCategoriesUseCase.execute(query);
-      const categoryNames = result.categories.map(category => category.name);
+      const categoryNames = result.data.map((category) => category.name);
       success(res, categoryNames, 'Job categories retrieved successfully');
     } catch (error) {
       handleError(res, error);
@@ -48,7 +48,7 @@ export class PublicDataController {
       }
 
       const result = await this._getAllJobRolesUseCase.execute(query.data);
-      const jobRoleNames = result.jobRoles.map(role => role.name);
+      const jobRoleNames = result.data.map((role) => role.name);
       success(res, jobRoleNames, 'Job roles retrieved successfully');
     } catch (error) {
       handleError(res, error);
