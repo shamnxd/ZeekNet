@@ -10,7 +10,7 @@ export interface SkillQueryFilters {
 }
 
 export interface PaginatedSkills {
-  skills: Skill[];
+  data: Skill[];
   total: number;
   page: number;
   limit: number;
@@ -20,6 +20,4 @@ export interface PaginatedSkills {
 export interface ISkillRepository extends IBaseRepository<Skill> {
   // Special method with case-insensitive regex matching
   findByName(name: string): Promise<Skill | null>;
-  // Complex pagination query
-  findAllWithPagination(filters?: SkillQueryFilters): Promise<PaginatedSkills>;
 }

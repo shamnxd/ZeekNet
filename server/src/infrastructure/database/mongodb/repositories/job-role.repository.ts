@@ -24,17 +24,5 @@ export class JobRoleRepository extends RepositoryBase<JobRole, ModelDocument> im
     }).exec();
     return doc ? this.mapToEntity(doc) : null;
   }
-
-  async findAllWithPagination(filters?: JobRoleQueryFilters): Promise<PaginatedJobRoles> {
-    return await this.paginate<PaginatedJobRoles>({
-      page: filters?.page,
-      limit: filters?.limit,
-      search: filters?.search,
-      searchField: 'name',
-      sortBy: filters?.sortBy || 'name',
-      sortOrder: filters?.sortOrder || 'asc',
-      resultKey: 'jobRoles',
-    });
-  }
 }
 

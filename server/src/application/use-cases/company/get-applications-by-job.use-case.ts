@@ -5,6 +5,7 @@ import { IGetApplicationsByJobUseCase } from '../../../domain/interfaces/use-cas
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { Types } from 'mongoose';
 
 export interface PaginatedApplications {
   applications: JobApplication[];
@@ -44,20 +45,23 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findByJobId(jobId, {
-      stage: filters.stage,
-      search: filters.search,
+    const query: Record<string, unknown> = { job_id: new Types.ObjectId(jobId) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
     return {
-      applications: result.applications,
+      applications: result.data,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: result.pagination.totalPages,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }

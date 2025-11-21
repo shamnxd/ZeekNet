@@ -1,7 +1,7 @@
 import { JobCategory } from '../../entities/job-category.entity';
 
 export interface PaginatedJobCategories {
-  categories: JobCategory[];
+  data: JobCategory[];
   total: number;
   page: number;
   limit: number;

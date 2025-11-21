@@ -6,7 +6,7 @@ import { JobRole } from '../../entities/job-role.entity';
 import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
 
 export interface PaginatedSkills {
-  skills: Skill[];
+  data: Skill[];
   total: number;
   page: number;
   limit: number;
@@ -14,7 +14,7 @@ export interface PaginatedSkills {
 }
 
 export interface PaginatedJobRoles {
-  jobRoles: JobRole[];
+  data: JobRole[];
   total: number;
   page: number;
   limit: number;

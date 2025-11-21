@@ -10,7 +10,7 @@ export interface JobRoleQueryFilters {
 }
 
 export interface PaginatedJobRoles {
-  jobRoles: JobRole[];
+  data: JobRole[];
   total: number;
   page: number;
   limit: number;
@@ -20,7 +20,5 @@ export interface PaginatedJobRoles {
 export interface IJobRoleRepository extends IBaseRepository<JobRole> {
   // Special method with case-insensitive regex matching
   findByName(name: string): Promise<JobRole | null>;
-  // Complex pagination query
-  findAllWithPagination(filters?: JobRoleQueryFilters): Promise<PaginatedJobRoles>;
 }
 

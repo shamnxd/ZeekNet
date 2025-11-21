@@ -65,48 +65,44 @@ export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
     return await this.model.countDocuments(filter as FilterQuery<TDocument>);
   }
 
-  protected async paginate<R>(
-    options?: {
+  async paginate(
+    filter: FilterQuery<TDocument> | Record<string, unknown> = {},
+    options: {
       page?: number;
       limit?: number;
-      search?: string;
-      searchField?: string;
       sortBy?: string;
       sortOrder?: 'asc' | 'desc';
-      resultKey?: string;
-    },
-  ): Promise<R> {
-    const page = options?.page || 1;
-    const limit = options?.limit || 10;
-    const search = options?.search || '';
-    const searchField = options?.searchField || 'name';
-    const sortBy = options?.sortBy || 'name';
-    const sortOrder = options?.sortOrder === 'desc' ? -1 : 1;
-    const resultKey = options?.resultKey || 'items';
-
-    const query: Record<string, unknown> = {};
-    if (search) {
-      query[searchField] = { $regex: search, $options: 'i' };
-    }
+    } = {},
+  ): Promise<{
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const sortBy = options.sortBy || 'createdAt';
+    const sortOrder = options.sortOrder === 'asc' ? 1 : -1;
 
     const skip = (page - 1) * limit;
     const documents = await this.model
-      .find(query)
+      .find(filter as FilterQuery<TDocument>)
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
       .limit(limit)
       .exec();
 
-    const total = await this.model.countDocuments(query);
-    const items = documents.map((doc) => this.mapToEntity(doc));
+    const total = await this.model.countDocuments(filter as FilterQuery<TDocument>);
+    const data = documents.map((doc) => this.mapToEntity(doc));
 
     return {
-      [resultKey]: items,
+      data,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-    } as unknown as R;
+    };
   }
 
   protected abstract mapToEntity(document: TDocument): T;

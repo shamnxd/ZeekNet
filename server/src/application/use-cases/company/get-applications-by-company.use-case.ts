@@ -3,6 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IGetApplicationsByCompanyUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError } from '../../../domain/errors/errors';
 import type { JobApplication, ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { Types } from 'mongoose';
 
 export interface PaginatedApplications {
   applications: JobApplication[];
@@ -29,20 +30,23 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findByCompanyId(companyProfile.id, {
-      stage: filters.stage,
-      search: filters.search,
+    const query: Record<string, unknown> = { company_id: new Types.ObjectId(companyProfile.id) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
     return {
-      applications: result.applications,
+      applications: result.data,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: Math.ceil(result.pagination.total / limit),
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }

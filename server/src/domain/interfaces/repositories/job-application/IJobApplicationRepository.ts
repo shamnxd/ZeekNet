@@ -17,27 +17,6 @@ export interface IJobApplicationRepository extends IBaseRepository<JobApplicatio
   addInterviewFeedback(applicationId: string, interviewId: string, feedbackData: InterviewFeedback): Promise<JobApplication | null>;
   deleteInterview(applicationId: string, interviewId: string): Promise<JobApplication | null>;
   updateInterview(applicationId: string, interviewId: string, interviewData: Partial<InterviewSchedule>): Promise<JobApplication | null>;
-  
-  // Complex queries with pagination
-  findByCompanyId(companyId: string, filters: {
-    stage?: ApplicationStage;
-    search?: string;
-    page: number;
-    limit: number;
-  }): Promise<PaginatedApplications>;
-  
-  findByJobId(jobId: string, filters: {
-    stage?: ApplicationStage;
-    search?: string;
-    page: number;
-    limit: number;
-  }): Promise<PaginatedApplications>;
-  
-  findBySeekerId(seekerId: string, filters: {
-    stage?: ApplicationStage;
-    page: number;
-    limit: number;
-  }): Promise<PaginatedApplications>;
 }
 
 

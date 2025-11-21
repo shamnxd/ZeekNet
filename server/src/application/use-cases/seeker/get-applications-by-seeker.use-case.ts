@@ -2,6 +2,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { Types } from 'mongoose';
 
 export interface PaginatedApplications {
   applications: JobApplication[];
@@ -23,19 +24,23 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findBySeekerId(seekerId, {
-      stage: filters.stage,
+    const query: Record<string, unknown> = { seeker_id: new Types.ObjectId(seekerId) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
     return {
-      applications: result.applications,
+      applications: result.data,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: result.pagination.totalPages,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }

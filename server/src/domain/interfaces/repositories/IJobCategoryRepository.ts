@@ -9,7 +9,7 @@ export interface JobCategoryQueryFilters {
 }
 
 export interface PaginatedJobCategories {
-  categories: JobCategory[];
+  data: JobCategory[];
   total: number;
   page: number;
   limit: number;
@@ -22,5 +22,13 @@ export interface IJobCategoryRepository {
   create(data: { name: string }): Promise<JobCategory>;
   update(id: string, updates: { name: string }): Promise<JobCategory | null>;
   delete(id: string): Promise<boolean>;
-  findAllWithPagination(filters?: JobCategoryQueryFilters): Promise<PaginatedJobCategories>;
+  paginate(
+    filter: Record<string, unknown>,
+    options?: {
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<PaginatedJobCategories>;
 }

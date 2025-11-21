@@ -12,7 +12,6 @@ export interface CreateNotificationData {
 
 export interface INotificationRepository extends IBaseRepository<Notification> {
   // Notification-specific methods that need custom implementation
-  findByUserId(userId: string, limit: number, skip: number): Promise<Notification[]>;
   markAllAsRead(userId: string): Promise<void>;
 }
 

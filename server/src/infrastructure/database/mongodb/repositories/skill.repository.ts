@@ -17,24 +17,11 @@ export class SkillRepository extends RepositoryBase<Skill, ModelDocument> implem
     return SkillMapper.toDocument(entity as Skill);
   }
 
-  // Keep findByName - it has special regex logic for case-insensitive exact match
   async findByName(name: string): Promise<Skill | null> {
     const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const doc = await this.model.findOne({ 
       name: { $regex: new RegExp(`^${escapedName}$`, 'i') }, 
     }).exec();
     return doc ? this.mapToEntity(doc) : null;
-  }
-
-  async findAllWithPagination(filters?: SkillQueryFilters): Promise<PaginatedSkills> {
-    return await this.paginate<PaginatedSkills>({
-      page: filters?.page,
-      limit: filters?.limit,
-      search: filters?.search,
-      searchField: 'name',
-      sortBy: filters?.sortBy || 'name',
-      sortOrder: filters?.sortOrder || 'asc',
-      resultKey: 'skills',
-    });
   }
 }

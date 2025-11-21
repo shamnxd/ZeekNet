@@ -8,4 +8,21 @@ export interface IBaseRepository<T> {
   findOne(filter: Record<string, unknown>): Promise<T | null>;
   findMany(filter: Record<string, unknown>): Promise<T[]>;
   countDocuments(filter: Record<string, unknown>): Promise<number>;
+  
+  // Pagination
+  paginate(
+    filter: Record<string, unknown>,
+    options?: {
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<{
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
 }

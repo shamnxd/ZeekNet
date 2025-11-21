@@ -24,16 +24,4 @@ export class JobCategoryRepository extends RepositoryBase<JobCategory, ModelDocu
     }).exec();
     return doc ? this.mapToEntity(doc) : null;
   }
-
-  async findAllWithPagination(filters?: JobCategoryQueryFilters): Promise<PaginatedJobCategories> {
-    return await this.paginate<PaginatedJobCategories>({
-      page: filters?.page,
-      limit: filters?.limit,
-      search: filters?.search,
-      searchField: 'name',
-      sortBy: filters?.sortBy || 'name',
-      sortOrder: filters?.sortOrder || 'asc',
-      resultKey: 'categories',
-    });
-  }
 }
