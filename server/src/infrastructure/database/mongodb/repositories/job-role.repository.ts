@@ -17,7 +17,6 @@ export class JobRoleRepository extends RepositoryBase<JobRole, ModelDocument> im
     return JobRoleMapper.toDocument(entity as JobRole);
   }
 
-  // Keep findByName - it has special regex logic for case-insensitive exact match
   async findByName(name: string): Promise<JobRole | null> {
     const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const doc = await this.model.findOne({ 
