@@ -30,6 +30,8 @@ import { UpdateSkillsUseCase } from '../../application/use-cases/seeker/update-s
 import { UpdateLanguagesUseCase } from '../../application/use-cases/seeker/update-languages.use-case';
 import { UploadResumeUseCase } from '../../application/use-cases/seeker/upload-resume.use-case';
 import { RemoveResumeUseCase } from '../../application/use-cases/seeker/remove-resume.use-case';
+import { UploadAvatarUseCase } from '../../application/use-cases/seeker/upload-avatar.use-case';
+import { UploadBannerUseCase } from '../../application/use-cases/seeker/upload-banner.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
 
 const jobPostingRepository = new JobPostingRepository();
@@ -60,6 +62,8 @@ const updateSkillsUseCase = new UpdateSkillsUseCase(seekerProfileRepository);
 const updateLanguagesUseCase = new UpdateLanguagesUseCase(seekerProfileRepository);
 const uploadResumeUseCase = new UploadResumeUseCase(seekerProfileRepository);
 const removeResumeUseCase = new RemoveResumeUseCase(seekerProfileRepository);
+const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3Service);
+const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
 // Job Application Use Cases
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
@@ -82,8 +86,8 @@ const seekerProfileController = new SeekerProfileController(
   updateLanguagesUseCase,
   uploadResumeUseCase,
   removeResumeUseCase,
-  s3Service,
-  userRepository,
+  uploadAvatarUseCase,
+  uploadBannerUseCase,
 );
 
 const seekerController = new SeekerController(

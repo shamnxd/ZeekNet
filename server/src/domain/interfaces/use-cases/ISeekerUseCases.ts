@@ -138,3 +138,11 @@ export interface IUploadResumeUseCase {
 export interface IRemoveResumeUseCase {
   execute(userId: string): Promise<void>;
 }
+
+export interface IUploadAvatarUseCase {
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+}
+
+export interface IUploadBannerUseCase {
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+}
