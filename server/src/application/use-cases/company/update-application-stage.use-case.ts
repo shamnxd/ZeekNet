@@ -5,7 +5,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
+import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
@@ -72,22 +72,19 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
 
     const notification = stageMessages[stage];
     if (notification) {
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: application.seekerId,
-          type: NotificationType.APPLICATION_STATUS,
-          title: notification.title,
-          message: notification.message,
-          data: {
-            job_id: job.id,
-            application_id: application.id,
-            stage: stage,
-            job_title: job.title,
-            rejection_reason: rejectionReason,
-          },
+      await notificationService.sendNotification({
+        user_id: application.seekerId,
+        type: NotificationType.APPLICATION_STATUS,
+        title: notification.title,
+        message: notification.message,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          stage: stage,
+          job_title: job.title,
+          rejection_reason: rejectionReason,
         },
-      );
+      });
     }
 
     return updatedApplication;

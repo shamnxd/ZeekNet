@@ -1,7 +1,7 @@
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
 import { Notification } from '../../../domain/entities/notification.entity';
-import { NotFoundError } from '../../../domain/errors/errors';
+import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 
 export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUseCase {
   constructor(
@@ -9,12 +9,31 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
   ) {}
 
   async execute(userId: string, notificationId: string): Promise<Notification | null> {
-    const notification = await this._notificationRepository.markAsRead(notificationId, userId);
+    // First verify the notification exists and belongs to the user
+    const notification = await this._notificationRepository.findById(notificationId);
     
     if (!notification) {
-      throw new NotFoundError('Notification not found or already read');
+      throw new NotFoundError('Notification not found');
     }
 
-    return notification;
+    if (notification.userId !== userId) {
+      throw new ValidationError('You can only mark your own notifications as read');
+    }
+
+    if (notification.isRead) {
+      return notification; // Already read, return as-is
+    }
+
+    // Use base repository update method
+    const updatedNotification = await this._notificationRepository.update(notificationId, {
+      isRead: true,
+      readAt: new Date(),
+    });
+
+    if (!updatedNotification) {
+      throw new NotFoundError('Failed to update notification');
+    }
+
+    return updatedNotification;
   }
 }

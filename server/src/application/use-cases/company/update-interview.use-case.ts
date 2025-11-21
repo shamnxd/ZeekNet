@@ -5,7 +5,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
+import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
@@ -70,22 +70,20 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     const updatedInterview = updatedApplication.interviews.find((int) => int.id === interviewId);
 
     if (updatedInterview) {
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: application.seekerId,
-          type: NotificationType.INTERVIEW_SCHEDULED,
-          title: 'Interview Updated',
-          message: `Interview details for ${job.title} have been updated`,
-          data: {
-            job_id: job.id,
-            application_id: application.id,
-            interview_id: interviewId,
-            interview_date: updatedInterview.date?.toISOString(),
-            interview_time: updatedInterview.time,
-            interview_type: updatedInterview.interviewType,
-            location: updatedInterview.location,
-            interviewer_name: updatedInterview.interviewerName,
+      await notificationService.sendNotification({
+        user_id: application.seekerId,
+        type: NotificationType.INTERVIEW_SCHEDULED,
+        title: 'Interview Updated',
+        message: `Interview details for ${job.title} have been updated`,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          interview_id: interviewId,
+          interview_date: updatedInterview.date?.toISOString(),
+          interview_time: updatedInterview.time,
+          interview_type: updatedInterview.interviewType,
+          location: updatedInterview.location,
+          interviewer_name: updatedInterview.interviewerName,
             status: updatedInterview.status,
             job_title: job.title,
           },

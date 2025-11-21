@@ -10,14 +10,9 @@ export interface CreateNotificationData {
   data?: Record<string, unknown>;
 }
 
-export interface INotificationRepository extends Omit<IBaseRepository<Notification>, 'create'> {
-  // Custom create signature for notifications
-  create(data: CreateNotificationData): Promise<Notification>;
-  
-  // Notification-specific methods
+export interface INotificationRepository extends IBaseRepository<Notification> {
+  // Notification-specific methods that need custom implementation
   findByUserId(userId: string, limit: number, skip: number): Promise<Notification[]>;
-  markAsRead(notificationId: string, userId: string): Promise<Notification | null>;
   markAllAsRead(userId: string): Promise<void>;
-  getUnreadCount(userId: string): Promise<number>;
 }
 

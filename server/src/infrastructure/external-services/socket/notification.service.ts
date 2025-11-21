@@ -1,9 +1,14 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { INotificationRepository, CreateNotificationData } from '../../domain/interfaces/repositories/notification/INotificationRepository';
+import { CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
+import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
 
 export class NotificationService {
   private io: SocketIOServer | null = null;
   private userSockets: Map<string, string> = new Map();
+
+  constructor(
+    private readonly createNotificationUseCase: ICreateNotificationUseCase,
+  ) {}
 
   setIO(io: SocketIOServer): void {
     this.io = io;
@@ -17,11 +22,8 @@ export class NotificationService {
     this.userSockets.delete(userId);
   }
 
-  async sendNotification(
-    repository: INotificationRepository,
-    data: CreateNotificationData,
-  ): Promise<void> {
-    const notification = await repository.create(data);
+  async sendNotification(data: CreateNotificationData): Promise<void> {
+    const notification = await this.createNotificationUseCase.execute(data);
 
     const socketId = this.userSockets.get(data.user_id);
     if (socketId && this.io) {
@@ -39,6 +41,3 @@ export class NotificationService {
     }
   }
 }
-
-export const notificationService = new NotificationService();
-

@@ -1,4 +1,4 @@
-import { notificationService } from '../../../infrastructure/services/notification.service';
+import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 
 export class BlockUserUseCase {

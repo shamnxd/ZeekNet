@@ -6,7 +6,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { ICreateJobApplicationUseCase, CreateJobApplicationData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
+import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
@@ -63,20 +63,17 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     const companyProfile = await this._companyProfileRepository.findById(job.companyId);
     if (companyProfile) {
       // Send notification to company user
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: companyProfile.userId,
-          type: NotificationType.JOB_APPLICATION,
-          title: 'New Job Application',
-          message: `You have received a new application for ${job.title}`,
-          data: {
-            job_id: job.id,
-            application_id: application.id,
-            job_title: job.title,
-          },
+      await notificationService.sendNotification({
+        user_id: companyProfile.userId,
+        type: NotificationType.JOB_APPLICATION,
+        title: 'New Job Application',
+        message: `You have received a new application for ${job.title}`,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          job_title: job.title,
         },
-      );
+      });
     }
 
     return application;

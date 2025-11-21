@@ -5,7 +5,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
+import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {
@@ -55,22 +55,20 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
 
     const newInterview = updatedApplication.interviews[updatedApplication.interviews.length - 1];
 
-    await notificationService.sendNotification(
-      this._notificationRepository,
-      {
-        user_id: application.seekerId,
-        type: NotificationType.INTERVIEW_SCHEDULED,
-        title: 'Interview Scheduled',
-        message: `An interview has been scheduled for ${job.title}`,
-        data: {
-          job_id: job.id,
-          application_id: application.id,
-          interview_id: newInterview.id,
-          interview_date: interviewDate.toISOString(),
-          interview_time: interviewData.time,
-          interview_type: interviewData.interviewType,
-          location: interviewData.location,
-          interviewer_name: interviewData.interviewerName,
+    await notificationService.sendNotification({
+      user_id: application.seekerId,
+      type: NotificationType.INTERVIEW_SCHEDULED,
+      title: 'Interview Scheduled',
+      message: `An interview has been scheduled for ${job.title}`,
+      data: {
+        job_id: job.id,
+        application_id: application.id,
+        interview_id: newInterview.id,
+        interview_date: interviewDate.toISOString(),
+        interview_time: interviewData.time,
+        interview_type: interviewData.interviewType,
+        location: interviewData.location,
+        interviewer_name: interviewData.interviewerName,
           job_title: job.title,
         },
       },

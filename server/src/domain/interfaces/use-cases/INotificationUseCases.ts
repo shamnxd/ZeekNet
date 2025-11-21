@@ -1,4 +1,9 @@
 import { Notification } from '../../entities/notification.entity';
+import { CreateNotificationData } from '../repositories/notification/INotificationRepository';
+
+export interface ICreateNotificationUseCase {
+  execute(data: CreateNotificationData): Promise<Notification>;
+}
 
 export interface IGetNotificationsUseCase {
   execute(userId: string, limit: number, skip: number): Promise<Notification[]>;

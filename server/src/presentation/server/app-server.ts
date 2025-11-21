@@ -9,7 +9,7 @@ import { connectToDatabase } from '../../infrastructure/database/mongodb/connect
 import { connectRedis } from '../../infrastructure/database/redis/connection/redis';
 import { env } from '../../infrastructure/config/env';
 import { logger } from '../../infrastructure/config/logger';
-import { SocketServer } from '../../infrastructure/socket/socket-server';
+import { SocketServer } from '../../infrastructure/external-services/socket/socket-server';
 
 import { AuthRouter } from '../routes/auth-router';
 import { CompanyRouter } from '../routes/company-router';
