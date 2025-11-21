@@ -3,7 +3,6 @@ import { CompanyProfile } from '../../../../domain/entities/company-profile.enti
 import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from '../models/company-profile.model';
 import { CompanyProfileMapper } from '../mappers/company-profile.mapper';
 import { RepositoryBase } from './base-repository';
-import { Types } from 'mongoose';
 
 interface CompanyQuery {
   $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
@@ -78,34 +77,16 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
 
       const companies = paginatedCompanies.map((doc) => {
         const populatedDoc = doc as PopulatedCompanyDocument;
-        const userId =
-          populatedDoc.userId && typeof populatedDoc.userId === 'object' ? String(populatedDoc.userId._id || '') : String(populatedDoc.userId || '');
-
-        const rawDoc = doc as { _id?: unknown; id?: string | unknown };
-        let docId: unknown = rawDoc._id;
-        if (!docId && rawDoc.id && typeof rawDoc.id === 'string') {
-          docId = new Types.ObjectId(rawDoc.id);
-        } else if (!docId) {
-          docId = rawDoc.id || populatedDoc._id;
-        }
-
-        const docForMapper: ModelDocument = {
-          _id: docId,
-          userId: userId,
-          companyName: populatedDoc.companyName,
-          logo: populatedDoc.logo,
-          banner: populatedDoc.banner,
-          websiteLink: populatedDoc.websiteLink,
-          employeeCount: populatedDoc.employeeCount,
-          industry: populatedDoc.industry,
-          organisation: populatedDoc.organisation,
-          aboutUs: populatedDoc.aboutUs,
-          isVerified: populatedDoc.isVerified,
-          rejectionReason: populatedDoc.rejectionReason,
-          createdAt: populatedDoc.createdAt,
-          updatedAt: populatedDoc.updatedAt,
+        
+        // Convert populated userId back to string for mapper
+        const docWithStringUserId = {
+          ...doc,
+          userId: populatedDoc.userId && typeof populatedDoc.userId === 'object' 
+            ? String(populatedDoc.userId._id || '') 
+            : String(populatedDoc.userId || ''),
         } as ModelDocument;
-        const entity = this.mapToEntity(docForMapper);
+        
+        const entity = this.mapToEntity(docWithStringUserId);
 
         const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
         const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
@@ -136,34 +117,16 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
 
       const companies = populatedDocs.map((doc) => {
         const populatedDoc = doc as PopulatedCompanyDocument;
-        const userId =
-          populatedDoc.userId && typeof populatedDoc.userId === 'object' ? String(populatedDoc.userId._id || '') : String(populatedDoc.userId || '');
-
-        const rawDoc = doc as { _id?: unknown; id?: string | unknown };
-        let docId: unknown = rawDoc._id;
-        if (!docId && rawDoc.id && typeof rawDoc.id === 'string') {
-          docId = new Types.ObjectId(rawDoc.id);
-        } else if (!docId) {
-          docId = rawDoc.id || populatedDoc._id;
-        }
-
-        const docForMapper: ModelDocument = {
-          _id: docId,
-          userId: userId,
-          companyName: populatedDoc.companyName,
-          logo: populatedDoc.logo,
-          banner: populatedDoc.banner,
-          websiteLink: populatedDoc.websiteLink,
-          employeeCount: populatedDoc.employeeCount,
-          industry: populatedDoc.industry,
-          organisation: populatedDoc.organisation,
-          aboutUs: populatedDoc.aboutUs,
-          isVerified: populatedDoc.isVerified,
-          rejectionReason: populatedDoc.rejectionReason,
-          createdAt: populatedDoc.createdAt,
-          updatedAt: populatedDoc.updatedAt,
+        
+        // Convert populated userId back to string for mapper
+        const docWithStringUserId = {
+          ...doc,
+          userId: populatedDoc.userId && typeof populatedDoc.userId === 'object' 
+            ? String(populatedDoc.userId._id || '') 
+            : String(populatedDoc.userId || ''),
         } as ModelDocument;
-        const entity = this.mapToEntity(docForMapper);
+        
+        const entity = this.mapToEntity(docWithStringUserId);
 
         const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
         const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
