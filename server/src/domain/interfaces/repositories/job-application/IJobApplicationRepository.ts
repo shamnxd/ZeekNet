@@ -38,10 +38,6 @@ export interface IJobApplicationRepository extends IBaseRepository<JobApplicatio
     page: number;
     limit: number;
   }): Promise<PaginatedApplications>;
-  
-  // Score and stage updates
-  updateScore(applicationId: string, score: number): Promise<JobApplication | null>;
-  updateStage(applicationId: string, stage: ApplicationStage, rejectionReason?: string): Promise<JobApplication | null>;
 }
 
 

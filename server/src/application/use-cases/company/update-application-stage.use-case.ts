@@ -40,7 +40,12 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       throw new ValidationError('You can only update applications for your own job postings');
     }
 
-    const updatedApplication = await this._jobApplicationRepository.updateStage(applicationId, stage, rejectionReason);
+    const updateData: Partial<JobApplication> & { rejectionReason?: string } = { stage };
+    if (stage === 'rejected' && rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+
+    const updatedApplication = await this._jobApplicationRepository.update(applicationId, updateData as Partial<JobApplication>);
 
     if (!updatedApplication) {
       throw new NotFoundError('Failed to update application stage');

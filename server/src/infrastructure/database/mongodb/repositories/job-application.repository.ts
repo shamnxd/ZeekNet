@@ -130,31 +130,6 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     };
   }
 
-  async updateScore(applicationId: string, score: number): Promise<JobApplication | null> {
-    const updated = await JobApplicationModel.findByIdAndUpdate(
-      applicationId,
-      { score, updatedAt: new Date() },
-      { new: true },
-    );
-
-    return updated ? this.mapToEntity(updated) : null;
-  }
-
-  async updateStage(applicationId: string, stage: ApplicationStage, rejectionReason?: string): Promise<JobApplication | null> {
-    const updateData: Record<string, unknown> = { stage, updatedAt: new Date() };
-    if (stage === 'rejected' && rejectionReason) {
-      updateData.rejection_reason = rejectionReason;
-    }
-
-    const updated = await JobApplicationModel.findByIdAndUpdate(
-      applicationId,
-      updateData,
-      { new: true },
-    );
-
-    return updated ? this.mapToEntity(updated) : null;
-  }
-
   async findBySeekerId(seekerId: string, filters: { stage?: ApplicationStage; page: number; limit: number }): Promise<PaginatedApplications> {
     const query: Record<string, unknown> = { seeker_id: new Types.ObjectId(seekerId) };
     if (filters.stage) query.stage = filters.stage;

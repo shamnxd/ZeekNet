@@ -35,7 +35,7 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
       throw new ValidationError('Score must be between 0 and 5');
     }
 
-    const updatedApplication = await this._jobApplicationRepository.updateScore(applicationId, score);
+    const updatedApplication = await this._jobApplicationRepository.update(applicationId, { score });
 
     if (!updatedApplication) {
       throw new NotFoundError('Failed to update application score');
