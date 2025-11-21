@@ -5,7 +5,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {

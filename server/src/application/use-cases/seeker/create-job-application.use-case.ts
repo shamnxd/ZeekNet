@@ -6,7 +6,7 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { ICreateJobApplicationUseCase, CreateJobApplicationData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/external-services/socket/notification.service';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
