@@ -4,6 +4,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IUpdateApplicationScoreUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUseCase {
   constructor(
@@ -12,41 +14,39 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, score: number): Promise<JobApplication> {
-    // Get company profile
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  async execute(userId: string, applicationId: string, score: number): Promise<JobApplicationListResponseDto> {
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Get application
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    // Verify company owns the job
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only update applications for your own job postings');
     }
 
-    // Validate score range
     if (score < 0 || score > 5) {
       throw new ValidationError('Score must be between 0 and 5');
     }
 
-    // Update score
-    const updatedApplication = await this._jobApplicationRepository.updateScore(applicationId, score);
+    const updatedApplication = await this._jobApplicationRepository.update(applicationId, { score });
 
     if (!updatedApplication) {
       throw new NotFoundError('Failed to update application score');
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toListDto(updatedApplication, {
+      jobTitle: job.title,
+    });
   }
 }
+
 

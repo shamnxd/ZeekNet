@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { 
@@ -15,12 +16,37 @@ import {
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
+import { companyApi } from '@/api/company.api'
 
 const CompanySidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
   const { name, email } = useAppSelector((state) => state.auth)
+  const [companyName, setCompanyName] = useState(name || 'Company')
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const [companyEmail, setCompanyEmail] = useState(email || 'company@email.com')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchCompanyProfile()
+  }, [])
+
+  const fetchCompanyProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await companyApi.getCompleteProfile()
+      if (response.success && response.data) {
+        const { profile, contact } = response.data
+        setCompanyName(profile.company_name || name || 'Company')
+        setCompanyLogo(profile.logo || null)
+        setCompanyEmail(contact?.email || profile.email || email || 'company@email.com')
+      }
+    } catch {
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const navigationItems = [
     {
@@ -183,16 +209,30 @@ const CompanySidebar = () => {
       <div className="flex-shrink-0 px-7 py-4 border-t border-gray-200">
         <div className="flex items-center gap-3">
           {}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">
-              {(name || 'Company').charAt(0).toUpperCase()}
-            </span>
-          </div>
+          {companyLogo ? (
+            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
+              <img 
+                src={companyLogo} 
+                alt={companyName || 'Company Logo'} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">
+                {loading ? 'C' : (companyName || 'Company').charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
           
           {}
           <div className="flex flex-col">
-            <p className="text-sm font-semibold text-[#25324B] leading-5">{name || 'Company'}</p>
-            <p className="text-xs text-[#515B6F] opacity-50 leading-5">{email || 'company@email.com'}</p>
+            <p className="text-sm font-semibold text-[#25324B] leading-5">
+              {loading ? 'Loading...' : (companyName || 'Company')}
+            </p>
+            <p className="text-xs text-[#515B6F] opacity-50 leading-5">
+              {loading ? 'Loading...' : (companyEmail || 'company@email.com')}
+            </p>
           </div>
         </div>
         

@@ -1,24 +1,16 @@
 import { UserRepository } from '../database/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanyListingRepository } from '../database/mongodb/repositories/company-listing.repository';
 import { CompanyVerificationRepository } from '../database/mongodb/repositories/company-verification.repository';
 import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
 import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
 import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
 import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
-import { BcryptPasswordHasher } from '../security/bcrypt-password-hasher';
-import { JwtTokenService } from '../security/jwt-token-service';
-import { RedisOtpService } from '../database/redis/services/redis-otp-service';
-import { NodemailerService } from '../messaging/mailer';
-import { AdminLoginUseCase } from '../../application/use-cases/auth/admin-login.use-case';
 import { GetAllUsersUseCase } from '../../application/use-cases/admin/get-all-users.use-case';
 import { BlockUserUseCase } from '../../application/use-cases/admin/block-user.use-case';
 import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-by-id.use-case';
-import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
 import { GetCompaniesWithVerificationUseCase } from '../../application/use-cases/admin/get-companies-with-verification.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
 import { VerifyCompanyUseCase } from '../../application/use-cases/admin/verify-company.use-case';
-import { BlockCompanyUseCase } from '../../application/use-cases/admin/block-company.use-case';
 import { AdminGetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
 import { AdminGetJobByIdUseCase } from '../../application/use-cases/admin/get-job-by-id.use-case';
 import { AdminUpdateJobStatusUseCase } from '../../application/use-cases/admin/update-job-status.use-case';
@@ -44,23 +36,17 @@ import { AdminJobController } from '../../presentation/controllers/admin/admin-j
 import { AdminJobCategoryController } from '../../presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
+import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
-const companyListingRepository = new CompanyListingRepository();
 const companyVerificationRepository = new CompanyVerificationRepository();
 const jobPostingRepository = new JobPostingRepository();
 const jobCategoryRepository = new JobCategoryRepository();
 const skillRepository = new SkillRepository();
 const jobRoleRepository = new JobRoleRepository();
 
-const passwordHasher = new BcryptPasswordHasher();
-const tokenService = new JwtTokenService();
-const otpService = new RedisOtpService();
-const mailerService = new NodemailerService();
 const s3Service = new S3Service();
-
-const adminLoginUseCase = new AdminLoginUseCase(userRepository, userRepository, passwordHasher, tokenService, otpService, mailerService);
 
 const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
 
@@ -68,15 +54,13 @@ const blockUserUseCase = new BlockUserUseCase(userRepository);
 
 const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 
-const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyListingRepository);
+const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository);
 
-const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyListingRepository, companyVerificationRepository, s3Service);
+const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
 const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
 
-const blockCompanyUseCase = new BlockCompanyUseCase(companyProfileRepository);
-
-const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository);
+const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
 
 const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
 
@@ -92,7 +76,7 @@ const getJobCategoryByIdUseCase = new GetJobCategoryByIdUseCase(jobCategoryRepos
 const updateJobCategoryUseCase = new UpdateJobCategoryUseCase(jobCategoryRepository);
 const deleteJobCategoryUseCase = new DeleteJobCategoryUseCase(jobCategoryRepository);
 
-const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getAllCompaniesUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase, blockCompanyUseCase);
+const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase);
 
 const adminJobController = new AdminJobController(adminGetAllJobsUseCase, adminGetJobByIdUseCase, adminUpdateJobStatusUseCase, adminDeleteJobUseCase, adminGetJobStatsUseCase);
 

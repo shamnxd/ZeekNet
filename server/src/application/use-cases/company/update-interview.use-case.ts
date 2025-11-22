@@ -5,8 +5,10 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
@@ -16,35 +18,31 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplication> {
-    // Get company profile
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Get application
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    // Verify company owns the job
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
-    // Check if interview exists
     const interview = application.interviews.find((int) => int.id === interviewId);
     if (!interview) {
       throw new NotFoundError('Interview not found');
     }
 
-    // Prepare update data
     const updateData: Partial<UpdateInterviewData> = {};
     if (interviewData.date !== undefined) {
       updateData.date = interviewData.date instanceof Date ? interviewData.date : new Date(interviewData.date);
@@ -52,55 +50,56 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     if (interviewData.time !== undefined) {
       updateData.time = interviewData.time;
     }
-    if (interviewData.interview_type !== undefined) {
-      updateData.interview_type = interviewData.interview_type;
+    if (interviewData.interviewType !== undefined) {
+      updateData.interviewType = interviewData.interviewType;
     }
     if (interviewData.location !== undefined) {
       updateData.location = interviewData.location;
     }
-    if (interviewData.interviewer_name !== undefined) {
-      updateData.interviewer_name = interviewData.interviewer_name;
+    if (interviewData.interviewerName !== undefined) {
+      updateData.interviewerName = interviewData.interviewerName;
     }
     if (interviewData.status !== undefined) {
       updateData.status = interviewData.status;
     }
 
-    // Update interview
     const updatedApplication = await this._jobApplicationRepository.updateInterview(applicationId, interviewId, updateData);
 
     if (!updatedApplication) {
       throw new NotFoundError('Failed to update interview');
     }
 
-    // Get the updated interview
     const updatedInterview = updatedApplication.interviews.find((int) => int.id === interviewId);
 
-    // Send notification to seeker about interview update
     if (updatedInterview) {
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: application.seeker_id,
-          type: NotificationType.INTERVIEW_SCHEDULED,
-          title: 'Interview Updated',
-          message: `Interview details for ${job.title} have been updated`,
-          data: {
-            job_id: job._id,
-            application_id: application.id,
-            interview_id: interviewId,
-            interview_date: updatedInterview.date?.toISOString(),
-            interview_time: updatedInterview.time,
-            interview_type: updatedInterview.interview_type,
-            location: updatedInterview.location,
-            interviewer_name: updatedInterview.interviewer_name,
-            status: updatedInterview.status,
-            job_title: job.title,
-          },
-        }
+      await notificationService.sendNotification({
+        user_id: application.seekerId,
+        type: NotificationType.INTERVIEW_SCHEDULED,
+        title: 'Interview Updated',
+        message: `Interview details for ${job.title} have been updated`,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          interview_id: interviewId,
+          interview_date: updatedInterview.date?.toISOString(),
+          interview_time: updatedInterview.time,
+          interview_type: updatedInterview.interviewType,
+          location: updatedInterview.location,
+          interviewer_name: updatedInterview.interviewerName,
+          status: updatedInterview.status,
+          job_title: job.title,
+        },
+      },
       );
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
+
 

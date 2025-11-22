@@ -1,11 +1,10 @@
-import { CompanyVerification } from '../../../entities/company-profile.entity';
+import { CompanyVerification } from '../../../entities/company-verification.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
-export interface ICompanyVerificationRepository {
-  createVerification(verification: Omit<CompanyVerification, 'id' | 'createdAt' | 'updatedAt'>): Promise<CompanyVerification>;
-
-  getVerificationByCompanyId(companyId: string): Promise<CompanyVerification | null>;
-  updateVerificationStatus(companyId: string, isVerified: 'pending' | 'rejected' | 'verified', rejectionReason?: string): Promise<void>;
-  updateVerification(companyId: string, updates: Partial<CompanyVerification>): Promise<CompanyVerification>;
-  deleteVerification(companyId: string): Promise<void>;
+export interface ICompanyVerificationRepository extends IBaseRepository<CompanyVerification> {
+  // Complex query that requires specific business logic
   getPendingVerifications(): Promise<CompanyVerification[]>;
+  
+  // Special method that updates CompanyProfile model (cross-model operation)
+  updateVerificationStatus(companyId: string, isVerified: 'pending' | 'rejected' | 'verified', rejectionReason?: string): Promise<void>;
 }

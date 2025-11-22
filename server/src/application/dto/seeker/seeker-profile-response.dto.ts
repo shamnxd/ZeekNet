@@ -43,6 +43,8 @@ export interface SeekerProfileResponseDto {
   email: string | null; 
   avatarUrl: string | null; 
   bannerUrl: string | null; 
+  dateOfBirth: string | null;
+  gender: string | null;
   skills: string[];
   languages: string[];
   socialLinks: SocialLinkResponseDto[];

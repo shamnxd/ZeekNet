@@ -1,100 +1,52 @@
 import { JobPosting } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
-import { JobPostingResponseDto } from '../../../../application/dto/job-posting/job-posting-response.dto';
+import { Types } from 'mongoose';
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument): JobPosting {
-    let companyId = '';
-    let companyName: string | undefined;
-    let companyLogo: string | undefined;
-
-    if (doc.company_id) {
-      const companyIdValue = doc.company_id as unknown;
-      if (typeof companyIdValue === 'object' && companyIdValue && '_id' in companyIdValue) {
-        companyId = String((companyIdValue as { _id: unknown })._id);
-        if ('companyName' in companyIdValue) {
-          companyName = String((companyIdValue as { companyName: unknown }).companyName);
-        }
-        if ('logo' in companyIdValue) {
-          companyLogo = String((companyIdValue as { logo: unknown }).logo);
-        }
-      } else {
-        companyId = String(companyIdValue);
-      }
-    }
-
-    return {
-      _id: String(doc._id),
-      company_id: companyId,
-      company_name: companyName,
-      company_logo: companyLogo,
+    return JobPosting.create({
+      id: String(doc._id),
+      companyId: String(doc.company_id),
       title: doc.title || '',
       description: doc.description || '',
       responsibilities: doc.responsibilities || [],
       qualifications: doc.qualifications || [],
-      nice_to_haves: doc.nice_to_haves || [],
+      niceToHaves: doc.nice_to_haves || [],
       benefits: doc.benefits || [],
       salary: doc.salary || { min: 0, max: 0 },
-      employment_types: doc.employment_types || [],
+      employmentTypes: doc.employment_types || [],
       location: doc.location || '',
-      skills_required: doc.skills_required || [],
-      category_ids: doc.category_ids || [],
-      is_active: doc.is_active !== undefined ? doc.is_active : true,
-      admin_blocked: doc.admin_blocked,
-      unpublish_reason: doc.unpublish_reason,
-      view_count: doc.view_count || 0,
-      application_count: doc.application_count || 0,
+      skillsRequired: doc.skills_required || [],
+      categoryIds: doc.category_ids || [],
+      isActive: doc.is_active !== undefined ? doc.is_active : true,
+      viewCount: doc.view_count || 0,
+      applicationCount: doc.application_count || 0,
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
-    };
+      adminBlocked: doc.admin_blocked,
+      unpublishReason: doc.unpublish_reason,
+    });
   }
 
-  static toClientResponse(doc: JobPostingDocument): JobPostingResponseDto {
-    let companyId = '';
-    let companyName: string | undefined;
-    let companyLogo: string | undefined;
-
-    if (doc.company_id) {
-      const companyIdValue = doc.company_id as unknown;
-      if (typeof companyIdValue === 'object' && companyIdValue && '_id' in companyIdValue) {
-        companyId = String((companyIdValue as { _id: unknown })._id);
-        if ('companyName' in companyIdValue) {
-          companyName = String((companyIdValue as { companyName: unknown }).companyName);
-        }
-        if ('logo' in companyIdValue) {
-          companyLogo = String((companyIdValue as { logo: unknown }).logo);
-        }
-      } else {
-        companyId = String(companyIdValue);
-      }
-    }
-
+  static toDocument(entity: JobPosting): Partial<JobPostingDocument> {
     return {
-      id: String(doc._id),
-      company_id: companyId,
-      company_name: companyName,
-      company_logo: companyLogo,
-      title: doc.title,
-      description: doc.description || '',
-      responsibilities: doc.responsibilities || [],
-      qualifications: doc.qualifications || [],
-      nice_to_haves: doc.nice_to_haves || [],
-      benefits: doc.benefits || [],
-      salary: {
-        min: doc.salary.min,
-        max: doc.salary.max,
-      },
-      employment_types: Array.isArray(doc.employment_types) ? doc.employment_types : [],
-      location: doc.location,
-      skills_required: Array.isArray(doc.skills_required) ? doc.skills_required : [],
-      category_ids: Array.isArray(doc.category_ids) ? doc.category_ids : [],
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt || doc.createdAt,
-      is_active: doc.is_active !== undefined ? doc.is_active : true,
-      admin_blocked: doc.admin_blocked,
-      unpublish_reason: doc.unpublish_reason,
-      application_count: doc.application_count || 0,
-      view_count: doc.view_count || 0,
+      company_id: new Types.ObjectId(entity.companyId),
+      title: entity.title,
+      description: entity.description,
+      responsibilities: entity.responsibilities,
+      qualifications: entity.qualifications,
+      nice_to_haves: entity.niceToHaves,
+      benefits: entity.benefits,
+      salary: entity.salary,
+      employment_types: entity.employmentTypes,
+      location: entity.location,
+      skills_required: entity.skillsRequired,
+      category_ids: entity.categoryIds,
+      is_active: entity.isActive,
+      admin_blocked: entity.adminBlocked,
+      unpublish_reason: entity.unpublishReason,
+      view_count: entity.viewCount,
+      application_count: entity.applicationCount,
     };
   }
 }

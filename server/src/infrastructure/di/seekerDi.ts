@@ -6,10 +6,6 @@ import { SeekerEducationRepository } from '../database/mongodb/repositories/seek
 import { UserRepository } from '../database/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
 import { notificationRepository } from './notificationDi';
-import { GetAllJobPostingsUseCase } from '../../application/use-cases/public/get-all-job-postings.use-case';
-import { GetJobPostingUseCase } from '../../application/use-cases/company/get-job-posting.use-case';
-import { IncrementJobViewCountUseCase } from '../../application/use-cases/company/increment-job-view-count.use-case';
-import { SeekerController } from '../../presentation/controllers/seeker/seeker.controller';
 import { SeekerProfileController } from '../../presentation/controllers/seeker/seeker-profile.controller';
 import { SeekerJobApplicationController } from '../../presentation/controllers/seeker/job-application.controller';
 import { CreateJobApplicationUseCase } from '../../application/use-cases/seeker/create-job-application.use-case';
@@ -30,6 +26,8 @@ import { UpdateSkillsUseCase } from '../../application/use-cases/seeker/update-s
 import { UpdateLanguagesUseCase } from '../../application/use-cases/seeker/update-languages.use-case';
 import { UploadResumeUseCase } from '../../application/use-cases/seeker/upload-resume.use-case';
 import { RemoveResumeUseCase } from '../../application/use-cases/seeker/remove-resume.use-case';
+import { UploadAvatarUseCase } from '../../application/use-cases/seeker/upload-avatar.use-case';
+import { UploadBannerUseCase } from '../../application/use-cases/seeker/upload-banner.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
 
 const jobPostingRepository = new JobPostingRepository();
@@ -40,10 +38,6 @@ const seekerEducationRepository = new SeekerEducationRepository();
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
 const s3Service = new S3Service();
-
-const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
-const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
-const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPostingRepository);
 
 const createSeekerProfileUseCase = new CreateSeekerProfileUseCase(seekerProfileRepository, s3Service);
 const getSeekerProfileUseCase = new GetSeekerProfileUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
@@ -60,11 +54,13 @@ const updateSkillsUseCase = new UpdateSkillsUseCase(seekerProfileRepository);
 const updateLanguagesUseCase = new UpdateLanguagesUseCase(seekerProfileRepository);
 const uploadResumeUseCase = new UploadResumeUseCase(seekerProfileRepository);
 const removeResumeUseCase = new RemoveResumeUseCase(seekerProfileRepository);
+const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3Service);
+const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
 // Job Application Use Cases
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
-const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository);
-const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository);
+const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository);
+const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
 
 const seekerProfileController = new SeekerProfileController(
   createSeekerProfileUseCase,
@@ -82,15 +78,8 @@ const seekerProfileController = new SeekerProfileController(
   updateLanguagesUseCase,
   uploadResumeUseCase,
   removeResumeUseCase,
-  s3Service,
-  userRepository,
-);
-
-const seekerController = new SeekerController(
-  getJobPostingUseCase,
-  getAllJobPostingsUseCase,
-  incrementJobViewCountUseCase,
-  seekerProfileController,
+  uploadAvatarUseCase,
+  uploadBannerUseCase,
 );
 
 const seekerJobApplicationController = new SeekerJobApplicationController(
@@ -101,4 +90,4 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   jobPostingRepository,
 );
 
-export { seekerController, seekerJobApplicationController, seekerProfileRepository };
+export { seekerJobApplicationController, seekerProfileController, seekerProfileRepository };

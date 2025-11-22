@@ -16,4 +16,16 @@ export class UserMapper {
       updatedAt: doc.updatedAt,
     });
   }
+
+  static toDocument(entity: User): Partial<UserDocument> {
+    return {
+      name: entity.name,
+      email: entity.email,
+      password: entity.password,
+      role: entity.role,
+      isVerified: entity.isVerified,
+      isBlocked: entity.isBlocked,
+      refreshToken: entity.refreshToken || undefined,
+    };
+  }
 }

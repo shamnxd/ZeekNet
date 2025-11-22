@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export class CompanyOfficeLocation {
-  private constructor(
+  constructor(
     public readonly id: string,
     public readonly companyId: string,
-    public location: string,
-    public isHeadquarters: boolean,
+    public readonly location: string,
+    public readonly isHeadquarters: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public officeName?: string,
-    public address?: string,
+    public readonly officeName?: string,
+    public readonly address?: string,
   ) {}
 
   static create(data: {
@@ -35,38 +35,4 @@ export class CompanyOfficeLocation {
     );
   }
 
-  toJSON() {
-    return {
-      id: this.id,
-      companyId: this.companyId,
-      location: this.location,
-      officeName: this.officeName,
-      address: this.address,
-      isHeadquarters: this.isHeadquarters,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-    };
-  }
-
-  static fromJSON(data: {
-    id: string;
-    companyId: string;
-    location: string;
-    isHeadquarters: boolean;
-    officeName?: string;
-    address?: string;
-    createdAt: string | Date;
-    updatedAt: string | Date;
-  }): CompanyOfficeLocation {
-    return new CompanyOfficeLocation(
-      data.id,
-      data.companyId,
-      data.location,
-      data.isHeadquarters,
-      new Date(data.createdAt),
-      new Date(data.updatedAt),
-      data.officeName,
-      data.address,
-    );
-  }
 }

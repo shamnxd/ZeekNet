@@ -86,7 +86,7 @@ export function SeekerDashboard() {
                 </div>
               <div>
                 <p className="text-[13px] font-medium text-[#6b7280] mb-1">{stat.label}</p>
-                <p className="text-[28px] font-black text-[#1f2937] leading-none">{stat.value}</p>
+                <p className="text-[28px] font-bold text-[#1f2937] leading-none">{stat.value}</p>
               </div>
                   <div className="flex items-center gap-1">
                     <TrendingUp className="w-4 h-4 text-[#10b981]" />

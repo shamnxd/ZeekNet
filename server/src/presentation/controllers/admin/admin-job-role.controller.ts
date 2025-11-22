@@ -13,7 +13,6 @@ export class AdminJobRoleController {
 
   createJobRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Body is already validated by validateBody middleware
       const jobRole = await this._createJobRoleUseCase.execute(req.body.name);
       created(res, jobRole, 'Job role created successfully');
     } catch (error) {
@@ -23,8 +22,7 @@ export class AdminJobRoleController {
 
   getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Query is already validated by validateQuery middleware
-      const result = await this._getAllJobRolesUseCase.execute(req.query as any);
+      const result = await this._getAllJobRolesUseCase.execute(req.query);
       sendSuccessResponse(res, 'Job roles retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -52,7 +50,6 @@ export class AdminJobRoleController {
     }
 
     try {
-      // Body is already validated by validateBody middleware
       const jobRole = await this._updateJobRoleUseCase.execute(id, req.body.name);
       sendSuccessResponse(res, 'Job role updated successfully', jobRole);
     } catch (error) {

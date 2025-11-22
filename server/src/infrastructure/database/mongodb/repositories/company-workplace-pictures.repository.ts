@@ -14,15 +14,7 @@ export class CompanyWorkplacePicturesRepository extends RepositoryBase<CompanyWo
     return CompanyWorkplacePicturesMapper.toEntity(doc);
   }
 
-  protected convertToObjectIds(data: Partial<CompanyWorkplacePictures>): Partial<CompanyWorkplacePictures> {
-    const converted = { ...data };
-    if (converted.companyId && typeof converted.companyId === 'string') {
-      (converted as Record<string, unknown>).companyId = new Types.ObjectId(converted.companyId);
-    }
-    return converted;
-  }
-
-  async findByCompanyId(companyId: string): Promise<CompanyWorkplacePictures[]> {
-    return await this.findMany({ companyId: new Types.ObjectId(companyId) });
+  protected mapToDocument(entity: Partial<CompanyWorkplacePictures>): Partial<CompanyWorkplacePicturesDocument> {
+    return CompanyWorkplacePicturesMapper.toDocument(entity as CompanyWorkplacePictures);
   }
 }

@@ -1,4 +1,5 @@
 import { Skill } from '../../../entities/skill.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
 export interface SkillQueryFilters {
   page?: number;
@@ -9,18 +10,14 @@ export interface SkillQueryFilters {
 }
 
 export interface PaginatedSkills {
-  skills: Skill[];
+  data: Skill[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
 }
 
-export interface ISkillRepository {
-  create(name: string): Promise<Skill>;
-  findById(id: string): Promise<Skill | null>;
+export interface ISkillRepository extends IBaseRepository<Skill> {
+  // Special method with case-insensitive regex matching
   findByName(name: string): Promise<Skill | null>;
-  findAll(filters: SkillQueryFilters): Promise<PaginatedSkills>;
-  update(id: string, name: string): Promise<Skill | null>;
-  delete(id: string): Promise<boolean>;
 }

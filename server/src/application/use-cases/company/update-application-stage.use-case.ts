@@ -5,8 +5,10 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
   constructor(
@@ -21,36 +23,36 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     applicationId: string,
     stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired',
     rejectionReason?: string,
-  ): Promise<JobApplication> {
-    // Get company profile
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  ): Promise<JobApplicationListResponseDto> {
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Get application
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    // Verify company owns the job
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only update applications for your own job postings');
     }
 
-    // Update stage
-    const updatedApplication = await this._jobApplicationRepository.updateStage(applicationId, stage, rejectionReason);
+    const updateData: Partial<JobApplication> & { rejectionReason?: string } = { stage };
+    if (stage === 'rejected' && rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+
+    const updatedApplication = await this._jobApplicationRepository.update(applicationId, updateData as Partial<JobApplication>);
 
     if (!updatedApplication) {
       throw new NotFoundError('Failed to update application stage');
     }
 
-    // Send notification to seeker about status change
     const stageMessages: Record<string, { title: string; message: string }> = {
       shortlisted: {
         title: 'Application Shortlisted',
@@ -72,25 +74,25 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
 
     const notification = stageMessages[stage];
     if (notification) {
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: application.seeker_id,
-          type: NotificationType.APPLICATION_STATUS_CHANGED,
-          title: notification.title,
-          message: notification.message,
-          data: {
-            job_id: job._id,
-            application_id: application.id,
-            stage: stage,
-            job_title: job.title,
-            rejection_reason: rejectionReason,
-          },
-        }
-      );
+      await notificationService.sendNotification({
+        user_id: application.seekerId,
+        type: NotificationType.APPLICATION_STATUS,
+        title: notification.title,
+        message: notification.message,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          stage: stage,
+          job_title: job.title,
+          rejection_reason: rejectionReason,
+        },
+      });
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toListDto(updatedApplication, {
+      jobTitle: job.title,
+    });
   }
 }
+
 

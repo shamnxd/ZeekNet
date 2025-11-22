@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
-import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { AuthorizationError } from '../../domain/errors/errors';
-import { UserRole } from '../../domain/enums/user-role.enum';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -15,7 +12,6 @@ export interface AuthenticatedRequest extends Request {
 export class UserBlockedMiddleware {
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _companyRepository: ICompanyProfileRepository,
   ) {}
 
   checkUserBlocked = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -39,17 +35,6 @@ export class UserBlockedMiddleware {
         return;
       }
 
-      if (user.role === UserRole.COMPANY) {
-        const companyProfile = await this._companyRepository.getProfileByUserId(user.id);
-        if (companyProfile && companyProfile.isBlocked) {
-          res.status(403).json({
-            success: false,
-            message: 'Company account is blocked. Please contact support for assistance.',
-            data: null,
-          });
-          return;
-        }
-      }
 
       next();
     } catch (error) {

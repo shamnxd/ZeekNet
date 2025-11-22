@@ -37,19 +37,19 @@ const passwordResetService = new PasswordResetServiceImpl(mailerService);
 
 const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService);
 
-const loginUserUseCase = new LoginUserUseCase(userRepository, userRepository, passwordHasher, tokenService, otpService, mailerService);
+const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
 
-const adminLoginUseCase = new AdminLoginUseCase(userRepository, userRepository, passwordHasher, tokenService, otpService, mailerService);
+const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
 
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepository, passwordResetService);
 
 const resetPasswordUseCase = new ResetPasswordUseCase(passwordHasher, passwordResetService, userRepository);
 
-const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository, userRepository);
+const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository);
 
-const googleLoginUseCase = new GoogleLoginUseCase(userRepository, userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
+const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
 
-const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, userRepository, companyProfileRepository, tokenService, passwordHasher);
+const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, tokenService, passwordHasher);
 
 const logoutUseCase = new LogoutUseCase(userRepository);
 
@@ -67,7 +67,7 @@ export const registrationController = new RegistrationController(registerUserUse
 
 export const loginController = new LoginController(loginUserUseCase, adminLoginUseCase, googleLoginUseCase);
 
-export const tokenController = new TokenController(refreshTokenUseCase, getUserByIdUseCase, tokenService, getCompanyProfileByUserIdUseCase);
+export const tokenController = new TokenController(refreshTokenUseCase, getUserByIdUseCase, tokenService);
 
 export const passwordController = new PasswordController(forgotPasswordUseCase, resetPasswordUseCase, logoutUseCase);
 

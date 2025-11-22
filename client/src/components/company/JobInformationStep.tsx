@@ -238,7 +238,6 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
               }
             }}
             onBlur={() => {
-              // Delay to allow click on suggestion
               setTimeout(() => setShowJobRoleSuggestions(false), 200);
             }}
             className={`w-[387px] h-11 px-4 py-3 border rounded-[10px] ${errors.title ? 'border-red-500' : 'border-[#D6DDEB]'}`}

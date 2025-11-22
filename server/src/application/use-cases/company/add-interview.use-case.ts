@@ -5,8 +5,10 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {
   constructor(
@@ -16,41 +18,36 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplication> {
-    // Get company profile
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplicationDetailResponseDto> {  
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Get application
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    // Verify company owns the job
-    const job = await this._jobPostingRepository.findById(application.job_id);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
-    // Validate interview date is in the future
     const interviewDate = interviewData.date instanceof Date ? interviewData.date : new Date(interviewData.date);
     if (interviewDate < new Date()) {
       throw new ValidationError('Interview date must be in the future');
     }
 
-    // Add interview
     const updatedApplication = await this._jobApplicationRepository.addInterview(applicationId, {
       date: interviewDate,
       time: interviewData.time,
-      interview_type: interviewData.interview_type,
+      interviewType: interviewData.interviewType,
       location: interviewData.location,
-      interviewer_name: interviewData.interviewer_name,
+      interviewerName: interviewData.interviewerName,
       status: 'scheduled',
     });
 
@@ -58,32 +55,32 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
       throw new NotFoundError('Failed to add interview');
     }
 
-    // Get the newly added interview
     const newInterview = updatedApplication.interviews[updatedApplication.interviews.length - 1];
 
-    // Send notification to seeker about interview
-    await notificationService.sendNotification(
-      this._notificationRepository,
-      {
-        user_id: application.seeker_id,
-        type: NotificationType.INTERVIEW_SCHEDULED,
-        title: 'Interview Scheduled',
-        message: `An interview has been scheduled for ${job.title}`,
-        data: {
-          job_id: job._id,
-          application_id: application.id,
-          interview_id: newInterview.id,
-          interview_date: interviewDate.toISOString(),
-          interview_time: interviewData.time,
-          interview_type: interviewData.interview_type,
-          location: interviewData.location,
-          interviewer_name: interviewData.interviewer_name,
-          job_title: job.title,
-        },
-      }
+    await notificationService.sendNotification({
+      user_id: application.seekerId,
+      type: NotificationType.INTERVIEW_SCHEDULED,
+      title: 'Interview Scheduled',
+      message: `An interview has been scheduled for ${job.title}`,
+      data: {
+        job_id: job.id,
+        application_id: application.id,
+        interview_id: newInterview.id,
+        interview_date: interviewDate.toISOString(),
+        interview_time: interviewData.time,
+        interview_type: interviewData.interviewType,
+        location: interviewData.location,
+        interviewer_name: interviewData.interviewerName,
+        job_title: job.title,
+      },
+    },
     );
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
-

@@ -1,24 +1,20 @@
-import { IJobPostingSearchRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { AppError } from '../../../domain/errors/errors';
+import { IAdminGetJobStatsUseCase, AdminJobStats } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 
-export class AdminGetJobStatsUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingSearchRepository) {}
+export class AdminGetJobStatsUseCase implements IAdminGetJobStatsUseCase {
+  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute() {
+  async execute(): Promise<AdminJobStats> {
     try {
-      const allJobs = await this._jobPostingRepository.findAll({
-        page: 1,
-        limit: 10000,
-      });
-
-      const jobs = allJobs.jobs;
+      const jobs = await this._jobPostingRepository.findMany({});
 
       const stats = {
         total: jobs.length,
-        active: jobs.filter((job) => job.is_active).length,
-        inactive: jobs.filter((job) => !job.is_active).length,
-        totalApplications: jobs.reduce((sum, job) => sum + job.application_count, 0),
-        totalViews: jobs.reduce((sum, job) => sum + job.view_count, 0),
+        active: jobs.filter((job) => job.isActive).length,
+        inactive: jobs.filter((job) => !job.isActive).length,
+        totalApplications: jobs.reduce((sum, job) => sum + job.applicationCount, 0),
+        totalViews: jobs.reduce((sum, job) => sum + job.viewCount, 0),
       };
 
       return stats;

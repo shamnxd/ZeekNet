@@ -9,7 +9,7 @@ export class DeleteJobPostingUseCase {
   ) {}
 
   async execute(id: string, userId: string): Promise<void> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
     if (!companyProfile) {
       throw new AppError('Company profile not found', 404);
@@ -21,10 +21,10 @@ export class DeleteJobPostingUseCase {
       throw new AppError('Job posting not found', 404);
     }
 
-    if (!existingJob.company_id || existingJob.company_id === '') {
-      await this._jobPostingRepository.update(id, { company_id: companyProfile.id } as unknown);
-    } else if (existingJob.company_id !== companyProfile.id) {
-      if (existingJob.company_id !== userId) {
+    if (!existingJob.companyId || existingJob.companyId === '') {
+      await this._jobPostingRepository.update(id, { companyId: companyProfile.id });
+    } else if (existingJob.companyId !== companyProfile.id) {
+      if (existingJob.companyId !== userId) {
         throw new AppError('Unauthorized to delete this job posting', 403);
       }
     }
@@ -40,3 +40,4 @@ export class DeleteJobPostingUseCase {
     }
   }
 }
+

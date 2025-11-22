@@ -262,21 +262,6 @@ export const adminApi = {
       }
     },
 
-  blockCompany: async (data: { companyId: string; isBlocked: boolean }): Promise<{
-      success: boolean;
-      message?: string;
-    }> => {
-      try {
-        const response = await api.patch('/api/admin/companies/block', data);
-        return response.data;
-      } catch (error: any) {
-        return {
-          success: false,
-          message: error.response?.data?.message || 'Failed to update company status',
-        };
-      }
-    },
-
   getAllSkills: async (params: GetAllSkillsParams = {}): Promise<{
       success: boolean;
       data?: {
@@ -520,7 +505,7 @@ export interface User {
 
 export interface Company {
   id: string;
-  userId?: string;
+  userId: string;
   companyName: string;
   logo: string;
   banner: string;

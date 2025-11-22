@@ -14,7 +14,7 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
 
   async execute(userId: string, educationId: string, data: UpdateEducationData): Promise<EducationResponseDto> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -41,6 +41,13 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
     }
 
     const updatedEducation = await this._seekerEducationRepository.update(educationId, data);
+    
+    if (!updatedEducation) {
+      throw new NotFoundError('Failed to update education');
+    }
+    
     return SeekerProfileMapper.educationToDto(updatedEducation);
   }
 }
+
+

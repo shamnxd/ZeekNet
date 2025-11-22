@@ -6,10 +6,11 @@ export class GetCompanyTechStackUseCase implements IGetCompanyTechStackUseCase {
   constructor(private readonly _companyTechStackRepository: ICompanyTechStackRepository) {}
 
   async executeByCompanyId(companyId: string): Promise<CompanyTechStack[]> {
-    return this._companyTechStackRepository.findByCompanyId(companyId);
+    return this._companyTechStackRepository.findMany({ companyId });
   }
 
   async executeById(techStackId: string): Promise<CompanyTechStack | null> {
     return this._companyTechStackRepository.findById(techStackId);
   }
 }
+

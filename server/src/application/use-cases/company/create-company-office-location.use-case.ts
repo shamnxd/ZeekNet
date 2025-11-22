@@ -11,3 +11,4 @@ export class CreateCompanyOfficeLocationUseCase implements ICreateCompanyOfficeL
     return this._companyOfficeLocationRepository.create(officeLocation);
   }
 }
+

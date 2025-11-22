@@ -6,6 +6,5 @@ export interface IS3Service {
   deleteImageByKey(key: string): Promise<void>; 
   getSignedUrl(key: string, expiresIn?: number): Promise<string>; 
   extractKeyFromUrl(imageUrl: string): string; 
-  // Upload resumes (PDF/DOC/DOCX) into a dedicated folder, return public URL or key depending on implementation
   uploadResume?(file: Buffer, fileName: string, contentType: string): Promise<string>;
 }

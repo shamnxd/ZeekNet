@@ -32,6 +32,8 @@ export class SeekerProfileMapper {
       email: profile.email,
       avatarUrl: profile.avatarFileName ? s3Service.getImageUrl(profile.avatarFileName) : null,
       bannerUrl: profile.bannerFileName ? s3Service.getImageUrl(profile.bannerFileName) : null,
+      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : null,
+      gender: profile.gender,
       skills: profile.skills,
       languages: profile.languages,
       socialLinks: profile.socialLinks.map(link => this.socialLinkToDto(link)),
@@ -92,7 +94,8 @@ export class SeekerProfileMapper {
       location: dto.location,
       phone: dto.phone,
       email: dto.email,
-
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+      gender: dto.gender,
       skills: dto.skills,
       languages: dto.languages,
       socialLinks: dto.socialLinks?.map(link => ({
@@ -110,6 +113,8 @@ export class SeekerProfileMapper {
       phone: dto.phone,
       email: dto.email,
       name : dto.name,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+      gender: dto.gender,
       skills: dto.skills,
       languages: dto.languages,
       socialLinks: dto.socialLinks?.map(link => ({

@@ -9,7 +9,8 @@
     "start": "node -r tsconfig-paths/register dist/index.js",
     "test:s3": "node test-s3-routes.js",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed-data.ts"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,7 @@
     "express": "^4.19.2",
     "form-data": "^4.0.4",
     "google-auth-library": "^9.15.1",
+    "groq-sdk": "^0.36.0",
     "helmet": "^7.1.0",
     "inversify": "^6.2.2",
     "jest": "^30.1.3",

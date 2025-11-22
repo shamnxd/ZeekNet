@@ -2,9 +2,24 @@ import { User } from '../../entities/user.entity';
 import { CompanyProfile } from '../../entities/company-profile.entity';
 import { JobPosting, PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
 import { Skill } from '../../entities/skill.entity';
-import { PaginatedSkills, SkillQueryFilters } from '../repositories/skill/ISkillRepository';
 import { JobRole } from '../../entities/job-role.entity';
-import { PaginatedJobRoles, JobRoleQueryFilters } from '../repositories/job-role/IJobRoleRepository';
+import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
+
+export interface PaginatedSkills {
+  data: Skill[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedJobRoles {
+  data: JobRole[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export interface AuthResponse {
   accessToken: string;
@@ -109,12 +124,16 @@ export interface IVerifyCompanyUseCase {
   execute(companyId: string, isVerified: 'pending' | 'rejected' | 'verified', rejectionReason?: string): Promise<void>;
 }
 
-export interface IBlockCompanyUseCase {
-  execute(companyId: string, isBlocked: boolean): Promise<void>;
-}
-
 export interface IAdminGetAllJobsUseCase {
-  execute(query: JobPostingFilters): Promise<PaginatedJobPostings>;
+  execute(query: JobPostingFilters): Promise<{
+    jobs: JobPostingResponseDto[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>;
 }
 
 export interface IAdminGetJobByIdUseCase {
@@ -162,7 +181,7 @@ export interface ICreateSkillUseCase {
 }
 
 export interface IGetAllSkillsUseCase {
-  execute(filters: SkillQueryFilters): Promise<PaginatedSkills>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedSkills>;
 }
 
 export interface IGetSkillByIdUseCase {
@@ -182,7 +201,7 @@ export interface ICreateJobRoleUseCase {
 }
 
 export interface IGetAllJobRolesUseCase {
-  execute(filters: JobRoleQueryFilters): Promise<PaginatedJobRoles>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRoles>;
 }
 
 export interface IGetJobRoleByIdUseCase {

@@ -385,6 +385,7 @@ const UserManagement = () => {
           }}
           actionLabel={reasonUser?.isBlocked ? 'Unblock' : 'Block'}
           confirmVariant="destructive"
+          showReasonField={!reasonUser?.isBlocked}
         />
       </div>
     </AdminLayout>

@@ -46,6 +46,8 @@ export interface SeekerProfile {
   email: string;
   avatarUrl: string | null; 
   bannerUrl: string | null; 
+  dateOfBirth: string | null;
+  gender: string | null;
   skills: string[];
   languages: string[];
   socialLinks: SocialLink[];
@@ -62,6 +64,8 @@ export interface CreateSeekerProfileRequest {
   location?: string;
   phone?: string;
   email: string;
+  dateOfBirth?: string;
+  gender?: string;
   skills?: string[];
   socialLinks?: SocialLink[];
 }
@@ -72,7 +76,9 @@ export interface UpdateSeekerProfileRequest {
   location?: string;
   phone?: string;
   email?: string;
-   name?: string;
+  name?: string;
+  dateOfBirth?: string;
+  gender?: string;
   skills?: string[];
   languages?: string[];
   socialLinks?: SocialLink[];

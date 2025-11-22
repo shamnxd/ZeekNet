@@ -6,13 +6,9 @@ import { Provider } from 'react-redux'
 import { store } from './store/store'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import AuthProvider from './components/common/AuthProvider'
-import { setAuthTokenGetter, setLogoutCallback } from './api'
-import { logoutBlockedUser } from './store/slices/auth.slice'
+import { setAuthTokenGetter } from './api'
 
 setAuthTokenGetter(() => store.getState().auth.token)
-setLogoutCallback(() => {
-  store.dispatch(logoutBlockedUser())
-})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

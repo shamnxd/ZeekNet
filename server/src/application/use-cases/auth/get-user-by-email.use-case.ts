@@ -12,7 +12,7 @@ export class GetUserByEmailUseCase {
         throw new AppError('Email is required', 400);
       }
 
-      const user = await this._userRepository.findByEmail(email);
+      const user = await this._userRepository.findOne({ email });
       return user ? UserMapper.toDto(user) : null;
     } catch (error) {
       if (error instanceof AppError) {

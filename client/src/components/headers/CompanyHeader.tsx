@@ -13,6 +13,8 @@ const CompanyHeader = () => {
   const navigate = useNavigate()
   const { name } = useAppSelector((state) => state.auth)
   const [companyName, setCompanyName] = useState(name || 'ZeekNet')
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
+  const [companyEmail, setCompanyEmail] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,9 +24,12 @@ const CompanyHeader = () => {
   const fetchCompanyProfile = async () => {
     try {
       setLoading(true)
-      const response = await companyApi.getProfile()
+      const response = await companyApi.getCompleteProfile()
       if (response.success && response.data) {
-        setCompanyName(response.data.company_name)
+        const { profile, contact } = response.data
+        setCompanyName(profile.company_name || name || 'ZeekNet')
+        setCompanyLogo(profile.logo || null)
+        setCompanyEmail(contact?.email || profile.email || null)
       }
     } catch {
     } finally {
@@ -40,11 +45,21 @@ const CompanyHeader = () => {
           {}
           <div className="relative" style={{ width: '41px', height: '41px' }}>
             <div className="absolute inset-0 rounded-full bg-gray-200"></div>
-            <div className="absolute inset-0 flex items-center justify-center rounded-full" style={{ backgroundColor: '#1ED760' }}>
-              <span className="text-white text-base font-bold">
-                {loading ? 'L' : (companyName || 'Z').charAt(0).toUpperCase()}
-              </span>
-            </div>
+            {companyLogo ? (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full overflow-hidden">
+                <img 
+                  src={companyLogo} 
+                  alt={companyName || 'Company Logo'} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full" style={{ backgroundColor: '#1ED760' }}>
+                <span className="text-white text-base font-bold">
+                  {loading ? 'L' : (companyName || 'Z').charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
 
           {}
@@ -56,6 +71,11 @@ const CompanyHeader = () => {
               </span>
               <ChevronDown className="h-5 w-5" style={{ color: '#25324B' }} />
             </div>
+            {companyEmail && (
+              <span className="text-xs font-normal" style={{ color: '#515B6F', fontSize: '12px', lineHeight: '1.4', marginTop: '2px' }}>
+                {companyEmail}
+              </span>
+            )}
           </div>
         </div>
 

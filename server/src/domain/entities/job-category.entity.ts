@@ -1,13 +1,23 @@
 export class JobCategory {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  constructor(
+    public readonly id: string,
+    public readonly name: string,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+  ) {}
 
-  constructor(id: string, name: string, createdAt: Date, updatedAt: Date) {
-    this.id = id;
-    this.name = name;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+  static create(data: {
+    id: string;
+    name: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }): JobCategory {
+    const now = new Date();
+    return new JobCategory(
+      data.id,
+      data.name,
+      data.createdAt ?? now,
+      data.updatedAt ?? now,
+    );
   }
 }

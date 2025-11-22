@@ -50,7 +50,6 @@ const JobDetail = () => {
   const [resumeFileName, setResumeFileName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if user is a seeker (only seekers can apply for jobs)
   const canApply = isAuthenticated && role === UserRole.SEEKER;
 
   useEffect(() => {
@@ -89,14 +88,11 @@ const JobDetail = () => {
     fetchJobDetails();
   }, [id]);
 
-  // Check if user just returned from login and should open apply modal
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('apply') === 'true' && canApply && isInitialized) {
-      // Small delay to ensure page is fully loaded
       setTimeout(() => {
         setIsApplyModalOpen(true);
-        // Clean up URL
         navigate(location.pathname, { replace: true });
       }, 100);
     }
@@ -105,13 +101,12 @@ const JobDetail = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file type
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
         toast.error('Please upload a PDF, DOC, or DOCX file');
         return;
       }
-      // Check file size (max 5MB)
+
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
@@ -160,8 +155,6 @@ const JobDetail = () => {
 
       toast.success('Application submitted successfully');
 
-      // Optional: navigate to My Applications or stay on page
-      // navigate('/seeker/applications');
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -174,7 +167,6 @@ const JobDetail = () => {
   };
 
   const handleOpenApplyModal = () => {
-    // If not authenticated, redirect to login with return URL
     if (!isAuthenticated) {
       navigate('/auth/login', { 
         state: { from: `${location.pathname}?apply=true` },
@@ -184,7 +176,6 @@ const JobDetail = () => {
       return;
     }
 
-    // If authenticated but not a seeker, show message
     if (role !== UserRole.SEEKER) {
       toast.error('Only job seekers can apply for jobs');
       return;
@@ -282,7 +273,6 @@ const JobDetail = () => {
               </div>
             </div>
 
-            {/* Show Apply button if user is not authenticated (will redirect to login) or if authenticated seeker */}
             {(!isAuthenticated || canApply) && isInitialized && (
               <Button 
                 className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-8 h-14 text-base font-semibold"

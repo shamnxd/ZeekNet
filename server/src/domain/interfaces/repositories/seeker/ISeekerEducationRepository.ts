@@ -1,10 +1,7 @@
 import { Education } from '../../../entities/seeker-profile.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
-export interface ISeekerEducationRepository {
-  create(seekerProfileId: string, education: Omit<Education, 'id'>): Promise<Education>;
-  findById(educationId: string): Promise<Education | null>;
+export interface ISeekerEducationRepository extends IBaseRepository<Education> {
+  createForProfile(seekerProfileId: string, education: Omit<Education, 'id'>): Promise<Education>;
   findBySeekerProfileId(seekerProfileId: string): Promise<Education[]>;
-  update(educationId: string, updates: Partial<Education>): Promise<Education>;
-  delete(educationId: string): Promise<void>;
-  deleteBySeekerProfileId(seekerProfileId: string): Promise<void>;
 }

@@ -11,7 +11,7 @@ import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.en
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
-import { CompanyVerification } from '../../../domain/entities/company-profile.entity';
+import { CompanyVerification } from '../../../domain/entities/company-verification.entity';
 
 interface CompanyProfileWithDetails {
   profile: CompanyProfile;
@@ -35,16 +35,16 @@ export class GetCompanyProfileUseCase {
   ) {}
 
   async execute(userId: string): Promise<CompanyProfileWithDetails | null> {
-    const profile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const profile = await this._companyProfileRepository.findOne({ userId });
     if (!profile) return null;
 
     const [contact, locations, techStack, benefits, workplacePictures, verification] = await Promise.all([
-      this._companyContactRepository.findByCompanyId(profile.id),
-      this._companyOfficeLocationRepository.findByCompanyId(profile.id),
-      this._companyTechStackRepository.findByCompanyId(profile.id),
-      this._companyBenefitsRepository.findByCompanyId(profile.id),
-      this._companyWorkplacePicturesRepository.findByCompanyId(profile.id),
-      this._companyVerificationRepository.getVerificationByCompanyId(profile.id),
+      this._companyContactRepository.findOne({ companyId: profile.id }),
+      this._companyOfficeLocationRepository.findMany({ companyId: profile.id }),
+      this._companyTechStackRepository.findMany({ companyId: profile.id }),
+      this._companyBenefitsRepository.findMany({ companyId: profile.id }),
+      this._companyWorkplacePicturesRepository.findMany({ companyId: profile.id }),
+      this._companyVerificationRepository.findOne({ companyId: profile.id }),
     ]);
 
     return {
@@ -58,3 +58,4 @@ export class GetCompanyProfileUseCase {
     };
   }
 }
+

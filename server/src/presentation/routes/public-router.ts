@@ -16,8 +16,7 @@ export class PublicRouter {
   private _initializeRoutes(): void {
     this.router.get('/jobs', validateQuery(JobPostingQueryDto), publicJobController.getAllJobPostings);
     this.router.get('/jobs/:id', publicJobController.getJobPosting);
-    
-    // Public data endpoints (no authentication required)
+
     this.router.get('/skills', validateQuery(GetAllSkillsDto), publicDataController.getAllSkills);
     this.router.get('/job-categories', publicDataController.getAllJobCategories);
     this.router.get('/job-roles', validateQuery(GetAllJobRolesDto), publicDataController.getAllJobRoles);

@@ -13,7 +13,7 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
 
   async execute(userId: string, data: AddExperienceData): Promise<ExperienceResponseDto> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -26,7 +26,7 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
       throw new ValidationError('Current experience cannot have an end date');
     }
 
-    const experience = await this._seekerExperienceRepository.create(profile.id, {
+    const experience = await this._seekerExperienceRepository.createForProfile(profile.id, {
       title: data.title,
       company: data.company,
       startDate: data.startDate,
@@ -41,3 +41,5 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
     return SeekerProfileMapper.experienceToDto(experience);
   }
 }
+
+

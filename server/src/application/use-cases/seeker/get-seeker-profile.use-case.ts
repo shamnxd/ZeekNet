@@ -25,15 +25,24 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
       throw new NotFoundError('User not found');
     }
 
-    let profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    let profile = await this._seekerProfileRepository.findOne({ userId });
 
     if (!profile) {
-      profile = await this._seekerProfileRepository.createProfile({
+      profile = await this._seekerProfileRepository.create({
         userId,
-        
+        headline: null,
+        summary: null,
+        location: null,
+        phone: null,
+        email: null,
+        avatarFileName: null,
+        bannerFileName: null,
+        dateOfBirth: null,
+        gender: null,
         skills: [],
         languages: [],
         socialLinks: [],
+        resume: null,
       });
     }
 
@@ -52,3 +61,5 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     };
   }
 }
+
+

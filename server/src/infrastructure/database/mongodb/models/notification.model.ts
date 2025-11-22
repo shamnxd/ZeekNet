@@ -1,10 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-
-export enum NotificationType {
-  JOB_APPLICATION_RECEIVED = 'job_application_received',
-  APPLICATION_STATUS_CHANGED = 'application_status_changed',
-  INTERVIEW_SCHEDULED = 'interview_scheduled',
-}
+import { NotificationType } from '../../../../domain/entities/notification.entity';
 
 export interface NotificationDocument extends Document {
   user_id: Types.ObjectId;

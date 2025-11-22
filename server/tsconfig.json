@@ -19,7 +19,7 @@
     },
     "strictPropertyInitialization": false
   },
-  "include": ["src", "@types"],
+  "include": ["src", "@types", "scripts"],
   "exclude": ["node_modules", "dist"],
   "ts-node": {
     "experimentalDecorators": true,

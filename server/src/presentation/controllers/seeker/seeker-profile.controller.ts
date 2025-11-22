@@ -17,9 +17,9 @@ import {
   IUpdateLanguagesUseCase,
   IUploadResumeUseCase,
   IRemoveResumeUseCase,
+  IUploadAvatarUseCase,
+  IUploadBannerUseCase,
 } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { SeekerProfileMapper } from '../../../application/mappers/seeker-profile.mapper';
 import { 
   CreateSeekerProfileRequestDto, 
@@ -48,8 +48,8 @@ export class SeekerProfileController {
     private readonly _updateLanguagesUseCase: IUpdateLanguagesUseCase,
     private readonly _uploadResumeUseCase: IUploadResumeUseCase,
     private readonly _removeResumeUseCase: IRemoveResumeUseCase,
-    private readonly _s3Service: IS3Service,
-    private readonly _userRepository: IUserRepository,
+    private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
+    private readonly _uploadBannerUseCase: IUploadBannerUseCase,
   ) {}
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -274,16 +274,12 @@ export class SeekerProfileController {
         return badRequest(res, 'No image file provided');
       }
 
-      const avatarFileName = await this._s3Service.uploadImageToFolder(
+      const profile = await this._uploadAvatarUseCase.execute(
+        userId,
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
-        'seeker-avatars',
       );
-
-      const profile = await this._updateSeekerProfileUseCase.execute(userId, {
-        avatarFileName,
-      });
 
       sendSuccessResponse(res, 'Avatar uploaded successfully', profile);
     } catch (error) {
@@ -299,16 +295,12 @@ export class SeekerProfileController {
         return badRequest(res, 'No image file provided');
       }
 
-      const bannerFileName = await this._s3Service.uploadImageToFolder(
+      const profile = await this._uploadBannerUseCase.execute(
+        userId,
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
-        'seeker-banners',
       );
-
-      const profile = await this._updateSeekerProfileUseCase.execute(userId, {
-        bannerFileName,
-      });
 
       sendSuccessResponse(res, 'Banner uploaded successfully', profile);
     } catch (error) {

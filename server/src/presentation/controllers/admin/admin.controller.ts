@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BlockUserDto, CompanyVerificationDto } from '../../../application/dto/admin/user-management.dto';
-import { BlockCompanyDto } from '../../../application/dto/admin/company-management.dto';
 import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
-import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IBlockCompanyUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminController {
@@ -10,10 +9,8 @@ export class AdminController {
     private readonly _getAllUsersUseCase: IGetAllUsersUseCase,
     private readonly _blockUserUseCase: IBlockUserUseCase,
     private readonly _getUserByIdUseCase: IAdminGetUserByIdUseCase,
-    private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
     private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase,
     private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
-    private readonly _blockCompanyUseCase: IBlockCompanyUseCase,
   ) {}
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -28,6 +25,7 @@ export class AdminController {
   };
 
   blockUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    console.log('BlockUser request body:', req.body);
     const parsed = BlockUserDto.safeParse(req.body);
     if (!parsed.success) {
       return handleValidationError('Invalid block user data', next);
@@ -116,21 +114,6 @@ export class AdminController {
       );
 
       const message = `Company ${parsed.data.isVerified} successfully`;
-      sendSuccessResponse(res, message, null);
-    } catch (error) {
-      handleAsyncError(error, next);
-    }
-  };
-
-  blockCompany = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = BlockCompanyDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError('Invalid block company data', next);
-    }
-
-    try {
-      await this._blockCompanyUseCase.execute(parsed.data.companyId, parsed.data.isBlocked);
-      const message = `Company ${parsed.data.isBlocked ? 'blocked' : 'unblocked'} successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
       handleAsyncError(error, next);

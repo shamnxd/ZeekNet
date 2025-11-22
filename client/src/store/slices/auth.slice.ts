@@ -230,11 +230,6 @@ const authSlice = createSlice({
       state.error = null;
       clearAuthToken();
     },
-    logoutBlockedUser(state) {
-      clearAuthData(state);
-      state.error = 'Your account has been blocked. Please contact support for assistance.';
-      clearAuthToken();
-    },
     clearError(state) {
       state.error = null;
     },
@@ -362,5 +357,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, logoutBlockedUser, clearError, setInitialized, clearAuthState, setUser } = authSlice.actions;
+export const { logout, clearError, setInitialized, clearAuthState, setUser } = authSlice.actions;
 export default authSlice.reducer;

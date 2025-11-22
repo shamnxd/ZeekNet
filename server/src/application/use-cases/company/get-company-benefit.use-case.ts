@@ -6,10 +6,11 @@ export class GetCompanyBenefitUseCase implements IGetCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}
 
   async executeByCompanyId(companyId: string): Promise<CompanyBenefits[]> {
-    return this._companyBenefitsRepository.findByCompanyId(companyId);
+    return this._companyBenefitsRepository.findMany({ companyId });
   }
 
   async executeById(benefitId: string): Promise<CompanyBenefits | null> {
     return this._companyBenefitsRepository.findById(benefitId);
   }
 }
+

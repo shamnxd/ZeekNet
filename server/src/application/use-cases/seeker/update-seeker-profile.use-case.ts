@@ -15,15 +15,16 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
   ) {}
 
   async execute(userId: string, data: UpdateSeekerProfileData): Promise<SeekerProfileResponseDto> {
-    const existingProfile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     
     if (!existingProfile) {
       throw new NotFoundError('Seeker profile not found');
     }
 
-    if(data.name !== undefined) {
-      this._userRepository.updateName(existingProfile.userId, data.name.trim());
-    }
+    // TODO: Implement updateName in IUserRepository if name updates are needed
+    // if(data.name !== undefined) {
+    //   await this._userRepository.updateName(existingProfile.userId, data.name.trim());
+    // }
 
     const updateData: Record<string, unknown> = {};
     
@@ -34,12 +35,20 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     if (data.email !== undefined) updateData.email = data.email;
     if (data.avatarFileName !== undefined) updateData.avatarFileName = data.avatarFileName || null;
     if (data.bannerFileName !== undefined) updateData.bannerFileName = data.bannerFileName || null;
+    if (data.dateOfBirth !== undefined) updateData.dateOfBirth = data.dateOfBirth || null;
+    if (data.gender !== undefined) updateData.gender = data.gender || null;
     if (data.skills !== undefined) updateData.skills = data.skills;
     if (data.languages !== undefined) updateData.languages = data.languages || [];
     if (data.socialLinks !== undefined) updateData.socialLinks = data.socialLinks || [];
 
-    const updatedProfile = await this._seekerProfileRepository.updateProfile(existingProfile.id, updateData as Partial<SeekerProfile>);
+    const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData as Partial<SeekerProfile>);
+    
+    if (!updatedProfile) {
+      throw new NotFoundError('Failed to update seeker profile');
+    }
     
     return SeekerProfileMapper.toDto(updatedProfile, this._s3Service);
   }
 }
+
+

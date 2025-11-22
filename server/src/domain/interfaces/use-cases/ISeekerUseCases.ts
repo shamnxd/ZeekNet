@@ -14,6 +14,8 @@ export interface CreateSeekerProfileData {
   email?: string; 
   avatarFileName?: string | null; 
   bannerFileName?: string | null; 
+  dateOfBirth?: Date | null;
+  gender?: string | null;
   skills?: string[];
   languages?: string[];
   socialLinks?: SocialLink[];
@@ -28,6 +30,8 @@ export interface UpdateSeekerProfileData {
   name?: string;
   avatarFileName?: string | null; 
   bannerFileName?: string | null; 
+  dateOfBirth?: Date | null;
+  gender?: string | null;
   skills?: string[];
   languages?: string[];
   socialLinks?: SocialLink[];
@@ -133,4 +137,12 @@ export interface IUploadResumeUseCase {
 
 export interface IRemoveResumeUseCase {
   execute(userId: string): Promise<void>;
+}
+
+export interface IUploadAvatarUseCase {
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+}
+
+export interface IUploadBannerUseCase {
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
 }

@@ -2,7 +2,6 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-// removed checkbox selection per UX request
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loading } from '@/components/ui/loading'
 import { useState, useEffect } from 'react'
@@ -65,7 +64,7 @@ const AllApplications = () => {
         _id: a.id,
         seeker_id: a.seeker_id,
         seeker_name: a.seeker_name || a.seeker_full_name || 'Candidate',
-        seeker_avatar: a.seeker_avatar, // now a full URL from server
+        seeker_avatar: a.seeker_avatar, 
         job_id: a.job_id,
         job_title: a.job_title,
         score: a.score,
@@ -88,7 +87,6 @@ const AllApplications = () => {
     }
   }
 
-  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery)
@@ -105,7 +103,6 @@ const AllApplications = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    // Reset to page 1 when searching
     setPagination((p) => ({ ...p, page: 1 }))
   }
 
@@ -166,7 +163,6 @@ const AllApplications = () => {
   return (
     <CompanyLayout>
       <div className="min-h-screen bg-white">
-        {/* Header Section */}
         <div className="px-7 py-7 border-b border-[#D6DDEB]">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-semibold text-[#25324B]">
@@ -174,7 +170,6 @@ const AllApplications = () => {
             </h1>
           </div>
 
-          {/* Search and Filter */}
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#7C8493]" />

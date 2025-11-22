@@ -17,7 +17,7 @@ const jobRoleRepository = new JobRoleRepository();
 
 const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
 
-const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository, jobPostingRepository);
+const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository);
 
 const getAllSkillsUseCase = new GetAllSkillsUseCase(skillRepository);
 const getAllJobCategoriesUseCase = new GetAllJobCategoriesUseCase(jobCategoryRepository);

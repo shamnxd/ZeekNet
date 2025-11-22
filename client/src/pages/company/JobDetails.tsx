@@ -100,9 +100,8 @@ const JobDetails = () => {
         } else if (Array.isArray(response.data)) {
           setApplications(response.data)
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Failed to fetch applications:', error)
-        // Don't show error toast, just use empty array
         setApplications([])
       } finally {
         setApplicationsLoading(false)
@@ -112,7 +111,6 @@ const JobDetails = () => {
     fetchApplications()
   }, [id, activeTab])
 
-  // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm)

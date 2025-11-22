@@ -11,7 +11,7 @@ export class GetCompanyProfileByUserIdUseCase {
         throw new AppError('User ID is required', 400);
       }
 
-      const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+      const companyProfile = await this._companyProfileRepository.findOne({ userId });
       return companyProfile;
     } catch (error) {
       if (error instanceof AppError) {

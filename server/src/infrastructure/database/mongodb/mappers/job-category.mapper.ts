@@ -1,20 +1,19 @@
 import { JobCategory } from '../../../../domain/entities/job-category.entity';
-import { Document } from 'mongoose';
-
-export interface JobCategoryDocument extends Document {
-  _id: unknown;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { JobCategoryDocument } from '../models/job-category.model';
 
 export class JobCategoryMapper {
   static toEntity(doc: JobCategoryDocument): JobCategory {
-    return new JobCategory(
-      String(doc._id),
-      doc.name,
-      doc.createdAt,
-      doc.updatedAt,
-    );
+    return JobCategory.create({
+      id: String(doc._id),
+      name: doc.name,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    });
+  }
+
+  static toDocument(entity: JobCategory): Partial<JobCategoryDocument> {
+    return {
+      name: entity.name,
+    };
   }
 }

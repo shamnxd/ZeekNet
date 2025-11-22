@@ -26,3 +26,4 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
     }
   }
 }
+

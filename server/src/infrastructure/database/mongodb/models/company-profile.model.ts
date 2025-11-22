@@ -13,7 +13,6 @@ export interface CompanyProfileDocument extends Document {
   foundedDate?: Date;
   phone?: string;
   isVerified: 'pending' | 'rejected' | 'verified';
-  isBlocked: boolean;
   rejectionReason?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -33,7 +32,6 @@ const CompanyProfileSchema = new Schema<CompanyProfileDocument>(
     foundedDate: { type: Date },
     phone: { type: String, default: '' },
     isVerified: { type: String, enum: ['pending', 'rejected', 'verified'], default: 'pending' },
-    isBlocked: { type: Boolean, default: false },
     rejectionReason: { type: String },
   },
   {

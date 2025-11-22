@@ -2,5 +2,5 @@ import { CompanyOfficeLocation } from '../../../entities/company-office-location
 import { IBaseRepository } from '../IBaseRepository';
 
 export interface ICompanyOfficeLocationRepository extends IBaseRepository<CompanyOfficeLocation> {
-  findByCompanyId(companyId: string): Promise<CompanyOfficeLocation[]>;
+  // Use findMany({ companyId }) from base instead
 }

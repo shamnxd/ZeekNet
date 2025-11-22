@@ -51,7 +51,6 @@ export function Combobox({
 
   const handleSelect = (selectedValue: string) => {
     if (multiple) {
-      // Add only if not already in the list
       if (!value.includes(selectedValue)) {
         onChange([...value, selectedValue]);
       }
@@ -68,7 +67,6 @@ export function Combobox({
     if (!trimmed) return;
     
     if (multiple) {
-      // Add only if not already in the list
       if (!value.includes(trimmed)) {
         onChange([...value, trimmed]);
       }
@@ -82,7 +80,6 @@ export function Combobox({
 
   const handleRemove = (valueToRemove: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Remove only the clicked item
     onChange(value.filter((v) => v !== valueToRemove));
   };
 
@@ -102,18 +99,15 @@ export function Combobox({
   };
 
   const handleInputBlur = () => {
-    // Delay to allow click on suggestion
     setTimeout(() => setOpen(false), 200);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchTerm.trim()) {
       e.preventDefault();
-      // If there are filtered options, select the first one
       if (filteredOptions.length > 0) {
         handleSelect(filteredOptions[0].value);
       } else {
-        // If no options found, add the typed value as custom
         handleAddCustom(searchTerm);
       }
     } else if (e.key === "Escape") {
@@ -122,7 +116,6 @@ export function Combobox({
     }
   };
 
-  // Get labels for selected values (from options or use the value itself)
   const getLabelForValue = (val: string) => {
     const option = options.find((opt) => opt.value === val);
     return option ? option.label : val;
@@ -209,7 +202,7 @@ export function Combobox({
                   </div>
                 );
               })}
-              {/* Show option to add custom value if it doesn't match any option */}
+
               {searchTerm.trim() && 
                !filteredOptions.some(opt => opt?.value?.toLowerCase() === searchTerm.trim().toLowerCase()) &&
                !value.includes(searchTerm.trim()) && (

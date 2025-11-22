@@ -9,7 +9,6 @@ export interface CompanyProfileData {
   organisation: string;
   aboutUs: string;
   isVerified: 'pending';
-  isBlocked: boolean;
 }
 
 export interface CompanyContactData {

@@ -1,6 +1,7 @@
-  import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { NotificationProvider } from './contexts/NotificationContext'
+import UserBlockHandler from './components/common/UserBlockHandler'
 import Landing from './pages/Landing'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -45,8 +46,9 @@ import ApplicationDetails from './pages/company/ApplicationDetails'
 
 function App() {
   return (
-    <NotificationProvider>
-      <Router>
+    <Router>
+      <NotificationProvider>
+        <UserBlockHandler />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/jobs" element={<JobListing />} />
@@ -228,14 +230,14 @@ function App() {
           
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Router>
+      </NotificationProvider>
       <Toaster 
         position="top-right"
         expand={true}
         richColors
         closeButton
       />
-    </NotificationProvider>
+    </Router>
   )
 }
 

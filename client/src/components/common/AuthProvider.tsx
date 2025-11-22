@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
-import { initializeAuthThunk, logoutBlockedUser } from '@/store/slices/auth.slice';
+import { initializeAuthThunk } from '@/store/slices/auth.slice';
 import { Loading } from '@/components/ui/loading';
 import { store } from '@/store/store';
 
@@ -10,7 +10,7 @@ interface AuthProviderProps {
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useAppDispatch();
-  const { isInitialized, isBlocked } = useAppSelector((state) => state.auth);
+  const { isInitialized } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -28,12 +28,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       initializeAuth();
     }
   }, [dispatch, isInitialized]);
-
-  useEffect(() => {
-    if (isInitialized && isBlocked) {
-      dispatch(logoutBlockedUser());
-    }
-  }, [dispatch, isInitialized, isBlocked]);
 
   if (!isInitialized) {
     return <Loading />;

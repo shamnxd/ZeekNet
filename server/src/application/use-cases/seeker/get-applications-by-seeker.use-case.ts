@@ -1,43 +1,57 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
-
-export interface PaginatedApplications {
-  applications: JobApplication[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { Types } from 'mongoose';
 
 export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerUseCase {
-  constructor(private readonly _jobApplicationRepository: IJobApplicationRepository) {}
+  constructor(
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
+  ) {}
 
   async execute(
     seekerId: string,
     filters: { stage?: ApplicationStage; page?: number; limit?: number },
-  ): Promise<PaginatedApplications> {
+  ): Promise<PaginatedApplicationsResponseDto> {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findBySeekerId(seekerId, {
-      stage: filters.stage,
+    const query: Record<string, unknown> = { seeker_id: new Types.ObjectId(seekerId) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
+    const applications: JobApplicationListResponseDto[] = [];
+    for (const app of result.data) {
+      const job = await this._jobPostingRepository.findById(app.jobId);
+      applications.push(
+        JobApplicationMapper.toListDto(app, {
+          jobTitle: job?.title,
+          companyName: job?.companyName,
+          companyLogo: job?.companyLogo,
+        }),
+      );
+    }
+
     return {
-      applications: result.applications,
+      applications,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: result.pagination.totalPages,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }
 }
+
+
 

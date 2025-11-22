@@ -24,7 +24,7 @@ interface PricePlan {
   id: string
   name: string
   price: number
-  duration: number // in days
+  duration: number 
   description: string
   features: string[]
   maxJobPostings?: number
@@ -34,7 +34,6 @@ interface PricePlan {
 }
 
 const PricePlanManagement = () => {
-  // Mock data - replace with actual API calls
   const [plans, setPlans] = useState<PricePlan[]>([
     {
       id: '1',
@@ -98,7 +97,6 @@ const PricePlanManagement = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const itemsPerPage = 10
 
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -149,7 +147,6 @@ const PricePlanManagement = () => {
     }
 
     try {
-      // Mock API call - replace with actual API
       const newPlan: PricePlan = {
         id: Date.now().toString(),
         name: formData.name.trim(),
@@ -179,7 +176,6 @@ const PricePlanManagement = () => {
     }
 
     try {
-      // Mock API call - replace with actual API
       const updatedPlan: PricePlan = {
         ...selectedPlan,
         name: formData.name.trim(),
@@ -208,7 +204,6 @@ const PricePlanManagement = () => {
     if (!selectedPlan) return
 
     try {
-      // Mock API call - replace with actual API
       setPlans(prev => prev.filter(plan => plan.id !== selectedPlan.id))
       toast.success('Price plan deleted successfully')
       setDeleteDialogOpen(false)
@@ -235,13 +230,11 @@ const PricePlanManagement = () => {
     setCurrentPage(1)
   }
 
-  // Filter plans based on search
   const filteredPlans = plans.filter(plan =>
     plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     plan.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Pagination
   const totalPages = Math.ceil(filteredPlans.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage

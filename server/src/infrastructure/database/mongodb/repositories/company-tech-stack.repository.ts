@@ -14,15 +14,7 @@ export class CompanyTechStackRepository extends RepositoryBase<CompanyTechStack,
     return CompanyTechStackMapper.toEntity(doc);
   }
 
-  protected convertToObjectIds(data: Partial<CompanyTechStack>): Partial<CompanyTechStack> {
-    const converted = { ...data };
-    if (converted.companyId && typeof converted.companyId === 'string') {
-      (converted as Record<string, unknown>).companyId = new Types.ObjectId(converted.companyId);
-    }
-    return converted;
-  }
-
-  async findByCompanyId(companyId: string): Promise<CompanyTechStack[]> {
-    return await this.findMany({ companyId: new Types.ObjectId(companyId) });
+  protected mapToDocument(entity: Partial<CompanyTechStack>): Partial<CompanyTechStackDocument> {
+    return CompanyTechStackMapper.toDocument(entity as CompanyTechStack);
   }
 }

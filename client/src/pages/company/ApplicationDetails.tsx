@@ -269,8 +269,7 @@ const ApplicationDetails = () => {
         interview_type: scheduleForm.interviewType, interviewer_name: scheduleForm.interviewer,
       })
       toast.success('Interview schedule added successfully')
-      
-      // If moving from shortlisted to interview stage
+
       if (moveToInterview && application?.stage === 'shortlisted') {
         try {
           await jobApplicationApi.updateApplicationStage(id, { stage: 'interview' })
@@ -364,22 +363,19 @@ const ApplicationDetails = () => {
 
   const handleMoveToNextStep = () => {
     if (!application) return
-    
-    // If shortlisted, open schedule interview dialog first
+
     if (application.stage === 'shortlisted') {
       setMoveToNextStepOpen(false)
       setAddScheduleOpen(true)
       return
     }
-    
-    // If interview stage, show hire/reject dialog
+
     if (application.stage === 'interview') {
       setMoveToNextStepOpen(false)
       setHireRejectDialogOpen(true)
       return
     }
-    
-    // For other stages (applied), proceed normally
+
     setMoveToNextStepOpen(true)
   }
 
@@ -646,11 +642,11 @@ const ApplicationDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Date of Birth</p>
-                          <p className="text-sm font-medium text-[#25324B]">Coming soon</p>
+                          <p className="text-sm font-medium text-[#25324B]">--</p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Gender</p>
-                          <p className="text-sm font-medium text-[#25324B]">Coming soon</p>
+                          <p className="text-sm font-medium text-[#25324B]">--</p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Language</p>
@@ -1060,7 +1056,6 @@ const ApplicationDetails = () => {
                       <div className="space-y-6">
                         {application.interview_schedule && application.interview_schedule.length > 0 ? (
                           (() => {
-                            // Group interviews by date
                             const grouped = application.interview_schedule.reduce((acc, interview) => {
                               const interviewDate = new Date(interview.date)
                               interviewDate.setHours(0, 0, 0, 0)

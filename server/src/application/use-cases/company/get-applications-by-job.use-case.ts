@@ -1,67 +1,82 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByJobUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
-
-export interface PaginatedApplications {
-  applications: JobApplication[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { Types } from 'mongoose';
 
 export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(
     userId: string,
     jobId: string,
     filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number },
-  ): Promise<PaginatedApplications> {
-    // Get company profile
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  ): Promise<PaginatedApplicationsResponseDto> {
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Check if job exists and belongs to company
     const job = await this._jobPostingRepository.findById(jobId);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (job.company_id !== companyProfile.id) {
+    if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only view applications for your own job postings');
     }
 
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findByJobId(jobId, {
-      stage: filters.stage,
-      search: filters.search,
+    const query: Record<string, unknown> = { job_id: new Types.ObjectId(jobId) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
+    const applications: JobApplicationListResponseDto[] = [];
+    for (const app of result.data) {
+      const [user, profile] = await Promise.all([
+        this._userRepository.findById(app.seekerId),
+        this._seekerProfileRepository.findOne({ userId: app.seekerId }),
+      ]);
+      applications.push(
+        JobApplicationMapper.toListDto(app, {
+          seekerName: user?.name,
+          seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+          jobTitle: job?.title,
+        }),
+      );
+    }
+
     return {
-      applications: result.applications,
+      applications,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: result.pagination.totalPages,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }
 }
+
 

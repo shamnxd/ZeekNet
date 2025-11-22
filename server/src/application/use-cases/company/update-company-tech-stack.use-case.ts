@@ -19,3 +19,4 @@ export class UpdateCompanyTechStackUseCase implements IUpdateCompanyTechStackUse
     return updatedTechStack;
   }
 }
+

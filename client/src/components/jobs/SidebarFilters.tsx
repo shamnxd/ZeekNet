@@ -54,7 +54,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
       salary_min: selectedSalaryRange?.min,
       salary_max: selectedSalaryRange?.max,
     };
-    // Only send defined values
+    
     Object.keys(query).forEach(key => {
       if (query[key as keyof JobPostingQuery] === undefined) {
         delete query[key as keyof JobPostingQuery];

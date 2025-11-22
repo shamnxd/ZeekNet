@@ -13,3 +13,4 @@ export class DeleteCompanyTechStackUseCase implements IDeleteCompanyTechStackUse
     await this._companyTechStackRepository.delete(techStackId);
   }
 }
+

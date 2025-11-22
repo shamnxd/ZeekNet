@@ -1,5 +1,4 @@
 import { Response, NextFunction } from 'express';
-import { User } from '../../domain/entities/user.entity';
 import { createSuccessResponse, createErrorResponse } from './response.utils';
 import { ErrorHandler } from './error.utils';
 import { AuthenticatedRequest } from '../types/authenticated-request';

@@ -20,11 +20,11 @@ export class UpdateSkillUseCase implements IUpdateSkillUseCase {
 
     const skillWithSameName = await this._skillRepository.findByName(normalizedName);
     
-    if (skillWithSameName && skillWithSameName._id !== skillId) {
+    if (skillWithSameName && skillWithSameName.id !== skillId) {
       throw new AppError('Skill with this name already exists', 409);
     }
 
-    const updatedSkill = await this._skillRepository.update(skillId, normalizedName);
+    const updatedSkill = await this._skillRepository.update(skillId, { name: normalizedName });
     
     if (!updatedSkill) {
       throw new AppError('Failed to update skill', 500);

@@ -1,11 +1,12 @@
-import { ICompanyListingRepository } from '../../../domain/interfaces/repositories/company/ICompanyListingRepository';
+import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { CompanyQueryOptions, PaginatedCompaniesWithVerification, IGetCompaniesWithVerificationUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
+import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 
 export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVerificationUseCase {
   constructor(
-    private readonly _companyListingRepository: ICompanyListingRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
     private readonly _s3Service: IS3Service,
   ) {}
@@ -24,13 +25,11 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
       sortOrder: options.sortOrder,
     };
 
-    const result = await this._companyListingRepository.getAllCompanies(convertedOptions);
+    const result = await this._companyProfileRepository.getAllCompanies(convertedOptions);
 
     const companiesWithVerification = await Promise.all(
-      result.companies.map(async (company) => {
-        const verification = await this._companyVerificationRepository.getVerificationByCompanyId(company.id);
-
-        const companyData = company.toJSON();
+      result.companies.map(async (company: CompanyProfile) => {
+        const verification = await this._companyVerificationRepository.findOne({ companyId: company.id });
 
         let businessLicenseUrl: string | undefined;
         if (verification?.businessLicenseUrl) {
@@ -44,19 +43,19 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
         }
 
         return {
-          id: companyData.id as string,
-          userId: companyData.userId as string,
-          companyName: companyData.companyName as string,
-          logo: companyData.logo as string,
-          websiteLink: companyData.websiteLink as string,
-          employeeCount: companyData.employeeCount as number,
-          industry: companyData.industry as string,
-          organisation: companyData.organisation as string,
-          aboutUs: companyData.aboutUs as string,
-          isVerified: companyData.isVerified as 'pending' | 'rejected' | 'verified',
-          isBlocked: companyData.isBlocked as boolean,
-          createdAt: companyData.createdAt as string,
-          updatedAt: companyData.updatedAt as string,
+          id: company.id,
+          userId: company.userId,
+          companyName: company.companyName,
+          logo: company.logo,
+          websiteLink: company.websiteLink,
+          employeeCount: company.employeeCount,
+          industry: company.industry,
+          organisation: company.organisation,
+          aboutUs: company.aboutUs,
+          isVerified: company.isVerified,
+          isBlocked: company.isBlocked,
+          createdAt: company.createdAt.toISOString(),
+          updatedAt: company.updatedAt.toISOString(),
           ...(verification && {
             verification: {
               taxId: verification.taxId,

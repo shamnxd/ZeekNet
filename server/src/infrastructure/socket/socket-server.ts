@@ -1,7 +1,7 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { JwtTokenService } from '../security/jwt-token-service';
-import { notificationService } from '../services/notification.service';
+import { notificationService } from '../di/notificationDi';
 import { logger } from '../config/logger';
 import { env } from '../config/env';
 

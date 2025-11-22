@@ -1,5 +1,5 @@
 import { LoginResult } from '../../dto/auth/auth-response.dto';
-import { IUserRepository, IUserAuthRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
@@ -13,7 +13,6 @@ import { otpVerificationTemplate } from '../../../infrastructure/messaging/templ
 export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _userAuthRepository: IUserAuthRepository,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _tokenService: ITokenService,
     private readonly _otpService: IOtpService,
@@ -21,7 +20,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
   ) {}
 
   async execute(email: string, password: string): Promise<LoginResult> {
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AuthenticationError('Invalid credentials');
     }
@@ -49,7 +48,9 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
-    await this._userAuthRepository.updateRefreshToken(user.id, hashedRefresh);
+    
+    // Use thin repository update method
+    await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
 
     return {
       tokens: { accessToken, refreshToken },

@@ -7,13 +7,13 @@ export class UpdateCompanyProfileUseCase {
   constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
 
   async execute(userId: string, data: { profile: SimpleUpdateCompanyProfileRequestDto }): Promise<CompanyProfileResponseDto> {
-    const existingProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
       throw new Error('Company profile not found');
     }
 
     if (data.profile) {
-      const updatedProfile = await this._companyProfileRepository.updateProfile(existingProfile.id, {
+      const updatedProfile = await this._companyProfileRepository.update(existingProfile.id, {
         companyName: data.profile.company_name,
         logo: data.profile.logo,
         banner: data.profile.banner,
@@ -25,7 +25,7 @@ export class UpdateCompanyProfileUseCase {
       });
     }
 
-    const updatedProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+    const updatedProfile = await this._companyProfileRepository.findOne({ userId });
     if (!updatedProfile) {
       throw new Error('Failed to retrieve updated profile');
     }
@@ -33,3 +33,4 @@ export class UpdateCompanyProfileUseCase {
     return CompanyProfileMapper.toDto(updatedProfile);
   }
 }
+

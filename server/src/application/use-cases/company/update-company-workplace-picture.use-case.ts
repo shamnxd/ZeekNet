@@ -15,3 +15,4 @@ export class UpdateCompanyWorkplacePictureUseCase implements IUpdateCompanyWorkp
     return updatedPicture;
   }
 }
+

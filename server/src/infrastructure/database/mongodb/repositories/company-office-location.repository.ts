@@ -14,15 +14,7 @@ export class CompanyOfficeLocationRepository extends RepositoryBase<CompanyOffic
     return CompanyOfficeLocationMapper.toEntity(doc);
   }
 
-  protected convertToObjectIds(data: Partial<CompanyOfficeLocation>): Partial<CompanyOfficeLocation> {
-    const converted = { ...data };
-    if (converted.companyId && typeof converted.companyId === 'string') {
-      (converted as Record<string, unknown>).companyId = new Types.ObjectId(converted.companyId);
-    }
-    return converted;
-  }
-
-  async findByCompanyId(companyId: string): Promise<CompanyOfficeLocation[]> {
-    return await this.findMany({ companyId: new Types.ObjectId(companyId) });
+  protected mapToDocument(entity: Partial<CompanyOfficeLocation>): Partial<CompanyOfficeLocationDocument> {
+    return CompanyOfficeLocationMapper.toDocument(entity as CompanyOfficeLocation);
   }
 }

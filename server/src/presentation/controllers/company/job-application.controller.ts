@@ -4,7 +4,6 @@ import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
-  sendNotFoundResponse,
   validateUserId,
 } from '../../../shared/utils/controller.utils';
 import {
@@ -24,18 +23,6 @@ import { UpdateScoreDto } from '../../../application/dto/job-application/update-
 import { AddInterviewDto } from '../../../application/dto/job-application/add-interview.dto';
 import { UpdateInterviewDto } from '../../../application/dto/job-application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/job-application/add-interview-feedback.dto';
-import { JobApplicationMapper } from '../../../application/mappers/job-application.mapper';
-import {
-  JobApplicationListResponseDto,
-  JobApplicationDetailResponseDto,
-  PaginatedApplicationsResponseDto,
-} from '../../../application/dto/job-application/job-application-response.dto';
-import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -48,12 +35,6 @@ export class CompanyJobApplicationController {
     private readonly _updateInterviewUseCase: IUpdateInterviewUseCase,
     private readonly _deleteInterviewUseCase: IDeleteInterviewUseCase,
     private readonly _addInterviewFeedbackUseCase: IAddInterviewFeedbackUseCase,
-    private readonly _userRepository: IUserRepository,
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
-    private readonly _seekerEducationRepository: ISeekerEducationRepository,
-    private readonly _s3Service: IS3Service,
   ) {}
 
   getApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -61,7 +42,6 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { job_id } = req.query;
 
-      // Parse query parameters
       const filters = ApplicationFiltersDto.safeParse(req.query);
       if (!filters.success) {
         return handleValidationError(
@@ -72,36 +52,12 @@ export class CompanyJobApplicationController {
 
       let result;
       if (job_id) {
-        // Get applications for specific job
         result = await this._getApplicationsByJobUseCase.execute(userId, job_id as string, filters.data);
       } else {
-        // Get all applications for company
         result = await this._getApplicationsByCompanyUseCase.execute(userId, filters.data);
       }
 
-      // Map to response DTOs with enrichment: seeker name, job role; exclude resume url
-      const applications: JobApplicationListResponseDto[] = [];
-      for (const app of result.applications) {
-        const [user, job, profile] = await Promise.all([
-          this._userRepository.findById(app.seeker_id),
-          this._jobPostingRepository.findById(app.job_id),
-          this._seekerProfileRepository.getProfileByUserId(app.seeker_id),
-        ]);
-        applications.push(
-          JobApplicationMapper.toListDto(app, {
-            seekerName: user?.name,
-            seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
-            jobTitle: job?.title,
-          }),
-        );
-      }
-
-      const response: PaginatedApplicationsResponseDto = {
-        applications,
-        pagination: result.pagination,
-      };
-
-      sendSuccessResponse(res, 'Applications retrieved successfully', response);
+      sendSuccessResponse(res, 'Applications retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -112,61 +68,7 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._getApplicationDetailsUseCase.execute(userId, id);
-
-      // Enrich with seeker profile and job details
-      const [user, profile, job] = await Promise.all([
-        this._userRepository.findById(application.seeker_id),
-        this._seekerProfileRepository.getProfileByUserId(application.seeker_id),
-        this._jobPostingRepository.findById(application.job_id),
-      ]);
-
-      let experiences: Array<{ title: string; company: string; startDate: Date; endDate?: Date; location?: string; description?: string; }> = [];
-      let education: Array<{ school: string; degree?: string; startDate: Date; endDate?: Date; location?: string; }> = [];
-      if (profile) {
-        const [exps, edus] = await Promise.all([
-          this._seekerExperienceRepository.findBySeekerProfileId(profile.id),
-          this._seekerEducationRepository.findBySeekerProfileId(profile.id),
-        ]);
-        experiences = exps.map((e) => ({
-          title: e.title,
-          company: e.company,
-          startDate: e.startDate,
-          endDate: e.endDate,
-          location: e.location,
-          description: e.description,
-        }));
-        education = edus.map((d) => ({
-          school: d.school,
-          degree: d.degree,
-          startDate: d.startDate,
-          endDate: d.endDate,
-          location: undefined,
-        }));
-      }
-
-      const response: JobApplicationDetailResponseDto = JobApplicationMapper.toDetailDto(
-        application,
-        {
-          name: user?.name,
-          avatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
-          headline: profile?.headline || undefined,
-          email: profile?.email || undefined,
-          phone: profile?.phone || undefined,
-          location: profile?.location || undefined,
-          summary: profile?.summary || undefined,
-          skills: profile?.skills || undefined,
-          languages: profile?.languages || undefined,
-          experiences,
-          education,
-        },
-        {
-          title: job?.title,
-          companyName: job?.company_name,
-          location: job?.location,
-          employmentTypes: job?.employment_types,
-        },
-      );
+      const response = await this._getApplicationDetailsUseCase.execute(userId, id);
 
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {
@@ -194,7 +96,7 @@ export class CompanyJobApplicationController {
         dto.data.rejection_reason,
       );
 
-      sendSuccessResponse(res, 'Application stage updated successfully', JobApplicationMapper.toListDto(application));
+      sendSuccessResponse(res, 'Application stage updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -215,7 +117,7 @@ export class CompanyJobApplicationController {
 
       const application = await this._updateApplicationScoreUseCase.execute(userId, id, dto.data.score);
 
-      sendSuccessResponse(res, 'Application score updated successfully', JobApplicationMapper.toListDto(application));
+      sendSuccessResponse(res, 'Application score updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -234,10 +136,17 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData = JobApplicationMapper.interviewDataFromDto(dto.data);
+      const interviewData = {
+        date: dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date),
+        time: dto.data.time,
+        interviewType: dto.data.interview_type,
+        location: dto.data.location,
+        interviewerName: dto.data.interviewer_name,
+        status: 'scheduled' as const,
+      };
       const application = await this._addInterviewUseCase.execute(userId, id, interviewData);
 
-      sendSuccessResponse(res, 'Interview added successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview added successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -259,10 +168,26 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData = JobApplicationMapper.updateInterviewDataFromDto(dto.data);
+      const interviewData: Partial<{
+        date: Date;
+        time: string;
+        interviewType: string;
+        location: string;
+        interviewerName: string;
+        status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+      }> = {};
+      if (dto.data.date !== undefined) {
+        interviewData.date = dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date);
+      }
+      if (dto.data.time !== undefined) interviewData.time = dto.data.time;
+      if (dto.data.interview_type !== undefined) interviewData.interviewType = dto.data.interview_type;
+      if (dto.data.location !== undefined) interviewData.location = dto.data.location;
+      if (dto.data.interviewer_name !== undefined) interviewData.interviewerName = dto.data.interviewer_name;
+      if (dto.data.status !== undefined) interviewData.status = dto.data.status;
+
       const application = await this._updateInterviewUseCase.execute(userId, id, interviewId, interviewData);
 
-      sendSuccessResponse(res, 'Interview updated successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -275,7 +200,7 @@ export class CompanyJobApplicationController {
 
       const application = await this._deleteInterviewUseCase.execute(userId, id, interviewId);
 
-      sendSuccessResponse(res, 'Interview deleted successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview deleted successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -297,10 +222,14 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const feedbackData = JobApplicationMapper.feedbackDataFromDto(dto.data);
+      const feedbackData = {
+        reviewer_name: dto.data.reviewer_name,
+        rating: dto.data.rating,
+        comment: dto.data.comment,
+      };
       const application = await this._addInterviewFeedbackUseCase.execute(userId, id, interviewId, feedbackData);
 
-      sendSuccessResponse(res, 'Interview feedback added successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview feedback added successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }

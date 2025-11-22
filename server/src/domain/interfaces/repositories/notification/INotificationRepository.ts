@@ -1,5 +1,6 @@
 import { Notification } from '../../../entities/notification.entity';
-import { NotificationType } from '../../../../infrastructure/database/mongodb/models/notification.model';
+import { IBaseRepository } from '../IBaseRepository';
+import { NotificationType } from '../../../entities/notification.entity';
 
 export interface CreateNotificationData {
   user_id: string;
@@ -9,11 +10,8 @@ export interface CreateNotificationData {
   data?: Record<string, unknown>;
 }
 
-export interface INotificationRepository {
-  create(data: CreateNotificationData): Promise<Notification>;
-  findByUserId(userId: string, limit?: number, skip?: number): Promise<Notification[]>;
-  markAsRead(notificationId: string, userId: string): Promise<Notification | null>;
+export interface INotificationRepository extends IBaseRepository<Notification> {
+  // Notification-specific methods that need custom implementation
   markAllAsRead(userId: string): Promise<void>;
-  getUnreadCount(userId: string): Promise<number>;
 }
 

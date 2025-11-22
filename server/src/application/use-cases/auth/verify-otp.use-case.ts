@@ -1,6 +1,5 @@
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IUserAuthRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IVerifyOtpUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { UserMapper } from '../../mappers/user.mapper';
@@ -10,11 +9,10 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   constructor(
     private readonly _otpService: IOtpService,
     private readonly _userRepository: IUserRepository,
-    private readonly _userAuthRepository: IUserAuthRepository,
   ) {}
 
   async execute(email: string, code: string): Promise<UserResponseDto> {
-    const user = await this._userRepository.findByEmail(email);
+    const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -22,9 +20,11 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     if (!isValid) {
       throw new ValidationError('Invalid or expired OTP code');
     }
-    await this._userAuthRepository.updateVerificationStatus(email, true);
+    
+    // Update user verification status using thin repository
+    await this._userRepository.update(user.id, { isVerified: true });
 
-    const updatedUser = await this._userRepository.findByEmail(email);
+    const updatedUser = await this._userRepository.findOne({ email });
     if (!updatedUser) {
       throw new NotFoundError('User not found after verification');
     }

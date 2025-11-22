@@ -23,6 +23,7 @@ interface ReasonActionDialogProps {
   reasonOptions: ReasonOption[]
   onConfirm: (reason: string) => void
   loading?: boolean
+  showReasonField?: boolean
 }
 
 const ReasonActionDialog = ({
@@ -35,10 +36,11 @@ const ReasonActionDialog = ({
   actionLabel = 'Submit',
   confirmVariant = 'destructive',
   loading = false,
+  showReasonField = true,
 }: ReasonActionDialogProps) => {
   const [reasonType, setReasonType] = useState<string>('')
   const [customReason, setCustomReason] = useState<string>('')
-  const canSubmit = reasonType && (reasonType !== 'other' || customReason.trim())
+  const canSubmit = !showReasonField || (reasonType && (reasonType !== 'other' || customReason.trim()))
   const selectedLabel = reasonType === 'other' ? customReason : (reasonOptions.find(r => r.value === reasonType)?.label || '')
 
   const handleConfirm = () => {
@@ -59,28 +61,30 @@ const ReasonActionDialog = ({
       confirmVariant={confirmVariant}
       isLoading={loading}
     >
-      <div>
-        <label className="text-sm font-medium mb-1 block">Reason</label>
-        <Select value={reasonType} onValueChange={setReasonType}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select reason..." />
-          </SelectTrigger>
-          <SelectContent>
-            {reasonOptions.map(reason => (
-              <SelectItem value={reason.value} key={reason.value}>{reason.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {reasonType === 'other' && (
-          <textarea
-            className="mt-2 w-full border rounded p-2 text-sm min-h-[90px]"
-            value={customReason}
-            onChange={e => setCustomReason(e.target.value)}
-            required
-            placeholder="Describe the reason..."
-          />
-        )}
-      </div>
+      {showReasonField && (
+        <div>
+          <label className="text-sm font-medium mb-1 block">Reason</label>
+          <Select value={reasonType} onValueChange={setReasonType}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select reason..." />
+            </SelectTrigger>
+            <SelectContent>
+              {reasonOptions.map(reason => (
+                <SelectItem value={reason.value} key={reason.value}>{reason.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {reasonType === 'other' && (
+            <textarea
+              className="mt-2 w-full border rounded p-2 text-sm min-h-[90px]"
+              value={customReason}
+              onChange={e => setCustomReason(e.target.value)}
+              required
+              placeholder="Describe the reason..."
+            />
+          )}
+        </div>
+      )}
     </FormDialog>
   )
 }

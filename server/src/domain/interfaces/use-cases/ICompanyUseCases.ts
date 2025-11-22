@@ -1,4 +1,5 @@
-import { CompanyProfile, CompanyVerification } from '../../entities/company-profile.entity';
+import { CompanyProfile } from '../../entities/company-profile.entity';
+import { CompanyVerification } from '../../entities/company-verification.entity';
 import { CompanyContact } from '../../entities/company-contact.entity';
 import { CompanyTechStack } from '../../entities/company-tech-stack.entity';
 import { CompanyOfficeLocation } from '../../entities/company-office-location.entity';

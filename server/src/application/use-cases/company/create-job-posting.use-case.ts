@@ -8,7 +8,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
 
   async execute(companyId: string, jobData: CreateJobPostingData): Promise<JobPosting> {
     try {
-      const jobPosting: Omit<JobPosting, '_id' | 'createdAt' | 'updatedAt' | 'view_count' | 'application_count'> = {
+      const jobPosting = {
         company_id: companyId,
         title: jobData.title,
         description: jobData.description,
@@ -22,9 +22,11 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
         skills_required: jobData.skills_required,
         category_ids: jobData.category_ids,
         is_active: true,
+        view_count: 0,
+        application_count: 0,
       };
 
-      return await this._jobPostingRepository.create(jobPosting);
+      return await this._jobPostingRepository.create(jobPosting as unknown as Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
     } catch (error) {
       console.error('CreateJobPostingUseCase error:', error);
       if (error instanceof Error) {
@@ -34,3 +36,4 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     }
   }
 }
+

@@ -14,7 +14,7 @@ export class CompanyContactUseCase implements ICompanyContactUseCase {
   }
 
   async getContactsByCompanyId(companyId: string): Promise<CompanyContact[]> {
-    const contact = await this._companyContactRepository.findByCompanyId(companyId);
+    const contact = await this._companyContactRepository.findOne({ companyId });
     return contact ? [contact] : [];
   }
 
@@ -29,3 +29,4 @@ export class CompanyContactUseCase implements ICompanyContactUseCase {
     if (!deleted) throw new Error('Contact not found');
   }
 }
+

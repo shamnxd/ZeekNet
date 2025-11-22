@@ -36,7 +36,6 @@ const Login = () => {
   const dispatch = useAppDispatch()
   const { loading, error, role } = useAppSelector((s) => s.auth)
 
-  // Get the return URL from location state (where user came from)
   const from = (location.state as { from?: string })?.from || null
 
   useEffect(() => {
@@ -64,7 +63,7 @@ const Login = () => {
         } else {
           toast.success('Welcome back!', { description: 'Logged in successfully.' })
           const userRole = res.data?.role || role
-          // If there's a return URL and user is a seeker, redirect there (e.g., job detail page)
+
           if (from && userRole === UserRole.SEEKER) {
             navigate(from, { replace: true })
           } else if (userRole === UserRole.ADMIN) {
@@ -115,7 +114,6 @@ const Login = () => {
         }
         toast.success('Welcome back!', { description: 'Logged in successfully with Google.' })
         const userRole = res.data?.role || role
-        // If there's a return URL and user is a seeker, redirect there (e.g., job detail page)
         if (from && userRole === UserRole.SEEKER) {
           navigate(from, { replace: true })
         } else if (userRole === UserRole.ADMIN) {

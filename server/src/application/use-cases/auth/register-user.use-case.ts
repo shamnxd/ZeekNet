@@ -8,6 +8,7 @@ import { IRegisterUserUseCase } from '../../../domain/interfaces/use-cases/IAuth
 import { ValidationError } from '../../../domain/errors/errors';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
 import { UserMapper } from '../../mappers/user.mapper';
+import { User } from '../../../domain/entities/user.entity';
 
 export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
@@ -23,14 +24,14 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       throw new ValidationError(validationResult.errors.join(', '));
     }
 
-    const existingUser = await this._userRepository.findByEmail(email);
+    const existingUser = await this._userRepository.findOne({ email });
     if (existingUser) {
       throw new ValidationError('Email already registered');
     }
 
     const hashedPassword = await this._passwordHasher.hash(password);
 
-    const user = await this._userRepository.save({
+    const user = await this._userRepository.create({
       name: name ?? '',
       email,
       password: hashedPassword,
@@ -38,7 +39,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       isVerified: false,
       isBlocked: false,
       refreshToken: null,
-    });
+    } as unknown as Omit<User, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
 
     this.sendOtpEmail(user.email).catch((error) => {});
 

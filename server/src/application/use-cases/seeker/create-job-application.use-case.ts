@@ -6,8 +6,8 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { ICreateJobApplicationUseCase, CreateJobApplicationData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/services/notification.service';
-import { NotificationType } from '../../../infrastructure/database/mongodb/models/notification.model';
+import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { NotificationType } from '../../../domain/entities/notification.entity';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -19,7 +19,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
   ) {}
 
   async execute(seekerId: string, data: CreateJobApplicationData): Promise<JobApplication> {
-    // Check if user is verified
     const user = await this._userRepository.findById(seekerId);
     if (!user) {
       throw new NotFoundError('User not found');
@@ -28,57 +27,58 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('Please verify your email before applying for jobs');
     }
 
-    // Check if job exists and is active
     const job = await this._jobPostingRepository.findById(data.job_id);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (!job.is_active) {
+    if (!job.isActive) {
       throw new ValidationError('This job posting is no longer active');
     }
-    if (job.admin_blocked) {
+    if (job.adminBlocked) {
       throw new ValidationError('This job posting has been blocked');
     }
 
-    // Check for duplicate application
-    const existingApplication = await this._jobApplicationRepository.checkDuplicateApplication(seekerId, data.job_id);
+    const existingApplication = await this._jobApplicationRepository.findOne({ seeker_id: seekerId, job_id: data.job_id });
     if (existingApplication) {
       throw new ValidationError('You have already applied for this job');
     }
 
-    // Create application
     const application = await this._jobApplicationRepository.create({
-      seeker_id: seekerId,
-      job_id: data.job_id,
-      company_id: job.company_id,
-      cover_letter: data.cover_letter,
-      resume_url: data.resume_url,
-      resume_filename: data.resume_filename,
+      seekerId: seekerId,
+      jobId: data.job_id,
+      companyId: job.companyId,
+      coverLetter: data.cover_letter,
+      resumeUrl: data.resume_url,
+      resumeFilename: data.resume_filename,
+      stage: 'applied',
+      interviews: [],
+      appliedDate: new Date(),
     });
 
-    await this._jobPostingRepository.incrementApplicationCount(data.job_id);
+    // Increment application count
+    await this._jobPostingRepository.update(data.job_id, { 
+      applicationCount: job.applicationCount + 1, 
+    });
 
-    // Get company profile to find the user ID
-    const companyProfile = await this._companyProfileRepository.getProfileById(job.company_id);
+    const companyProfile = await this._companyProfileRepository.findById(job.companyId);
     if (companyProfile) {
       // Send notification to company user
-      await notificationService.sendNotification(
-        this._notificationRepository,
-        {
-          user_id: companyProfile.userId,
-          type: NotificationType.JOB_APPLICATION_RECEIVED,
-          title: 'New Job Application',
-          message: `You have received a new application for ${job.title}`,
-          data: {
-            job_id: job._id,
-            application_id: application.id,
-            job_title: job.title,
-          },
-        }
-      );
+      await notificationService.sendNotification({
+        user_id: companyProfile.userId,
+        type: NotificationType.JOB_APPLICATION,
+        title: 'New Job Application',
+        message: `You have received a new application for ${job.title}`,
+        data: {
+          job_id: job.id,
+          application_id: application.id,
+          job_title: job.title,
+        },
+      });
     }
 
     return application;
   }
 }
+
+
 

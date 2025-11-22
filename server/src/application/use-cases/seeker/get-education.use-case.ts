@@ -13,7 +13,7 @@ export class GetEducationUseCase implements IGetEducationUseCase {
 
   async execute(userId: string): Promise<EducationResponseDto[]> {
     
-    const profile = await this._seekerProfileRepository.getProfileByUserId(userId);
+    const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
     }
@@ -22,3 +22,5 @@ export class GetEducationUseCase implements IGetEducationUseCase {
     return education.map(edu => SeekerProfileMapper.educationToDto(edu));
   }
 }
+
+

@@ -1,4 +1,10 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, User, Settings as SettingsIcon, HelpCircle, LogOut, Bookmark } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
+import { logoutThunk } from '@/store/slices/auth.slice';
+import { seekerApi } from '@/api/seeker.api';
+import { toast } from 'sonner';
 
 type Page = 'dashboard' | 'profile' | 'applications' | 'settings';
 
@@ -18,6 +24,41 @@ const quickActions = [
 ];
 
 export function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { name, email } = useAppSelector((state) => state.auth);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSeekerProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await seekerApi.getProfile();
+        if (response.data && response.data.avatarUrl) {
+          setProfileImage(response.data.avatarUrl);
+        }
+      } catch (error) {
+        console.log('Failed to fetch seeker profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSeekerProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutThunk());
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error('Logout failed');
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <div className="bg-gradient-to-b from-white to-[#f8f9ff] w-[240px] h-full flex flex-col border-r border-[#e5e7eb] shadow-sm">
       
@@ -124,23 +165,39 @@ export function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
       </div>
 
       <div className="p-4 border-t border-[#e5e7eb] bg-gradient-to-r from-[#f8f9ff] to-white flex items-center gap-3">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center">
-              <img src="https://img.freepik.com/premium-photo/3d-avatar-cartoon-character_113255-103130.jpg" alt="Google Logo" className="w-full h-full object-cover rounded-full" />
-            </div>
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-[#f3f4f6]">
+            {loading ? (
+              <div className="w-full h-full bg-gradient-to-br from-[#e5e7eb] to-[#d1d5db] animate-pulse" />
+            ) : profileImage ? (
+              <img 
+                src={profileImage} 
+                alt={name || 'Profile'} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#4640de] to-[#6366f1] flex items-center justify-center text-white font-bold text-sm">
+                {name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-[14px] text-[#1f2937] leading-tight truncate">
-              Jake Gyll
-            </p>
-            <p className="text-[12px] text-[#6b7280] truncate">
-              jakegyll@email.com
-            </p>
-          </div>
-          <button className="p-2 text-[#6b7280] hover:text-[#ef4444] hover:bg-red-50 rounded-lg transition-all duration-200">
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-[14px] text-[#1f2937] leading-tight truncate">
+            {name || 'User'}
+          </p>
+          <p className="text-[12px] text-[#6b7280] truncate">
+            {email || 'No email'}
+          </p>
+        </div>
+        <button 
+          onClick={handleLogout}
+          className="p-2 text-[#6b7280] hover:text-[#ef4444] hover:bg-red-50 rounded-lg transition-all duration-200"
+          title="Logout"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }

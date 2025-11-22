@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RefreshTokenDto } from '../../../application/dto/auth/refresh-token.dto';
-import { IRefreshTokenUseCase, IAuthGetUserByIdUseCase, IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IRefreshTokenUseCase, IAuthGetUserByIdUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
@@ -13,7 +13,6 @@ export class TokenController {
     private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
     private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
     private readonly _tokenService: ITokenService,
-    private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
   ) {}
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -51,13 +50,6 @@ export class TokenController {
 
       if (user.isBlocked) {
         return sendErrorResponse(res, 'User account is blocked', null, 403);
-      }
-
-      if (user.role === UserRole.COMPANY) {
-        const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(user.id);
-        if (companyProfile && companyProfile.isBlocked) {
-          return sendErrorResponse(res, 'Company account is blocked', null, 403);
-        }
       }
 
       const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role as UserRole });

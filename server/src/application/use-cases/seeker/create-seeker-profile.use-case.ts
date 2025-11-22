@@ -12,24 +12,29 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
   ) {}
 
   async execute(userId: string, data: CreateSeekerProfileData): Promise<SeekerProfileResponseDto> {
-    
-    const existingProfile = await this._seekerProfileRepository.getProfileByUserId(userId);
+
+    const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     if (existingProfile) {
       throw new ValidationError('Profile already exists. Use update endpoint to modify.');
     }
 
-    const profile = await this._seekerProfileRepository.createProfile({
+    const profile = await this._seekerProfileRepository.create({
       userId,
-      headline: data.headline,
-      summary: data.summary,
-      location: data.location,
-      phone: data.phone,
-      email: data.email, 
-      avatarFileName: data.avatarFileName || null,
-      bannerFileName: data.bannerFileName || null,
-      skills: data.skills || [],
-      languages: data.languages || [],
-      socialLinks: data.socialLinks,
+      headline: data.headline ?? null,
+      summary: data.summary ?? null,
+      location: data.location ?? null,
+      phone: data.phone ?? null,
+      email: data.email ?? null,
+
+      avatarFileName: data.avatarFileName ?? null,
+      bannerFileName: data.bannerFileName ?? null,
+      dateOfBirth: data.dateOfBirth ?? null,
+      gender: data.gender ?? null,
+
+      resume: null,
+      skills: data.skills ?? [],
+      languages: data.languages ?? [],
+      socialLinks: data.socialLinks ?? [],
     });
 
     return SeekerProfileMapper.toDto(profile, this._s3Service);

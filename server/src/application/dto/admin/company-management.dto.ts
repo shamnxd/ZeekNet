@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-export const BlockCompanyDto = z.object({
-  companyId: z.string().min(1, 'Company ID is required'),
-  isBlocked: z.boolean(),
-});
-
 export const GetAllCompaniesDto = z.object({
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(10),

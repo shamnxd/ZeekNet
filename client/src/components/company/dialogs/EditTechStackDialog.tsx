@@ -52,7 +52,6 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Initialize with current tech stack values
       const currentStacks = techStack.map(item => item.techStack).filter(Boolean);
       setSelectedStacks(currentStacks);
       fetchSkills();
@@ -60,7 +59,6 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   }, [isOpen, techStack]);
 
   const handleAddStack = (values: string[]) => {
-    // Add new stacks that aren't already selected
     const newStacks = values.filter(v => !selectedStacks.includes(v));
     if (newStacks.length > 0) {
       setSelectedStacks(prev => [...prev, ...newStacks]);
@@ -72,9 +70,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   };
 
   const handleSave = () => {
-    // Convert selected stacks back to TechStackItem format
     const techStackItems: TechStackItem[] = selectedStacks.map(stack => {
-      // Try to find existing item with same techStack to preserve id
       const existingItem = techStack.find(item => item.techStack === stack);
       return existingItem ? { ...existingItem } : { techStack: stack };
     });
@@ -84,7 +80,6 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   };
 
   const handleClose = () => {
-    // Reset on close
     const currentStacks = techStack.map(item => item.techStack).filter(Boolean);
     setSelectedStacks(currentStacks);
     onClose();

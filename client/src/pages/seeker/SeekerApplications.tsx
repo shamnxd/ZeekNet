@@ -83,11 +83,6 @@ export function SeekerApplications() {
                   placeholder="Search applications"
                 />
               </div>
-
-              <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e5e7eb] bg-white px-4 py-3 text-[13px] font-semibold text-[#1f2937] shadow-sm transition-all duration-200 hover:border-[#4640de] hover:bg-[#f8f9ff]">
-                <SlidersHorizontal className="h-4 w-4 text-[#4640de]" />
-                Filter
-              </button>
             </div>
           </div>
 
@@ -137,7 +132,7 @@ export function SeekerApplications() {
                   <td className="py-5 pr-6">
                     <div className="flex items-center gap-3">
                       <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl font-semibold bg-[#eef2ff] text-[#4338ca]')}>
-                        {(application?.company_name || application?.companyName || 'C').slice(0, 2).toUpperCase()}
+                        <img src={application?.company_logo } alt="Company Logo" className="h-8 w-8 object-contain" />
                       </div>
                       <div>
                         <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || '-'}</p>

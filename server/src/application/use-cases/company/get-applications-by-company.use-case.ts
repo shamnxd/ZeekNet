@@ -1,27 +1,28 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByCompanyUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError } from '../../../domain/errors/errors';
-import type { JobApplication, ApplicationStage } from '../../../domain/entities/job-application.entity';
-
-export interface PaginatedApplications {
-  applications: JobApplication[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { Types } from 'mongoose';
 
 export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompanyUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplications> {
-    const companyProfile = await this._companyProfileRepository.getProfileByUserId(userId);
+  async execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto> {
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
     }
@@ -29,22 +30,42 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const result = await this._jobApplicationRepository.findByCompanyId(companyProfile.id, {
-      stage: filters.stage,
-      search: filters.search,
+    const query: Record<string, unknown> = { company_id: new Types.ObjectId(companyProfile.id) };
+    if (filters.stage) query.stage = filters.stage;
+
+    const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
+      sortBy: 'applied_date',
+      sortOrder: 'desc',
     });
 
+    const applications: JobApplicationListResponseDto[] = [];
+    for (const app of result.data) {
+      const [user, job, profile] = await Promise.all([
+        this._userRepository.findById(app.seekerId),
+        this._jobPostingRepository.findById(app.jobId),
+        this._seekerProfileRepository.findOne({ userId: app.seekerId }),
+      ]);
+      applications.push(
+        JobApplicationMapper.toListDto(app, {
+          seekerName: user?.name,
+          seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+          jobTitle: job?.title,
+        }),
+      );
+    }
+
     return {
-      applications: result.applications,
+      applications,
       pagination: {
-        page,
-        limit,
-        total: result.pagination.total,
-        totalPages: Math.ceil(result.pagination.total / limit),
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       },
     };
   }
 }
+
 

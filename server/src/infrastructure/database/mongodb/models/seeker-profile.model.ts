@@ -20,6 +20,8 @@ export interface SeekerProfileDocument extends Document {
   email?: string; 
   avatarFileName?: string; 
   bannerFileName?: string; 
+  dateOfBirth?: Date;
+  gender?: string;
   skills: string[];
   languages: string[];
   socialLinks: SocialLink[];
@@ -55,6 +57,8 @@ const SeekerProfileSchema = new Schema<SeekerProfileDocument>(
     email: { type: String }, 
     avatarFileName: { type: String }, 
     bannerFileName: { type: String }, 
+    dateOfBirth: { type: Date },
+    gender: { type: String },
     skills: [{ type: String, default: [] }],
     languages: [{ type: String, default: [] }],
     socialLinks: { type: [SocialLinkSchema], default: [] },

@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 
 class SocketService {
   private socket: Socket | null = null;
+  private userBlockedCallback: ((data: any) => void) | null = null;
 
   connect(token: string): void {
     if (this.socket?.connected) {
@@ -29,6 +30,13 @@ class SocketService {
     this.socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
     });
+
+    this.socket.on('user-blocked', (data) => {
+      console.log('User blocked event received:', data);
+      if (this.userBlockedCallback) {
+        this.userBlockedCallback(data);
+      }
+    });
   }
 
   disconnect(): void {
@@ -50,10 +58,19 @@ class SocketService {
     }
   }
 
+  onUserBlocked(callback: (data: any) => void): void {
+    this.userBlockedCallback = callback;
+  }
+
+  offUserBlocked(): void {
+    this.userBlockedCallback = null;
+  }
+
   isConnected(): boolean {
     return this.socket?.connected || false;
   }
 }
 
 export const socketService = new SocketService();
+
 

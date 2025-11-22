@@ -1,14 +1,9 @@
-import { JobApplication, InterviewSchedule, InterviewFeedback } from '../../domain/entities/job-application.entity';
+import { JobApplication, InterviewSchedule } from '../../domain/entities/job-application.entity';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
   InterviewScheduleResponseDto,
-  PaginatedApplicationsResponseDto,
 } from '../dto/job-application/job-application-response.dto';
-import { CreateJobApplicationRequestDto } from '../dto/job-application/create-job-application.dto';
-import { AddInterviewRequestDto } from '../dto/job-application/add-interview.dto';
-import { UpdateInterviewRequestDto } from '../dto/job-application/update-interview.dto';
-import { AddInterviewFeedbackRequestDto } from '../dto/job-application/add-interview-feedback.dto';
 
 export class JobApplicationMapper {
   static toListDto(
@@ -23,16 +18,16 @@ export class JobApplicationMapper {
   ): JobApplicationListResponseDto {
     return {
       id: application.id,
-      seeker_id: params?.seekerName ? application.seeker_id : undefined,
+      seeker_id: params?.seekerName ? application.seekerId : undefined,
       seeker_name: params?.seekerName,
       seeker_avatar: params?.seekerAvatar,
-      job_id: application.job_id,
+      job_id: application.jobId,
       job_title: params?.jobTitle || '',
       company_name: params?.companyName,
       company_logo: params?.companyLogo,
       score: application.score,
       stage: application.stage,
-      applied_date: application.applied_date.toISOString(),
+      applied_date: application.appliedDate.toISOString(),
     };
   }
 
@@ -48,6 +43,8 @@ export class JobApplicationMapper {
       summary?: string;
       skills?: string[];
       languages?: string[];
+      date_of_birth?: Date;
+      gender?: string;
       experiences?: Array<{
         title: string;
         company: string;
@@ -73,22 +70,22 @@ export class JobApplicationMapper {
   ): JobApplicationDetailResponseDto {
     return {
       id: application.id,
-      seeker_id: application.seeker_id,
+      seeker_id: application.seekerId,
       seeker_name: seekerData?.name || '',
       seeker_avatar: seekerData?.avatar,
       seeker_headline: seekerData?.headline,
-      job_id: application.job_id,
+      job_id: application.jobId,
       job_title: jobData?.title || '',
       job_company: jobData?.companyName,
       job_location: jobData?.location,
       job_type: jobData?.employmentTypes?.[0],
-      cover_letter: application.cover_letter,
-      resume_url: application.resume_url,
-      resume_filename: application.resume_filename,
+      cover_letter: application.coverLetter,
+      resume_url: application.resumeUrl,
+      resume_filename: application.resumeFilename,
       score: application.score,
       stage: application.stage,
-      applied_date: application.applied_date.toISOString(),
-      rejection_reason: application.rejection_reason,
+      applied_date: application.appliedDate.toISOString(),
+      rejection_reason: application.rejectionReason,
       interviews: application.interviews.map((interview) => this.interviewToDto(interview)),
       // Seeker profile data
       full_name: seekerData?.name,
@@ -119,81 +116,25 @@ export class JobApplicationMapper {
     };
   }
 
-  static interviewToDto(interview: InterviewSchedule): InterviewScheduleResponseDto {
+  private static interviewToDto(interview: InterviewSchedule): InterviewScheduleResponseDto {
     return {
       id: interview.id || '',
       date: interview.date.toISOString(),
       time: interview.time,
-      interview_type: interview.interview_type,
+      interview_type: interview.interviewType,
       location: interview.location,
-      interviewer_name: interview.interviewer_name,
+      interviewer_name: interview.interviewerName,
       status: interview.status || 'scheduled',
       feedback: interview.feedback
         ? {
-          reviewer_name: interview.feedback.reviewer_name,
+          reviewer_name: interview.feedback.reviewerName,
           rating: interview.feedback.rating,
           comment: interview.feedback.comment,
-          reviewed_at: interview.feedback.reviewed_at.toISOString(),
+          reviewed_at: interview.feedback.reviewedAt.toISOString(),
         }
         : undefined,
-      created_at: interview.created_at?.toISOString(),
-      updated_at: interview.updated_at?.toISOString(),
-    };
-  }
-
-  static createApplicationDataFromDto(dto: CreateJobApplicationRequestDto, seekerId: string, companyId: string) {
-    return {
-      seeker_id: seekerId,
-      job_id: dto.job_id,
-      company_id: companyId,
-      cover_letter: dto.cover_letter,
-      resume_url: dto.resume_url,
-      resume_filename: dto.resume_filename,
-    };
-  }
-
-  static interviewDataFromDto(dto: AddInterviewRequestDto): Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at'> {
-    return {
-      date: dto.date instanceof Date ? dto.date : new Date(dto.date),
-      time: dto.time,
-      interview_type: dto.interview_type,
-      location: dto.location,
-      interviewer_name: dto.interviewer_name,
-      status: 'scheduled',
-    };
-  }
-
-  static updateInterviewDataFromDto(dto: UpdateInterviewRequestDto): Partial<InterviewSchedule> {
-    const data: Partial<InterviewSchedule> = {};
-
-    if (dto.date !== undefined) {
-      data.date = dto.date instanceof Date ? dto.date : new Date(dto.date);
-    }
-    if (dto.time !== undefined) {
-      data.time = dto.time;
-    }
-    if (dto.interview_type !== undefined) {
-      data.interview_type = dto.interview_type;
-    }
-    if (dto.location !== undefined) {
-      data.location = dto.location;
-    }
-    if (dto.interviewer_name !== undefined) {
-      data.interviewer_name = dto.interviewer_name;
-    }
-    if (dto.status !== undefined) {
-      data.status = dto.status;
-    }
-
-    return data;
-  }
-
-  static feedbackDataFromDto(dto: AddInterviewFeedbackRequestDto): InterviewFeedback {
-    return {
-      reviewer_name: dto.reviewer_name,
-      rating: dto.rating,
-      comment: dto.comment,
-      reviewed_at: new Date(),
+      created_at: interview.createdAt?.toISOString(),
+      updated_at: interview.updatedAt?.toISOString(),
     };
   }
 }

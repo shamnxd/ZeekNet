@@ -89,33 +89,40 @@ const CompanyManagement = () => {
   }
 
 
-  const handleBlockConfirm = async () => {
-    if (!selectedCompany) return
-    
-    try {
-      const newBlockedStatus = !selectedCompany.isBlocked
-      
-      await adminApi.blockCompany({
-        companyId: selectedCompany.id,
-        isBlocked: newBlockedStatus
-      })
-      
-      setCompanies(prevCompanies => 
-        prevCompanies.map(company => 
-          company.id === selectedCompany.id 
-            ? { ...company, isBlocked: newBlockedStatus }
-            : company
-        )
-      )
-      
-      toast.success(`Company ${selectedCompany.companyName} ${selectedCompany.isBlocked ? 'unblocked' : 'blocked'} successfully`)
-      setBlockDialogOpen(false)
-      setSelectedCompany(null)
-    } catch {
-      const action = selectedCompany.isBlocked ? 'unblock' : 'block'
-      toast.error(`Failed to ${action} company`)
-    }
+const handleBlockConfirm = async () => {
+  if (!selectedCompany) return;
+  if (!selectedCompany.userId) {
+    toast.error("User ID missing");
+    return;
   }
+
+  try {
+    const newBlockedStatus = !selectedCompany.isBlocked;
+
+    await adminApi.blockUser(selectedCompany.userId, newBlockedStatus);
+
+    setCompanies(prev =>
+      prev.map(c =>
+        c.userId === selectedCompany.userId
+          ? { ...c, isBlocked: newBlockedStatus }
+          : c
+      )
+    );
+
+    toast.success(
+      `Company ${selectedCompany.companyName} ${
+        newBlockedStatus ? "blocked" : "unblocked"
+      } successfully`
+    );
+
+    setBlockDialogOpen(false);
+    setSelectedCompany(null);
+
+  } catch {
+    toast.error(`Failed to ${selectedCompany.isBlocked ? "unblock" : "block"} company`);
+  }
+};
+
 
   const handleEmailConfirm = async () => {
     if (!selectedCompany) return
@@ -166,36 +173,48 @@ const CompanyManagement = () => {
   ];
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
   const [reasonCompany, setReasonCompany] = useState<Company|null>(null);
-  const handleBlockAction = (company: Company) => {
-    setReasonCompany(company)
-    setReasonDialogOpen(true)
-  };
-  const handleBlockReasonConfirm = async (reason: string) => {
-    if (!reasonCompany) return;
-    
-    try {
-      const newBlockedStatus = !reasonCompany.isBlocked;
-      
-      await adminApi.blockCompany({
-        companyId: reasonCompany.id,
-        isBlocked: newBlockedStatus
-      });
-      
-      setCompanies(prevCompanies => 
-        prevCompanies.map(company => 
-          company.id === reasonCompany.id 
-            ? { ...company, isBlocked: newBlockedStatus }
-            : company
-        )
-      );
-      
-      toast.success(`${reasonCompany.companyName} ${newBlockedStatus ? 'blocked' : 'unblocked'} successfully${!newBlockedStatus ? '' : `. Reason: ${reason}`}`);
-      setReasonDialogOpen(false);
-      setReasonCompany(null);
-    } catch (error) {
-      toast.error(`Failed to ${reasonCompany.isBlocked ? 'unblock' : 'block'} ${reasonCompany.companyName}`);
-    }
+const handleBlockAction = (company: Company) => {
+  setReasonCompany(company);
+  setReasonDialogOpen(true);
+};
+const handleBlockReasonConfirm = async (reason: string) => {
+  if (!reasonCompany) return;
+  if (!reasonCompany.userId) {
+    toast.error("User ID missing");
+    return;
   }
+
+  try {
+    const newBlockedStatus = !reasonCompany.isBlocked;
+
+    await adminApi.blockUser(reasonCompany.userId, newBlockedStatus);
+
+    setCompanies(prev =>
+      prev.map(c =>
+        c.userId === reasonCompany.userId
+          ? { ...c, isBlocked: newBlockedStatus }
+          : c
+      )
+    );
+
+    toast.success(
+      `${reasonCompany.companyName} ${
+        newBlockedStatus ? "blocked" : "unblocked"
+      } successfully${newBlockedStatus ? `. Reason: ${reason}` : ""}`
+    );
+
+    setReasonDialogOpen(false);
+    setReasonCompany(null);
+
+  } catch {
+    toast.error(
+      `Failed to ${
+        reasonCompany.isBlocked ? "unblock" : "block"
+      } ${reasonCompany.companyName}`
+    );
+  }
+};
+
 
   return (
     <AdminLayout>
@@ -504,6 +523,7 @@ const CompanyManagement = () => {
           onConfirm={handleBlockReasonConfirm}
           actionLabel={reasonCompany?.isBlocked ? 'Unblock' : 'Block'}
           confirmVariant="destructive"
+          showReasonField={!reasonCompany?.isBlocked}
         />
       </div>
     </AdminLayout>

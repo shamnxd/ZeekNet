@@ -43,6 +43,8 @@ export class SeekerProfile {
     public readonly email: string | null, 
     public readonly avatarFileName: string | null, 
     public readonly bannerFileName: string | null, 
+    public readonly dateOfBirth: Date | null,
+    public readonly gender: string | null,
     public readonly skills: string[],
     public readonly languages: string[],
     public readonly socialLinks: SocialLink[],
@@ -61,6 +63,8 @@ export class SeekerProfile {
     email?: string | null; 
     avatarFileName?: string | null; 
     bannerFileName?: string | null; 
+    dateOfBirth?: Date | null;
+    gender?: string | null;
     skills?: string[];
     languages?: string[];
     socialLinks?: SocialLink[];
@@ -79,6 +83,8 @@ export class SeekerProfile {
       data.email ?? null,
       data.avatarFileName ?? null,
       data.bannerFileName ?? null,
+      data.dateOfBirth ?? null,
+      data.gender ?? null,
       data.skills ?? [],
       data.languages ?? [],
       data.socialLinks ?? [],
@@ -88,43 +94,4 @@ export class SeekerProfile {
     );
   }
 
-  toJSON(): Record<string, unknown> {
-    return {
-      id: this.id,
-      userId: this.userId,
-      headline: this.headline,
-      summary: this.summary,
-      location: this.location,
-      phone: this.phone,
-      email: this.email,
-      avatarFileName: this.avatarFileName,
-      bannerFileName: this.bannerFileName,
-      skills: this.skills,
-      languages: this.languages,
-      socialLinks: this.socialLinks,
-      resume: this.resume,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-    };
-  }
-
-  static fromJSON(data: Record<string, unknown>): SeekerProfile {
-    return new SeekerProfile(
-      data.id as string,
-      data.userId as string,
-      (data.headline as string) ?? null,
-      (data.summary as string) ?? null,
-      (data.location as string) ?? null,
-      (data.phone as string) ?? null,
-      (data.email as string) || null,
-      (data.avatarFileName as string) ?? null,
-      (data.bannerFileName as string) ?? null,
-      (data.skills as string[]) ?? [],
-      (data.languages as string[]) ?? [],
-      (data.socialLinks as SocialLink[]) ?? [],
-      (data.resume as ResumeMeta) ?? null,
-      new Date(data.createdAt as string),
-      new Date(data.updatedAt as string),
-    );
-  }
 }
