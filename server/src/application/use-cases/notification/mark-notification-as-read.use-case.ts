@@ -1,6 +1,7 @@
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
-import { Notification } from '../../../domain/entities/notification.entity';
+import { NotificationResponseDto } from '../../dto/notification/notification-response.dto';
+import { NotificationMapper } from '../../mappers/notification.mapper';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 
 export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUseCase {
@@ -8,7 +9,7 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, notificationId: string): Promise<Notification | null> {
+  async execute(userId: string, notificationId: string): Promise<NotificationResponseDto | null> {
     // First verify the notification exists and belongs to the user
     const notification = await this._notificationRepository.findById(notificationId);
     
@@ -21,7 +22,7 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
     }
 
     if (notification.isRead) {
-      return notification; // Already read, return as-is
+      return NotificationMapper.toDto(notification); // Already read, return as-is
     }
 
     // Use base repository update method
@@ -34,6 +35,6 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
       throw new NotFoundError('Failed to update notification');
     }
 
-    return updatedNotification;
+    return NotificationMapper.toDto(updatedNotification);
   }
 }

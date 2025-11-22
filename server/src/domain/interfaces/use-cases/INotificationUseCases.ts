@@ -1,4 +1,5 @@
 import { Notification } from '../../entities/notification.entity';
+import { NotificationResponseDto } from '../../../application/dto/notification/notification-response.dto';
 import { CreateNotificationData } from '../repositories/notification/INotificationRepository';
 
 export interface ICreateNotificationUseCase {
@@ -6,11 +7,11 @@ export interface ICreateNotificationUseCase {
 }
 
 export interface IGetNotificationsUseCase {
-  execute(userId: string, limit: number, skip: number): Promise<Notification[]>;
+  execute(userId: string, limit: number, skip: number): Promise<NotificationResponseDto[]>;
 }
 
 export interface IMarkNotificationAsReadUseCase {
-  execute(userId: string, notificationId: string): Promise<Notification | null>;
+  execute(userId: string, notificationId: string): Promise<NotificationResponseDto | null>;
 }
 
 export interface IMarkAllNotificationsAsReadUseCase {

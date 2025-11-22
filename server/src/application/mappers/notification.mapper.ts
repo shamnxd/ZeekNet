@@ -1,5 +1,6 @@
 import { Notification } from '../../domain/entities/notification.entity';
 import { NotificationDocument } from '../../infrastructure/database/mongodb/models/notification.model';
+import { NotificationResponseDto } from '../dto/notification/notification-response.dto';
 import { Types } from 'mongoose';
 
 export class NotificationMapper {
@@ -41,5 +42,23 @@ export class NotificationMapper {
     if (entity.readAt !== undefined) doc.read_at = entity.readAt;
 
     return doc;
+  }
+
+  static toDto(notification: Notification): NotificationResponseDto {
+    return {
+      id: notification.id,
+      userId: notification.userId,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      isRead: notification.isRead,
+      createdAt: notification.createdAt,
+      data: notification.data,
+      readAt: notification.readAt,
+    };
+  }
+
+  static toListDto(notifications: Notification[]): NotificationResponseDto[] {
+    return notifications.map((notification) => this.toDto(notification));
   }
 }
