@@ -37,12 +37,19 @@ import { GetCompanyWorkplacePictureUseCase } from '../../application/use-cases/c
 import { CreateJobPostingUseCase } from '../../application/use-cases/company/create-job-posting.use-case';
 import { GetJobPostingUseCase } from '../../application/use-cases/company/get-job-posting.use-case';
 import { GetCompanyJobPostingUseCase } from '../../application/use-cases/company/get-company-job-posting.use-case';
+import { GetCompanyProfileByUserIdUseCase } from '../../application/use-cases/auth/get-company-profile-by-user-id.use-case';
 import { GetCompanyJobPostingsUseCase } from '../../application/use-cases/company/get-company-job-postings.use-case';
 import { UpdateJobPostingUseCase } from '../../application/use-cases/company/update-job-posting.use-case';
 import { DeleteJobPostingUseCase } from '../../application/use-cases/company/delete-job-posting.use-case';
 import { IncrementJobViewCountUseCase } from '../../application/use-cases/company/increment-job-view-count.use-case';
 import { UpdateJobStatusUseCase } from '../../application/use-cases/company/update-job-status.use-case';
-import { CompanyController } from '../../presentation/controllers/company/company.controller';
+import { CompanyProfileController } from '../../presentation/controllers/company/company-profile.controller';
+import { CompanyContactController } from '../../presentation/controllers/company/company-contact.controller';
+import { CompanyTechStackController } from '../../presentation/controllers/company/company-tech-stack.controller';
+import { CompanyOfficeLocationController } from '../../presentation/controllers/company/company-office-location.controller';
+import { CompanyBenefitController } from '../../presentation/controllers/company/company-benefit.controller';
+import { CompanyWorkplacePictureController } from '../../presentation/controllers/company/company-workplace-picture.controller';
+import { CompanyUploadController } from '../../presentation/controllers/company/company-upload.controller';
 import { CompanyJobPostingController } from '../../presentation/controllers/company/company-job-posting.controller';
 import { CompanyJobApplicationController } from '../../presentation/controllers/company/job-application.controller';
 import { GetApplicationsByJobUseCase } from '../../application/use-cases/company/get-applications-by-job.use-case';
@@ -54,6 +61,11 @@ import { AddInterviewUseCase } from '../../application/use-cases/company/add-int
 import { UpdateInterviewUseCase } from '../../application/use-cases/company/update-interview.use-case';
 import { DeleteInterviewUseCase } from '../../application/use-cases/company/delete-interview.use-case';
 import { AddInterviewFeedbackUseCase } from '../../application/use-cases/company/add-interview-feedback.use-case';
+import { GetCompanyIdByUserIdUseCase } from '../../application/use-cases/company/get-company-id-by-user-id.use-case';
+import { UploadLogoUseCase } from '../../application/use-cases/company/upload-logo.use-case';
+import { UploadBusinessLicenseUseCase } from '../../application/use-cases/company/upload-business-license.use-case';
+import { UploadWorkplacePictureUseCase } from '../../application/use-cases/company/upload-workplace-picture.use-case';
+import { DeleteImageUseCase } from '../../application/use-cases/company/delete-image.use-case';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -107,6 +119,16 @@ const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
 
 const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRepository);
 
+const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
+
+const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
+
+// Upload Use Cases
+const uploadLogoUseCase = new UploadLogoUseCase(s3Service);
+const uploadBusinessLicenseUseCase = new UploadBusinessLicenseUseCase(s3Service);
+const uploadWorkplacePictureUseCase = new UploadWorkplacePictureUseCase(s3Service);
+const deleteImageUseCase = new DeleteImageUseCase(s3Service);
+
 const getCompanyJobPostingsUseCase = new GetCompanyJobPostingsUseCase(jobPostingRepository, companyProfileRepository);
 
 const updateJobPostingUseCase = new UpdateJobPostingUseCase(jobPostingRepository);
@@ -128,37 +150,60 @@ const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationReposito
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 
-const companyController = new CompanyController(
+// Controllers
+const companyProfileController = new CompanyProfileController(
   createCompanyProfileUseCase,
-  reapplyCompanyVerificationUseCase,
   updateCompanyProfileUseCase,
   getCompanyProfileUseCase,
-  s3Service,
+  reapplyCompanyVerificationUseCase,
+  getCompanyJobPostingsUseCase,
+  uploadLogoUseCase,
+);
+
+const companyContactController = new CompanyContactController(
   companyContactUseCase,
-  
+  getCompanyIdByUserIdUseCase,
+);
+
+const companyTechStackController = new CompanyTechStackController(
   createCompanyTechStackUseCase,
   updateCompanyTechStackUseCase,
   deleteCompanyTechStackUseCase,
   getCompanyTechStackUseCase,
-  
+  getCompanyIdByUserIdUseCase,
+);
+
+const companyOfficeLocationController = new CompanyOfficeLocationController(
   createCompanyOfficeLocationUseCase,
   updateCompanyOfficeLocationUseCase,
   deleteCompanyOfficeLocationUseCase,
   getCompanyOfficeLocationUseCase,
-  
+  getCompanyIdByUserIdUseCase,
+);
+
+const companyBenefitController = new CompanyBenefitController(
   createCompanyBenefitUseCase,
   updateCompanyBenefitUseCase,
   deleteCompanyBenefitUseCase,
   getCompanyBenefitUseCase,
-  
+  getCompanyIdByUserIdUseCase,
+);
+
+const companyWorkplacePictureController = new CompanyWorkplacePictureController(
   createCompanyWorkplacePictureUseCase,
   updateCompanyWorkplacePictureUseCase,
   deleteCompanyWorkplacePictureUseCase,
   getCompanyWorkplacePictureUseCase,
-  getCompanyJobPostingsUseCase,
+  getCompanyIdByUserIdUseCase,
 );
 
-const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, companyProfileRepository, getCompanyJobPostingUseCase);
+const companyUploadController = new CompanyUploadController(
+  uploadBusinessLicenseUseCase,
+  uploadWorkplacePictureUseCase,
+  deleteImageUseCase,
+);
+
+const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase);
 
 const companyJobApplicationController = new CompanyJobApplicationController(
   getApplicationsByJobUseCase,
@@ -172,4 +217,19 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   addInterviewFeedbackUseCase,
 );
 
-export { companyController, companyJobPostingController, companyJobApplicationController, companyProfileRepository, companyProfileRepository as companyRepository, companyVerificationRepository };
+export {
+  // Specialized controllers
+  companyProfileController,
+  companyContactController,
+  companyTechStackController,
+  companyOfficeLocationController,
+  companyBenefitController,
+  companyWorkplacePictureController,
+  companyUploadController,
+  companyJobPostingController,
+  companyJobApplicationController,
+  // Repositories
+  companyProfileRepository,
+  companyProfileRepository as companyRepository,
+  companyVerificationRepository,
+};

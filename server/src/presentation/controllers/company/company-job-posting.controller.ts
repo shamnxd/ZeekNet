@@ -9,8 +9,8 @@ import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/I
 import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateJobPostingRequestDto, UpdateJobPostingRequestDto, JobPostingQueryRequestDto } from '../../../application/dto/job-posting/job-posting.dto';
-import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { GetCompanyJobPostingUseCase } from '../../../application/use-cases/company/get-company-job-posting.use-case';
+import { GetCompanyProfileByUserIdUseCase } from '../../../application/use-cases/auth/get-company-profile-by-user-id.use-case';
 
 export class CompanyJobPostingController {
   constructor(
@@ -21,8 +21,8 @@ export class CompanyJobPostingController {
     private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
     private readonly _incrementJobViewCountUseCase: IIncrementJobViewCountUseCase,
     private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _getCompanyJobPostingUseCase: GetCompanyJobPostingUseCase,
+    private readonly _getCompanyProfileByUserIdUseCase: GetCompanyProfileByUserIdUseCase,
   ) {}
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -33,7 +33,7 @@ export class CompanyJobPostingController {
         return;
       }
 
-      const companyProfile = await this._companyProfileRepository.findOne({ userId });
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
       if (!companyProfile) {
         badRequest(res, 'Company profile not found');
         return;
@@ -58,7 +58,7 @@ export class CompanyJobPostingController {
         return;
       }
 
-      const companyProfile = await this._companyProfileRepository.findOne({ userId });
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
       if (!companyProfile) {
         badRequest(res, 'Company profile not found');
         return;
