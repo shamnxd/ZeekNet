@@ -1,5 +1,15 @@
 import { Router } from 'express';
-import { companyController, companyJobPostingController, companyJobApplicationController } from '../../infrastructure/di/companyDi';
+import {
+  companyProfileController,
+  companyContactController,
+  companyTechStackController,
+  companyOfficeLocationController,
+  companyBenefitController,
+  companyWorkplacePictureController,
+  companyUploadController,
+  companyJobPostingController,
+  companyJobApplicationController,
+} from '../../infrastructure/di/companyDi';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
@@ -34,42 +44,42 @@ export class CompanyRouter {
     this.router.use(userBlockedMiddleware.checkUserBlocked);
 
     // Company Profile Routes
-    this.router.post('/profile', companyController.createCompanyProfile);
-    this.router.put('/profile', companyController.updateCompanyProfile);
-    this.router.get('/profile', companyController.getCompanyProfile);
-    this.router.get('/profile/:profileId', companyController.getCompanyProfileById);
-    this.router.post('/reapply-verification', validateBody(SimpleCompanyProfileDto), companyController.reapplyVerification);
+    this.router.post('/profile', companyProfileController.createCompanyProfile);
+    this.router.put('/profile', companyProfileController.updateCompanyProfile);
+    this.router.get('/profile', companyProfileController.getCompanyProfile);
+    this.router.get('/profile/:profileId', companyProfileController.getCompanyProfileById);
+    this.router.post('/reapply-verification', validateBody(SimpleCompanyProfileDto), companyProfileController.reapplyVerification);
 
-    this.router.post('/upload/logo', uploadSingle('logo'), companyController.uploadLogo);
-    this.router.post('/upload/business-license', uploadSingle('business_license'), companyController.uploadBusinessLicense);
-    this.router.delete('/upload/delete', companyController.deleteImage);
+    this.router.post('/upload/logo', uploadSingle('logo'), companyProfileController.uploadLogo);
+    this.router.post('/upload/business-license', uploadSingle('business_license'), companyUploadController.uploadBusinessLicense);
+    this.router.delete('/upload/delete', companyUploadController.deleteImage);
 
     this.router.use(companyVerificationMiddleware.checkCompanyVerified);
-    this.router.get('/dashboard', companyController.getCompanyDashboard);
+    this.router.get('/dashboard', companyProfileController.getCompanyDashboard);
 
-    this.router.get('/contact', companyController.getCompanyContact);
-    this.router.put('/contact', companyController.updateCompanyContact);
+    this.router.get('/contact', companyContactController.getCompanyContact);
+    this.router.put('/contact', companyContactController.updateCompanyContact);
 
-    this.router.get('/tech-stacks', companyController.getCompanyTechStacks);
-    this.router.post('/tech-stacks', companyController.createCompanyTechStack);
-    this.router.put('/tech-stacks/:id', companyController.updateCompanyTechStack);
-    this.router.delete('/tech-stacks/:id', companyController.deleteCompanyTechStack);
+    this.router.get('/tech-stacks', companyTechStackController.getCompanyTechStacks);
+    this.router.post('/tech-stacks', companyTechStackController.createCompanyTechStack);
+    this.router.put('/tech-stacks/:id', companyTechStackController.updateCompanyTechStack);
+    this.router.delete('/tech-stacks/:id', companyTechStackController.deleteCompanyTechStack);
 
-    this.router.get('/office-locations', companyController.getCompanyOfficeLocations);
-    this.router.post('/office-locations', companyController.createCompanyOfficeLocation);
-    this.router.put('/office-locations/:id', companyController.updateCompanyOfficeLocation);
-    this.router.delete('/office-locations/:id', companyController.deleteCompanyOfficeLocation);
+    this.router.get('/office-locations', companyOfficeLocationController.getCompanyOfficeLocations);
+    this.router.post('/office-locations', companyOfficeLocationController.createCompanyOfficeLocation);
+    this.router.put('/office-locations/:id', companyOfficeLocationController.updateCompanyOfficeLocation);
+    this.router.delete('/office-locations/:id', companyOfficeLocationController.deleteCompanyOfficeLocation);
 
-    this.router.get('/benefits', companyController.getCompanyBenefits);
-    this.router.post('/benefits', companyController.createCompanyBenefit);
-    this.router.put('/benefits/:id', companyController.updateCompanyBenefit);
-    this.router.delete('/benefits/:id', companyController.deleteCompanyBenefit);
+    this.router.get('/benefits', companyBenefitController.getCompanyBenefits);
+    this.router.post('/benefits', companyBenefitController.createCompanyBenefit);
+    this.router.put('/benefits/:id', companyBenefitController.updateCompanyBenefit);
+    this.router.delete('/benefits/:id', companyBenefitController.deleteCompanyBenefit);
 
-    this.router.get('/workplace-pictures', companyController.getCompanyWorkplacePictures);
-    this.router.post('/workplace-pictures', companyController.createCompanyWorkplacePicture);
-    this.router.put('/workplace-pictures/:id', companyController.updateCompanyWorkplacePicture);
-    this.router.delete('/workplace-pictures/:id', companyController.deleteCompanyWorkplacePicture);
-    this.router.post('/workplace-pictures/upload', uploadSingle('image'), companyController.uploadWorkplacePicture);
+    this.router.get('/workplace-pictures', companyWorkplacePictureController.getCompanyWorkplacePictures);
+    this.router.post('/workplace-pictures', companyWorkplacePictureController.createCompanyWorkplacePicture);
+    this.router.put('/workplace-pictures/:id', companyWorkplacePictureController.updateCompanyWorkplacePicture);
+    this.router.delete('/workplace-pictures/:id', companyWorkplacePictureController.deleteCompanyWorkplacePicture);
+    this.router.post('/workplace-pictures/upload', uploadSingle('image'), companyUploadController.uploadWorkplacePicture);
 
     this.router.post('/jobs', validateBody(CreateJobPostingRequestDto), companyJobPostingController.createJobPosting);
     this.router.get('/jobs', validateQuery(JobPostingQueryDto), companyJobPostingController.getCompanyJobPostings);
