@@ -7,6 +7,8 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {
   constructor(
@@ -16,7 +18,7 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplication> {  
+  async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplicationDetailResponseDto> {  
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -74,8 +76,11 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     },
     );
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
-
-

@@ -4,6 +4,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IUpdateApplicationScoreUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUseCase {
   constructor(
@@ -12,7 +14,7 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, score: number): Promise<JobApplication> {
+  async execute(userId: string, applicationId: string, score: number): Promise<JobApplicationListResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -41,7 +43,9 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
       throw new NotFoundError('Failed to update application score');
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toListDto(updatedApplication, {
+      jobTitle: job.title,
+    });
   }
 }
 

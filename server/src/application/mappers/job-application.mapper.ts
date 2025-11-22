@@ -1,15 +1,9 @@
-import { JobApplication, InterviewSchedule, InterviewFeedback } from '../../domain/entities/job-application.entity';
+import { JobApplication, InterviewSchedule } from '../../domain/entities/job-application.entity';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
   InterviewScheduleResponseDto,
-  PaginatedApplicationsResponseDto,
 } from '../dto/job-application/job-application-response.dto';
-import { CreateJobApplicationRequestDto } from '../dto/job-application/create-job-application.dto';
-import { AddInterviewRequestDto } from '../dto/job-application/add-interview.dto';
-import { UpdateInterviewRequestDto } from '../dto/job-application/update-interview.dto';
-import { AddInterviewFeedbackRequestDto } from '../dto/job-application/add-interview-feedback.dto';
-import { AddInterviewFeedbackData } from '../../domain/interfaces/use-cases/IJobApplicationUseCases';
 
 export class JobApplicationMapper {
   static toListDto(
@@ -122,7 +116,7 @@ export class JobApplicationMapper {
     };
   }
 
-  static interviewToDto(interview: InterviewSchedule): InterviewScheduleResponseDto {
+  private static interviewToDto(interview: InterviewSchedule): InterviewScheduleResponseDto {
     return {
       id: interview.id || '',
       date: interview.date.toISOString(),
@@ -141,61 +135,6 @@ export class JobApplicationMapper {
         : undefined,
       created_at: interview.createdAt?.toISOString(),
       updated_at: interview.updatedAt?.toISOString(),
-    };
-  }
-
-  static createApplicationDataFromDto(dto: CreateJobApplicationRequestDto, seekerId: string, companyId: string) {
-    return {
-      seeker_id: seekerId,
-      job_id: dto.job_id,
-      company_id: companyId,
-      cover_letter: dto.cover_letter,
-      resume_url: dto.resume_url,
-      resume_filename: dto.resume_filename,
-    };
-  }
-
-  static interviewDataFromDto(dto: AddInterviewRequestDto): Omit<InterviewSchedule, 'id' | 'createdAt' | 'updatedAt'> {
-    return {
-      date: dto.date instanceof Date ? dto.date : new Date(dto.date),
-      time: dto.time,
-      interviewType: dto.interview_type,
-      location: dto.location,
-      interviewerName: dto.interviewer_name,
-      status: 'scheduled',
-    };
-  }
-
-  static updateInterviewDataFromDto(dto: UpdateInterviewRequestDto): Partial<InterviewSchedule> {
-    const data: Partial<InterviewSchedule> = {};
-
-    if (dto.date !== undefined) {
-      data.date = dto.date instanceof Date ? dto.date : new Date(dto.date);
-    }
-    if (dto.time !== undefined) {
-      data.time = dto.time;
-    }
-    if (dto.interview_type !== undefined) {
-      data.interviewType = dto.interview_type;
-    }
-    if (dto.location !== undefined) {
-      data.location = dto.location;
-    }
-    if (dto.interviewer_name !== undefined) {
-      data.interviewerName = dto.interviewer_name;
-    }
-    if (dto.status !== undefined) {
-      data.status = dto.status;
-    }
-
-    return data;
-  }
-
-  static feedbackDataFromDto(dto: AddInterviewFeedbackRequestDto): AddInterviewFeedbackData {
-    return {
-      reviewer_name: dto.reviewer_name,
-      rating: dto.rating,
-      comment: dto.comment,
     };
   }
 }

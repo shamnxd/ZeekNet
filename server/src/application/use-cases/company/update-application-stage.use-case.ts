@@ -7,6 +7,8 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
   constructor(
@@ -21,7 +23,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     applicationId: string,
     stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired',
     rejectionReason?: string,
-  ): Promise<JobApplication> {
+  ): Promise<JobApplicationListResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -87,7 +89,9 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       });
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toListDto(updatedApplication, {
+      jobTitle: job.title,
+    });
   }
 }
 

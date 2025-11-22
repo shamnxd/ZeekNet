@@ -7,6 +7,8 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
@@ -16,7 +18,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplication> {
+  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -91,7 +93,12 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       );
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
 

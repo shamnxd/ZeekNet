@@ -4,6 +4,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IDeleteInterviewUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
   constructor(
@@ -12,7 +14,7 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string): Promise<JobApplication> {
+  async execute(userId: string, applicationId: string, interviewId: string): Promise<JobApplicationDetailResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -42,7 +44,12 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
       throw new NotFoundError('Failed to delete interview');
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
 

@@ -4,6 +4,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
 
 export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase {
   constructor(
@@ -12,7 +14,7 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, feedbackData: AddInterviewFeedbackData): Promise<JobApplication> {
+  async execute(userId: string, applicationId: string, interviewId: string, feedbackData: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -56,7 +58,12 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
       throw new NotFoundError('Failed to add interview feedback');
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+      title: job.title,
+      companyName: job.companyName,
+      location: job.location,
+      employmentTypes: job.employmentTypes,
+    });
   }
 }
 

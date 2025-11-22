@@ -23,7 +23,6 @@ import { UpdateScoreDto } from '../../../application/dto/job-application/update-
 import { AddInterviewDto } from '../../../application/dto/job-application/add-interview.dto';
 import { UpdateInterviewDto } from '../../../application/dto/job-application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/job-application/add-interview-feedback.dto';
-import { JobApplicationMapper } from '../../../application/mappers/job-application.mapper';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -97,7 +96,7 @@ export class CompanyJobApplicationController {
         dto.data.rejection_reason,
       );
 
-      sendSuccessResponse(res, 'Application stage updated successfully', JobApplicationMapper.toListDto(application));
+      sendSuccessResponse(res, 'Application stage updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -118,7 +117,7 @@ export class CompanyJobApplicationController {
 
       const application = await this._updateApplicationScoreUseCase.execute(userId, id, dto.data.score);
 
-      sendSuccessResponse(res, 'Application score updated successfully', JobApplicationMapper.toListDto(application));
+      sendSuccessResponse(res, 'Application score updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -137,10 +136,17 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData = JobApplicationMapper.interviewDataFromDto(dto.data);
+      const interviewData = {
+        date: dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date),
+        time: dto.data.time,
+        interviewType: dto.data.interview_type,
+        location: dto.data.location,
+        interviewerName: dto.data.interviewer_name,
+        status: 'scheduled' as const,
+      };
       const application = await this._addInterviewUseCase.execute(userId, id, interviewData);
 
-      sendSuccessResponse(res, 'Interview added successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview added successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -162,10 +168,26 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData = JobApplicationMapper.updateInterviewDataFromDto(dto.data);
+      const interviewData: Partial<{
+        date: Date;
+        time: string;
+        interviewType: string;
+        location: string;
+        interviewerName: string;
+        status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+      }> = {};
+      if (dto.data.date !== undefined) {
+        interviewData.date = dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date);
+      }
+      if (dto.data.time !== undefined) interviewData.time = dto.data.time;
+      if (dto.data.interview_type !== undefined) interviewData.interviewType = dto.data.interview_type;
+      if (dto.data.location !== undefined) interviewData.location = dto.data.location;
+      if (dto.data.interviewer_name !== undefined) interviewData.interviewerName = dto.data.interviewer_name;
+      if (dto.data.status !== undefined) interviewData.status = dto.data.status;
+
       const application = await this._updateInterviewUseCase.execute(userId, id, interviewId, interviewData);
 
-      sendSuccessResponse(res, 'Interview updated successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview updated successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -178,7 +200,7 @@ export class CompanyJobApplicationController {
 
       const application = await this._deleteInterviewUseCase.execute(userId, id, interviewId);
 
-      sendSuccessResponse(res, 'Interview deleted successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview deleted successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -200,10 +222,14 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const feedbackData = JobApplicationMapper.feedbackDataFromDto(dto.data);
+      const feedbackData = {
+        reviewer_name: dto.data.reviewer_name,
+        rating: dto.data.rating,
+        comment: dto.data.comment,
+      };
       const application = await this._addInterviewFeedbackUseCase.execute(userId, id, interviewId, feedbackData);
 
-      sendSuccessResponse(res, 'Interview feedback added successfully', JobApplicationMapper.toDetailDto(application));
+      sendSuccessResponse(res, 'Interview feedback added successfully', application);
     } catch (error) {
       handleAsyncError(error, next);
     }
