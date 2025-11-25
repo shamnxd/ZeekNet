@@ -4,18 +4,21 @@ import { PaginatedJobRoles, IGetAllJobRolesUseCase } from '../../../domain/inter
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
 
-  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRoles> {
+  async execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]> {
     const query: Record<string, unknown> = {};
     if (options.search) {
       query.name = { $regex: options.search, $options: 'i' };
     }
 
-    return await this._jobRoleRepository.paginate(query, {
+    const result = await this._jobRoleRepository.paginate(query, {
       page: options.page,
       limit: options.limit,
       sortBy: 'name',
       sortOrder: 'asc',
     });
+
+    // Return just the names - mapping moved from controller
+    return result.data.map((role) => role.name);
   }
 }
 

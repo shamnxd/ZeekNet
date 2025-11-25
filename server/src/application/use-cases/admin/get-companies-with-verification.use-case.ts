@@ -33,13 +33,8 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
 
         let businessLicenseUrl: string | undefined;
         if (verification?.businessLicenseUrl) {
-          try {
-            const key = this._s3Service.extractKeyFromUrl(verification.businessLicenseUrl);
-            businessLicenseUrl = await this._s3Service.getSignedUrl(key);
-          } catch (error) {
-            console.error('Failed to generate signed URL for business license:', error);
-            businessLicenseUrl = verification.businessLicenseUrl;
-          }
+          const key = this._s3Service.extractKeyFromUrl(verification.businessLicenseUrl);
+          businessLicenseUrl = await this._s3Service.getSignedUrl(key);
         }
 
         return {
