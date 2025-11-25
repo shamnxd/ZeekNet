@@ -51,13 +51,13 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
       this._seekerEducationRepository.findBySeekerProfileId(profile.id),
     ]);
 
-    const profileDto = SeekerProfileMapper.toDto(profile, this._s3Service);
+    const profileDto = SeekerProfileMapper.toResponse(profile, this._s3Service);
     
     return {
       ...profileDto,
       name: user.name || '', 
-      experiences: experiences.map(exp => SeekerProfileMapper.experienceToDto(exp)),
-      education: education.map(edu => SeekerProfileMapper.educationToDto(edu)),
+      experiences: experiences.map(exp => SeekerProfileMapper.experienceToResponse(exp)),
+      education: education.map(edu => SeekerProfileMapper.educationToResponse(edu)),
     };
   }
 }

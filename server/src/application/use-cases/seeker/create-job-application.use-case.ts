@@ -18,7 +18,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(seekerId: string, data: CreateJobApplicationData): Promise<JobApplication> {
+  async execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }> {
     const user = await this._userRepository.findById(seekerId);
     if (!user) {
       throw new NotFoundError('User not found');
@@ -76,7 +76,8 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       });
     }
 
-    return application;
+    // Return DTO with just ID (mapping moved from controller)
+    return { id: application.id };
   }
 }
 

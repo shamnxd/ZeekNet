@@ -23,7 +23,7 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
 
     const job = await this._jobPostingRepository.findById(application.jobId);
 
-    return JobApplicationMapper.toDetailDto(
+    return JobApplicationMapper.toDetailResponse(
       application,
       undefined,
       {

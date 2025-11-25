@@ -32,6 +32,6 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
       throw new NotFoundError('Failed to update profile');
     }
 
-    return SeekerProfileMapper.toDto(updatedProfile, this._s3Service);
+    return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service);
   }
 }

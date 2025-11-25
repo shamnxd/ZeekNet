@@ -19,7 +19,7 @@ export class GetEducationUseCase implements IGetEducationUseCase {
     }
 
     const education = await this._seekerEducationRepository.findBySeekerProfileId(profile.id);
-    return education.map(edu => SeekerProfileMapper.educationToDto(edu));
+    return education.map(edu => SeekerProfileMapper.educationToResponse(edu));
   }
 }
 

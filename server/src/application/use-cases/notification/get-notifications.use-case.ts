@@ -20,6 +20,6 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
         sortOrder: 'desc',
       },
     );
-    return NotificationMapper.toListDto(result.data);
+    return NotificationMapper.toResponseList(result.data);
   }
 }

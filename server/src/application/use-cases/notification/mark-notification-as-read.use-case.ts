@@ -22,7 +22,7 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
     }
 
     if (notification.isRead) {
-      return NotificationMapper.toDto(notification); // Already read, return as-is
+      return NotificationMapper.toResponse(notification); // Already read, return as-is
     }
 
     // Use base repository update method
@@ -35,6 +35,6 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
       throw new NotFoundError('Failed to update notification');
     }
 
-    return NotificationMapper.toDto(updatedNotification);
+    return NotificationMapper.toResponse(updatedNotification);
   }
 }
