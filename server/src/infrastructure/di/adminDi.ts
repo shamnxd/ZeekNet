@@ -37,6 +37,8 @@ import { AdminJobCategoryController } from '../../presentation/controllers/admin
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
 import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
+import { GetPendingCompaniesUseCase } from '../../application/use-cases/admin/get-pending-companies.use-case';
+import { GetCompanyByIdUseCase } from '../../application/use-cases/admin/get-company-by-id.use-case';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -60,6 +62,10 @@ const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseC
 
 const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
 
+const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
+
+const getCompanyByIdUseCase = new GetCompanyByIdUseCase(getCompaniesWithVerificationUseCase);
+
 const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
 
 const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
@@ -76,7 +82,7 @@ const getJobCategoryByIdUseCase = new GetJobCategoryByIdUseCase(jobCategoryRepos
 const updateJobCategoryUseCase = new UpdateJobCategoryUseCase(jobCategoryRepository);
 const deleteJobCategoryUseCase = new DeleteJobCategoryUseCase(jobCategoryRepository);
 
-const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase);
+const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase);
 
 const adminJobController = new AdminJobController(adminGetAllJobsUseCase, adminGetJobByIdUseCase, adminUpdateJobStatusUseCase, adminDeleteJobUseCase, adminGetJobStatsUseCase);
 

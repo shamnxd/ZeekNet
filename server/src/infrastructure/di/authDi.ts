@@ -25,6 +25,7 @@ import { LoginController } from '../../presentation/controllers/auth/login.contr
 import { TokenController } from '../../presentation/controllers/auth/token.controller';
 import { PasswordController } from '../../presentation/controllers/auth/password.controller';
 import { OtpController } from '../../presentation/controllers/auth/otp.controller';
+import { CookieService } from '../services/cookie.service';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -34,6 +35,7 @@ const googleTokenVerifier = new GoogleAuthTokenVerifier();
 const otpService = new RedisOtpService();
 const mailerService = new NodemailerService();
 const passwordResetService = new PasswordResetServiceImpl(mailerService);
+const cookieService = new CookieService();
 
 const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService);
 
@@ -65,12 +67,12 @@ const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(co
 
 export const registrationController = new RegistrationController(registerUserUseCase);
 
-export const loginController = new LoginController(loginUserUseCase, adminLoginUseCase, googleLoginUseCase);
+export const loginController = new LoginController(loginUserUseCase, adminLoginUseCase, googleLoginUseCase, cookieService);
 
-export const tokenController = new TokenController(refreshTokenUseCase, getUserByIdUseCase, tokenService);
+export const tokenController = new TokenController(refreshTokenUseCase, getUserByIdUseCase, tokenService, cookieService);
 
-export const passwordController = new PasswordController(forgotPasswordUseCase, resetPasswordUseCase, logoutUseCase);
+export const passwordController = new PasswordController(forgotPasswordUseCase, resetPasswordUseCase, logoutUseCase, cookieService);
 
-export const otpController = new OtpController(otpService, mailerService, getUserByEmailUseCase, updateUserVerificationStatusUseCase, updateUserRefreshTokenUseCase, tokenService, passwordHasher);
+export const otpController = new OtpController(otpService, mailerService, getUserByEmailUseCase, updateUserVerificationStatusUseCase, updateUserRefreshTokenUseCase, tokenService, passwordHasher, cookieService);
 
 export { userRepository };
