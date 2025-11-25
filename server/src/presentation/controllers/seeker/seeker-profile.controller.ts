@@ -20,7 +20,6 @@ import {
   IUploadAvatarUseCase,
   IUploadBannerUseCase,
 } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
-import { SeekerProfileMapper } from '../../../application/mappers/seeker-profile.mapper';
 import { 
   CreateSeekerProfileRequestDto, 
   UpdateSeekerProfileRequestDto,
@@ -57,8 +56,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
       const dto = req.body as CreateSeekerProfileRequestDto;
       
-      const profileData = SeekerProfileMapper.createProfileDataFromDto(dto);
-      const profile = await this._createSeekerProfileUseCase.execute(userId, profileData);
+      const profile = await this._createSeekerProfileUseCase.execute(userId, dto);
 
       sendSuccessResponse(res, 'Seeker profile created successfully', profile, undefined, 201);
     } catch (error) {
@@ -81,8 +79,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
       const dto = req.body as UpdateSeekerProfileRequestDto;
 
-      const profileData = SeekerProfileMapper.updateProfileDataFromDto(dto);
-      const profile = await this._updateSeekerProfileUseCase.execute(userId, profileData);
+      const profile = await this._updateSeekerProfileUseCase.execute(userId, dto);
 
       sendSuccessResponse(res, 'Seeker profile updated successfully', profile);
     } catch (error) {
@@ -94,23 +91,8 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const dto = req.body as AddExperienceRequestDto;
-      
-      const experienceData = SeekerProfileMapper.experienceDataFromDto(dto);
-      if (!experienceData.title || !experienceData.company || !experienceData.startDate || !experienceData.employmentType) {
-        throw new Error('Missing required fields');
-      }
 
-      const experience = await this._addExperienceUseCase.execute(userId, {
-        title: experienceData.title,
-        company: experienceData.company,
-        startDate: experienceData.startDate,
-        endDate: experienceData.endDate,
-        employmentType: experienceData.employmentType,
-        location: experienceData.location,
-        description: experienceData.description,
-        technologies: experienceData.technologies || [],
-        isCurrent: experienceData.isCurrent || false,
-      });
+      const experience = await this._addExperienceUseCase.execute(userId, dto);
 
       sendSuccessResponse(res, 'Experience added successfully', experience, undefined, 201);
     } catch (error) {
@@ -134,8 +116,7 @@ export class SeekerProfileController {
       const { experienceId } = req.params;
       const dto = req.body as UpdateExperienceRequestDto;
 
-      const experienceData = SeekerProfileMapper.experienceDataFromDto(dto);
-      const experience = await this._updateExperienceUseCase.execute(userId, experienceId, experienceData);
+      const experience = await this._updateExperienceUseCase.execute(userId, experienceId, dto);
 
       sendSuccessResponse(res, 'Experience updated successfully', experience);
     } catch (error) {
@@ -159,20 +140,8 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const dto = req.body as AddEducationRequestDto;
-      
-      const educationData = SeekerProfileMapper.educationDataFromDto(dto);
-      if (!educationData.school || !educationData.startDate) {
-        throw new Error('Missing required fields');
-      }
 
-      const education = await this._addEducationUseCase.execute(userId, {
-        school: educationData.school,
-        degree: educationData.degree,
-        fieldOfStudy: educationData.fieldOfStudy,
-        startDate: educationData.startDate,
-        endDate: educationData.endDate,
-        grade: educationData.grade,
-      });
+      const education = await this._addEducationUseCase.execute(userId, dto);
 
       sendSuccessResponse(res, 'Education added successfully', education, undefined, 201);
     } catch (error) {
@@ -196,8 +165,7 @@ export class SeekerProfileController {
       const { educationId } = req.params;
       const dto = req.body as UpdateEducationRequestDto;
 
-      const educationData = SeekerProfileMapper.educationDataFromDto(dto);
-      const education = await this._updateEducationUseCase.execute(userId, educationId, educationData);
+      const education = await this._updateEducationUseCase.execute(userId, educationId, dto);
 
       sendSuccessResponse(res, 'Education updated successfully', education);
     } catch (error) {
@@ -246,8 +214,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
       const dto = req.body as UploadResumeRequestDto;
 
-      const resumeData = SeekerProfileMapper.resumeMetaDataFromDto(dto);
-      const resume = await this._uploadResumeUseCase.execute(userId, resumeData);
+      const resume = await this._uploadResumeUseCase.execute(userId, dto);
 
       sendSuccessResponse(res, 'Resume uploaded successfully', resume, undefined, 201);
     } catch (error) {

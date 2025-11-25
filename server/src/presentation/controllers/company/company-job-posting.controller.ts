@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { success, created, unauthorized, badRequest, handleError } from '../../../shared/utils/controller.utils';
+import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from '../../../shared/utils/controller.utils';
 import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
@@ -8,9 +8,8 @@ import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/I
 import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { CreateJobPostingRequestDto, UpdateJobPostingRequestDto, JobPostingQueryRequestDto } from '../../../application/dto/job-posting/job-posting.dto';
-import { GetCompanyJobPostingUseCase } from '../../../application/use-cases/company/get-company-job-posting.use-case';
-import { GetCompanyProfileByUserIdUseCase } from '../../../application/use-cases/auth/get-company-profile-by-user-id.use-case';
+import { CreateJobPostingRequestDto, UpdateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
+import { IGetCompanyJobPostingUseCase, IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
 export class CompanyJobPostingController {
   constructor(
@@ -21,141 +20,121 @@ export class CompanyJobPostingController {
     private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
     private readonly _incrementJobViewCountUseCase: IIncrementJobViewCountUseCase,
     private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
-    private readonly _getCompanyJobPostingUseCase: GetCompanyJobPostingUseCase,
-    private readonly _getCompanyProfileByUserIdUseCase: GetCompanyProfileByUserIdUseCase,
+    private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
+    private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
   ) {}
 
-  createJobPosting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = CreateJobPostingRequestDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
+
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        unauthorized(res, 'User ID not found');
-        return;
-      }
-
-      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
-      if (!companyProfile) {
-        badRequest(res, 'Company profile not found');
-        return;
-      }
-
-      const createJobPostingDto: CreateJobPostingRequestDto = req.body;
-      const jobPosting = await this._createJobPostingUseCase.execute(companyProfile.id, createJobPostingDto);
-      created(res, jobPosting, 'Job posting created successfully');
+      const userId = validateUserId(req);
+      const jobPosting = await this._createJobPostingUseCase.execute(userId, parsed.data);
+      sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, 201);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getJobPosting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user?.id;
+      const userId = validateUserId(req);
       const userRole = req.user?.role || '';
-
-      if (!userId) {
-        unauthorized(res, 'User ID not found');
-        return;
-      }
 
       const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
       if (!companyProfile) {
-        badRequest(res, 'Company profile not found');
-        return;
+        throw new Error('Company profile not found');
       }
 
       const jobPosting = await this._getCompanyJobPostingUseCase.execute(id, companyProfile.id);
 
       this._incrementJobViewCountUseCase.execute(id, userRole).catch(console.error);
 
-      success(res, jobPosting, 'Job posting retrieved successfully');
+      sendSuccessResponse(res, 'Job posting retrieved successfully', jobPosting);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getCompanyJobPostings = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getCompanyJobPostings = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const companyId = req.user?.id;
-
-      if (!companyId || companyId === 'undefined') {
-        unauthorized(res, 'Company ID not found - user may not be authenticated');
-        return;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
       }
 
       const query = req.query as unknown as JobPostingQueryRequestDto;
-      const result = await this._getCompanyJobPostingsUseCase.execute(companyId!, query);
+      const result = await this._getCompanyJobPostingsUseCase.execute(companyProfile.id, query);
 
-      const responseData = {
-        jobs: result.jobs,
-        pagination: result.pagination,
-      };
-
-      success(res, responseData, 'Company job postings retrieved successfully');
+      sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  updateJobPosting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  updateJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = UpdateJobPostingDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
+
     try {
       const { id } = req.params;
-      const companyId = req.user?.id;
-
-      if (!companyId) {
-        unauthorized(res, 'Company ID not found');
-        return;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
       }
 
-      const updateJobPostingDto: UpdateJobPostingRequestDto = req.body;
+      const jobPosting = await this._updateJobPostingUseCase.execute(id, parsed.data);
 
-      const jobPosting = await this._updateJobPostingUseCase.execute(id, updateJobPostingDto);
-
-      success(res, jobPosting, 'Job posting updated successfully');
+      sendSuccessResponse(res, 'Job posting updated successfully', jobPosting);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  deleteJobPosting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  deleteJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const companyId = req.user?.id;
-
-      if (!companyId) {
-        unauthorized(res, 'Company ID not found');
-        return;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
       }
 
-      await this._deleteJobPostingUseCase.execute(id, companyId);
+      await this._deleteJobPostingUseCase.execute(id, companyProfile.id);
 
-      success(res, null, 'Job posting deleted successfully');
+      sendSuccessResponse(res, 'Job posting deleted successfully', null);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  updateJobStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  updateJobStatus = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const { is_active } = req.body;
+    if (typeof is_active !== 'boolean') {
+      return handleValidationError('is_active must be a boolean value', next);
+    }
+
     try {
       const { id } = req.params;
-      const companyId = req.user?.id;
-      const { is_active } = req.body;
-
-      if (!companyId) {
-        unauthorized(res, 'Company ID not found');
-        return;
-      }
-
-      if (typeof is_active !== 'boolean') {
-        badRequest(res, 'is_active must be a boolean value');
-        return;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
       }
 
       const jobPosting = await this._updateJobStatusUseCase.execute(id, is_active);
 
-      success(res, jobPosting, 'Job status updated successfully');
+      sendSuccessResponse(res, 'Job status updated successfully', jobPosting);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 }

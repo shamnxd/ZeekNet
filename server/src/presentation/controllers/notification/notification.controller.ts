@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { IGetNotificationsUseCase, IMarkNotificationAsReadUseCase, IMarkAllNotificationsAsReadUseCase, IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
-import { sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, handleAsyncError, validateUserId } from '../../../shared/utils/controller.utils';
 
 export class NotificationController {
   constructor(
@@ -13,11 +13,7 @@ export class NotificationController {
 
   getNotifications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return;
-      }
-
+      const userId = validateUserId(req);
       const limit = parseInt(req.query.limit as string) || 50;
       const skip = parseInt(req.query.skip as string) || 0;
 
@@ -30,12 +26,8 @@ export class NotificationController {
 
   markAsRead = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = validateUserId(req);
       const notificationId = req.params.id;
-
-      if (!userId) {
-        return;
-      }
 
       const notification = await this._markNotificationAsReadUseCase.execute(userId, notificationId);
       sendSuccessResponse(res, 'Notification marked as read', notification);
@@ -46,10 +38,7 @@ export class NotificationController {
 
   markAllAsRead = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return;
-      }
+      const userId = validateUserId(req);
 
       await this._markAllNotificationsAsReadUseCase.execute(userId);
       sendSuccessResponse(res, 'All notifications marked as read', null);
@@ -60,10 +49,7 @@ export class NotificationController {
 
   getUnreadCount = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return;
-      }
+      const userId = validateUserId(req);
 
       const count = await this._getUnreadNotificationCountUseCase.execute(userId);
       sendSuccessResponse(res, 'Unread count retrieved successfully', { count });

@@ -136,15 +136,7 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData = {
-        date: dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date),
-        time: dto.data.time,
-        interviewType: dto.data.interview_type,
-        location: dto.data.location,
-        interviewerName: dto.data.interviewer_name,
-        status: 'scheduled' as const,
-      };
-      const application = await this._addInterviewUseCase.execute(userId, id, interviewData);
+      const application = await this._addInterviewUseCase.execute(userId, id, dto.data);
 
       sendSuccessResponse(res, 'Interview added successfully', application);
     } catch (error) {
@@ -168,24 +160,7 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData: Partial<{
-        date: Date;
-        time: string;
-        interviewType: string;
-        location: string;
-        interviewerName: string;
-        status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
-      }> = {};
-      if (dto.data.date !== undefined) {
-        interviewData.date = dto.data.date instanceof Date ? dto.data.date : new Date(dto.data.date);
-      }
-      if (dto.data.time !== undefined) interviewData.time = dto.data.time;
-      if (dto.data.interview_type !== undefined) interviewData.interviewType = dto.data.interview_type;
-      if (dto.data.location !== undefined) interviewData.location = dto.data.location;
-      if (dto.data.interviewer_name !== undefined) interviewData.interviewerName = dto.data.interviewer_name;
-      if (dto.data.status !== undefined) interviewData.status = dto.data.status;
-
-      const application = await this._updateInterviewUseCase.execute(userId, id, interviewId, interviewData);
+      const application = await this._updateInterviewUseCase.execute(userId, id, interviewId, dto.data);
 
       sendSuccessResponse(res, 'Interview updated successfully', application);
     } catch (error) {
@@ -222,12 +197,7 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const feedbackData = {
-        reviewer_name: dto.data.reviewer_name,
-        rating: dto.data.rating,
-        comment: dto.data.comment,
-      };
-      const application = await this._addInterviewFeedbackUseCase.execute(userId, id, interviewId, feedbackData);
+      const application = await this._addInterviewFeedbackUseCase.execute(userId, id, interviewId, dto.data);
 
       sendSuccessResponse(res, 'Interview feedback added successfully', application);
     } catch (error) {

@@ -4,15 +4,15 @@ import { ResetPasswordDto } from '../../../application/dto/auth/reset-password.d
 import { LogoutDto } from '../../../application/dto/auth/logout.dto';
 import { IForgotPasswordUseCase, IResetPasswordUseCase, ILogoutUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { createLogoutCookieOptions } from '../../../shared/utils/cookie.utils';
 import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
-import { env } from '../../../infrastructure/config/env';
+import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 
 export class PasswordController {
   constructor(
     private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
     private readonly _resetPasswordUseCase: IResetPasswordUseCase,
     private readonly _logoutUseCase: ILogoutUseCase,
+    private readonly _cookieService: ICookieService,
   ) {}
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -54,7 +54,7 @@ export class PasswordController {
         } catch (_err) {}
       }
 
-      res.clearCookie(env.COOKIE_NAME_REFRESH!, createLogoutCookieOptions());
+      this._cookieService.clearRefreshToken(res);
       sendSuccessResponse(res, 'Logged out', null);
     } catch (error) {
       handleAsyncError(error, next);

@@ -1,9 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { IGetAllSkillsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
 import { IGetAllJobRolesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { handleError } from '../../../shared/utils/controller.utils';
-import { success } from '../../../shared/utils/controller.utils';
+import { handleError, success, handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 import { GetAllSkillsDto } from '../../../application/dto/admin/skill-management.dto';
 import { GetAllJobRolesDto } from '../../../application/dto/admin/job-role-management.dto';
 
@@ -14,44 +13,41 @@ export class PublicDataController {
     private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
   ) {}
 
-  getAllSkills = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const query = GetAllSkillsDto.safeParse(req.query);
-      if (!query.success) {
-        return handleError(res, new Error(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`));
-      }
+  getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const query = GetAllSkillsDto.safeParse(req.query);
+    if (!query.success) {
+      return handleValidationError(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
 
-      const result = await this._getAllSkillsUseCase.execute(query.data);
-      const skillNames = result.data.map((skill) => skill.name);
-      success(res, skillNames, 'Skills retrieved successfully');
+    try {
+      const skillNames = await this._getAllSkillsUseCase.execute(query.data);
+      sendSuccessResponse(res, 'Skills retrieved successfully', skillNames);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getAllJobCategories = async (req: Request, res: Response): Promise<void> => {
+  getAllJobCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const query = req.query as unknown as { page?: number; limit?: number; search?: string };
-      const result = await this._getAllJobCategoriesUseCase.execute(query);
-      const categoryNames = result.data.map((category) => category.name);
-      success(res, categoryNames, 'Job categories retrieved successfully');
+      const categoryNames = await this._getAllJobCategoriesUseCase.execute(query);
+      sendSuccessResponse(res, 'Job categories retrieved successfully', categoryNames);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getAllJobRoles = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const query = GetAllJobRolesDto.safeParse(req.query);
-      if (!query.success) {
-        return handleError(res, new Error(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`));
-      }
+  getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const query = GetAllJobRolesDto.safeParse(req.query);
+    if (!query.success) {
+      return handleValidationError(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
 
-      const result = await this._getAllJobRolesUseCase.execute(query.data);
-      const jobRoleNames = result.data.map((role) => role.name);
-      success(res, jobRoleNames, 'Job roles retrieved successfully');
+    try {
+      const jobRoleNames = await this._getAllJobRolesUseCase.execute(query.data);
+      sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoleNames);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 }
