@@ -13,7 +13,7 @@ export interface ICreateJobCategoryUseCase {
 }
 
 export interface IGetAllJobCategoriesUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategories>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
 }
 
 export interface IGetJobCategoryByIdUseCase {

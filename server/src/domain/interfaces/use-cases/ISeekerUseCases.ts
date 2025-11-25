@@ -80,7 +80,7 @@ export interface UpdateEducationData {
 }
 
 export interface ICreateSeekerProfileUseCase {
-  execute(userId: string, data: CreateSeekerProfileData): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IGetSeekerProfileUseCase {
@@ -88,11 +88,11 @@ export interface IGetSeekerProfileUseCase {
 }
 
 export interface IUpdateSeekerProfileUseCase {
-  execute(userId: string, data: UpdateSeekerProfileData): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IAddExperienceUseCase {
-  execute(userId: string, data: AddExperienceData): Promise<ExperienceResponseDto>;
+  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').AddExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IGetExperiencesUseCase {
@@ -100,7 +100,7 @@ export interface IGetExperiencesUseCase {
 }
 
 export interface IUpdateExperienceUseCase {
-  execute(userId: string, experienceId: string, data: UpdateExperienceData): Promise<ExperienceResponseDto>;
+  execute(userId: string, experienceId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IRemoveExperienceUseCase {
@@ -108,7 +108,7 @@ export interface IRemoveExperienceUseCase {
 }
 
 export interface IAddEducationUseCase {
-  execute(userId: string, data: AddEducationData): Promise<EducationResponseDto>;
+  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').AddEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IGetEducationUseCase {
@@ -116,7 +116,7 @@ export interface IGetEducationUseCase {
 }
 
 export interface IUpdateEducationUseCase {
-  execute(userId: string, educationId: string, data: UpdateEducationData): Promise<EducationResponseDto>;
+  execute(userId: string, educationId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IRemoveEducationUseCase {
@@ -132,7 +132,7 @@ export interface IUpdateLanguagesUseCase {
 }
 
 export interface IUploadResumeUseCase {
-  execute(userId: string, resume: ResumeMeta): Promise<ResumeMetaResponseDto>;
+  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UploadResumeRequestDto): Promise<ResumeMetaResponseDto>;
 }
 
 export interface IRemoveResumeUseCase {

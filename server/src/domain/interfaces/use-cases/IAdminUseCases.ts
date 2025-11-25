@@ -181,7 +181,7 @@ export interface ICreateSkillUseCase {
 }
 
 export interface IGetAllSkillsUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedSkills>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
 }
 
 export interface IGetSkillByIdUseCase {
@@ -201,7 +201,7 @@ export interface ICreateJobRoleUseCase {
 }
 
 export interface IGetAllJobRolesUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRoles>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
 }
 
 export interface IGetJobRoleByIdUseCase {
@@ -214,4 +214,12 @@ export interface IUpdateJobRoleUseCase {
 
 export interface IDeleteJobRoleUseCase {
   execute(jobRoleId: string): Promise<boolean>;
+}
+
+export interface IGetPendingCompaniesUseCase {
+  execute(): Promise<PaginatedCompaniesWithVerification>;
+}
+
+export interface IGetCompanyByIdUseCase {
+  execute(companyId: string): Promise<CompanyWithVerification>;
 }

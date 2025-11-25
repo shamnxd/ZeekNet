@@ -20,8 +20,13 @@ export interface AddInterviewFeedbackData {
   comment: string;
 }
 
+// DTO types for use case interfaces
+export type AddInterviewRequestDto = import('../../../application/dto/job-application/add-interview.dto').AddInterviewRequestDto;
+export type UpdateInterviewRequestDto = import('../../../application/dto/job-application/update-interview.dto').UpdateInterviewRequestDto;
+export type AddInterviewFeedbackRequestDto = import('../../../application/dto/job-application/add-interview-feedback.dto').AddInterviewFeedbackRequestDto;
+
 export interface ICreateJobApplicationUseCase {
-  execute(seekerId: string, data: CreateJobApplicationData): Promise<JobApplication>;
+  execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }>;
 }
 
 export interface IGetApplicationsByJobUseCase {
@@ -53,11 +58,11 @@ export interface IUpdateApplicationScoreUseCase {
 }
 
 export interface IAddInterviewUseCase {
-  execute(userId: string, applicationId: string, interview: AddInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, dto: AddInterviewRequestDto): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateInterviewUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, interview: UpdateInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewRequestDto): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteInterviewUseCase {
@@ -65,7 +70,7 @@ export interface IDeleteInterviewUseCase {
 }
 
 export interface IAddInterviewFeedbackUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, feedback: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackRequestDto): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteJobApplicationUseCase {

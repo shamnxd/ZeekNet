@@ -136,6 +136,7 @@ export interface ICompanyContactUseCase {
   getContactsByCompanyId(companyId: string): Promise<CompanyContact[]>;
   updateContact(contactId: string, data: CompanyContactData): Promise<CompanyContact>;
   deleteContact(contactId: string): Promise<void>;
+  upsertContact(companyId: string, data: CompanyContactData): Promise<CompanyContact>;
 }
 
 export interface ICreateCompanyTechStackUseCase {
@@ -160,11 +161,11 @@ export interface ICreateCompanyOfficeLocationUseCase {
 }
 
 export interface IUpdateCompanyOfficeLocationUseCase {
-  execute(locationId: string, data: CompanyOfficeLocationData): Promise<CompanyOfficeLocation>;
+  execute(companyId: string, locationId: string, data: CompanyOfficeLocationData): Promise<CompanyOfficeLocation>;
 }
 
 export interface IDeleteCompanyOfficeLocationUseCase {
-  execute(locationId: string): Promise<void>;
+  execute(companyId: string, locationId: string): Promise<void>;
 }
 
 export interface IGetCompanyOfficeLocationUseCase {
@@ -177,11 +178,11 @@ export interface ICreateCompanyBenefitUseCase {
 }
 
 export interface IUpdateCompanyBenefitUseCase {
-  execute(benefitId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(companyId: string, benefitId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
 }
 
 export interface IDeleteCompanyBenefitUseCase {
-  execute(benefitId: string): Promise<void>;
+  execute(companyId: string, benefitId: string): Promise<void>;
 }
 
 export interface IGetCompanyBenefitUseCase {
@@ -207,7 +208,7 @@ export interface IGetCompanyWorkplacePictureUseCase {
 }
 
 export interface ICreateJobPostingUseCase {
-  execute(companyId: string, jobData: CreateJobPostingData): Promise<JobPosting>;
+  execute(userId: string, jobData: CreateJobPostingData): Promise<JobPosting>;
 }
 
 export interface IGetJobPostingUseCase {
@@ -232,4 +233,75 @@ export interface IIncrementJobViewCountUseCase {
 
 export interface IUpdateJobStatusUseCase {
   execute(jobId: string, isActive: boolean): Promise<JobPosting>;
+}
+
+export interface UploadLogoResult {
+  url: string;
+  filename: string;
+}
+
+export interface IUploadLogoUseCase {
+  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadLogoResult>;
+}
+
+export interface IGetCompanyJobPostingUseCase {
+  execute(jobId: string, companyId: string): Promise<JobPosting>;
+}
+
+export interface IGetCompanyIdByUserIdUseCase {
+  execute(userId: string): Promise<string>;
+}
+
+export interface IGetCompanyProfileByUserIdUseCase {
+  execute(userId: string): Promise<CompanyProfile | null>;
+}
+
+export interface UploadBusinessLicenseResult {
+  url: string;
+  filename: string;
+}
+
+export interface IUploadBusinessLicenseUseCase {
+  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult>;
+}
+
+export interface UploadWorkplacePictureResult {
+  url: string;
+  filename: string;
+}
+
+export interface IUploadWorkplacePictureUseCase {
+  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadWorkplacePictureResult>;
+}
+
+export interface IDeleteImageUseCase {
+  execute(imageUrl: string): Promise<void>;
+}
+
+export interface IGetCompanyProfileWithJobPostingsUseCase {
+  execute(userId: string): Promise<import('../../../application/dto/company/company-response.dto').CompanyProfileWithDetailsResponseDto>;
+}
+
+export interface IGetCompanyDashboardUseCase {
+  execute(userId: string): Promise<{
+    hasProfile: boolean;
+    profile: Awaited<ReturnType<IGetCompanyProfileUseCase['execute']>>;
+    profileStatus: 'not_created' | 'pending' | 'verified' | 'rejected';
+  }>;
+}
+
+export interface ICreateCompanyProfileFromDtoUseCase {
+  execute(userId: string, dto: {
+    company_name: string;
+    logo?: string;
+    website?: string;
+    employees: string;
+    industry: string;
+    organisation: string;
+    description: string;
+    tax_id?: string;
+    business_license?: string;
+    email?: string;
+    location?: string;
+  }): Promise<CompanyProfile>;
 }
