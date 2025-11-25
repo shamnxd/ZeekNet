@@ -45,13 +45,13 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
       const code = await this._otpService.generateAndStoreOtp(user.email);
       const htmlContent = otpVerificationTemplate.html(code);
       await this._mailerService.sendMail(user.email, otpVerificationTemplate.subject, htmlContent);
-      return { user: UserMapper.toDto(user) };
+      return { user: UserMapper.toResponse(user) };
     }
 
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
     await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
-    return { tokens: { accessToken, refreshToken }, user: UserMapper.toDto(user) };
+    return { tokens: { accessToken, refreshToken }, user: UserMapper.toResponse(user) };
   }
 }

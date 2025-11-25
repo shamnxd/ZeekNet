@@ -39,7 +39,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
     return {
       tokens: { accessToken, refreshToken: newRefreshToken },
-      user: UserMapper.toDto(user),
+      user: UserMapper.toResponse(user),
     };
   }
 }

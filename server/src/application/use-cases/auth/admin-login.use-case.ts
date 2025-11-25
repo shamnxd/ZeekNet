@@ -44,7 +44,7 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
 
     return {
       tokens: { accessToken, refreshToken },
-      user: UserMapper.toDto(user),
+      user: UserMapper.toResponse(user),
     };
   }
 }

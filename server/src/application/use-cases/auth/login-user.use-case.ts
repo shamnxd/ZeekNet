@@ -33,7 +33,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
       const code = await this._otpService.generateAndStoreOtp(user.email);
       const htmlContent = otpVerificationTemplate.html(code);
       await this._mailerService.sendMail(user.email, otpVerificationTemplate.subject, htmlContent);
-      return { user: UserMapper.toDto(user) };
+      return { user: UserMapper.toResponse(user) };
     }
 
     if (user.role === UserRole.ADMIN) {
@@ -54,7 +54,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
 
     return {
       tokens: { accessToken, refreshToken },
-      user: UserMapper.toDto(user),
+      user: UserMapper.toResponse(user),
     };
   }
 }

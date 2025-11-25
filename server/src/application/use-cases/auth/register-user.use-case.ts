@@ -41,9 +41,9 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       refreshToken: null,
     } as unknown as Omit<User, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
 
-    this.sendOtpEmail(user.email).catch((error) => {});
+    await this.sendOtpEmail(user.email);
 
-    return { user: UserMapper.toDto(user) };
+    return { user: UserMapper.toResponse(user) };
   }
 
   private validateInput(
@@ -80,12 +80,8 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
   }
 
   private async sendOtpEmail(email: string): Promise<void> {
-    try {
-      const code = await this._otpService.generateAndStoreOtp(email);
-      const htmlContent = otpVerificationTemplate.html(code);
-      await this._mailerService.sendMail(email, otpVerificationTemplate.subject, htmlContent);
-    } catch (error) {
-      throw error;
-    }
+    const code = await this._otpService.generateAndStoreOtp(email);
+    const htmlContent = otpVerificationTemplate.html(code);
+    await this._mailerService.sendMail(email, otpVerificationTemplate.subject, htmlContent);
   }
 }

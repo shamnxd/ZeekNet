@@ -9,6 +9,6 @@ export class GetUserByIdUseCase implements IAuthGetUserByIdUseCase {
 
   async execute(userId: string): Promise<UserResponseDto | null> {
     const user = await this._userRepository.findById(userId);
-    return user ? UserMapper.toDto(user) : null;
+    return user ? UserMapper.toResponse(user) : null;
   }
 }

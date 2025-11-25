@@ -28,6 +28,6 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     if (!updatedUser) {
       throw new NotFoundError('User not found after verification');
     }
-    return UserMapper.toDto(updatedUser);
+    return UserMapper.toResponse(updatedUser);
   }
 }
