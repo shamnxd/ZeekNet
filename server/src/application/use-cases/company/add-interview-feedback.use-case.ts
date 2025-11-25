@@ -1,7 +1,7 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackRequestDto } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -14,7 +14,13 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, feedbackData: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackRequestDto): Promise<JobApplicationDetailResponseDto> {
+    // DTO -> Domain mapping (moved from controller)
+    const feedbackData = {
+      reviewer_name: dto.reviewer_name,
+      rating: dto.rating,
+      comment: dto.comment,
+    };
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -58,7 +64,7 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
       throw new NotFoundError('Failed to add interview feedback');
     }
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

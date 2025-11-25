@@ -71,7 +71,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       }));
     }
 
-    return JobApplicationMapper.toDetailDto(
+    return JobApplicationMapper.toDetailResponse(
       application,
       {
         name: user?.name,

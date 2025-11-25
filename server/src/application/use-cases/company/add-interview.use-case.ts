@@ -2,7 +2,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewUseCase, AddInterviewRequestDto } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -18,7 +18,16 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewData: AddInterviewData): Promise<JobApplicationDetailResponseDto> {  
+  async execute(userId: string, applicationId: string, dto: AddInterviewRequestDto): Promise<JobApplicationDetailResponseDto> {
+    // DTO -> Domain mapping (moved from controller)
+    const interviewDate = dto.date instanceof Date ? dto.date : new Date(dto.date);
+    const interviewData = {
+      date: interviewDate,
+      time: dto.time,
+      interviewType: dto.interview_type,
+      location: dto.location,
+      interviewerName: dto.interviewer_name,
+    };  
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -37,7 +46,6 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
       throw new ValidationError('You can only manage interviews for your own job postings');
     }
 
-    const interviewDate = interviewData.date instanceof Date ? interviewData.date : new Date(interviewData.date);
     if (interviewDate < new Date()) {
       throw new ValidationError('Interview date must be in the future');
     }
@@ -76,7 +84,7 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     },
     );
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

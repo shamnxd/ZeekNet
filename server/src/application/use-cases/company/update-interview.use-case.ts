@@ -2,7 +2,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateInterviewUseCase, UpdateInterviewRequestDto, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -18,7 +18,24 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewRequestDto): Promise<JobApplicationDetailResponseDto> {
+    // DTO -> Domain mapping (moved from controller)
+    const interviewData: Partial<{
+      date: Date;
+      time: string;
+      interviewType: string;
+      location: string;
+      interviewerName: string;
+      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+    }> = {};
+    if (dto.date !== undefined) {
+      interviewData.date = dto.date instanceof Date ? dto.date : new Date(dto.date);
+    }
+    if (dto.time !== undefined) interviewData.time = dto.time;
+    if (dto.interview_type !== undefined) interviewData.interviewType = dto.interview_type;
+    if (dto.location !== undefined) interviewData.location = dto.location;
+    if (dto.interviewer_name !== undefined) interviewData.interviewerName = dto.interviewer_name;
+    if (dto.status !== undefined) interviewData.status = dto.status;
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -93,7 +110,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       );
     }
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

@@ -13,17 +13,13 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
       throw new AppError('Job posting not found', 404);
     }
 
-    try {
-      const updatedJob = await this._jobPostingRepository.update(jobId, updates);
+    const updatedJob = await this._jobPostingRepository.update(jobId, updates);
 
-      if (!updatedJob) {
-        throw new AppError('Failed to update job posting', 500);
-      }
-
-      return updatedJob;
-    } catch (error) {
+    if (!updatedJob) {
       throw new AppError('Failed to update job posting', 500);
     }
+
+    return updatedJob;
   }
 }
 

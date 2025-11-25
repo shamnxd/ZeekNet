@@ -44,7 +44,7 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
       throw new NotFoundError('Failed to delete interview');
     }
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

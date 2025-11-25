@@ -1,12 +1,8 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
+import { IUploadWorkplacePictureUseCase, UploadWorkplacePictureResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
-export interface UploadWorkplacePictureResult {
-  url: string;
-  filename: string;
-}
-
-export class UploadWorkplacePictureUseCase {
+export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
 
   async execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadWorkplacePictureResult> {

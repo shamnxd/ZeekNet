@@ -89,7 +89,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       });
     }
 
-    return JobApplicationMapper.toListDto(updatedApplication, {
+    return JobApplicationMapper.toListResponse(updatedApplication, {
       jobTitle: job.title,
     });
   }

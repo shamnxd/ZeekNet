@@ -48,7 +48,7 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
         this._seekerProfileRepository.findOne({ userId: app.seekerId }),
       ]);
       applications.push(
-        JobApplicationMapper.toListDto(app, {
+        JobApplicationMapper.toListResponse(app, {
           seekerName: user?.name,
           seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
           jobTitle: job?.title,

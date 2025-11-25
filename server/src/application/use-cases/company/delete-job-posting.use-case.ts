@@ -29,13 +29,9 @@ export class DeleteJobPostingUseCase {
       }
     }
 
-    try {
-      const deleted = await this._jobPostingRepository.delete(id);
+    const deleted = await this._jobPostingRepository.delete(id);
 
-      if (!deleted) {
-        throw new AppError('Failed to delete job posting', 500);
-      }
-    } catch (error) {
+    if (!deleted) {
       throw new AppError('Failed to delete job posting', 500);
     }
   }
