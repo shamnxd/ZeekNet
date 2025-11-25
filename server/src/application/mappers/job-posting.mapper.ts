@@ -1,52 +1,77 @@
-import { CreateJobPostingRequestDto } from '../dto/job-posting/job-posting.dto';
 import { JobPosting } from '../../domain/entities/job-posting.entity';
-import { JobPostingData, JobPostingResponseDto } from './types';
+import { JobPostingResponseDto, JobPostingDetailResponseDto } from '../dto/job-posting/job-posting-response.dto';
 
 export class JobPostingMapper {
-  static toDomain(dto: CreateJobPostingRequestDto, companyId: string): JobPostingData {
-    return {
-      company_id: companyId,
-      title: dto.title,
-      description: dto.description,
-      responsibilities: dto.responsibilities,
-      qualifications: dto.qualifications,
-      nice_to_haves: dto.nice_to_haves,
-      benefits: dto.benefits,
-      salary: dto.salary,
-      employment_types: dto.employment_types,
-      location: dto.location,
-      skills_required: dto.skills_required,
-      category_ids: dto.category_ids,
-    };
-  }
-
-  static toDto(
-    domain: JobPosting,
+  static toResponse(
+    jobPosting: JobPosting,
     companyData?: { companyName: string; logo: string },
   ): JobPostingResponseDto {
     return {
-      id: domain.id,
-      company_id: domain.companyId,
+      id: jobPosting.id,
+      company_id: jobPosting.companyId,
       company_name: companyData?.companyName,
       company_logo: companyData?.logo,
-      title: domain.title,
-      description: domain.description,
-      responsibilities: domain.responsibilities,
-      qualifications: domain.qualifications,
-      nice_to_haves: domain.niceToHaves,
-      benefits: domain.benefits,
-      salary: domain.salary,
-      employment_types: domain.employmentTypes,
-      location: domain.location,
-      skills_required: domain.skillsRequired,
-      category_ids: domain.categoryIds,
-      is_active: domain.isActive,
-      admin_blocked: domain.adminBlocked,
-      unpublish_reason: domain.unpublishReason,
-      view_count: domain.viewCount,
-      application_count: domain.applicationCount,
-      createdAt: domain.createdAt,
-      updatedAt: domain.updatedAt,
+      title: jobPosting.title,
+      description: jobPosting.description,
+      responsibilities: jobPosting.responsibilities,
+      qualifications: jobPosting.qualifications,
+      nice_to_haves: jobPosting.niceToHaves,
+      benefits: jobPosting.benefits,
+      salary: jobPosting.salary,
+      employment_types: jobPosting.employmentTypes,
+      location: jobPosting.location,
+      skills_required: jobPosting.skillsRequired,
+      category_ids: jobPosting.categoryIds,
+      is_active: jobPosting.isActive,
+      admin_blocked: jobPosting.adminBlocked,
+      unpublish_reason: jobPosting.unpublishReason,
+      view_count: jobPosting.viewCount,
+      application_count: jobPosting.applicationCount,
+      createdAt: jobPosting.createdAt,
+      updatedAt: jobPosting.updatedAt,
     };
+  }
+
+  static toDetailedResponse(
+    jobPosting: JobPosting,
+    companyData?: { companyName: string; logo: string; aboutUs?: string; workplacePictures?: Array<{ pictureUrl: string; caption?: string }> },
+  ): JobPostingDetailResponseDto {
+    const baseDto = this.toResponse(jobPosting, companyData);
+    return {
+      id: baseDto.id,
+      title: baseDto.title,
+      description: baseDto.description,
+      responsibilities: baseDto.responsibilities,
+      qualifications: baseDto.qualifications,
+      nice_to_haves: baseDto.nice_to_haves,
+      benefits: baseDto.benefits,
+      salary: baseDto.salary,
+      employment_types: baseDto.employment_types,
+      location: baseDto.location,
+      skills_required: baseDto.skills_required,
+      category_ids: baseDto.category_ids,
+      is_active: baseDto.is_active,
+      admin_blocked: baseDto.admin_blocked,
+      unpublish_reason: baseDto.unpublish_reason,
+      view_count: baseDto.view_count,
+      application_count: baseDto.application_count,
+      createdAt: baseDto.createdAt instanceof Date ? baseDto.createdAt.toISOString() : baseDto.createdAt,
+      updatedAt: baseDto.updatedAt instanceof Date ? baseDto.updatedAt.toISOString() : baseDto.updatedAt,
+      company: {
+        companyName: companyData?.companyName || '',
+        logo: companyData?.logo || '',
+        workplacePictures: companyData?.workplacePictures || [],
+      },
+    };
+  }
+
+  static toResponseList(
+    jobPostings: JobPosting[],
+    companyDataMap?: Map<string, { companyName: string; logo: string }>,
+  ): JobPostingResponseDto[] {
+    return jobPostings.map((jobPosting) => {
+      const companyData = companyDataMap?.get(jobPosting.companyId);
+      return this.toResponse(jobPosting, companyData);
+    });
   }
 }
