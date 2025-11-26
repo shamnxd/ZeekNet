@@ -6,5 +6,3 @@ export const AddInterviewFeedbackDto = z.object({
   comment: z.string().min(1, 'Feedback comment is required').max(2000, 'Comment must not exceed 2000 characters'),
 });
 
-export type AddInterviewFeedbackRequestDto = z.infer<typeof AddInterviewFeedbackDto>;
-

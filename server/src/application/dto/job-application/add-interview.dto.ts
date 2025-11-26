@@ -15,5 +15,3 @@ export const AddInterviewDto = z.object({
   interviewer_name: z.string().max(100, 'Interviewer name must not exceed 100 characters').optional(),
 });
 
-export type AddInterviewRequestDto = z.infer<typeof AddInterviewDto>;
-

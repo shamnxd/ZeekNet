@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { commonValidations, fieldValidations } from '../../../shared/validation/common';
 
-export const CompanyContactDto = z.object({
+const CompanyContactDto = z.object({
   email: commonValidations.email,
   phone: commonValidations.phoneNumber,
   twitter_link: commonValidations.optionalUrl,
@@ -9,28 +9,28 @@ export const CompanyContactDto = z.object({
   linkedin: commonValidations.optionalUrl,
 });
 
-export const OfficeLocationDto = z.object({
+const OfficeLocationDto = z.object({
   location: fieldValidations.location,
   office_name: fieldValidations.companyName,
   address: fieldValidations.location,
   is_headquarters: commonValidations.boolean.default(false),
 });
 
-export const TechStackDto = z.object({
+const TechStackDto = z.object({
   tech_stack: fieldValidations.industry,
 });
 
-export const PerksAndBenefitsDto = z.object({
+const PerksAndBenefitsDto = z.object({
   perk: fieldValidations.industry,
   description: fieldValidations.description,
 });
 
-export const WorkplacePictureDto = z.object({
+const WorkplacePictureDto = z.object({
   picture_url: commonValidations.requiredUrl,
   caption: fieldValidations.description,
 });
 
-export const CompanyProfileDto = z.object({
+const CompanyProfileDto = z.object({
   company_name: fieldValidations.companyName,
   logo: commonValidations.requiredUrl,
   banner: commonValidations.requiredUrl,
@@ -40,7 +40,7 @@ export const CompanyProfileDto = z.object({
   about_us: fieldValidations.description,
 });
 
-export const CreateCompanyProfileDto = z.object({
+const CreateCompanyProfileDto = z.object({
   profile: CompanyProfileDto,
   contact: CompanyContactDto,
   office_locations: z.array(OfficeLocationDto).min(1),
@@ -63,7 +63,7 @@ export const SimpleCompanyProfileDto = z.object({
   tax_id: fieldValidations.taxId,
 });
 
-export const UpdateCompanyProfileDto = z.object({
+const UpdateCompanyProfileDto = z.object({
   profile: CompanyProfileDto.partial(),
   contact: CompanyContactDto.partial().optional(),
   office_locations: z.array(OfficeLocationDto).optional(),
@@ -72,12 +72,4 @@ export const UpdateCompanyProfileDto = z.object({
   workplace_pictures: z.array(WorkplacePictureDto).optional(),
 });
 
-export type CompanyProfileRequestDto = z.infer<typeof CompanyProfileDto>;
-export type CompanyContactRequestDto = z.infer<typeof CompanyContactDto>;
-export type OfficeLocationRequestDto = z.infer<typeof OfficeLocationDto>;
-export type TechStackRequestDto = z.infer<typeof TechStackDto>;
-export type PerksAndBenefitsRequestDto = z.infer<typeof PerksAndBenefitsDto>;
-export type WorkplacePictureRequestDto = z.infer<typeof WorkplacePictureDto>;
-export type CreateCompanyProfileRequestDto = z.infer<typeof CreateCompanyProfileDto>;
 export type SimpleCompanyProfileRequestDto = z.infer<typeof SimpleCompanyProfileDto>;
-export type UpdateCompanyProfileRequestDto = z.infer<typeof UpdateCompanyProfileDto>;

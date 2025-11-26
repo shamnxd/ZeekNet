@@ -100,14 +100,10 @@ export const UpdateSkillsDto = z.object({
   skills: z.array(z.string()).min(0, 'Skills must be an array'),
 });
 
-export type UpdateSkillsRequestDto = z.infer<typeof UpdateSkillsDto>;
-
 // Update Languages DTO
 export const UpdateLanguagesDto = z.object({
   languages: z.array(z.string()).min(0, 'Languages must be an array'),
 });
-
-export type UpdateLanguagesRequestDto = z.infer<typeof UpdateLanguagesDto>;
 
 // Upload Resume DTO
 export const UploadResumeDto = z.object({

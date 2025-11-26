@@ -52,13 +52,3 @@ export interface JobPostingDetailResponseDto {
     }>;
   };
 }
-
-export interface PaginatedJobPostingsResponse {
-  jobs: JobPostingResponseDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}

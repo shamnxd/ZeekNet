@@ -10,5 +10,3 @@ export const CreateJobApplicationDto = z.object({
   resume_filename: z.string().min(1, 'Resume filename is required'),
 });
 
-export type CreateJobApplicationRequestDto = z.infer<typeof CreateJobApplicationDto>;
-
