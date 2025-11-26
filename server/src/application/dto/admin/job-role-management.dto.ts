@@ -16,7 +16,3 @@ export const GetAllJobRolesDto = z.object({
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
-export type CreateJobRoleRequestDto = z.infer<typeof CreateJobRoleDto>;
-export type UpdateJobRoleRequestDto = z.infer<typeof UpdateJobRoleDto>;
-export type GetAllJobRolesRequestDto = z.infer<typeof GetAllJobRolesDto>;
-

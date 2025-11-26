@@ -14,6 +14,4 @@ export const GetAllJobCategoriesDto = z.object({
   search: z.string().optional(),
 });
 
-export type CreateJobCategoryRequestDto = z.infer<typeof CreateJobCategoryDto>;
-export type UpdateJobCategoryRequestDto = z.infer<typeof UpdateJobCategoryDto>;
 export type GetAllJobCategoriesRequestDto = z.infer<typeof GetAllJobCategoriesDto>;

@@ -5,5 +5,3 @@ export const LoginDto = z.object({
   email: commonValidations.email,
   password: commonValidations.password,
 });
-
-export type LoginRequestDto = z.infer<typeof LoginDto>;

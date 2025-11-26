@@ -14,15 +14,6 @@ export const BlockUserDto = z.object({
   isBlocked: z.boolean(),
 });
 
-export const GetAllCompaniesDto = z.object({
-  page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).optional().default(10),
-  search: z.string().optional(),
-  industry: z.string().optional(),
-  isVerified: z.enum(['pending', 'rejected', 'verified']).optional(),
-  isBlocked: z.coerce.boolean().optional(),
-});
-
 export const CompanyVerificationDto = z.object({
   companyId: z.string().min(1),
   isVerified: z.enum(['pending', 'rejected', 'verified']),
@@ -30,6 +21,4 @@ export const CompanyVerificationDto = z.object({
 });
 
 export type GetAllUsersRequestDto = z.infer<typeof GetAllUsersDto>;
-export type BlockUserRequestDto = z.infer<typeof BlockUserDto>;
-export type GetAllCompaniesRequestDto = z.infer<typeof GetAllCompaniesDto>;
-export type CompanyVerificationRequestDto = z.infer<typeof CompanyVerificationDto>;
+export type GetAllCompaniesRequestDto = GetAllUsersRequestDto;
