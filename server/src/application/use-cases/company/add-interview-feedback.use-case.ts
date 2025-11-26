@@ -1,7 +1,7 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackRequestDto } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -14,7 +14,7 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackRequestDto): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
     // DTO -> Domain mapping (moved from controller)
     const feedbackData = {
       reviewer_name: dto.reviewer_name,

@@ -2,6 +2,7 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IGetJobPostingForPublicUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
+import { Types } from 'mongoose';
 
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
@@ -59,6 +60,14 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
   }
 
   private async getCompanyDetails(companyId: string): Promise<JobPostingDetailResponseDto['company']> {
+    // Guard against invalid or missing company ids to prevent CastError
+    if (!companyId || !Types.ObjectId.isValid(companyId)) {
+      return {
+        companyName: 'ZeekNet Company',
+        logo: '/white.png',
+        workplacePictures: [],
+      };
+    }
     // Import models dynamically to avoid circular dependencies
     const { CompanyProfileModel } = await import('../../../infrastructure/database/mongodb/models/company-profile.model');
     const { UserModel } = await import('../../../infrastructure/database/mongodb/models/user.model');

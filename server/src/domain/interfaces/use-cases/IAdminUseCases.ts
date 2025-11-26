@@ -21,17 +21,6 @@ export interface PaginatedJobRoles {
   totalPages: number;
 }
 
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
-}
-
 export interface PaginatedUsers {
   users: User[];
   total: number;
@@ -96,10 +85,6 @@ export interface CompanyQueryOptions {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface IAdminLoginUseCase {
-  execute(email: string, password: string): Promise<AuthResponse>;
-}
-
 export interface IGetAllUsersUseCase {
   execute(options: UserQueryOptions): Promise<PaginatedUsers>;
 }
@@ -160,20 +145,8 @@ export interface IAdminGetJobStatsUseCase {
   execute(): Promise<AdminJobStats>;
 }
 
-export interface IGetJobByIdUseCase {
-  execute(jobId: string): Promise<JobPosting>;
-}
-
-export interface IGetJobStatsUseCase {
-  execute(): Promise<AdminJobStats>;
-}
-
 export interface IUpdateJobStatusUseCase {
   execute(jobId: string, isActive: boolean): Promise<JobPosting>;
-}
-
-export interface IDeleteJobUseCase {
-  execute(jobId: string): Promise<boolean>;
 }
 
 export interface ICreateSkillUseCase {

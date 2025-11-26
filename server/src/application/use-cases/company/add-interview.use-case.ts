@@ -2,7 +2,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IAddInterviewUseCase, AddInterviewRequestDto } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -18,7 +18,7 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, dto: AddInterviewRequestDto): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
     // DTO -> Domain mapping (moved from controller)
     const interviewDate = dto.date instanceof Date ? dto.date : new Date(dto.date);
     const interviewData = {

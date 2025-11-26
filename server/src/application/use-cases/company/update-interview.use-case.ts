@@ -2,9 +2,9 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateInterviewUseCase, UpdateInterviewRequestDto, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -18,7 +18,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewRequestDto): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
     // DTO -> Domain mapping (moved from controller)
     const interviewData: Partial<{
       date: Date;
@@ -60,7 +60,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       throw new NotFoundError('Interview not found');
     }
 
-    const updateData: Partial<UpdateInterviewData> = {};
+    const updateData: Partial<InterviewSchedule> = {};
     if (interviewData.date !== undefined) {
       updateData.date = interviewData.date instanceof Date ? interviewData.date : new Date(interviewData.date);
     }

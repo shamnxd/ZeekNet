@@ -5,7 +5,7 @@ import { AppError } from '../../../domain/errors/errors';
 import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 import { JobPostingResponseDto } from '../../dto/job-posting/job-posting-response.dto';
 
-export interface GetAllJobsQuery {
+interface GetAllJobsQuery {
   page?: number;
   limit?: number;
   search?: string;
@@ -19,7 +19,7 @@ export interface GetAllJobsQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-export class AdminGetAllJobsUseCase implements IAdminGetAllJobsUseCase {
+export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,

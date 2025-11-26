@@ -55,10 +55,6 @@ export interface IUpdateUserRefreshTokenUseCase {
   execute(userId: string, hashedRefreshToken: string): Promise<void>;
 }
 
-export interface IGetCompanyProfileByUserIdUseCase {
-  execute(userId: string): Promise<CompanyProfile | null>;
-}
-
 export interface IRefreshTokenUseCase {
   execute(refreshToken: string): Promise<LoginResult>;
 }

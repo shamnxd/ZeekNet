@@ -25,19 +25,6 @@ export interface CreateCompanyProfileData {
   location?: string;
 }
 
-export interface UpdateCompanyProfileData {
-  companyName?: string;
-  logo?: string;
-  banner?: string;
-  websiteLink?: string;
-  employeeCount?: number;
-  industry?: string;
-  organisation?: string;
-  aboutUs?: string;
-  foundedDate?: Date;
-  phone?: string;
-}
-
 export interface CompanyVerificationData {
   taxId?: string;
   businessLicenseUrl?: string;
@@ -112,7 +99,20 @@ export interface ICreateCompanyProfileUseCase {
 }
 
 export interface IUpdateCompanyProfileUseCase {
-  execute(userId: string, updates: { profile?: UpdateCompanyProfileData }): Promise<CompanyProfileResponseDto>;
+  execute(userId: string, updates: { 
+    profile?: {
+      companyName?: string;
+      logo?: string;
+      banner?: string;
+      websiteLink?: string;
+      employeeCount?: number;
+      industry?: string;
+      organisation?: string;
+      aboutUs?: string;
+      foundedDate?: Date;
+      phone?: string;
+    }
+  }): Promise<CompanyProfileResponseDto>;
 }
 
 export interface IGetCompanyProfileUseCase {
