@@ -11,7 +11,7 @@ import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-b
 import { GetCompaniesWithVerificationUseCase } from '../../application/use-cases/admin/get-companies-with-verification.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
 import { VerifyCompanyUseCase } from '../../application/use-cases/admin/verify-company.use-case';
-import { AdminGetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
+import { GetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
 import { AdminGetJobByIdUseCase } from '../../application/use-cases/admin/get-job-by-id.use-case';
 import { AdminUpdateJobStatusUseCase } from '../../application/use-cases/admin/update-job-status.use-case';
 import { AdminDeleteJobUseCase } from '../../application/use-cases/admin/delete-job.use-case';
@@ -66,7 +66,7 @@ const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWi
 
 const getCompanyByIdUseCase = new GetCompanyByIdUseCase(getCompaniesWithVerificationUseCase);
 
-const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
+const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
 
 const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
 
