@@ -128,7 +128,7 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
 
         {/* Employment Types */}
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {job.employment_types.map((type) => (
+          {(job.employment_types ?? []).map((type) => (
             <Badge
               key={type}
               variant="outline"
