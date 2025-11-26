@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { UserRole } from '../../domain/enums/user-role.enum';
 
-export interface AuthenticatedRequest extends Request {
+interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;

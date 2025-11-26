@@ -43,10 +43,6 @@ export function created<T>(res: Response, data: T, message: string): void {
   sendSuccessResponse(res, message, data, undefined, 201);
 }
 
-export function unauthorized(res: Response, message: string): void {
-  sendErrorResponse(res, message, null, 401);
-}
-
 export function badRequest(res: Response, message: string): void {
   sendErrorResponse(res, message, null, 400);
 }

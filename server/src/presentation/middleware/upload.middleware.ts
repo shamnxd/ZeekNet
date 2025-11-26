@@ -44,27 +44,4 @@ export const uploadSingle = (fieldName: string) => {
   };
 };
 
-export const uploadMultiple = (fieldName: string, maxCount: number = 5) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    upload.array(fieldName, maxCount)(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({
-            success: false,
-            message: 'File too large. Maximum size is 10MB.',
-          });
-        }
-        return res.status(400).json({
-          success: false,
-          message: err.message,
-        });
-      } else if (err) {
-        return res.status(400).json({
-          success: false,
-          message: err.message,
-        });
-      }
-      next();
-    });
-  };
-};
+// ...existing code...
