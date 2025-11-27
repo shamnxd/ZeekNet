@@ -23,7 +23,6 @@ export interface JobPostingResponseDto {
   updatedAt: Date;
 }
 
-// Lightweight DTO for company job listings - PERFORMANCE OPTIMIZED
 export interface CompanyJobPostingListItemDto {
   id: string;
   title: string;
@@ -36,7 +35,6 @@ export interface CompanyJobPostingListItemDto {
   createdAt: Date;
 }
 
-// Lightweight DTO for public job listings (job seekers) - PERFORMANCE OPTIMIZED
 export interface PublicJobListItemDto {
   id: string;
   title: string;

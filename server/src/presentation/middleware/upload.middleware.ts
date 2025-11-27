@@ -43,5 +43,3 @@ export const uploadSingle = (fieldName: string) => {
     });
   };
 };
-
-// ...existing code...
