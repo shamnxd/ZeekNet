@@ -1,13 +1,17 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IGetJobPostingForPublicUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
 import { Types } from 'mongoose';
 
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
+  constructor(
+    private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _jobApplicationRepository: IJobApplicationRepository
+  ) {}
 
-  async execute(jobId: string): Promise<JobPostingDetailResponseDto> {
+  async execute(jobId: string, userId?: string): Promise<JobPostingDetailResponseDto> {
     if (!jobId || jobId === 'undefined') {
       throw new AppError('Job ID is required', 400);
     }
@@ -35,6 +39,16 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
     // Build detailed response DTO (business logic in use case)
     const company = await this.getCompanyDetails(jobPosting.companyId);
 
+    // Check if user has already applied (if userId provided)
+    let hasApplied: boolean | undefined = undefined;
+    if (userId) {
+      const existingApplication = await this._jobApplicationRepository.findOne({
+        seeker_id: userId,
+        job_id: jobId,
+      });
+      hasApplied = !!existingApplication;
+    }
+
     return {
       id: jobPosting.id,
       title: jobPosting.title,
@@ -55,6 +69,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       application_count: jobPosting.applicationCount,
       createdAt: jobPosting.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: jobPosting.updatedAt?.toISOString() || new Date().toISOString(),
+      has_applied: hasApplied,
       company,
     };
   }
@@ -65,6 +80,9 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       return {
         companyName: 'ZeekNet Company',
         logo: '/white.png',
+        organisation: 'Unknown',
+        employeeCount: 0,
+        websiteLink: '',
         workplacePictures: [],
       };
     }
@@ -79,6 +97,9 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       return {
         companyName: 'ZeekNet Company',
         logo: '/white.png',
+        organisation: 'Unknown',
+        employeeCount: 0,
+        websiteLink: '',
         workplacePictures: [],
       };
     }
@@ -99,6 +120,9 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
     return {
       companyName: companyProfile.companyName || 'Unknown Company',
       logo: companyProfile.logo || '/white.png',
+      organisation: companyProfile.organisation || 'Unknown',
+      employeeCount: companyProfile.employeeCount || 0,
+      websiteLink: companyProfile.websiteLink || '',
       workplacePictures: workplacePictures.map((pic) => ({
         pictureUrl: pic.pictureUrl,
         caption: pic.caption,
