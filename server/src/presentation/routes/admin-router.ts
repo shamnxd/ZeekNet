@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController } from '../../infrastructure/di/adminDi';
+import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController } from '../../infrastructure/di/adminDi';
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
@@ -8,6 +8,7 @@ import { AdminGetAllJobsDto } from '../../application/dto/admin/admin-job.dto';
 import { GetAllJobCategoriesDto, CreateJobCategoryDto, UpdateJobCategoryDto } from '../../application/dto/admin/job-category.dto';
 import { GetAllSkillsDto, CreateSkillDto, UpdateSkillDto } from '../../application/dto/admin/skill-management.dto';
 import { GetAllJobRolesDto, CreateJobRoleDto, UpdateJobRoleDto } from '../../application/dto/admin/job-role-management.dto';
+import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto } from '../../application/dto/admin/subscription-plan-management.dto';
 
 export class AdminRouter {
   public router: Router;
@@ -52,5 +53,11 @@ export class AdminRouter {
     this.router.get('/job-roles/:id', adminJobRoleController.getJobRoleById);
     this.router.put('/job-roles/:id', validateBody(UpdateJobRoleDto), adminJobRoleController.updateJobRole);
     this.router.delete('/job-roles/:id', adminJobRoleController.deleteJobRole);
+
+    this.router.get('/subscription-plans', validateQuery(GetAllSubscriptionPlansDto), adminSubscriptionPlanController.getAllSubscriptionPlans);
+    this.router.post('/subscription-plans', validateBody(CreateSubscriptionPlanDto), adminSubscriptionPlanController.createSubscriptionPlan);
+    this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
+    this.router.put('/subscription-plans/:id', validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
+    this.router.delete('/subscription-plans/:id', adminSubscriptionPlanController.deleteSubscriptionPlan);
   }
 }

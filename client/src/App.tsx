@@ -29,6 +29,7 @@ import JobView from './pages/admin/JobView'
   import CategoryManagement from './pages/admin/CategoryManagement'
   import SkillManagement from './pages/admin/SkillManagement'
   import JobRoleManagement from './pages/admin/JobRoleManagement'
+  import SubscriptionPlanManagement from './pages/admin/SubscriptionPlanManagement'
   import CompanyProfileView from './pages/admin/CompanyProfileView'
   import SeekerProfileView from './pages/admin/SeekerProfileView'
   import PricePlanManagement from './pages/admin/PricePlanManagement'
@@ -124,6 +125,11 @@ function App() {
             <Route path="/admin/job-roles" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <JobRoleManagement />
+            </ProtectedRoute>
+          } />
+            <Route path="/admin/subscription-plans" element={
+            <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <SubscriptionPlanManagement />
             </ProtectedRoute>
           } />
             <Route path="/admin/company-profile-view" element={

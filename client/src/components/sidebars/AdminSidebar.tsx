@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   Tag,
+  PackageCheck,
 } from 'lucide-react'
 import { useAppDispatch } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
@@ -66,6 +67,11 @@ const AdminSidebar = () => {
       path: '/admin/job-roles',
       label: 'Job Roles',
       icon: User,
+    },
+    {
+      path: '/admin/subscription-plans',
+      label: 'Subscription Plans',
+      icon: PackageCheck,
     },
     {
       path: '/admin/price-plans',

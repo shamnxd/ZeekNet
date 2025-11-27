@@ -5,6 +5,7 @@ import { JobPostingRepository } from '../database/mongodb/repositories/job-posti
 import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
 import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
 import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
+import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
 import { GetAllUsersUseCase } from '../../application/use-cases/admin/get-all-users.use-case';
 import { BlockUserUseCase } from '../../application/use-cases/admin/block-user.use-case';
 import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-by-id.use-case';
@@ -31,11 +32,17 @@ import { GetAllJobRolesUseCase } from '../../application/use-cases/admin/get-all
 import { GetJobRoleByIdUseCase } from '../../application/use-cases/admin/get-job-role-by-id.use-case';
 import { UpdateJobRoleUseCase } from '../../application/use-cases/admin/update-job-role.use-case';
 import { DeleteJobRoleUseCase } from '../../application/use-cases/admin/delete-job-role.use-case';
+import { CreateSubscriptionPlanUseCase } from '../../application/use-cases/admin/create-subscription-plan.use-case';
+import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
+import { GetSubscriptionPlanByIdUseCase } from '../../application/use-cases/admin/get-subscription-plan-by-id.use-case';
+import { UpdateSubscriptionPlanUseCase } from '../../application/use-cases/admin/update-subscription-plan.use-case';
+import { DeleteSubscriptionPlanUseCase } from '../../application/use-cases/admin/delete-subscription-plan.use-case';
 import { AdminController } from '../../presentation/controllers/admin/admin.controller';
 import { AdminJobController } from '../../presentation/controllers/admin/admin-job.controller';
 import { AdminJobCategoryController } from '../../presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
+import { AdminSubscriptionPlanController } from '../../presentation/controllers/admin/admin-subscription-plan.controller';
 import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
 import { GetPendingCompaniesUseCase } from '../../application/use-cases/admin/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from '../../application/use-cases/admin/get-company-by-id.use-case';
@@ -47,6 +54,7 @@ const jobPostingRepository = new JobPostingRepository();
 const jobCategoryRepository = new JobCategoryRepository();
 const skillRepository = new SkillRepository();
 const jobRoleRepository = new JobRoleRepository();
+const subscriptionPlanRepository = new SubscriptionPlanRepository();
 
 const s3Service = new S3Service();
 
@@ -104,4 +112,12 @@ const deleteJobRoleUseCase = new DeleteJobRoleUseCase(jobRoleRepository);
 
 const adminJobRoleController = new AdminJobRoleController(createJobRoleUseCase, getAllJobRolesUseCase, getJobRoleByIdUseCase, updateJobRoleUseCase, deleteJobRoleUseCase);
 
-export { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController };
+const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository);
+const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
+const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
+const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository);
+const deleteSubscriptionPlanUseCase = new DeleteSubscriptionPlanUseCase(subscriptionPlanRepository);
+
+const adminSubscriptionPlanController = new AdminSubscriptionPlanController(createSubscriptionPlanUseCase, getAllSubscriptionPlansUseCase, getSubscriptionPlanByIdUseCase, updateSubscriptionPlanUseCase, deleteSubscriptionPlanUseCase);
+
+export { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController };
