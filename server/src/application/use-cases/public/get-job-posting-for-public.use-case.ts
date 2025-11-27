@@ -8,7 +8,7 @@ import { Types } from 'mongoose';
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
   ) {}
 
   async execute(jobId: string, userId?: string): Promise<JobPostingDetailResponseDto> {

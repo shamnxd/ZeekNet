@@ -11,7 +11,7 @@ export const AdminGetAllJobsDto = z.object({
       if (typeof val === 'boolean') return val;
       return undefined;
     },
-    z.boolean().optional()
+    z.boolean().optional(),
   ),
   admin_blocked: z.preprocess(
     (val) => {
@@ -20,7 +20,7 @@ export const AdminGetAllJobsDto = z.object({
       if (typeof val === 'boolean') return val;
       return undefined;
     },
-    z.boolean().optional()
+    z.boolean().optional(),
   ),
   category_ids: z
     .string()

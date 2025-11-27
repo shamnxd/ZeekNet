@@ -13,7 +13,7 @@ export const GetAllUsersDto = z.object({
       if (typeof val === 'boolean') return val;
       return undefined;
     },
-    z.boolean().optional()
+    z.boolean().optional(),
   ),
 });
 
