@@ -5,7 +5,7 @@ import {
   IGetAllSubscriptionPlansUseCase, 
   IGetSubscriptionPlanByIdUseCase, 
   IUpdateSubscriptionPlanUseCase, 
-  IDeleteSubscriptionPlanUseCase 
+  IDeleteSubscriptionPlanUseCase, 
 } from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 

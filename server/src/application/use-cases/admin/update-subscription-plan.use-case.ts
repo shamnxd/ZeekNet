@@ -18,7 +18,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       featuredJobLimit?: number;
       applicantAccessLimit?: number;
       isActive?: boolean;
-    }
+    },
   ): Promise<SubscriptionPlan> {
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
     
