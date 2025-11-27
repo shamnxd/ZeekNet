@@ -63,13 +63,9 @@ export class CompanyJobPostingController {
   getCompanyJobPostings = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
-      if (!companyProfile) {
-        throw new Error('Company profile not found');
-      }
 
       const query = req.query as unknown as JobPostingQueryRequestDto;
-      const result = await this._getCompanyJobPostingsUseCase.execute(companyProfile.id, query);
+      const result = await this._getCompanyJobPostingsUseCase.execute(userId, query);
 
       sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
     } catch (error) {

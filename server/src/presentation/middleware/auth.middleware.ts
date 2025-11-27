@@ -38,3 +38,27 @@ export function authorizeRoles(...roles: string[]) {
     next();
   };
 }
+
+// Optional authentication - doesn't throw error if token is missing
+export function optionalAuthentication(req: AuthenticatedRequest, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : undefined;
+
+  if (!token) {
+    // No token, continue without user info
+    return next();
+  }
+
+  try {
+    const payload = tokenService.verifyAccess(token);
+    req.user = {
+      id: payload.sub,
+      email: payload.email || '',
+      role: payload.role || 'seeker',
+    };
+    next();
+  } catch (error) {
+    // Invalid token, continue without user info
+    next();
+  }
+}

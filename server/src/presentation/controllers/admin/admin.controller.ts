@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BlockUserDto, CompanyVerificationDto } from '../../../application/dto/admin/user-management.dto';
 import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
-import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminController {
@@ -9,6 +9,7 @@ export class AdminController {
     private readonly _getAllUsersUseCase: IGetAllUsersUseCase,
     private readonly _blockUserUseCase: IBlockUserUseCase,
     private readonly _getUserByIdUseCase: IAdminGetUserByIdUseCase,
+    private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
     private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase,
     private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
     private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
@@ -59,7 +60,7 @@ export class AdminController {
     try {
       
       const query = req.query as unknown as GetAllCompaniesRequestDto;
-      const result = await this._getCompaniesWithVerificationUseCase.execute(query);
+      const result = await this._getAllCompaniesUseCase.execute(query);
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

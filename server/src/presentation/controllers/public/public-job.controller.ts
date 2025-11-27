@@ -12,7 +12,20 @@ export class PublicJobController {
 
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const filters = req.query as unknown as JobPostingQueryRequestDto;
+      const query = req.query as unknown as JobPostingQueryRequestDto;
+      
+      // Map DTO (snake_case) to entity filters (camelCase)
+      const filters = {
+        categoryIds: query.category_ids,
+        employmentTypes: query.employment_types,
+        salaryMin: query.salary_min,
+        salaryMax: query.salary_max,
+        location: query.location,
+        search: query.search,
+        page: query.page,
+        limit: query.limit,
+      };
+      
       const result = await this._getAllJobPostingsUseCase.execute(filters);
       sendSuccessResponse(res, 'Job postings retrieved successfully', result);
     } catch (error) {
@@ -23,7 +36,9 @@ export class PublicJobController {
   getJobPosting = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const jobId = req.params.id;
-      const result = await this._getJobPostingForPublicUseCase.execute(jobId);
+      // Get userId from auth middleware if user is logged in
+      const userId = (req as Request & { user?: { id: string } }).user?.id;
+      const result = await this._getJobPostingForPublicUseCase.execute(jobId, userId);
       sendSuccessResponse(res, 'Job posting retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

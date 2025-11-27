@@ -1,27 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import { IGetAllSkillsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
-import { IGetAllJobRolesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { handleError, success, handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
-import { GetAllSkillsDto } from '../../../application/dto/admin/skill-management.dto';
-import { GetAllJobRolesDto } from '../../../application/dto/admin/job-role-management.dto';
+import { 
+  IGetPublicSkillsUseCase, 
+  IGetPublicJobCategoriesUseCase, 
+  IGetPublicJobRolesUseCase, 
+} from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class PublicDataController {
   constructor(
-    private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
-    private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
-    private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
+    private readonly _getPublicSkillsUseCase: IGetPublicSkillsUseCase,
+    private readonly _getPublicJobCategoriesUseCase: IGetPublicJobCategoriesUseCase,
+    private readonly _getPublicJobRolesUseCase: IGetPublicJobRolesUseCase,
   ) {}
 
   getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const query = GetAllSkillsDto.safeParse(req.query);
-    if (!query.success) {
-      return handleValidationError(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
-    }
-
     try {
-      const skillNames = await this._getAllSkillsUseCase.execute(query.data);
-      sendSuccessResponse(res, 'Skills retrieved successfully', skillNames);
+      const skills = await this._getPublicSkillsUseCase.execute();
+      sendSuccessResponse(res, 'Skills retrieved successfully', skills);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -29,23 +24,17 @@ export class PublicDataController {
 
   getAllJobCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as { page?: number; limit?: number; search?: string };
-      const categoryNames = await this._getAllJobCategoriesUseCase.execute(query);
-      sendSuccessResponse(res, 'Job categories retrieved successfully', categoryNames);
+      const categories = await this._getPublicJobCategoriesUseCase.execute();
+      sendSuccessResponse(res, 'Job categories retrieved successfully', categories);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 
   getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const query = GetAllJobRolesDto.safeParse(req.query);
-    if (!query.success) {
-      return handleValidationError(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
-    }
-
     try {
-      const jobRoleNames = await this._getAllJobRolesUseCase.execute(query.data);
-      sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoleNames);
+      const jobRoles = await this._getPublicJobRolesUseCase.execute();
+      sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoles);
     } catch (error) {
       handleAsyncError(error, next);
     }
