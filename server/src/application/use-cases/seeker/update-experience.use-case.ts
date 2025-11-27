@@ -30,7 +30,6 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
       throw new NotFoundError('Experience not found');
     }
 
-    // DTO -> Domain mapping (inline in use case)
     const updateData: Partial<Experience> = {};
     if (dto.title !== undefined) updateData.title = dto.title;
     if (dto.company !== undefined) updateData.company = dto.company;

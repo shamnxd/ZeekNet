@@ -6,7 +6,6 @@ export class GetCompanyDashboardUseCase implements IGetCompanyDashboardUseCase {
   async execute(userId: string) {
     const companyProfile = await this._getCompanyProfileUseCase.execute(userId);
 
-    // Business logic: Determine profile status
     const profileStatus: 'not_created' | 'pending' | 'verified' | 'rejected' = companyProfile
       ? (companyProfile.profile.isVerified || 'not_created')
       : 'not_created';

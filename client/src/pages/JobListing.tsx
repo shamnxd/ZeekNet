@@ -191,10 +191,10 @@ const JobListing = () => {
 
       <div className="container max-w-[1440px] mx-auto px-4 lg:px-16 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
+
           <aside className="w-full lg:w-[280px] flex-shrink-0">
             <div className="bg-white border border-gray-100 rounded-lg p-6 lg:sticky lg:top-8">
-              {/* Filters Heading */}
+
               <h2 className="text-[20px] font-bold text-[#141414] mb-6" style={{ fontFamily: 'DM Sans, sans-serif' }}>
                 Filters
               </h2>
@@ -203,13 +203,13 @@ const JobListing = () => {
             </div>
           </aside>
 
-          {/* Main Content */}
+
           <main className="flex-1 min-w-0">
-            {/* Search Box */}
+
             <div className="mb-6">
               <div className="bg-white border border-gray-200 rounded-lg p-3">
                 <div className="flex flex-col md:flex-row items-center gap-3">
-                  {/* Search Input */}
+
                   <div className="flex-1 w-full">
                     <div className="flex items-center bg-white border border-gray-200 rounded-lg">
                       <div className="flex items-center px-3 py-3 border-r border-gray-200">
@@ -226,10 +226,10 @@ const JobListing = () => {
                     </div>
                   </div>
                   
-                  {/* Divider */}
+
                   <div className="w-px h-12 bg-gray-200 hidden md:block"></div>
                   
-                  {/* Location Input */}
+
                   <div className="flex-1 w-full">
                     <div className="flex items-center bg-white border border-gray-200 rounded-lg">
                       <div className="flex items-center px-3 py-3 border-r border-gray-200">

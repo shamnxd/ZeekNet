@@ -531,7 +531,6 @@ const JobDetail = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {similarJobs.map((similarJob) => {
-                // Handle both camelCase and snake_case response formats
                 const jobData = similarJob as JobPostingResponse & {
                   companyLogo?: string;
                   companyName?: string;

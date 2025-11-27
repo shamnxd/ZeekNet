@@ -49,7 +49,7 @@ export class SeekerJobApplicationController {
         return sendNotFoundResponse(res, 'Job posting not found');
       }
 
-      // Validate DTO
+
       const dto = CreateJobApplicationDto.safeParse({
         job_id,
         cover_letter,

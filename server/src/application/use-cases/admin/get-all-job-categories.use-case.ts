@@ -17,7 +17,6 @@ export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
       sortOrder: 'asc',
     });
 
-    // Return full objects with pagination info
     return {
       categories: result.data.map((category) => ({
         id: category.id,

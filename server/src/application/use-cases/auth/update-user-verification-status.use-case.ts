@@ -14,7 +14,6 @@ export class UpdateUserVerificationStatusUseCase implements IUpdateUserVerificat
       throw new AppError('isVerified must be a boolean value', 400);
     }
 
-    // Find user by email and update isVerified status
     const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AppError('User not found', 404);

@@ -17,7 +17,6 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
       throw new AppError('Company profile not found', 404);
     }
 
-    // Business logic: Get recent active job postings for profile display
     const jobPostingsQuery = {
       page: 1,
       limit: 3,
@@ -32,7 +31,6 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
 
     const jobPostings = await this._getCompanyJobPostingsUseCase.execute(userId, jobPostingsQuery);
 
-    // Convert minimal summary jobs into JobPosting entities (fill missing fields with defaults)
     const jobEntities: JobPosting[] = jobPostings.jobs.map(j => JobPosting.create({
       id: j.id,
       companyId: companyProfile.profile.id,
@@ -58,7 +56,6 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
       companyLogo: companyProfile.profile.logo,
     }));
 
-    // Aggregate and map to DTO
     const responseData = CompanyProfileMapper.toDetailedResponse({
       ...companyProfile,
       jobPostings: jobEntities,

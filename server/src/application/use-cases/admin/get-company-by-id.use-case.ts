@@ -5,7 +5,6 @@ export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
   constructor(private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
 
   async execute(companyId: string): Promise<CompanyWithVerification> {
-    // Business logic: Fetch company by ID using pagination query
     const result = await this._getCompaniesWithVerificationUseCase.execute({
       page: 1,
       limit: 1,

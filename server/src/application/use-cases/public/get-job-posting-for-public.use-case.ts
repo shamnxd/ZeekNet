@@ -22,7 +22,6 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       throw new AppError('Job posting not found', 404);
     }
 
-    // Business logic: Check if job is visible to public
     if (jobPosting.adminBlocked) {
       throw new AppError('Job posting not found', 404);
     }
@@ -31,15 +30,12 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       throw new AppError('Job posting not found', 404);
     }
 
-    // Increment view count
     await this._jobPostingRepository.update(jobId, { 
       viewCount: jobPosting.viewCount + 1, 
     });
 
-    // Build detailed response DTO (business logic in use case)
     const company = await this.getCompanyDetails(jobPosting.companyId);
 
-    // Check if user has already applied (if userId provided)
     let hasApplied: boolean | undefined = undefined;
     if (userId) {
       const existingApplication = await this._jobApplicationRepository.findOne({
@@ -75,7 +71,6 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
   }
 
   private async getCompanyDetails(companyId: string): Promise<JobPostingDetailResponseDto['company']> {
-    // Guard against invalid or missing company ids to prevent CastError
     if (!companyId || !Types.ObjectId.isValid(companyId)) {
       return {
         companyName: 'ZeekNet Company',
@@ -86,7 +81,6 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
         workplacePictures: [],
       };
     }
-    // Import models dynamically to avoid circular dependencies
     const { CompanyProfileModel } = await import('../../../infrastructure/database/mongodb/models/company-profile.model');
     const { UserModel } = await import('../../../infrastructure/database/mongodb/models/user.model');
     const { CompanyWorkplacePicturesModel } = await import('../../../infrastructure/database/mongodb/models/company-workplace-pictures.model');
@@ -104,13 +98,11 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       };
     }
 
-    // Check if user is blocked
     const user = await UserModel.findById(companyProfile.userId);
     if (user && user.isBlocked) {
       throw new AppError('Job posting not found', 404);
     }
 
-    // Get workplace pictures
     const workplacePictures = await CompanyWorkplacePicturesModel.find({
       companyId: companyProfile._id,
     })

@@ -17,7 +17,6 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute(query: JobPostingFilters): Promise<PaginatedPublicJobs> {
-    // Define projection for public job listings - PERFORMANCE OPTIMIZATION
     const projection = {
       _id: 1 as const,
       company_id: 1 as const,
@@ -33,7 +32,6 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
       category_ids: 1 as const,
     };
 
-    // Prepare filters for repository
     const filters = {
       categoryIds: query.categoryIds,
       employmentTypes: query.employmentTypes,
@@ -43,17 +41,14 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
       search: query.search,
     };
 
-    // Use the repository method with filters - filtering happens at database level
     const jobs = await this._jobPostingRepository.getAllJobsForPublic(projection, filters);
 
-    // Apply pagination
     const page = query.page || 1;
     const limit = query.limit || 10;
     const total = jobs.length;
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    // Map to DTO with company info
     const jobDtos: PublicJobListItemDto[] = paginatedJobs.map(job => ({
       id: job.id!,
       title: job.title!,

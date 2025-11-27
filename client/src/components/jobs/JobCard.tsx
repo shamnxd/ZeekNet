@@ -43,7 +43,6 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
     }
   };
 
-  // Access data with proper fallbacks for both API response formats
   const companyLogo = job.companyLogo || job.company_logo || job.company?.logo;
   const companyName = job.companyName || job.company_name || job.company?.companyName || 'Company';
   const applicationCount = job.applicationCount ?? job.application_count ?? 0;
@@ -56,7 +55,6 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
       onClick={handleCardClick}
     >
       <CardContent className="p-5">
-        {/* Header with Logo and Company */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-12 h-12 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
             {companyLogo ? (
@@ -83,7 +81,6 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
           </div>
         </div>
 
-        {/* Location, Employment Type, and Salary */}
         <div className="flex items-center gap-3 mb-3 text-sm text-[#6B7280] flex-wrap">
           <div className="flex items-center gap-1.5">
             <MapPin className="w-4 h-4 flex-shrink-0" />
@@ -107,14 +104,12 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
           )}
         </div>
 
-        {/* Description */}
         {job.description && (
           <p className="text-sm text-[#6B7280] line-clamp-2 mb-3 leading-relaxed">
             {job.description}
           </p>
         )}
 
-        {/* Footer Stats */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1.5 text-sm text-[#6B7280]">
             <Users className="w-4 h-4" />

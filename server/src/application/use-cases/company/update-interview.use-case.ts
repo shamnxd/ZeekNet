@@ -19,7 +19,6 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   ) {}
 
   async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
-    // DTO -> Domain mapping (moved from controller)
     const interviewData: Partial<{
       date: Date;
       time: string;

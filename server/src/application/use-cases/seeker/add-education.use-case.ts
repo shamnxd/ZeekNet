@@ -13,11 +13,9 @@ export class AddEducationUseCase implements IAddEducationUseCase {
   ) {}
 
   async execute(userId: string, dto: AddEducationRequestDto): Promise<EducationResponseDto> {
-    // DTO -> Domain mapping (inline in use case)
     const startDate = new Date(dto.startDate);
     const endDate = dto.endDate ? new Date(dto.endDate) : undefined;
-    
-    // Validation
+
     if (!dto.school || !dto.startDate) {
       throw new ValidationError('Missing required fields: school and startDate are required');
     }

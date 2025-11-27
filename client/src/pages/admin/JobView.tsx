@@ -144,7 +144,6 @@ const JobView = () => {
     <AdminLayout>
       <div className="space-y-6 p-4">
         {(() => {
-          // normalize commonly used flags/fields for cleaner JSX
           (job as any)._isActive = (job as any).is_active ?? (job as any).isActive ?? false
           ;(job as any)._adminBlocked = (job as any).admin_blocked ?? (job as any).adminBlocked ?? false
           return null

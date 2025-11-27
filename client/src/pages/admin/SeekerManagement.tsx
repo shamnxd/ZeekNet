@@ -148,12 +148,12 @@ const UserManagement = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {}
+
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Job Seekers Management</h1>
         </div>
 
-        {}
+
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -181,7 +181,7 @@ const UserManagement = () => {
           </div>
         </div>
 
-        {}
+
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
@@ -281,7 +281,7 @@ const UserManagement = () => {
           </CardContent>
         </Card>
 
-        {}
+
         {!loading && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
@@ -311,7 +311,7 @@ const UserManagement = () => {
           </div>
         )}
 
-        {}
+
         <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
           <DialogContent>
             <DialogHeader>

@@ -12,7 +12,6 @@ export interface PaginatedApplications {
 }
 
 export interface IJobApplicationRepository extends IBaseRepository<JobApplication> {
-  // Interview management
   addInterview(applicationId: string, interviewData: Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at'>): Promise<JobApplication | null>;
   addInterviewFeedback(applicationId: string, interviewId: string, feedbackData: InterviewFeedback): Promise<JobApplication | null>;
   deleteInterview(applicationId: string, interviewId: string): Promise<JobApplication | null>;

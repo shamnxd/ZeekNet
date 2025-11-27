@@ -10,7 +10,6 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
     const page = options.page || 1;
     const limit = options.limit || 10;
 
-    // Build query criteria
     const criteria: Record<string, unknown> = {};
     if (options.role) {
       criteria.role = options.role as UserRole;
@@ -19,11 +18,8 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
       criteria.isBlocked = options.isBlocked;
     }
 
-    // Get users using thin repository (search/pagination logic moved to use case)
-    // For now, use findMany - in production you'd implement pagination here
     let users = await this._userRepository.findMany(criteria);
     
-    // Apply search filter if provided
     if (options.search) {
       const searchLower = options.search.toLowerCase();
       users = users.filter(u => 
@@ -32,7 +28,6 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
       );
     }
 
-    // Apply pagination
     const total = users.length;
     const startIndex = (page - 1) * limit;
     const paginatedUsers = users.slice(startIndex, startIndex + limit);

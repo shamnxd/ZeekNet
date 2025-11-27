@@ -21,7 +21,6 @@ export class GetCompanyJobPostingsUseCase {
   ) {}
 
   async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
-    // Allow explicit company_id query (e.g. admin or cross-context fetch) fallback to authenticated user's company
     let companyProfile = null;
     if (query.company_id) {
       companyProfile = await this._companyProfileRepository.findById(query.company_id);
@@ -34,7 +33,6 @@ export class GetCompanyJobPostingsUseCase {
       throw new AppError('Company profile not found', 404);
     }
 
-    // Define projection for minimal fields - PERFORMANCE OPTIMIZATION
     const projection = {
       _id: 1 as const,
       title: 1 as const,
@@ -47,20 +45,16 @@ export class GetCompanyJobPostingsUseCase {
       createdAt: 1 as const,
     };
 
-    // Use the new specific method for company jobs
     let jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, projection);
 
-    // Fallback: if no jobs found and explicit company_id provided, retry without projection to avoid missing fields
     if (jobs.length === 0 && query.company_id) {
       jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, {});
     }
 
-    // Apply filters
     if (query.is_active !== undefined) {
       jobs = jobs.filter(job => job.isActive === query.is_active);
     }
 
-    // Apply filters if needed (minimal filtering since we use projection)
     if (query.employment_types && query.employment_types.length > 0) {
       jobs = jobs.filter(job => 
         job.employmentTypes?.some(type => (query.employment_types as string[]).includes(type)),
@@ -74,14 +68,12 @@ export class GetCompanyJobPostingsUseCase {
       );
     }
 
-    // Apply pagination
     const page = query.page || 1;
     const limit = query.limit || 10;
     const total = jobs.length;
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    // Map to DTO
     const jobDtos: CompanyJobPostingListItemDto[] = paginatedJobs.map(job => ({
       id: job.id!,
       title: job.title!,

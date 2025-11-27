@@ -102,7 +102,7 @@ const FormDialog = (props: FormDialogProps) => {
       const value = field.value?.trim() || ''
       const validation = field.validation
       
-      // Check required
+
       if ((validation?.required || field.required) && !value) {
         const message = typeof validation?.required === 'string' 
           ? validation.required 
@@ -110,22 +110,22 @@ const FormDialog = (props: FormDialogProps) => {
         return message
       }
 
-      // Check minLength
+
       if (validation?.minLength && value.length > 0 && value.length < validation.minLength.value) {
         return validation.minLength.message
       }
 
-      // Check maxLength
+
       if (validation?.maxLength && value.length > validation.maxLength.value) {
         return validation.maxLength.message
       }
 
-      // Check pattern
+
       if (validation?.pattern && value && !validation.pattern.value.test(value)) {
         return validation.pattern.message
       }
 
-      // Check email type
+
       if (field.type === 'email' && value) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!emailPattern.test(value)) {
@@ -133,18 +133,18 @@ const FormDialog = (props: FormDialogProps) => {
         }
       }
 
-      // Check date type
+
       if (field.type === 'date' && value) {
         const date = new Date(value)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
-        // Check if valid date
+
         if (isNaN(date.getTime())) {
           return 'Please enter a valid date'
         }
         
-        // Check if date is not in the future (for birthdate/start dates)
+
         if (validation?.validate) {
           const result = validation.validate(value)
           if (result !== true) {
@@ -153,7 +153,7 @@ const FormDialog = (props: FormDialogProps) => {
         }
       }
 
-      // Check custom validation
+
       if (validation?.validate && !field.type) {
         const result = validation.validate(value)
         if (result !== true) {
@@ -176,7 +176,7 @@ const FormDialog = (props: FormDialogProps) => {
     const handleFieldChange = (field: FormField, value: string) => {
       field.onChange(value)
       
-      // Clear error when user starts typing
+
       if (errors[field.id]) {
         setErrors(prev => ({ ...prev, [field.id]: '' }))
       }
@@ -209,7 +209,7 @@ const FormDialog = (props: FormDialogProps) => {
       }
     }
 
-    // Check if form has any errors
+
     const hasErrors = Object.values(errors).some(error => error !== '')
 
     const renderField = (field: FormField) => {

@@ -24,10 +24,8 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   ) {}
 
   async execute(query: GetAllJobsQuery) {
-    // Use the new specific method for admin - gets all jobs with company info
     let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
 
-    // Apply filters in use case
     if (query.is_active !== undefined) {
       jobs = jobs.filter(job => job.isActive === query.is_active);
     }
@@ -69,7 +67,6 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       );
     }
 
-    // Apply sorting
     const sortBy = query.sortBy || 'createdAt';
     const sortOrder = query.sortOrder || 'desc';
     jobs.sort((a, b) => {
@@ -82,14 +79,12 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       }
     });
 
-    // Apply pagination
     const page = query.page || 1;
     const limit = query.limit || 10;
     const total = jobs.length;
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    // Shape minimal admin response with only relevant fields
     const jobDtos = paginatedJobs.map(job => ({
       id: job.id,
       title: job.title,

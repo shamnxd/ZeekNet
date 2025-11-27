@@ -17,7 +17,6 @@ export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
       sortOrder: 'asc',
     });
 
-    // Return full objects with pagination info
     return {
       skills: result.data.map((skill) => ({
         id: skill.id,

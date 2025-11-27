@@ -12,7 +12,6 @@ export class GetPublicSkillsUseCase implements IGetPublicSkillsUseCase {
       sortOrder: 'asc',
     });
 
-    // Return only skill names as a simple array
     return result.data.map((skill) => skill.name);
   }
 }

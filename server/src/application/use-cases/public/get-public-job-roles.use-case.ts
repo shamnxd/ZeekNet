@@ -12,7 +12,6 @@ export class GetPublicJobRolesUseCase implements IGetPublicJobRolesUseCase {
       sortOrder: 'asc',
     });
 
-    // Return only job role names as a simple array
     return result.data.map((role) => role.name);
   }
 }

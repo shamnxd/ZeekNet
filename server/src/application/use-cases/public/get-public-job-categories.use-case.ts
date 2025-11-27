@@ -12,7 +12,6 @@ export class GetPublicJobCategoriesUseCase implements IGetPublicJobCategoriesUse
       sortOrder: 'asc',
     });
 
-    // Return only category names as a simple array
     return result.data.map((category) => category.name);
   }
 }

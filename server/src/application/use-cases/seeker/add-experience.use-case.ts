@@ -13,11 +13,9 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
   ) {}
 
   async execute(userId: string, dto: AddExperienceRequestDto): Promise<ExperienceResponseDto> {
-    // DTO -> Domain mapping (inline in use case)
     const startDate = new Date(dto.startDate);
     const endDate = dto.endDate ? new Date(dto.endDate) : undefined;
-    
-    // Validation
+
     if (!dto.title || !dto.company || !dto.startDate || !dto.employmentType) {
       throw new ValidationError('Missing required fields: title, company, startDate, and employmentType are required');
     }

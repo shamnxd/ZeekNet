@@ -161,12 +161,12 @@ const PendingCompanies = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {}
+
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Pending Companies</h1>
         </div>
 
-        {}
+
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -205,7 +205,7 @@ const PendingCompanies = () => {
           </div>
         </div>
 
-        {}
+
         {loading && (
           <Card className="border-0 shadow-md">
             <CardContent className="p-8">
@@ -219,7 +219,7 @@ const PendingCompanies = () => {
           </Card>
         )}
 
-        {}
+
         {error && (
           <Card className="border-0 shadow-md">
             <CardContent className="p-8">
@@ -233,7 +233,7 @@ const PendingCompanies = () => {
           </Card>
         )}
 
-        {}
+
         {!loading && !error && (
         <Card className="border-0 shadow-md">
           <CardContent className="p-0">
@@ -323,10 +323,10 @@ const PendingCompanies = () => {
                   </Card>
         )}
 
-        {}
+
         <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
           <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-            {}
+
             <DialogHeader className="px-6 py-4 border-b border-border/50 flex-shrink-0">
               <DialogTitle className="text-xl font-semibold">Company Details</DialogTitle>
               <DialogDescription>
@@ -334,7 +334,7 @@ const PendingCompanies = () => {
               </DialogDescription>
             </DialogHeader>
 
-            {}
+
             <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
               {selectedCompany && (
                 <div className="space-y-6">
@@ -393,7 +393,7 @@ const PendingCompanies = () => {
                     </div>
                   </div>
 
-                  {}
+
                   {selectedCompany.verification && (
                     <div className="border-t pt-6">
                       <div className="flex items-center gap-2 mb-4">
@@ -402,7 +402,7 @@ const PendingCompanies = () => {
                       </div>
                       
                       <div className="grid grid-cols-1 gap-4">
-                        {}
+
                         <div className="bg-gray-50 p-4 rounded-lg">
                           <label className="text-sm font-medium text-gray-700 block mb-2">Tax ID</label>
                           <div className="flex items-center justify-between">
@@ -425,7 +425,7 @@ const PendingCompanies = () => {
                           </div>
                         </div>
 
-                        {}
+
                         <div className="bg-gray-50 p-4 rounded-lg">
                           <label className="text-sm font-medium text-gray-700 block mb-2">Business License</label>
                           <div className="flex items-center justify-between">
@@ -481,7 +481,7 @@ const PendingCompanies = () => {
                     </div>
                   )}
 
-                  {}
+
                   {!selectedCompany.verification && (
                     <div className="border-t pt-6">
                       <div className="flex items-center gap-2 mb-4">
@@ -502,7 +502,7 @@ const PendingCompanies = () => {
               )}
             </div>
 
-            {}
+
             <div className="px-6 py-4 border-t border-border/50 bg-gray-50/50 flex-shrink-0">
               <div className="flex justify-between w-full">
                 <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>
@@ -536,7 +536,7 @@ const PendingCompanies = () => {
           </DialogContent>
         </Dialog>
 
-        {}
+
         <Dialog open={acceptDialogOpen} onOpenChange={setAcceptDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -559,7 +559,7 @@ const PendingCompanies = () => {
           </DialogContent>
         </Dialog>
 
-        {}
+
         <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
           <DialogContent>
             <DialogHeader>

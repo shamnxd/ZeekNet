@@ -23,7 +23,6 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
       throw new ValidationError('Resume must be a PDF, DOC, or DOCX file');
     }
 
-    // DTO -> Domain mapping (inline in use case)
     const resume: ResumeMeta = {
       url: dto.url,
       fileName: dto.fileName,

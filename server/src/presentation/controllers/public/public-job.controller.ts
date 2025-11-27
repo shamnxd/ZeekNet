@@ -14,7 +14,7 @@ export class PublicJobController {
     try {
       const query = req.query as unknown as JobPostingQueryRequestDto;
       
-      // Map DTO (snake_case) to entity filters (camelCase)
+
       const filters = {
         categoryIds: query.category_ids,
         employmentTypes: query.employment_types,
@@ -36,7 +36,7 @@ export class PublicJobController {
   getJobPosting = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const jobId = req.params.id;
-      // Get userId from auth middleware if user is logged in
+
       const userId = (req as Request & { user?: { id: string } }).user?.id;
       const result = await this._getJobPostingForPublicUseCase.execute(jobId, userId);
       sendSuccessResponse(res, 'Job posting retrieved successfully', result);

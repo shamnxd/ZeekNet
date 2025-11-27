@@ -11,7 +11,6 @@ export interface CreateNotificationData {
 }
 
 export interface INotificationRepository extends IBaseRepository<Notification> {
-  // Notification-specific methods that need custom implementation
   markAllAsRead(userId: string): Promise<void>;
 }
 

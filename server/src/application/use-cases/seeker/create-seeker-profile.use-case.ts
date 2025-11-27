@@ -18,7 +18,6 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
       throw new ValidationError('Profile already exists. Use update endpoint to modify.');
     }
 
-    // DTO -> Domain mapping (inline in use case)
     const profile = await this._seekerProfileRepository.create({
       userId,
       headline: dto.headline ?? null,
@@ -36,7 +35,6 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
       socialLinks: dto.socialLinks ?? [],
     });
 
-    // Entity -> DTO mapping
     return SeekerProfileMapper.toResponse(profile, this._s3Service);
   }
 }

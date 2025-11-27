@@ -15,7 +15,6 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
   ) {}
 
   async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
-    // DTO -> Domain mapping (moved from controller)
     const feedbackData = {
       reviewer_name: dto.reviewer_name,
       rating: dto.rating,

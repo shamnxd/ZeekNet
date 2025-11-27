@@ -1,7 +1,7 @@
 import { api } from './index'
 
 export const jobApplicationApi = {
-  // Seeker endpoints
+
   async createApplication(formData: FormData) {
     return api.post('/api/seeker/applications', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -20,7 +20,7 @@ export const jobApplicationApi = {
     return api.get(`/api/seeker/applications/${id}`)
   },
 
-  // Company endpoints
+
   async getCompanyApplications(params?: {
     job_id?: string
     stage?: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'

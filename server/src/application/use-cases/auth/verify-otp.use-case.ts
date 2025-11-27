@@ -20,8 +20,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     if (!isValid) {
       throw new ValidationError('Invalid or expired OTP code');
     }
-    
-    // Update user verification status using thin repository
+
     await this._userRepository.update(user.id, { isVerified: true });
 
     const updatedUser = await this._userRepository.findOne({ email });

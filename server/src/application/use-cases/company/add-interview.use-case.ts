@@ -19,7 +19,6 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
   ) {}
 
   async execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
-    // DTO -> Domain mapping (moved from controller)
     const interviewDate = dto.date instanceof Date ? dto.date : new Date(dto.date);
     const interviewData = {
       date: interviewDate,

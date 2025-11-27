@@ -48,8 +48,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
-    
-    // Use thin repository update method
+
     await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
 
     return {

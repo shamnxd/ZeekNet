@@ -59,14 +59,13 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       appliedDate: new Date(),
     });
 
-    // Increment application count
     await this._jobPostingRepository.update(data.job_id, { 
       applicationCount: job.applicationCount + 1, 
     });
 
     const companyProfile = await this._companyProfileRepository.findById(job.companyId);
     if (companyProfile) {
-      // Send notification to company user
+
       await notificationService.sendNotification({
         user_id: companyProfile.userId,
         type: NotificationType.JOB_APPLICATION,
@@ -80,7 +79,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       });
     }
 
-    // Return DTO with just ID (mapping moved from controller)
     return { id: application.id };
   }
 }

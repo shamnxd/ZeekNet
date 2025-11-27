@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 const storage = multer.memoryStorage();
 
-// File filter for resume files: PDF, DOC, DOCX
+
 const resumeFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimeTypes = [
     'application/pdf',

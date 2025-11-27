@@ -18,7 +18,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return JobPostingMapper.toDocument(entity as JobPosting);
   }
 
-  // Override findById to populate company data
   async findById(id: string): Promise<JobPosting | null> {
     if (!Types.ObjectId.isValid(id)) {
       return null;
@@ -54,7 +53,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return this.mapToEntity(savedDoc);
   }
 
-  // Get all jobs for public (active, non-blocked, with company info)
   async getAllJobsForPublic(
     projection: Record<string, 1 | 0>,
     filters?: {
@@ -69,28 +67,23 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     const { CompanyProfileModel } = await import('../models/company-profile.model');
     const { UserModel } = await import('../models/user.model');
     
-    // Get blocked user IDs
     const blockedUsers = await UserModel.find({ isBlocked: true }).select('_id').lean();
     const blockedUserIds = blockedUsers.map(u => String(u._id));
     
-    // Get company profiles for blocked users
     const blockedCompanies = await CompanyProfileModel.find({ 
       userId: { $in: blockedUserIds },
     }).select('_id').lean();
     const blockedCompanyIds = blockedCompanies.map(c => c._id);
 
-    // Build query for publicly visible jobs from non-blocked companies
     const andConditions: Record<string, unknown>[] = [
       { $or: [ { is_active: true }, { is_active: { $exists: false } } ] },
       { $or: [ { admin_blocked: false }, { admin_blocked: { $exists: false } } ] },
     ];
 
-    // Exclude jobs from blocked companies
     if (blockedCompanyIds.length > 0) {
       andConditions.push({ company_id: { $nin: blockedCompanyIds } });
     }
 
-    // Apply filters to the database query
     if (filters?.categoryIds && filters.categoryIds.length > 0) {
       andConditions.push({ category_ids: { $in: filters.categoryIds } });
     }
@@ -99,8 +92,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       andConditions.push({ employment_types: { $in: filters.employmentTypes } });
     }
 
-    // Salary filtering: show jobs where salary range overlaps with filter range
-    // Job is visible if: job.max >= filter.min AND job.min <= filter.max
     if (filters?.salaryMin !== undefined && filters?.salaryMax !== undefined) {
       andConditions.push({
         $and: [
@@ -109,10 +100,8 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
         ],
       });
     } else if (filters?.salaryMin !== undefined) {
-      // Only min specified: show jobs where max salary >= filter min
       andConditions.push({ 'salary.max': { $gte: filters.salaryMin } });
     } else if (filters?.salaryMax !== undefined) {
-      // Only max specified: show jobs where min salary <= filter max
       andConditions.push({ 'salary.min': { $lte: filters.salaryMax } });
     }
 
@@ -121,7 +110,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     }
 
     if (filters?.search) {
-      // Search in title, description, and location
       andConditions.push({
         $or: [
           { title: { $regex: filters.search, $options: 'i' } },
@@ -135,7 +123,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       $and: andConditions,
     };
 
-    // Fetch and populate in one query
     const documents = await JobPostingModel.find(criteria, {
       ...projection,
       company_id: 1,
@@ -143,14 +130,12 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     
     let validJobs = documents.filter(doc => doc.company_id !== null);
 
-    // If search query exists, also filter by company name (client-side since it's populated data)
     if (filters?.search && validJobs.length > 0) {
       const searchLower = filters.search.toLowerCase();
       validJobs = validJobs.filter(doc => {
         const plainDoc = doc.toObject();
         const companyData = plainDoc.company_id as { companyName?: string; logo?: string } | null;
         
-        // Check if search matches title, description, location, or company name
         return (
           plainDoc.title?.toLowerCase().includes(searchLower) ||
           plainDoc.description?.toLowerCase().includes(searchLower) ||
@@ -182,7 +167,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     });
   }
 
-  // Get jobs by company (for company dashboard)
   async getJobsByCompany(
     companyId: string,
     projection: Record<string, 1 | 0>,
@@ -194,7 +178,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     const criteria = { company_id: new Types.ObjectId(companyId) };
     let documents = await JobPostingModel.find(criteria, projection);
 
-    // Fallback: if projection yielded zero results, re-query without projection
     if (documents.length === 0) {
       documents = await JobPostingModel.find(criteria);
     }
@@ -215,7 +198,6 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     });
   }
 
-  // Get all jobs for admin (all jobs with company info)
   async getAllJobsForAdmin(): Promise<JobPosting[]> {
     const projection: Record<string, 1 | 0> = {
       title: 1,

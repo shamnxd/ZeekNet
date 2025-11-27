@@ -53,7 +53,7 @@ export class SeekerRouter {
     this.router.post('/profile/avatar', uploadSingle('avatar'), seekerProfileController.uploadAvatar);
     this.router.post('/profile/banner', uploadSingle('banner'), seekerProfileController.uploadBanner);
 
-    // Job Application Routes
+
     this.router.post('/applications', uploadResume('resume'), seekerJobApplicationController.createApplication);
     this.router.get('/applications', validateQuery(ApplicationFiltersDto), seekerJobApplicationController.getApplications);
     this.router.get('/applications/:id', seekerJobApplicationController.getApplicationDetails);

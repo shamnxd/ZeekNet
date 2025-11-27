@@ -30,7 +30,6 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
       throw new NotFoundError('Education not found');
     }
 
-    // DTO -> Domain mapping (inline in use case)
     const updateData: Partial<Education> = {};
     if (dto.school !== undefined) updateData.school = dto.school;
     if (dto.degree !== undefined) updateData.degree = dto.degree;

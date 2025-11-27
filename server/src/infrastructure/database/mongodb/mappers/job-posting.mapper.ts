@@ -10,7 +10,6 @@ interface PopulatedCompany {
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument): JobPosting {
-    // Extract populated company data if available
     const populatedCompany = (doc as unknown as { company_id?: Types.ObjectId | PopulatedCompany }).company_id;
     const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
       ? populatedCompany.companyName as string
@@ -19,7 +18,6 @@ export class JobPostingMapper {
       ? populatedCompany.logo as string
       : undefined;
 
-    // Extract company_id correctly whether it's populated or not
     const companyId = populatedCompany && typeof populatedCompany === 'object' && '_id' in populatedCompany
       ? String(populatedCompany._id)
       : String(doc.company_id);
@@ -53,7 +51,6 @@ export class JobPostingMapper {
   static toDocument(entity: Partial<JobPosting>): Partial<JobPostingDocument> {
     const doc: Partial<JobPostingDocument> = {};
     
-    // Only map fields that are actually provided
     if (entity.companyId !== undefined) {
       doc.company_id = new Types.ObjectId(entity.companyId);
     }

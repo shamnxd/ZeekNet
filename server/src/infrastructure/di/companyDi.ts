@@ -126,7 +126,6 @@ const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRe
 
 const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
 
-// Upload Use Cases
 const uploadLogoUseCase = new UploadLogoUseCase(s3Service);
 const uploadBusinessLicenseUseCase = new UploadBusinessLicenseUseCase(s3Service);
 const uploadWorkplacePictureUseCase = new UploadWorkplacePictureUseCase(s3Service);
@@ -148,7 +147,6 @@ const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPosting
 
 const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository);
 
-// Job Application Use Cases
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
@@ -159,7 +157,6 @@ const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationReposito
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 
-// Controllers
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
@@ -227,7 +224,6 @@ const companyJobApplicationController = new CompanyJobApplicationController(
 );
 
 export {
-  // Specialized controllers
   companyProfileController,
   companyContactController,
   companyTechStackController,
@@ -237,6 +233,5 @@ export {
   companyUploadController,
   companyJobPostingController,
   companyJobApplicationController,
-  // Repositories
   companyProfileRepository as companyRepository,
 };

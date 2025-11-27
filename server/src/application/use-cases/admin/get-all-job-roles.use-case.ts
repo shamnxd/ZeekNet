@@ -17,7 +17,6 @@ export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
       sortOrder: 'asc',
     });
 
-    // Return full objects with pagination info
     return {
       jobRoles: result.data.map((role) => ({
         id: role.id,

@@ -6,7 +6,6 @@ export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfile
   constructor(private readonly _createCompanyProfileUseCase: ICreateCompanyProfileUseCase) {}
 
   async execute(userId: string, dto: SimpleCompanyProfileRequestDto): Promise<CompanyProfile> {
-    // Business logic: Transform DTO to domain model
     const profileData: CreateCompanyProfileData = {
       companyName: dto.company_name,
       logo: dto.logo || '/default-logo.png',

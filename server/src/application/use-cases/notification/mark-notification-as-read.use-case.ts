@@ -10,7 +10,6 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
   ) {}
 
   async execute(userId: string, notificationId: string): Promise<NotificationResponseDto | null> {
-    // First verify the notification exists and belongs to the user
     const notification = await this._notificationRepository.findById(notificationId);
     
     if (!notification) {
@@ -22,10 +21,9 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
     }
 
     if (notification.isRead) {
-      return NotificationMapper.toResponse(notification); // Already read, return as-is
+      return NotificationMapper.toResponse(notification); 
     }
 
-    // Use base repository update method
     const updatedNotification = await this._notificationRepository.update(notificationId, {
       isRead: true,
       readAt: new Date(),
