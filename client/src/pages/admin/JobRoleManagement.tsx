@@ -44,11 +44,9 @@ const JobRoleManagement = () => {
       }
       const response = await adminApi.getAllJobRoles(params)
       
-      if (response.success && response.data) {
-        
+      if (response.success && response.data && response.data.jobRoles && Array.isArray(response.data.jobRoles)) {
         const mappedJobRoles = response.data.jobRoles.map(role => ({
-          id: role._id || role.id,
-          _id: role._id || role.id,
+          id: role.id,
           name: role.name,
           createdAt: role.createdAt,
           updatedAt: role.updatedAt,
@@ -58,6 +56,7 @@ const JobRoleManagement = () => {
         setTotalJobRoles(response.data.total)
       } else {
         setError(response.message || 'Failed to fetch job roles')
+        setJobRoles([])
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch job roles')
@@ -99,8 +98,7 @@ const JobRoleManagement = () => {
       if (response.success && response.data) {
         
         const newJobRole = {
-          id: response.data.id || response.data._id,
-          _id: response.data._id || response.data.id,
+          id: response.data.id,
           name: response.data.name,
           createdAt: response.data.createdAt,
           updatedAt: response.data.updatedAt,

@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { jobApplicationApi } from '@/api'
 import { toast } from 'sonner'
 import { 
-  ArrowLeft, ChevronDown, Star, Mail, Phone, Instagram, Twitter, Globe,
+  ArrowLeft, Star, Mail, Phone, Instagram, Twitter, Globe,
   Download, Plus, MoreHorizontal, Clock, MapPin
 } from 'lucide-react'
 import {

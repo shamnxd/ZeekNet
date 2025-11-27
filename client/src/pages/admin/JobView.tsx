@@ -72,11 +72,12 @@ const JobView = () => {
     if (!job) return
 
     try {
-      const response = await adminApi.updateJobStatus(job.id || job._id, !job.is_active)
+      const isActive = (job as any).is_active ?? (job as any).isActive ?? false
+      const response = await adminApi.updateJobStatus(job.id || (job as any)._id, !isActive)
       
       if (response.success) {
-        setJob({ ...job, is_active: !job.is_active })
-        toast.success(`Job ${!job.is_active ? 'activated' : 'deactivated'} successfully`)
+        setJob({ ...job, is_active: !isActive } as JobPostingResponse)
+        toast.success(`Job ${!isActive ? 'activated' : 'deactivated'} successfully`)
       } else {
         toast.error(response.message || 'Failed to update job status')
       }
@@ -89,7 +90,7 @@ const JobView = () => {
     if (!job) return
 
     try {
-      const response = await adminApi.deleteJob(job.id || job._id)
+      const response = await adminApi.deleteJob((job.id ?? (job as any)._id ?? '') as string)
       
       if (response.success) {
         toast.success('Job deleted successfully')
@@ -142,6 +143,12 @@ const JobView = () => {
   return (
     <AdminLayout>
       <div className="space-y-6 p-4">
+        {(() => {
+          // normalize commonly used flags/fields for cleaner JSX
+          (job as any)._isActive = (job as any).is_active ?? (job as any).isActive ?? false
+          ;(job as any)._adminBlocked = (job as any).admin_blocked ?? (job as any).adminBlocked ?? false
+          return null
+        })()}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -156,21 +163,21 @@ const JobView = () => {
               <h1 className="text-2xl font-bold text-foreground">{job.title}</h1>
               <div className="flex items-center space-x-2 mt-1">
                 <Badge 
-                  variant={job.is_active ? "default" : "secondary"}
-                  className={job.is_active 
-                    ? "bg-green-100 text-green-800 border-green-200" 
+                  variant={(job as any)._isActive ? "default" : "secondary"}
+                  className={(job as any)._isActive
+                    ? "bg-green-100 text-green-800 border-green-200"
                     : "bg-gray-100 text-gray-800 border-gray-200"
                   }
                 >
-                  {job.is_active ? 'Active' : 'Inactive'}
+                  {(job as any)._isActive ? 'Active' : 'Inactive'}
                 </Badge>
-                {job.admin_blocked && (
+                {(job as any)._adminBlocked && (
                   <Badge className="bg-red-500 text-white">
                     Admin Blocked
                   </Badge>
                 )}
                 <span className="text-sm text-gray-500">
-                  Posted {formatDate(job.createdAt)}
+                  Posted {formatDate(job.createdAt ?? '')}
                 </span>
               </div>
             </div>
@@ -178,10 +185,10 @@ const JobView = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
-              onClick={job.is_active ? () => setReasonDialogOpen(true) : handleToggleStatus}
-              className={job.is_active ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
+              onClick={(job as any)._isActive ? () => setReasonDialogOpen(true) : handleToggleStatus}
+              className={(job as any)._isActive ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
             >
-              {job.is_active ? (
+              {(job as any)._isActive ? (
                 <>
                   <XCircle className="h-4 w-4 mr-2" />
                   Unpublish
@@ -217,7 +224,7 @@ const JobView = () => {
                   <div className="flex items-center space-x-2">
                     <Building2 className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Company:</span>
-                    <span className="text-sm">{job.company_name || job.company?.companyName || 'Unknown'}</span>
+                    <span className="text-sm">{(job as any).companyName ?? job.company_name ?? job.company?.companyName ?? 'Unknown'}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4 text-gray-400" />
@@ -227,12 +234,12 @@ const JobView = () => {
                   <div className="flex items-center space-x-2">
                     <IndianRupee className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Salary:</span>
-                    <span className="text-sm">{formatSalary(job.salary)}</span>
+                    <span className="text-sm">{formatSalary(job.salary ?? { min: 0, max: 0 })}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Type:</span>
-                    <span className="text-sm">{job.employment_types.join(', ')}</span>
+                    <span className="text-sm">{(((job as any).employmentTypes ?? (job as any).employment_types ?? []) as string[]).join(', ')}</span>
                   </div>
                 </div>
                 <Separator />
@@ -252,7 +259,7 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {job.responsibilities.map((responsibility, index) => (
+                  {(job.responsibilities || []).map((responsibility, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                       <span className="text-sm text-gray-600">{responsibility}</span>
@@ -271,7 +278,7 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {job.qualifications.map((qualification, index) => (
+                  {(job.qualifications || []).map((qualification, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                       <span className="text-sm text-gray-600">{qualification}</span>
@@ -281,7 +288,7 @@ const JobView = () => {
               </CardContent>
             </Card>
 
-            {job.nice_to_haves.length > 0 && (
+            {(((job as any).niceToHaves ?? (job as any).nice_to_haves ?? []) as string[]).length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -291,7 +298,7 @@ const JobView = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {job.nice_to_haves.map((item, index) => (
+                    {(((job as any).niceToHaves ?? (job as any).nice_to_haves ?? []) as string[]).map((item, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-sm text-gray-600">{item}</span>
@@ -311,7 +318,7 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {job.benefits.map((benefit, index) => (
+                  {(job.benefits || []).map((benefit, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
                       <span className="text-sm text-gray-600">{benefit}</span>
@@ -333,36 +340,36 @@ const JobView = () => {
                     <Eye className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Views</span>
                   </div>
-                  <span className="font-medium">{job.view_count}</span>
+                  <span className="font-medium">{(job as any).viewCount ?? (job as any).view_count ?? 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Users className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Applications</span>
                   </div>
-                  <span className="font-medium">{job.application_count}</span>
+                  <span className="font-medium">{(job as any).applicationCount ?? (job as any).applications ?? (job as any).application_count ?? 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Created</span>
                   </div>
-                  <span className="font-medium text-sm">{formatDate(job.createdAt)}</span>
+                  <span className="font-medium text-sm">{formatDate(job.createdAt ?? '')}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Updated</span>
                   </div>
-                  <span className="font-medium text-sm">{formatDate(job.updatedAt)}</span>
+                  <span className="font-medium text-sm">{formatDate(job.updatedAt ?? '')}</span>
                 </div>
-                {job.admin_blocked && job.unpublish_reason && (
+                {(((job as any).admin_blocked ?? (job as any).adminBlocked) && ((job as any).unpublish_reason ?? (job as any).unpublishReason)) && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <XCircle className="h-4 w-4 text-red-400" />
                       <span className="text-sm">Block Reason</span>
                     </div>
-                    <span className="font-medium text-sm text-red-600">{job.unpublish_reason}</span>
+                    <span className="font-medium text-sm text-red-600">{(job as any).unpublish_reason ?? (job as any).unpublishReason}</span>
                   </div>
                 )}
               </CardContent>
@@ -377,7 +384,7 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {job.skills_required.map((skill, index) => (
+                  {(((job as any).skillsRequired ?? (job as any).skills_required ?? []) as string[]).map((skill, index) => (
                     <Badge key={index} variant="outline" className="text-blue-600 border-blue-200">
                       {skill}
                     </Badge>
@@ -395,15 +402,15 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-3">
-                  {job.company?.logo && (
+                  {(((job as any).companyLogo ?? job.company?.logo) && (
                     <img 
-                      src={job.company.logo} 
-                      alt={job.company.companyName}
+                      src={(job as any).companyLogo ?? (job.company?.logo as string)} 
+                      alt={((job as any).companyName ?? job.company?.companyName ?? 'Company') as string}
                       className="w-16 h-16 mx-auto rounded-lg object-cover"
                     />
-                  )}
+                  ))}
                   <div>
-                    <h3 className="font-medium">{job.company_name || job.company?.companyName || 'Unknown Company'}</h3>
+                    <h3 className="font-medium">{(job as any).companyName ?? job.company_name ?? job.company?.companyName ?? 'Unknown Company'}</h3>
                     
                   </div>
                 </div>
@@ -432,7 +439,7 @@ const JobView = () => {
         reasonOptions={unpublishReasons}
         onConfirm={async reason => {
           try {
-            const response = await adminApi.updateJobStatus(job?.id || job?._id || '', false, reason);
+            const response = await adminApi.updateJobStatus((job as any)?.id || (job as any)?._id || '', false, reason);
             
             if (response.success) {
               setJob({ ...job, is_active: false, unpublish_reason: reason } as JobPostingResponse);

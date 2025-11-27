@@ -44,11 +44,9 @@ const SkillManagement = () => {
       }
       const response = await adminApi.getAllSkills(params)
       
-      if (response.success && response.data) {
-        
+      if (response.success && response.data && response.data.skills && Array.isArray(response.data.skills)) {
         const mappedSkills = response.data.skills.map(skill => ({
-          id: skill._id || skill.id,
-          _id: skill._id || skill.id,
+          id: skill.id,
           name: skill.name,
           createdAt: skill.createdAt,
           updatedAt: skill.updatedAt,
@@ -58,6 +56,7 @@ const SkillManagement = () => {
         setTotalSkills(response.data.total)
       } else {
         setError(response.message || 'Failed to fetch skills')
+        setSkills([])
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch skills')
@@ -99,8 +98,7 @@ const SkillManagement = () => {
       if (response.success && response.data) {
         
         const newSkill = {
-          id: response.data.id || response.data._id,
-          _id: response.data._id || response.data.id,
+          id: response.data.id,
           name: response.data.name,
           createdAt: response.data.createdAt,
           updatedAt: response.data.updatedAt,

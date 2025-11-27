@@ -88,7 +88,7 @@ const PricePlanManagement = () => {
     },
   ])
 
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)

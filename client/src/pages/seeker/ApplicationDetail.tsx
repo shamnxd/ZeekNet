@@ -76,9 +76,20 @@ export default function ApplicationDetail() {
   return (
     <div className="px-8 xl:px-11 py-9 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[26px] font-bold text-[#1f2937]">{application?.job_title || '-'}</h1>
-          <p className="text-[14px] text-[#6b7280]">{application?.company_name || '-'}</p>
+        <div className="flex items-center gap-4">
+          <div className={cn('flex h-14 w-14 items-center justify-center rounded-xl font-semibold bg-[#eef2ff] text-[#4338ca]')}>
+            {application?.company_logo ? (
+              <img src={application.company_logo} alt={(application?.job_company || application?.company_name || 'Company') + ' Logo'} className="h-10 w-10 object-contain" />
+            ) : (
+              <span className="text-[18px]">
+                {(application?.job_company || application?.company_name || 'C').charAt(0).toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div>
+            <h1 className="text-[26px] font-bold text-[#1f2937]">{application?.job_title || '-'}</h1>
+            <p className="text-[14px] text-[#6b7280]">{application?.job_company || application?.company_name || 'Unknown Company'}</p>
+          </div>
         </div>
         {application?.stage && (
           <Badge variant="outline" className={cn('rounded-full border px-3 py-1 text-[12px] font-semibold', stageStyles[application.stage as Stage])}>

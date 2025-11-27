@@ -16,11 +16,12 @@ import {
   CheckCircle,
   XCircle,
   Search,
-  ChevronDown,
+
   FileText,
   ExternalLink
 } from 'lucide-react'
 import { adminApi, type Company } from '@/api/admin.api'
+import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
 
 const PendingCompanies = () => {
@@ -35,7 +36,7 @@ const PendingCompanies = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [industryFilter, setIndustryFilter] = useState('')
-  const [sortBy, setSortBy] = useState('Latest')
+  const [categories, setCategories] = useState<string[]>([])
 
   const fetchPendingCompanies = async () => {
     try {
@@ -56,8 +57,20 @@ const PendingCompanies = () => {
     }
   }
 
+  const fetchCategories = async () => {
+    try {
+      const response = await publicApi.getAllJobCategories({ limit: 100 })
+      if (response && response.data) {
+        setCategories(response.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
+    }
+  }
+
   useEffect(() => {
     fetchPendingCompanies()
+    fetchCategories()
   }, [])
 
   const filteredCompanies = companies.filter(company => {
@@ -142,9 +155,6 @@ const PendingCompanies = () => {
       case 'industry':
         setIndustryFilter(value)
         break
-      case 'sort':
-        setSortBy(value)
-        break
     }
   }
 
@@ -154,13 +164,6 @@ const PendingCompanies = () => {
         {}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Pending Companies</h1>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" className="flex items-center space-x-2">
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
 
         {}
@@ -195,24 +198,9 @@ const PendingCompanies = () => {
               onChange={(e) => handleFilterChange('industry', e.target.value)}
             >
               <option value="">All</option>
-              <option value="Technology">Technology</option>
-              <option value="Finance">Finance</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Manufacturing">Manufacturing</option>
-              <option value="Research & Development">Research & Development</option>
-            </select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium">Sort By</label>
-            <select 
-              className="px-3 py-2 border border-border rounded-md bg-background text-sm"
-              value={sortBy}
-              onChange={(e) => handleFilterChange('sort', e.target.value)}
-            >
-              <option value="Latest">Latest</option>
-              <option value="Oldest">Oldest</option>
-              <option value="Company Name A-Z">Company Name A-Z</option>
-              <option value="Company Name Z-A">Company Name Z-A</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
             </select>
           </div>
         </div>

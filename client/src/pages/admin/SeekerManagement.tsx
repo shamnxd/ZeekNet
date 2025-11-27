@@ -51,7 +51,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 5,
     total: 0,
     totalPages: 0,
     hasNext: false,
@@ -61,19 +61,16 @@ const UserManagement = () => {
   const debouncedSearchTerm = useDebounce(searchInput, 500)
   const [filters, setFilters] = useState<GetAllUsersParams>({
     page: 1,
-    limit: 10,
+    limit: 5,
     search: '',
     role: 'seeker', 
     isBlocked: undefined
   })
 
-  const fetchUsers = async (params: GetAllUsersParams = { page: 1, limit: 10 }) => {
+  const fetchUsers = async (params: GetAllUsersParams = { page: 1, limit: 5 }) => {
     try {
       setLoading(true)
-      const response = await adminApi.getAllUsers({
-        ...params,
-        isBlocked: typeof params.isBlocked === 'string' ? params.isBlocked === 'true' : params.isBlocked
-      })
+      const response = await adminApi.getAllUsers(params)
 
       if (response && response.data && response.data.users) {
         const transformedUsers: UserWithDisplayData[] = response.data.users.map((user: User) => ({
@@ -93,7 +90,7 @@ const UserManagement = () => {
         setUsers(transformedUsers)
         setPagination({
           page: response.data.page || 1,
-          limit: response.data.limit || 10,
+          limit: response.data.limit || 5,
           total: response.data.total || 0,
           totalPages: response.data.totalPages || 0,
           hasNext: (response.data.page || 1) < (response.data.totalPages || 0),
@@ -156,13 +153,6 @@ const UserManagement = () => {
         {}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Job Seekers Management</h1>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" className="flex items-center space-x-2">
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
 
         {}

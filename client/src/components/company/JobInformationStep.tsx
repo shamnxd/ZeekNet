@@ -13,8 +13,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   onDataChange,
   onNext,
 }) => {
-  const [newSkill, setNewSkill] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [categoriesOptions, setCategoriesOptions] = useState<ComboboxOption[]>([]);
   const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);

@@ -1,4 +1,4 @@
-import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Search, SlidersHorizontal } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -21,7 +21,7 @@ export function SeekerApplications() {
   const [error, setError] = useState<string | null>(null)
   const [stage, setStage] = useState<Stage | undefined>(undefined)
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit] = useState(10)
   const [total, setTotal] = useState(0)
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit])
@@ -132,10 +132,16 @@ export function SeekerApplications() {
                   <td className="py-5 pr-6">
                     <div className="flex items-center gap-3">
                       <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl font-semibold bg-[#eef2ff] text-[#4338ca]')}>
-                        <img src={application?.company_logo } alt="Company Logo" className="h-8 w-8 object-contain" />
+                        {application?.company_logo ? (
+                          <img src={application.company_logo} alt={(application?.company_name || 'Company') + ' Logo'} className="h-8 w-8 object-contain" />
+                        ) : (
+                          <span className="text-[16px]">
+                            {(application?.company_name || application?.companyName || 'C').charAt(0).toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <div>
-                        <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || '-'}</p>
+                        <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || 'Unknown Company'}</p>
                       </div>
                     </div>
                   </td>
