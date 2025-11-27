@@ -2,10 +2,16 @@ import { JobPosting } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
 import { Types } from 'mongoose';
 
+interface PopulatedCompany {
+  _id: Types.ObjectId;
+  companyName: string;
+  logo: string;
+}
+
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument): JobPosting {
     // Extract populated company data if available
-    const populatedCompany = (doc as unknown as { company_id?: any }).company_id;
+    const populatedCompany = (doc as unknown as { company_id?: Types.ObjectId | PopulatedCompany }).company_id;
     const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
       ? populatedCompany.companyName as string
       : undefined;
