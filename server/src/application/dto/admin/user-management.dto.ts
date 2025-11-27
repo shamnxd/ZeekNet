@@ -6,7 +6,15 @@ export const GetAllUsersDto = z.object({
   limit: z.coerce.number().int().min(1).optional().default(10),
   search: z.string().optional(),
   role: z.nativeEnum(UserRole).optional(),
-  isBlocked: z.coerce.boolean().optional(),
+  isBlocked: z.preprocess(
+    (val) => {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      if (typeof val === 'boolean') return val;
+      return undefined;
+    },
+    z.boolean().optional()
+  ),
 });
 
 export const BlockUserDto = z.object({

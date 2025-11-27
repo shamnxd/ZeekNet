@@ -2,7 +2,17 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { JobPostingQueryRequestDto } from '../../dto/job-posting/job-posting.dto';
 import { AppError } from '../../../domain/errors/errors';
-import { PaginatedJobPostings } from '../../../domain/entities/job-posting.entity';
+import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
+
+interface PaginatedCompanyJobPostings {
+  jobs: CompanyJobPostingListItemDto[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export class GetCompanyJobPostingsUseCase {
   constructor(
@@ -10,49 +20,57 @@ export class GetCompanyJobPostingsUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedJobPostings> {
-    const companyProfile = await this._companyProfileRepository.findOne({ userId });
+  async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+    // Allow explicit company_id query (e.g. admin or cross-context fetch) fallback to authenticated user's company
+    let companyProfile = null;
+    if (query.company_id) {
+      companyProfile = await this._companyProfileRepository.findById(query.company_id);
+    }
+    if (!companyProfile) {
+      companyProfile = await this._companyProfileRepository.findOne({ userId });
+    }
 
     if (!companyProfile) {
       throw new AppError('Company profile not found', 404);
     }
 
-    // Build filter criteria
-    const criteria: Record<string, unknown> = { companyId: companyProfile.id };
+    // Define projection for minimal fields - PERFORMANCE OPTIMIZATION
+    const projection = {
+      _id: 1 as const,
+      title: 1 as const,
+      is_active: 1 as const,
+      employment_types: 1 as const,
+      application_count: 1 as const,
+      view_count: 1 as const,
+      admin_blocked: 1 as const,
+      unpublish_reason: 1 as const,
+      createdAt: 1 as const,
+    };
+
+    // Use the new specific method for company jobs
+    let jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, projection);
+
+    // Fallback: if no jobs found and explicit company_id provided, retry without projection to avoid missing fields
+    if (jobs.length === 0 && query.company_id) {
+      jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, {});
+    }
+
+    // Apply filters
     if (query.is_active !== undefined) {
-      criteria.isActive = query.is_active;
+      jobs = jobs.filter(job => job.isActive === query.is_active);
     }
 
-    // Get jobs using thin repository
-    let jobs = await this._jobPostingRepository.findMany(criteria);
-
-    // Apply filters in use case
-    if (query.category_ids && query.category_ids.length > 0) {
-      jobs = jobs.filter(job => 
-        job.categoryIds.some(cat => query.category_ids!.includes(cat)),
-      );
-    }
-
+    // Apply filters if needed (minimal filtering since we use projection)
     if (query.employment_types && query.employment_types.length > 0) {
       jobs = jobs.filter(job => 
-        job.employmentTypes.some(type => (query.employment_types as string[]).includes(type)),
+        job.employmentTypes?.some(type => (query.employment_types as string[]).includes(type)),
       );
-    }
-
-    if (query.salary_min !== undefined) {
-      jobs = jobs.filter(job => job.salary.min >= query.salary_min!);
-    }
-
-    if (query.salary_max !== undefined) {
-      jobs = jobs.filter(job => job.salary.max <= query.salary_max!);
     }
 
     if (query.search) {
       const searchLower = query.search.toLowerCase();
       jobs = jobs.filter(job => 
-        job.title.toLowerCase().includes(searchLower) ||
-        job.description.toLowerCase().includes(searchLower) ||
-        job.location.toLowerCase().includes(searchLower),
+        job.title?.toLowerCase().includes(searchLower),
       );
     }
 
@@ -63,8 +81,21 @@ export class GetCompanyJobPostingsUseCase {
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
+    // Map to DTO
+    const jobDtos: CompanyJobPostingListItemDto[] = paginatedJobs.map(job => ({
+      id: job.id!,
+      title: job.title!,
+      isActive: job.isActive!,
+      employmentTypes: job.employmentTypes!,
+      applicationCount: job.applicationCount!,
+      viewCount: job.viewCount!,
+      adminBlocked: job.adminBlocked,
+      unpublishReason: job.unpublishReason,
+      createdAt: job.createdAt!,
+    }));
+
     return {
-      jobs: paginatedJobs,
+      jobs: jobDtos,
       pagination: {
         page,
         limit,

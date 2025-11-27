@@ -6,7 +6,7 @@ import { JobRole } from '../../entities/job-role.entity';
 import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
 
 export interface PaginatedSkills {
-  data: Skill[];
+  skills: Skill[];
   total: number;
   page: number;
   limit: number;
@@ -14,7 +14,7 @@ export interface PaginatedSkills {
 }
 
 export interface PaginatedJobRoles {
-  data: JobRole[];
+  jobRoles: JobRole[];
   total: number;
   page: number;
   limit: number;
@@ -41,6 +41,7 @@ export interface CompanyWithVerification {
   aboutUs: string;
   isVerified: 'pending' | 'rejected' | 'verified';
   isBlocked: boolean;
+  email: string;
   createdAt: string;
   updatedAt: string;
   verification?: {
@@ -111,7 +112,21 @@ export interface IVerifyCompanyUseCase {
 
 export interface IAdminGetAllJobsUseCase {
   execute(query: JobPostingFilters): Promise<{
-    jobs: JobPostingResponseDto[];
+    jobs: {
+      id: string;
+      title: string;
+      companyName: string;
+      location: string;
+      salary: { min: number; max: number };
+      status: boolean;
+      is_active: boolean;
+      admin_blocked: boolean;
+      applications: number;
+      viewCount: number;
+      createdAt: Date;
+      employmentTypes: string[];
+      categoryIds: string[];
+    }[];
     pagination: {
       page: number;
       limit: number;
@@ -154,7 +169,7 @@ export interface ICreateSkillUseCase {
 }
 
 export interface IGetAllSkillsUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedSkills>;
 }
 
 export interface IGetSkillByIdUseCase {
@@ -174,7 +189,7 @@ export interface ICreateJobRoleUseCase {
 }
 
 export interface IGetAllJobRolesUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRoles>;
 }
 
 export interface IGetJobRoleByIdUseCase {

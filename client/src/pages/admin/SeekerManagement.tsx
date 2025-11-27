@@ -14,10 +14,8 @@ import {
 import { 
   Search, 
   Eye,
-  Download,
   Edit,
   UserX,
-  ChevronDown,
   Loader2
 } from 'lucide-react'
 import { adminApi, type User, type GetAllUsersParams } from '@/api/admin.api'

@@ -4,7 +4,7 @@ import { PaginatedJobCategories, IGetAllJobCategoriesUseCase } from '../../../do
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
-  async execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]> {
+  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategories> {
     const query: Record<string, unknown> = {};
     if (options.search) {
       query.name = { $regex: options.search, $options: 'i' };
@@ -17,7 +17,18 @@ export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
       sortOrder: 'asc',
     });
 
-    // Return just the names - mapping moved from controller
-    return result.data.map((category) => category.name);
+    // Return full objects with pagination info
+    return {
+      categories: result.data.map((category) => ({
+        id: category.id,
+        name: category.name,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+      })),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 }

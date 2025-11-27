@@ -145,7 +145,7 @@ const JobDetail = () => {
       formData.append('cover_letter', coverLetter.trim());
       formData.append('resume', resumeFile);
 
-      const res = await jobApplicationApi.createApplication(formData);
+      await jobApplicationApi.createApplication(formData);
 
 
       setIsApplyModalOpen(false);

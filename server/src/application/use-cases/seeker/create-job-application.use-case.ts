@@ -8,6 +8,7 @@ import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
+import { Types } from 'mongoose';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -38,7 +39,10 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('This job posting has been blocked');
     }
 
-    const existingApplication = await this._jobApplicationRepository.findOne({ seeker_id: seekerId, job_id: data.job_id });
+    const existingApplication = await this._jobApplicationRepository.findOne({ 
+      seeker_id: new Types.ObjectId(seekerId), 
+      job_id: new Types.ObjectId(data.job_id),
+    });
     if (existingApplication) {
       throw new ValidationError('You have already applied for this job');
     }

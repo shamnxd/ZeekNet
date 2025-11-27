@@ -1,7 +1,7 @@
 import { JobCategory } from '../../entities/job-category.entity';
 
 export interface PaginatedJobCategories {
-  data: JobCategory[];
+  categories: JobCategory[];
   total: number;
   page: number;
   limit: number;
@@ -13,7 +13,7 @@ export interface ICreateJobCategoryUseCase {
 }
 
 export interface IGetAllJobCategoriesUseCase {
-  execute(options: { page?: number; limit?: number; search?: string }): Promise<string[]>;
+  execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategories>;
 }
 
 export interface IGetJobCategoryByIdUseCase {

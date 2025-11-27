@@ -22,6 +22,14 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
       throw new NotFoundError('Seeker profile not found');
     }
 
+    // Update user name if provided
+    if (dto.name !== undefined) {
+      const user = await this._userRepository.findById(userId);
+      if (user) {
+        await this._userRepository.update(userId, { name: dto.name });
+      }
+    }
+
     // DTO -> Domain mapping (inline in use case)
     const updateData: Record<string, unknown> = {};
     

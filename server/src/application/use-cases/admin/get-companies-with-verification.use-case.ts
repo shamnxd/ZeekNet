@@ -49,6 +49,7 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
           aboutUs: company.aboutUs,
           isVerified: company.isVerified,
           isBlocked: company.isBlocked,
+          email: company.email,
           createdAt: company.createdAt.toISOString(),
           updatedAt: company.updatedAt.toISOString(),
           ...(verification && {

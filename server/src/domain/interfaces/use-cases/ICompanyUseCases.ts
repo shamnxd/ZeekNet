@@ -216,7 +216,7 @@ export interface IGetJobPostingUseCase {
 }
 
 export interface IGetCompanyJobPostingsUseCase {
-  execute(companyId: string, options: JobPostingFilters): Promise<PaginatedJobPostings>;
+  execute(companyId: string, options: JobPostingFilters): Promise<{ jobs: Array<{ id: string; title: string; isActive: boolean; employmentTypes: string[]; applicationCount: number; viewCount: number; adminBlocked?: boolean; unpublishReason?: string; createdAt: Date; }>; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>;
 }
 
 export interface IUpdateJobPostingUseCase {

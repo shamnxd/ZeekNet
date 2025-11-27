@@ -34,7 +34,15 @@ export class JobPostingMapper {
 
   static toDetailedResponse(
     jobPosting: JobPosting,
-    companyData?: { companyName: string; logo: string; aboutUs?: string; workplacePictures?: Array<{ pictureUrl: string; caption?: string }> },
+    companyData?: { 
+      companyName: string; 
+      logo: string; 
+      organisation: string;
+      employeeCount: number;
+      websiteLink: string;
+      aboutUs?: string; 
+      workplacePictures?: Array<{ pictureUrl: string; caption?: string }> 
+    },
   ): JobPostingDetailResponseDto {
     const baseDto = this.toResponse(jobPosting, companyData);
     return {
@@ -60,6 +68,9 @@ export class JobPostingMapper {
       company: {
         companyName: companyData?.companyName || '',
         logo: companyData?.logo || '',
+        organisation: companyData?.organisation || 'Unknown',
+        employeeCount: companyData?.employeeCount || 0,
+        websiteLink: companyData?.websiteLink || '',
         workplacePictures: companyData?.workplacePictures || [],
       },
     };

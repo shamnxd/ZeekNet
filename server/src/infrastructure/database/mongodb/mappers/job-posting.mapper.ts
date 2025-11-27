@@ -4,9 +4,23 @@ import { Types } from 'mongoose';
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument): JobPosting {
+    // Extract populated company data if available
+    const populatedCompany = (doc as unknown as { company_id?: any }).company_id;
+    const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
+      ? populatedCompany.companyName as string
+      : undefined;
+    const companyLogo = populatedCompany && typeof populatedCompany === 'object' && 'logo' in populatedCompany
+      ? populatedCompany.logo as string
+      : undefined;
+
+    // Extract company_id correctly whether it's populated or not
+    const companyId = populatedCompany && typeof populatedCompany === 'object' && '_id' in populatedCompany
+      ? String(populatedCompany._id)
+      : String(doc.company_id);
+
     return JobPosting.create({
       id: String(doc._id),
-      companyId: String(doc.company_id),
+      companyId,
       title: doc.title || '',
       description: doc.description || '',
       responsibilities: doc.responsibilities || [],
@@ -23,30 +37,37 @@ export class JobPostingMapper {
       applicationCount: doc.application_count || 0,
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
+      companyName,
+      companyLogo,
       adminBlocked: doc.admin_blocked,
       unpublishReason: doc.unpublish_reason,
     });
   }
 
-  static toDocument(entity: JobPosting): Partial<JobPostingDocument> {
-    return {
-      company_id: new Types.ObjectId(entity.companyId),
-      title: entity.title,
-      description: entity.description,
-      responsibilities: entity.responsibilities,
-      qualifications: entity.qualifications,
-      nice_to_haves: entity.niceToHaves,
-      benefits: entity.benefits,
-      salary: entity.salary,
-      employment_types: entity.employmentTypes,
-      location: entity.location,
-      skills_required: entity.skillsRequired,
-      category_ids: entity.categoryIds,
-      is_active: entity.isActive,
-      admin_blocked: entity.adminBlocked,
-      unpublish_reason: entity.unpublishReason,
-      view_count: entity.viewCount,
-      application_count: entity.applicationCount,
-    };
+  static toDocument(entity: Partial<JobPosting>): Partial<JobPostingDocument> {
+    const doc: Partial<JobPostingDocument> = {};
+    
+    // Only map fields that are actually provided
+    if (entity.companyId !== undefined) {
+      doc.company_id = new Types.ObjectId(entity.companyId);
+    }
+    if (entity.title !== undefined) doc.title = entity.title;
+    if (entity.description !== undefined) doc.description = entity.description;
+    if (entity.responsibilities !== undefined) doc.responsibilities = entity.responsibilities;
+    if (entity.qualifications !== undefined) doc.qualifications = entity.qualifications;
+    if (entity.niceToHaves !== undefined) doc.nice_to_haves = entity.niceToHaves;
+    if (entity.benefits !== undefined) doc.benefits = entity.benefits;
+    if (entity.salary !== undefined) doc.salary = entity.salary;
+    if (entity.employmentTypes !== undefined) doc.employment_types = entity.employmentTypes;
+    if (entity.location !== undefined) doc.location = entity.location;
+    if (entity.skillsRequired !== undefined) doc.skills_required = entity.skillsRequired;
+    if (entity.categoryIds !== undefined) doc.category_ids = entity.categoryIds;
+    if (entity.isActive !== undefined) doc.is_active = entity.isActive;
+    if (entity.adminBlocked !== undefined) doc.admin_blocked = entity.adminBlocked;
+    if (entity.unpublishReason !== undefined) doc.unpublish_reason = entity.unpublishReason;
+    if (entity.viewCount !== undefined) doc.view_count = entity.viewCount;
+    if (entity.applicationCount !== undefined) doc.application_count = entity.applicationCount;
+    
+    return doc;
   }
 }

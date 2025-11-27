@@ -1,4 +1,5 @@
 import { IGetCompanyProfileUseCase, IGetCompanyJobPostingsUseCase, IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { CompanyProfileWithDetailsResponseDto } from '../../dto/company/company-response.dto';
 import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
 import { AppError } from '../../../domain/errors/errors';
@@ -31,10 +32,36 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
 
     const jobPostings = await this._getCompanyJobPostingsUseCase.execute(userId, jobPostingsQuery);
 
+    // Convert minimal summary jobs into JobPosting entities (fill missing fields with defaults)
+    const jobEntities: JobPosting[] = jobPostings.jobs.map(j => JobPosting.create({
+      id: j.id,
+      companyId: companyProfile.profile.id,
+      title: j.title,
+      description: '',
+      responsibilities: [],
+      qualifications: [],
+      niceToHaves: [],
+      benefits: [],
+      salary: { min: 0, max: 0 },
+      employmentTypes: j.employmentTypes || [],
+      location: '',
+      skillsRequired: [],
+      categoryIds: [],
+      isActive: j.isActive,
+      viewCount: j.viewCount,
+      applicationCount: j.applicationCount,
+      createdAt: j.createdAt,
+      updatedAt: j.createdAt,
+      adminBlocked: j.adminBlocked,
+      unpublishReason: j.unpublishReason,
+      companyName: companyProfile.profile.companyName,
+      companyLogo: companyProfile.profile.logo,
+    }));
+
     // Aggregate and map to DTO
     const responseData = CompanyProfileMapper.toDetailedResponse({
       ...companyProfile,
-      jobPostings: jobPostings.jobs,
+      jobPostings: jobEntities,
     });
 
     return responseData;

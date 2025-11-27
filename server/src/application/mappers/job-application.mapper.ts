@@ -64,6 +64,7 @@ export class JobApplicationMapper {
     jobData?: {
       title?: string;
       companyName?: string;
+      companyLogo?: string;
       location?: string;
       employmentTypes?: string[];
     },
@@ -79,6 +80,8 @@ export class JobApplicationMapper {
       job_company: jobData?.companyName,
       job_location: jobData?.location,
       job_type: jobData?.employmentTypes?.[0],
+      company_name: jobData?.companyName,
+      company_logo: jobData?.companyLogo,
       cover_letter: application.coverLetter,
       resume_url: application.resumeUrl,
       resume_filename: application.resumeFilename,

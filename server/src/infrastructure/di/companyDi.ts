@@ -238,7 +238,5 @@ export {
   companyJobPostingController,
   companyJobApplicationController,
   // Repositories
-  // companyProfileRepository, // removed unused
-  // companyProfileRepository as companyRepository, // removed unused
-  // companyVerificationRepository, // removed unused
+  companyProfileRepository as companyRepository,
 };

@@ -1,7 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IAdminGetAllJobsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { AppError } from '../../../domain/errors/errors';
 import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 import { JobPostingResponseDto } from '../../dto/job-posting/job-posting-response.dto';
 
@@ -10,6 +8,7 @@ interface GetAllJobsQuery {
   limit?: number;
   search?: string;
   is_active?: boolean;
+  admin_blocked?: boolean;
   category_ids?: string[];
   employment_types?: string[];
   salary_min?: number;
@@ -22,20 +21,19 @@ interface GetAllJobsQuery {
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
   async execute(query: GetAllJobsQuery) {
-    // Build criteria
-    const criteria: Record<string, unknown> = {};
-    if (query.is_active !== undefined) {
-      criteria.isActive = query.is_active;
-    }
-
-    // Get jobs using thin repository
-    let jobs = await this._jobPostingRepository.findMany(criteria);
+    // Use the new specific method for admin - gets all jobs with company info
+    let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
 
     // Apply filters in use case
+    if (query.is_active !== undefined) {
+      jobs = jobs.filter(job => job.isActive === query.is_active);
+    }
+    if (query.admin_blocked !== undefined) {
+      jobs = jobs.filter(job => (job.adminBlocked ?? false) === query.admin_blocked);
+    }
     if (query.category_ids && query.category_ids.length > 0) {
       jobs = jobs.filter(job => 
         job.categoryIds.some(cat => query.category_ids!.includes(cat)),
@@ -91,20 +89,22 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    // Fetch company data for paginated jobs
-    const companyIds = [...new Set(paginatedJobs.map(job => job.companyId))];
-    const companies = await Promise.all(
-      companyIds.map(id => this._companyProfileRepository.findById(id)),
-    );
-      
-    const companyMap = new Map(
-      companies.filter(c => c !== null).map(c => [c!.id, { companyName: c!.companyName, logo: c!.logo }]),
-    );
-
-    // Map to DTOs with company data
-    const jobDtos: JobPostingResponseDto[] = paginatedJobs.map(job => 
-      JobPostingMapper.toResponse(job, companyMap.get(job.companyId)),
-    );
+    // Shape minimal admin response with only relevant fields
+    const jobDtos = paginatedJobs.map(job => ({
+      id: job.id,
+      title: job.title,
+      companyName: job.companyName || 'Company',
+      location: job.location,
+      salary: job.salary,
+      status: job.isActive,
+      is_active: job.isActive,
+      admin_blocked: job.adminBlocked ?? false,
+      applications: job.applicationCount,
+      viewCount: job.viewCount,
+      createdAt: job.createdAt,
+      employmentTypes: job.employmentTypes,
+      categoryIds: job.categoryIds,
+    }));
 
     return {
       jobs: jobDtos,

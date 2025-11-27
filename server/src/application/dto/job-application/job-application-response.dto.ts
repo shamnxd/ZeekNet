@@ -41,6 +41,8 @@ export interface JobApplicationDetailResponseDto {
   job_company?: string;
   job_location?: string;
   job_type?: string;
+  company_name?: string;
+  company_logo?: string;
   cover_letter: string;
   resume_url: string;
   resume_filename: string;

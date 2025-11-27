@@ -29,6 +29,7 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
       {
         title: job?.title,
         companyName: job?.companyName,
+        companyLogo: job?.companyLogo,
         location: job?.location,
         employmentTypes: job?.employmentTypes,
       },

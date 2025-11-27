@@ -23,6 +23,35 @@ export interface JobPostingResponseDto {
   updatedAt: Date;
 }
 
+// Lightweight DTO for company job listings - PERFORMANCE OPTIMIZED
+export interface CompanyJobPostingListItemDto {
+  id: string;
+  title: string;
+  isActive: boolean;
+  employmentTypes: string[];
+  applicationCount: number;
+  viewCount: number;
+  adminBlocked?: boolean;
+  unpublishReason?: string;
+  createdAt: Date;
+}
+
+// Lightweight DTO for public job listings (job seekers) - PERFORMANCE OPTIMIZED
+export interface PublicJobListItemDto {
+  id: string;
+  title: string;
+  viewCount: number;
+  applicationCount: number;
+  salary: { min: number; max: number };
+  companyName: string;
+  companyLogo?: string;
+  createdAt: Date;
+  location: string;
+  description: string;
+  skillsRequired: string[];
+  employmentTypes: string[];
+}
+
 export interface JobPostingDetailResponseDto {
   id: string;
   title: string;
@@ -43,9 +72,13 @@ export interface JobPostingDetailResponseDto {
   application_count: number;
   createdAt: string;
   updatedAt: string;
+  has_applied?: boolean;
   company: {
     companyName: string;
     logo: string;
+    organisation: string;
+    employeeCount: number;
+    websiteLink: string;
     workplacePictures: Array<{
       pictureUrl: string;
       caption?: string;
