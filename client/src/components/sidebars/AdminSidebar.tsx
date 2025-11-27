@@ -9,7 +9,7 @@ import {
   Settings,
   Grid3X3,
   User,
-  CreditCard,
+  
   Globe,
   LogOut,
   Menu,
@@ -73,11 +73,7 @@ const AdminSidebar = () => {
       label: 'Subscription Plans',
       icon: PackageCheck,
     },
-    {
-      path: '/admin/price-plans',
-      label: 'Price Plan',
-      icon: CreditCard,
-    }
+    
   ]
 
   const bottomItems = [

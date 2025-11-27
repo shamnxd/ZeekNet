@@ -13,9 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   DollarSign,
-  Calendar,
-  CheckCircle,
-  XCircle
+  
 } from 'lucide-react'
 import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData } from '@/api/admin.api'
 import { adminApi } from '@/api/admin.api'
@@ -316,7 +314,7 @@ const SubscriptionPlanManagement = () => {
           <div className="flex items-center mt-2">
             <input
               type="checkbox"
-              checked={formData.isActive ?? true}
+              checked={Boolean(((formData as any)?.isActive) ?? true)}
               onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
               className="mr-2"
             />
@@ -356,7 +354,7 @@ const SubscriptionPlanManagement = () => {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Subscription Plan Management</h1>
+          <h1 className="text-2xl font-bold text-foreground">Subscription Plans</h1>
           <Button className="flex items-center space-x-2" onClick={handleCreate}>
             <Plus className="h-4 w-4" />
             <span>Add Plan</span>
@@ -402,96 +400,95 @@ const SubscriptionPlanManagement = () => {
         )}
 
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {plans.length === 0 ? (
-              <Card className="border-0 shadow-md col-span-full">
-                <CardContent className="p-8 text-center text-gray-500">
-                  No subscription plans found
-                </CardContent>
-              </Card>
-            ) : (
-              plans.map((plan) => (
-                <Card key={plan.id} className="border-0 shadow-md hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-800">{plan.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          {plan.isActive ? (
-                            <Badge variant="default" className="bg-green-500">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Active
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border/50">
+                      <th className="text-left p-4 font-medium text-muted-foreground">Plan Name</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Job Posts</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Features</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {plans.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="p-8 text-center text-gray-500">
+                          No subscription plans found
+                        </td>
+                      </tr>
+                    ) : (
+                      plans.map((plan) => (
+                        <tr key={plan.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
+                          <td className="p-4">
+                            <div>
+                              <p className="font-medium text-gray-800">{plan.name}</p>
+                              <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center space-x-1">
+                              <DollarSign className="h-4 w-4 text-gray-600" />
+                              <span className="font-semibold text-gray-800">{plan.price === 0 ? '0' : plan.price.toLocaleString()}</span>
+                              <span className="text-xs text-gray-500">/ {plan.duration} days</span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-sm text-gray-700">
+                            {plan.jobPostLimit}
+                          </td>
+                          <td className="p-4">
+                            <div className="space-y-1 max-w-xs">
+                              {plan.features.slice(0, 3).map((feature, idx) => (
+                                <p key={idx} className="text-sm text-gray-600">• {feature}</p>
+                              ))}
+                              {plan.features.length > 3 && (
+                                <p className="text-xs text-gray-500">+{plan.features.length - 3} more</p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Badge 
+                              variant="outline" 
+                              className={plan.isActive 
+                                ? 'bg-green-100 text-green-700 border-green-200' 
+                                : 'bg-gray-100 text-gray-700 border-gray-200'
+                              }
+                            >
+                              {plan.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                          ) : (
-                            <Badge variant="secondary">
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Inactive
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          onClick={() => handleEdit(plan)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDelete(plan)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-baseline gap-1 mb-2">
-                      <DollarSign className="h-5 w-5 text-cyan-600" />
-                      <span className="text-3xl font-bold text-cyan-600">{plan.price}</span>
-                      <span className="text-gray-500 text-sm">/ {plan.duration} days</span>
-                    </div>
-
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{plan.description}</p>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Job Posts:</span>
-                        <span className="font-medium">{plan.jobPostLimit}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Featured Jobs:</span>
-                        <span className="font-medium">{plan.featuredJobLimit}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Applicant Access:</span>
-                        <span className="font-medium">{plan.applicantAccessLimit}</span>
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-4">
-                      <p className="text-xs font-medium text-gray-500 mb-2">Features:</p>
-                      <ul className="space-y-1">
-                        {plan.features.slice(0, 3).map((feature, idx) => (
-                          <li key={idx} className="text-xs text-gray-600 flex items-start">
-                            <CheckCircle className="h-3 w-3 text-green-500 mr-1 mt-0.5 flex-shrink-0" />
-                            <span className="line-clamp-1">{feature}</span>
-                          </li>
-                        ))}
-                        {plan.features.length > 3 && (
-                          <li className="text-xs text-gray-500 italic">+{plan.features.length - 3} more</li>
-                        )}
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center space-x-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={() => handleEdit(plan)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDelete(plan)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {!loading && !error && totalPages > 1 && (
