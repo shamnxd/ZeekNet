@@ -153,7 +153,7 @@ export const companyApi = {
     return baseApi.post<JobPostingResponse>('/api/company/jobs')(data);
   },
 
-  async getJobPostings(query?: JobPostingQuery): Promise<ApiEnvelope<{ jobs: JobPostingResponse[], total: number, page: number, limit: number }>> {
+  async getJobPostings(query?: JobPostingQuery): Promise<ApiEnvelope<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -169,7 +169,7 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `/api/company/jobs?${params.toString()}` : '/api/company/jobs';
-    return baseApi.get<{ jobs: JobPostingResponse[], total: number, page: number, limit: number }>(endpoint)();
+    return baseApi.get<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>(endpoint)();
   },
 
   async getJobPosting(id: string): Promise<ApiEnvelope<JobPostingResponse>> {
