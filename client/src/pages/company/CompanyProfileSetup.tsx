@@ -79,18 +79,14 @@ const CompanyProfileSetup = () => {
   useEffect(() => {
     const checkVerificationStatus = async () => {
       try {
-        const response = await companyApi.getDashboard()
+        const response = await companyApi.getProfile()
         if (response.success && response.data) {
-          const data = response.data as any
-          const status = data.profileStatus || data.verificationStatus || 'not_created'
+          const status = response.data.is_verified || 'not_created'
           setIsReapplication(status === 'rejected')
-        } else if (response.message && (response.data as any)?.verificationStatus === 'rejected') {
-          setIsReapplication(true)
         }
-      } catch (err: any) {
-        if (err.response?.data?.data?.verificationStatus === 'rejected') {
-          setIsReapplication(true)
-        }
+      } catch (err: unknown) {
+        // Silently fail - just assume not rejected
+        setIsReapplication(false)
       }
     }
     
