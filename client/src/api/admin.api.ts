@@ -493,6 +493,84 @@ export const adminApi = {
           message: error.response?.data?.message || 'Failed to delete job role',
         };
       }
+    },
+
+  getAllSubscriptionPlans: async (params: GetAllSubscriptionPlansParams = {}): Promise<{
+      success: boolean;
+      data?: {
+        plans: SubscriptionPlan[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      };
+      message?: string;
+    }> => {
+      try {
+        const queryParams = new URLSearchParams();
+        
+        if (params.page) queryParams.append('page', params.page.toString());
+        if (params.limit) queryParams.append('limit', params.limit.toString());
+        if (params.search) queryParams.append('search', params.search);
+        if (params.isActive !== undefined) queryParams.append('isActive', params.isActive.toString());
+        if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+        if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+        const response = await api.get(`/api/admin/subscription-plans?${queryParams.toString()}`);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to fetch subscription plans',
+        };
+      }
+    },
+
+  createSubscriptionPlan: async (data: CreateSubscriptionPlanData): Promise<{
+      success: boolean;
+      data?: SubscriptionPlan;
+      message?: string;
+    }> => {
+      try {
+        const response = await api.post('/api/admin/subscription-plans', data);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to create subscription plan',
+        };
+      }
+    },
+
+  updateSubscriptionPlan: async (id: string, data: UpdateSubscriptionPlanData): Promise<{
+      success: boolean;
+      data?: SubscriptionPlan;
+      message?: string;
+    }> => {
+      try {
+        const response = await api.put(`/api/admin/subscription-plans/${id}`, data);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to update subscription plan',
+        };
+      }
+    },
+
+  deleteSubscriptionPlan: async (id: string): Promise<{
+      success: boolean;
+      message?: string;
+    }> => {
+      try {
+        const response = await api.delete(`/api/admin/subscription-plans/${id}`);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to delete subscription plan',
+        };
+      }
     }
 };
 
@@ -569,12 +647,6 @@ export interface GetAllSkillsParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface GetAllJobCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
 export interface JobRole {
   id: string;
   name: string;
@@ -588,4 +660,57 @@ export interface GetAllJobRolesParams {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  features: string[];
+  jobPostLimit: number;
+  featuredJobLimit: number;
+  applicantAccessLimit: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetAllSubscriptionPlansParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CreateSubscriptionPlanData {
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  features: string[];
+  jobPostLimit: number;
+  featuredJobLimit: number;
+  applicantAccessLimit: number;
+}
+
+export interface UpdateSubscriptionPlanData {
+  name?: string;
+  description?: string;
+  price?: number;
+  duration?: number;
+  features?: string[];
+  jobPostLimit?: number;
+  featuredJobLimit?: number;
+  applicantAccessLimit?: number;
+  isActive?: boolean;
+}
+
+export interface GetAllJobCategoriesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
 }

@@ -281,5 +281,24 @@ export const companyApi = {
 
   async getApplicationDetails(id: string): Promise<ApiEnvelope<any>> {
     return baseApi.get<any>(`/api/company/applications/${id}`)();
+  },
+
+  async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
+    return baseApi.get<{ plans: SubscriptionPlan[] }>('/api/company/subscription-plans')();
   }
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  features: string[];
+  jobPostLimit: number;
+  featuredJobLimit: number;
+  applicantAccessLimit: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

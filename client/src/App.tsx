@@ -29,9 +29,9 @@ import JobView from './pages/admin/JobView'
   import CategoryManagement from './pages/admin/CategoryManagement'
   import SkillManagement from './pages/admin/SkillManagement'
   import JobRoleManagement from './pages/admin/JobRoleManagement'
+  import SubscriptionPlanManagement from './pages/admin/SubscriptionPlanManagement'
   import CompanyProfileView from './pages/admin/CompanyProfileView'
   import SeekerProfileView from './pages/admin/SeekerProfileView'
-  import PricePlanManagement from './pages/admin/PricePlanManagement'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import AuthRedirect from './components/common/AuthRedirect'
 import { UserRole } from './constants/enums'
@@ -43,6 +43,7 @@ import JobDetails from './pages/company/JobDetails'
 import EditJob from './pages/company/EditJob'
 import AllApplications from './pages/company/AllApplications'
 import ApplicationDetails from './pages/company/ApplicationDetails'
+import CompanyPlans from './pages/company/CompanyPlans'
 
 function App() {
   return (
@@ -126,6 +127,11 @@ function App() {
               <JobRoleManagement />
             </ProtectedRoute>
           } />
+            <Route path="/admin/subscription-plans" element={
+            <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <SubscriptionPlanManagement />
+            </ProtectedRoute>
+          } />
             <Route path="/admin/company-profile-view" element={
               <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
                 <CompanyProfileView />
@@ -136,11 +142,7 @@ function App() {
                 <SeekerProfileView />
               </ProtectedRoute>
             } />
-            <Route path="/admin/price-plans" element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <PricePlanManagement />
-              </ProtectedRoute>
-            } />
+            {/* Price Plans route removed; consolidated under Subscription Plans */}
           
           <Route path="/company/dashboard" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
@@ -196,6 +198,11 @@ function App() {
           <Route path="/company/applicants/:id" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <ApplicationDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/company/billing" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <CompanyPlans />
             </ProtectedRoute>
           } />
           

@@ -9,11 +9,12 @@ import {
   Settings,
   Grid3X3,
   User,
-  CreditCard,
+  
   Globe,
   LogOut,
   Menu,
   Tag,
+  PackageCheck,
 } from 'lucide-react'
 import { useAppDispatch } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
@@ -68,10 +69,11 @@ const AdminSidebar = () => {
       icon: User,
     },
     {
-      path: '/admin/price-plans',
-      label: 'Price Plan',
-      icon: CreditCard,
-    }
+      path: '/admin/subscription-plans',
+      label: 'Subscription Plans',
+      icon: PackageCheck,
+    },
+    
   ]
 
   const bottomItems = [
