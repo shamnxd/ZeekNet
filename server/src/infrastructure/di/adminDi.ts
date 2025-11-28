@@ -120,4 +120,11 @@ const deleteSubscriptionPlanUseCase = new DeleteSubscriptionPlanUseCase(subscrip
 
 const adminSubscriptionPlanController = new AdminSubscriptionPlanController(createSubscriptionPlanUseCase, getAllSubscriptionPlansUseCase, getSubscriptionPlanByIdUseCase, updateSubscriptionPlanUseCase, deleteSubscriptionPlanUseCase);
 
-export { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController };
+export {
+  adminController,
+  adminJobController,
+  adminJobCategoryController,
+  adminSkillController,
+  adminJobRoleController,
+  adminSubscriptionPlanController,
+};

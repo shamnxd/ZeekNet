@@ -9,6 +9,7 @@ import {
   companyUploadController,
   companyJobPostingController,
   companyJobApplicationController,
+  companySubscriptionPlanController,
 } from '../../infrastructure/di/companyDi';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
@@ -53,6 +54,8 @@ export class CompanyRouter {
     this.router.post('/upload/logo', uploadSingle('logo'), companyProfileController.uploadLogo);
     this.router.post('/upload/business-license', uploadSingle('business_license'), companyUploadController.uploadBusinessLicense);
     this.router.delete('/upload/delete', companyUploadController.deleteImage);
+
+    this.router.get('/subscription-plans', companySubscriptionPlanController.getActiveSubscriptionPlans);
 
     this.router.use(companyVerificationMiddleware.checkCompanyVerified);
     this.router.get('/dashboard', companyProfileController.getCompanyDashboard);

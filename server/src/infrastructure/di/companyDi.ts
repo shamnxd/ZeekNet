@@ -69,6 +69,9 @@ import { UploadLogoUseCase } from '../../application/use-cases/company/upload-lo
 import { UploadBusinessLicenseUseCase } from '../../application/use-cases/company/upload-business-license.use-case';
 import { UploadWorkplacePictureUseCase } from '../../application/use-cases/company/upload-workplace-picture.use-case';
 import { DeleteImageUseCase } from '../../application/use-cases/company/delete-image.use-case';
+import { CompanySubscriptionPlanController } from '../../presentation/controllers/company/company-subscription-plan.controller';
+import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
+import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -223,6 +226,10 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   addInterviewFeedbackUseCase,
 );
 
+const subscriptionPlanRepository = new SubscriptionPlanRepository();
+const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
+const companySubscriptionPlanController = new CompanySubscriptionPlanController(getAllSubscriptionPlansUseCase);
+
 export {
   companyProfileController,
   companyContactController,
@@ -233,5 +240,6 @@ export {
   companyUploadController,
   companyJobPostingController,
   companyJobApplicationController,
+  companySubscriptionPlanController,
   companyProfileRepository as companyRepository,
 };
