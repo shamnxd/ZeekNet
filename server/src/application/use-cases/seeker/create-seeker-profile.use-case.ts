@@ -1,9 +1,10 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { ICreateSeekerProfileUseCase, CreateSeekerProfileData } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { CreateSeekerProfileRequestDto } from '../../dto/seeker/seeker-profile.dto';
 
 export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
   constructor(
@@ -11,8 +12,7 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, data: CreateSeekerProfileData): Promise<SeekerProfileResponseDto> {
-
+  async execute(userId: string, dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto> {
     const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     if (existingProfile) {
       throw new ValidationError('Profile already exists. Use update endpoint to modify.');
@@ -20,23 +20,21 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
 
     const profile = await this._seekerProfileRepository.create({
       userId,
-      headline: data.headline ?? null,
-      summary: data.summary ?? null,
-      location: data.location ?? null,
-      phone: data.phone ?? null,
-      email: data.email ?? null,
-
-      avatarFileName: data.avatarFileName ?? null,
-      bannerFileName: data.bannerFileName ?? null,
-      dateOfBirth: data.dateOfBirth ?? null,
-      gender: data.gender ?? null,
-
+      headline: dto.headline ?? null,
+      summary: dto.summary ?? null,
+      location: dto.location ?? null,
+      phone: dto.phone ?? null,
+      email: dto.email ?? null,
+      avatarFileName: null,
+      bannerFileName: null,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
+      gender: dto.gender ?? null,
       resume: null,
-      skills: data.skills ?? [],
-      languages: data.languages ?? [],
-      socialLinks: data.socialLinks ?? [],
+      skills: dto.skills ?? [],
+      languages: dto.languages ?? [],
+      socialLinks: dto.socialLinks ?? [],
     });
 
-    return SeekerProfileMapper.toDto(profile, this._s3Service);
+    return SeekerProfileMapper.toResponse(profile, this._s3Service);
   }
 }

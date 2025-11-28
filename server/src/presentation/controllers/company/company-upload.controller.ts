@@ -1,15 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
-import { UploadBusinessLicenseUseCase } from '../../../application/use-cases/company/upload-business-license.use-case';
-import { UploadWorkplacePictureUseCase } from '../../../application/use-cases/company/upload-workplace-picture.use-case';
-import { DeleteImageUseCase } from '../../../application/use-cases/company/delete-image.use-case';
+import { IUploadBusinessLicenseUseCase, IUploadWorkplacePictureUseCase, IDeleteImageUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { DeleteImageDto } from '../../../application/dto/company/delete-image.dto';
 
 export class CompanyUploadController {
   constructor(
-    private readonly _uploadBusinessLicenseUseCase: UploadBusinessLicenseUseCase,
-    private readonly _uploadWorkplacePictureUseCase: UploadWorkplacePictureUseCase,
-    private readonly _deleteImageUseCase: DeleteImageUseCase,
+    private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
+    private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
+    private readonly _deleteImageUseCase: IDeleteImageUseCase,
   ) {}
 
   uploadBusinessLicense = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

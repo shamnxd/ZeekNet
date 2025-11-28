@@ -64,9 +64,7 @@ const JobManagement = () => {
   const debouncedSearchTerm = useDebounce(searchInput, 500)
   const [filters, setFilters] = useState({
     search: '',
-    status: 'all',
-    sortBy: 'createdAt',
-    sortOrder: 'desc'
+    status: 'all'
   })
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean
@@ -95,11 +93,9 @@ const JobManagement = () => {
         limit: pagination.limit,
         search: filters.search,
         status: filters.status as 'all' | 'active' | 'inactive',
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder as 'asc' | 'desc'
       })
       
-      if (response.success && response.data) {
+      if (response.success && response.data && Array.isArray(response.data.jobs)) {
         setJobs(response.data.jobs)
         setPagination(prev => ({
           ...prev,
@@ -108,6 +104,7 @@ const JobManagement = () => {
         }))
       } else {
         toast.error(response.message || 'Failed to fetch jobs')
+        setJobs([])
       }
     } catch {
       toast.error('Failed to fetch jobs')
@@ -216,20 +213,7 @@ const JobManagement = () => {
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.sortBy}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, sortBy: value }))}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="createdAt">Created Date</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                  <SelectItem value="application_count">Applications</SelectItem>
-                  <SelectItem value="view_count">Views</SelectItem>
+                  <SelectItem value="blocked">Blocked</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -267,15 +251,15 @@ const JobManagement = () => {
                         <TableCell>
                           <div>
                             <div className="font-medium text-gray-900">{job.title}</div>
-                            <div className="text-sm text-gray-500">
-                              {job.employment_types.join(', ')}
-                            </div>
+                              <div className="text-sm text-gray-500">
+                                {(job.employmentTypes || []).join(', ')}
+                              </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Building2 className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm">{job.company_name || 'Unknown'}</span>
+                            <span className="text-sm">{(job as any).companyName || job.company_name || 'Unknown'}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -287,7 +271,7 @@ const JobManagement = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <IndianRupee className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm">{formatSalary(job.salary)}</span>
+                            <span className="text-sm">{formatSalary(job.salary ?? { min: 0, max: 0 })}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -310,14 +294,14 @@ const JobManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <div>{job.application_count} applications</div>
-                            <div className="text-gray-500">{job.view_count} views</div>
+                            <div>{(job as any).applications ?? job.application_count ?? 0} applications</div>
+                            <div className="text-gray-500">{(job as any).viewCount ?? job.view_count ?? 0} views</div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm">{formatDate(job.createdAt)}</span>
+                            <span className="text-sm">{formatDate(job.createdAt ?? '')}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -328,7 +312,7 @@ const JobManagement = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewJob(job.id || job._id)}>
+                              <DropdownMenuItem onClick={() => handleViewJob(job.id || job._id || '')}>
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
@@ -344,7 +328,7 @@ const JobManagement = () => {
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem 
-                                  onClick={() => handleToggleStatus(job.id || job._id, job.is_active)}
+                                  onClick={() => handleToggleStatus(job.id || job._id || '', job.is_active ?? false)}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Publish
@@ -353,7 +337,7 @@ const JobManagement = () => {
                               <DropdownMenuItem 
                                 onClick={() => setDeleteDialog({
                                   isOpen: true,
-                                  jobId: job.id || job._id,
+                                  jobId: job.id || job._id || null,
                                   jobTitle: job.title
                                 })}
                                 className="text-red-600"
@@ -433,7 +417,7 @@ const JobManagement = () => {
           if (!reasonJob) return;
           
           try {
-            const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id, false, reason);
+            const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id || '', false, reason);
             
             if (response.success) {
               setJobs(jobs.map(job => 

@@ -43,7 +43,7 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
       throw new NotFoundError('Failed to update application score');
     }
 
-    return JobApplicationMapper.toListDto(updatedApplication, {
+    return JobApplicationMapper.toListResponse(updatedApplication, {
       jobTitle: job.title,
     });
   }

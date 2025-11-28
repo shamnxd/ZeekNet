@@ -18,6 +18,5 @@ export interface PaginatedSkills {
 }
 
 export interface ISkillRepository extends IBaseRepository<Skill> {
-  // Special method with case-insensitive regex matching
   findByName(name: string): Promise<Skill | null>;
 }

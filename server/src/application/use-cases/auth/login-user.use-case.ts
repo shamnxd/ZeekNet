@@ -33,7 +33,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
       const code = await this._otpService.generateAndStoreOtp(user.email);
       const htmlContent = otpVerificationTemplate.html(code);
       await this._mailerService.sendMail(user.email, otpVerificationTemplate.subject, htmlContent);
-      return { user: UserMapper.toDto(user) };
+      return { user: UserMapper.toResponse(user) };
     }
 
     if (user.role === UserRole.ADMIN) {
@@ -48,13 +48,12 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
-    
-    // Use thin repository update method
+
     await this._userRepository.update(user.id, { refreshToken: hashedRefresh });
 
     return {
       tokens: { accessToken, refreshToken },
-      user: UserMapper.toDto(user),
+      user: UserMapper.toResponse(user),
     };
   }
 }

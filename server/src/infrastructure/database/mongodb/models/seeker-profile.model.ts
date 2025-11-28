@@ -1,11 +1,11 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-export interface SocialLink {
+interface SocialLink {
   name: string;
   link: string;
 }
 
-export interface ResumeMeta {
+interface ResumeMeta {
   url: string;
   fileName: string;
   uploadedAt: Date;

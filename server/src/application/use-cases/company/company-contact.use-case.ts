@@ -28,5 +28,13 @@ export class CompanyContactUseCase implements ICompanyContactUseCase {
     const deleted = await this._companyContactRepository.delete(contactId);
     if (!deleted) throw new Error('Contact not found');
   }
+
+  async upsertContact(companyId: string, data: CompanyContactData): Promise<CompanyContact> {
+    const existingContact = await this._companyContactRepository.findOne({ companyId });
+    if (existingContact) {
+      return this.updateContact(existingContact.id, data);
+    }
+    return this.createContact(companyId, data);
+  }
 }
 

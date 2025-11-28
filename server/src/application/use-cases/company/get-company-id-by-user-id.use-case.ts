@@ -1,7 +1,7 @@
-import { IGetCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyProfileUseCase, IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { AppError } from '../../../domain/errors/errors';
 
-export class GetCompanyIdByUserIdUseCase {
+export class GetCompanyIdByUserIdUseCase implements IGetCompanyIdByUserIdUseCase {
   constructor(private readonly _getCompanyProfileUseCase: IGetCompanyProfileUseCase) {}
 
   async execute(userId: string): Promise<string> {

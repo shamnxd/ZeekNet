@@ -90,4 +90,4 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   jobPostingRepository,
 );
 
-export { seekerJobApplicationController, seekerProfileController, seekerProfileRepository };
+export { seekerJobApplicationController, seekerProfileController };

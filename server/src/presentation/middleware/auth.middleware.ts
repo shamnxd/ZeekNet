@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticationError, AuthorizationError } from '../../domain/errors/errors';
 import { JwtTokenService } from '../../infrastructure/security/jwt-token-service';
 
-export interface AuthenticatedRequest extends Request {
+interface AuthenticatedRequest extends Request {
   user?: { id: string; email: string; role: string };
 }
 
@@ -37,4 +37,26 @@ export function authorizeRoles(...roles: string[]) {
     }
     next();
   };
+}
+
+
+export function optionalAuthentication(req: AuthenticatedRequest, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : undefined;
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const payload = tokenService.verifyAccess(token);
+    req.user = {
+      id: payload.sub,
+      email: payload.email || '',
+      role: payload.role || 'seeker',
+    };
+    next();
+  } catch (error) {
+    next();
+  }
 }

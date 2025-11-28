@@ -44,8 +44,7 @@ const CategoryManagement = () => {
       }
       const response = await adminApi.getAllJobCategories(params)
       
-      if (response.success && response.data) {
-        
+      if (response.success && response.data && response.data.categories && Array.isArray(response.data.categories)) {
         const mappedCategories = response.data.categories.map(cat => ({
           id: cat.id,
           name: cat.name,
@@ -57,6 +56,7 @@ const CategoryManagement = () => {
         setTotalCategories(response.data.total)
       } else {
         setError(response.message || 'Failed to fetch categories')
+        setCategories([])
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch categories')

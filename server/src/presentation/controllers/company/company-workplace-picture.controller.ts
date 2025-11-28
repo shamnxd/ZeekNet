@@ -15,7 +15,7 @@ import {
   CompanyWorkplacePicturesData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dto/company/company-workplace-pictures.dto';
-import { GetCompanyIdByUserIdUseCase } from '../../../application/use-cases/company/get-company-id-by-user-id.use-case';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
 export class CompanyWorkplacePictureController {
   constructor(
@@ -23,7 +23,7 @@ export class CompanyWorkplacePictureController {
     private readonly _updateCompanyWorkplacePictureUseCase: IUpdateCompanyWorkplacePictureUseCase,
     private readonly _deleteCompanyWorkplacePictureUseCase: IDeleteCompanyWorkplacePictureUseCase,
     private readonly _getCompanyWorkplacePictureUseCase: IGetCompanyWorkplacePictureUseCase,
-    private readonly _getCompanyIdByUserIdUseCase: GetCompanyIdByUserIdUseCase,
+    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   getCompanyWorkplacePictures = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

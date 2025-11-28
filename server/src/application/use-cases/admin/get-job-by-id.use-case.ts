@@ -7,19 +7,12 @@ export class AdminGetJobByIdUseCase implements IAdminGetJobByIdUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute(jobId: string): Promise<JobPosting> {
-    try {
-      const job = await this._jobPostingRepository.findById(jobId);
+    const job = await this._jobPostingRepository.findById(jobId);
 
-      if (!job) {
-        throw new AppError('Job not found', 404);
-      }
-
-      return job;
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
-      throw new AppError('Failed to fetch job', 500);
+    if (!job) {
+      throw new AppError('Job not found', 404);
     }
+
+    return job;
   }
 }

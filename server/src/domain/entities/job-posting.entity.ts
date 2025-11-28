@@ -1,4 +1,4 @@
-export interface Salary {
+interface Salary {
   min: number;
   max: number;
 }
@@ -79,35 +79,6 @@ export class JobPosting {
       data.unpublishReason,
     );
   }
-}
-
-export enum JobStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  PAUSED = 'paused',
-  CLOSED = 'closed',
-  EXPIRED = 'expired',
-}
-
-export interface CreateJobPostingRequest {
-  companyId: string;
-  title: string;
-  description: string;
-  responsibilities: string[];
-  qualifications: string[];
-  niceToHaves: string[];
-  benefits: string[];
-  salary: Salary;
-  employmentTypes: string[];
-  location: string;
-  skillsRequired: string[];
-  categoryIds: string[];
-}
-
-export interface UpdateJobPostingRequest extends Partial<CreateJobPostingRequest> {
-  is_active?: boolean;
-  admin_blocked?: boolean;
-  unpublish_reason?: string;
 }
 
 export interface JobPostingFilters {

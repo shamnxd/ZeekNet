@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
 
-export interface AuthenticatedRequest extends Request {
+interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;

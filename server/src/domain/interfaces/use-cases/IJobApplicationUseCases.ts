@@ -1,4 +1,4 @@
-import type { ApplicationStage, InterviewSchedule, JobApplication } from '../../entities/job-application.entity';
+import type { ApplicationStage, InterviewSchedule, JobApplication, InterviewStatus } from '../../entities/job-application.entity';
 import type { 
   JobApplicationListResponseDto, 
   JobApplicationDetailResponseDto, 
@@ -12,8 +12,23 @@ export interface CreateJobApplicationData {
   resume_filename: string;
 }
 
-export type AddInterviewData = Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at' | 'feedback'>;
-export type UpdateInterviewData = Partial<Omit<InterviewSchedule, 'id' | 'created_at' | 'updated_at' | 'feedback'>>;
+export interface AddInterviewData {
+  date: Date;
+  time: string;
+  interview_type: string;
+  location: string;
+  interviewer_name?: string;
+}
+
+export interface UpdateInterviewData {
+  date?: Date;
+  time?: string;
+  interview_type?: string;
+  location?: string;
+  interviewer_name?: string;
+  status?: InterviewStatus;
+}
+
 export interface AddInterviewFeedbackData {
   reviewer_name: string;
   rating?: number;
@@ -21,7 +36,7 @@ export interface AddInterviewFeedbackData {
 }
 
 export interface ICreateJobApplicationUseCase {
-  execute(seekerId: string, data: CreateJobApplicationData): Promise<JobApplication>;
+  execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }>;
 }
 
 export interface IGetApplicationsByJobUseCase {
@@ -53,11 +68,11 @@ export interface IUpdateApplicationScoreUseCase {
 }
 
 export interface IAddInterviewUseCase {
-  execute(userId: string, applicationId: string, interview: AddInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateInterviewUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, interview: UpdateInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteInterviewUseCase {
@@ -65,7 +80,7 @@ export interface IDeleteInterviewUseCase {
 }
 
 export interface IAddInterviewFeedbackUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, feedback: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteJobApplicationUseCase {

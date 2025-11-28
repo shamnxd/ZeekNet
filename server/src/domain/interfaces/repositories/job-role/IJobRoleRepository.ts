@@ -18,7 +18,6 @@ export interface PaginatedJobRoles {
 }
 
 export interface IJobRoleRepository extends IBaseRepository<JobRole> {
-  // Special method with case-insensitive regex matching
   findByName(name: string): Promise<JobRole | null>;
 }
 

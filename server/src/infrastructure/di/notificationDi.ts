@@ -16,10 +16,9 @@ const markNotificationAsReadUseCase = new MarkNotificationAsReadUseCase(notifica
 const markAllNotificationsAsReadUseCase = new MarkAllNotificationsAsReadUseCase(notificationRepository);
 const getUnreadNotificationCountUseCase = new GetUnreadNotificationCountUseCase(notificationRepository);
 
-// Create notification service with use case injected via constructor
 export const notificationService = new NotificationService(createNotificationUseCase);
 
-export const notificationController = new NotificationController(
+const notificationController = new NotificationController(
   getNotificationsUseCase,
   markNotificationAsReadUseCase,
   markAllNotificationsAsReadUseCase,
@@ -27,6 +26,4 @@ export const notificationController = new NotificationController(
 );
 
 export const notificationRouter = new NotificationRouter(notificationController);
-
 export { notificationRepository };
-

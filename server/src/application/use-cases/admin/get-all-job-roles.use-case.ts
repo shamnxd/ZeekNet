@@ -10,12 +10,25 @@ export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
       query.name = { $regex: options.search, $options: 'i' };
     }
 
-    return await this._jobRoleRepository.paginate(query, {
+    const result = await this._jobRoleRepository.paginate(query, {
       page: options.page,
       limit: options.limit,
       sortBy: 'name',
       sortOrder: 'asc',
     });
+
+    return {
+      jobRoles: result.data.map((role) => ({
+        id: role.id,
+        name: role.name,
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      })),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 }
 

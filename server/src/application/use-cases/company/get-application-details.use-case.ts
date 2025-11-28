@@ -71,7 +71,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       }));
     }
 
-    return JobApplicationMapper.toDetailDto(
+    return JobApplicationMapper.toDetailResponse(
       application,
       {
         name: user?.name,
@@ -91,6 +91,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       {
         title: job?.title,
         companyName: job?.companyName,
+        companyLogo: job?.companyLogo,
         location: job?.location,
         employmentTypes: job?.employmentTypes,
       },

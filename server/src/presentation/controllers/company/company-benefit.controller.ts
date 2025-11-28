@@ -15,7 +15,7 @@ import {
   CompanyBenefitsData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dto/company/company-benefits.dto';
-import { GetCompanyIdByUserIdUseCase } from '../../../application/use-cases/company/get-company-id-by-user-id.use-case';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
 export class CompanyBenefitController {
   constructor(
@@ -23,7 +23,7 @@ export class CompanyBenefitController {
     private readonly _updateCompanyBenefitUseCase: IUpdateCompanyBenefitUseCase,
     private readonly _deleteCompanyBenefitUseCase: IDeleteCompanyBenefitUseCase,
     private readonly _getCompanyBenefitUseCase: IGetCompanyBenefitUseCase,
-    private readonly _getCompanyIdByUserIdUseCase: GetCompanyIdByUserIdUseCase,
+    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   getCompanyBenefits = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -66,12 +66,7 @@ export class CompanyBenefitController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingBenefit = await this._getCompanyBenefitUseCase.executeById(id);
-      if (!existingBenefit || existingBenefit.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Benefit not found or unauthorized');
-      }
-
-      const benefit = await this._updateCompanyBenefitUseCase.execute(id, parsed.data as CompanyBenefitsData);
+      const benefit = await this._updateCompanyBenefitUseCase.execute(companyId, id, parsed.data as CompanyBenefitsData);
       sendSuccessResponse(res, 'Benefit updated successfully', benefit);
     } catch (error) {
       handleAsyncError(error, next);
@@ -84,12 +79,7 @@ export class CompanyBenefitController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingBenefit = await this._getCompanyBenefitUseCase.executeById(id);
-      if (!existingBenefit || existingBenefit.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Benefit not found or unauthorized');
-      }
-
-      await this._deleteCompanyBenefitUseCase.execute(id);
+      await this._deleteCompanyBenefitUseCase.execute(companyId, id);
       sendSuccessResponse(res, 'Benefit deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

@@ -23,6 +23,33 @@ export interface JobPostingResponseDto {
   updatedAt: Date;
 }
 
+export interface CompanyJobPostingListItemDto {
+  id: string;
+  title: string;
+  isActive: boolean;
+  employmentTypes: string[];
+  applicationCount: number;
+  viewCount: number;
+  adminBlocked?: boolean;
+  unpublishReason?: string;
+  createdAt: Date;
+}
+
+export interface PublicJobListItemDto {
+  id: string;
+  title: string;
+  viewCount: number;
+  applicationCount: number;
+  salary: { min: number; max: number };
+  companyName: string;
+  companyLogo?: string;
+  createdAt: Date;
+  location: string;
+  description: string;
+  skillsRequired: string[];
+  employmentTypes: string[];
+}
+
 export interface JobPostingDetailResponseDto {
   id: string;
   title: string;
@@ -43,22 +70,16 @@ export interface JobPostingDetailResponseDto {
   application_count: number;
   createdAt: string;
   updatedAt: string;
+  has_applied?: boolean;
   company: {
     companyName: string;
     logo: string;
+    organisation: string;
+    employeeCount: number;
+    websiteLink: string;
     workplacePictures: Array<{
       pictureUrl: string;
       caption?: string;
     }>;
-  };
-}
-
-export interface PaginatedJobPostingsResponse {
-  jobs: JobPostingResponseDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
   };
 }

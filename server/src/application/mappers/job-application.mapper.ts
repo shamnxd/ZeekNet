@@ -6,9 +6,9 @@ import {
 } from '../dto/job-application/job-application-response.dto';
 
 export class JobApplicationMapper {
-  static toListDto(
+  static toListResponse(
     application: JobApplication,
-    params?: {
+    additionalData?: {
       seekerName?: string;
       seekerAvatar?: string;
       jobTitle?: string;
@@ -18,20 +18,20 @@ export class JobApplicationMapper {
   ): JobApplicationListResponseDto {
     return {
       id: application.id,
-      seeker_id: params?.seekerName ? application.seekerId : undefined,
-      seeker_name: params?.seekerName,
-      seeker_avatar: params?.seekerAvatar,
+      seeker_id: additionalData?.seekerName ? application.seekerId : undefined,
+      seeker_name: additionalData?.seekerName,
+      seeker_avatar: additionalData?.seekerAvatar,
       job_id: application.jobId,
-      job_title: params?.jobTitle || '',
-      company_name: params?.companyName,
-      company_logo: params?.companyLogo,
+      job_title: additionalData?.jobTitle || '',
+      company_name: additionalData?.companyName,
+      company_logo: additionalData?.companyLogo,
       score: application.score,
       stage: application.stage,
       applied_date: application.appliedDate.toISOString(),
     };
   }
 
-  static toDetailDto(
+  static toDetailResponse(
     application: JobApplication,
     seekerData?: {
       name?: string;
@@ -64,6 +64,7 @@ export class JobApplicationMapper {
     jobData?: {
       title?: string;
       companyName?: string;
+      companyLogo?: string;
       location?: string;
       employmentTypes?: string[];
     },
@@ -79,6 +80,8 @@ export class JobApplicationMapper {
       job_company: jobData?.companyName,
       job_location: jobData?.location,
       job_type: jobData?.employmentTypes?.[0],
+      company_name: jobData?.companyName,
+      company_logo: jobData?.companyLogo,
       cover_letter: application.coverLetter,
       resume_url: application.resumeUrl,
       resume_filename: application.resumeFilename,
@@ -86,8 +89,7 @@ export class JobApplicationMapper {
       stage: application.stage,
       applied_date: application.appliedDate.toISOString(),
       rejection_reason: application.rejectionReason,
-      interviews: application.interviews.map((interview) => this.interviewToDto(interview)),
-      // Seeker profile data
+      interviews: application.interviews.map((interview) => this.interviewToResponse(interview)),
       full_name: seekerData?.name,
       email: seekerData?.email,
       phone: seekerData?.phone,
@@ -95,7 +97,6 @@ export class JobApplicationMapper {
       about_me: seekerData?.summary,
       languages: seekerData?.languages,
       skills: seekerData?.skills,
-      // Resume data (from seeker profile)
       resume_data: seekerData?.experiences || seekerData?.education
         ? {
           experience: seekerData.experiences?.map((exp) => ({
@@ -116,7 +117,7 @@ export class JobApplicationMapper {
     };
   }
 
-  private static interviewToDto(interview: InterviewSchedule): InterviewScheduleResponseDto {
+  static interviewToResponse(interview: InterviewSchedule): InterviewScheduleResponseDto {
     return {
       id: interview.id || '',
       date: interview.date.toISOString(),
@@ -138,4 +139,3 @@ export class JobApplicationMapper {
     };
   }
 }
-

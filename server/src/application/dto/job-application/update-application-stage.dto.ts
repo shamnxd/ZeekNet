@@ -7,5 +7,3 @@ export const UpdateApplicationStageDto = z.object({
   rejection_reason: z.string().max(1000, 'Rejection reason must not exceed 1000 characters').optional(),
 });
 
-export type UpdateApplicationStageRequestDto = z.infer<typeof UpdateApplicationStageDto>;
-

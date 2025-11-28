@@ -135,6 +135,7 @@ export const seekerApi = {
   
   async getProfile(): Promise<ApiEnvelope<SeekerProfile>> {
     return baseApi.get<SeekerProfile>('/api/seeker/profile')();
+
   },
 
   async createProfile(data: CreateSeekerProfileRequest): Promise<ApiEnvelope<SeekerProfile>> {

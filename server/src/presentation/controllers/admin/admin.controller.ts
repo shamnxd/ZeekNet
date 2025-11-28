@@ -1,16 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { BlockUserDto, CompanyVerificationDto } from '../../../application/dto/admin/user-management.dto';
 import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
-import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse } from '../../../shared/utils/controller.utils';
+import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminController {
   constructor(
     private readonly _getAllUsersUseCase: IGetAllUsersUseCase,
     private readonly _blockUserUseCase: IBlockUserUseCase,
     private readonly _getUserByIdUseCase: IAdminGetUserByIdUseCase,
+    private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
     private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase,
     private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
+    private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
+    private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
   ) {}
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -25,7 +28,6 @@ export class AdminController {
   };
 
   blockUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    console.log('BlockUser request body:', req.body);
     const parsed = BlockUserDto.safeParse(req.body);
     if (!parsed.success) {
       return handleValidationError('Invalid block user data', next);
@@ -58,7 +60,7 @@ export class AdminController {
     try {
       
       const query = req.query as unknown as GetAllCompaniesRequestDto;
-      const result = await this._getCompaniesWithVerificationUseCase.execute(query);
+      const result = await this._getAllCompaniesUseCase.execute(query);
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -67,11 +69,7 @@ export class AdminController {
 
   getPendingCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._getCompaniesWithVerificationUseCase.execute({
-        page: 1,
-        limit: 100,
-        isVerified: 'pending',
-      });
+      const result = await this._getPendingCompaniesUseCase.execute();
       sendSuccessResponse(res, 'Pending companies retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -85,15 +83,7 @@ export class AdminController {
     }
 
     try {
-      const result = await this._getCompaniesWithVerificationUseCase.execute({
-        page: 1,
-        limit: 1,
-      });
-      const company = result.companies[0] || null;
-      if (!company) {
-        return sendNotFoundResponse(res, 'Company not found');
-      }
-
+      const company = await this._getCompanyByIdUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company retrieved successfully', company);
     } catch (error) {
       handleAsyncError(error, next);

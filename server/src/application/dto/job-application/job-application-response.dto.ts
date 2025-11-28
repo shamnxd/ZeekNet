@@ -41,6 +41,8 @@ export interface JobApplicationDetailResponseDto {
   job_company?: string;
   job_location?: string;
   job_type?: string;
+  company_name?: string;
+  company_logo?: string;
   cover_letter: string;
   resume_url: string;
   resume_filename: string;
@@ -49,7 +51,6 @@ export interface JobApplicationDetailResponseDto {
   applied_date: string;
   rejection_reason?: string;
   interviews: InterviewScheduleResponseDto[];
-  // Seeker profile data (joined)
   full_name?: string;
   date_of_birth?: Date;
   gender?: string;
@@ -62,7 +63,6 @@ export interface JobApplicationDetailResponseDto {
   skills?: string[];
   email?: string;
   phone?: string;
-  // Resume data (from seeker profile)
   resume_data?: {
     experience?: Array<{
       title: string;

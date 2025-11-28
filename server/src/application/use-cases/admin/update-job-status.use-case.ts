@@ -7,38 +7,31 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute(jobId: string, isActive: boolean, unpublishReason?: string): Promise<JobPosting> {
-    try {
-      const job = await this._jobPostingRepository.findById(jobId);
+    const job = await this._jobPostingRepository.findById(jobId);
 
-      if (!job) {
-        throw new AppError('Job not found', 404);
-      }
+    if (!job) {
+      throw new AppError('Job not found', 404);
+    }
 
-      const updateData: { isActive: boolean; adminBlocked?: boolean; unpublishReason?: string } = {
-        isActive: isActive,
-      };
+    const updateData: { isActive: boolean; adminBlocked?: boolean; unpublishReason?: string } = {
+      isActive: isActive,
+    };
 
-      if (!isActive && unpublishReason) {
-        updateData.adminBlocked = true;
-        updateData.unpublishReason = unpublishReason;
-      } else if (isActive) {
-        
-        updateData.adminBlocked = false;
-        updateData.unpublishReason = undefined;
-      }
+    if (!isActive && unpublishReason) {
+      updateData.adminBlocked = true;
+      updateData.unpublishReason = unpublishReason;
+    } else if (isActive) {
+      
+      updateData.adminBlocked = false;
+      updateData.unpublishReason = undefined;
+    }
 
-      const updatedJob = await this._jobPostingRepository.update(jobId, updateData);
+    const updatedJob = await this._jobPostingRepository.update(jobId, updateData);
 
-      if (!updatedJob) {
-        throw new AppError('Failed to update job status', 500);
-      }
-
-      return updatedJob;
-    } catch (error) {
-      if (error instanceof AppError) {
-        throw error;
-      }
+    if (!updatedJob) {
       throw new AppError('Failed to update job status', 500);
     }
+
+    return updatedJob;
   }
 }

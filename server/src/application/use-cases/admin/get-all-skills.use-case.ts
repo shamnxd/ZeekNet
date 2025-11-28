@@ -10,11 +10,24 @@ export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
       query.name = { $regex: options.search, $options: 'i' };
     }
 
-    return await this._skillRepository.paginate(query, {
+    const result = await this._skillRepository.paginate(query, {
       page: options.page,
       limit: options.limit,
       sortBy: 'name',
       sortOrder: 'asc',
     });
+
+    return {
+      skills: result.data.map((skill) => ({
+        id: skill.id,
+        name: skill.name,
+        createdAt: skill.createdAt,
+        updatedAt: skill.updatedAt,
+      })),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
   }
 }

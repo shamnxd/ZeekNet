@@ -41,8 +41,8 @@ const getStatusBadge = (isActive: boolean) => {
   return isActive ? 'Live' : 'Unlisted';
 };
 
-const formatEmploymentTypes = (types: string[]) => {
-  if (types.length === 0) return 'Fulltime';
+const formatEmploymentTypes = (types: string[] | undefined) => {
+  if (!types || types.length === 0) return 'Fulltime';
   return types.map(type => 
     type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')
   ).join(', ');
@@ -84,12 +84,13 @@ const CompanyJobListing = () => {
       const response = await companyApi.getJobPostings(query)
       
       if (response.success && response.data) {
-        setJobs(response.data.jobs)
+        setJobs(response.data.jobs || [])
+        const paginationData = response.data.pagination
         setPagination({
-          page: response.data.page,
-          limit: response.data.limit,
-          total: response.data.total,
-          totalPages: Math.ceil(response.data.total / response.data.limit)
+          page: paginationData?.page || page,
+          limit: paginationData?.limit || limit,
+          total: paginationData?.total || 0,
+          totalPages: paginationData?.totalPages || 0
         })
       } else {
         setError(response.message || 'Failed to fetch jobs')
@@ -139,7 +140,8 @@ const CompanyJobListing = () => {
       setDeleteDialog(prev => ({ ...prev, isLoading: true }))
 
       const previousJobs = [...jobs]
-      setJobs(prevJobs => prevJobs.filter(job => job._id !== deleteDialog.jobId))
+      const jobId = deleteDialog.jobId;
+      setJobs(prevJobs => prevJobs.filter(job => (job.id || job._id) !== jobId))
       setPagination(prev => ({ ...prev, total: prev.total - 1 }))
       
       const response = await companyApi.deleteJobPosting(deleteDialog.jobId)
@@ -186,9 +188,13 @@ const CompanyJobListing = () => {
     
     try {
       setJobs(prevJobs => 
-        prevJobs.map(job => 
-          job._id === jobId ? { ...job, is_active: newStatus } : job
-        )
+        prevJobs.map(job => {
+          const currentJobId = job.id || job._id;
+          if (currentJobId === jobId) {
+            return { ...job, is_active: newStatus, isActive: newStatus };
+          }
+          return job;
+        })
       )
       
       const response = await companyApi.updateJobStatus(jobId, newStatus)
@@ -199,21 +205,32 @@ const CompanyJobListing = () => {
         })
       } else {
         setJobs(prevJobs => 
-          prevJobs.map(job => 
-            job._id === jobId ? { ...job, is_active: currentStatus } : job
-          )
+          prevJobs.map(job => {
+            const currentJobId = job.id || job._id;
+            if (currentJobId === jobId) {
+              return { ...job, is_active: currentStatus, isActive: currentStatus };
+            }
+            return job;
+          })
         )
         toast.error('Failed to update job status', {
           description: response.message || 'Please try again later.'
         })
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setJobs(prevJobs => 
-        prevJobs.map(job => 
-          job._id === jobId ? { ...job, is_active: currentStatus } : job
-        )
+        prevJobs.map(job => {
+          const currentJobId = job.id || job._id;
+          if (currentJobId === jobId) {
+            return { ...job, is_active: currentStatus, isActive: currentStatus };
+          }
+          return job;
+        })
       )
-      const errorMessage = error?.response?.data?.message || 'An unexpected error occurred. Please try again.'
+      const isAxiosError = error && typeof error === 'object' && 'response' in error
+      const errorMessage = isAxiosError 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'An unexpected error occurred. Please try again.'
+        : 'An unexpected error occurred. Please try again.'
       toast.error('Failed to update job status', {
         description: errorMessage
       })
@@ -283,9 +300,18 @@ const CompanyJobListing = () => {
                   <p className="text-gray-500">No jobs found</p>
                 </div>
               ) : (
-                jobs.map((job, index) => (
+                jobs.map((job, index) => {
+                  const jobId = job.id || job._id || '';
+                  const isActive = job.isActive ?? job.is_active ?? false;
+                  const adminBlocked = job.adminBlocked ?? job.admin_blocked ?? false;
+                  const unpublishReason = job.unpublishReason ?? job.unpublish_reason;
+                  const employmentTypes = job.employmentTypes ?? job.employment_types ?? [];
+                  const applicationCount = job.applicationCount ?? job.application_count ?? 0;
+                  const viewCount = job.viewCount ?? job.view_count ?? 0;
+                  
+                  return (
                   <div
-                    key={job._id}
+                    key={jobId}
                     className={`px-5 py-5 grid grid-cols-6 gap-10 items-center ${
                       index % 2 === 0 ? 'bg-white' : 'bg-[#F8F8FD]'
                     }`}
@@ -293,7 +319,7 @@ const CompanyJobListing = () => {
 
                     <div className="w-[248px]">
                       <button 
-                        onClick={() => handleJobClick(job._id)}
+                        onClick={() => handleJobClick(jobId)}
                         className="text-sm font-medium text-[#25324B] hover:text-[#4640DE] transition-colors text-left"
                       >
                         {job.title}
@@ -301,7 +327,7 @@ const CompanyJobListing = () => {
                     </div>
 
                     <div className="w-[111px]">
-                      {job.admin_blocked ? (
+                      {adminBlocked ? (
                         <div className="space-y-1">
                           <Badge
                             variant="outline"
@@ -309,14 +335,14 @@ const CompanyJobListing = () => {
                           >
                             Blocked
                           </Badge>
-                          {job.unpublish_reason && (
+                          {unpublishReason && (
                             <div 
                               className="text-[10px] text-red-600 truncate max-w-[100px]" 
-                              title={job.unpublish_reason}
+                              title={unpublishReason}
                             >
-                              {job.unpublish_reason.length > 20 
-                                ? `${job.unpublish_reason.substring(0, 20)}...` 
-                                : job.unpublish_reason}
+                              {unpublishReason.length > 20 
+                                ? `${unpublishReason.substring(0, 20)}...` 
+                                : unpublishReason}
                             </div>
                           )}
                         </div>
@@ -324,18 +350,18 @@ const CompanyJobListing = () => {
                         <Badge
                           variant="outline"
                           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            job.is_active 
+                            isActive 
                               ? 'border-[#56CDAD] text-[#56CDAD] bg-transparent' 
                               : 'border-[#FFB836] text-[#FFB836] bg-transparent'
                           }`}
                         >
-                          {getStatusBadge(job.is_active)}
+                          {getStatusBadge(isActive)}
                         </Badge>
                       )}
                     </div>
 
                     <div className="w-[149px]">
-                      <span className="text-xs text-[#25324B]">{formatDate(job.createdAt)}</span>
+                      <span className="text-xs text-[#25324B]">{job.createdAt ? formatDate(job.createdAt) : 'N/A'}</span>
                     </div>
 
                     <div className="w-[128px]">
@@ -343,16 +369,16 @@ const CompanyJobListing = () => {
                         variant="outline"
                         className="border-[#4640DE] text-[#4640DE] bg-transparent px-2 py-1 rounded-full text-xs font-semibold"
                       >
-                        {formatEmploymentTypes(job.employment_types)}
+                        {formatEmploymentTypes(employmentTypes)}
                       </Badge>
                     </div>
 
                     <div className="w-[114px]">
-                      <span className="text-xs text-[#25324B]">{(job.application_count || 0).toLocaleString()}</span>
+                      <span className="text-xs text-[#25324B]">{applicationCount.toLocaleString()}</span>
                     </div>
 
                     <div className="w-[98px] flex items-center justify-between">
-                      <span className="text-xs text-[#25324B]">{(job.view_count || 0).toLocaleString()}</span>
+                      <span className="text-xs text-[#25324B]">{viewCount.toLocaleString()}</span>
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -361,20 +387,20 @@ const CompanyJobListing = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => handleViewJob(job._id)}>
+                          <DropdownMenuItem onClick={() => handleViewJob(jobId)}>
                             <Eye className="w-4 h-4 mr-2" />
                             View
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditJob(job._id)}>
+                          <DropdownMenuItem onClick={() => handleEditJob(jobId)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleToggleJobStatus(job._id, job.is_active)}
-                            disabled={job.admin_blocked}
-                            className={job.is_active ? 'text-orange-600' : 'text-green-600'}
+                            onClick={() => handleToggleJobStatus(jobId, isActive)}
+                            disabled={adminBlocked}
+                            className={isActive ? 'text-orange-600' : 'text-green-600'}
                           >
-                            {job.is_active ? (
+                            {isActive ? (
                               <>
                                 <EyeOff className="w-4 h-4 mr-2" />
                                 Unlist
@@ -382,12 +408,12 @@ const CompanyJobListing = () => {
                             ) : (
                               <>
                                 <List className="w-4 h-4 mr-2" />
-                                {job.admin_blocked ? 'List (Blocked)' : 'List'}
+                                {adminBlocked ? 'List (Blocked)' : 'List'}
                               </>
                             )}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteJob(job._id, job.title)}
+                            onClick={() => handleDeleteJob(jobId, job.title)}
                             className="text-red-600"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -397,7 +423,8 @@ const CompanyJobListing = () => {
                       </DropdownMenu>
                     </div>
                   </div>
-                ))
+                )}
+                )
               )}
             </div>
 

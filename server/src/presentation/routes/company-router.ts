@@ -43,7 +43,7 @@ export class CompanyRouter {
     this.router.use(authorizeRoles('company'));
     this.router.use(userBlockedMiddleware.checkUserBlocked);
 
-    // Company Profile Routes
+
     this.router.post('/profile', companyProfileController.createCompanyProfile);
     this.router.put('/profile', companyProfileController.updateCompanyProfile);
     this.router.get('/profile', companyProfileController.getCompanyProfile);
@@ -88,7 +88,7 @@ export class CompanyRouter {
     this.router.delete('/jobs/:id', companyJobPostingController.deleteJobPosting);
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
 
-    // Job Application Routes
+
     this.router.get('/applications', validateQuery(ApplicationFiltersDto), companyJobApplicationController.getApplications);
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
     this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageDto), companyJobApplicationController.updateStage);

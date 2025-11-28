@@ -15,7 +15,3 @@ export const GetAllSkillsDto = z.object({
   sortBy: z.string().optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
-
-export type CreateSkillRequestDto = z.infer<typeof CreateSkillDto>;
-export type UpdateSkillRequestDto = z.infer<typeof UpdateSkillDto>;
-export type GetAllSkillsRequestDto = z.infer<typeof GetAllSkillsDto>;

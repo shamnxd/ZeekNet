@@ -30,7 +30,7 @@ export class UpdateCompanyProfileUseCase {
       throw new Error('Failed to retrieve updated profile');
     }
 
-    return CompanyProfileMapper.toDto(updatedProfile);
+    return CompanyProfileMapper.toResponse(updatedProfile);
   }
 }
 

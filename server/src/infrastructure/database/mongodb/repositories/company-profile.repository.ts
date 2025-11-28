@@ -77,24 +77,40 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
 
       const companies = paginatedCompanies.map((doc) => {
         const populatedDoc = doc as PopulatedCompanyDocument;
-        
-        // Convert populated userId back to string for mapper
+
         const docWithStringUserId = {
-          ...doc,
-          userId: populatedDoc.userId && typeof populatedDoc.userId === 'object' 
-            ? String(populatedDoc.userId._id || '') 
-            : String(populatedDoc.userId || ''),
+          ...doc.toObject(),
+          _id: doc._id,
+          userId:
+            populatedDoc.userId && typeof populatedDoc.userId === 'object'
+              ? String(populatedDoc.userId._id || '')
+              : String(populatedDoc.userId || ''),
         } as ModelDocument;
-        
+
         const entity = this.mapToEntity(docWithStringUserId);
 
         const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
         const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
 
         return CompanyProfile.create({
-          ...entity,
+          id: entity.id,
+          userId: entity.userId,
+          companyName: entity.companyName,
+          logo: entity.logo,
+          banner: entity.banner,
+          websiteLink: entity.websiteLink,
+          employeeCount: entity.employeeCount,
+          industry: entity.industry,
+          organisation: entity.organisation,
+          aboutUs: entity.aboutUs,
+          isVerified: entity.isVerified,
+          createdAt: entity.createdAt,
+          updatedAt: entity.updatedAt,
           email,
           isBlocked,
+          foundedDate: entity.foundedDate,
+          phone: entity.phone,
+          rejectionReason: entity.rejectionReason,
         });
       });
 
@@ -117,24 +133,40 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
 
       const companies = populatedDocs.map((doc) => {
         const populatedDoc = doc as PopulatedCompanyDocument;
-        
-        // Convert populated userId back to string for mapper
+
         const docWithStringUserId = {
-          ...doc,
-          userId: populatedDoc.userId && typeof populatedDoc.userId === 'object' 
-            ? String(populatedDoc.userId._id || '') 
-            : String(populatedDoc.userId || ''),
+          ...doc.toObject(),
+          _id: doc._id,
+          userId:
+            populatedDoc.userId && typeof populatedDoc.userId === 'object'
+              ? String(populatedDoc.userId._id || '')
+              : String(populatedDoc.userId || ''),
         } as ModelDocument;
-        
+
         const entity = this.mapToEntity(docWithStringUserId);
 
         const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
         const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
 
         return CompanyProfile.create({
-          ...entity,
+          id: entity.id,
+          userId: entity.userId,
+          companyName: entity.companyName,
+          logo: entity.logo,
+          banner: entity.banner,
+          websiteLink: entity.websiteLink,
+          employeeCount: entity.employeeCount,
+          industry: entity.industry,
+          organisation: entity.organisation,
+          aboutUs: entity.aboutUs,
+          isVerified: entity.isVerified,
+          createdAt: entity.createdAt,
+          updatedAt: entity.updatedAt,
           email,
           isBlocked,
+          foundedDate: entity.foundedDate,
+          phone: entity.phone,
+          rejectionReason: entity.rejectionReason,
         });
       });
 

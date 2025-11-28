@@ -19,7 +19,7 @@ export class GetExperiencesUseCase implements IGetExperiencesUseCase {
     }
 
     const experiences = await this._seekerExperienceRepository.findBySeekerProfileId(profile.id);
-    return experiences.map(exp => SeekerProfileMapper.experienceToDto(exp));
+    return experiences.map(exp => SeekerProfileMapper.experienceToResponse(exp));
   }
 }
 

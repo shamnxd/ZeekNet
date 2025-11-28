@@ -1,57 +1,42 @@
-import { Request, Response } from 'express';
-import { IGetAllSkillsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
-import { IGetAllJobRolesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { handleError } from '../../../shared/utils/controller.utils';
-import { success } from '../../../shared/utils/controller.utils';
-import { GetAllSkillsDto } from '../../../application/dto/admin/skill-management.dto';
-import { GetAllJobRolesDto } from '../../../application/dto/admin/job-role-management.dto';
+import { Request, Response, NextFunction } from 'express';
+import { 
+  IGetPublicSkillsUseCase, 
+  IGetPublicJobCategoriesUseCase, 
+  IGetPublicJobRolesUseCase, 
+} from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class PublicDataController {
   constructor(
-    private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
-    private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
-    private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
+    private readonly _getPublicSkillsUseCase: IGetPublicSkillsUseCase,
+    private readonly _getPublicJobCategoriesUseCase: IGetPublicJobCategoriesUseCase,
+    private readonly _getPublicJobRolesUseCase: IGetPublicJobRolesUseCase,
   ) {}
 
-  getAllSkills = async (req: Request, res: Response): Promise<void> => {
+  getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = GetAllSkillsDto.safeParse(req.query);
-      if (!query.success) {
-        return handleError(res, new Error(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`));
-      }
-
-      const result = await this._getAllSkillsUseCase.execute(query.data);
-      const skillNames = result.data.map((skill) => skill.name);
-      success(res, skillNames, 'Skills retrieved successfully');
+      const skills = await this._getPublicSkillsUseCase.execute();
+      sendSuccessResponse(res, 'Skills retrieved successfully', skills);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getAllJobCategories = async (req: Request, res: Response): Promise<void> => {
+  getAllJobCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as { page?: number; limit?: number; search?: string };
-      const result = await this._getAllJobCategoriesUseCase.execute(query);
-      const categoryNames = result.data.map((category) => category.name);
-      success(res, categoryNames, 'Job categories retrieved successfully');
+      const categories = await this._getPublicJobCategoriesUseCase.execute();
+      sendSuccessResponse(res, 'Job categories retrieved successfully', categories);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 
-  getAllJobRoles = async (req: Request, res: Response): Promise<void> => {
+  getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = GetAllJobRolesDto.safeParse(req.query);
-      if (!query.success) {
-        return handleError(res, new Error(`Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`));
-      }
-
-      const result = await this._getAllJobRolesUseCase.execute(query.data);
-      const jobRoleNames = result.data.map((role) => role.name);
-      success(res, jobRoleNames, 'Job roles retrieved successfully');
+      const jobRoles = await this._getPublicJobRolesUseCase.execute();
+      sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoles);
     } catch (error) {
-      handleError(res, error);
+      handleAsyncError(error, next);
     }
   };
 }

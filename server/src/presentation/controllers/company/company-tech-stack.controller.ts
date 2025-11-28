@@ -15,7 +15,7 @@ import {
   CompanyTechStackData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dto/company/company-tech-stack.dto';
-import { GetCompanyIdByUserIdUseCase } from '../../../application/use-cases/company/get-company-id-by-user-id.use-case';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
 export class CompanyTechStackController {
   constructor(
@@ -23,7 +23,7 @@ export class CompanyTechStackController {
     private readonly _updateCompanyTechStackUseCase: IUpdateCompanyTechStackUseCase,
     private readonly _deleteCompanyTechStackUseCase: IDeleteCompanyTechStackUseCase,
     private readonly _getCompanyTechStackUseCase: IGetCompanyTechStackUseCase,
-    private readonly _getCompanyIdByUserIdUseCase: GetCompanyIdByUserIdUseCase,
+    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   getCompanyTechStacks = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

@@ -3,11 +3,10 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
+import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 import { IGetUserByEmailUseCase, IUpdateUserVerificationStatusUseCase, IUpdateUserRefreshTokenUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
 import { z } from 'zod';
-import { env } from '../../../infrastructure/config/env';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
-import { createRefreshTokenCookieOptions } from '../../../shared/utils/cookie.utils';
 import { welcomeTemplate } from '../../../infrastructure/messaging/templates/welcome.template';
 import { getDashboardLink } from '../../../shared/utils/dashboard.utils';
 import { UserRole } from 'src/domain/enums/user-role.enum';
@@ -27,6 +26,7 @@ export class OtpController {
     private readonly _updateUserRefreshTokenUseCase: IUpdateUserRefreshTokenUseCase,
     private readonly _tokenService: ITokenService,
     private readonly _passwordHasher: IPasswordHasher,
+    private readonly _cookieService: ICookieService,
   ) {}
 
   request = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -107,7 +107,7 @@ export class OtpController {
 
       await this._updateUserRefreshTokenUseCase.execute(user.id, hashedRefresh);
 
-      res.cookie(env.COOKIE_NAME_REFRESH!, refreshToken, createRefreshTokenCookieOptions());
+      this._cookieService.setRefreshToken(res, refreshToken);
 
       const dashboardLink = getDashboardLink(user.role);
       await this._mailer.sendMail(user.email, welcomeTemplate.subject, welcomeTemplate.html(user.name || 'User', dashboardLink));

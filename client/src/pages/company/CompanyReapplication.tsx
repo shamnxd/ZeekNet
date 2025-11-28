@@ -230,7 +230,6 @@ const CompanyReapplication = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       <div className="container mx-auto px-4 py-8">
-        {}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <div className="bg-orange-100 p-3 rounded-full mr-4">
@@ -258,7 +257,6 @@ const CompanyReapplication = () => {
           </div>
         </div>
 
-        {}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
             <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
@@ -275,18 +273,14 @@ const CompanyReapplication = () => {
           </div>
         </div>
 
-        {}
         {error && (
-          
           <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive flex items-start space-x-2 mb-6">
             <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {}
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-          {}
           {currentStep === 1 && (
             <Card className="shadow-lg border-0 bg-card">
               <CardContent className="p-6 space-y-6">
@@ -485,7 +479,6 @@ const CompanyReapplication = () => {
             </Card>
           )}
 
-          {}
           {currentStep === 2 && (
             <Card className="shadow-lg border-0 bg-card">
               <CardContent className="p-6 space-y-6">
@@ -511,7 +504,6 @@ const CompanyReapplication = () => {
                   )}
                 </div>
 
-                {}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Company Logo</Label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">

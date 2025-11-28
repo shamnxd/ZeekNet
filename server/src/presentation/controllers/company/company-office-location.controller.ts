@@ -15,7 +15,7 @@ import {
   CompanyOfficeLocationData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dto/company/company-office-location.dto';
-import { GetCompanyIdByUserIdUseCase } from '../../../application/use-cases/company/get-company-id-by-user-id.use-case';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 
 export class CompanyOfficeLocationController {
   constructor(
@@ -23,7 +23,7 @@ export class CompanyOfficeLocationController {
     private readonly _updateCompanyOfficeLocationUseCase: IUpdateCompanyOfficeLocationUseCase,
     private readonly _deleteCompanyOfficeLocationUseCase: IDeleteCompanyOfficeLocationUseCase,
     private readonly _getCompanyOfficeLocationUseCase: IGetCompanyOfficeLocationUseCase,
-    private readonly _getCompanyIdByUserIdUseCase: GetCompanyIdByUserIdUseCase,
+    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   getCompanyOfficeLocations = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -66,12 +66,7 @@ export class CompanyOfficeLocationController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingLocation = await this._getCompanyOfficeLocationUseCase.executeById(id);
-      if (!existingLocation || existingLocation.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Office location not found or unauthorized');
-      }
-
-      const location = await this._updateCompanyOfficeLocationUseCase.execute(id, parsed.data as CompanyOfficeLocationData);
+      const location = await this._updateCompanyOfficeLocationUseCase.execute(companyId, id, parsed.data as CompanyOfficeLocationData);
       sendSuccessResponse(res, 'Office location updated successfully', location);
     } catch (error) {
       handleAsyncError(error, next);
@@ -84,12 +79,7 @@ export class CompanyOfficeLocationController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingLocation = await this._getCompanyOfficeLocationUseCase.executeById(id);
-      if (!existingLocation || existingLocation.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Office location not found or unauthorized');
-      }
-
-      await this._deleteCompanyOfficeLocationUseCase.execute(id);
+      await this._deleteCompanyOfficeLocationUseCase.execute(companyId, id);
       sendSuccessResponse(res, 'Office location deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

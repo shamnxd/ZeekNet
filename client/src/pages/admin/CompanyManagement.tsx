@@ -20,6 +20,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { adminApi, type Company, type GetAllCompaniesParams } from '@/api/admin.api'
+import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -36,11 +37,10 @@ const CompanyManagement = () => {
   const [totalCompanies, setTotalCompanies] = useState(0)
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearchTerm = useDebounce(searchInput, 500)
-  const [organizationFilter, setOrganizationFilter] = useState('')
   const [industryFilter, setIndustryFilter] = useState('')
   const [verificationFilter, setVerificationFilter] = useState('')
   const [blockedFilter, setBlockedFilter] = useState('')
-  const [sortBy, setSortBy] = useState('Latest')
+  const [categories, setCategories] = useState<string[]>([])
   const itemsPerPage = 5
   
   const fetchCompanies = useCallback(async () => {
@@ -80,6 +80,20 @@ const CompanyManagement = () => {
   useEffect(() => {
     fetchCompanies()
   }, [fetchCompanies])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await publicApi.getAllJobCategories({ limit: 100 })
+        if (response && response.data) {
+          setCategories(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -144,9 +158,6 @@ const handleBlockConfirm = async () => {
 
   const handleFilterChange = (filterType: string, value: string) => {
     switch (filterType) {
-      case 'organization':
-        setOrganizationFilter(value)
-        break
       case 'industry':
         setIndustryFilter(value)
         break
@@ -155,9 +166,6 @@ const handleBlockConfirm = async () => {
         break
       case 'blocked':
         setBlockedFilter(value)
-        break
-      case 'sort':
-        setSortBy(value)
         break
     }
     setCurrentPage(1)
@@ -234,31 +242,16 @@ const handleBlockReasonConfirm = async (reason: string) => {
             />
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium">Organization Type</label>
-            <select 
-              className="px-3 py-2 border border-border rounded-md bg-background text-sm"
-              value={organizationFilter}
-              onChange={(e) => handleFilterChange('organization', e.target.value)}
-            >
-              <option value="">All</option>
-              <option value="Government">Government</option>
-              <option value="Semi Government">Semi Government</option>
-              <option value="Private">Private</option>
-              <option value="Public">Public</option>
-              <option value="International Agencies">International Agencies</option>
-            </select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium">Industry Type</label>
+            <label className="text-sm font-medium">Industry</label>
             <select 
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={industryFilter}
               onChange={(e) => handleFilterChange('industry', e.target.value)}
             >
               <option value="">All</option>
-              <option value="Technology">Technology</option>
-              <option value="Finance">Finance</option>
-              <option value="Healthcare">Healthcare</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-center space-x-2">
@@ -287,17 +280,6 @@ const handleBlockReasonConfirm = async (reason: string) => {
             </select>
           </div>
           <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium">Sort By</label>
-            <select 
-              className="px-3 py-2 border border-border rounded-md bg-background text-sm"
-              value={sortBy}
-              onChange={(e) => handleFilterChange('sort', e.target.value)}
-            >
-              <option value="Latest">Latest</option>
-              <option value="Oldest">Oldest</option>
-              <option value="Name A-Z">Name A-Z</option>
-              <option value="Name Z-A">Name Z-A</option>
-            </select>
           </div>
             </div>
 

@@ -11,12 +11,3 @@ export interface NotificationResponseDto {
   data?: Record<string, unknown>;
   readAt?: Date;
 }
-
-export interface NotificationListResponseDto {
-  notifications: NotificationResponseDto[];
-  unreadCount?: number;
-}
-
-export interface UnreadCountResponseDto {
-  count: number;
-}

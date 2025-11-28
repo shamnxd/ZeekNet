@@ -3,7 +3,7 @@ import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
-      status?: 'all' | 'active' | 'inactive';
+      status?: 'all' | 'active' | 'inactive' | 'blocked';
       sortBy?: string;
       sortOrder?: 'asc' | 'desc';
     } = {}): Promise<{
@@ -24,7 +24,11 @@ export const adminApi = {
         if (query.search) params.append('search', query.search);
         if (query.is_active !== undefined) params.append('is_active', query.is_active.toString());
         if (query.status && query.status !== 'all') {
-          params.append('is_active', query.status === 'active' ? 'true' : 'false');
+          if (query.status === 'blocked') {
+            params.append('admin_blocked', 'true');
+          } else {
+            params.append('is_active', query.status === 'active' ? 'true' : 'false');
+          }
         }
         if (query.sortBy) params.append('sortBy', query.sortBy);
         if (query.sortOrder) params.append('sortOrder', query.sortOrder);
@@ -516,6 +520,7 @@ export interface Company {
   aboutUs: string;
   isVerified: 'pending' | 'rejected' | 'verified';
   isBlocked: boolean;
+  email: string;
   createdAt: string;
   updatedAt: string;
   verification?: {
@@ -551,7 +556,6 @@ export interface JobCategory {
 
 export interface Skill {
   id: string;
-  _id: string;
   name: string;
   createdAt: string;
   updatedAt: string;
@@ -573,7 +577,6 @@ export interface GetAllJobCategoriesParams {
 
 export interface JobRole {
   id: string;
-  _id: string;
   name: string;
   createdAt: string;
   updatedAt: string;

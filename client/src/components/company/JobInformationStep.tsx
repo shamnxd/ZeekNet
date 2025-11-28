@@ -2,10 +2,9 @@ import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Plus, IndianRupee } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { IndianRupee } from "lucide-react";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
-import { publicApi, type JobCategory, type Skill, type JobRole } from "@/api/public.api";
+import { publicApi } from "@/api/public.api";
 import type { JobPostingStepProps } from "../../types/job-posting";
 
 const JobInformationStep: React.FC<JobPostingStepProps> = ({
@@ -13,8 +12,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   onDataChange,
   onNext,
 }) => {
-  const [newSkill, setNewSkill] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [categoriesOptions, setCategoriesOptions] = useState<ComboboxOption[]>([]);
   const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);
@@ -123,12 +121,6 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   const handleSkillsChange = (selectedSkills: string[]) => {
     onDataChange({
       skillsRequired: selectedSkills
-    });
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    onDataChange({
-      skillsRequired: data.skillsRequired.filter(skill => skill !== skillToRemove)
     });
   };
 

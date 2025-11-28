@@ -1,78 +1,77 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetAllJobPostingsUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
-import { AppError } from '../../../domain/errors/errors';
-import { JobPostingFilters, PaginatedJobPostings } from '../../../domain/entities/job-posting.entity';
+import { JobPostingFilters } from '../../../domain/entities/job-posting.entity';
+import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
+
+interface PaginatedPublicJobs {
+  jobs: PublicJobListItemDto[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(query: JobPostingFilters): Promise<PaginatedJobPostings> {
-    try {
-      // Build criteria for active, non-blocked jobs
-      const criteria: Record<string, unknown> = {
-        isActive: query.isActive ?? true,
-      };
+  async execute(query: JobPostingFilters): Promise<PaginatedPublicJobs> {
+    const projection = {
+      _id: 1 as const,
+      company_id: 1 as const,
+      title: 1 as const,
+      view_count: 1 as const,
+      application_count: 1 as const,
+      salary: 1 as const,
+      createdAt: 1 as const,
+      location: 1 as const,
+      description: 1 as const,
+      skills_required: 1 as const,
+      employment_types: 1 as const,
+      category_ids: 1 as const,
+    };
 
-      // Get jobs using thin repository
-      let jobs = await this._jobPostingRepository.findMany(criteria);
+    const filters = {
+      categoryIds: query.categoryIds,
+      employmentTypes: query.employmentTypes,
+      salaryMin: query.salaryMin,
+      salaryMax: query.salaryMax,
+      location: query.location,
+      search: query.search,
+    };
 
-      // Filter out admin-blocked jobs
-      jobs = jobs.filter(job => !job.adminBlocked);
+    const jobs = await this._jobPostingRepository.getAllJobsForPublic(projection, filters);
 
-      // Apply additional filters in use case
-      if (query.categoryIds && query.categoryIds.length > 0) {
-        jobs = jobs.filter(job => 
-          job.categoryIds.some((cat: string) => query.categoryIds!.includes(cat)),
-        );
-      }
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const total = jobs.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-      if (query.employmentTypes && query.employmentTypes.length > 0) {
-        jobs = jobs.filter(job => 
-          job.employmentTypes.some((type: string) => query.employmentTypes!.includes(type)),
-        );
-      }
+    const jobDtos: PublicJobListItemDto[] = paginatedJobs.map(job => ({
+      id: job.id!,
+      title: job.title!,
+      viewCount: job.viewCount!,
+      applicationCount: job.applicationCount!,
+      salary: job.salary!,
+      companyName: job.companyName || 'Company',
+      companyLogo: job.companyLogo,
+      createdAt: job.createdAt!,
+      location: job.location!,
+      description: job.description!,
+      skillsRequired: job.skillsRequired || [],
+      employmentTypes: job.employmentTypes || [],
+    }));
 
-      if (query.salaryMin !== undefined) {
-        jobs = jobs.filter(job => job.salary.min >= query.salaryMin!);
-      }
-
-      if (query.salaryMax !== undefined) {
-        jobs = jobs.filter(job => job.salary.max <= query.salaryMax!);
-      }
-
-      if (query.location) {
-        jobs = jobs.filter(job => 
-          job.location.toLowerCase().includes(query.location!.toLowerCase()),
-        );
-      }
-
-      if (query.search) {
-        const searchLower = query.search.toLowerCase();
-        jobs = jobs.filter(job => 
-          job.title.toLowerCase().includes(searchLower) ||
-          job.description.toLowerCase().includes(searchLower) ||
-          job.location.toLowerCase().includes(searchLower),
-        );
-      }
-
-      // Apply pagination
-      const page = query.page || 1;
-      const limit = query.limit || 10;
-      const total = jobs.length;
-      const startIndex = (page - 1) * limit;
-      const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
-
-      return {
-        jobs: paginatedJobs,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
-    } catch (error) {
-      throw new AppError('Failed to fetch job postings', 500);
-    }
+    return {
+      jobs: jobDtos,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }

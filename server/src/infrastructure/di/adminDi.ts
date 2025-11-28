@@ -11,7 +11,7 @@ import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-b
 import { GetCompaniesWithVerificationUseCase } from '../../application/use-cases/admin/get-companies-with-verification.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
 import { VerifyCompanyUseCase } from '../../application/use-cases/admin/verify-company.use-case';
-import { AdminGetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
+import { GetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
 import { AdminGetJobByIdUseCase } from '../../application/use-cases/admin/get-job-by-id.use-case';
 import { AdminUpdateJobStatusUseCase } from '../../application/use-cases/admin/update-job-status.use-case';
 import { AdminDeleteJobUseCase } from '../../application/use-cases/admin/delete-job.use-case';
@@ -37,6 +37,8 @@ import { AdminJobCategoryController } from '../../presentation/controllers/admin
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
 import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
+import { GetPendingCompaniesUseCase } from '../../application/use-cases/admin/get-pending-companies.use-case';
+import { GetCompanyByIdUseCase } from '../../application/use-cases/admin/get-company-by-id.use-case';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -60,7 +62,11 @@ const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseC
 
 const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
 
-const adminGetAllJobsUseCase = new AdminGetAllJobsUseCase(jobPostingRepository, companyProfileRepository);
+const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
+
+const getCompanyByIdUseCase = new GetCompanyByIdUseCase(getCompaniesWithVerificationUseCase);
+
+const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository);
 
 const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
 
@@ -76,7 +82,7 @@ const getJobCategoryByIdUseCase = new GetJobCategoryByIdUseCase(jobCategoryRepos
 const updateJobCategoryUseCase = new UpdateJobCategoryUseCase(jobCategoryRepository);
 const deleteJobCategoryUseCase = new DeleteJobCategoryUseCase(jobCategoryRepository);
 
-const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase);
+const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getAllCompaniesUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase);
 
 const adminJobController = new AdminJobController(adminGetAllJobsUseCase, adminGetJobByIdUseCase, adminUpdateJobStatusUseCase, adminDeleteJobUseCase, adminGetJobStatsUseCase);
 

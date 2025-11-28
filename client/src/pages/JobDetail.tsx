@@ -145,8 +145,8 @@ const JobDetail = () => {
       formData.append('cover_letter', coverLetter.trim());
       formData.append('resume', resumeFile);
 
-      const res = await jobApplicationApi.createApplication(formData);
-      const appId = res?.data?.data?.id || res?.data?.id;
+      await jobApplicationApi.createApplication(formData);
+
 
       setIsApplyModalOpen(false);
       setCoverLetter("");
@@ -275,11 +275,12 @@ const JobDetail = () => {
 
             {(!isAuthenticated || canApply) && isInitialized && (
               <Button 
-                className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-8 h-14 text-base font-semibold"
+                className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-8 h-14 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleOpenApplyModal}
+                disabled={job.has_applied}
               >
-                Apply now
-                <ArrowRight className="ml-2 w-5 h-5" />
+                {job.has_applied ? 'Already Applied' : 'Apply now'}
+                {!job.has_applied && <ArrowRight className="ml-2 w-5 h-5" />}
               </Button>
             )}
           </div>
@@ -365,9 +366,9 @@ const JobDetail = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-base text-[#515B6F]">Views</span>
+                  <span className="text-base text-[#515B6F]">Applications</span>
                   <span className="text-base font-semibold text-[#25324B]">
-                    {job.view_count || 0}
+                    {job.application_count || 0}
                   </span>
                 </div>
               </div>
@@ -454,15 +455,15 @@ const JobDetail = () => {
                   <div className="flex items-center gap-4 text-sm text-[#515B6F]">
                     <div className="flex items-center gap-1">
                       <Building className="w-4 h-4" />
-                      <span>Technology Company</span>
+                      <span>{job.company?.organisation || ''}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
-                      <span>500+ employees</span>
+                      <span>{job.company?.employeeCount || 0} employees</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Globe className="w-4 h-4" />
-                      <span>Remote friendly</span>
+                      <a href={job.company?.websiteLink || '#'} target="_blank" rel="noopener noreferrer">{job.company?.websiteLink || ''}</a>
                     </div>
                   </div>
                 </div>
@@ -528,55 +529,97 @@ const JobDetail = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {similarJobs.map((similarJob) => (
-                <div 
-                  key={similarJob.id || similarJob._id} 
-                  className="bg-white rounded p-8 space-y-5 cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate(`/jobs/${similarJob.id || similarJob._id}`)}
-                >
-                  <div className="flex gap-6">
-                    <div className="w-16 h-16 rounded bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {(similarJob.company_logo || similarJob.company?.logo) ? (
-                        <img 
-                          src={similarJob.company_logo || similarJob.company?.logo} 
-                          alt={similarJob.company_name || similarJob.company?.companyName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-blue-600">
-                          {(similarJob.company_name || similarJob.company?.companyName)?.charAt(0) || similarJob.title.charAt(0)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {similarJobs.map((similarJob) => {
+                const jobData = similarJob as JobPostingResponse & {
+                  companyLogo?: string;
+                  companyName?: string;
+                  viewCount?: number;
+                  applicationCount?: number;
+                  skillsRequired?: string[];
+                  employmentTypes?: string[];
+                };
+                
+                const companyLogo = jobData.companyLogo || jobData.company_logo || jobData.company?.logo;
+                const companyName = jobData.companyName || jobData.company_name || jobData.company?.companyName || 'Company';
+                const applicationCount = jobData.applicationCount ?? jobData.application_count ?? 0;
+                const employmentTypes = jobData.employmentTypes || jobData.employment_types || [];
+                const salary = jobData.salary || { min: 0, max: 0 };
+
+                return (
+                  <div 
+                    key={similarJob.id || similarJob._id} 
+                    className="bg-white border border-gray-200 rounded-lg p-5 cursor-pointer hover:shadow-lg hover:border-[#3570E2]/20 transition-all duration-200"
+                    onClick={() => navigate(`/jobs/${similarJob.id || similarJob._id}`)}
+                  >
+                    {/* Header */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
+                        {companyLogo ? (
+                          <img 
+                            src={companyLogo} 
+                            alt={companyName}
+                            className="w-9 h-9 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <span className="text-[#3570E2] font-bold text-sm">
+                            {companyName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-[#6B7280] mb-0.5">{companyName}</p>
+                        <h3 className="text-base font-semibold text-[#141414] hover:text-[#3570E2] transition-colors line-clamp-1 leading-snug" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                          {similarJob.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Location & Type */}
+                    <div className="flex items-center gap-2 mb-3 text-xs text-[#6B7280] flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate">{similarJob.location}</span>
+                      </div>
+                      {employmentTypes.length > 0 && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="px-2.5 py-0.5 bg-[#F3F4F6] rounded text-xs font-medium text-[#374151]">
+                            {employmentTypes[0]}
+                          </span>
+                        </>
+                      )}
+                      {salary.min > 0 && salary.max > 0 && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <span className="font-bold text-[#141414]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                            ${(salary.min / 1000).toFixed(0)}K-${(salary.max / 1000).toFixed(0)}K
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    {similarJob.description && (
+                      <p className="text-sm text-[#6B7280] line-clamp-2 mb-3 leading-relaxed">
+                        {similarJob.description}
+                      </p>
+                    )}
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
+                      <div className="flex items-center gap-1.5 text-[#6B7280]">
+                        <Users className="w-4 h-4" />
+                        <span>{applicationCount} applied</span>
+                      </div>
+                      {similarJob.createdAt && (
+                        <span className="text-[#9CA3AF]">
+                          {new Date(similarJob.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </span>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-[#25324B] mb-2">
-                        {similarJob.title}
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-[#515B6F] mb-3">
-                        <span>{similarJob.company_name || similarJob.company?.companyName}</span>
-                        <span className="w-1 h-1 bg-[#515B6F] rounded-full" />
-                        <span>{similarJob.location}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge className="bg-[rgba(86,205,173,0.1)] text-[#56CDAD] hover:bg-[rgba(86,205,173,0.1)]">
-                          {similarJob.employment_types?.[0] || 'Full-Time'}
-                        </Badge>
-                        <div className="w-px h-6 bg-[#D6DDEB]" />
-                        {similarJob.category_ids?.slice(0, 2).map((category) => (
-                          <Badge 
-                            key={category}
-                            variant="outline" 
-                            className="border-[#4045DE] text-[#4045DE]"
-                          >
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

@@ -4,7 +4,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -18,7 +18,23 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, interviewData: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+    const interviewData: Partial<{
+      date: Date;
+      time: string;
+      interviewType: string;
+      location: string;
+      interviewerName: string;
+      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+    }> = {};
+    if (dto.date !== undefined) {
+      interviewData.date = dto.date instanceof Date ? dto.date : new Date(dto.date);
+    }
+    if (dto.time !== undefined) interviewData.time = dto.time;
+    if (dto.interview_type !== undefined) interviewData.interviewType = dto.interview_type;
+    if (dto.location !== undefined) interviewData.location = dto.location;
+    if (dto.interviewer_name !== undefined) interviewData.interviewerName = dto.interviewer_name;
+    if (dto.status !== undefined) interviewData.status = dto.status;
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -43,7 +59,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       throw new NotFoundError('Interview not found');
     }
 
-    const updateData: Partial<UpdateInterviewData> = {};
+    const updateData: Partial<InterviewSchedule> = {};
     if (interviewData.date !== undefined) {
       updateData.date = interviewData.date instanceof Date ? interviewData.date : new Date(interviewData.date);
     }
@@ -93,7 +109,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       );
     }
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

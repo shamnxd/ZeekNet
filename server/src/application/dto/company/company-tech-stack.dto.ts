@@ -1,14 +1,13 @@
 import { z } from 'zod';
 
-export const CreateCompanyTechStackDtoSchema = z.object({
+const CreateCompanyTechStackDtoSchema = z.object({
   companyId: z.string().optional(),
   techStack: z.string().min(1, 'Tech stack name cannot be empty'),
 });
 
-export const UpdateCompanyTechStackDtoSchema = CreateCompanyTechStackDtoSchema.partial();
+const UpdateCompanyTechStackDtoSchema = CreateCompanyTechStackDtoSchema.partial();
 
-export const CreateCompanyTechStackDto = CreateCompanyTechStackDtoSchema;
-export const UpdateCompanyTechStackDto = UpdateCompanyTechStackDtoSchema;
+export { CreateCompanyTechStackDtoSchema as CreateCompanyTechStackDto, UpdateCompanyTechStackDtoSchema as UpdateCompanyTechStackDto };
 
-export type CreateCompanyTechStackRequestDto = z.infer<typeof CreateCompanyTechStackDto>;
-export type UpdateCompanyTechStackRequestDto = z.infer<typeof UpdateCompanyTechStackDto>;
+export type CreateCompanyTechStackRequestDto = z.infer<typeof CreateCompanyTechStackDtoSchema>;
+export type UpdateCompanyTechStackRequestDto = z.infer<typeof UpdateCompanyTechStackDtoSchema>;

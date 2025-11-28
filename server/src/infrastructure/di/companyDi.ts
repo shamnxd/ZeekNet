@@ -14,8 +14,11 @@ import { SeekerEducationRepository } from '../database/mongodb/repositories/seek
 import { notificationRepository } from './notificationDi';
 import { S3Service } from '../external-services/s3/s3.service';
 import { CreateCompanyProfileUseCase } from '../../application/use-cases/company/create-company-profile.use-case';
+import { CreateCompanyProfileFromDtoUseCase } from '../../application/use-cases/company/create-company-profile-from-dto.use-case';
 import { UpdateCompanyProfileUseCase } from '../../application/use-cases/company/update-company-profile.use-case';
 import { GetCompanyProfileUseCase } from '../../application/use-cases/company/get-company-profile.use-case';
+import { GetCompanyProfileWithJobPostingsUseCase } from '../../application/use-cases/company/get-company-profile-with-job-postings.use-case';
+import { GetCompanyDashboardUseCase } from '../../application/use-cases/company/get-company-dashboard.use-case';
 import { ReapplyCompanyVerificationUseCase } from '../../application/use-cases/company/reapply-company-verification.use-case';
 import { CompanyContactUseCase } from '../../application/use-cases/company/company-contact.use-case';
 import { CreateCompanyTechStackUseCase } from '../../application/use-cases/company/create-company-tech-stack.use-case';
@@ -113,23 +116,28 @@ const updateCompanyWorkplacePictureUseCase = new UpdateCompanyWorkplacePictureUs
 const deleteCompanyWorkplacePictureUseCase = new DeleteCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
 const getCompanyWorkplacePictureUseCase = new GetCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
 
-const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository);
+const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
+
+const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase);
 
 const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
 
 const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRepository);
 
-const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
-
 const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
 
-// Upload Use Cases
 const uploadLogoUseCase = new UploadLogoUseCase(s3Service);
 const uploadBusinessLicenseUseCase = new UploadBusinessLicenseUseCase(s3Service);
 const uploadWorkplacePictureUseCase = new UploadWorkplacePictureUseCase(s3Service);
 const deleteImageUseCase = new DeleteImageUseCase(s3Service);
 
 const getCompanyJobPostingsUseCase = new GetCompanyJobPostingsUseCase(jobPostingRepository, companyProfileRepository);
+
+const createCompanyProfileFromDtoUseCase = new CreateCompanyProfileFromDtoUseCase(createCompanyProfileUseCase);
+
+const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase);
+
+const getCompanyDashboardUseCase = new GetCompanyDashboardUseCase(getCompanyProfileUseCase);
 
 const updateJobPostingUseCase = new UpdateJobPostingUseCase(jobPostingRepository);
 
@@ -139,7 +147,6 @@ const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPosting
 
 const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository);
 
-// Job Application Use Cases
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
@@ -150,13 +157,12 @@ const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationReposito
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 
-// Controllers
 const companyProfileController = new CompanyProfileController(
-  createCompanyProfileUseCase,
+  createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
-  getCompanyProfileUseCase,
+  getCompanyProfileWithJobPostingsUseCase,
   reapplyCompanyVerificationUseCase,
-  getCompanyJobPostingsUseCase,
+  getCompanyDashboardUseCase,
   uploadLogoUseCase,
 );
 
@@ -218,7 +224,6 @@ const companyJobApplicationController = new CompanyJobApplicationController(
 );
 
 export {
-  // Specialized controllers
   companyProfileController,
   companyContactController,
   companyTechStackController,
@@ -228,8 +233,5 @@ export {
   companyUploadController,
   companyJobPostingController,
   companyJobApplicationController,
-  // Repositories
-  companyProfileRepository,
   companyProfileRepository as companyRepository,
-  companyVerificationRepository,
 };

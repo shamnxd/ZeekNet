@@ -6,7 +6,7 @@ import { JobRole } from '../../entities/job-role.entity';
 import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
 
 export interface PaginatedSkills {
-  data: Skill[];
+  skills: Skill[];
   total: number;
   page: number;
   limit: number;
@@ -14,22 +14,11 @@ export interface PaginatedSkills {
 }
 
 export interface PaginatedJobRoles {
-  data: JobRole[];
+  jobRoles: JobRole[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
 }
 
 export interface PaginatedUsers {
@@ -52,6 +41,7 @@ export interface CompanyWithVerification {
   aboutUs: string;
   isVerified: 'pending' | 'rejected' | 'verified';
   isBlocked: boolean;
+  email: string;
   createdAt: string;
   updatedAt: string;
   verification?: {
@@ -96,10 +86,6 @@ export interface CompanyQueryOptions {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface IAdminLoginUseCase {
-  execute(email: string, password: string): Promise<AuthResponse>;
-}
-
 export interface IGetAllUsersUseCase {
   execute(options: UserQueryOptions): Promise<PaginatedUsers>;
 }
@@ -126,7 +112,21 @@ export interface IVerifyCompanyUseCase {
 
 export interface IAdminGetAllJobsUseCase {
   execute(query: JobPostingFilters): Promise<{
-    jobs: JobPostingResponseDto[];
+    jobs: {
+      id: string;
+      title: string;
+      companyName: string;
+      location: string;
+      salary: { min: number; max: number };
+      status: boolean;
+      is_active: boolean;
+      admin_blocked: boolean;
+      applications: number;
+      viewCount: number;
+      createdAt: Date;
+      employmentTypes: string[];
+      categoryIds: string[];
+    }[];
     pagination: {
       page: number;
       limit: number;
@@ -160,20 +160,8 @@ export interface IAdminGetJobStatsUseCase {
   execute(): Promise<AdminJobStats>;
 }
 
-export interface IGetJobByIdUseCase {
-  execute(jobId: string): Promise<JobPosting>;
-}
-
-export interface IGetJobStatsUseCase {
-  execute(): Promise<AdminJobStats>;
-}
-
 export interface IUpdateJobStatusUseCase {
   execute(jobId: string, isActive: boolean): Promise<JobPosting>;
-}
-
-export interface IDeleteJobUseCase {
-  execute(jobId: string): Promise<boolean>;
 }
 
 export interface ICreateSkillUseCase {
@@ -214,4 +202,12 @@ export interface IUpdateJobRoleUseCase {
 
 export interface IDeleteJobRoleUseCase {
   execute(jobRoleId: string): Promise<boolean>;
+}
+
+export interface IGetPendingCompaniesUseCase {
+  execute(): Promise<PaginatedCompaniesWithVerification>;
+}
+
+export interface IGetCompanyByIdUseCase {
+  execute(companyId: string): Promise<CompanyWithVerification>;
 }

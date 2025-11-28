@@ -14,7 +14,12 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, feedbackData: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
+    const feedbackData = {
+      reviewer_name: dto.reviewer_name,
+      rating: dto.rating,
+      comment: dto.comment,
+    };
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
@@ -58,7 +63,7 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
       throw new NotFoundError('Failed to add interview feedback');
     }
 
-    return JobApplicationMapper.toDetailDto(updatedApplication, undefined, {
+    return JobApplicationMapper.toDetailResponse(updatedApplication, undefined, {
       title: job.title,
       companyName: job.companyName,
       location: job.location,

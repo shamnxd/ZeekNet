@@ -1,13 +1,13 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-export interface InterviewFeedback {
+interface InterviewFeedback {
   reviewer_name: string;
   rating?: number;
   comment: string;
   reviewed_at: Date;
 }
 
-export interface InterviewSchedule {
+interface InterviewSchedule {
   _id?: Types.ObjectId;
   date: Date;
   time: string;

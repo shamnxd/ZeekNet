@@ -15,7 +15,7 @@ import FormDialog from '../../components/common/FormDialog';
 import { ImageCropper } from '../../components/common/ImageCropper';
 import { toast } from 'sonner';
 import { seekerApi, type SeekerProfile as SeekerProfileType, type Experience, type Education } from '../../api/seeker.api';
-import { publicApi, type Skill } from '../../api/public.api';
+import { publicApi } from '../../api/public.api';
 import type { Area } from 'react-easy-crop';
 
 export function SeekerProfile() {
@@ -81,16 +81,24 @@ export function SeekerProfile() {
     grade: '',
   });
 
-  const [newSkill, setNewSkill] = useState('');
+
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [newLanguage, setNewLanguage] = useState('');
-  const [newTechnology, setNewTechnology] = useState(''); 
+
+  const [technologyOptions, setTechnologyOptions] = useState<ComboboxOption[]>([]);
+  const [technologyLoading, setTechnologyLoading] = useState(false); 
   const [editingSocialLinks, setEditingSocialLinks] = useState<Array<{ name: string; link: string }>>([]);
   const [editingLanguages, setEditingLanguages] = useState<string[]>([]);
   const [editingPhone, setEditingPhone] = useState<string>('');
   const [editingEmail, setEditingEmail] = useState<string>('');
+  const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
+  const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
+  const [deleteEducationOpen, setDeleteEducationOpen] = useState(false);
+  const [educationToDelete, setEducationToDelete] = useState<string | null>(null);
+  const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
+  const [deleteSkillOpen, setDeleteSkillOpen] = useState(false);
 
   const SOCIAL_PLATFORMS = [
     { value: 'github', label: 'GitHub' },
@@ -316,7 +324,6 @@ export function SeekerProfile() {
           technologies: [],
           isCurrent: false,
         });
-        setNewTechnology('');
         fetchProfileData();
       } else {
         toast.error(response.message || 'Failed to add experience');
@@ -358,11 +365,16 @@ export function SeekerProfile() {
     }
   };
 
-  const handleRemoveExperience = async (experienceId: string) => {
-    if (!confirm('Are you sure you want to remove this experience?')) return;
+  const handleRemoveExperience = (experienceId: string) => {
+    setExperienceToDelete(experienceId);
+    setDeleteExperienceOpen(true);
+  };
+
+  const confirmRemoveExperience = async () => {
+    if (!experienceToDelete) return;
     try {
       setSaving(true);
-      const response = await seekerApi.removeExperience(experienceId);
+      const response = await seekerApi.removeExperience(experienceToDelete);
       if (response.success) {
         toast.success('Experience removed successfully');
         fetchProfileData();
@@ -373,6 +385,8 @@ export function SeekerProfile() {
       toast.error('Failed to remove experience');
     } finally {
       setSaving(false);
+      setDeleteExperienceOpen(false);
+      setExperienceToDelete(null);
     }
   };
 
@@ -436,11 +450,16 @@ export function SeekerProfile() {
     }
   };
 
-  const handleRemoveEducation = async (educationId: string) => {
-    if (!confirm('Are you sure you want to remove this education?')) return;
+  const handleRemoveEducation = (educationId: string) => {
+    setEducationToDelete(educationId);
+    setDeleteEducationOpen(true);
+  };
+
+  const confirmRemoveEducation = async () => {
+    if (!educationToDelete) return;
     try {
       setSaving(true);
-      const response = await seekerApi.removeEducation(educationId);
+      const response = await seekerApi.removeEducation(educationToDelete);
       if (response.success) {
         toast.success('Education removed successfully');
         fetchProfileData();
@@ -451,6 +470,8 @@ export function SeekerProfile() {
       toast.error('Failed to remove education');
     } finally {
       setSaving(false);
+      setDeleteEducationOpen(false);
+      setEducationToDelete(null);
     }
   };
 
@@ -475,6 +496,27 @@ export function SeekerProfile() {
     }
   };
 
+  const fetchTechnologies = async (searchTerm?: string) => {
+    try {
+      setTechnologyLoading(true);
+      const response = await publicApi.getAllSkills({
+        limit: 20,
+        search: searchTerm,
+      });
+      if (response.success && response.data) {
+        const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+          value: skillName,
+          label: skillName,
+        }));
+        setTechnologyOptions(options);
+      }
+    } catch (error) {
+      console.error('Failed to fetch technologies:', error);
+    } finally {
+      setTechnologyLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (addSkillOpen) {
       fetchSkills();
@@ -483,6 +525,12 @@ export function SeekerProfile() {
       }
     }
   }, [addSkillOpen]);
+
+  useEffect(() => {
+    if (addExperienceOpen || editExperienceOpen) {
+      fetchTechnologies();
+    }
+  }, [addExperienceOpen, editExperienceOpen]);
 
   const handleAddSkill = async () => {
     if (selectedSkills.length === 0) {
@@ -512,10 +560,15 @@ export function SeekerProfile() {
   };
 
   const handleRemoveSkill = async (skill: string) => {
-    if (!profile) return;
+    setSkillToDelete(skill);
+    setDeleteSkillOpen(true);
+  };
+
+  const confirmRemoveSkill = async () => {
+    if (!profile || !skillToDelete) return;
     try {
       setSaving(true);
-      const updatedSkills = profile.skills.filter((s: string) => s !== skill);
+      const updatedSkills = profile.skills.filter((s: string) => s !== skillToDelete);
       const response = await seekerApi.updateSkills(updatedSkills);
       if (response.success) {
         toast.success('Skill removed successfully');
@@ -527,6 +580,8 @@ export function SeekerProfile() {
       toast.error('Failed to remove skill');
     } finally {
       setSaving(false);
+      setDeleteSkillOpen(false);
+      setSkillToDelete(null);
     }
   };
 
@@ -546,27 +601,6 @@ export function SeekerProfile() {
 
   const handleRemoveLanguage = (language: string) => {
     setEditingLanguages(editingLanguages.filter(lang => lang !== language));
-  };
-
-  const handleAddTechnology = () => {
-    if (!newTechnology.trim()) {
-      toast.error('Please enter a technology name');
-      return;
-    }
-    const trimmed = newTechnology.trim();
-    if (experienceData.technologies.includes(trimmed)) {
-      toast.error('This technology is already added');
-      return;
-    }
-    setExperienceData({ ...experienceData, technologies: [...experienceData.technologies, trimmed] });
-    setNewTechnology('');
-  };
-
-  const handleRemoveTechnology = (technology: string) => {
-    setExperienceData({ 
-      ...experienceData, 
-      technologies: experienceData.technologies.filter(tech => tech !== technology) 
-    });
   };
 
   const handleEditDetails = async () => {
@@ -811,7 +845,20 @@ export function SeekerProfile() {
                 variant="seekerOutline" 
                 size="sm" 
                 className="h-8 w-8 !rounded-full"
-                onClick={() => setAddExperienceOpen(true)}
+                onClick={() => {
+                  setExperienceData({
+                    title: '',
+                    company: '',
+                    employmentType: 'full-time',
+                    startDate: '',
+                    endDate: '',
+                    location: '',
+                    description: '',
+                    technologies: [],
+                    isCurrent: false,
+                  });
+                  setAddExperienceOpen(true);
+                }}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -916,7 +963,17 @@ export function SeekerProfile() {
                 variant="seekerOutline" 
                 size="sm" 
                 className="h-8 w-8 !rounded-full"
-                onClick={() => setAddEducationOpen(true)}
+                onClick={() => {
+                  setEducationData({
+                    school: '',
+                    degree: '',
+                    fieldOfStudy: '',
+                    startDate: '',
+                    endDate: '',
+                    grade: '',
+                  });
+                  setAddEducationOpen(true);
+                }}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -1019,11 +1076,12 @@ export function SeekerProfile() {
                   <Badge
                     key={`${skill}-${idx}`}
                     variant="skill"
-                    className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors group relative"
+                    className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-1"
                     onClick={() => handleRemoveSkill(skill)}
                     title="Click to remove"
                   >
                     {skill}
+                    <X className="w-3 h-3" />
                   </Badge>
                 ))
               ) : (
@@ -1182,6 +1240,11 @@ export function SeekerProfile() {
             value: profileData.name,
             onChange: (value) => setProfileData({ ...profileData, name: value }),
             placeholder: 'e.g., John Doe',
+            required: true,
+            validation: {
+              required: 'Name is required',
+              maxLength: { value: 100, message: 'Name must not exceed 100 characters' },
+            },
           },
           {
             id: 'headline',
@@ -1189,6 +1252,9 @@ export function SeekerProfile() {
             value: profileData.headline,
             onChange: (value) => setProfileData({ ...profileData, headline: value }),
             placeholder: 'e.g., Senior Software Engineer',
+            validation: {
+              maxLength: { value: 100, message: 'Headline must not exceed 100 characters' },
+            },
           },
           {
             id: 'location',
@@ -1196,6 +1262,9 @@ export function SeekerProfile() {
             value: profileData.location,
             onChange: (value) => setProfileData({ ...profileData, location: value }),
             placeholder: 'e.g., New York, NY',
+            validation: {
+              maxLength: { value: 100, message: 'Location must not exceed 100 characters' },
+            },
           },
           {
             id: 'dateOfBirth',
@@ -1203,6 +1272,23 @@ export function SeekerProfile() {
             type: 'date',
             value: profileData.dateOfBirth,
             onChange: (value) => setProfileData({ ...profileData, dateOfBirth: value }),
+            validation: {
+              validate: (value) => {
+                if (!value) return true;
+                const date = new Date(value);
+                const today = new Date();
+                const minDate = new Date();
+                minDate.setFullYear(today.getFullYear() - 100);
+                
+                if (date > today) {
+                  return 'Date of birth cannot be in the future';
+                }
+                if (date < minDate) {
+                  return 'Please enter a valid date of birth';
+                }
+                return true;
+              },
+            },
           },
         ]}
         onSubmit={handleEditProfile}
@@ -1275,6 +1361,9 @@ export function SeekerProfile() {
             rows: 6,
             value: aboutData,
             onChange: (value) => setAboutData(value),
+            validation: {
+              maxLength: { value: 2000, message: 'Summary must not exceed 2000 characters' },
+            },
           },
         ]}
         onSubmit={handleEditAbout}
@@ -1374,48 +1463,20 @@ export function SeekerProfile() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="exp-technologies">Technologies / Skills Learned</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="exp-technologies"
-                  value={newTechnology}
-                  onChange={(e) => setNewTechnology(e.target.value)}
-                  placeholder="Enter a technology (e.g., React, Python)"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTechnology();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddTechnology}
-                  disabled={!newTechnology.trim()}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add
-                </Button>
-              </div>
-              {experienceData.technologies.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {experienceData.technologies.map((tech, idx) => (
-                    <Badge
-                      key={`${tech}-${idx}`}
-                      variant="skill"
-                      className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors"
-                      onClick={() => handleRemoveTechnology(tech)}
-                      title="Click to remove"
-                    >
-                      {tech}
-                      <X className="w-3 h-3 ml-1" />
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              {experienceData.technologies.length === 0 && (
-                <p className="text-xs text-[#7c8493] italic">No technologies added yet. Enter a technology and click Add.</p>
-              )}
+              <Combobox
+                options={technologyOptions}
+                value={experienceData.technologies}
+                onChange={(technologies) => setExperienceData({ ...experienceData, technologies })}
+                placeholder="Type to search and select technologies..."
+                multiple={true}
+                loading={technologyLoading}
+                onSearch={(searchTerm) => {
+                  if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                    fetchTechnologies(searchTerm);
+                  }
+                }}
+              />
+              <p className="text-xs text-[#7c8493]">Type to search and select technologies from the list</p>
             </div>
           </div>
           <DialogFooter>
@@ -1522,48 +1583,20 @@ export function SeekerProfile() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-exp-technologies">Technologies / Skills Learned</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="edit-exp-technologies"
-                  value={newTechnology}
-                  onChange={(e) => setNewTechnology(e.target.value)}
-                  placeholder="Enter a technology (e.g., React, Python)"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddTechnology();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddTechnology}
-                  disabled={!newTechnology.trim()}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add
-                </Button>
-              </div>
-              {experienceData.technologies.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {experienceData.technologies.map((tech, idx) => (
-                    <Badge
-                      key={`${tech}-${idx}`}
-                      variant="skill"
-                      className="cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors"
-                      onClick={() => handleRemoveTechnology(tech)}
-                      title="Click to remove"
-                    >
-                      {tech}
-                      <X className="w-3 h-3 ml-1" />
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              {experienceData.technologies.length === 0 && (
-                <p className="text-xs text-[#7c8493] italic">No technologies added yet. Enter a technology and click Add.</p>
-              )}
+              <Combobox
+                options={technologyOptions}
+                value={experienceData.technologies}
+                onChange={(technologies) => setExperienceData({ ...experienceData, technologies })}
+                placeholder="Type to search and select technologies..."
+                multiple={true}
+                loading={technologyLoading}
+                onSearch={(searchTerm) => {
+                  if (searchTerm.length >= 2 || searchTerm.length === 0) {
+                    fetchTechnologies(searchTerm);
+                  }
+                }}
+              />
+              <p className="text-xs text-[#7c8493]">Type to search and select technologies from the list</p>
             </div>
           </div>
           <DialogFooter>
@@ -1587,24 +1620,38 @@ export function SeekerProfile() {
             label: 'School/University',
             value: educationData.school,
             onChange: (value) => setEducationData({ ...educationData, school: value }),
+            required: true,
+            validation: {
+              required: 'School/University is required',
+              maxLength: { value: 200, message: 'School name must not exceed 200 characters' },
+            },
           },
           {
             id: 'edu-degree',
             label: 'Degree',
             value: educationData.degree,
             onChange: (value) => setEducationData({ ...educationData, degree: value }),
+            validation: {
+              maxLength: { value: 100, message: 'Degree must not exceed 100 characters' },
+            },
           },
           {
             id: 'edu-field-of-study',
             label: 'Field of Study (Optional)',
             value: educationData.fieldOfStudy,
             onChange: (value) => setEducationData({ ...educationData, fieldOfStudy: value }),
+            validation: {
+              maxLength: { value: 100, message: 'Field of study must not exceed 100 characters' },
+            },
           },
           {
             id: 'edu-grade',
             label: 'Grade (Optional)',
             value: educationData.grade,
             onChange: (value) => setEducationData({ ...educationData, grade: value }),
+            validation: {
+              maxLength: { value: 50, message: 'Grade must not exceed 50 characters' },
+            },
           },
         ]}
         fieldGroups={[
@@ -1616,6 +1663,21 @@ export function SeekerProfile() {
                 type: 'date',
                 value: educationData.startDate,
                 onChange: (value) => setEducationData({ ...educationData, startDate: value }),
+                required: true,
+                validation: {
+                  required: 'Start date is required',
+                  validate: (value) => {
+                    if (!value) return 'Start date is required';
+                    const date = new Date(value);
+                    const today = new Date();
+                    today.setHours(23, 59, 59, 999);
+                    
+                    if (date > today) {
+                      return 'Start date cannot be in the future';
+                    }
+                    return true;
+                  },
+                },
               },
               {
                 id: 'edu-end',
@@ -1623,6 +1685,23 @@ export function SeekerProfile() {
                 type: 'date',
                 value: educationData.endDate,
                 onChange: (value) => setEducationData({ ...educationData, endDate: value }),
+                validation: {
+                  validate: (value) => {
+                    if (!value) return true;
+                    const endDate = new Date(value);
+                    const startDate = new Date(educationData.startDate);
+                    const today = new Date();
+                    today.setHours(23, 59, 59, 999);
+                    
+                    if (endDate > today) {
+                      return 'End date cannot be in the future';
+                    }
+                    if (educationData.startDate && endDate < startDate) {
+                      return 'End date must be after start date';
+                    }
+                    return true;
+                  },
+                },
               },
             ],
             gridCols: 2,
@@ -1643,24 +1722,38 @@ export function SeekerProfile() {
             label: 'School/University',
             value: educationData.school,
             onChange: (value) => setEducationData({ ...educationData, school: value }),
+            required: true,
+            validation: {
+              required: 'School/University is required',
+              maxLength: { value: 200, message: 'School name must not exceed 200 characters' },
+            },
           },
           {
             id: 'edit-edu-degree',
             label: 'Degree',
             value: educationData.degree,
             onChange: (value) => setEducationData({ ...educationData, degree: value }),
+            validation: {
+              maxLength: { value: 100, message: 'Degree must not exceed 100 characters' },
+            },
           },
           {
             id: 'edit-edu-field-of-study',
             label: 'Field of Study (Optional)',
             value: educationData.fieldOfStudy,
             onChange: (value) => setEducationData({ ...educationData, fieldOfStudy: value }),
+            validation: {
+              maxLength: { value: 100, message: 'Field of study must not exceed 100 characters' },
+            },
           },
           {
             id: 'edit-edu-grade',
             label: 'Grade (Optional)',
             value: educationData.grade,
             onChange: (value) => setEducationData({ ...educationData, grade: value }),
+            validation: {
+              maxLength: { value: 50, message: 'Grade must not exceed 50 characters' },
+            },
           },
         ]}
         fieldGroups={[
@@ -1672,6 +1765,21 @@ export function SeekerProfile() {
                 type: 'date',
                 value: educationData.startDate,
                 onChange: (value) => setEducationData({ ...educationData, startDate: value }),
+                required: true,
+                validation: {
+                  required: 'Start date is required',
+                  validate: (value) => {
+                    if (!value) return 'Start date is required';
+                    const date = new Date(value);
+                    const today = new Date();
+                    today.setHours(23, 59, 59, 999);
+                    
+                    if (date > today) {
+                      return 'Start date cannot be in the future';
+                    }
+                    return true;
+                  },
+                },
               },
               {
                 id: 'edit-edu-end',
@@ -1679,6 +1787,23 @@ export function SeekerProfile() {
                 type: 'date',
                 value: educationData.endDate,
                 onChange: (value) => setEducationData({ ...educationData, endDate: value }),
+                validation: {
+                  validate: (value) => {
+                    if (!value) return true;
+                    const endDate = new Date(value);
+                    const startDate = new Date(educationData.startDate);
+                    const today = new Date();
+                    today.setHours(23, 59, 59, 999);
+                    
+                    if (endDate > today) {
+                      return 'End date cannot be in the future';
+                    }
+                    if (educationData.startDate && endDate < startDate) {
+                      return 'End date must be after start date';
+                    }
+                    return true;
+                  },
+                },
               },
             ],
             gridCols: 2,
@@ -1936,6 +2061,99 @@ export function SeekerProfile() {
         onCropComplete={handleProfileCropComplete}
         title="Crop Profile Photo"
       />
+
+      <Dialog open={deleteSkillOpen} onOpenChange={setDeleteSkillOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="!text-lg !font-bold">Remove Skill</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-[#515b6f]">
+                    Are you sure you want to remove <span className="font-semibold text-[#25324b]">{skillToDelete}</span> from your skills?
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setDeleteSkillOpen(false);
+                      setSkillToDelete(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={confirmRemoveSkill} 
+                    className="bg-red-600 hover:bg-red-700" 
+                    disabled={saving}
+                  >
+                    {saving ? 'Removing...' : 'Remove'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteExperienceOpen} onOpenChange={setDeleteExperienceOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="!text-lg !font-bold">Remove Experience</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-[#515b6f]">
+                    Are you sure you want to remove this experience?
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setDeleteExperienceOpen(false);
+                      setExperienceToDelete(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={confirmRemoveExperience} 
+                    className="bg-red-600 hover:bg-red-700" 
+                    disabled={saving}
+                  >
+                    {saving ? 'Removing...' : 'Remove'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteEducationOpen} onOpenChange={setDeleteEducationOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="!text-lg !font-bold">Remove Education</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="text-sm text-[#515b6f]">
+                    Are you sure you want to remove this education?
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setDeleteEducationOpen(false);
+                      setEducationToDelete(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={confirmRemoveEducation} 
+                    className="bg-red-600 hover:bg-red-700" 
+                    disabled={saving}
+                  >
+                    {saving ? 'Removing...' : 'Remove'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
     </div>
   );
 }
