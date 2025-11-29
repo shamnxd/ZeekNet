@@ -149,8 +149,8 @@ const JobDetails = () => {
 
   const responsibilities = jobData.responsibilities || []
   const whoYouAre = jobData.qualifications || []
-  const niceToHaves = jobData.nice_to_haves || []
-  const requiredSkills = jobData.skills_required || []
+  const niceToHaves = jobData.niceToHaves || jobData.nice_to_haves || []
+  const requiredSkills = jobData.skillsRequired || jobData.skills_required || []
   const benefits = jobData.benefits || []
 
   const benefitsList = [
@@ -265,7 +265,7 @@ const JobDetails = () => {
   } = {
     totalViews: 23564,
     totalViewsChange: 6.4,
-    totalApplied: jobData.application_count || 132,
+    totalApplied: jobData.applicationCount || jobData.application_count || 132,
     totalAppliedChange: -0.4,
     traffic: [
       { label: 'Direct', value: 48, color: '#FFB836' },
@@ -432,7 +432,7 @@ const JobDetails = () => {
   }
 
   const getEmploymentType = () => {
-    return jobData.employment_types?.[0] || 'Not specified'
+    return jobData.employmentTypes?.[0] || jobData.employment_types?.[0] || 'Not specified'
   }
 
   return (
@@ -458,7 +458,7 @@ const JobDetails = () => {
                     <div className="w-0.5 h-0.5 bg-[#25324B] rounded-full"></div>
                     <span>{getEmploymentType()}</span>
                     <div className="w-0.5 h-0.5 bg-[#25324B] rounded-full"></div>
-                    <span>{jobData.application_count || 0} applied</span>
+                    <span>{jobData.applicationCount || jobData.application_count || 0} applied</span>
                   </div>
                 </div>
               </div>
@@ -505,7 +505,7 @@ const JobDetails = () => {
         </div>
 
         {}
-        {jobData.admin_blocked && (
+        {(jobData.adminBlocked || jobData.admin_blocked) && (
           <div className="px-7 py-4 bg-yellow-50 border-b border-yellow-200">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
@@ -513,9 +513,9 @@ const JobDetails = () => {
                 <h3 className="text-sm font-semibold text-yellow-800 mb-1">
                   This job has been blocked by admin
                 </h3>
-                {jobData.unpublish_reason && (
+                {(jobData.unpublishReason || jobData.unpublish_reason) && (
                   <p className="text-sm text-yellow-700">
-                    Reason: {jobData.unpublish_reason}
+                    Reason: {jobData.unpublishReason || jobData.unpublish_reason}
                   </p>
                 )}
                 <p className="text-xs text-yellow-600 mt-1">
@@ -700,7 +700,7 @@ const JobDetails = () => {
                       <h3 className="text-xl font-semibold text-[#25324B]">About this role</h3>
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-sm font-semibold text-[#25324B]">{jobData.application_count || 0} applied</span>
+                          <span className="text-sm font-semibold text-[#25324B]">{jobData.applicationCount || jobData.application_count || 0} applied</span>
                           <span className="text-xs text-[#7C8493]">{stageCounts.shortlisted} shortlisted</span>
                         </div>
                         <div className="w-full h-1.5 bg-[#F8F8FD] rounded-lg overflow-hidden">
@@ -736,19 +736,19 @@ const JobDetails = () => {
                         <div className="flex justify-between">
                           <span className="text-sm text-[#515B6F]">Status</span>
                           <div className="flex flex-col items-end gap-1">
-                            <span className="text-sm font-semibold text-[#25324B]">{jobData.is_active ? 'Active' : 'Inactive'}</span>
-                            {jobData.admin_blocked && (
+                            <span className="text-sm font-semibold text-[#25324B]">{jobData.isActive || jobData.is_active ? 'Active' : 'Inactive'}</span>
+                            {(jobData.adminBlocked || jobData.admin_blocked) && (
                               <Badge className="bg-red-500 text-white text-xs px-2 py-0.5">
                                 Admin Blocked
                               </Badge>
                             )}
                           </div>
                         </div>
-                        {jobData.admin_blocked && jobData.unpublish_reason && (
+                        {(jobData.adminBlocked || jobData.admin_blocked) && (jobData.unpublishReason || jobData.unpublish_reason) && (
                           <div className="flex justify-between pt-2 border-t border-[#D6DDEB]">
                             <span className="text-sm text-[#515B6F]">Block Reason</span>
                             <span className="text-sm font-semibold text-red-600 max-w-[60%] text-right">
-                              {jobData.unpublish_reason}
+                              {jobData.unpublishReason || jobData.unpublish_reason}
                             </span>
                           </div>
                         )}
@@ -760,8 +760,8 @@ const JobDetails = () => {
                     <CardContent className="p-3.5">
                       <h3 className="text-xl font-semibold text-[#25324B] mb-5">Categories</h3>
                       <div className="flex flex-wrap gap-1.5">
-                        {jobData.category_ids && jobData.category_ids.length > 0 ? (
-                          jobData.category_ids.map((category: string, index: number) => (
+                        {(jobData.categoryIds || jobData.category_ids) && (jobData.categoryIds || jobData.category_ids).length > 0 ? (
+                          (jobData.categoryIds || jobData.category_ids).map((category: string, index: number) => (
                             <Badge key={index} className="bg-[#EB8533]/10 text-[#FFB836] border-0 px-2.5 py-1 rounded-full text-xs">
                               {category}
                             </Badge>

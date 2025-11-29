@@ -37,3 +37,9 @@ export class NotFoundError extends AppError {
     super(message, 404);
   }
 }
+
+export class DailyLimitErorr extends AppError {
+  constructor(message = 'Daily limit exceeded') {
+    super(message, 429);
+  }
+}

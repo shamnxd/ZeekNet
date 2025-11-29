@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import { companyApi } from '@/api/company.api'
 import type { JobPostingResponse, JobPostingQuery } from '@/types/job'
 import { Loading } from '@/components/ui/loading'
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { toast } from 'sonner'
 import { 
   Calendar,
@@ -17,7 +16,6 @@ import {
   ChevronRight,
   Eye,
   Edit,
-  Trash2,
   EyeOff,
   List
 } from 'lucide-react'
@@ -58,17 +56,6 @@ const CompanyJobListing = () => {
     limit: 10,
     total: 0,
     totalPages: 0
-  })
-  const [deleteDialog, setDeleteDialog] = useState<{
-    isOpen: boolean
-    jobId: string | null
-    jobTitle: string
-    isLoading: boolean
-  }>({
-    isOpen: false,
-    jobId: null,
-    jobTitle: '',
-    isLoading: false
   })
 
   const fetchJobs = async (page: number = 1, limit: number = 10) => {
@@ -122,64 +109,6 @@ const CompanyJobListing = () => {
 
   const handleEditJob = (jobId: string) => {
     navigate(`/company/edit-job/${jobId}`)
-  }
-
-  const handleDeleteJob = (jobId: string, jobTitle: string) => {
-    setDeleteDialog({
-      isOpen: true,
-      jobId,
-      jobTitle,
-      isLoading: false
-    })
-  }
-
-  const confirmDeleteJob = async () => {
-    if (!deleteDialog.jobId) return
-
-    try {
-      setDeleteDialog(prev => ({ ...prev, isLoading: true }))
-
-      const previousJobs = [...jobs]
-      const jobId = deleteDialog.jobId;
-      setJobs(prevJobs => prevJobs.filter(job => (job.id || job._id) !== jobId))
-      setPagination(prev => ({ ...prev, total: prev.total - 1 }))
-      
-      const response = await companyApi.deleteJobPosting(deleteDialog.jobId)
-      
-      if (response.success) {
-        toast.success('Job deleted successfully', {
-          description: `"${deleteDialog.jobTitle}" has been deleted.`
-        })
-        setDeleteDialog({
-          isOpen: false,
-          jobId: null,
-          jobTitle: '',
-          isLoading: false
-        })
-      } else {
-        setJobs(previousJobs)
-        setPagination(prev => ({ ...prev, total: prev.total + 1 }))
-        toast.error('Failed to delete job', {
-          description: response.message || 'Please try again later.'
-        })
-      }
-    } catch {
-      toast.error('Failed to delete job', {
-        description: 'An unexpected error occurred. Please try again.'
-      })
-      await fetchJobs(pagination.page, pagination.limit) 
-    } finally {
-      setDeleteDialog(prev => ({ ...prev, isLoading: false }))
-    }
-  }
-
-  const cancelDeleteJob = () => {
-    setDeleteDialog({
-      isOpen: false,
-      jobId: null,
-      jobTitle: '',
-      isLoading: false
-    })
   }
 
   const handleToggleJobStatus = async (jobId: string, currentStatus: boolean) => {
@@ -256,9 +185,9 @@ const CompanyJobListing = () => {
 
         <div className="px-5 pb-5">
           <Card className="border border-[#D6DDEB] rounded-lg">
-            <CardHeader className="border-b border-[#D6DDEB]">
+            <CardHeader className=" border-b border-[#D6DDEB]">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold text-[#25324B]">
+                <CardTitle className="!p-0 text-xl font-bold text-[#25324B]">
                   Job List
                 </CardTitle>
                 <div className="flex items-center gap-1 px-5 py-3 border border-[#D6DDEB] rounded-lg bg-white">
@@ -412,13 +341,6 @@ const CompanyJobListing = () => {
                               </>
                             )}
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteJob(jobId, job.title)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -488,18 +410,6 @@ const CompanyJobListing = () => {
             </div>
           </Card>
         </div>
-
-        <ConfirmationDialog
-          isOpen={deleteDialog.isOpen}
-          onClose={cancelDeleteJob}
-          onConfirm={confirmDeleteJob}
-          title="Delete Job Posting"
-          description={`Are you sure you want to delete "${deleteDialog.jobTitle}"? This action cannot be undone.`}
-          confirmText="Delete"
-          cancelText="Cancel"
-          variant="danger"
-          isLoading={deleteDialog.isLoading}
-        />
       </div>
     </CompanyLayout>
   )

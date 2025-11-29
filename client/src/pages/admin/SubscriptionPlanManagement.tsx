@@ -12,7 +12,7 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  DollarSign,
+  IndianRupee,
   
 } from 'lucide-react'
 import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData } from '@/api/admin.api'
@@ -250,7 +250,7 @@ const SubscriptionPlanManagement = () => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium">Price ($) *</label>
+          <label className="text-sm font-medium">Price (₹) *</label>
           <Input
             type="number"
             min="0"
@@ -432,7 +432,7 @@ const SubscriptionPlanManagement = () => {
                           </td>
                           <td className="p-4">
                             <div className="flex items-center space-x-1">
-                              <DollarSign className="h-4 w-4 text-gray-600" />
+                              <IndianRupee className="h-4 w-4 text-gray-600" />
                               <span className="font-semibold text-gray-800">{plan.price === 0 ? '0' : plan.price.toLocaleString()}</span>
                               <span className="text-xs text-gray-500">/ {plan.duration} days</span>
                             </div>
