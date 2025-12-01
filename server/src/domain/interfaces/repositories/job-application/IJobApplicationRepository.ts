@@ -16,8 +16,6 @@ export interface IJobApplicationRepository extends IBaseRepository<JobApplicatio
   addInterviewFeedback(applicationId: string, interviewId: string, feedbackData: InterviewFeedback): Promise<JobApplication | null>;
   deleteInterview(applicationId: string, interviewId: string): Promise<JobApplication | null>;
   updateInterview(applicationId: string, interviewId: string, interviewData: Partial<InterviewSchedule>): Promise<JobApplication | null>;
-  countApplicationInday(userId: string): Promise<number>;
-  checkCanApply(userId: string, companyId: string): Promise<boolean>;
 }
 
 

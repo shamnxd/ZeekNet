@@ -81,45 +81,4 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
 
     return updated ? this.mapToEntity(updated) : null;
   }
-
-  async countApplicationInday(userId: string): Promise<number> {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
-
-    return JobApplicationModel.countDocuments({
-      applicant_id: userId,
-      createdAt: { $gte: startOfDay, $lte: endOfDay },
-    }).exec();
-  }
-
-  async checkCanApply(userId: string, companyId: string): Promise<boolean> {
-    let startDate = new Date();
-
-    let application = await JobApplicationModel.findOne({
-      seeker_id: userId,
-      company_id: companyId,
-      stage: 'rejected',
-    });
-
-    if(!application) {
-      return true;
-    };
-
-    startDate.setDate(application?.updated_at);
-    let endDate = new Date();
-    endDate.setDate(endDate.getMonth() + 6);
-
-
-    let count = await JobApplicationModel.countDocuments({
-      seeker_id: userId,
-      company_id: companyId,
-      createdAt: { $gte: startDate, $lte: endDate },
-    });;
-
-    if(count >= 1) {
-      return false;
-    }
-  }
 }
