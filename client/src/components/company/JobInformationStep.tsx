@@ -37,11 +37,23 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         search: searchTerm,
       });
       if (response.success && response.data) {
-        const options: ComboboxOption[] = response.data.map((categoryName: string) => ({
+        const fetchedOptions: ComboboxOption[] = response.data.map((categoryName: string) => ({
           value: categoryName,
           label: categoryName,
         }));
-        setCategoriesOptions(options);
+        
+        // Add pre-selected categories that might not be in the list
+        const allOptions = [...fetchedOptions];
+        for (const selectedCategory of data.categoryIds) {
+          if (!allOptions.find(opt => opt.value === selectedCategory)) {
+            allOptions.push({
+              value: selectedCategory,
+              label: selectedCategory,
+            });
+          }
+        }
+        
+        setCategoriesOptions(allOptions);
       }
     } catch (error) {
       console.error('Failed to fetch categories:', error);
@@ -58,11 +70,23 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         search: searchTerm,
       });
       if (response.success && response.data) {
-        const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+        const fetchedOptions: ComboboxOption[] = response.data.map((skillName: string) => ({
           value: skillName,
           label: skillName,
         }));
-        setSkillsOptions(options);
+        
+        // Add pre-selected skills that might not be in the list
+        const allOptions = [...fetchedOptions];
+        for (const selectedSkill of data.skillsRequired) {
+          if (!allOptions.find(opt => opt.value === selectedSkill)) {
+            allOptions.push({
+              value: selectedSkill,
+              label: selectedSkill,
+            });
+          }
+        }
+        
+        setSkillsOptions(allOptions);
       }
     } catch (error) {
       console.error('Failed to fetch skills:', error);
@@ -90,10 +114,18 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   };
 
   useEffect(() => {
-    fetchCategories();
-    fetchSkills();
-    fetchJobRoles();
-  }, []);
+    const initializeOptions = async () => {
+      // Fetch all categories and ensure selected ones are included
+      await fetchCategories();
+      
+      // Fetch all skills and ensure selected ones are included
+      await fetchSkills();
+      
+      await fetchJobRoles();
+    };
+    
+    initializeOptions();
+  }, [data.categoryIds, data.skillsRequired]);
 
   const handleTitleChange = (value: string) => {
     handleFieldChange('title', value);

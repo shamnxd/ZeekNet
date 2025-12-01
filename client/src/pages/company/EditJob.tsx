@@ -74,21 +74,16 @@ const EditJob = () => {
           
           setJobData({
             title: job.title || "",
-            employmentTypes: job.employment_types || [],
+            employmentTypes: job.employmentTypes || job.employment_types || [],
             salary: job.salary || { min: 5000, max: 22000 },
-            categoryIds: job.category_ids || [],
-            skillsRequired: job.skills_required || [],
+            categoryIds: job.categoryIds || job.category_ids || [],
+            skillsRequired: job.skillsRequired || job.skills_required || [],
             location: job.location || "",
             description: job.description || "",
             responsibilities: job.responsibilities || [],
             qualifications: job.qualifications || [],
-            niceToHaves: job.nice_to_haves || [],
-            benefits: job.benefits ? job.benefits.map((benefit: string, index: number) => ({ 
-              id: index.toString(), 
-              title: benefit, 
-              description: benefit, 
-              icon: 'heart' 
-            })) : [],
+            niceToHaves: job.niceToHaves || job.nice_to_haves || [],
+            benefits: job.benefits || [],
           });
         } else {
           toast.error("Failed to load job data");
@@ -176,7 +171,7 @@ const EditJob = () => {
         responsibilities: jobData.responsibilities,
         qualifications: jobData.qualifications,
         nice_to_haves: jobData.niceToHaves,
-        benefits: jobData.benefits.map(benefit => benefit.title),
+        benefits: jobData.benefits,
         salary: jobData.salary,
         employment_types: jobData.employmentTypes as ("full-time" | "part-time" | "contract" | "internship" | "remote")[],
         location: jobData.location,

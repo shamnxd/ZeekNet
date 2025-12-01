@@ -592,7 +592,7 @@ const JobDetail = () => {
                         <>
                           <span className="text-gray-300">•</span>
                           <span className="font-bold text-[#141414]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-                            ${(salary.min / 1000).toFixed(0)}K-${(salary.max / 1000).toFixed(0)}K
+                            ₹{(salary.min / 1000).toFixed(0)}K-₹{(salary.max / 1000).toFixed(0)}K
                           </span>
                         </>
                       )}

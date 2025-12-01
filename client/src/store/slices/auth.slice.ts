@@ -23,6 +23,7 @@ export interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
   isInitialized: boolean;
+  companyVerificationStatus?: 'not_created' | 'pending' | 'verified' | 'rejected' | null;
 }
 
 const initialState: AuthState = {
@@ -37,6 +38,7 @@ const initialState: AuthState = {
   error: null,
   isAuthenticated: false,
   isInitialized: false,
+  companyVerificationStatus: null,
 };
 
 const extractErrorMessage = (error: unknown, fallback: string): string => {
@@ -79,6 +81,7 @@ const clearAuthData = (state: AuthState) => {
   state.isVerified = false;
   state.isBlocked = false;
   state.isAuthenticated = false;
+  state.companyVerificationStatus = null;
 };
 
 const setLoading = (state: AuthState, loading: boolean) => {
@@ -244,6 +247,9 @@ const authSlice = createSlice({
       const { data, token } = action.payload;
       setAuthData(state, data, token);
     },
+    setCompanyVerificationStatus(state, action: PayloadAction<'not_created' | 'pending' | 'verified' | 'rejected'>) {
+      state.companyVerificationStatus = action.payload;
+    },
   },
   extraReducers: (builder) => {
     const addAuthHandlers = <T>(
@@ -357,5 +363,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setInitialized, clearAuthState, setUser } = authSlice.actions;
+export const { logout, clearError, setInitialized, clearAuthState, setUser, setCompanyVerificationStatus } = authSlice.actions;
 export default authSlice.reducer;

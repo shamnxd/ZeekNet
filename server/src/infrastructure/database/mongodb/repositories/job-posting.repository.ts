@@ -4,6 +4,7 @@ import { JobPostingModel, JobPostingDocument } from '../models/job-posting.model
 import { Types } from 'mongoose';
 import { JobPostingMapper } from '../mappers/job-posting.mapper';
 import { RepositoryBase } from './base-repository';
+import { DailyLimitErorr } from 'src/domain/errors/errors';
 
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
   constructor() {
@@ -30,6 +31,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   }
 
   async postJob(jobData: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'>): Promise<JobPosting> {
+
     const document = new JobPostingModel({
       company_id: new Types.ObjectId(jobData.companyId),
       title: jobData.title,
