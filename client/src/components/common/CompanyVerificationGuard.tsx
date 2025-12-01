@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppSelector } from '@/hooks/useRedux';
+import { useAppSelector, useAppDispatch } from '@/hooks/useRedux';
 import { UserRole } from '@/constants/enums';
 import { companyApi } from '@/api/company.api';
+import { setCompanyVerificationStatus } from '@/store/slices/auth.slice';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -15,81 +16,101 @@ type ProfileStatus = 'not_created' | 'pending' | 'verified' | 'rejected';
 const CompanyVerificationGuard: React.FC<CompanyVerificationGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { role, isAuthenticated } = useAppSelector((state) => state.auth);
-  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { role, isAuthenticated, companyVerificationStatus } = useAppSelector((state) => state.auth);
+  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(companyVerificationStatus || null);
+  const hasCheckedRef = useRef(false);
 
+  // Reset the checked flag when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      hasCheckedRef.current = false;
+    }
+  }, [isAuthenticated]);
+
+  // Only check verification status once per session on mount
   useEffect(() => {
     if (role !== UserRole.COMPANY || !isAuthenticated) {
       return;
     }
+
+    // Skip verification check on dashboard
+    if (location.pathname.startsWith('/company/dashboard')) {
+      return;
+    }
+
+    // Use cached status from Redux if already fetched
+    if (companyVerificationStatus) {
+      setProfileStatus(companyVerificationStatus);
+      return;
+    }
+
+    // Only fetch once per session, not on every route change
+    if (hasCheckedRef.current) {
+      return;
+    }
+
     const checkVerificationStatus = async () => {
       try {
-        setLoading(true);
-        
-        const response = await companyApi.getDashboard();
-        
+        const response = await companyApi.getProfile();
+
         if (response.success && response.data) {
-          const data = response.data as any;
-          const status = (data.profileStatus || data.verificationStatus || 'not_created') as ProfileStatus;
+          // Handle both nested (profile.profile) and direct (profile) response structures
+          const responseData = response.data as { profile?: { is_verified: string } } | { is_verified: string };
+          let profileData: { is_verified?: string } | undefined;
+          
+          if ('profile' in responseData && responseData.profile) {
+            profileData = responseData.profile;
+          } else if ('is_verified' in responseData) {
+            profileData = responseData as { is_verified: string };
+          }
+          
+          const status = (profileData?.is_verified || 'not_created') as ProfileStatus;
           setProfileStatus(status);
+          dispatch(setCompanyVerificationStatus(status));
+          hasCheckedRef.current = true;
         } else {
-          if (response.message?.includes('Company profile not found') || 
-              response.message?.includes('Please complete your profile')) {
+          if (response.message?.includes('Company profile not found') ||
+            response.message?.includes('Please complete your profile')) {
             navigate('/company/profile-setup', { replace: true });
             return;
           }
-          
-          if (response.message && (response.data as any)?.verificationStatus) {
-            const status = (response.data as any).verificationStatus as ProfileStatus;
-            setProfileStatus(status);
-          } else {
-            setProfileStatus('not_created');
-          }
+          setProfileStatus('not_created');
+          hasCheckedRef.current = true;
         }
-      } catch (err: any) {
-        const errorMessage = err.response?.data?.message || err.message || '';
-        
-        if (errorMessage.includes('Company profile not found') || 
-            errorMessage.includes('Please complete your profile')) {
+      } catch (err: unknown) {
+        const errorMessage = 
+          (err && typeof err === 'object' && 'response' in err) 
+            ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || ''
+            : (err && typeof err === 'object' && 'message' in err)
+            ? (err as { message: string }).message
+            : '';
+
+        if (errorMessage.includes('Company profile not found') ||
+          errorMessage.includes('Please complete your profile')) {
           navigate('/company/profile-setup', { replace: true });
           return;
         }
-        
-        if (err.response?.data?.data?.verificationStatus) {
-          const status = err.response.data.data.verificationStatus as ProfileStatus;
-          setProfileStatus(status);
-        } else {
-          setProfileStatus('not_created');
-        }
-      } finally {
-        setLoading(false);
+
+        setProfileStatus('not_created');
+        hasCheckedRef.current = true;
       }
     };
 
     checkVerificationStatus();
-  }, [role, isAuthenticated, navigate]);
+  }, [navigate, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (role !== UserRole.COMPANY || !isAuthenticated) {
     return <>{children}</>;
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
+  // Always allow dashboard access regardless of verification status
+  if (location.pathname.startsWith('/company/dashboard')) {
+    return <>{children}</>;
   }
 
+  // For other pages, check verification status
   if (profileStatus !== 'verified') {
-    
-    if (location.pathname.startsWith('/company/dashboard')) {
-      return <>{children}</>;
-    }
-
     return (
       <>
         <Dialog open>

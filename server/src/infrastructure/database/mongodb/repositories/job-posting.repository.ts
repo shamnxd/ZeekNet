@@ -4,6 +4,7 @@ import { JobPostingModel, JobPostingDocument } from '../models/job-posting.model
 import { Types } from 'mongoose';
 import { JobPostingMapper } from '../mappers/job-posting.mapper';
 import { RepositoryBase } from './base-repository';
+import { DailyLimitErorr } from 'src/domain/errors/errors';
 
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
   constructor() {
@@ -30,6 +31,37 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   }
 
   async postJob(jobData: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'>): Promise<JobPosting> {
+
+    // let now = new Date();
+    // let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    // startDate.setDate(startDate.getDate() - 2);
+
+    let startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    let endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+
+    let count = await JobPostingModel.countDocuments({
+      company_id: new Types.ObjectId(jobData.companyId),
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+
+    if (count >= 5) {
+      throw new DailyLimitErorr();
+    }
+
+    let countSameJob = await JobPostingModel.countDocuments({
+      company_id: new Types.ObjectId(jobData.companyId),
+      title: jobData.title,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+
+
+    if(countSameJob >= 2) {
+      throw new DailyLimitErorr();
+    }    
+
     const document = new JobPostingModel({
       company_id: new Types.ObjectId(jobData.companyId),
       title: jobData.title,

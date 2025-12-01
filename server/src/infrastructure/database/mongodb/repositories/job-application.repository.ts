@@ -38,7 +38,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
 
   async addInterviewFeedback(applicationId: string, interviewId: string, feedbackData: InterviewFeedback): Promise<JobApplication | null> {
     const updated = await JobApplicationModel.findOneAndUpdate(
-      { _id: applicationId, 'interviews.id': interviewId },
+      { _id: applicationId, 'interviews._id': new Types.ObjectId(interviewId) },
       { 
         $set: { 
           'interviews.$.feedback': feedbackData,
@@ -56,7 +56,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findByIdAndUpdate(
       applicationId,
       { 
-        $pull: { interviews: { id: interviewId } },
+        $pull: { interviews: { _id: new Types.ObjectId(interviewId) } },
         updatedAt: new Date(),
       },
       { new: true },
@@ -74,11 +74,52 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     updateFields['updatedAt'] = new Date();
 
     const updated = await JobApplicationModel.findOneAndUpdate(
-      { _id: applicationId, 'interviews.id': interviewId },
+      { _id: applicationId, 'interviews._id': new Types.ObjectId(interviewId) },
       { $set: updateFields },
       { new: true },
     );
 
     return updated ? this.mapToEntity(updated) : null;
+  }
+
+  async countApplicationInday(userId: string): Promise<number> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return JobApplicationModel.countDocuments({
+      applicant_id: userId,
+      createdAt: { $gte: startOfDay, $lte: endOfDay },
+    }).exec();
+  }
+
+  async checkCanApply(userId: string, companyId: string): Promise<boolean> {
+    let startDate = new Date();
+
+    let application = await JobApplicationModel.findOne({
+      seeker_id: userId,
+      company_id: companyId,
+      stage: 'rejected',
+    });
+
+    if(!application) {
+      return true;
+    };
+
+    startDate.setDate(application?.updated_at);
+    let endDate = new Date();
+    endDate.setDate(endDate.getMonth() + 6);
+
+
+    let count = await JobApplicationModel.countDocuments({
+      seeker_id: userId,
+      company_id: companyId,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });;
+
+    if(count >= 1) {
+      return false;
+    }
   }
 }

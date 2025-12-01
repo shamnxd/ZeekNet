@@ -14,12 +14,7 @@ export interface JobPostingData {
   qualifications: string[];
   niceToHaves: string[];
   
-  benefits: Array<{
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-  }>;
+  benefits: string[];
 }
 
 export interface JobPostingStepProps {

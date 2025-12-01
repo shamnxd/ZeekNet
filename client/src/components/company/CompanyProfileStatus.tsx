@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAppSelector, useAppDispatch } from '@/hooks/useRedux'
+import { setCompanyVerificationStatus } from '@/store/slices/auth.slice'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
@@ -22,65 +24,81 @@ interface CompanyProfileStatusProps {
 
 const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => {
   const navigate = useNavigate()
-  const [status, setStatus] = useState<ProfileStatus>('not_created')
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const { companyVerificationStatus } = useAppSelector((state) => state.auth)
+  const [status, setStatus] = useState<ProfileStatus>(companyVerificationStatus || 'not_created')
+  const [loading, setLoading] = useState(!companyVerificationStatus)
   const [error, setError] = useState<string | null>(null)
   const [rejectionReason, setRejectionReason] = useState<string | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const hasCheckedRef = useRef(!companyVerificationStatus)
 
-  const checkProfileStatus = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const res = await companyApi.getDashboard()
-      
-      if (res.success && res.data) {
-        const profileStatus = (res.data.profileStatus || res.data.verificationStatus || 'not_created') as ProfileStatus
-        setStatus(profileStatus)
-        onStatusChange?.(profileStatus)
+  // Check profile status on mount only (skip if already in Redux)
+  useEffect(() => {
+    if (hasCheckedRef.current) return
+    hasCheckedRef.current = true
 
-        const data = res.data as any
-        if (data.profile?.rejection_reason) {
-          setRejectionReason(data.profile.rejection_reason)
-        } else if (data.rejection_reason) {
-          setRejectionReason(data.rejection_reason)
-        } else {
-          setRejectionReason(null)
-        }
-      } else {
-        if (res.message && res.data?.verificationStatus) {
-          const profileStatus = res.data.verificationStatus as ProfileStatus
+    const checkProfileStatus = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const res = await companyApi.getProfile()
+        
+        if (res.success && res.data) {
+          // Handle both nested (profile.profile) and direct (profile) response structures
+          const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
+          const profileData = 'profile' in resData ? resData.profile : resData;
+          const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
           setStatus(profileStatus)
+          dispatch(setCompanyVerificationStatus(profileStatus))
           onStatusChange?.(profileStatus)
+
+          if (profileData?.rejection_reason) {
+            setRejectionReason(profileData.rejection_reason)
+          } else {
+            setRejectionReason(null)
+          }
         } else {
           setError(res.message || 'Failed to check profile status')
           setStatus('not_created')
         }
-      }
-    } catch (err: any) {
-      
-      if (err.response?.data?.data?.verificationStatus) {
-        const profileStatus = err.response.data.data.verificationStatus as ProfileStatus
-        setStatus(profileStatus)
-        onStatusChange?.(profileStatus)
-      } else {
-        setError(err.response?.data?.message || 'Failed to check profile status')
+      } catch (err: unknown) {
+        const errorMessage = 
+          (err && typeof err === 'object' && 'response' in err) 
+            ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || ''
+            : (err && typeof err === 'object' && 'message' in err)
+            ? (err as { message: string }).message
+            : ''
+
+        setError(errorMessage || 'Failed to check profile status')
         setStatus('not_created')
+      } finally {
+        setLoading(false)
       }
-    } finally {
-      setLoading(false)
     }
+
+    checkProfileStatus()
   }, [onStatusChange])
 
-  useEffect(() => {
-    checkProfileStatus()
-  }, [checkProfileStatus])
-
+  // Set up polling when status is pending
   useEffect(() => {
     if (status === 'pending') {
-      intervalRef.current = setInterval(() => {
-        checkProfileStatus()
+      intervalRef.current = setInterval(async () => {
+        try {
+          const res = await companyApi.getProfile()
+          if (res.success && res.data) {
+            // Handle both nested (profile.profile) and direct (profile) response structures
+            const resData = res.data as { profile?: { is_verified: string } } | { is_verified: string };
+            const profileData = 'profile' in resData ? resData.profile : resData;
+            const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
+            setStatus(profileStatus)
+            dispatch(setCompanyVerificationStatus(profileStatus))
+            onStatusChange?.(profileStatus)
+          }
+        } catch {
+          // Silently ignore polling errors
+        }
       }, 30000)
     } else {
       if (intervalRef.current) {
@@ -94,10 +112,44 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
         clearInterval(intervalRef.current)
       }
     }
-  }, [status, checkProfileStatus])
+  }, [status, onStatusChange])
 
-  const handleRefresh = () => {
-    checkProfileStatus()
+  const handleRefresh = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const res = await companyApi.getProfile()
+      
+      if (res.success && res.data) {
+        // Handle both nested (profile.profile) and direct (profile) response structures
+        const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
+        const profileData = 'profile' in resData ? resData.profile : resData;
+        const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
+        setStatus(profileStatus)
+        dispatch(setCompanyVerificationStatus(profileStatus))
+        onStatusChange?.(profileStatus)
+
+        if (profileData?.rejection_reason) {
+          setRejectionReason(profileData.rejection_reason)
+        } else {
+          setRejectionReason(null)
+        }
+      } else {
+        setError(res.message || 'Failed to check profile status')
+      }
+    } catch (err: unknown) {
+      const errorMessage = 
+        (err && typeof err === 'object' && 'response' in err) 
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || ''
+          : (err && typeof err === 'object' && 'message' in err)
+          ? (err as { message: string }).message
+          : ''
+
+      setError(errorMessage || 'Failed to check profile status')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) {

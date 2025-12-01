@@ -118,7 +118,7 @@ const PostJob = () => {
         responsibilities: jobData.responsibilities,
         qualifications: jobData.qualifications,
         nice_to_haves: jobData.niceToHaves,
-        benefits: jobData.benefits.map(benefit => benefit.title),
+        benefits: jobData.benefits,
         salary: jobData.salary,
         employment_types: jobData.employmentTypes as ("full-time" | "part-time" | "contract" | "internship" | "remote")[],
         location: jobData.location,

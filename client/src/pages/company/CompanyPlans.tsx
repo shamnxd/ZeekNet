@@ -121,7 +121,7 @@ const CompanyPlans = () => {
                 <p className="text-sm font-medium text-gray-500 mb-1">Current Subscription</p>
                 <CardTitle className="text-3xl font-bold text-gray-900">{currentPlan.name}</CardTitle>
               </div>
-              <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 px-3 py-1">
+              <Badge variant="secondary" className="!bg-green-100 !text-green-700 !hover:bg-green-100 px-3 py-1">
                 {currentPlan.status}
               </Badge>
             </div>
@@ -316,12 +316,12 @@ const CompanyPlans = () => {
               }`}
             >
               {isPopular && (
-                <div className="bg-[#4640DE] text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
+                <div className="bg-[#4640DE] !mt-4 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
                   Most Popular Plan
                 </div>
               )}
               
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-4  !mt-4">
                 <CardTitle className="text-xl font-bold text-gray-900">{plan.name}</CardTitle>
                 <CardDescription className="text-gray-500">{plan.description}</CardDescription>
               </CardHeader>
