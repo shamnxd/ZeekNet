@@ -21,6 +21,7 @@ export interface JobPostingDocument extends Document {
   skills_required: string[];
   category_ids: string[];
   status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
@@ -134,6 +135,11 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
       enum: ['active', 'unlisted', 'expired', 'blocked'],
       default: 'active',
       required: true,
+      index: true,
+    },
+    is_featured: {
+      type: Boolean,
+      default: false,
       index: true,
     },
     unpublish_reason: {
