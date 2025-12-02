@@ -36,14 +36,13 @@ export class JobPostingMapper {
       location: doc.location || '',
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
-      isActive: doc.is_active !== undefined ? doc.is_active : true,
+      status: doc.status || 'active',
       viewCount: doc.view_count || 0,
       applicationCount: doc.application_count || 0,
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
       companyName,
       companyLogo,
-      adminBlocked: doc.admin_blocked,
       unpublishReason: doc.unpublish_reason,
     });
   }
@@ -95,16 +94,8 @@ export class JobPostingMapper {
       doc.category_ids = input.category_ids as string[];
     }
     
-    if (input.isActive !== undefined) {
-      doc.is_active = input.isActive as boolean;
-    } else if (input.is_active !== undefined) {
-      doc.is_active = input.is_active as boolean;
-    }
-    
-    if (input.adminBlocked !== undefined) {
-      doc.admin_blocked = input.adminBlocked as boolean;
-    } else if (input.admin_blocked !== undefined) {
-      doc.admin_blocked = input.admin_blocked as boolean;
+    if (input.status !== undefined) {
+      doc.status = input.status as 'active' | 'unlisted' | 'expired' | 'blocked';
     }
     
     if (input.unpublishReason !== undefined) {

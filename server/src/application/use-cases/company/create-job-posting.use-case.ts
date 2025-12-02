@@ -28,8 +28,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       location: jobData.location,
       skillsRequired: jobData.skills_required || [],
       categoryIds: jobData.category_ids || [],
-      isActive: true,
-      adminBlocked: false,
+      status: 'active',
       viewCount: 0,
       applicationCount: 0,
     };

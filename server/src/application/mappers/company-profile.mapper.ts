@@ -64,7 +64,7 @@ export class CompanyProfileMapper {
           employmentType: job.employmentTypes?.[0] || '',
           salaryMin: job.salary?.min,
           salaryMax: job.salary?.max,
-          isActive: job.isActive,
+          status: job.status,
           createdAt: job.createdAt.toISOString(),
           updatedAt: job.updatedAt.toISOString(),
         }))

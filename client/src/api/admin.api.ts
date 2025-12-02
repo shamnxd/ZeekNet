@@ -3,7 +3,7 @@ import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
-      status?: 'all' | 'active' | 'inactive' | 'blocked';
+      status?: 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired';
       sortBy?: string;
       sortOrder?: 'asc' | 'desc';
     } = {}): Promise<{
@@ -22,13 +22,8 @@ export const adminApi = {
         if (query.salary_max) params.append('salary_max', query.salary_max.toString());
         if (query.location) params.append('location', query.location);
         if (query.search) params.append('search', query.search);
-        if (query.is_active !== undefined) params.append('is_active', query.is_active.toString());
         if (query.status && query.status !== 'all') {
-          if (query.status === 'blocked') {
-            params.append('admin_blocked', 'true');
-          } else {
-            params.append('is_active', query.status === 'active' ? 'true' : 'false');
-          }
+          params.append('status', query.status);
         }
         if (query.sortBy) params.append('sortBy', query.sortBy);
         if (query.sortOrder) params.append('sortOrder', query.sortOrder);
@@ -59,13 +54,13 @@ export const adminApi = {
       }
     },
 
-  updateJobStatus: async (jobId: string, isActive: boolean, unpublishReason?: string): Promise<{
+  updateJobStatus: async (jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<{
       success: boolean;
       message?: string;
     }> => {
       try {
         const response = await api.patch(`/api/admin/jobs/${jobId}/status`, {
-          is_active: isActive,
+          status: status,
           unpublish_reason: unpublishReason
         });
         return response.data;

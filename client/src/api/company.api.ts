@@ -184,8 +184,8 @@ export const companyApi = {
     return baseApi.delete<{ message: string }>(`/api/company/jobs/${id}`)();
   },
 
-  async updateJobStatus(id: string, is_active: boolean): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.patch<JobPostingResponse>(`/api/company/jobs/${id}/status`)({ is_active });
+  async updateJobStatus(id: string, status: 'active' | 'unlisted' | 'expired' | 'blocked'): Promise<ApiEnvelope<JobPostingResponse>> {
+    return baseApi.patch<JobPostingResponse>(`/api/company/jobs/${id}/status`)({ status });
   },
 
   async getContact(): Promise<ApiEnvelope<any>> {

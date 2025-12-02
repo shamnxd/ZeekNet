@@ -15,7 +15,7 @@ export class GetCompanyJobPostingUseCase implements IGetCompanyJobPostingUseCase
 
     if (jobPosting.companyId !== companyId) {
       
-      if (jobPosting.adminBlocked) {
+      if (jobPosting.status === 'blocked') {
         throw new AppError('Job posting not found', 404);
       }
     }

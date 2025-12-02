@@ -216,7 +216,7 @@ export interface IGetJobPostingUseCase {
 }
 
 export interface IGetCompanyJobPostingsUseCase {
-  execute(companyId: string, options: JobPostingFilters): Promise<{ jobs: Array<{ id: string; title: string; isActive: boolean; employmentTypes: string[]; applicationCount: number; viewCount: number; adminBlocked?: boolean; unpublishReason?: string; createdAt: Date; }>; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>;
+  execute(companyId: string, options: JobPostingFilters): Promise<{ jobs: Array<{ id: string; title: string; status: 'active' | 'unlisted' | 'expired' | 'blocked'; employmentTypes: string[]; applicationCount: number; viewCount: number; unpublishReason?: string; createdAt: Date; }>; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>;
 }
 
 export interface IUpdateJobPostingUseCase {
@@ -232,7 +232,7 @@ export interface IIncrementJobViewCountUseCase {
 }
 
 export interface IUpdateJobStatusUseCase {
-  execute(jobId: string, isActive: boolean): Promise<JobPosting>;
+  execute(jobId: string, status: string): Promise<JobPosting>;
 }
 
 export interface UploadLogoResult {

@@ -51,8 +51,8 @@ export class AdminJobController {
     }
 
     try {
-      await this._updateJobStatusUseCase.execute(id, parsed.data.is_active, parsed.data.unpublish_reason);
-      const message = `Job ${parsed.data.is_active ? 'activated' : 'deactivated'} successfully`;
+      await this._updateJobStatusUseCase.execute(id, parsed.data.status, parsed.data.unpublish_reason);
+      const message = `Job status updated to '${parsed.data.status}' successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
       handleAsyncError(error, next);

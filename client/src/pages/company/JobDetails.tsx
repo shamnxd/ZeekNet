@@ -505,21 +505,36 @@ const JobDetails = () => {
         </div>
 
         {}
-        {(jobData.adminBlocked || jobData.admin_blocked) && (
-          <div className="px-7 py-4 bg-yellow-50 border-b border-yellow-200">
+        {jobData.status === 'blocked' && (
+          <div className="px-7 py-4 bg-red-50 border-b border-red-200">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="text-sm font-semibold text-yellow-800 mb-1">
+                <h3 className="text-sm font-semibold text-red-800 mb-1">
                   This job has been blocked by admin
                 </h3>
                 {(jobData.unpublishReason || jobData.unpublish_reason) && (
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-red-700">
                     Reason: {jobData.unpublishReason || jobData.unpublish_reason}
                   </p>
                 )}
-                <p className="text-xs text-yellow-600 mt-1">
+                <p className="text-xs text-red-600 mt-1">
                   The job is not visible to job seekers. Please review and update the job details or contact admin for more information.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        {jobData.status === 'expired' && (
+          <div className="px-7 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800 mb-1">
+                  This job has expired
+                </h3>
+                <p className="text-xs text-gray-600 mt-1">
+                  This job posting has expired and is no longer visible to job seekers.
                 </p>
               </div>
             </div>
@@ -736,15 +751,24 @@ const JobDetails = () => {
                         <div className="flex justify-between">
                           <span className="text-sm text-[#515B6F]">Status</span>
                           <div className="flex flex-col items-end gap-1">
-                            <span className="text-sm font-semibold text-[#25324B]">{jobData.isActive || jobData.is_active ? 'Active' : 'Inactive'}</span>
-                            {(jobData.adminBlocked || jobData.admin_blocked) && (
-                              <Badge className="bg-red-500 text-white text-xs px-2 py-0.5">
-                                Admin Blocked
-                              </Badge>
-                            )}
+                            {(() => {
+                              const status = jobData.status ?? 'unlisted';
+                              const statusConfig = {
+                                active: { label: 'Active', color: 'text-[#56CDAD]' },
+                                unlisted: { label: 'Unlisted', color: 'text-[#FFB836]' },
+                                expired: { label: 'Expired', color: 'text-[#7C8493]' },
+                                blocked: { label: 'Blocked', color: 'text-red-600' }
+                              };
+                              const config = statusConfig[status as keyof typeof statusConfig] || { label: 'Unknown', color: 'text-[#7C8493]' };
+                              return (
+                                <span className={`text-sm font-semibold ${config.color}`}>
+                                  {config.label}
+                                </span>
+                              );
+                            })()}
                           </div>
                         </div>
-                        {(jobData.adminBlocked || jobData.admin_blocked) && (jobData.unpublishReason || jobData.unpublish_reason) && (
+                        {jobData.status === 'blocked' && (jobData.unpublishReason || jobData.unpublish_reason) && (
                           <div className="flex justify-between pt-2 border-t border-[#D6DDEB]">
                             <span className="text-sm text-[#515B6F]">Block Reason</span>
                             <span className="text-sm font-semibold text-red-600 max-w-[60%] text-right">

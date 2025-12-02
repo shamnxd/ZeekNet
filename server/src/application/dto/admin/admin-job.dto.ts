@@ -4,24 +4,7 @@ export const AdminGetAllJobsDto = z.object({
   page: z.coerce.number().min(1).optional().default(1),
   limit: z.coerce.number().min(1).max(100).optional().default(10),
   search: z.string().optional(),
-  is_active: z.preprocess(
-    (val) => {
-      if (val === 'true') return true;
-      if (val === 'false') return false;
-      if (typeof val === 'boolean') return val;
-      return undefined;
-    },
-    z.boolean().optional(),
-  ),
-  admin_blocked: z.preprocess(
-    (val) => {
-      if (val === 'true') return true;
-      if (val === 'false') return false;
-      if (typeof val === 'boolean') return val;
-      return undefined;
-    },
-    z.boolean().optional(),
-  ),
+  status: z.enum(['active', 'unlisted', 'expired', 'blocked']).optional(),
   category_ids: z
     .string()
     .optional()
@@ -38,7 +21,7 @@ export const AdminGetAllJobsDto = z.object({
 });
 
 export const AdminUpdateJobStatusDto = z.object({
-  is_active: z.boolean(),
+  status: z.enum(['active', 'unlisted', 'expired', 'blocked']),
   unpublish_reason: z.string().optional(),
 });
 

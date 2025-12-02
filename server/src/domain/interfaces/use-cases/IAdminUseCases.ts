@@ -118,9 +118,7 @@ export interface IAdminGetAllJobsUseCase {
       companyName: string;
       location: string;
       salary: { min: number; max: number };
-      status: boolean;
-      is_active: boolean;
-      admin_blocked: boolean;
+      status: string;
       applications: number;
       viewCount: number;
       createdAt: Date;
@@ -141,7 +139,7 @@ export interface IAdminGetJobByIdUseCase {
 }
 
 export interface IAdminUpdateJobStatusUseCase {
-  execute(jobId: string, isActive: boolean, unpublishReason?: string): Promise<JobPosting>;
+  execute(jobId: string, status: string, unpublishReason?: string): Promise<JobPosting>;
 }
 
 export interface IAdminDeleteJobUseCase {
@@ -161,7 +159,7 @@ export interface IAdminGetJobStatsUseCase {
 }
 
 export interface IUpdateJobStatusUseCase {
-  execute(jobId: string, isActive: boolean): Promise<JobPosting>;
+  execute(jobId: string, status: string): Promise<JobPosting>;
 }
 
 export interface ICreateSkillUseCase {
