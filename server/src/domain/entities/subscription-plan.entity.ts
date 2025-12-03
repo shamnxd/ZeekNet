@@ -4,8 +4,8 @@ export class SubscriptionPlan {
     public readonly name: string,
     public readonly description: string,
     public readonly price: number,
-    public readonly duration: number, // in days
-    public readonly yearlyDiscount: number, // percentage discount for yearly billing
+    public readonly duration: number, 
+    public readonly yearlyDiscount: number, 
     public readonly features: string[],
     public readonly jobPostLimit: number,
     public readonly featuredJobLimit: number,
@@ -16,10 +16,6 @@ export class SubscriptionPlan {
     public readonly updatedAt: Date,
   ) {}
 
-  /**
-   * Calculate yearly price with discount
-   * Formula: (monthlyPrice * 12) * (1 - discount/100)
-   */
   getYearlyPrice(): number {
     const yearlyBasePrice = this.price * 12;
     const discountAmount = yearlyBasePrice * (this.yearlyDiscount / 100);

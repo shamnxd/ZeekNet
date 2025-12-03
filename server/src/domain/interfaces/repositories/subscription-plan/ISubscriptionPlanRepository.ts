@@ -22,4 +22,5 @@ export interface ISubscriptionPlanRepository extends IBaseRepository<Subscriptio
   findByName(name: string): Promise<SubscriptionPlan | null>;
   findAllWithPagination(options: SubscriptionPlanQueryOptions): Promise<PaginatedSubscriptionPlans>;
   unmarkAllAsPopular(): Promise<void>;
+  findByIds(ids: string[]): Promise<SubscriptionPlan[]>;
 }
