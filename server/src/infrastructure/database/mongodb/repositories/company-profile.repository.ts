@@ -173,4 +173,9 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
       return { companies, total };
     }
   }
+
+  async findByIds(ids: string[]): Promise<CompanyProfile[]> {
+    const docs = await CompanyProfileModel.find({ _id: { $in: ids } }).exec();
+    return docs.map(doc => this.mapToEntity(doc));
+  }
 }

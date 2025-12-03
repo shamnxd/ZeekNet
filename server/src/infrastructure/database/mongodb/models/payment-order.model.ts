@@ -18,7 +18,7 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
   {
     companyId: {
       type: Schema.Types.ObjectId,
-      ref: 'Company',
+      ref: 'CompanyProfile',
       required: true,
       index: true,
     },

@@ -46,4 +46,19 @@ export class PaymentOrderRepository implements IPaymentOrderRepository {
 
     await PaymentOrderModel.findByIdAndUpdate(id, { status, updatedAt: new Date() });
   }
+
+  async findAll(options?: { status?: 'pending' | 'completed' | 'failed' | 'cancelled'; sortOrder?: 'asc' | 'desc' }): Promise<PaymentOrder[]> {
+    const filter: Record<string, unknown> = {};
+    
+    if (options?.status) {
+      filter.status = options.status;
+    }
+
+    const sortOrder = options?.sortOrder === 'asc' ? 1 : -1;
+
+    const docs = await PaymentOrderModel.find(filter)
+      .sort({ createdAt: sortOrder });
+    
+    return docs.map(doc => PaymentOrderMapper.toEntity(doc));
+  }
 }
