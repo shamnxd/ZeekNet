@@ -11,6 +11,7 @@ export class PaymentOrderMapper {
       currency: doc.currency,
       status: doc.status as PaymentStatus,
       paymentMethod: doc.paymentMethod as PaymentMethod,
+      invoiceId: doc.invoiceId,
       transactionId: doc.transactionId,
       metadata: doc.metadata,
       createdAt: doc.createdAt,
@@ -26,6 +27,7 @@ export class PaymentOrderMapper {
       currency: entity.currency,
       status: entity.status,
       paymentMethod: entity.paymentMethod,
+      invoiceId: entity.invoiceId,
       transactionId: entity.transactionId,
       metadata: entity.metadata,
     };

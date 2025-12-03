@@ -3,11 +3,17 @@ import { CompanySubscriptionDocument } from '../models/company-subcription.model
 import { Types } from 'mongoose';
 
 export class CompanySubscriptionMapper {
-  static toEntity(doc: CompanySubscriptionDocument & { plan?: { name: string; jobPostLimit: number; featuredJobLimit: number } }): CompanySubscription {
+  static toEntity(doc: CompanySubscriptionDocument | (CompanySubscriptionDocument & { planId?: { name: string; jobPostLimit: number; featuredJobLimit: number } })): CompanySubscription {
     return CompanySubscription.create({
       id: String(doc._id),
       companyId: String(doc.companyId),
-      planId: String(doc.planId),
+      planId: ((): string => {
+        const docWithPlan = doc as CompanySubscriptionDocument & { planId?: { _id?: unknown } | string };
+        if (docWithPlan.planId && typeof docWithPlan.planId === 'object' && docWithPlan.planId._id) {
+          return String(docWithPlan.planId._id);
+        }
+        return String(doc.planId);
+      })(),
       startDate: doc.startDate,
       expiryDate: doc.expiryDate,
       isActive: doc.isActive,
@@ -16,9 +22,9 @@ export class CompanySubscriptionMapper {
       applicantAccessUsed: doc.applicantAccessUsed,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      planName: doc.plan?.name,
-      jobPostLimit: doc.plan?.jobPostLimit,
-      featuredJobLimit: doc.plan?.featuredJobLimit,
+      planName: (doc as CompanySubscriptionDocument & { planId?: { name?: string } }).planId?.name ?? undefined,
+      jobPostLimit: (doc as CompanySubscriptionDocument & { planId?: { jobPostLimit?: number } }).planId?.jobPostLimit ?? undefined,
+      featuredJobLimit: (doc as CompanySubscriptionDocument & { planId?: { featuredJobLimit?: number } }).planId?.featuredJobLimit ?? undefined,
     });
   }
 
