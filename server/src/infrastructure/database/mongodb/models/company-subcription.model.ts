@@ -1,8 +1,8 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 
 export interface CompanySubscriptionDocument extends Document {
-  companyId: Schema.Types.ObjectId;
-  planId: Schema.Types.ObjectId;
+  companyId: Types.ObjectId;
+  planId: Types.ObjectId;
   startDate: Date;
   expiryDate: Date;
   isActive: boolean;
