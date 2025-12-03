@@ -37,6 +37,7 @@ export class JobPostingMapper {
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
       status: doc.status || 'active',
+      isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
       applicationCount: doc.application_count || 0,
       createdAt: doc.createdAt || new Date(),
@@ -96,6 +97,13 @@ export class JobPostingMapper {
     
     if (input.status !== undefined) {
       doc.status = input.status as 'active' | 'unlisted' | 'expired' | 'blocked';
+    }
+    
+    // Handle is_featured (both camelCase and snake_case)
+    if (input.isFeatured !== undefined) {
+      doc.is_featured = input.isFeatured as boolean;
+    } else if (input.is_featured !== undefined) {
+      doc.is_featured = input.is_featured as boolean;
     }
     
     if (input.unpublishReason !== undefined) {

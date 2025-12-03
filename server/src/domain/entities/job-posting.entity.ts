@@ -19,6 +19,7 @@ export class JobPosting {
     public readonly skillsRequired: string[],
     public readonly categoryIds: string[],
     public readonly status: 'active' | 'unlisted' | 'expired' | 'blocked',
+    public readonly isFeatured: boolean,
     public readonly viewCount: number,
     public readonly applicationCount: number,
     public readonly createdAt: Date,
@@ -43,6 +44,7 @@ export class JobPosting {
     skillsRequired: string[];
     categoryIds: string[];
     status?: 'active' | 'unlisted' | 'expired' | 'blocked';
+    isFeatured?: boolean;
     viewCount?: number;
     applicationCount?: number;
     createdAt?: Date;
@@ -67,6 +69,7 @@ export class JobPosting {
       data.skillsRequired,
       data.categoryIds,
       data.status ?? 'active',
+      data.isFeatured ?? false,
       data.viewCount ?? 0,
       data.applicationCount ?? 0,
       data.createdAt ?? now,
