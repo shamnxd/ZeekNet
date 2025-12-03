@@ -157,9 +157,21 @@ const PostJob = () => {
         });
       }
     } catch (error: unknown) {
-      const errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message: string }).message 
-        : "Please try again later.";
+      // Extract error message from axios error structure
+      let errorMessage = "Please try again later.";
+      
+      if (error && typeof error === 'object') {
+        // Check for axios error response
+        if ('response' in error && error.response && typeof error.response === 'object') {
+          const response = error.response as { data?: { message?: string } };
+          errorMessage = response.data?.message || errorMessage;
+        } 
+        // Fallback to direct message property
+        else if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message;
+        }
+      }
+      
       toast.error("Failed to post job", {
         description: errorMessage,
       });
