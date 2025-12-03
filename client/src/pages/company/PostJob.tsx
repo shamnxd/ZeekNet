@@ -157,16 +157,14 @@ const PostJob = () => {
         });
       }
     } catch (error: unknown) {
-      // Extract error message from axios error structure
       let errorMessage = "Please try again later.";
       
       if (error && typeof error === 'object') {
-        // Check for axios error response
         if ('response' in error && error.response && typeof error.response === 'object') {
           const response = error.response as { data?: { message?: string } };
           errorMessage = response.data?.message || errorMessage;
         } 
-        // Fallback to direct message property
+
         else if ('message' in error && typeof error.message === 'string') {
           errorMessage = error.message;
         }

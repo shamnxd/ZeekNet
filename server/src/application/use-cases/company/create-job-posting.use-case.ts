@@ -16,8 +16,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     if (!companyProfile) {
       throw new AppError('Company profile not found', 404);
     }
-    
-    // Check subscription
+
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
     if (!subscription) {
       throw new ValidationError('No active subscription found. Please subscribe to a plan to post jobs.');
@@ -27,12 +26,10 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       throw new ValidationError('Your subscription has expired. Please renew to continue posting jobs.');
     }
 
-    // Check job posting limit
     if (!subscription.canPostJob()) {
       throw new ValidationError(`You have reached your active job limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan or unlist other jobs.`);
     }
 
-    // Check featured job limit if this is a featured job
     const isFeatured = jobData.is_featured || false;
     if (isFeatured && !subscription.canPostFeaturedJob()) {
       throw new ValidationError(`You have reached your active featured job limit of ${subscription.featuredJobLimit} jobs. Please upgrade your plan or unlist other featured jobs.`);
@@ -59,7 +56,6 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
 
     const createdJob = await this._jobPostingRepository.postJob(jobPosting);
 
-    // Increment usage counters
     await this._companySubscriptionRepository.incrementJobPostsUsed(subscription.id);
     if (isFeatured) {
       await this._companySubscriptionRepository.incrementFeaturedJobsUsed(subscription.id);

@@ -26,7 +26,6 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     const oldStatus = existingJob.status;
     const newStatus = status;
 
-    // Get subscription for limit checks when listing a job
     if (userId && newStatus === 'active' && oldStatus !== 'active') {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
@@ -38,7 +37,6 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
         throw new ValidationError('You need an active subscription to list jobs');
       }
 
-      // Check if listing would exceed limits
       if (existingJob.isFeatured) {
         if (!subscription.canPostFeaturedJob()) {
           throw new ValidationError(
@@ -53,14 +51,12 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
         );
       }
 
-      // Increment usage counters when listing
       if (existingJob.isFeatured) {
         await this._companySubscriptionRepository.incrementFeaturedJobsUsed(subscription.id);
       }
       await this._companySubscriptionRepository.incrementJobPostsUsed(subscription.id);
     }
 
-    // Decrement usage counters when unlisting/expiring/blocking an active job
     if (userId && oldStatus === 'active' && newStatus !== 'active') {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (companyProfile) {
