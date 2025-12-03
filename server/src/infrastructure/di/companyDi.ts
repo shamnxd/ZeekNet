@@ -77,6 +77,7 @@ import { CompanySubscriptionRepository } from '../database/mongodb/repositories/
 import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
 import { PurchaseSubscriptionUseCase } from '../../application/use-cases/company/purchase-subscription.use-case';
 import { GetActiveSubscriptionUseCase } from '../../application/use-cases/company/get-active-subscription.use-case';
+import { GetPaymentHistoryUseCase } from '../../application/use-cases/company/get-payment-history.use-case';
 import { SubscriptionMiddleware } from '../../presentation/middleware/subscription.middleware';
 
 const companyProfileRepository = new CompanyProfileRepository();
@@ -157,7 +158,7 @@ const deleteJobPostingUseCase = new DeleteJobPostingUseCase(jobPostingRepository
 
 const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPostingRepository);
 
-const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository);
+const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, companySubscriptionRepository, companyProfileRepository);
 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
@@ -171,6 +172,7 @@ const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicati
 
 const purchaseSubscriptionUseCase = new PurchaseSubscriptionUseCase(companySubscriptionRepository, subscriptionPlanRepository, companyProfileRepository, paymentOrderRepository);
 const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository);
+const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
 
 const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository);
 
@@ -243,7 +245,7 @@ const companyJobApplicationController = new CompanyJobApplicationController(
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const companySubscriptionPlanController = new CompanySubscriptionPlanController(getAllSubscriptionPlansUseCase);
 
-const companySubscriptionController = new CompanySubscriptionController(purchaseSubscriptionUseCase, getActiveSubscriptionUseCase);
+const companySubscriptionController = new CompanySubscriptionController(purchaseSubscriptionUseCase, getActiveSubscriptionUseCase, getPaymentHistoryUseCase);
 
 export {
   companyProfileController,
