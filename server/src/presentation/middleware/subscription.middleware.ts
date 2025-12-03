@@ -50,7 +50,6 @@ export class SubscriptionMiddleware {
         });
       }
 
-      // Attach subscription to request for use in route handlers
       (req as AuthenticatedRequest & { subscription: typeof subscription }).subscription = subscription;
       
       next();
@@ -59,9 +58,6 @@ export class SubscriptionMiddleware {
     }
   };
 
-  /**
-   * Middleware to check if company can post a job
-   */
   checkCanPostJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
@@ -86,15 +82,11 @@ export class SubscriptionMiddleware {
     }
   };
 
-  /**
-   * Middleware to check if company can post a featured job
-   */
   checkCanPostFeaturedJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
       const isFeatured = req.body.is_featured || req.body.isFeatured;
-      
-      // If not featured, skip check
+
       if (!isFeatured) {
         return next();
       }

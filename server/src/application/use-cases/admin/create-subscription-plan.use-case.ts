@@ -41,7 +41,6 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
       throw new AppError('Subscription plan with this name already exists', 409);
     }
 
-    // If marking this plan as popular, unmark all other plans
     if (data.isPopular) {
       await this._subscriptionPlanRepository.unmarkAllAsPopular();
     }
