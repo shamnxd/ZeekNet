@@ -26,12 +26,13 @@ import CompanyManagement from './pages/admin/CompanyManagement'
 import PendingCompanies from './pages/admin/PendingCompanies'
 import JobManagement from './pages/admin/JobManagement'
 import JobView from './pages/admin/JobView'
-  import CategoryManagement from './pages/admin/CategoryManagement'
-  import SkillManagement from './pages/admin/SkillManagement'
-  import JobRoleManagement from './pages/admin/JobRoleManagement'
-  import SubscriptionPlanManagement from './pages/admin/SubscriptionPlanManagement'
-  import CompanyProfileView from './pages/admin/CompanyProfileView'
-  import SeekerProfileView from './pages/admin/SeekerProfileView'
+import CategoryManagement from './pages/admin/CategoryManagement'
+import SkillManagement from './pages/admin/SkillManagement'
+import JobRoleManagement from './pages/admin/JobRoleManagement'
+import SubscriptionPlanManagement from './pages/admin/SubscriptionPlanManagement'
+import CompanyProfileView from './pages/admin/CompanyProfileView'
+import SeekerProfileView from './pages/admin/SeekerProfileView'
+import PaymentManagement from './pages/admin/PaymentManagement'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import AuthRedirect from './components/common/AuthRedirect'
 import { UserRole } from './constants/enums'
@@ -140,6 +141,11 @@ function App() {
             <Route path="/admin/seeker-profile-view" element={
               <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
                 <SeekerProfileView />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/payments" element={
+              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+                <PaymentManagement />
               </ProtectedRoute>
             } />
             {/* Price Plans route removed; consolidated under Subscription Plans */}
