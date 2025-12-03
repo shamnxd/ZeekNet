@@ -57,7 +57,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       throw new AppError('Yearly discount must be between 0 and 100', 400);
     }
 
-    // If marking this plan as popular, unmark all other plans
     if (data.isPopular === true) {
       await this._subscriptionPlanRepository.unmarkAllAsPopular();
     }

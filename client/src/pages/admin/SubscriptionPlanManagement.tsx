@@ -157,7 +157,6 @@ const SubscriptionPlanManagement = () => {
       if (response.success && response.data) {
         toast.success('Subscription plan created successfully')
         setCreateDialogOpen(false)
-        // Refresh the entire list to reflect automatic popular status changes
         await fetchPlans()
       } else {
         toast.error(response.message || 'Failed to create subscription plan')
@@ -190,7 +189,6 @@ const SubscriptionPlanManagement = () => {
         toast.success('Subscription plan updated successfully')
         setEditDialogOpen(false)
         setSelectedPlan(null)
-        // Refresh the entire list to reflect automatic popular status changes
         await fetchPlans()
       } else {
         toast.error(response.message || 'Failed to update subscription plan')
