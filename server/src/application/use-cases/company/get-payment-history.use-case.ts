@@ -10,7 +10,6 @@ export class GetPaymentHistoryUseCase {
   ) {}
 
   async execute(userId: string): Promise<PaymentOrder[]> {
-    // Get company profile
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -18,7 +17,6 @@ export class GetPaymentHistoryUseCase {
 
     const companyId = companyProfile.id;
 
-    // Get all payment orders for this company
     const paymentOrders = await this._paymentOrderRepository.findByCompanyId(companyId);
     
     return paymentOrders;

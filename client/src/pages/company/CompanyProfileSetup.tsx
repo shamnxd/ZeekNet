@@ -85,7 +85,6 @@ const CompanyProfileSetup = () => {
           setIsReapplication(status === 'rejected')
         }
       } catch (err: unknown) {
-        // Silently fail - just assume not rejected
         setIsReapplication(false)
       }
     }

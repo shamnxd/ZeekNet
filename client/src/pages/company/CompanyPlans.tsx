@@ -35,7 +35,6 @@ const CompanyPlans = () => {
   const [activeSubscription, setActiveSubscription] = useState<any>(null)
   const [billingHistory, setBillingHistory] = useState<any[]>([])
   
-  // Purchase flow states
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showResultDialog, setShowResultDialog] = useState(false)
@@ -77,7 +76,6 @@ const CompanyPlans = () => {
       
       if (response.success && response.data) {
         setActiveSubscription(response.data)
-        // Fetch billing history
         await fetchBillingHistory()
       }
     } catch (error: unknown) {
@@ -132,8 +130,7 @@ const CompanyPlans = () => {
           })
         setShowConfirmDialog(false)
         setShowResultDialog(true)
-        
-        // Refresh plans or redirect
+
         setTimeout(() => {
           setView('dashboard')
           fetchPlans()
@@ -174,11 +171,10 @@ const CompanyPlans = () => {
     )
   }
 
-  // Get current plan data - either from active subscription or default to free
   const currentPlan = activeSubscription ? {
     name: activeSubscription.plan?.name || 'Subscription Plan',
     description: 'Your current active subscription plan.',
-    price: 0, // Will be shown from plan details
+    price: 0, 
     startDate: new Date(activeSubscription.startDate).toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
