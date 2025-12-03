@@ -30,12 +30,24 @@ import {
 } from '@/components/ui/table'
 import { companyApi, type SubscriptionPlan } from '@/api/company.api'
 import { toast } from 'sonner'
+import { PurchaseConfirmationDialog, PurchaseResultDialog } from '@/components/company/dialogs/PurchaseSubscriptionDialog'
 
 const CompanyPlans = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'dashboard' | 'plans'>('dashboard')
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  
+  // Purchase flow states
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showResultDialog, setShowResultDialog] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState(false)
+  const [purchaseResult, setPurchaseResult] = useState<{
+    success: boolean
+    message: string
+    transactionId?: string
+  } | null>(null)
 
   useEffect(() => {
     fetchPlans()
@@ -60,9 +72,52 @@ const CompanyPlans = () => {
     }
   }
 
-  const handleSelectPlan = (planId: string) => {
-    toast.info('Payment integration coming soon!')
-    console.log('Selected plan:', planId)
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
+    setSelectedPlan(plan)
+    setShowConfirmDialog(true)
+  }
+
+  const handleConfirmPurchase = async () => {
+    if (!selectedPlan) return
+
+    try {
+      setPurchaseLoading(true)
+      const response = await companyApi.purchaseSubscription(selectedPlan.id)
+
+      if (response.success && response.data) {
+        setPurchaseResult({
+          success: true,
+          message: 'Your subscription has been activated successfully!',
+          transactionId: response.data.paymentOrder.transactionId,
+        })
+        setShowConfirmDialog(false)
+        setShowResultDialog(true)
+        
+        // Refresh plans or redirect
+        setTimeout(() => {
+          setView('dashboard')
+          fetchPlans()
+        }, 2000)
+      } else {
+        throw new Error(response.message || 'Purchase failed')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to purchase subscription'
+      setPurchaseResult({
+        success: false,
+        message,
+      })
+      setShowConfirmDialog(false)
+      setShowResultDialog(true)
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
+
+  const handleCloseResultDialog = () => {
+    setShowResultDialog(false)
+    setPurchaseResult(null)
+    setSelectedPlan(null)
   }
 
   if (loading) {
@@ -371,7 +426,7 @@ const CompanyPlans = () => {
                 <Button
                   className="w-full h-12 text-base font-bold shadow-sm mt-4"
                   variant={isPopular ? 'company' : 'companyOutline'}
-                  onClick={() => handleSelectPlan(plan.id)}
+                  onClick={() => handleSelectPlan(plan)}
                 >
                   {plan.price === 0 ? 'Try for free' : 'Select plan'}
                 </Button>
@@ -388,6 +443,24 @@ const CompanyPlans = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         {view === 'dashboard' ? renderDashboard() : renderPlans()}
       </div>
+
+      {/* Purchase Confirmation Dialog */}
+      <PurchaseConfirmationDialog
+        open={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        plan={selectedPlan}
+        onConfirm={handleConfirmPurchase}
+        loading={purchaseLoading}
+      />
+
+      {/* Purchase Result Dialog */}
+      <PurchaseResultDialog
+        open={showResultDialog}
+        onClose={handleCloseResultDialog}
+        success={purchaseResult?.success ?? false}
+        message={purchaseResult?.message ?? ''}
+        transactionId={purchaseResult?.transactionId}
+      />
     </CompanyLayout>
   )
 }
