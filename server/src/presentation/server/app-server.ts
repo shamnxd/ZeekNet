@@ -123,7 +123,6 @@ export class AppServer {
 
       this._socketServer = new SocketServer(this._httpServer);
 
-      // Initialize subscription cron jobs
       const jobPostingRepository = new JobPostingRepository();
       const subscriptionCronService = new SubscriptionCronService(
         companySubscriptionRepository,
