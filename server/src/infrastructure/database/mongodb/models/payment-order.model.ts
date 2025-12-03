@@ -7,6 +7,7 @@ export interface PaymentOrderDocument extends Document {
   currency: string;
   status: 'pending' | 'completed' | 'failed' | 'cancelled';
   paymentMethod: 'dummy' | 'stripe' | 'card';
+  invoiceId?: string;
   transactionId?: string;
   metadata?: Record<string, unknown>;
   createdAt: Date;
@@ -44,6 +45,11 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
       type: String,
       enum: ['dummy', 'stripe', 'card'],
       default: 'dummy',
+    },
+    invoiceId: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
     transactionId: {
       type: String,

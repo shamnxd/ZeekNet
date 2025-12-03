@@ -5,11 +5,13 @@ export interface SubscriptionPlanDocument extends Document {
   description: string;
   price: number;
   duration: number;
+  yearlyDiscount: number;
   features: string[];
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
   isActive: boolean;
+  isPopular: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,6 +42,13 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
       required: true,
       min: 1,
     },
+    yearlyDiscount: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
     features: {
       type: [String],
       required: true,
@@ -64,6 +73,11 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
       type: Boolean,
       required: true,
       default: true,
+    },
+    isPopular: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
   },
   {
