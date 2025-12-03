@@ -234,7 +234,7 @@ export interface IIncrementJobViewCountUseCase {
 }
 
 export interface IUpdateJobStatusUseCase {
-  execute(jobId: string, status: string): Promise<JobPosting>;
+  execute(jobId: string, status: string, userId?: string): Promise<JobPosting>;
 }
 
 export interface UploadLogoResult {

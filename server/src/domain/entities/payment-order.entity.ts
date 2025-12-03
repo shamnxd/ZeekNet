@@ -10,6 +10,7 @@ export class PaymentOrder {
     public readonly currency: string,
     public readonly status: PaymentStatus,
     public readonly paymentMethod: PaymentMethod,
+    public readonly invoiceId?: string,
     public readonly transactionId?: string,
     public readonly metadata?: Record<string, unknown>,
     public readonly createdAt?: Date,
@@ -24,6 +25,7 @@ export class PaymentOrder {
     currency?: string;
     status?: PaymentStatus;
     paymentMethod?: PaymentMethod;
+    invoiceId?: string;
     transactionId?: string;
     metadata?: Record<string, unknown>;
     createdAt?: Date;
@@ -38,6 +40,7 @@ export class PaymentOrder {
       data.currency ?? 'USD',
       data.status ?? 'pending',
       data.paymentMethod ?? 'dummy',
+      data.invoiceId,
       data.transactionId,
       data.metadata,
       data.createdAt ?? now,

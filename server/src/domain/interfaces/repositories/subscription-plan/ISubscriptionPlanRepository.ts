@@ -21,4 +21,5 @@ export interface PaginatedSubscriptionPlans {
 export interface ISubscriptionPlanRepository extends IBaseRepository<SubscriptionPlan> {
   findByName(name: string): Promise<SubscriptionPlan | null>;
   findAllWithPagination(options: SubscriptionPlanQueryOptions): Promise<PaginatedSubscriptionPlans>;
+  unmarkAllAsPopular(): Promise<void>;
 }
