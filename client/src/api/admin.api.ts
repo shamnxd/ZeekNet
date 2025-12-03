@@ -22,7 +22,7 @@ export const adminApi = {
         if (query.salary_max) params.append('salary_max', query.salary_max.toString());
         if (query.location) params.append('location', query.location);
         if (query.search) params.append('search', query.search);
-        if (query.status && query.status !== 'all') {
+        if (query.status) {
           params.append('status', query.status);
         }
         if (query.sortBy) params.append('sortBy', query.sortBy);
@@ -667,7 +667,9 @@ export interface SubscriptionPlan {
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
+  yearlyDiscount: number;
   isActive: boolean;
+  isPopular: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -690,6 +692,8 @@ export interface CreateSubscriptionPlanData {
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
+  yearlyDiscount: number;
+  isPopular?: boolean;
 }
 
 export interface UpdateSubscriptionPlanData {
@@ -701,7 +705,9 @@ export interface UpdateSubscriptionPlanData {
   jobPostLimit?: number;
   featuredJobLimit?: number;
   applicantAccessLimit?: number;
+  yearlyDiscount?: number;
   isActive?: boolean;
+  isPopular?: boolean;
 }
 
 export interface GetAllJobCategoriesParams {

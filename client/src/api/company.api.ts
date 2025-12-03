@@ -165,7 +165,6 @@ export const companyApi = {
       if (query.salary_max !== undefined) params.append('salary_max', query.salary_max.toString());
       if (query.location) params.append('location', query.location);
       if (query.search) params.append('search', query.search);
-      if (query.is_active !== undefined) params.append('is_active', query.is_active.toString());
     }
     
     const endpoint = params.toString() ? `/api/company/jobs?${params.toString()}` : '/api/company/jobs';
@@ -287,12 +286,16 @@ export const companyApi = {
     return baseApi.get<{ plans: SubscriptionPlan[] }>('/api/company/subscription-plans')();
   },
 
-  async purchaseSubscription(planId: string): Promise<ApiEnvelope<PurchaseSubscriptionResponse>> {
-    return baseApi.post<PurchaseSubscriptionResponse>('/api/company/subscriptions/purchase')({ planId });
+  async purchaseSubscription(planId: string, billingCycle?: 'monthly' | 'annual'): Promise<ApiEnvelope<PurchaseSubscriptionResponse>> {
+    return baseApi.post<PurchaseSubscriptionResponse>('/api/company/subscriptions/purchase')({ planId, billingCycle });
   },
 
   async getActiveSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
     return baseApi.get<ActiveSubscriptionResponse>('/api/company/subscriptions/active')();
+  },
+
+  async getPaymentHistory(): Promise<ApiEnvelope<PaymentHistoryItem[]>> {
+    return baseApi.get<PaymentHistoryItem[]>('/api/company/subscriptions/payment-history')();
   }
 }
 
@@ -302,11 +305,13 @@ export interface SubscriptionPlan {
   description: string;
   price: number;
   duration: number;
+  yearlyDiscount: number;
   features: string[];
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
   isActive: boolean;
+  isPopular: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -331,6 +336,7 @@ export interface PurchaseSubscriptionResponse {
     amount: number;
     currency: string;
     status: string;
+    invoiceId?: string;
     transactionId?: string;
     paymentMethod: string;
     createdAt: string;
@@ -350,4 +356,15 @@ export interface ActiveSubscriptionResponse {
   planName?: string;
   jobPostLimit?: number;
   featuredJobLimit?: number;
+}
+
+export interface PaymentHistoryItem {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paymentMethod: string;
+  invoiceId?: string;
+  transactionId?: string;
+  createdAt: string;
 }
