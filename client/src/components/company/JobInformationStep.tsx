@@ -42,7 +42,6 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
           label: categoryName,
         }));
         
-        // Add pre-selected categories that might not be in the list
         const allOptions = [...fetchedOptions];
         for (const selectedCategory of data.categoryIds) {
           if (!allOptions.find(opt => opt.value === selectedCategory)) {
@@ -74,8 +73,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
           value: skillName,
           label: skillName,
         }));
-        
-        // Add pre-selected skills that might not be in the list
+
         const allOptions = [...fetchedOptions];
         for (const selectedSkill of data.skillsRequired) {
           if (!allOptions.find(opt => opt.value === selectedSkill)) {
@@ -115,12 +113,8 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
 
   useEffect(() => {
     const initializeOptions = async () => {
-      // Fetch all categories and ensure selected ones are included
       await fetchCategories();
-      
-      // Fetch all skills and ensure selected ones are included
       await fetchSkills();
-      
       await fetchJobRoles();
     };
     

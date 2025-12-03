@@ -33,7 +33,6 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const hasCheckedRef = useRef(!companyVerificationStatus)
 
-  // Check profile status on mount only (skip if already in Redux)
   useEffect(() => {
     if (hasCheckedRef.current) return
     hasCheckedRef.current = true
@@ -46,7 +45,6 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
         const res = await companyApi.getProfile()
         
         if (res.success && res.data) {
-          // Handle both nested (profile.profile) and direct (profile) response structures
           const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
           const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
           const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
@@ -81,14 +79,12 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
     checkProfileStatus()
   }, [onStatusChange])
 
-  // Set up polling when status is pending
   useEffect(() => {
     if (status === 'pending') {
       intervalRef.current = setInterval(async () => {
         try {
           const res = await companyApi.getProfile()
           if (res.success && res.data) {
-            // Handle both nested (profile.profile) and direct (profile) response structures
             const resData = res.data as { profile?: { is_verified: string } } | { is_verified: string };
             const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
             const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
@@ -122,7 +118,6 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
       const res = await companyApi.getProfile()
       
       if (res.success && res.data) {
-        // Handle both nested (profile.profile) and direct (profile) response structures
         const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
         const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
         const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus

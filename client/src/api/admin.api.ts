@@ -566,6 +566,36 @@ export const adminApi = {
           message: error.response?.data?.message || 'Failed to delete subscription plan',
         };
       }
+    },
+
+  getPaymentOrders: async (query: GetAllPaymentOrdersParams = {}): Promise<{
+      success: boolean;
+      data?: {
+        orders: PaymentOrder[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      };
+      message?: string;
+    }> => {
+      try {
+        const params = new URLSearchParams();
+        
+        if (query.page) params.append('page', query.page.toString());
+        if (query.limit) params.append('limit', query.limit.toString());
+        if (query.status) params.append('status', query.status);
+        if (query.search) params.append('search', query.search);
+        if (query.sortOrder) params.append('sortOrder', query.sortOrder);
+
+        const response = await api.get(`/api/admin/payment-orders?${params.toString()}`);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to fetch payment orders',
+        };
+      }
     }
 };
 
@@ -714,4 +744,29 @@ export interface GetAllJobCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
+}
+
+export interface PaymentOrder {
+  id: string;
+  orderNo: string;
+  companyId: string;
+  companyName: string;
+  planId: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  paymentMethod: 'dummy' | 'stripe' | 'card';
+  invoiceId?: string;
+  transactionId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetAllPaymentOrdersParams {
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'completed' | 'failed' | 'cancelled';
+  search?: string;
+  sortOrder?: 'asc' | 'desc';
 }
