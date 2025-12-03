@@ -70,8 +70,14 @@ import { UploadBusinessLicenseUseCase } from '../../application/use-cases/compan
 import { UploadWorkplacePictureUseCase } from '../../application/use-cases/company/upload-workplace-picture.use-case';
 import { DeleteImageUseCase } from '../../application/use-cases/company/delete-image.use-case';
 import { CompanySubscriptionPlanController } from '../../presentation/controllers/company/company-subscription-plan.controller';
+import { CompanySubscriptionController } from '../../presentation/controllers/company/company-subscription.controller';
 import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
 import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
+import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
+import { PurchaseSubscriptionUseCase } from '../../application/use-cases/company/purchase-subscription.use-case';
+import { GetActiveSubscriptionUseCase } from '../../application/use-cases/company/get-active-subscription.use-case';
+import { SubscriptionMiddleware } from '../../presentation/middleware/subscription.middleware';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -86,6 +92,9 @@ const userRepository = new UserRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
 const seekerExperienceRepository = new SeekerExperienceRepository();
 const seekerEducationRepository = new SeekerEducationRepository();
+const subscriptionPlanRepository = new SubscriptionPlanRepository();
+const companySubscriptionRepository = new CompanySubscriptionRepository();
+const paymentOrderRepository = new PaymentOrderRepository();
 
 const s3Service = new S3Service();
 
@@ -121,7 +130,7 @@ const getCompanyWorkplacePictureUseCase = new GetCompanyWorkplacePictureUseCase(
 
 const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
 
-const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase);
+const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase, companySubscriptionRepository);
 
 const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
 
@@ -159,6 +168,11 @@ const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jo
 const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+
+const purchaseSubscriptionUseCase = new PurchaseSubscriptionUseCase(companySubscriptionRepository, subscriptionPlanRepository, companyProfileRepository, paymentOrderRepository);
+const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository);
+
+const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository);
 
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
@@ -226,9 +240,10 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   addInterviewFeedbackUseCase,
 );
 
-const subscriptionPlanRepository = new SubscriptionPlanRepository();
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const companySubscriptionPlanController = new CompanySubscriptionPlanController(getAllSubscriptionPlansUseCase);
+
+const companySubscriptionController = new CompanySubscriptionController(purchaseSubscriptionUseCase, getActiveSubscriptionUseCase);
 
 export {
   companyProfileController,
@@ -241,5 +256,10 @@ export {
   companyJobPostingController,
   companyJobApplicationController,
   companySubscriptionPlanController,
+  companySubscriptionController,
   companyProfileRepository as companyRepository,
+  purchaseSubscriptionUseCase,
+  getActiveSubscriptionUseCase,
+  companySubscriptionRepository,
+  subscriptionMiddleware,
 };
