@@ -74,6 +74,7 @@ export interface CreateJobPostingData {
   location: string;
   skills_required: string[];
   category_ids: string[];
+  is_featured?: boolean;
 }
 
 export interface UpdateJobPostingData {
@@ -92,6 +93,7 @@ export interface UpdateJobPostingData {
   skills_required?: string[];
   category_ids?: string[];
   is_active?: boolean;
+  is_featured?: boolean;
 }
 
 export interface ICreateCompanyProfileUseCase {
