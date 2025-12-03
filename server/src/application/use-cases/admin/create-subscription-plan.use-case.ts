@@ -15,6 +15,8 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
     jobPostLimit: number;
     featuredJobLimit: number;
     applicantAccessLimit: number;
+    yearlyDiscount: number;
+    isPopular?: boolean;
   }): Promise<SubscriptionPlan> {
     if (!data.name || !data.name.trim()) {
       throw new AppError('Plan name is required', 400);
@@ -39,6 +41,11 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
       throw new AppError('Subscription plan with this name already exists', 409);
     }
 
+    // If marking this plan as popular, unmark all other plans
+    if (data.isPopular) {
+      await this._subscriptionPlanRepository.unmarkAllAsPopular();
+    }
+
     return await this._subscriptionPlanRepository.create({
       name: normalizedName,
       description: data.description.trim(),
@@ -48,7 +55,9 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
       jobPostLimit: data.jobPostLimit,
       featuredJobLimit: data.featuredJobLimit,
       applicantAccessLimit: data.applicantAccessLimit,
+      yearlyDiscount: data.yearlyDiscount,
       isActive: true,
+      isPopular: data.isPopular ?? false,
     } as Omit<SubscriptionPlan, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
   }
 }

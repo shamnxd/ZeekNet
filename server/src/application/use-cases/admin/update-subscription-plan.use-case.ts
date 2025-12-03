@@ -17,7 +17,9 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       jobPostLimit?: number;
       featuredJobLimit?: number;
       applicantAccessLimit?: number;
+      yearlyDiscount?: number;
       isActive?: boolean;
+      isPopular?: boolean;
     },
   ): Promise<SubscriptionPlan> {
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
@@ -49,6 +51,15 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
 
     if (data.duration !== undefined && data.duration < 1) {
       throw new AppError('Duration must be at least 1 day', 400);
+    }
+
+    if (data.yearlyDiscount !== undefined && (data.yearlyDiscount < 0 || data.yearlyDiscount > 100)) {
+      throw new AppError('Yearly discount must be between 0 and 100', 400);
+    }
+
+    // If marking this plan as popular, unmark all other plans
+    if (data.isPopular === true) {
+      await this._subscriptionPlanRepository.unmarkAllAsPopular();
     }
 
     const updatedPlan = await this._subscriptionPlanRepository.update(planId, data as Partial<SubscriptionPlan>);

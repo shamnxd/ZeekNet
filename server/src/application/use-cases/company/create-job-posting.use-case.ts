@@ -29,13 +29,13 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
 
     // Check job posting limit
     if (!subscription.canPostJob()) {
-      throw new ValidationError(`You have reached your job posting limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan.`);
+      throw new ValidationError(`You have reached your active job limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan or unlist other jobs.`);
     }
 
     // Check featured job limit if this is a featured job
     const isFeatured = jobData.is_featured || false;
     if (isFeatured && !subscription.canPostFeaturedJob()) {
-      throw new ValidationError(`You have reached your featured job limit of ${subscription.featuredJobLimit} featured jobs. Please upgrade your plan.`);
+      throw new ValidationError(`You have reached your active featured job limit of ${subscription.featuredJobLimit} jobs. Please upgrade your plan or unlist other featured jobs.`);
     }
     
     const jobPosting: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'> = {
