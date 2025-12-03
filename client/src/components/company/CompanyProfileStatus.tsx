@@ -48,7 +48,7 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
         if (res.success && res.data) {
           // Handle both nested (profile.profile) and direct (profile) response structures
           const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
-          const profileData = 'profile' in resData ? resData.profile : resData;
+          const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
           const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
           setStatus(profileStatus)
           dispatch(setCompanyVerificationStatus(profileStatus))
@@ -90,7 +90,7 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
           if (res.success && res.data) {
             // Handle both nested (profile.profile) and direct (profile) response structures
             const resData = res.data as { profile?: { is_verified: string } } | { is_verified: string };
-            const profileData = 'profile' in resData ? resData.profile : resData;
+            const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
             const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
             setStatus(profileStatus)
             dispatch(setCompanyVerificationStatus(profileStatus))
@@ -124,7 +124,7 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
       if (res.success && res.data) {
         // Handle both nested (profile.profile) and direct (profile) response structures
         const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
-        const profileData = 'profile' in resData ? resData.profile : resData;
+        const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
         const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
         setStatus(profileStatus)
         dispatch(setCompanyVerificationStatus(profileStatus))

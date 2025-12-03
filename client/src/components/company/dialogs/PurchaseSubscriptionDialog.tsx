@@ -10,9 +10,11 @@ interface PurchaseConfirmationDialogProps {
     id: string
     name: string
     price: number
+    yearlyDiscount: number
     duration: number
     features: string[]
   } | null
+  billingCycle: 'monthly' | 'annual'
   onConfirm: () => Promise<void>
   loading: boolean
 }
@@ -21,10 +23,18 @@ export function PurchaseConfirmationDialog({
   open,
   onClose,
   plan,
+  billingCycle,
   onConfirm,
   loading,
 }: PurchaseConfirmationDialogProps) {
   if (!plan) return null
+
+  const isAnnual = billingCycle === 'annual'
+  const monthlyPrice = plan.price
+  const yearlyPrice = Math.round((monthlyPrice * 12) * (1 - plan.yearlyDiscount / 100))
+  const totalPrice = isAnnual ? yearlyPrice : monthlyPrice
+  const originalYearlyPrice = monthlyPrice * 12
+  const duration = isAnnual ? 365 : plan.duration
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -45,16 +55,34 @@ export function PurchaseConfirmationDialog({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-lg">{plan.name}</h3>
-                <Badge variant="secondary" className="mt-1">
+                <Badge variant={isAnnual ? "default" : "secondary"} className="mt-1">
                   <Calendar className="h-3 w-3 mr-1" />
-                  {plan.duration} Days
+                  {isAnnual ? 'Annual' : 'Monthly'} - {duration} Days
                 </Badge>
               </div>
               <div className="text-right">
+                {isAnnual && plan.yearlyDiscount > 0 && (
+                  <div className="text-xs text-muted-foreground line-through mb-1">
+                    ${originalYearlyPrice}
+                  </div>
+                )}
                 <div className="text-2xl font-bold text-[#4640DE]">
-                  ${plan.price}
+                  ${totalPrice}
                 </div>
-                <div className="text-xs text-muted-foreground">One-time payment</div>
+                <div className="text-xs text-muted-foreground">
+                  {isAnnual ? (
+                    <>
+                      <span className="font-medium">${(totalPrice / 12).toFixed(2)}/month</span>
+                      {plan.yearlyDiscount > 0 && (
+                        <Badge variant="default" className="ml-2 bg-green-600">
+                          Save {plan.yearlyDiscount}%
+                        </Badge>
+                      )}
+                    </>
+                  ) : (
+                    'Monthly billing'
+                  )}
+                </div>
               </div>
             </div>
 
@@ -126,6 +154,7 @@ interface PurchaseResultDialogProps {
   onClose: () => void
   success: boolean
   message: string
+  invoiceId?: string
   transactionId?: string
 }
 
@@ -134,6 +163,7 @@ export function PurchaseResultDialog({
   onClose,
   success,
   message,
+  invoiceId,
   transactionId,
 }: PurchaseResultDialogProps) {
   return (
@@ -169,14 +199,24 @@ export function PurchaseResultDialog({
           </div>
         </DialogHeader>
 
-        {success && transactionId && (
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mt-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Transaction ID:</span>
-              <code className="font-mono text-xs bg-white dark:bg-gray-900 px-2 py-1 rounded">
-                {transactionId}
-              </code>
-            </div>
+        {success && (invoiceId || transactionId) && (
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-2 space-y-2">
+            {invoiceId && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground font-medium">Invoice ID:</span>
+                <code className="font-mono text-sm bg-white dark:bg-gray-900 px-3 py-1.5 rounded font-semibold">
+                  {invoiceId}
+                </code>
+              </div>
+            )}
+            {transactionId && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Transaction ID:</span>
+                <code className="font-mono text-xs bg-white dark:bg-gray-900 px-2 py-1 rounded">
+                  {transactionId}
+                </code>
+              </div>
+            )}
           </div>
         )}
 
