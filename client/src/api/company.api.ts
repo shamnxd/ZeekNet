@@ -285,6 +285,14 @@ export const companyApi = {
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
     return baseApi.get<{ plans: SubscriptionPlan[] }>('/api/company/subscription-plans')();
+  },
+
+  async purchaseSubscription(planId: string): Promise<ApiEnvelope<PurchaseSubscriptionResponse>> {
+    return baseApi.post<PurchaseSubscriptionResponse>('/api/company/subscriptions/purchase')({ planId });
+  },
+
+  async getActiveSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return baseApi.get<ActiveSubscriptionResponse>('/api/company/subscriptions/active')();
   }
 }
 
@@ -301,4 +309,45 @@ export interface SubscriptionPlan {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PurchaseSubscriptionResponse {
+  subscription: {
+    id: string;
+    companyId: string;
+    planId: string;
+    startDate: string;
+    expiryDate: string;
+    isActive: boolean;
+    jobPostsUsed: number;
+    featuredJobsUsed: number;
+    applicantAccessUsed: number;
+    planName?: string;
+    jobPostLimit?: number;
+    featuredJobLimit?: number;
+  };
+  paymentOrder: {
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    transactionId?: string;
+    paymentMethod: string;
+    createdAt: string;
+  };
+}
+
+export interface ActiveSubscriptionResponse {
+  id: string;
+  companyId: string;
+  planId: string;
+  startDate: string;
+  expiryDate: string;
+  isActive: boolean;
+  jobPostsUsed: number;
+  featuredJobsUsed: number;
+  applicantAccessUsed: number;
+  planName?: string;
+  jobPostLimit?: number;
+  featuredJobLimit?: number;
 }
