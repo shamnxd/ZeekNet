@@ -62,7 +62,10 @@ const JobManagement = () => {
   })
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearchTerm = useDebounce(searchInput, 500)
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    search: string
+    status: 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired'
+  }>({
     search: '',
     status: 'all'
   })
@@ -92,7 +95,7 @@ const JobManagement = () => {
         page: pagination.page,
         limit: pagination.limit,
         search: filters.search,
-        status: filters.status as 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired',
+        ...(filters.status !== 'all' && filters.status !== 'inactive' && { status: filters.status }),
       })
       
       if (response.success && response.data && Array.isArray(response.data.jobs)) {
@@ -205,7 +208,7 @@ const JobManagement = () => {
               </div>
               <Select
                 value={filters.status}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as typeof filters.status }))}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
