@@ -10,6 +10,8 @@ import {
   companyJobPostingController,
   companyJobApplicationController,
   companySubscriptionPlanController,
+  companySubscriptionController,
+  subscriptionMiddleware,
 } from '../../infrastructure/di/companyDi';
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
@@ -24,6 +26,8 @@ import { UpdateScoreDto } from '../../application/dto/job-application/update-sco
 import { AddInterviewDto } from '../../application/dto/job-application/add-interview.dto';
 import { UpdateInterviewDto } from '../../application/dto/job-application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../application/dto/job-application/add-interview-feedback.dto';
+import { PurchaseSubscriptionDto } from '../../application/dto/subscription/purchase-subscription.dto';
+
 
 export class CompanyRouter {
   public router: Router;
@@ -83,6 +87,10 @@ export class CompanyRouter {
     this.router.put('/workplace-pictures/:id', companyWorkplacePictureController.updateCompanyWorkplacePicture);
     this.router.delete('/workplace-pictures/:id', companyWorkplacePictureController.deleteCompanyWorkplacePicture);
     this.router.post('/workplace-pictures/upload', uploadSingle('image'), companyUploadController.uploadWorkplacePicture);
+
+    // Subscription routes
+    this.router.post('/subscriptions/purchase', validateBody(PurchaseSubscriptionDto), companySubscriptionController.purchaseSubscription);
+    this.router.get('/subscriptions/active', companySubscriptionController.getActiveSubscription);
 
     this.router.post('/jobs', validateBody(CreateJobPostingRequestDto), companyJobPostingController.createJobPosting);
     this.router.get('/jobs', validateQuery(JobPostingQueryDto), companyJobPostingController.getCompanyJobPostings);
