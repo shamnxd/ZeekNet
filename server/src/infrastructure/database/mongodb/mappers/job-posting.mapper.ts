@@ -51,7 +51,6 @@ export class JobPostingMapper {
   static toDocument(entity: Partial<JobPosting> | Record<string, unknown>): Partial<JobPostingDocument> {
     const doc: Partial<JobPostingDocument> = {};
     
-    // Handle both camelCase and snake_case inputs
     const input = entity as Record<string, unknown>;
     
     if (input.companyId !== undefined) {
@@ -61,8 +60,7 @@ export class JobPostingMapper {
     if (input.description !== undefined) doc.description = input.description as string;
     if (input.responsibilities !== undefined) doc.responsibilities = input.responsibilities as string[];
     if (input.qualifications !== undefined) doc.qualifications = input.qualifications as string[];
-    
-    // Handle nice_to_haves (both camelCase and snake_case)
+
     if (input.niceToHaves !== undefined) {
       doc.nice_to_haves = input.niceToHaves as string[];
     } else if (input.nice_to_haves !== undefined) {
@@ -72,7 +70,6 @@ export class JobPostingMapper {
     if (input.benefits !== undefined) doc.benefits = input.benefits as string[];
     if (input.salary !== undefined) doc.salary = input.salary as { min: number; max: number };
     
-    // Handle employment_types (both camelCase and snake_case)
     if (input.employmentTypes !== undefined) {
       doc.employment_types = input.employmentTypes as string[];
     } else if (input.employment_types !== undefined) {
@@ -80,15 +77,13 @@ export class JobPostingMapper {
     }
     
     if (input.location !== undefined) doc.location = input.location as string;
-    
-    // Handle skills_required (both camelCase and snake_case)
+
     if (input.skillsRequired !== undefined) {
       doc.skills_required = input.skillsRequired as string[];
     } else if (input.skills_required !== undefined) {
       doc.skills_required = input.skills_required as string[];
     }
-    
-    // Handle category_ids (both camelCase and snake_case)
+
     if (input.categoryIds !== undefined) {
       doc.category_ids = input.categoryIds as string[];
     } else if (input.category_ids !== undefined) {
@@ -98,8 +93,7 @@ export class JobPostingMapper {
     if (input.status !== undefined) {
       doc.status = input.status as 'active' | 'unlisted' | 'expired' | 'blocked';
     }
-    
-    // Handle is_featured (both camelCase and snake_case)
+
     if (input.isFeatured !== undefined) {
       doc.is_featured = input.isFeatured as boolean;
     } else if (input.is_featured !== undefined) {

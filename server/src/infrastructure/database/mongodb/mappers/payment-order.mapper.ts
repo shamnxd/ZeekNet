@@ -3,10 +3,16 @@ import { PaymentOrderDocument } from '../models/payment-order.model';
 
 export class PaymentOrderMapper {
   static toEntity(doc: PaymentOrderDocument): PaymentOrder {
+    const companyId = (doc as any).companyId && typeof (doc as any).companyId === 'object'
+      ? String((doc as any).companyId._id || (doc as any).companyId)
+      : String(doc.companyId);
+    const planId = (doc as any).planId && typeof (doc as any).planId === 'object'
+      ? String((doc as any).planId._id || (doc as any).planId)
+      : String(doc.planId);
     return PaymentOrder.create({
       id: String(doc._id),
-      companyId: String(doc.companyId),
-      planId: String(doc.planId),
+      companyId,
+      planId,
       amount: doc.amount,
       currency: doc.currency,
       status: doc.status as PaymentStatus,
