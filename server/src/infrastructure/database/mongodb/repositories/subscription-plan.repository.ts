@@ -67,4 +67,16 @@ export class SubscriptionPlanRepository extends RepositoryBase<SubscriptionPlan,
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async unmarkAllAsPopular(): Promise<void> {
+    await this.model.updateMany(
+      { isPopular: true },
+      { $set: { isPopular: false } },
+    ).exec();
+  }
+
+  async findByIds(ids: string[]): Promise<SubscriptionPlan[]> {
+    const docs = await this.model.find({ _id: { $in: ids } }).exec();
+    return docs.map(doc => this.mapToEntity(doc));
+  }
 }

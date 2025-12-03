@@ -72,12 +72,12 @@ const JobView = () => {
     if (!job) return
 
     try {
-      const isActive = (job as any).is_active ?? (job as any).isActive ?? false
-      const response = await adminApi.updateJobStatus(job.id || (job as any)._id, !isActive)
+      const newStatus = job.status === 'active' ? 'unlisted' : 'active'
+      const response = await adminApi.updateJobStatus(job.id || (job as any)._id, newStatus, undefined)
       
       if (response.success) {
-        setJob({ ...job, is_active: !isActive } as JobPostingResponse)
-        toast.success(`Job ${!isActive ? 'activated' : 'deactivated'} successfully`)
+        setJob({ ...job, status: newStatus } as JobPostingResponse)
+        toast.success(`Job ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
       } else {
         toast.error(response.message || 'Failed to update job status')
       }
@@ -143,11 +143,6 @@ const JobView = () => {
   return (
     <AdminLayout>
       <div className="space-y-6 p-4">
-        {(() => {
-          (job as any)._isActive = (job as any).is_active ?? (job as any).isActive ?? false
-          ;(job as any)._adminBlocked = (job as any).admin_blocked ?? (job as any).adminBlocked ?? false
-          return null
-        })()}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button
@@ -162,19 +157,19 @@ const JobView = () => {
               <h1 className="text-2xl font-bold text-foreground">{job.title}</h1>
               <div className="flex items-center space-x-2 mt-1">
                 <Badge 
-                  variant={(job as any)._isActive ? "default" : "secondary"}
-                  className={(job as any)._isActive
-                    ? "bg-green-100 text-green-800 border-green-200"
-                    : "bg-gray-100 text-gray-800 border-gray-200"
+                  variant={job.status === 'active' ? "default" : "secondary"}
+                  className={
+                    job.status === 'active' ? "bg-green-100 text-green-800 border-green-200" :
+                    job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
+                    job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
+                    "bg-gray-100 text-gray-800 border-gray-200"
                   }
                 >
-                  {(job as any)._isActive ? 'Active' : 'Inactive'}
+                  {job.status === 'active' ? 'Active' :
+                   job.status === 'blocked' ? 'Blocked' :
+                   job.status === 'expired' ? 'Expired' :
+                   job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
                 </Badge>
-                {(job as any)._adminBlocked && (
-                  <Badge className="bg-red-500 text-white">
-                    Admin Blocked
-                  </Badge>
-                )}
                 <span className="text-sm text-gray-500">
                   Posted {formatDate(job.createdAt ?? '')}
                 </span>
@@ -184,10 +179,10 @@ const JobView = () => {
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
-              onClick={(job as any)._isActive ? () => setReasonDialogOpen(true) : handleToggleStatus}
-              className={(job as any)._isActive ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
+              onClick={job.status === 'active' ? () => setReasonDialogOpen(true) : handleToggleStatus}
+              className={job.status === 'active' ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
             >
-              {(job as any)._isActive ? (
+              {job.status === 'active' ? (
                 <>
                   <XCircle className="h-4 w-4 mr-2" />
                   Unpublish
@@ -362,13 +357,13 @@ const JobView = () => {
                   </div>
                   <span className="font-medium text-sm">{formatDate(job.updatedAt ?? '')}</span>
                 </div>
-                {(((job as any).admin_blocked ?? (job as any).adminBlocked) && ((job as any).unpublish_reason ?? (job as any).unpublishReason)) && (
+                {(job.status === 'blocked' && (job.unpublish_reason ?? (job as any).unpublishReason)) && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <XCircle className="h-4 w-4 text-red-400" />
                       <span className="text-sm">Block Reason</span>
                     </div>
-                    <span className="font-medium text-sm text-red-600">{(job as any).unpublish_reason ?? (job as any).unpublishReason}</span>
+                    <span className="font-medium text-sm text-red-600">{job.unpublish_reason ?? (job as any).unpublishReason}</span>
                   </div>
                 )}
               </CardContent>
@@ -438,10 +433,10 @@ const JobView = () => {
         reasonOptions={unpublishReasons}
         onConfirm={async reason => {
           try {
-            const response = await adminApi.updateJobStatus((job as any)?.id || (job as any)?._id || '', false, reason);
+            const response = await adminApi.updateJobStatus((job as any)?.id || (job as any)?._id || '', 'blocked', reason);
             
             if (response.success) {
-              setJob({ ...job, is_active: false, unpublish_reason: reason } as JobPostingResponse);
+              setJob({ ...job, status: 'blocked', unpublish_reason: reason } as JobPostingResponse);
               toast.success(`Unpublished ${job?.title}`);
             } else {
               toast.error(response.message || 'Failed to unpublish job');

@@ -21,31 +21,26 @@ const CompanyVerificationGuard: React.FC<CompanyVerificationGuardProps> = ({ chi
   const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(companyVerificationStatus || null);
   const hasCheckedRef = useRef(false);
 
-  // Reset the checked flag when user logs out
   useEffect(() => {
     if (!isAuthenticated) {
       hasCheckedRef.current = false;
     }
   }, [isAuthenticated]);
 
-  // Only check verification status once per session on mount
   useEffect(() => {
     if (role !== UserRole.COMPANY || !isAuthenticated) {
       return;
     }
 
-    // Skip verification check on dashboard
     if (location.pathname.startsWith('/company/dashboard')) {
       return;
     }
 
-    // Use cached status from Redux if already fetched
     if (companyVerificationStatus) {
       setProfileStatus(companyVerificationStatus);
       return;
     }
 
-    // Only fetch once per session, not on every route change
     if (hasCheckedRef.current) {
       return;
     }
@@ -55,7 +50,6 @@ const CompanyVerificationGuard: React.FC<CompanyVerificationGuardProps> = ({ chi
         const response = await companyApi.getProfile();
 
         if (response.success && response.data) {
-          // Handle both nested (profile.profile) and direct (profile) response structures
           const responseData = response.data as { profile?: { is_verified: string } } | { is_verified: string };
           let profileData: { is_verified?: string } | undefined;
           
@@ -98,18 +92,16 @@ const CompanyVerificationGuard: React.FC<CompanyVerificationGuardProps> = ({ chi
     };
 
     checkVerificationStatus();
-  }, [navigate, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigate, dispatch]); 
 
   if (role !== UserRole.COMPANY || !isAuthenticated) {
     return <>{children}</>;
   }
 
-  // Always allow dashboard access regardless of verification status
   if (location.pathname.startsWith('/company/dashboard')) {
     return <>{children}</>;
   }
 
-  // For other pages, check verification status
   if (profileStatus !== 'verified') {
     return (
       <>

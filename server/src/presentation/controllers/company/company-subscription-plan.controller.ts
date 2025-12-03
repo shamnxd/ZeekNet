@@ -9,7 +9,6 @@ export class CompanySubscriptionPlanController {
 
   getActiveSubscriptionPlans = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Fetch only active subscription plans for companies
       const result = await this._getAllSubscriptionPlansUseCase.execute({ isActive: true });
       sendSuccessResponse(res, 'Subscription plans retrieved successfully', result);
     } catch (error) {

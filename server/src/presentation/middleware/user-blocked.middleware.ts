@@ -4,6 +4,7 @@ import { IUserRepository } from '../../domain/interfaces/repositories/user/IUser
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
+    userId: string;
     email: string;
     role: string;
   };

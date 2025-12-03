@@ -14,8 +14,8 @@ export interface JobPostingResponseDto {
   location: string;
   skills_required: string[];
   category_ids: string[];
-  is_active: boolean;
-  admin_blocked?: boolean;
+  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
@@ -26,11 +26,11 @@ export interface JobPostingResponseDto {
 export interface CompanyJobPostingListItemDto {
   id: string;
   title: string;
-  isActive: boolean;
+  status: 'active' | 'unlisted' | 'expired' | 'blocked';
   employmentTypes: string[];
   applicationCount: number;
   viewCount: number;
-  adminBlocked?: boolean;
+  isFeatured: boolean;
   unpublishReason?: string;
   createdAt: Date;
 }
@@ -43,6 +43,7 @@ export interface PublicJobListItemDto {
   salary: { min: number; max: number };
   companyName: string;
   companyLogo?: string;
+  isFeatured: boolean;
   createdAt: Date;
   location: string;
   description: string;
@@ -63,8 +64,8 @@ export interface JobPostingDetailResponseDto {
   location: string;
   skills_required: string[];
   category_ids: string[];
-  is_active: boolean;
-  admin_blocked?: boolean;
+  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
   application_count: number;

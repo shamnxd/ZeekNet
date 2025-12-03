@@ -9,6 +9,8 @@ export const CreateSubscriptionPlanDto = z.object({
   jobPostLimit: z.number().int().min(0, 'Job post limit must be a positive number'),
   featuredJobLimit: z.number().int().min(0, 'Featured job limit must be a positive number'),
   applicantAccessLimit: z.number().int().min(0, 'Applicant access limit must be a positive number'),
+  yearlyDiscount: z.number().min(0, 'Discount must be at least 0').max(100, 'Discount cannot exceed 100%'),
+  isPopular: z.boolean().optional(),
 });
 
 export const UpdateSubscriptionPlanDto = z.object({
@@ -20,7 +22,9 @@ export const UpdateSubscriptionPlanDto = z.object({
   jobPostLimit: z.number().int().min(0, 'Job post limit must be a positive number').optional(),
   featuredJobLimit: z.number().int().min(0, 'Featured job limit must be a positive number').optional(),
   applicantAccessLimit: z.number().int().min(0, 'Applicant access limit must be a positive number').optional(),
+  yearlyDiscount: z.number().min(0, 'Discount must be at least 0').max(100, 'Discount cannot exceed 100%').optional(),
   isActive: z.boolean().optional(),
+  isPopular: z.boolean().optional(),
 });
 
 export const GetAllSubscriptionPlansDto = z.object({

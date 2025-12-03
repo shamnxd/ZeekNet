@@ -35,8 +35,19 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getStatusBadge = (isActive: boolean) => {
-  return isActive ? 'Live' : 'Unlisted';
+const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+  switch (status) {
+    case 'active':
+      return 'Live';
+    case 'unlisted':
+      return 'Unlisted';
+    case 'expired':
+      return 'Expired';
+    case 'blocked':
+      return 'Blocked';
+    default:
+      return 'Unknown';
+  }
 };
 
 const formatEmploymentTypes = (types: string[] | undefined) => {
@@ -111,16 +122,16 @@ const CompanyJobListing = () => {
     navigate(`/company/edit-job/${jobId}`)
   }
 
-  const handleToggleJobStatus = async (jobId: string, currentStatus: boolean) => {
-    const newStatus = !currentStatus
-    const statusText = newStatus ? 'listed' : 'unlisted'
+  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+    const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
+    const statusText = newStatus === 'active' ? 'listed' : 'unlisted'
     
     try {
       setJobs(prevJobs => 
         prevJobs.map(job => {
           const currentJobId = job.id || job._id;
           if (currentJobId === jobId) {
-            return { ...job, is_active: newStatus, isActive: newStatus };
+            return { ...job, status: newStatus };
           }
           return job;
         })
@@ -137,7 +148,7 @@ const CompanyJobListing = () => {
           prevJobs.map(job => {
             const currentJobId = job.id || job._id;
             if (currentJobId === jobId) {
-              return { ...job, is_active: currentStatus, isActive: currentStatus };
+              return { ...job, status: currentStatus };
             }
             return job;
           })
@@ -151,7 +162,7 @@ const CompanyJobListing = () => {
         prevJobs.map(job => {
           const currentJobId = job.id || job._id;
           if (currentJobId === jobId) {
-            return { ...job, is_active: currentStatus, isActive: currentStatus };
+            return { ...job, status: currentStatus };
           }
           return job;
         })
@@ -231,12 +242,26 @@ const CompanyJobListing = () => {
               ) : (
                 jobs.map((job, index) => {
                   const jobId = job.id || job._id || '';
-                  const isActive = job.isActive ?? job.is_active ?? false;
-                  const adminBlocked = job.adminBlocked ?? job.admin_blocked ?? false;
+                  const status = job.status ?? 'unlisted';
                   const unpublishReason = job.unpublishReason ?? job.unpublish_reason;
                   const employmentTypes = job.employmentTypes ?? job.employment_types ?? [];
                   const applicationCount = job.applicationCount ?? job.application_count ?? 0;
                   const viewCount = job.viewCount ?? job.view_count ?? 0;
+                  
+                  const getStatusColor = (status: string) => {
+                    switch (status) {
+                      case 'active':
+                        return 'border-[#56CDAD] text-[#56CDAD] bg-transparent';
+                      case 'unlisted':
+                        return 'border-[#FFB836] text-[#FFB836] bg-transparent';
+                      case 'expired':
+                        return 'border-[#7C8493] text-[#7C8493] bg-transparent';
+                      case 'blocked':
+                        return 'border-red-500 text-red-500 bg-transparent';
+                      default:
+                        return 'border-[#D6DDEB] text-[#7C8493] bg-transparent';
+                    }
+                  };
                   
                   return (
                   <div
@@ -256,37 +281,24 @@ const CompanyJobListing = () => {
                     </div>
 
                     <div className="w-[111px]">
-                      {adminBlocked ? (
-                        <div className="space-y-1">
-                          <Badge
-                            variant="outline"
-                            className="px-2 py-1 rounded-full text-xs font-semibold border-red-500 text-red-500 bg-transparent"
-                          >
-                            Blocked
-                          </Badge>
-                          {unpublishReason && (
-                            <div 
-                              className="text-[10px] text-red-600 truncate max-w-[100px]" 
-                              title={unpublishReason}
-                            >
-                              {unpublishReason.length > 20 
-                                ? `${unpublishReason.substring(0, 20)}...` 
-                                : unpublishReason}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
+                      <div className="space-y-1">
                         <Badge
                           variant="outline"
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            isActive 
-                              ? 'border-[#56CDAD] text-[#56CDAD] bg-transparent' 
-                              : 'border-[#FFB836] text-[#FFB836] bg-transparent'
-                          }`}
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}
                         >
-                          {getStatusBadge(isActive)}
+                          {getStatusBadge(status)}
                         </Badge>
-                      )}
+                        {status === 'blocked' && unpublishReason && (
+                          <div 
+                            className="text-[10px] text-red-600 truncate max-w-[100px]" 
+                            title={unpublishReason}
+                          >
+                            {unpublishReason.length > 20 
+                              ? `${unpublishReason.substring(0, 20)}...` 
+                              : unpublishReason}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="w-[149px]">
@@ -325,19 +337,29 @@ const CompanyJobListing = () => {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleToggleJobStatus(jobId, isActive)}
-                            disabled={adminBlocked}
-                            className={isActive ? 'text-orange-600' : 'text-green-600'}
+                            onClick={() => handleToggleJobStatus(jobId, status)}
+                            disabled={status === 'blocked' || status === 'expired'}
+                            className={status === 'active' ? 'text-orange-600' : 'text-green-600'}
                           >
-                            {isActive ? (
+                            {status === 'active' ? (
                               <>
                                 <EyeOff className="w-4 h-4 mr-2" />
                                 Unlist
                               </>
+                            ) : status === 'blocked' ? (
+                              <>
+                                <List className="w-4 h-4 mr-2" />
+                                List (Blocked)
+                              </>
+                            ) : status === 'expired' ? (
+                              <>
+                                <List className="w-4 h-4 mr-2" />
+                                List (Expired)
+                              </>
                             ) : (
                               <>
                                 <List className="w-4 h-4 mr-2" />
-                                {adminBlocked ? 'List (Blocked)' : 'List'}
+                                List
                               </>
                             )}
                           </DropdownMenuItem>

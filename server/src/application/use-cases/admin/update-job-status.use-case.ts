@@ -6,23 +6,20 @@ import { JobPosting } from '../../../domain/entities/job-posting.entity';
 export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(jobId: string, isActive: boolean, unpublishReason?: string): Promise<JobPosting> {
+  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<JobPosting> {
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
       throw new AppError('Job not found', 404);
     }
 
-    const updateData: { isActive: boolean; adminBlocked?: boolean; unpublishReason?: string } = {
-      isActive: isActive,
+    const updateData: { status: 'active' | 'unlisted' | 'expired' | 'blocked'; unpublishReason?: string } = {
+      status: status,
     };
 
-    if (!isActive && unpublishReason) {
-      updateData.adminBlocked = true;
+    if (status === 'blocked' && unpublishReason) {
       updateData.unpublishReason = unpublishReason;
-    } else if (isActive) {
-      
-      updateData.adminBlocked = false;
+    } else if (status === 'active') {
       updateData.unpublishReason = undefined;
     }
 

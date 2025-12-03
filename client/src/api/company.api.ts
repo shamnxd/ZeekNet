@@ -165,7 +165,6 @@ export const companyApi = {
       if (query.salary_max !== undefined) params.append('salary_max', query.salary_max.toString());
       if (query.location) params.append('location', query.location);
       if (query.search) params.append('search', query.search);
-      if (query.is_active !== undefined) params.append('is_active', query.is_active.toString());
     }
     
     const endpoint = params.toString() ? `/api/company/jobs?${params.toString()}` : '/api/company/jobs';
@@ -184,8 +183,8 @@ export const companyApi = {
     return baseApi.delete<{ message: string }>(`/api/company/jobs/${id}`)();
   },
 
-  async updateJobStatus(id: string, is_active: boolean): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.patch<JobPostingResponse>(`/api/company/jobs/${id}/status`)({ is_active });
+  async updateJobStatus(id: string, status: 'active' | 'unlisted' | 'expired' | 'blocked'): Promise<ApiEnvelope<JobPostingResponse>> {
+    return baseApi.patch<JobPostingResponse>(`/api/company/jobs/${id}/status`)({ status });
   },
 
   async getContact(): Promise<ApiEnvelope<any>> {
@@ -285,6 +284,18 @@ export const companyApi = {
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
     return baseApi.get<{ plans: SubscriptionPlan[] }>('/api/company/subscription-plans')();
+  },
+
+  async purchaseSubscription(planId: string, billingCycle?: 'monthly' | 'annual'): Promise<ApiEnvelope<PurchaseSubscriptionResponse>> {
+    return baseApi.post<PurchaseSubscriptionResponse>('/api/company/subscriptions/purchase')({ planId, billingCycle });
+  },
+
+  async getActiveSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return baseApi.get<ActiveSubscriptionResponse>('/api/company/subscriptions/active')();
+  },
+
+  async getPaymentHistory(): Promise<ApiEnvelope<PaymentHistoryItem[]>> {
+    return baseApi.get<PaymentHistoryItem[]>('/api/company/subscriptions/payment-history')();
   }
 }
 
@@ -294,11 +305,66 @@ export interface SubscriptionPlan {
   description: string;
   price: number;
   duration: number;
+  yearlyDiscount: number;
   features: string[];
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
   isActive: boolean;
+  isPopular: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PurchaseSubscriptionResponse {
+  subscription: {
+    id: string;
+    companyId: string;
+    planId: string;
+    startDate: string;
+    expiryDate: string;
+    isActive: boolean;
+    jobPostsUsed: number;
+    featuredJobsUsed: number;
+    applicantAccessUsed: number;
+    planName?: string;
+    jobPostLimit?: number;
+    featuredJobLimit?: number;
+  };
+  paymentOrder: {
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    invoiceId?: string;
+    transactionId?: string;
+    paymentMethod: string;
+    createdAt: string;
+  };
+}
+
+export interface ActiveSubscriptionResponse {
+  id: string;
+  companyId: string;
+  planId: string;
+  startDate: string;
+  expiryDate: string;
+  isActive: boolean;
+  jobPostsUsed: number;
+  featuredJobsUsed: number;
+  applicantAccessUsed: number;
+  planName?: string;
+  jobPostLimit?: number;
+  featuredJobLimit?: number;
+}
+
+export interface PaymentHistoryItem {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  paymentMethod: string;
+  invoiceId?: string;
+  transactionId?: string;
+  createdAt: string;
 }

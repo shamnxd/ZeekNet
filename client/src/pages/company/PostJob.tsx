@@ -157,9 +157,19 @@ const PostJob = () => {
         });
       }
     } catch (error: unknown) {
-      const errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message: string }).message 
-        : "Please try again later.";
+      let errorMessage = "Please try again later.";
+      
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response && typeof error.response === 'object') {
+          const response = error.response as { data?: { message?: string } };
+          errorMessage = response.data?.message || errorMessage;
+        } 
+
+        else if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message;
+        }
+      }
+      
       toast.error("Failed to post job", {
         description: errorMessage,
       });

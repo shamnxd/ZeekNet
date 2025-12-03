@@ -3,7 +3,7 @@ import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
-      status?: 'all' | 'active' | 'inactive' | 'blocked';
+      status?: 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired';
       sortBy?: string;
       sortOrder?: 'asc' | 'desc';
     } = {}): Promise<{
@@ -22,13 +22,8 @@ export const adminApi = {
         if (query.salary_max) params.append('salary_max', query.salary_max.toString());
         if (query.location) params.append('location', query.location);
         if (query.search) params.append('search', query.search);
-        if (query.is_active !== undefined) params.append('is_active', query.is_active.toString());
-        if (query.status && query.status !== 'all') {
-          if (query.status === 'blocked') {
-            params.append('admin_blocked', 'true');
-          } else {
-            params.append('is_active', query.status === 'active' ? 'true' : 'false');
-          }
+        if (query.status) {
+          params.append('status', query.status);
         }
         if (query.sortBy) params.append('sortBy', query.sortBy);
         if (query.sortOrder) params.append('sortOrder', query.sortOrder);
@@ -59,13 +54,13 @@ export const adminApi = {
       }
     },
 
-  updateJobStatus: async (jobId: string, isActive: boolean, unpublishReason?: string): Promise<{
+  updateJobStatus: async (jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<{
       success: boolean;
       message?: string;
     }> => {
       try {
         const response = await api.patch(`/api/admin/jobs/${jobId}/status`, {
-          is_active: isActive,
+          status: status,
           unpublish_reason: unpublishReason
         });
         return response.data;
@@ -571,6 +566,36 @@ export const adminApi = {
           message: error.response?.data?.message || 'Failed to delete subscription plan',
         };
       }
+    },
+
+  getPaymentOrders: async (query: GetAllPaymentOrdersParams = {}): Promise<{
+      success: boolean;
+      data?: {
+        orders: PaymentOrder[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      };
+      message?: string;
+    }> => {
+      try {
+        const params = new URLSearchParams();
+        
+        if (query.page) params.append('page', query.page.toString());
+        if (query.limit) params.append('limit', query.limit.toString());
+        if (query.status) params.append('status', query.status);
+        if (query.search) params.append('search', query.search);
+        if (query.sortOrder) params.append('sortOrder', query.sortOrder);
+
+        const response = await api.get(`/api/admin/payment-orders?${params.toString()}`);
+        return response.data;
+      } catch (error: any) {
+        return {
+          success: false,
+          message: error.response?.data?.message || 'Failed to fetch payment orders',
+        };
+      }
     }
 };
 
@@ -672,7 +697,9 @@ export interface SubscriptionPlan {
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
+  yearlyDiscount: number;
   isActive: boolean;
+  isPopular: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -695,6 +722,8 @@ export interface CreateSubscriptionPlanData {
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
+  yearlyDiscount: number;
+  isPopular?: boolean;
 }
 
 export interface UpdateSubscriptionPlanData {
@@ -706,11 +735,38 @@ export interface UpdateSubscriptionPlanData {
   jobPostLimit?: number;
   featuredJobLimit?: number;
   applicantAccessLimit?: number;
+  yearlyDiscount?: number;
   isActive?: boolean;
+  isPopular?: boolean;
 }
 
 export interface GetAllJobCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
+}
+
+export interface PaymentOrder {
+  id: string;
+  orderNo: string;
+  companyId: string;
+  companyName: string;
+  planId: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  paymentMethod: 'dummy' | 'stripe' | 'card';
+  invoiceId?: string;
+  transactionId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetAllPaymentOrdersParams {
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'completed' | 'failed' | 'cancelled';
+  search?: string;
+  sortOrder?: 'asc' | 'desc';
 }

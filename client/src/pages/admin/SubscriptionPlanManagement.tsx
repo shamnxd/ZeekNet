@@ -44,6 +44,7 @@ const SubscriptionPlanManagement = () => {
     jobPostLimit: 0,
     featuredJobLimit: 0,
     applicantAccessLimit: 0,
+    yearlyDiscount: 0,
   })
   const [featureInput, setFeatureInput] = useState('')
   
@@ -88,6 +89,7 @@ const SubscriptionPlanManagement = () => {
       jobPostLimit: 0,
       featuredJobLimit: 0,
       applicantAccessLimit: 0,
+      yearlyDiscount: 0,
     })
     setFeatureInput('')
     setSelectedPlan(null)
@@ -105,7 +107,9 @@ const SubscriptionPlanManagement = () => {
       jobPostLimit: plan.jobPostLimit,
       featuredJobLimit: plan.featuredJobLimit,
       applicantAccessLimit: plan.applicantAccessLimit,
+      yearlyDiscount: plan.yearlyDiscount || 0,
       isActive: plan.isActive,
+      isPopular: plan.isPopular,
     })
     setFeatureInput('')
     setEditDialogOpen(true)
@@ -151,10 +155,9 @@ const SubscriptionPlanManagement = () => {
       const response = await adminApi.createSubscriptionPlan(formData as CreateSubscriptionPlanData)
       
       if (response.success && response.data) {
-        setPlans(prev => [response.data!, ...prev])
-        setTotalPlans(prev => prev + 1)
         toast.success('Subscription plan created successfully')
         setCreateDialogOpen(false)
+        await fetchPlans()
       } else {
         toast.error(response.message || 'Failed to create subscription plan')
       }
@@ -183,12 +186,10 @@ const SubscriptionPlanManagement = () => {
       const response = await adminApi.updateSubscriptionPlan(selectedPlan.id, formData as UpdateSubscriptionPlanData)
       
       if (response.success && response.data) {
-        setPlans(prev => prev.map(plan => 
-          plan.id === selectedPlan.id ? response.data! : plan
-        ))
         toast.success('Subscription plan updated successfully')
         setEditDialogOpen(false)
         setSelectedPlan(null)
+        await fetchPlans()
       } else {
         toast.error(response.message || 'Failed to update subscription plan')
       }
@@ -226,125 +227,199 @@ const SubscriptionPlanManagement = () => {
   const endIndex = startIndex + itemsPerPage
 
   const renderForm = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">Plan Name *</label>
-        <Input
-          value={formData.name || ''}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          placeholder="e.g., Basic Plan, Premium Plan"
-          className="mt-1"
-        />
-      </div>
-      
-      <div>
-        <label className="text-sm font-medium">Description *</label>
-        <Textarea
-          value={formData.description || ''}
-          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          placeholder="Describe the subscription plan..."
-          className="mt-1"
-          rows={3}
-        />
-      </div>
+    <div className="max-h-[calc(90vh-200px)] overflow-y-auto pr-2">
+      <div className="space-y-6">
+        {/* Basic Information Section */}
+        <div className="space-y-4">
+          <div className="pb-2 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Basic Information</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium">Plan Name *</label>
+              <Input
+                value={formData.name || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., Basic Plan, Premium Plan"
+                className="mt-1"
+              />
+            </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium">Price (₹) *</label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={formData.price || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <label className="text-sm font-medium">Duration (days) *</label>
-          <Input
-            type="number"
-            min="1"
-            value={formData.duration || 30}
-            onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 30 }))}
-            className="mt-1"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="text-sm font-medium">Job Post Limit *</label>
-          <Input
-            type="number"
-            min="0"
-            value={formData.jobPostLimit || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, jobPostLimit: parseInt(e.target.value) || 0 }))}
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <label className="text-sm font-medium">Featured Job Limit *</label>
-          <Input
-            type="number"
-            min="0"
-            value={formData.featuredJobLimit || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, featuredJobLimit: parseInt(e.target.value) || 0 }))}
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <label className="text-sm font-medium">Applicant Access Limit *</label>
-          <Input
-            type="number"
-            min="0"
-            value={formData.applicantAccessLimit || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, applicantAccessLimit: parseInt(e.target.value) || 0 }))}
-            className="mt-1"
-          />
-        </div>
-      </div>
-
-      {editDialogOpen && (
-        <div>
-          <label className="text-sm font-medium">Status</label>
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              checked={Boolean(((formData as any)?.isActive) ?? true)}
-              onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-              className="mr-2"
-            />
-            <span className="text-sm">Active</span>
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium">Description *</label>
+              <Textarea
+                value={formData.description || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Describe the subscription plan..."
+                className="mt-1"
+                rows={3}
+              />
+            </div>
           </div>
         </div>
-      )}
 
-      <div>
-        <label className="text-sm font-medium">Features *</label>
-        <div className="flex gap-2 mt-1">
-          <Input
-            value={featureInput}
-            onChange={(e) => setFeatureInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-            placeholder="Add a feature..."
-          />
-          <Button type="button" onClick={addFeature} size="sm">
-            Add
-          </Button>
+        {/* Pricing Section */}
+        <div className="space-y-4">
+          <div className="pb-2 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Pricing</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium">Price (₹) *</label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.price || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Duration (days) *</label>
+              <Input
+                type="number"
+                min="1"
+                value={formData.duration || 30}
+                onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 30 }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Yearly Discount (%) *</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.yearlyDiscount || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, yearlyDiscount: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) }))}
+                className="mt-1"
+                placeholder="0-100"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">Annual Price: (Monthly × 12) × (1 - Discount/100)</p>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {(formData.features || []).map((feature, idx) => (
-            <Badge key={idx} variant="secondary" className="flex items-center gap-1">
-              {feature}
-              <button onClick={() => removeFeature(feature)} className="ml-1 hover:text-red-600">
-                ×
-              </button>
-            </Badge>
-          ))}
+
+        {/* Plan Limits Section */}
+        <div className="space-y-4">
+          <div className="pb-2 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Plan Limits</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium">Job Post Limit *</label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.jobPostLimit || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, jobPostLimit: parseInt(e.target.value) || 0 }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Featured Job Limit *</label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.featuredJobLimit || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, featuredJobLimit: parseInt(e.target.value) || 0 }))}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Applicant Limit *</label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.applicantAccessLimit || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, applicantAccessLimit: parseInt(e.target.value) || 0 }))}
+                className="mt-1"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="space-y-4">
+          <div className="pb-2 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Features</h3>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium">Add Features *</label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                value={featureInput}
+                onChange={(e) => setFeatureInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                placeholder="Type a feature and press Add..."
+              />
+              <Button type="button" onClick={addFeature} size="sm" className="whitespace-nowrap">
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-3">
+              {(formData.features || []).map((feature, idx) => (
+                <Badge key={idx} variant="default" className="flex items-center gap-1 py-1 px-1 text-white">
+                  <span>{feature}</span>
+                  <button 
+                    onClick={() => removeFeature(feature)} 
+                    className="ml-1 hover:text-red-600 font-bold text-base"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            {(!formData.features || formData.features.length === 0) && (
+              <p className="text-xs text-muted-foreground mt-2">No features added yet. Add at least one feature.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Settings Section */}
+        <div className="space-y-4">
+          <div className="pb-2 border-b">
+            <h3 className="text-base font-semibold text-gray-900">Settings</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <input
+                type="checkbox"
+                id="isPopular"
+                checked={Boolean((formData as any)?.isPopular ?? false)}
+                onChange={(e) => setFormData(prev => ({ ...prev, isPopular: e.target.checked }))}
+                className="h-4 w-4"
+              />
+              <label htmlFor="isPopular" className="text-sm font-medium cursor-pointer">
+                Mark as Popular Plan
+              </label>
+            </div>
+
+            {editDialogOpen && (
+              <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={Boolean(((formData as any)?.isActive) ?? true)}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                <label htmlFor="isActive" className="text-sm font-medium cursor-pointer">
+                  Active Plan
+                </label>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -408,6 +483,7 @@ const SubscriptionPlanManagement = () => {
                     <tr className="border-b border-border/50">
                       <th className="text-left p-4 font-medium text-muted-foreground">Plan Name</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Discount</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Job Posts</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Features</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
@@ -417,7 +493,7 @@ const SubscriptionPlanManagement = () => {
                   <tbody>
                     {plans.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-gray-500">
+                        <td colSpan={7} className="p-8 text-center text-gray-500">
                           No subscription plans found
                         </td>
                       </tr>
@@ -425,9 +501,16 @@ const SubscriptionPlanManagement = () => {
                       plans.map((plan) => (
                         <tr key={plan.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
                           <td className="p-4">
-                            <div>
-                              <p className="font-medium text-gray-800">{plan.name}</p>
-                              <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                            <div className="flex items-center gap-2">
+                              <div>
+                                <p className="font-medium text-gray-800">{plan.name}</p>
+                                <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                              </div>
+                              {plan.isPopular && (
+                                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 whitespace-nowrap">
+                                  Popular
+                                </Badge>
+                              )}
                             </div>
                           </td>
                           <td className="p-4">
@@ -436,6 +519,15 @@ const SubscriptionPlanManagement = () => {
                               <span className="font-semibold text-gray-800">{plan.price === 0 ? '0' : plan.price.toLocaleString()}</span>
                               <span className="text-xs text-gray-500">/ {plan.duration} days</span>
                             </div>
+                          </td>
+                          <td className="p-4">
+                            {plan.yearlyDiscount > 0 ? (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                {plan.yearlyDiscount}% off
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-gray-500">No discount</span>
+                            )}
                           </td>
                           <td className="p-4 text-sm text-gray-700">
                             {plan.jobPostLimit}
@@ -547,6 +639,7 @@ const SubscriptionPlanManagement = () => {
           title="Create Subscription Plan"
           description="Add a new subscription plan to the system."
           confirmText="Create"
+          maxWidth="5xl"
         >
           {renderForm()}
         </FormDialog>
@@ -558,6 +651,7 @@ const SubscriptionPlanManagement = () => {
           title="Edit Subscription Plan"
           description="Update the subscription plan details."
           confirmText="Update"
+          maxWidth="5xl"
         >
           {renderForm()}
         </FormDialog>

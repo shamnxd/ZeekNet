@@ -10,7 +10,8 @@
     "test:s3": "node test-s3-routes.js",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "format": "prettier --write .",
-    "seed": "ts-node -r tsconfig-paths/register scripts/seed-data.ts"
+    "seed": "ts-node -r tsconfig-paths/register scripts/seed-data.ts",
+    "migrate:usage": "ts-node -r tsconfig-paths/register src/infrastructure/scripts/migrate-subscription-usage.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.9",
     "@types/node": "^24.3.1",
+    "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^7.0.1",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
@@ -51,6 +53,7 @@
     "mongoose": "^8.6.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "nodemailer": "^6.10.1",
     "nodemon": "^3.1.10",
     "redis": "^4.6.15",

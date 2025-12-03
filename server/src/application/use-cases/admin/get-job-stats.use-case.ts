@@ -10,8 +10,8 @@ export class AdminGetJobStatsUseCase implements IAdminGetJobStatsUseCase {
 
     const stats = {
       total: jobs.length,
-      active: jobs.filter((job) => job.isActive).length,
-      inactive: jobs.filter((job) => !job.isActive).length,
+      active: jobs.filter((job) => job.status === 'active').length,
+      inactive: jobs.filter((job) => job.status !== 'active').length,
       totalApplications: jobs.reduce((sum, job) => sum + job.applicationCount, 0),
       totalViews: jobs.reduce((sum, job) => sum + job.viewCount, 0),
     };

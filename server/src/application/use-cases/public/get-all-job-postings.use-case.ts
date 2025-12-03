@@ -55,13 +55,14 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
       viewCount: job.viewCount!,
       applicationCount: job.applicationCount!,
       salary: job.salary!,
-      companyName: job.companyName || 'Company',
+      companyName: job.companyName || '',
       companyLogo: job.companyLogo,
+      isFeatured: job.isFeatured!,
       createdAt: job.createdAt!,
       location: job.location!,
       description: job.description!,
-      skillsRequired: job.skillsRequired || [],
-      employmentTypes: job.employmentTypes || [],
+      skillsRequired: job.skillsRequired!,
+      employmentTypes: job.employmentTypes!,
     }));
 
     return {

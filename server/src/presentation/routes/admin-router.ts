@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController } from '../../infrastructure/di/adminDi';
+import { Router, RequestHandler } from 'express';
+import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController } from '../../infrastructure/di/adminDi';
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
@@ -20,7 +20,7 @@ export class AdminRouter {
 
   private _initializeRoutes(): void {
     this.router.use(authenticateToken);
-    this.router.use(requireAdmin);
+    this.router.use(requireAdmin as RequestHandler);
 
     this.router.get('/users', validateQuery(GetAllUsersDto), adminController.getAllUsers);
     this.router.patch('/users/block', validateBody(BlockUserDto), adminController.blockUser);
@@ -59,5 +59,7 @@ export class AdminRouter {
     this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
     this.router.put('/subscription-plans/:id', validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
     this.router.delete('/subscription-plans/:id', adminSubscriptionPlanController.deleteSubscriptionPlan);
+
+    this.router.get('/payment-orders', adminPaymentOrderController.getAllPaymentOrders);
   }
 }

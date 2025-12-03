@@ -12,4 +12,5 @@ export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfil
     sortBy?: 'createdAt' | 'companyName' | 'employeeCount';
     sortOrder?: 'asc' | 'desc';
   }): Promise<{ companies: CompanyProfile[]; total: number }>;
+  findByIds(ids: string[]): Promise<CompanyProfile[]>;
 }

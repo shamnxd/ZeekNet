@@ -45,8 +45,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       location: jobData.location,
       skills_required: jobData.skillsRequired || [],
       category_ids: jobData.categoryIds || [],
-      is_active: true,
-      admin_blocked: false,
+      status: 'active',
       view_count: 0,
       application_count: 0,
     });
@@ -78,8 +77,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     const blockedCompanyIds = blockedCompanies.map(c => c._id);
 
     const andConditions: Record<string, unknown>[] = [
-      { $or: [ { is_active: true }, { is_active: { $exists: false } } ] },
-      { $or: [ { admin_blocked: false }, { admin_blocked: { $exists: false } } ] },
+      { status: 'active' },
     ];
 
     if (blockedCompanyIds.length > 0) {
@@ -189,11 +187,10 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       return {
         id: plainDoc._id.toString(),
         title: plainDoc.title,
-        isActive: plainDoc.is_active,
+        status: plainDoc.status,
         employmentTypes: plainDoc.employment_types,
         applicationCount: plainDoc.application_count,
         viewCount: plainDoc.view_count,
-        adminBlocked: plainDoc.admin_blocked,
         unpublishReason: plainDoc.unpublish_reason,
         createdAt: plainDoc.createdAt,
       };
@@ -205,8 +202,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       title: 1,
       location: 1,
       salary: 1,
-      is_active: 1,
-      admin_blocked: 1,
+      status: 1,
       application_count: 1,
       view_count: 1,
       employment_types: 1,

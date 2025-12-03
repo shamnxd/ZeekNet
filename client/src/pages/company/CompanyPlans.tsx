@@ -3,7 +3,6 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { 
   Check, 
   Loader2, 
@@ -12,11 +11,7 @@ import {
   FileText,
   ArrowRight,
   ArrowLeft,
-  XCircle,
-  Edit,
-  AlertCircle,
   Briefcase,
-  Eye,
   Users,
   Zap
 } from 'lucide-react'
@@ -30,15 +25,30 @@ import {
 } from '@/components/ui/table'
 import { companyApi, type SubscriptionPlan } from '@/api/company.api'
 import { toast } from 'sonner'
+import { PurchaseConfirmationDialog, PurchaseResultDialog } from '@/components/company/dialogs/PurchaseSubscriptionDialog'
 
 const CompanyPlans = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'dashboard' | 'plans'>('dashboard')
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  const [activeSubscription, setActiveSubscription] = useState<any>(null)
+  const [billingHistory, setBillingHistory] = useState<any[]>([])
+  
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showResultDialog, setShowResultDialog] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState(false)
+  const [purchaseResult, setPurchaseResult] = useState<{
+      success: boolean
+      message: string
+      invoiceId?: string
+      transactionId?: string
+    } | null>(null)
 
   useEffect(() => {
     fetchPlans()
+    fetchActiveSubscription()
   }, [])
 
   const fetchPlans = async () => {
@@ -60,9 +70,92 @@ const CompanyPlans = () => {
     }
   }
 
-  const handleSelectPlan = (planId: string) => {
-    toast.info('Payment integration coming soon!')
-    console.log('Selected plan:', planId)
+  const fetchActiveSubscription = async () => {
+    try {
+      const response = await companyApi.getActiveSubscription()
+      
+      if (response.success && response.data) {
+        setActiveSubscription(response.data)
+        await fetchBillingHistory()
+      }
+    } catch (error: unknown) {
+      console.log('No active subscription found')
+    }
+  }
+
+  const fetchBillingHistory = async () => {
+    try {
+      const response = await companyApi.getPaymentHistory()
+      
+      if (response.success && response.data) {
+        const formattedHistory = response.data.map((payment: any) => ({
+          id: payment.invoiceId || payment.id,
+          date: new Date(payment.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          }),
+          description: 'Subscription Plan',
+          amount: payment.amount,
+          status: payment.status === 'completed' ? 'Completed' : payment.status,
+          invoiceUrl: '#',
+          invoiceId: payment.invoiceId,
+          transactionId: payment.transactionId
+        }))
+        setBillingHistory(formattedHistory)
+      }
+    } catch (error: unknown) {
+      console.log('Failed to fetch billing history')
+    }
+  }
+
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
+    setSelectedPlan(plan)
+    setShowConfirmDialog(true)
+  }
+
+  const handleConfirmPurchase = async () => {
+    if (!selectedPlan) return
+
+    try {
+      setPurchaseLoading(true)
+      const response = await companyApi.purchaseSubscription(selectedPlan.id, billingCycle)
+
+      if (response.success && response.data) {
+          setPurchaseResult({
+            success: true,
+            message: 'Your subscription has been activated successfully!',
+            invoiceId: response.data.paymentOrder.invoiceId,
+            transactionId: response.data.paymentOrder.transactionId,
+          })
+        setShowConfirmDialog(false)
+        setShowResultDialog(true)
+
+        setTimeout(() => {
+          setView('dashboard')
+          fetchPlans()
+          fetchActiveSubscription()
+        }, 2000)
+      } else {
+        throw new Error(response.message || 'Purchase failed')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to purchase subscription'
+      setPurchaseResult({
+        success: false,
+        message,
+      })
+      setShowConfirmDialog(false)
+      setShowResultDialog(true)
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
+
+  const handleCloseResultDialog = () => {
+    setShowResultDialog(false)
+    setPurchaseResult(null)
+    setSelectedPlan(null)
   }
 
   if (loading) {
@@ -78,8 +171,40 @@ const CompanyPlans = () => {
     )
   }
 
-  // Static Data for Free Plan Dashboard
-  const currentPlan = {
+  const currentPlan = activeSubscription ? {
+    name: activeSubscription.plan?.name || 'Subscription Plan',
+    description: 'Your current active subscription plan.',
+    price: 0, 
+    startDate: new Date(activeSubscription.startDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    }),
+    expiryDate: new Date(activeSubscription.expiryDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    }),
+    status: activeSubscription.isActive ? 'Active' : 'Expired',
+    benefits: [
+      `${activeSubscription.plan?.jobPostLimit || 0} Active Jobs`,
+      `${activeSubscription.plan?.featuredJobLimit || 0} Featured Jobs`,
+      'Priority Support',
+      'Advanced Analytics'
+    ],
+    usage: {
+      activeJobs: { 
+        used: activeSubscription.jobPostsUsed || 0, 
+        total: activeSubscription.plan?.jobPostLimit || 0, 
+        label: 'Active Jobs' 
+      },
+      featuredJobs: { 
+        used: activeSubscription.featuredJobsUsed || 0, 
+        total: activeSubscription.plan?.featuredJobLimit || 0, 
+        label: 'Featured Jobs' 
+      },
+    }
+  } : {
     name: 'Free Plan',
     description: 'Perfect for getting started with your first hire.',
     price: 0,
@@ -92,8 +217,8 @@ const CompanyPlans = () => {
       'Standard Email Support'
     ],
     usage: {
-      activeJobs: { used: 1, total: 1, label: 'Active Jobs' },
-      resumeViews: { used: 2, total: 5, label: 'Resume Views' },
+      activeJobs: { used: 0, total: 1, label: 'Active Jobs' },
+      featuredJobs: { used: 0, total: 0, label: 'Featured Jobs' },
     }
   }
 
@@ -151,13 +276,13 @@ const CompanyPlans = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">{currentPlan.usage.resumeViews.label}</span>
-                      <span className="font-medium text-gray-900">{currentPlan.usage.resumeViews.used} / {currentPlan.usage.resumeViews.total}</span>
+                      <span className="text-gray-600">{currentPlan.usage.featuredJobs.label}</span>
+                      <span className="font-medium text-gray-900">{currentPlan.usage.featuredJobs.used} / {currentPlan.usage.featuredJobs.total}</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-[#4640DE] rounded-full transition-all duration-500" 
-                        style={{ width: `${(currentPlan.usage.resumeViews.used / currentPlan.usage.resumeViews.total) * 100}%` }}
+                        style={{ width: `${currentPlan.usage.featuredJobs.total > 0 ? (currentPlan.usage.featuredJobs.used / currentPlan.usage.featuredJobs.total) * 100 : 0}%` }}
                       />
                     </div>
                   </div>
@@ -189,22 +314,27 @@ const CompanyPlans = () => {
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-1">
-                <p className="text-sm text-gray-500">Next Invoice</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-gray-900">$0.00</span>
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-3">
+                <div>
+                  <p className="text-sm text-gray-500">Start Date</p>
+                  <p className="text-base font-semibold text-gray-900">{currentPlan.startDate}</p>
                 </div>
-                <p className="text-xs text-gray-400">Free Forever Plan</p>
+                {activeSubscription && currentPlan.expiryDate && (
+                  <div>
+                    <p className="text-sm text-gray-500">Expiry Date</p>
+                    <p className="text-base font-semibold text-gray-900">{currentPlan.expiryDate}</p>
+                  </div>
+                )}
+                {!activeSubscription && (
+                  <p className="text-xs text-gray-400">Free Forever Plan</p>
+                )}
               </div>
               
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <CreditCard className="h-4 w-4 text-gray-400" />
-                  <span>No payment method added</span>
+                  <span>Dummy Payment (No card required)</span>
                 </div>
-                <Button variant="outline" size="sm" className="w-full text-xs h-8">
-                  Add Payment Method
-                </Button>
               </div>
             </div>
 
@@ -239,15 +369,45 @@ const CompanyPlans = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow className="border-b border-gray-50 hover:bg-transparent">
-                <TableCell colSpan={5} className="h-32 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-2">
-                    <FileText className="h-8 w-8 text-gray-300" />
-                    <p className="text-sm text-gray-500 font-medium">No invoices found</p>
-                    <p className="text-xs text-gray-400">You are currently on a free plan.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              {billingHistory.length > 0 ? (
+                billingHistory.map((invoice) => (
+                  <TableRow key={invoice.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                    <TableCell className="font-medium text-gray-900">#{invoice.id}</TableCell>
+                    <TableCell className="text-gray-600">{invoice.date}</TableCell>
+                    <TableCell className="text-gray-900 font-semibold">
+                      ${invoice.amount.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={invoice.status === 'Completed' ? 'default' : 'secondary'}
+                        className={invoice.status === 'Completed' ? '!bg-green-100 !text-green-700' : ''}
+                      >
+                        {invoice.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-[#4640DE] hover:text-[#3730b8] hover:bg-[#4640DE]/10"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Invoice
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow className="border-b border-gray-50 hover:bg-transparent">
+                  <TableCell colSpan={5} className="h-32 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <FileText className="h-8 w-8 text-gray-300" />
+                      <p className="text-sm text-gray-500 font-medium">No billing history</p>
+                      <p className="text-xs text-gray-400">Purchase a plan to see your billing history here.</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -297,14 +457,11 @@ const CompanyPlans = () => {
             </button>
           </div>
         </div>
-        {billingCycle === 'annual' && (
-          <p className="text-sm text-[#4640DE] font-medium">-15% off on annual payments</p>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
         {plans.map((plan) => {
-          const isPopular = plan.name.toLowerCase().includes('standard') || plan.name.toLowerCase().includes('popular')
+          const isPopular = plan.isPopular
           
           return (
             <Card 
@@ -329,12 +486,28 @@ const CompanyPlans = () => {
               <CardContent className="flex-1 flex flex-col gap-6">
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-gray-900">
-                    {plan.price}rs
+                    {billingCycle === 'annual' 
+                      ? (plan.yearlyDiscount > 0 
+                          ? `${Math.round(plan.price * (1 - plan.yearlyDiscount / 100))}rs`
+                          : `${plan.price}rs`)
+                      : `${plan.price}rs`
+                    }
                   </span>
                   <span className="text-gray-500 font-medium">
-                    / {plan.duration} Days
+                    / month
                   </span>
                 </div>
+
+                {billingCycle === 'annual' && plan.yearlyDiscount > 0 && (
+                  <div className="flex items-center gap-2 -mt-3">
+                    <span className="text-sm text-gray-400 line-through">
+                      {plan.price}rs/month
+                    </span>
+                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                      Save {plan.yearlyDiscount}%
+                    </span>
+                  </div>
+                )}
 
                 <div className="space-y-4 flex-1">
                   {/* Plan Limits Section */}
@@ -371,7 +544,7 @@ const CompanyPlans = () => {
                 <Button
                   className="w-full h-12 text-base font-bold shadow-sm mt-4"
                   variant={isPopular ? 'company' : 'companyOutline'}
-                  onClick={() => handleSelectPlan(plan.id)}
+                  onClick={() => handleSelectPlan(plan)}
                 >
                   {plan.price === 0 ? 'Try for free' : 'Select plan'}
                 </Button>
@@ -388,6 +561,26 @@ const CompanyPlans = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         {view === 'dashboard' ? renderDashboard() : renderPlans()}
       </div>
+
+      {/* Purchase Confirmation Dialog */}
+      <PurchaseConfirmationDialog
+        open={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        plan={selectedPlan}
+        billingCycle={billingCycle}
+        onConfirm={handleConfirmPurchase}
+        loading={purchaseLoading}
+      />
+
+      {/* Purchase Result Dialog */}
+      <PurchaseResultDialog
+        open={showResultDialog}
+        onClose={handleCloseResultDialog}
+        success={purchaseResult?.success ?? false}
+        message={purchaseResult?.message ?? ''}
+        invoiceId={purchaseResult?.invoiceId}
+        transactionId={purchaseResult?.transactionId}
+      />
     </CompanyLayout>
   )
 }

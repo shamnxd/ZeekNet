@@ -22,6 +22,9 @@ import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { userRepository } from '../../infrastructure/di/authDi';
 import { notificationRouter } from '../../infrastructure/di/notificationDi';
 import { DateTimeUtil } from '../../shared/utils/datetime.utils';
+import { SubscriptionCronService } from '../../infrastructure/services/cron/subscription-cron.service';
+import { companySubscriptionRepository } from '../../infrastructure/di/companyDi';
+import { JobPostingRepository } from '../../infrastructure/database/mongodb/repositories/job-posting.repository';
 
 export class AppServer {
   private _app: express.Application;
@@ -119,6 +122,15 @@ export class AppServer {
       this.init();
 
       this._socketServer = new SocketServer(this._httpServer);
+
+      const jobPostingRepository = new JobPostingRepository();
+      const subscriptionCronService = new SubscriptionCronService(
+        companySubscriptionRepository,
+        jobPostingRepository,
+      );
+      subscriptionCronService.startExpireSubscriptionsCron();
+      subscriptionCronService.startExpireJobsCron();
+      logger.info('Subscription cron jobs initialized');
 
       this._httpServer.listen(this._port, () => {
         logger.info(`Server running on http://localhost:${this._port}`);

@@ -113,9 +113,10 @@ export class CompanyJobPostingController {
   };
 
   updateJobStatus = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const { is_active } = req.body;
-    if (typeof is_active !== 'boolean') {
-      return handleValidationError('is_active must be a boolean value', next);
+    const { status } = req.body;
+    const validStatuses = ['active', 'unlisted', 'expired'];
+    if (!status || !validStatuses.includes(status)) {
+      return handleValidationError('status must be one of: active, unlisted, expired', next);
     }
 
     try {
@@ -126,9 +127,9 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobStatusUseCase.execute(id, is_active);
+      const jobPosting = await this._updateJobStatusUseCase.execute(id, status, userId);
 
-      sendSuccessResponse(res, 'Job status updated successfully', jobPosting);
+      sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
     } catch (error) {
       handleAsyncError(error, next);
     }
