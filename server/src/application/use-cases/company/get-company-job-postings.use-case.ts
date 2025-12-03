@@ -80,6 +80,7 @@ export class GetCompanyJobPostingsUseCase {
       employmentTypes: job.employmentTypes!,
       applicationCount: job.applicationCount!,
       viewCount: job.viewCount!,
+      isFeatured: job.isFeatured!,
       unpublishReason: job.unpublishReason,
       createdAt: job.createdAt!,
     }));
