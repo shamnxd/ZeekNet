@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { ICompanySubscriptionRepository } from '../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanySubscription } from '../../domain/entities/company-subscription.entity';
+import { AuthenticatedRequest } from './auth.middleware';
 
 export class SubscriptionMiddleware {
   constructor(
@@ -12,7 +13,7 @@ export class SubscriptionMiddleware {
   /**
    * Middleware to check if company has an active subscription
    */
-  checkActiveSubscription = async (req: Request, res: Response, next: NextFunction) => {
+  checkActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.userId;
       
@@ -50,7 +51,7 @@ export class SubscriptionMiddleware {
       }
 
       // Attach subscription to request for use in route handlers
-      (req as Request & { subscription: typeof subscription }).subscription = subscription;
+      (req as AuthenticatedRequest & { subscription: typeof subscription }).subscription = subscription;
       
       next();
     } catch (error) {
@@ -61,9 +62,9 @@ export class SubscriptionMiddleware {
   /**
    * Middleware to check if company can post a job
    */
-  checkCanPostJob = async (req: Request, res: Response, next: NextFunction) => {
+  checkCanPostJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const subscription = (req as Request & { subscription?: CompanySubscription }).subscription;
+      const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
       
       if (!subscription) {
         return res.status(403).json({
@@ -88,9 +89,9 @@ export class SubscriptionMiddleware {
   /**
    * Middleware to check if company can post a featured job
    */
-  checkCanPostFeaturedJob = async (req: Request, res: Response, next: NextFunction) => {
+  checkCanPostFeaturedJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
-      const subscription = (req as Request & { subscription?: CompanySubscription }).subscription;
+      const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
       const isFeatured = req.body.is_featured || req.body.isFeatured;
       
       // If not featured, skip check

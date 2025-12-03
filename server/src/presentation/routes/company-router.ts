@@ -91,6 +91,7 @@ export class CompanyRouter {
     // Subscription routes
     this.router.post('/subscriptions/purchase', validateBody(PurchaseSubscriptionDto), companySubscriptionController.purchaseSubscription);
     this.router.get('/subscriptions/active', companySubscriptionController.getActiveSubscription);
+    this.router.get('/subscriptions/payment-history', companySubscriptionController.getPaymentHistory);
 
     this.router.post('/jobs', validateBody(CreateJobPostingRequestDto), companyJobPostingController.createJobPosting);
     this.router.get('/jobs', validateQuery(JobPostingQueryDto), companyJobPostingController.getCompanyJobPostings);
