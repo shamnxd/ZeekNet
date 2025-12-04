@@ -39,6 +39,3 @@ export interface IUpdateSubscriptionPlanUseCase {
   ): Promise<SubscriptionPlan>;
 }
 
-export interface IDeleteSubscriptionPlanUseCase {
-  execute(planId: string): Promise<boolean>;
-}
