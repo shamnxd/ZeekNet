@@ -23,4 +23,12 @@ export interface ISubscriptionPlanRepository extends IBaseRepository<Subscriptio
   findAllWithPagination(options: SubscriptionPlanQueryOptions): Promise<PaginatedSubscriptionPlans>;
   unmarkAllAsPopular(): Promise<void>;
   findByIds(ids: string[]): Promise<SubscriptionPlan[]>;
+  
+  // Stripe-specific methods
+  findByStripePriceId(stripePriceId: string): Promise<SubscriptionPlan | null>;
+  updateStripeIds(id: string, data: {
+    stripeProductId?: string;
+    stripePriceIdMonthly?: string;
+    stripePriceIdYearly?: string;
+  }): Promise<SubscriptionPlan | null>;
 }
