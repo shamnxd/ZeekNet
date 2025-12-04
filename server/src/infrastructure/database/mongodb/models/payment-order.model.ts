@@ -5,11 +5,17 @@ export interface PaymentOrderDocument extends Document {
   planId: Types.ObjectId;
   amount: number;
   currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
   paymentMethod: 'dummy' | 'stripe' | 'card';
   invoiceId?: string;
   transactionId?: string;
   metadata?: Record<string, unknown>;
+  stripePaymentIntentId?: string;
+  stripeInvoiceId?: string;
+  stripeInvoiceUrl?: string;
+  stripeInvoicePdf?: string;
+  subscriptionId?: Types.ObjectId;
+  billingCycle?: 'monthly' | 'yearly';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,11 +39,11 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
     },
     currency: {
       type: String,
-      default: 'USD',
+      default: 'INR',
     },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'cancelled'],
+      enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
       default: 'pending',
       index: true,
     },
@@ -57,6 +63,29 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
     },
     metadata: {
       type: Schema.Types.Mixed,
+    },
+    stripePaymentIntentId: {
+      type: String,
+      sparse: true,
+    },
+    stripeInvoiceId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    stripeInvoiceUrl: {
+      type: String,
+    },
+    stripeInvoicePdf: {
+      type: String,
+    },
+    subscriptionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'CompanySubscription',
+    },
+    billingCycle: {
+      type: String,
+      enum: ['monthly', 'yearly'],
     },
   },
   {
