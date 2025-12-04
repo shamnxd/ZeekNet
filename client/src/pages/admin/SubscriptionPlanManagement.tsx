@@ -9,23 +9,22 @@ import {
   Search, 
   Plus,
   Edit,
-  Trash2,
   ChevronLeft,
   ChevronRight,
   IndianRupee,
-  
+  Eye,
+  EyeOff,
+  Loader2,
 } from 'lucide-react'
 import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData } from '@/api/admin.api'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { Badge } from '@/components/ui/badge'
 
 const SubscriptionPlanManagement = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
@@ -33,6 +32,10 @@ const SubscriptionPlanManagement = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [totalPlans, setTotalPlans] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
+  const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null)
+  const [migratingPlanId, setMigratingPlanId] = useState<string | null>(null)
+  const [updatingPlanId, setUpdatingPlanId] = useState<string | null>(null)
+  const [creatingPlan, setCreatingPlan] = useState(false)
   const itemsPerPage = 10
   
   const [formData, setFormData] = useState<CreateSubscriptionPlanData | UpdateSubscriptionPlanData>({
@@ -115,9 +118,24 @@ const SubscriptionPlanManagement = () => {
     setEditDialogOpen(true)
   }
 
-  const handleDelete = (plan: SubscriptionPlan) => {
-    setSelectedPlan(plan)
-    setDeleteDialogOpen(true)
+  const handleToggleStatus = async (plan: SubscriptionPlan) => {
+    try {
+      setTogglingPlanId(plan.id)
+      const newStatus = !plan.isActive
+      const response = await adminApi.updateSubscriptionPlan(plan.id, { isActive: newStatus })
+      
+      if (response.success) {
+        toast.success(`Plan ${newStatus ? 'listed' : 'unlisted'} successfully${!newStatus ? ' (archived in Stripe)' : ''}`)
+        await fetchPlans()
+      } else {
+        toast.error(response.message || 'Failed to update plan status')
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update plan status'
+      toast.error(message)
+    } finally {
+      setTogglingPlanId(null)
+    }
   }
 
   const addFeature = () => {
@@ -127,6 +145,28 @@ const SubscriptionPlanManagement = () => {
         features: [...(prev.features || []), featureInput.trim()]
       }))
       setFeatureInput('')
+    }
+  }
+
+  const handleMigrateSubscribers = async (plan: SubscriptionPlan) => {
+    try {
+      setMigratingPlanId(plan.id)
+      
+      const response = await adminApi.migratePlanSubscribers(plan.id, {
+        billingCycle: 'both',
+        prorationBehavior: 'none',
+      })
+
+      if (response.success && response.data) {
+        toast.success(`Migrated ${response.data.migratedCount} subscriber(s). Failed: ${response.data.failedCount}.`)
+      } else {
+        toast.error(response.message || 'Failed to migrate subscribers')
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to migrate subscribers'
+      toast.error(message)
+    } finally {
+      setMigratingPlanId(null)
     }
   }
 
@@ -151,7 +191,10 @@ const SubscriptionPlanManagement = () => {
       return
     }
 
+    if (creatingPlan) return // Prevent double-click
+
     try {
+      setCreatingPlan(true)
       const response = await adminApi.createSubscriptionPlan(formData as CreateSubscriptionPlanData)
       
       if (response.success && response.data) {
@@ -163,6 +206,8 @@ const SubscriptionPlanManagement = () => {
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to create subscription plan')
+    } finally {
+      setCreatingPlan(false)
     }
   }
 
@@ -182,7 +227,10 @@ const SubscriptionPlanManagement = () => {
       return
     }
 
+    if (updatingPlanId === selectedPlan.id) return // Prevent double-click
+
     try {
+      setUpdatingPlanId(selectedPlan.id)
       const response = await adminApi.updateSubscriptionPlan(selectedPlan.id, formData as UpdateSubscriptionPlanData)
       
       if (response.success && response.data) {
@@ -195,26 +243,8 @@ const SubscriptionPlanManagement = () => {
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update subscription plan')
-    }
-  }
-
-  const handleDeleteConfirm = async () => {
-    if (!selectedPlan) return
-
-    try {
-      const response = await adminApi.deleteSubscriptionPlan(selectedPlan.id)
-      
-      if (response.success) {
-        setPlans(prev => prev.filter(plan => plan.id !== selectedPlan.id))
-        setTotalPlans(prev => Math.max(0, prev - 1))
-        toast.success('Subscription plan deleted successfully')
-        setDeleteDialogOpen(false)
-        setSelectedPlan(null)
-      } else {
-        toast.error(response.message || 'Failed to delete subscription plan')
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete subscription plan')
+    } finally {
+      setUpdatingPlanId(null)
     }
   }
 
@@ -263,6 +293,11 @@ const SubscriptionPlanManagement = () => {
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Pricing</h3>
+            {editDialogOpen && (
+              <p className="text-xs text-amber-600 mt-1">
+                ⚠️ Changing price will create new Stripe prices and archive old ones. Existing subscribers will keep paying the old price until migrated.
+              </p>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -404,21 +439,6 @@ const SubscriptionPlanManagement = () => {
                 Mark as Popular Plan
               </label>
             </div>
-
-            {editDialogOpen && (
-              <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={Boolean(((formData as any)?.isActive) ?? true)}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                  className="h-4 w-4"
-                />
-                <label htmlFor="isActive" className="text-sm font-medium cursor-pointer">
-                  Active Plan
-                </label>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -550,7 +570,7 @@ const SubscriptionPlanManagement = () => {
                                 : 'bg-gray-100 text-gray-700 border-gray-200'
                               }
                             >
-                              {plan.isActive ? 'Active' : 'Inactive'}
+                              {plan.isActive ? 'Listed' : 'Unlisted'}
                             </Badge>
                           </td>
                           <td className="p-4">
@@ -560,16 +580,38 @@ const SubscriptionPlanManagement = () => {
                                 size="sm" 
                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                 onClick={() => handleEdit(plan)}
+                                title="Edit plan"
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleDelete(plan)}
+                                className={plan.isActive 
+                                  ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50" 
+                                  : "text-green-600 hover:text-green-700 hover:bg-green-50"
+                                }
+                                onClick={() => handleToggleStatus(plan)}
+                                disabled={togglingPlanId === plan.id}
+                                title={plan.isActive ? 'Unlist plan' : 'List plan'}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                {togglingPlanId === plan.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : plan.isActive ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs"
+                                onClick={() => handleMigrateSubscribers(plan)}
+                                disabled={migratingPlanId === plan.id}
+                                title="Migrate existing subscribers to current price"
+                              >
+                                {migratingPlanId === plan.id ? 'Migrating...' : 'Migrate subs'}
                               </Button>
                             </div>
                           </td>
@@ -639,6 +681,7 @@ const SubscriptionPlanManagement = () => {
           title="Create Subscription Plan"
           description="Add a new subscription plan to the system."
           confirmText="Create"
+          isLoading={creatingPlan}
           maxWidth="5xl"
         >
           {renderForm()}
@@ -646,26 +689,20 @@ const SubscriptionPlanManagement = () => {
 
         <FormDialog
           isOpen={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
+          onClose={() => {
+            setEditDialogOpen(false)
+            setSelectedPlan(null)
+            setUpdatingPlanId(null)
+          }}
           onConfirm={handleEditConfirm}
           title="Edit Subscription Plan"
-          description="Update the subscription plan details."
+          description="Update the subscription plan details. Changing price will create new Stripe prices automatically."
           confirmText="Update"
+          isLoading={updatingPlanId === selectedPlan?.id}
           maxWidth="5xl"
         >
           {renderForm()}
         </FormDialog>
-
-        <ConfirmationDialog
-          isOpen={deleteDialogOpen}
-          onClose={() => setDeleteDialogOpen(false)}
-          onConfirm={handleDeleteConfirm}
-          title="Delete Subscription Plan"
-          description={`Are you sure you want to delete "${selectedPlan?.name}"? This action cannot be undone.`}
-          confirmText="Delete"
-          cancelText="Cancel"
-          variant="danger"
-        />
       </div>
     </AdminLayout>
   )

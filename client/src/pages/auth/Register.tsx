@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
-import { registerThunk, googleLoginThunk, clearError } from '@/store/slices/auth.slice'
+import { registerThunk, googleLoginThunk, clearError, fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { UserRole } from '@/constants/enums'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -151,6 +151,13 @@ const Register = () => {
     try {
       const res = await dispatch(googleLoginThunk({ idToken: credentialResponse.credential })).unwrap()
       if (res?.success) {
+        // Fetch company profile if company user
+        if (res.data?.role === UserRole.COMPANY) {
+          dispatch(fetchCompanyProfileThunk()).catch(() => {
+            // Silently fail - will default to 'not_created'
+          })
+        }
+
         toast.success('Welcome!', { description: 'Account created successfully with Google.' })
         const r = res.data?.role
         if (r === UserRole.ADMIN) navigate('/admin/dashboard')
