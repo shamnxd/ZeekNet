@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction, ActionReducerMapBuilder, AsyncThunk } from "@reduxjs/toolkit";
 import { authApi } from "@/api/auth.api";
+import { companyApi } from "@/api/company.api";
 import { clearAuthToken } from "@/api";
 import type {
   LoginPayload,
@@ -200,12 +201,30 @@ export const initializeAuthThunk = createAsyncThunk<
         const refreshResult = await dispatch(refreshTokenThunk());
         if (refreshResult.type.endsWith('/rejected')) {
           return rejectWithValue("Not authenticated");
+        } else {
+          // After refresh, check if company user
+          const updatedState = getState() as { auth: AuthState };
+          if (updatedState.auth.role === UserRole.COMPANY) {
+            dispatch(fetchCompanyProfileThunk()).catch(() => {});
+          }
+        }
+      } else {
+        // After getCurrentUser, check if company user
+        const updatedState = getState() as { auth: AuthState };
+        if (updatedState.auth.role === UserRole.COMPANY) {
+          dispatch(fetchCompanyProfileThunk()).catch(() => {});
         }
       }
     } else {
       const refreshResult = await dispatch(refreshTokenThunk());
       if (refreshResult.type.endsWith('/rejected')) {
         return rejectWithValue("Not authenticated");
+      } else {
+        // After refresh, check if company user
+        const updatedState = getState() as { auth: AuthState };
+        if (updatedState.auth.role === UserRole.COMPANY) {
+          dispatch(fetchCompanyProfileThunk()).catch(() => {});
+        }
       }
     }
   } catch {
@@ -223,6 +242,39 @@ export const logoutThunk = createAsyncThunk<void, void, { rejectValue: string }>
     }
   }
 );
+
+// Fetch company profile and verification status
+export const fetchCompanyProfileThunk = createAsyncThunk<
+  'not_created' | 'pending' | 'verified' | 'rejected',
+  void,
+  { rejectValue: string }
+>("auth/fetchCompanyProfile", async (_, { rejectWithValue }) => {
+  try {
+    const response = await companyApi.getProfile();
+    if (response.success && response.data) {
+      const responseData = response.data as { profile?: { is_verified: string } } | { is_verified: string };
+      let profileData: { is_verified?: string } | undefined;
+      
+      if ('profile' in responseData && responseData.profile) {
+        profileData = responseData.profile;
+      } else if ('is_verified' in responseData) {
+        profileData = responseData as { is_verified: string };
+      }
+      
+      const status = (profileData?.is_verified || 'not_created') as 'not_created' | 'pending' | 'verified' | 'rejected';
+      return status;
+    }
+    return 'not_created';
+  } catch (error: unknown) {
+    // If profile not found, return 'not_created'
+    const errorMessage = extractErrorMessage(error, '');
+    if (errorMessage.includes('Company profile not found') || 
+        errorMessage.includes('Please complete your profile')) {
+      return 'not_created';
+    }
+    return rejectWithValue(extractErrorMessage(error, 'Failed to fetch company profile'));
+  }
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -280,6 +332,15 @@ const authSlice = createSlice({
     addAuthHandlers(builder, registerThunk, "Registration failed");
     addAuthHandlers(builder, forgotPasswordThunk, "Failed to send password reset email", false);
     addAuthHandlers(builder, googleLoginThunk, "Google login failed");
+
+    // Handle company profile fetch
+    builder
+      .addCase(fetchCompanyProfileThunk.fulfilled, (state, action) => {
+        state.companyVerificationStatus = action.payload;
+      })
+      .addCase(fetchCompanyProfileThunk.rejected, (state) => {
+        state.companyVerificationStatus = 'not_created';
+      });
 
     builder
       .addCase(refreshTokenThunk.pending, (state) => setLoading(state, true))
