@@ -16,4 +16,10 @@ export interface CompanySubscriptionResponseDto {
   applicantAccessUsed: number;
   createdAt: Date;
   updatedAt: Date;
+  // Stripe-specific fields
+  stripeStatus?: string;
+  billingCycle?: 'monthly' | 'yearly';
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
 }

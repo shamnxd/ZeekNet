@@ -21,6 +21,12 @@ export class CompanySubscriptionResponseMapper {
       applicantAccessUsed: entity.applicantAccessUsed,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Stripe-specific fields
+      stripeStatus: entity.stripeStatus,
+      billingCycle: entity.billingCycle,
+      cancelAtPeriodEnd: entity.cancelAtPeriodEnd,
+      currentPeriodStart: entity.currentPeriodStart,
+      currentPeriodEnd: entity.currentPeriodEnd,
     };
   }
 

@@ -35,3 +35,8 @@ export const GetAllSubscriptionPlansDto = z.object({
   sortBy: z.string().optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
+
+export const MigratePlanSubscribersDto = z.object({
+  billingCycle: z.enum(['monthly', 'yearly', 'both']).optional().default('both'),
+  prorationBehavior: z.enum(['none', 'create_prorations', 'always_invoice']).optional().default('none'),
+});
