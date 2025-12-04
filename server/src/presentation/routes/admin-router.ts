@@ -8,7 +8,7 @@ import { AdminGetAllJobsDto } from '../../application/dto/admin/admin-job.dto';
 import { GetAllJobCategoriesDto, CreateJobCategoryDto, UpdateJobCategoryDto } from '../../application/dto/admin/job-category.dto';
 import { GetAllSkillsDto, CreateSkillDto, UpdateSkillDto } from '../../application/dto/admin/skill-management.dto';
 import { GetAllJobRolesDto, CreateJobRoleDto, UpdateJobRoleDto } from '../../application/dto/admin/job-role-management.dto';
-import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto } from '../../application/dto/admin/subscription-plan-management.dto';
+import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, MigratePlanSubscribersDto } from '../../application/dto/admin/subscription-plan-management.dto';
 
 export class AdminRouter {
   public router: Router;
@@ -58,7 +58,7 @@ export class AdminRouter {
     this.router.post('/subscription-plans', validateBody(CreateSubscriptionPlanDto), adminSubscriptionPlanController.createSubscriptionPlan);
     this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
     this.router.put('/subscription-plans/:id', validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
-    this.router.delete('/subscription-plans/:id', adminSubscriptionPlanController.deleteSubscriptionPlan);
+    this.router.post('/subscription-plans/:id/migrate-subscribers', validateBody(MigratePlanSubscribersDto), adminSubscriptionPlanController.migratePlanSubscribers);
 
     this.router.get('/payment-orders', adminPaymentOrderController.getAllPaymentOrders);
   }

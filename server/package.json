@@ -9,9 +9,7 @@
     "start": "node -r tsconfig-paths/register dist/index.js",
     "test:s3": "node test-s3-routes.js",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
-    "format": "prettier --write .",
-    "seed": "ts-node -r tsconfig-paths/register scripts/seed-data.ts",
-    "migrate:usage": "ts-node -r tsconfig-paths/register src/infrastructure/scripts/migrate-subscription-usage.ts"
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -33,7 +31,6 @@
     "eslint": "^9.35.0",
     "knip": "^5.70.2",
     "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2"
   },
@@ -59,6 +56,7 @@
     "redis": "^4.6.15",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
+    "stripe": "^20.0.0",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "^3.25.76"
