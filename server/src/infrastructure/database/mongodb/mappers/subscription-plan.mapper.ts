@@ -18,6 +18,9 @@ export class SubscriptionPlanMapper {
       isPopular: doc.isPopular,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
+      stripeProductId: doc.stripeProductId,
+      stripePriceIdMonthly: doc.stripePriceIdMonthly,
+      stripePriceIdYearly: doc.stripePriceIdYearly,
     });
   }
 
@@ -35,6 +38,9 @@ export class SubscriptionPlanMapper {
     if (entity.applicantAccessLimit !== undefined) doc.applicantAccessLimit = entity.applicantAccessLimit;
     if (entity.isActive !== undefined) doc.isActive = entity.isActive;
     if (entity.isPopular !== undefined) doc.isPopular = entity.isPopular;
+    if (entity.stripeProductId !== undefined) doc.stripeProductId = entity.stripeProductId;
+    if (entity.stripePriceIdMonthly !== undefined) doc.stripePriceIdMonthly = entity.stripePriceIdMonthly;
+    if (entity.stripePriceIdYearly !== undefined) doc.stripePriceIdYearly = entity.stripePriceIdYearly;
     
     return doc;
   }
