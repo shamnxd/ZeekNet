@@ -51,6 +51,7 @@ type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
 
 const CompanyProfileSetup = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   
   const [formData, setFormData] = useState<CompanyProfileFormData>({
     company_name: '',
@@ -168,6 +169,9 @@ const CompanyProfileSetup = () => {
         : await companyApi.createProfile(profileData)
       
       if (res.success) {
+        // Refresh verification status in Redux
+        dispatch(fetchCompanyProfileThunk()).catch(() => {})
+
         const successMessage = isReapplication 
           ? 'Reapplication Submitted Successfully!'
           : 'Profile Created Successfully!'

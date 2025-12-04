@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -13,7 +14,10 @@ import {
   ArrowLeft,
   Briefcase,
   Users,
-  Zap
+  Zap,
+  ExternalLink,
+  AlertCircle,
+  XCircle
 } from 'lucide-react'
 import { 
   Table, 
@@ -28,6 +32,7 @@ import { toast } from 'sonner'
 import { PurchaseConfirmationDialog, PurchaseResultDialog } from '@/components/company/dialogs/PurchaseSubscriptionDialog'
 
 const CompanyPlans = () => {
+  const [searchParams] = useSearchParams()
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'dashboard' | 'plans'>('dashboard')
@@ -45,11 +50,76 @@ const CompanyPlans = () => {
       invoiceId?: string
       transactionId?: string
     } | null>(null)
+  const [cancelLoading, setCancelLoading] = useState(false)
+  const [resumeLoading, setResumeLoading] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [changingPlan, setChangingPlan] = useState(false)
+  const [isPollingSubscription, setIsPollingSubscription] = useState(false)
 
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
   }, [])
+
+  // Handle Stripe redirect separately to avoid unnecessary re-renders
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id')
+    if (sessionId && !isPollingSubscription) {
+      // Payment was successful, show success message
+      toast.success('Payment successful! Your subscription is being activated.')
+      // Remove the session_id from URL immediately
+      window.history.replaceState({}, '', window.location.pathname)
+      
+      // Poll for subscription (webhook processes asynchronously)
+      setIsPollingSubscription(true)
+      let retries = 0
+      const maxRetries = 3 // Reduced retries - webhook should process quickly
+      let timeoutId: NodeJS.Timeout | null = null
+      
+      const checkSubscription = async () => {
+        try {
+          const response = await companyApi.getActiveSubscription()
+          
+          if (response.success && response.data) {
+            // Subscription found, update state and stop polling
+            setActiveSubscription(response.data)
+            await fetchBillingHistory()
+            setIsPollingSubscription(false)
+            toast.success('Subscription activated successfully!')
+            if (timeoutId) clearTimeout(timeoutId)
+            return
+          }
+          
+          retries++
+          if (retries < maxRetries) {
+            // Wait 2 seconds before next check
+            timeoutId = setTimeout(checkSubscription, 2000)
+          } else {
+            // Max retries reached - webhook may still be processing
+            setIsPollingSubscription(false)
+            toast.info('Subscription is being processed. Please refresh the page in a moment if it doesn\'t appear.')
+          }
+        } catch (error) {
+          retries++
+          if (retries < maxRetries) {
+            timeoutId = setTimeout(checkSubscription, 2000)
+          } else {
+            setIsPollingSubscription(false)
+            toast.error('Failed to fetch subscription. Please refresh the page.')
+          }
+        }
+      }
+      
+      // Start checking after 2 seconds (give webhook time to process)
+      timeoutId = setTimeout(checkSubscription, 2000)
+      
+      // Cleanup on unmount
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId)
+        setIsPollingSubscription(false)
+      }
+    }
+  }, [searchParams.get('session_id')]) // Only depend on session_id, not entire searchParams
 
   const fetchPlans = async () => {
     try {
@@ -88,19 +158,20 @@ const CompanyPlans = () => {
       const response = await companyApi.getPaymentHistory()
       
       if (response.success && response.data) {
-        const formattedHistory = response.data.map((payment: any) => ({
+        const formattedHistory = response.data.map((payment) => ({
           id: payment.invoiceId || payment.id,
           date: new Date(payment.createdAt).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
           }),
-          description: 'Subscription Plan',
+          description: `Subscription Plan${payment.billingCycle ? ` (${payment.billingCycle})` : ''}`,
           amount: payment.amount,
           status: payment.status === 'completed' ? 'Completed' : payment.status,
-          invoiceUrl: '#',
+          invoiceUrl: payment.stripeInvoiceUrl || payment.stripeInvoicePdf || '#',
           invoiceId: payment.invoiceId,
-          transactionId: payment.transactionId
+          transactionId: payment.transactionId,
+          hasStripeInvoice: !!(payment.stripeInvoiceUrl || payment.stripeInvoicePdf)
         }))
         setBillingHistory(formattedHistory)
       }
@@ -117,38 +188,118 @@ const CompanyPlans = () => {
   const handleConfirmPurchase = async () => {
     if (!selectedPlan) return
 
+    // Check if user has active subscription - if yes, change plan instead of creating new
+    if (activeSubscription && activeSubscription.stripeSubscriptionId) {
+      try {
+        setChangingPlan(true)
+        const response = await companyApi.changeSubscriptionPlan(
+          selectedPlan.id,
+          billingCycle === 'annual' ? 'yearly' : billingCycle
+        )
+
+        if (response.success && response.data) {
+          toast.success('Plan changed successfully! Your subscription has been updated.')
+          setShowConfirmDialog(false)
+          setSelectedPlan(null)
+          await fetchActiveSubscription()
+        } else {
+          throw new Error(response.message || 'Failed to change plan')
+        }
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to change plan'
+        toast.error(message)
+      } finally {
+        setChangingPlan(false)
+      }
+      return
+    }
+
+    // No active subscription - create new checkout session
     try {
       setPurchaseLoading(true)
-      const response = await companyApi.purchaseSubscription(selectedPlan.id, billingCycle)
+      
+      // Use Stripe Checkout
+      const successUrl = `${window.location.origin}/company/billing`
+      const cancelUrl = `${window.location.origin}/company/billing`
+      
+      const response = await companyApi.createCheckoutSession(
+        selectedPlan.id,
+        billingCycle === 'annual' ? 'yearly' : billingCycle,
+        successUrl,
+        cancelUrl
+      )
 
-      if (response.success && response.data) {
-          setPurchaseResult({
-            success: true,
-            message: 'Your subscription has been activated successfully!',
-            invoiceId: response.data.paymentOrder.invoiceId,
-            transactionId: response.data.paymentOrder.transactionId,
-          })
-        setShowConfirmDialog(false)
-        setShowResultDialog(true)
-
-        setTimeout(() => {
-          setView('dashboard')
-          fetchPlans()
-          fetchActiveSubscription()
-        }, 2000)
+      if (response.success && response.data?.sessionUrl) {
+        // Redirect to Stripe Checkout
+        window.location.href = response.data.sessionUrl
       } else {
-        throw new Error(response.message || 'Purchase failed')
+        throw new Error(response.message || 'Failed to create checkout session')
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to purchase subscription'
+      const message = error instanceof Error ? error.message : 'Failed to start checkout'
       setPurchaseResult({
         success: false,
         message,
       })
       setShowConfirmDialog(false)
       setShowResultDialog(true)
-    } finally {
       setPurchaseLoading(false)
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    try {
+      setCancelLoading(true)
+      const response = await companyApi.cancelSubscription()
+      
+      if (response.success) {
+        toast.success('Your subscription will be canceled at the end of the billing period')
+        fetchActiveSubscription()
+      } else {
+        throw new Error(response.message || 'Failed to cancel subscription')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to cancel subscription'
+      toast.error(message)
+    } finally {
+      setCancelLoading(false)
+    }
+  }
+
+  const handleResumeSubscription = async () => {
+    try {
+      setResumeLoading(true)
+      const response = await companyApi.resumeSubscription()
+      
+      if (response.success) {
+        toast.success('Your subscription has been resumed')
+        fetchActiveSubscription()
+      } else {
+        throw new Error(response.message || 'Failed to resume subscription')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to resume subscription'
+      toast.error(message)
+    } finally {
+      setResumeLoading(false)
+    }
+  }
+
+  const handleOpenBillingPortal = async () => {
+    try {
+      setPortalLoading(true)
+      const returnUrl = `${window.location.origin}/company/billing`
+      const response = await companyApi.getBillingPortalUrl(returnUrl)
+      
+      if (response.success && response.data?.url) {
+        window.location.href = response.data.url
+      } else {
+        throw new Error(response.message || 'Failed to open billing portal')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to open billing portal'
+      toast.error(message)
+      setPortalLoading(false)
     }
   }
 
@@ -333,20 +484,79 @@ const CompanyPlans = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <CreditCard className="h-4 w-4 text-gray-400" />
-                  <span>Dummy Payment (No card required)</span>
+                  <span>{activeSubscription?.stripeStatus ? 'Stripe Subscription' : 'No payment method'}</span>
                 </div>
+                {activeSubscription?.stripeStatus === 'past_due' && (
+                  <div className="flex items-center gap-2 text-amber-600 text-sm bg-amber-50 p-2 rounded">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>Payment failed - please update your payment method</span>
+                  </div>
+                )}
+                {activeSubscription?.cancelAtPeriodEnd && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded">
+                    <XCircle className="h-4 w-4" />
+                    <span>Cancels on {currentPlan.expiryDate}</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100">
-              <p className="text-sm text-gray-500 mb-3">Want more features?</p>
-              <Button 
-                onClick={() => setView('plans')}
-                className="w-full bg-gradient-to-r from-[#4640DE] to-[#7069fa] hover:from-[#3b35b9] hover:to-[#5e56e8] text-white border-0"
-              >
-                Upgrade to Premium
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            <div className="pt-4 border-t border-gray-100 space-y-3">
+              {activeSubscription?.stripeStatus && (
+                <>
+                  <Button 
+                    onClick={handleOpenBillingPortal}
+                    variant="outline"
+                    className="w-full"
+                    disabled={portalLoading}
+                  >
+                    {portalLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                    )}
+                    Manage Payment Method
+                  </Button>
+                  
+                  {activeSubscription?.cancelAtPeriodEnd ? (
+                    <Button 
+                      onClick={handleResumeSubscription}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={resumeLoading}
+                    >
+                      {resumeLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : null}
+                      Resume Subscription
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleCancelSubscription}
+                      variant="destructive"
+                      className="w-full"
+                      disabled={cancelLoading}
+                    >
+                      {cancelLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : null}
+                      Cancel Subscription
+                    </Button>
+                  )}
+                </>
+              )}
+              
+              {!activeSubscription && (
+                <>
+                  <p className="text-sm text-gray-500">Want more features?</p>
+                  <Button 
+                    onClick={() => setView('plans')}
+                    className="w-full bg-gradient-to-r from-[#4640DE] to-[#7069fa] hover:from-[#3b35b9] hover:to-[#5e56e8] text-white border-0"
+                  >
+                    Upgrade to Premium
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -386,14 +596,19 @@ const CompanyPlans = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-[#4640DE] hover:text-[#3730b8] hover:bg-[#4640DE]/10"
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        Invoice
-                      </Button>
+                      {invoice.hasStripeInvoice ? (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-[#4640DE] hover:text-[#3730b8] hover:bg-[#4640DE]/10"
+                          onClick={() => window.open(invoice.invoiceUrl, '_blank')}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Invoice
+                        </Button>
+                      ) : (
+                        <span className="text-gray-400 text-sm">N/A</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -462,17 +677,25 @@ const CompanyPlans = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
         {plans.map((plan) => {
           const isPopular = plan.isPopular
+          const isCurrentPlan = activeSubscription?.planId === plan.id
           
           return (
             <Card 
               key={plan.id} 
               className={`relative flex flex-col transition-all duration-300 h-full border-2 ${
-                isPopular 
+                isCurrentPlan
+                  ? 'border-green-500 shadow-lg ring-2 ring-green-200'
+                  : isPopular 
                   ? 'border-[#4640DE] shadow-xl scale-105 z-10' 
                   : 'border-gray-100 hover:border-[#CCCCF5] hover:shadow-lg'
               }`}
             >
-              {isPopular && (
+              {isCurrentPlan && (
+                <div className="bg-green-500 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
+                  Current Plan
+                </div>
+              )}
+              {!isCurrentPlan && isPopular && (
                 <div className="bg-[#4640DE] !mt-4 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
                   Most Popular Plan
                 </div>
@@ -545,8 +768,21 @@ const CompanyPlans = () => {
                   className="w-full h-12 text-base font-bold shadow-sm mt-4"
                   variant={isPopular ? 'company' : 'companyOutline'}
                   onClick={() => handleSelectPlan(plan)}
+                  disabled={changingPlan}
                 >
-                  {plan.price === 0 ? 'Try for free' : 'Select plan'}
+                  {(() => {
+                    if (changingPlan) return 'Changing...'
+                    if (activeSubscription?.planId === plan.id) {
+                      const currentBillingCycle = activeSubscription.billingCycle === 'yearly' ? 'annual' : 'monthly'
+                      return currentBillingCycle === billingCycle
+                        ? 'Current Plan'
+                        : 'Change Billing'
+                    }
+                    if (activeSubscription && activeSubscription.stripeSubscriptionId) {
+                      return plan.price > (activeSubscription.plan?.price || 0) ? 'Upgrade' : 'Downgrade'
+                    }
+                    return plan.price === 0 ? 'Try for free' : 'Select plan'
+                  })()}
                 </Button>
               </CardContent>
             </Card>
@@ -565,11 +801,15 @@ const CompanyPlans = () => {
       {/* Purchase Confirmation Dialog */}
       <PurchaseConfirmationDialog
         open={showConfirmDialog}
-        onClose={() => setShowConfirmDialog(false)}
+        onClose={() => {
+          setShowConfirmDialog(false)
+          setSelectedPlan(null)
+        }}
         plan={selectedPlan}
         billingCycle={billingCycle}
         onConfirm={handleConfirmPurchase}
-        loading={purchaseLoading}
+        loading={purchaseLoading || changingPlan}
+        isUpgrade={!!(activeSubscription && activeSubscription.stripeSubscriptionId)}
       />
 
       {/* Purchase Result Dialog */}
