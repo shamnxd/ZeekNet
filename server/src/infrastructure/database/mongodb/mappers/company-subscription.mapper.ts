@@ -1,5 +1,5 @@
-import { CompanySubscription } from '../../../../domain/entities/company-subscription.entity';
-import { CompanySubscriptionDocument } from '../models/company-subcription.model';
+import { CompanySubscription, SubscriptionStatus } from '../../../../domain/entities/company-subscription.entity';
+import { CompanySubscriptionDocument, SubscriptionStatusType } from '../models/company-subcription.model';
 import { Types } from 'mongoose';
 
 export class CompanySubscriptionMapper {
@@ -25,6 +25,13 @@ export class CompanySubscriptionMapper {
       planName: (doc as CompanySubscriptionDocument & { planId?: { name?: string } }).planId?.name ?? undefined,
       jobPostLimit: (doc as CompanySubscriptionDocument & { planId?: { jobPostLimit?: number } }).planId?.jobPostLimit ?? undefined,
       featuredJobLimit: (doc as CompanySubscriptionDocument & { planId?: { featuredJobLimit?: number } }).planId?.featuredJobLimit ?? undefined,
+      stripeCustomerId: doc.stripeCustomerId,
+      stripeSubscriptionId: doc.stripeSubscriptionId,
+      stripeStatus: doc.stripeStatus as SubscriptionStatus | undefined,
+      billingCycle: doc.billingCycle,
+      cancelAtPeriodEnd: doc.cancelAtPeriodEnd,
+      currentPeriodStart: doc.currentPeriodStart,
+      currentPeriodEnd: doc.currentPeriodEnd,
     });
   }
 
@@ -39,6 +46,13 @@ export class CompanySubscriptionMapper {
     if (entity.jobPostsUsed !== undefined) doc.jobPostsUsed = entity.jobPostsUsed;
     if (entity.featuredJobsUsed !== undefined) doc.featuredJobsUsed = entity.featuredJobsUsed;
     if (entity.applicantAccessUsed !== undefined) doc.applicantAccessUsed = entity.applicantAccessUsed;
+    if (entity.stripeCustomerId !== undefined) doc.stripeCustomerId = entity.stripeCustomerId;
+    if (entity.stripeSubscriptionId !== undefined) doc.stripeSubscriptionId = entity.stripeSubscriptionId;
+    if (entity.stripeStatus !== undefined) doc.stripeStatus = entity.stripeStatus as SubscriptionStatusType;
+    if (entity.billingCycle !== undefined) doc.billingCycle = entity.billingCycle;
+    if (entity.cancelAtPeriodEnd !== undefined) doc.cancelAtPeriodEnd = entity.cancelAtPeriodEnd;
+    if (entity.currentPeriodStart !== undefined) doc.currentPeriodStart = entity.currentPeriodStart;
+    if (entity.currentPeriodEnd !== undefined) doc.currentPeriodEnd = entity.currentPeriodEnd;
     
     return doc;
   }
