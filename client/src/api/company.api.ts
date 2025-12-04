@@ -296,6 +296,35 @@ export const companyApi = {
 
   async getPaymentHistory(): Promise<ApiEnvelope<PaymentHistoryItem[]>> {
     return baseApi.get<PaymentHistoryItem[]>('/api/company/subscriptions/payment-history')();
+  },
+
+  // Stripe Subscription Methods
+  async createCheckoutSession(planId: string, billingCycle: 'monthly' | 'yearly', successUrl: string, cancelUrl: string): Promise<ApiEnvelope<CheckoutSessionResponse>> {
+    return baseApi.post<CheckoutSessionResponse>('/api/company/subscriptions/create-checkout-session')({
+      planId,
+      billingCycle,
+      successUrl,
+      cancelUrl,
+    });
+  },
+
+  async cancelSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return baseApi.post<ActiveSubscriptionResponse>('/api/company/subscriptions/cancel')({});
+  },
+
+  async resumeSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return baseApi.post<ActiveSubscriptionResponse>('/api/company/subscriptions/resume')({});
+  },
+
+  async changeSubscriptionPlan(planId: string, billingCycle?: 'monthly' | 'yearly'): Promise<ApiEnvelope<{ subscription: ActiveSubscriptionResponse }>> {
+    return baseApi.post<{ subscription: ActiveSubscriptionResponse }>('/api/company/subscriptions/change-plan')({
+      planId,
+      billingCycle,
+    });
+  },
+
+  async getBillingPortalUrl(returnUrl: string): Promise<ApiEnvelope<BillingPortalResponse>> {
+    return baseApi.post<BillingPortalResponse>('/api/company/subscriptions/billing-portal')({ returnUrl });
   }
 }
 
@@ -356,6 +385,18 @@ export interface ActiveSubscriptionResponse {
   planName?: string;
   jobPostLimit?: number;
   featuredJobLimit?: number;
+  plan?: {
+    id: string;
+    name: string;
+    jobPostLimit: number;
+    featuredJobLimit: number;
+  };
+  // Stripe-specific fields
+  stripeStatus?: string;
+  billingCycle?: 'monthly' | 'yearly';
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
 }
 
 export interface PaymentHistoryItem {
@@ -366,5 +407,17 @@ export interface PaymentHistoryItem {
   paymentMethod: string;
   invoiceId?: string;
   transactionId?: string;
+  stripeInvoiceUrl?: string;
+  stripeInvoicePdf?: string;
+  billingCycle?: 'monthly' | 'yearly';
   createdAt: string;
+}
+
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  sessionUrl: string;
+}
+
+export interface BillingPortalResponse {
+  url: string;
 }

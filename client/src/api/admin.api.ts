@@ -553,17 +553,24 @@ export const adminApi = {
       }
     },
 
-  deleteSubscriptionPlan: async (id: string): Promise<{
+  migratePlanSubscribers: async (planId: string, options: {
+      billingCycle?: 'monthly' | 'yearly' | 'both';
+      prorationBehavior?: 'none' | 'create_prorations' | 'always_invoice';
+    } = {}): Promise<{
       success: boolean;
+      data?: {
+        migratedCount: number;
+        failedCount: number;
+      };
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/subscription-plans/${id}`);
+        const response = await api.post(`/api/admin/subscription-plans/${planId}/migrate-subscribers`, options);
         return response.data;
       } catch (error: any) {
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete subscription plan',
+          message: error.response?.data?.message || 'Failed to migrate subscribers',
         };
       }
     },
