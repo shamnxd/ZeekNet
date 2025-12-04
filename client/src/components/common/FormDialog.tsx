@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Loader2 } from 'lucide-react'
 
 interface ValidationRule {
   required?: boolean | string
@@ -361,7 +362,14 @@ const FormDialog = (props: FormDialogProps) => {
             disabled={isLoading}
             className={confirmVariant === 'default' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
           >
-            {isLoading ? 'Loading...' : confirmText}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              confirmText
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

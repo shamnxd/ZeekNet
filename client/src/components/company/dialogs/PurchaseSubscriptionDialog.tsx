@@ -17,6 +17,7 @@ interface PurchaseConfirmationDialogProps {
   billingCycle: 'monthly' | 'annual'
   onConfirm: () => Promise<void>
   loading: boolean
+  isUpgrade?: boolean
 }
 
 export function PurchaseConfirmationDialog({
@@ -26,6 +27,7 @@ export function PurchaseConfirmationDialog({
   billingCycle,
   onConfirm,
   loading,
+  isUpgrade = false,
 }: PurchaseConfirmationDialogProps) {
   if (!plan) return null
 
@@ -42,10 +44,12 @@ export function PurchaseConfirmationDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-[#4640DE]" />
-            Confirm Subscription Purchase
+            {isUpgrade ? 'Change Subscription Plan' : 'Confirm Subscription Purchase'}
           </DialogTitle>
           <DialogDescription>
-            Review your subscription details before confirming
+            {isUpgrade 
+              ? 'Your subscription will be updated immediately with prorated billing.'
+              : 'Review your subscription details before confirming'}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,7 +143,7 @@ export function PurchaseConfirmationDialog({
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Confirm Purchase
+                {isUpgrade ? 'Change Plan' : 'Confirm Purchase'}
               </>
             )}
           </Button>

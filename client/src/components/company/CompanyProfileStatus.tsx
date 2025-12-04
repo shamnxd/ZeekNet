@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/hooks/useRedux'
-import { setCompanyVerificationStatus } from '@/store/slices/auth.slice'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
@@ -33,68 +33,62 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const hasCheckedRef = useRef(!companyVerificationStatus)
 
+  // Use Redux state if available, otherwise fetch
   useEffect(() => {
+    if (companyVerificationStatus) {
+      setStatus(companyVerificationStatus)
+      onStatusChange?.(companyVerificationStatus)
+      return
+    }
+
     if (hasCheckedRef.current) return
     hasCheckedRef.current = true
 
-    const checkProfileStatus = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        const res = await companyApi.getProfile()
-        
-        if (res.success && res.data) {
-          const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
-          const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
-          const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
+    // Fetch profile status and store in Redux
+    dispatch(fetchCompanyProfileThunk())
+      .then((result) => {
+        if (fetchCompanyProfileThunk.fulfilled.match(result)) {
+          const profileStatus = result.payload
           setStatus(profileStatus)
-          dispatch(setCompanyVerificationStatus(profileStatus))
           onStatusChange?.(profileStatus)
-
-          if (profileData?.rejection_reason) {
-            setRejectionReason(profileData.rejection_reason)
-          } else {
-            setRejectionReason(null)
+          
+          // Fetch rejection reason if needed
+          if (profileStatus === 'rejected') {
+            companyApi.getProfile().then((res) => {
+              if (res.success && res.data) {
+                const resData = res.data as { profile?: { rejection_reason?: string } } | { rejection_reason?: string };
+                const profileData = 'profile' in resData && resData.profile ? resData.profile : ('rejection_reason' in resData ? resData : null);
+                if (profileData?.rejection_reason) {
+                  setRejectionReason(profileData.rejection_reason)
+                }
+              }
+            }).catch(() => {})
           }
-        } else {
-          setError(res.message || 'Failed to check profile status')
-          setStatus('not_created')
         }
-      } catch (err: unknown) {
-        const errorMessage = 
-          (err && typeof err === 'object' && 'response' in err) 
-            ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || ''
-            : (err && typeof err === 'object' && 'message' in err)
-            ? (err as { message: string }).message
-            : ''
-
-        setError(errorMessage || 'Failed to check profile status')
+      })
+      .catch(() => {
         setStatus('not_created')
-      } finally {
+      })
+      .finally(() => {
         setLoading(false)
-      }
-    }
-
-    checkProfileStatus()
-  }, [onStatusChange])
+      })
+  }, [companyVerificationStatus, dispatch, onStatusChange])
 
   useEffect(() => {
     if (status === 'pending') {
       intervalRef.current = setInterval(async () => {
-        try {
-          const res = await companyApi.getProfile()
-          if (res.success && res.data) {
-            const resData = res.data as { profile?: { is_verified: string } } | { is_verified: string };
-            const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
-            const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
-            setStatus(profileStatus)
-            dispatch(setCompanyVerificationStatus(profileStatus))
-            onStatusChange?.(profileStatus)
-          }
-        } catch {
-          // Silently ignore polling errors
-        }
+        // Refresh from Redux via thunk
+        dispatch(fetchCompanyProfileThunk())
+          .then((result) => {
+            if (fetchCompanyProfileThunk.fulfilled.match(result)) {
+              const profileStatus = result.payload
+              setStatus(profileStatus)
+              onStatusChange?.(profileStatus)
+            }
+          })
+          .catch(() => {
+            // Silently ignore polling errors
+          })
       }, 30000)
     } else {
       if (intervalRef.current) {
@@ -108,30 +102,34 @@ const CompanyProfileStatus = ({ onStatusChange }: CompanyProfileStatusProps) => 
         clearInterval(intervalRef.current)
       }
     }
-  }, [status, onStatusChange])
+  }, [status, dispatch, onStatusChange])
 
   const handleRefresh = async () => {
     try {
       setLoading(true)
       setError(null)
       
-      const res = await companyApi.getProfile()
-      
-      if (res.success && res.data) {
-        const resData = res.data as { profile?: { is_verified: string; rejection_reason?: string } } | { is_verified: string; rejection_reason?: string };
-        const profileData = 'profile' in resData && resData.profile ? resData.profile : ('is_verified' in resData ? resData : null);
-        const profileStatus = (profileData?.is_verified || 'not_created') as ProfileStatus
+      const result = await dispatch(fetchCompanyProfileThunk())
+      if (fetchCompanyProfileThunk.fulfilled.match(result)) {
+        const profileStatus = result.payload
         setStatus(profileStatus)
-        dispatch(setCompanyVerificationStatus(profileStatus))
         onStatusChange?.(profileStatus)
-
-        if (profileData?.rejection_reason) {
-          setRejectionReason(profileData.rejection_reason)
-        } else {
-          setRejectionReason(null)
+        
+        // Fetch rejection reason if needed
+        if (profileStatus === 'rejected') {
+          const res = await companyApi.getProfile()
+          if (res.success && res.data) {
+            const resData = res.data as { profile?: { rejection_reason?: string } } | { rejection_reason?: string };
+            const profileData = 'profile' in resData && resData.profile ? resData.profile : ('rejection_reason' in resData ? resData : null);
+            if (profileData?.rejection_reason) {
+              setRejectionReason(profileData.rejection_reason)
+            } else {
+              setRejectionReason(null)
+            }
+          }
         }
       } else {
-        setError(res.message || 'Failed to check profile status')
+        setError('Failed to check profile status')
       }
     } catch (err: unknown) {
       const errorMessage = 
