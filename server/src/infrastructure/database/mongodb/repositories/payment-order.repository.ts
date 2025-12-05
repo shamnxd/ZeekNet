@@ -7,9 +7,6 @@ import { Types } from 'mongoose';
 export class PaymentOrderRepository implements IPaymentOrderRepository {
   async create(order: PaymentOrder): Promise<PaymentOrder> {
     const doc = PaymentOrderMapper.toDocument(order);
-    doc.companyId = new Types.ObjectId(order.companyId) as unknown as PaymentOrderDocument['companyId'];
-    doc.planId = new Types.ObjectId(order.planId) as unknown as PaymentOrderDocument['planId'];
-    
     const created = await PaymentOrderModel.create(doc);
     return PaymentOrderMapper.toEntity(created);
   }

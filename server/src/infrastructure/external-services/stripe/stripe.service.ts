@@ -8,23 +8,19 @@ import {
   UpdateSubscriptionParams,
 } from '../../../domain/interfaces/services/IStripeService';
 import { logger } from '../../config/logger';
+import { env } from '../../config/env';
 
 export class StripeService implements IStripeService {
   private stripe: Stripe;
   private webhookSecret: string;
 
   constructor() {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY is not defined in environment variables');
-    }
-
-    this.stripe = new Stripe(secretKey, {
+    this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-11-17.clover',
       typescript: true,
     });
 
-    this.webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+    this.webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   }
 
   async createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer> {
@@ -293,10 +289,6 @@ export class StripeService implements IStripeService {
   }
 
   constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event {
-    if (!this.webhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET is not defined');
-    }
-    
     return this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
   }
 }

@@ -4,13 +4,15 @@ import { Types } from 'mongoose';
 
 export class PaymentOrderMapper {
   static toEntity(doc: PaymentOrderDocument): PaymentOrder {
-    const companyId = (doc as unknown as { companyId: { _id?: unknown } | string }).companyId && typeof (doc as unknown as { companyId: { _id?: unknown } | string }).companyId === 'object'
-      ? String((doc as unknown as { companyId: { _id?: unknown } }).companyId._id || (doc as unknown as { companyId: { _id?: unknown } }).companyId)
+    const companyId = doc.companyId instanceof Types.ObjectId 
+      ? doc.companyId.toString() 
       : String(doc.companyId);
-    const planId = (doc as unknown as { planId: { _id?: unknown } | string }).planId && typeof (doc as unknown as { planId: { _id?: unknown } | string }).planId === 'object'
-      ? String((doc as unknown as { planId: { _id?: unknown } }).planId._id || (doc as unknown as { planId: { _id?: unknown } }).planId)
+    const planId = doc.planId instanceof Types.ObjectId 
+      ? doc.planId.toString() 
       : String(doc.planId);
-    const subscriptionId = doc.subscriptionId ? String(doc.subscriptionId) : undefined;
+    const subscriptionId = doc.subscriptionId 
+      ? (doc.subscriptionId instanceof Types.ObjectId ? doc.subscriptionId.toString() : String(doc.subscriptionId))
+      : undefined;
     
     return PaymentOrder.create({
       id: String(doc._id),
@@ -36,8 +38,8 @@ export class PaymentOrderMapper {
 
   static toDocument(entity: PaymentOrder): Partial<PaymentOrderDocument> {
     const doc: Partial<PaymentOrderDocument> = {
-      companyId: entity.companyId as unknown as PaymentOrderDocument['companyId'],
-      planId: entity.planId as unknown as PaymentOrderDocument['planId'],
+      companyId: new Types.ObjectId(entity.companyId),
+      planId: new Types.ObjectId(entity.planId),
       amount: entity.amount,
       currency: entity.currency,
       status: entity.status,
