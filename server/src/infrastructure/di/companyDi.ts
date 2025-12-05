@@ -296,7 +296,6 @@ export {
   companySubscriptionController,
   stripeWebhookController,
   companyProfileRepository as companyRepository,
-  companySubscriptionRepository,
   subscriptionMiddleware,
   stripeService,
 };

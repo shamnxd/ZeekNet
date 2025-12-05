@@ -13,7 +13,6 @@ export class PublicJobController {
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const query = req.query as unknown as JobPostingQueryRequestDto;
-      
 
       const filters = {
         categoryIds: query.category_ids,
