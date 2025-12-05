@@ -12,7 +12,7 @@ import type {
 } from "@/interfaces/auth";
 import { UserRole } from "@/constants/enums";
 
-export interface AuthState {
+interface AuthState {
   token: string | null;
   id: string | null;
   name: string | null;
@@ -150,7 +150,7 @@ export const googleLoginThunk = createAsyncThunk<
   }
 });
 
-export const refreshTokenThunk = createAsyncThunk<
+const refreshTokenThunk = createAsyncThunk<
   ApiEnvelope<AuthResponseData>,
   void,
   { rejectValue: string }
@@ -168,7 +168,7 @@ export const refreshTokenThunk = createAsyncThunk<
   }
 }); 
 
-export const getCurrentUserThunk = createAsyncThunk<
+const getCurrentUserThunk = createAsyncThunk<
   ApiEnvelope<AuthResponseData>,
   void,
   { rejectValue: string }
@@ -424,5 +424,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setInitialized, clearAuthState, setUser, setCompanyVerificationStatus } = authSlice.actions;
+export const { logout, clearError, setUser } = authSlice.actions;
 export default authSlice.reducer;
