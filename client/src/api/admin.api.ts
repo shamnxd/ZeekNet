@@ -671,7 +671,7 @@ export interface Skill {
   updatedAt: string;
 }
 
-export interface GetAllSkillsParams {
+interface GetAllSkillsParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -686,7 +686,7 @@ export interface JobRole {
   updatedAt: string;
 }
 
-export interface GetAllJobRolesParams {
+interface GetAllJobRolesParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -711,7 +711,7 @@ export interface SubscriptionPlan {
   updatedAt: string;
 }
 
-export interface GetAllSubscriptionPlansParams {
+interface GetAllSubscriptionPlansParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -747,7 +747,7 @@ export interface UpdateSubscriptionPlanData {
   isPopular?: boolean;
 }
 
-export interface GetAllJobCategoriesParams {
+interface GetAllJobCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -770,7 +770,7 @@ export interface PaymentOrder {
   updatedAt: string;
 }
 
-export interface GetAllPaymentOrdersParams {
+interface GetAllPaymentOrdersParams {
   page?: number;
   limit?: number;
   status?: 'pending' | 'completed' | 'failed' | 'cancelled';

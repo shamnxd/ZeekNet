@@ -1,4 +1,5 @@
-import { baseApi } from './base.api';
+import { api } from './index';
+import type { ApiEnvelope } from '@/interfaces/auth';
 
 export interface Notification {
   id: string;
@@ -13,14 +14,20 @@ export interface Notification {
 }
 
 export const notificationApi = {
-  getNotifications: (params?: { limit?: number; skip?: number }) => {
+  async getNotifications(params?: { limit?: number; skip?: number }): Promise<ApiEnvelope<Notification[]>> {
     const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
-    return baseApi.get<Notification[]>(`/api/notifications${query}`)();
+    return (await api.get<ApiEnvelope<Notification[]>>(`/api/notifications${query}`)).data;
   },
 
-  getUnreadCount: () => baseApi.get<{ count: number }>('/api/notifications/unread-count')(),
+  async getUnreadCount(): Promise<ApiEnvelope<{ count: number }>> {
+    return (await api.get<ApiEnvelope<{ count: number }>>('/api/notifications/unread-count')).data;
+  },
 
-  markAsRead: (id: string) => baseApi.patch<Notification>(`/api/notifications/${id}/read`)({}),
+  async markAsRead(id: string): Promise<ApiEnvelope<Notification>> {
+    return (await api.patch<ApiEnvelope<Notification>>(`/api/notifications/${id}/read`, {})).data;
+  },
 
-  markAllAsRead: () => baseApi.patch<void>('/api/notifications/read-all')({}),
+  async markAllAsRead(): Promise<ApiEnvelope<void>> {
+    return (await api.patch<ApiEnvelope<void>>('/api/notifications/read-all', {})).data;
+  },
 };
