@@ -5,7 +5,7 @@ import { logoutThunk } from '@/store/slices/auth.slice';
 import { socketService } from '@/services/socket.service';
 import { toast } from 'sonner';
 
-export const UserBlockHandler: React.FC = () => {
+const UserBlockHandler: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
