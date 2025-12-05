@@ -2157,5 +2157,3 @@ export function SeekerProfile() {
     </div>
   );
 }
-
-export default SeekerProfile;

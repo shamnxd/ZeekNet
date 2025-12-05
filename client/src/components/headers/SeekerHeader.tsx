@@ -12,7 +12,7 @@ const pageTitles: Record<string, string> = {
   settings: 'Settings',
 };
 
-export function SeekerHeader({ currentPage }: SeekerHeaderProps) {
+function SeekerHeader({ currentPage }: SeekerHeaderProps) {
   const navigate = useNavigate()
   return (
     <div className="bg-white/80 backdrop-blur-sm h-[76px] border-b border-[#e5e7eb] flex items-center justify-between px-8 xl:px-11 py-4 shadow-sm">

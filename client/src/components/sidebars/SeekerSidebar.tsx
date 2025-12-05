@@ -23,7 +23,7 @@ const quickActions = [
   { id: 'saved', label: 'Saved Jobs', icon: Bookmark, count: 8 }
 ];
 
-export function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
+function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { name, email } = useAppSelector((state) => state.auth);
