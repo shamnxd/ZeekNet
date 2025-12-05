@@ -27,7 +27,7 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
       organisation: profileData.organisation,
       aboutUs: profileData.aboutUs,
       isVerified: 'pending',
-    } as unknown as Omit<CompanyProfile, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+    } as Omit<CompanyProfile, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
 
     if (profileData.taxId || profileData.businessLicenseUrl) {
       await this._companyVerificationRepository.create({

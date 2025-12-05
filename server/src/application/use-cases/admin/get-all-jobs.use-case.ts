@@ -66,12 +66,12 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     const sortBy = query.sortBy || 'createdAt';
     const sortOrder = query.sortOrder || 'desc';
     jobs.sort((a, b) => {
-      const aValue = (a as unknown as Record<string, unknown>)[sortBy];
-      const bValue = (b as unknown as Record<string, unknown>)[sortBy];
+      const aValue = (a as unknown as Record<string, number | string>)[sortBy];
+      const bValue = (b as unknown as Record<string, number | string>)[sortBy];
       if (sortOrder === 'asc') {
-        return (aValue as number | string) > (bValue as number | string) ? 1 : -1;
+        return aValue > bValue ? 1 : -1;
       } else {
-        return (aValue as number | string) < (bValue as number | string) ? 1 : -1;
+        return aValue < bValue ? 1 : -1;
       }
     });
 
