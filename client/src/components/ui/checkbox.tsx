@@ -2,7 +2,7 @@ import * as React from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export interface CheckboxProps {
+interface CheckboxProps {
   checked?: boolean
   onCheckedChange?: (checked: boolean) => void
   id?: string
