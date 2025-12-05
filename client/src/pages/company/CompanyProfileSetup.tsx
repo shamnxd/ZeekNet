@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { companyApi, type CompanyProfileData } from '@/api/company.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { useAppDispatch } from '@/hooks/useRedux'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { 
   Building2, 
   Mail, 

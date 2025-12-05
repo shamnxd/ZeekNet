@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
