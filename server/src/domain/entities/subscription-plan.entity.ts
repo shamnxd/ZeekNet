@@ -12,6 +12,7 @@ export class SubscriptionPlan {
     public readonly applicantAccessLimit: number,
     public readonly isActive: boolean,
     public readonly isPopular: boolean,
+    public readonly isDefault: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly stripeProductId?: string,
@@ -38,6 +39,7 @@ export class SubscriptionPlan {
     applicantAccessLimit: number;
     isActive?: boolean;
     isPopular?: boolean;
+    isDefault?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
     stripeProductId?: string;
@@ -58,6 +60,7 @@ export class SubscriptionPlan {
       data.applicantAccessLimit,
       data.isActive ?? true,
       data.isPopular ?? false,
+      data.isDefault ?? false,
       data.createdAt ?? now,
       data.updatedAt ?? now,
       data.stripeProductId,

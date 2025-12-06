@@ -5,8 +5,8 @@ export class CompanySubscription {
     public readonly id: string,
     public readonly companyId: string,
     public readonly planId: string,
-    public readonly startDate: Date,
-    public readonly expiryDate: Date,
+    public readonly startDate: Date | null,
+    public readonly expiryDate: Date | null,
     public readonly isActive: boolean,
     public readonly jobPostsUsed: number,
     public readonly featuredJobsUsed: number,
@@ -16,6 +16,7 @@ export class CompanySubscription {
     public readonly planName?: string,
     public readonly jobPostLimit?: number,
     public readonly featuredJobLimit?: number,
+    public readonly isDefault?: boolean,
     public readonly stripeCustomerId?: string,
     public readonly stripeSubscriptionId?: string,
     public readonly stripeStatus?: SubscriptionStatus,
@@ -29,8 +30,8 @@ export class CompanySubscription {
     id: string;
     companyId: string;
     planId: string;
-    startDate: Date;
-    expiryDate: Date;
+    startDate: Date | null;
+    expiryDate: Date | null;
     isActive?: boolean;
     jobPostsUsed?: number;
     featuredJobsUsed?: number;
@@ -40,6 +41,7 @@ export class CompanySubscription {
     planName?: string;
     jobPostLimit?: number;
     featuredJobLimit?: number;
+    isDefault?: boolean;
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
     stripeStatus?: SubscriptionStatus;
@@ -64,6 +66,7 @@ export class CompanySubscription {
       data.planName,
       data.jobPostLimit,
       data.featuredJobLimit,
+      data.isDefault,
       data.stripeCustomerId,
       data.stripeSubscriptionId,
       data.stripeStatus,
@@ -75,6 +78,7 @@ export class CompanySubscription {
   }
 
   isExpired(): boolean {
+    if (this.isDefault || !this.expiryDate) return false;
     return new Date() > this.expiryDate;
   }
 
