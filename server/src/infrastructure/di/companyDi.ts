@@ -107,18 +107,15 @@ const paymentOrderRepository = new PaymentOrderRepository();
 
 const s3Service = new S3Service();
 
-// Initialize Stripe service
 const stripeService = new StripeService();
 logger.info('Stripe service initialized');
 
-const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository);
+const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
 const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository);
 
 const getCompanyProfileUseCase = new GetCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyTechStackRepository, companyOfficeLocationRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, companyVerificationRepository);
-
 const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository);
-
 const companyContactUseCase = new CompanyContactUseCase(companyContactRepository);
 
 const createCompanyTechStackUseCase = new CreateCompanyTechStackUseCase(companyTechStackRepository);
@@ -182,19 +179,18 @@ const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationReposito
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 
-const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository);
+const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
 const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
 
-// Stripe use cases
 const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, userRepository);
 
-const handleStripeWebhookUseCase = new HandleStripeWebhookUseCase(stripeService, subscriptionPlanRepository, companySubscriptionRepository, paymentOrderRepository, notificationRepository, companyProfileRepository);
+const handleStripeWebhookUseCase = new HandleStripeWebhookUseCase(stripeService, subscriptionPlanRepository, companySubscriptionRepository, paymentOrderRepository, notificationRepository, companyProfileRepository, jobPostingRepository);
 
 const cancelSubscriptionUseCase = new CancelSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
 const resumeSubscriptionUseCase = new ResumeSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
-const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository);
+const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository);
 
 const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
@@ -279,7 +275,6 @@ const companySubscriptionController = new CompanySubscriptionController(
   getBillingPortalUseCase,
 );
 
-// Stripe webhook controller
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
 export {
