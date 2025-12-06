@@ -8,7 +8,7 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 
-export interface ReasonOption {
+interface ReasonOption {
   value: string
   label: string
 }

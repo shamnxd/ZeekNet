@@ -15,7 +15,7 @@ const stageStyles: Record<Stage, string> = {
   hired: 'border-[#4f46e533] text-[#4338ca] bg-[#e0e7ff]/70',
 }
 
-export function SeekerApplications() {
+function SeekerApplications() {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

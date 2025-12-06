@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { 
@@ -16,37 +15,17 @@ import {
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
-import { companyApi } from '@/api/company.api'
+import { toast } from 'sonner'
 
 const CompanySidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const { name, email } = useAppSelector((state) => state.auth)
-  const [companyName, setCompanyName] = useState(name || 'Company')
-  const [companyLogo, setCompanyLogo] = useState<string | null>(null)
-  const [companyEmail, setCompanyEmail] = useState(email || 'company@email.com')
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchCompanyProfile()
-  }, [])
-
-  const fetchCompanyProfile = async () => {
-    try {
-      setLoading(true)
-      const response = await companyApi.getCompleteProfile()
-      if (response.success && response.data) {
-        const { profile, contact } = response.data
-        setCompanyName(profile.company_name || name || 'Company')
-        setCompanyLogo(profile.logo || null)
-        setCompanyEmail(contact?.email || profile.email || email || 'company@email.com')
-      }
-    } catch {
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { name, email, companyVerificationStatus } = useAppSelector((state) => state.auth)
+  
+  const isVerified = companyVerificationStatus === 'verified'
+  const companyName = name || 'Company'
+  const companyEmail = email || 'company@email.com'
 
   const navigationItems = [
     {
@@ -106,6 +85,14 @@ const CompanySidebar = () => {
   ]
 
   const handleNavigation = (path: string) => {
+    // Check if trying to access restricted pages
+    if (path === '/company/post-job' && !isVerified) {
+      toast.error('Profile Verification Required', {
+        description: 'Please complete and verify your company profile before posting jobs.',
+      })
+      navigate('/company/profile')
+      return
+    }
     navigate(path)
   }
 
@@ -146,7 +133,11 @@ const CompanySidebar = () => {
                     
                     {}
                     <div 
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg w-full cursor-pointer ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg w-full ${
+                        item.href === '/company/post-job' && !isVerified
+                          ? 'cursor-not-allowed opacity-60'
+                          : 'cursor-pointer'
+                      } ${
                         isActive 
                           ? "bg-[#E9EBFD]" 
                           : "hover:bg-gray-100"
@@ -156,11 +147,11 @@ const CompanySidebar = () => {
                     >
                       <div className="w-5 h-5 flex items-center justify-center">
                         <item.icon className={`w-5 h-5 ${
-                          isActive ? "text-[#4640DE]" : "text-[#7C8493]"
+                          isActive ? "text-[#4640DE]" : item.href === '/company/post-job' && !isVerified ? "text-[#9CA3AF]" : "text-[#7C8493]"
                         }`} />
                       </div>
                       <span className={`text-sm font-medium ${
-                        isActive ? "text-[#4640DE]" : "text-[#7C8493]"
+                        isActive ? "text-[#4640DE]" : item.href === '/company/post-job' && !isVerified ? "text-[#9CA3AF]" : "text-[#7C8493]"
                       }`}>
                         {item.title}
                       </span>
@@ -208,30 +199,18 @@ const CompanySidebar = () => {
       {}
       <div className="flex-shrink-0 px-7 py-4 border-t border-gray-200">
         <div className="flex items-center gap-3">
-          {}
-          {companyLogo ? (
-            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
-              <img 
-                src={companyLogo} 
-                alt={companyName || 'Company Logo'} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">
-                {loading ? 'C' : (companyName || 'Company').charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+            <span className="text-white font-semibold text-sm">
+              {companyName.charAt(0).toUpperCase()}
+            </span>
+          </div>
           
-          {}
           <div className="flex flex-col">
             <p className="text-sm font-semibold text-[#25324B] leading-5">
-              {loading ? 'Loading...' : (companyName || 'Company')}
+              {companyName}
             </p>
             <p className="text-xs text-[#515B6F] opacity-50 leading-5">
-              {loading ? 'Loading...' : (companyEmail || 'company@email.com')}
+              {companyEmail}
             </p>
           </div>
         </div>

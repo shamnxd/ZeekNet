@@ -1,27 +1,6 @@
 import { api } from './index';
 
-export interface Skill {
-  _id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface JobCategory {
-  _id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface JobRole {
-  _id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface GetAllSkillsParams {
+interface GetAllSkillsParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -29,13 +8,13 @@ export interface GetAllSkillsParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-export interface GetAllJobCategoriesParams {
+interface GetAllJobCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
 }
 
-export interface GetAllJobRolesParams {
+interface GetAllJobRolesParams {
   page?: number;
   limit?: number;
   search?: string;

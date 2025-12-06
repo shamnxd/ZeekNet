@@ -17,6 +17,7 @@ interface PurchaseConfirmationDialogProps {
   billingCycle: 'monthly' | 'annual'
   onConfirm: () => Promise<void>
   loading: boolean
+  isUpgrade?: boolean
 }
 
 export function PurchaseConfirmationDialog({
@@ -26,6 +27,7 @@ export function PurchaseConfirmationDialog({
   billingCycle,
   onConfirm,
   loading,
+  isUpgrade = false,
 }: PurchaseConfirmationDialogProps) {
   if (!plan) return null
 
@@ -42,10 +44,12 @@ export function PurchaseConfirmationDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-[#4640DE]" />
-            Confirm Subscription Purchase
+            {isUpgrade ? 'Change Subscription Plan' : 'Confirm Subscription Purchase'}
           </DialogTitle>
           <DialogDescription>
-            Review your subscription details before confirming
+            {isUpgrade 
+              ? 'Your subscription will be updated immediately with prorated billing.'
+              : 'Review your subscription details before confirming'}
           </DialogDescription>
         </DialogHeader>
 
@@ -101,21 +105,6 @@ export function PurchaseConfirmationDialog({
               </ul>
             </div>
           </div>
-
-          {/* Payment Info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <CreditCard className="h-5 w-5 text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  Demo Payment Mode
-                </p>
-                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  This is a dummy payment. Your subscription will be activated immediately without actual payment processing.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <DialogFooter className="gap-2">
@@ -139,7 +128,7 @@ export function PurchaseConfirmationDialog({
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Confirm Purchase
+                {isUpgrade ? 'Change Plan' : 'Confirm Purchase'}
               </>
             )}
           </Button>

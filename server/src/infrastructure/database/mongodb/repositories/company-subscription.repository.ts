@@ -1,20 +1,11 @@
-import { ICompanySubscriptionRepository } from '../../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { ICompanySubscriptionRepository, CreateSubscriptionData } from '../../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from '../../../../domain/entities/company-subscription.entity';
 import { CompanySubscriptionModel } from '../models/company-subcription.model';
 import { CompanySubscriptionMapper } from '../mappers/company-subscription.mapper';
 import { Types } from 'mongoose';
 
 export class CompanySubscriptionRepository implements ICompanySubscriptionRepository {
-  async create(data: {
-    companyId: string;
-    planId: string;
-    startDate: Date;
-    expiryDate: Date;
-    isActive?: boolean;
-    jobPostsUsed?: number;
-    featuredJobsUsed?: number;
-    applicantAccessUsed?: number;
-  }): Promise<CompanySubscription> {
+  async create(data: CreateSubscriptionData): Promise<CompanySubscription> {
     const doc = await CompanySubscriptionModel.create({
       companyId: new Types.ObjectId(data.companyId),
       planId: new Types.ObjectId(data.planId),
@@ -24,6 +15,13 @@ export class CompanySubscriptionRepository implements ICompanySubscriptionReposi
       jobPostsUsed: data.jobPostsUsed ?? 0,
       featuredJobsUsed: data.featuredJobsUsed ?? 0,
       applicantAccessUsed: data.applicantAccessUsed ?? 0,
+      stripeCustomerId: data.stripeCustomerId,
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      stripeStatus: data.stripeStatus,
+      billingCycle: data.billingCycle,
+      cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
+      currentPeriodStart: data.currentPeriodStart,
+      currentPeriodEnd: data.currentPeriodEnd,
     });
 
     const populated = await CompanySubscriptionModel.findById(doc._id).populate('planId', 'name jobPostLimit featuredJobLimit');
@@ -43,9 +41,13 @@ export class CompanySubscriptionRepository implements ICompanySubscriptionReposi
     const doc = await CompanySubscriptionModel.findOne({
       companyId: new Types.ObjectId(companyId),
       isActive: true,
-      expiryDate: { $gt: new Date() },
+      $or: [
+        { expiryDate: null },
+        { expiryDate: { $gt: new Date() } },
+        { expiryDate: { $gte: new Date('2099-01-01') } },
+      ],
     })
-      .populate('planId', 'name jobPostLimit featuredJobLimit')
+      .populate('planId', 'name jobPostLimit featuredJobLimit isDefault')
       .sort({ expiryDate: -1 });
     
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
@@ -121,5 +123,13 @@ export class CompanySubscriptionRepository implements ICompanySubscriptionReposi
     await CompanySubscriptionModel.findByIdAndUpdate(subscriptionId, {
       $inc: { featuredJobsUsed: -1 },
     });
+  }
+
+  async findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<CompanySubscription | null> {
+    const doc = await CompanySubscriptionModel.findOne({
+      stripeSubscriptionId,
+    }).populate('planId', 'name jobPostLimit featuredJobLimit');
+    
+    return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
   }
 }

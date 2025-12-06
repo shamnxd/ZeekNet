@@ -7,9 +7,6 @@ import { Types } from 'mongoose';
 export class PaymentOrderRepository implements IPaymentOrderRepository {
   async create(order: PaymentOrder): Promise<PaymentOrder> {
     const doc = PaymentOrderMapper.toDocument(order);
-    doc.companyId = new Types.ObjectId(order.companyId) as unknown as PaymentOrderDocument['companyId'];
-    doc.planId = new Types.ObjectId(order.planId) as unknown as PaymentOrderDocument['planId'];
-    
     const created = await PaymentOrderModel.create(doc);
     return PaymentOrderMapper.toEntity(created);
   }
@@ -34,12 +31,12 @@ export class PaymentOrderRepository implements IPaymentOrderRepository {
     return docs.map(doc => PaymentOrderMapper.toEntity(doc));
   }
 
-  async findByTransactionId(transactionId: string): Promise<PaymentOrder | null> {
-    const doc = await PaymentOrderModel.findOne({ transactionId });
+  async findByStripeInvoiceId(stripeInvoiceId: string): Promise<PaymentOrder | null> {
+    const doc = await PaymentOrderModel.findOne({ stripeInvoiceId });
     return doc ? PaymentOrderMapper.toEntity(doc) : null;
   }
 
-  async updateStatus(id: string, status: 'pending' | 'completed' | 'failed' | 'cancelled'): Promise<void> {
+  async updateStatus(id: string, status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded'): Promise<void> {
     if (!Types.ObjectId.isValid(id)) {
       throw new Error('Invalid payment order ID');
     }
@@ -47,7 +44,7 @@ export class PaymentOrderRepository implements IPaymentOrderRepository {
     await PaymentOrderModel.findByIdAndUpdate(id, { status, updatedAt: new Date() });
   }
 
-  async findAll(options?: { status?: 'pending' | 'completed' | 'failed' | 'cancelled'; sortOrder?: 'asc' | 'desc' }): Promise<PaymentOrder[]> {
+  async findAll(options?: { status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded'; sortOrder?: 'asc' | 'desc' }): Promise<PaymentOrder[]> {
     const filter: Record<string, unknown> = {};
     
     if (options?.status) {

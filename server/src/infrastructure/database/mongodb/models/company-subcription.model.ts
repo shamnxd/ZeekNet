@@ -1,14 +1,23 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+export type SubscriptionStatusType = 'active' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'unpaid';
+
 export interface CompanySubscriptionDocument extends Document {
   companyId: Types.ObjectId;
   planId: Types.ObjectId;
-  startDate: Date;
-  expiryDate: Date;
+  startDate: Date | null;
+  expiryDate: Date | null;
   isActive: boolean;
   jobPostsUsed: number;
   featuredJobsUsed: number;
   applicantAccessUsed: number;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripeStatus?: SubscriptionStatusType;
+  billingCycle?: 'monthly' | 'yearly';
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodStart?: Date;
+  currentPeriodEnd?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,12 +37,13 @@ const CompanySubscriptionSchema = new Schema<CompanySubscriptionDocument>(
     },
     startDate: {
       type: Date,
-      required: true,
-      default: Date.now,
+      required: false,
+      default: null,
     },
     expiryDate: {
       type: Date,
-      required: true,
+      required: false,
+      default: null,
       index: true,
     },
     isActive: {
@@ -59,6 +69,34 @@ const CompanySubscriptionSchema = new Schema<CompanySubscriptionDocument>(
       required: true,
       default: 0,
       min: 0,
+    },
+    stripeCustomerId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    stripeStatus: {
+      type: String,
+      enum: ['active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'trialing', 'unpaid'],
+    },
+    billingCycle: {
+      type: String,
+      enum: ['monthly', 'yearly'],
+    },
+    cancelAtPeriodEnd: {
+      type: Boolean,
+      default: false,
+    },
+    currentPeriodStart: {
+      type: Date,
+    },
+    currentPeriodEnd: {
+      type: Date,
     },
   },
   {

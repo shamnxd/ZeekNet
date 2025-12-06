@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
-import { loginThunk, googleLoginThunk, clearError } from '@/store/slices/auth.slice'
+import { loginThunk, googleLoginThunk, clearError, fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { UserRole } from '@/constants/enums'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -64,6 +64,13 @@ const Login = () => {
           toast.success('Welcome back!', { description: 'Logged in successfully.' })
           const userRole = res.data?.role || role
 
+          // Fetch company profile if company user
+          if (userRole === UserRole.COMPANY) {
+            dispatch(fetchCompanyProfileThunk()).catch(() => {
+              // Silently fail - will default to 'not_created'
+            })
+          }
+
           if (from && userRole === UserRole.SEEKER) {
             navigate(from, { replace: true })
           } else if (userRole === UserRole.ADMIN) {
@@ -97,6 +104,13 @@ const Login = () => {
     try {
       const res = await dispatch(googleLoginThunk({ idToken: credentialResponse.credential })).unwrap()
       if (res?.success) {
+        // Fetch company profile if company user
+        if (res.data?.role === UserRole.COMPANY) {
+          dispatch(fetchCompanyProfileThunk()).catch(() => {
+            // Silently fail - will default to 'not_created'
+          })
+        }
+
         if (res.data && res.data.isBlocked) {
           toast.error('Account Blocked', { 
             description: 'Your account has been blocked. Please contact support for assistance.',

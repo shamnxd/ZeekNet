@@ -22,9 +22,7 @@ import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { userRepository } from '../../infrastructure/di/authDi';
 import { notificationRouter } from '../../infrastructure/di/notificationDi';
 import { DateTimeUtil } from '../../shared/utils/datetime.utils';
-import { SubscriptionCronService } from '../../infrastructure/services/cron/subscription-cron.service';
-import { companySubscriptionRepository } from '../../infrastructure/di/companyDi';
-import { JobPostingRepository } from '../../infrastructure/database/mongodb/repositories/job-posting.repository';
+import { stripeWebhookController } from '../../infrastructure/di/companyDi';
 
 export class AppServer {
   private _app: express.Application;
@@ -52,6 +50,8 @@ export class AppServer {
         credentials: true,
       }),
     );
+
+    this._app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));
@@ -95,6 +95,9 @@ export class AppServer {
     this._app.use('/api/public', new PublicRouter().router);
     this._app.use('/api/notifications', notificationRouter.router);
 
+    this._app.post('/api/webhook/stripe', stripeWebhookController.handleWebhook);
+    logger.info('Stripe webhook endpoint configured at /api/webhook/stripe');
+
     this._app.use(errorHandler);
   }
 
@@ -122,15 +125,6 @@ export class AppServer {
       this.init();
 
       this._socketServer = new SocketServer(this._httpServer);
-
-      const jobPostingRepository = new JobPostingRepository();
-      const subscriptionCronService = new SubscriptionCronService(
-        companySubscriptionRepository,
-        jobPostingRepository,
-      );
-      subscriptionCronService.startExpireSubscriptionsCron();
-      subscriptionCronService.startExpireJobsCron();
-      logger.info('Subscription cron jobs initialized');
 
       this._httpServer.listen(this._port, () => {
         logger.info(`Server running on http://localhost:${this._port}`);

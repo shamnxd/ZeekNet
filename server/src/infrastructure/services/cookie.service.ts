@@ -1,50 +1,32 @@
 import { Response } from 'express';
 import { env } from '../config/env';
-import { ICookieService, CookieOptions } from 'src/domain/interfaces/services/ICookieService';
+import { ICookieService } from 'src/domain/interfaces/services/ICookieService';
 
 export class CookieService implements ICookieService {
-  private getRefreshTokenCookieOptions(): CookieOptions {
-    return {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    };
-  }
+  private readonly _cookieName: string = env.COOKIE_NAME_REFRESH;
 
-  private getLogoutCookieOptions(): CookieOptions {
-    return {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 0,
-      path: '/',
-    };
-  }
+  private readonly _refreshTokenCookieOptions = {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  };
+
+  private readonly _logoutCookieOptions = {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: 0,
+    path: '/',
+  };
 
   setRefreshToken(res: Response, token: string): void {
-    const cookieName = env.COOKIE_NAME_REFRESH;
-    if (!cookieName) {
-      throw new Error('COOKIE_NAME_REFRESH is not configured');
-    }
-    res.cookie(cookieName, token, this.getRefreshTokenCookieOptions());
+    res.cookie(this._cookieName, token, this._refreshTokenCookieOptions);
   }
 
   clearRefreshToken(res: Response): void {
-    const cookieName = env.COOKIE_NAME_REFRESH;
-    if (!cookieName) {
-      throw new Error('COOKIE_NAME_REFRESH is not configured');
-    }
-    res.clearCookie(cookieName, this.getLogoutCookieOptions());
-  }
-
-  getRefreshTokenCookieName(): string {
-    const cookieName = env.COOKIE_NAME_REFRESH;
-    if (!cookieName) {
-      throw new Error('COOKIE_NAME_REFRESH is not configured');
-    }
-    return cookieName;
+    res.clearCookie(this._cookieName, this._logoutCookieOptions);
   }
 }
 

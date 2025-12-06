@@ -39,7 +39,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       isVerified: false,
       isBlocked: false,
       refreshToken: null,
-    } as unknown as Omit<User, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+    } as Omit<User, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
 
     await this.sendOtpEmail(user.email);
 

@@ -553,17 +553,24 @@ export const adminApi = {
       }
     },
 
-  deleteSubscriptionPlan: async (id: string): Promise<{
+  migratePlanSubscribers: async (planId: string, options: {
+      billingCycle?: 'monthly' | 'yearly' | 'both';
+      prorationBehavior?: 'none' | 'create_prorations' | 'always_invoice';
+    } = {}): Promise<{
       success: boolean;
+      data?: {
+        migratedCount: number;
+        failedCount: number;
+      };
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/subscription-plans/${id}`);
+        const response = await api.post(`/api/admin/subscription-plans/${planId}/migrate-subscribers`, options);
         return response.data;
       } catch (error: any) {
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete subscription plan',
+          message: error.response?.data?.message || 'Failed to migrate subscribers',
         };
       }
     },
@@ -664,7 +671,7 @@ export interface Skill {
   updatedAt: string;
 }
 
-export interface GetAllSkillsParams {
+interface GetAllSkillsParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -679,7 +686,7 @@ export interface JobRole {
   updatedAt: string;
 }
 
-export interface GetAllJobRolesParams {
+interface GetAllJobRolesParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -700,11 +707,12 @@ export interface SubscriptionPlan {
   yearlyDiscount: number;
   isActive: boolean;
   isPopular: boolean;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface GetAllSubscriptionPlansParams {
+interface GetAllSubscriptionPlansParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -724,6 +732,7 @@ export interface CreateSubscriptionPlanData {
   applicantAccessLimit: number;
   yearlyDiscount: number;
   isPopular?: boolean;
+  isDefault?: boolean;
 }
 
 export interface UpdateSubscriptionPlanData {
@@ -738,9 +747,10 @@ export interface UpdateSubscriptionPlanData {
   yearlyDiscount?: number;
   isActive?: boolean;
   isPopular?: boolean;
+  isDefault?: boolean;
 }
 
-export interface GetAllJobCategoriesParams {
+interface GetAllJobCategoriesParams {
   page?: number;
   limit?: number;
   search?: string;
@@ -763,7 +773,7 @@ export interface PaymentOrder {
   updatedAt: string;
 }
 
-export interface GetAllPaymentOrdersParams {
+interface GetAllPaymentOrdersParams {
   page?: number;
   limit?: number;
   status?: 'pending' | 'completed' | 'failed' | 'cancelled';

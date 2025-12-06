@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { companyApi, type CompanyProfileData } from '@/api/company.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { useAppDispatch } from '@/hooks/useRedux'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { 
   Building2, 
   Mail, 
@@ -51,6 +53,7 @@ type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
 
 const CompanyProfileSetup = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   
   const [formData, setFormData] = useState<CompanyProfileFormData>({
     company_name: '',
@@ -168,6 +171,9 @@ const CompanyProfileSetup = () => {
         : await companyApi.createProfile(profileData)
       
       if (res.success) {
+        // Refresh verification status in Redux
+        dispatch(fetchCompanyProfileThunk()).catch(() => {})
+
         const successMessage = isReapplication 
           ? 'Reapplication Submitted Successfully!'
           : 'Profile Created Successfully!'

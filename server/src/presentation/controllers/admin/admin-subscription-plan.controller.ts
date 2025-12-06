@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto } from '../../../application/dto/admin/subscription-plan-management.dto';
+import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dto/admin/subscription-plan-management.dto';
 import { 
   ICreateSubscriptionPlanUseCase, 
   IGetAllSubscriptionPlansUseCase, 
   IGetSubscriptionPlanByIdUseCase, 
   IUpdateSubscriptionPlanUseCase, 
-  IDeleteSubscriptionPlanUseCase, 
 } from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
+import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminSubscriptionPlanController {
@@ -15,7 +15,7 @@ export class AdminSubscriptionPlanController {
     private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
     private readonly _getSubscriptionPlanByIdUseCase: IGetSubscriptionPlanByIdUseCase,
     private readonly _updateSubscriptionPlanUseCase: IUpdateSubscriptionPlanUseCase,
-    private readonly _deleteSubscriptionPlanUseCase: IDeleteSubscriptionPlanUseCase,
+    private readonly _migratePlanSubscribersUseCase: MigratePlanSubscribersUseCase,
   ) {}
 
   createSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -89,15 +89,27 @@ export class AdminSubscriptionPlanController {
     }
   };
 
-  deleteSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  migratePlanSubscribers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { id } = req.params;
     if (!id) {
       return handleValidationError('Subscription plan ID is required', next);
     }
 
+    const parsed = MigratePlanSubscribersDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(
+        `Invalid migration data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+        next,
+      );
+    }
+
     try {
-      await this._deleteSubscriptionPlanUseCase.execute(id);
-      sendSuccessResponse(res, 'Subscription plan deleted successfully', null);
+      const result = await this._migratePlanSubscribersUseCase.execute(
+        id,
+        parsed.data.billingCycle,
+        parsed.data.prorationBehavior,
+      );
+      sendSuccessResponse(res, `Migration completed: ${result.migratedCount} subscribers migrated`, result);
     } catch (error) {
       handleAsyncError(error, next);
     }

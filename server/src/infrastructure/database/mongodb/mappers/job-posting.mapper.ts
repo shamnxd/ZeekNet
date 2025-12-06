@@ -9,13 +9,13 @@ interface PopulatedCompany {
 }
 
 export class JobPostingMapper {
-  static toEntity(doc: JobPostingDocument): JobPosting {
-    const populatedCompany = (doc as unknown as { company_id?: Types.ObjectId | PopulatedCompany }).company_id;
+  static toEntity(doc: JobPostingDocument & { company_id?: Types.ObjectId | PopulatedCompany }): JobPosting {
+    const populatedCompany = doc.company_id;
     const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
-      ? populatedCompany.companyName as string
+      ? populatedCompany.companyName
       : undefined;
     const companyLogo = populatedCompany && typeof populatedCompany === 'object' && 'logo' in populatedCompany
-      ? populatedCompany.logo as string
+      ? populatedCompany.logo
       : undefined;
 
     const companyId = populatedCompany && typeof populatedCompany === 'object' && '_id' in populatedCompany

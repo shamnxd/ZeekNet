@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
 
-export interface PaymentOrderWithDetails {
+interface PaymentOrderWithDetails {
   id: string;
   orderNo: string;
   companyId: string;
@@ -12,7 +12,7 @@ export interface PaymentOrderWithDetails {
   planName: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
   paymentMethod: 'dummy' | 'stripe' | 'card';
   invoiceId?: string;
   transactionId?: string;
@@ -20,10 +20,10 @@ export interface PaymentOrderWithDetails {
   updatedAt: Date;
 }
 
-export interface GetAllPaymentOrdersQuery {
+interface GetAllPaymentOrdersQuery {
   page?: number;
   limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
   search?: string;
   sortOrder?: 'asc' | 'desc';
 }

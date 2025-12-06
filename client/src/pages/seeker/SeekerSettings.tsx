@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '../../components/ui/select';
 
-export function SeekerSettings() {
+function SeekerSettings() {
   return (
     <div className="bg-white">
       <Tabs defaultValue="profile" className="w-full">

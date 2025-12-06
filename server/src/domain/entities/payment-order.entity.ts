@@ -1,4 +1,4 @@
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
 export type PaymentMethod = 'dummy' | 'stripe' | 'card';
 
 export class PaymentOrder {
@@ -15,6 +15,12 @@ export class PaymentOrder {
     public readonly metadata?: Record<string, unknown>,
     public readonly createdAt?: Date,
     public readonly updatedAt?: Date,
+    public readonly stripePaymentIntentId?: string,
+    public readonly stripeInvoiceId?: string,
+    public readonly stripeInvoiceUrl?: string,
+    public readonly stripeInvoicePdf?: string,
+    public readonly subscriptionId?: string,
+    public readonly billingCycle?: 'monthly' | 'yearly',
   ) {}
 
   static create(data: {
@@ -30,6 +36,12 @@ export class PaymentOrder {
     metadata?: Record<string, unknown>;
     createdAt?: Date;
     updatedAt?: Date;
+    stripePaymentIntentId?: string;
+    stripeInvoiceId?: string;
+    stripeInvoiceUrl?: string;
+    stripeInvoicePdf?: string;
+    subscriptionId?: string;
+    billingCycle?: 'monthly' | 'yearly';
   }): PaymentOrder {
     const now = new Date();
     return new PaymentOrder(
@@ -37,7 +49,7 @@ export class PaymentOrder {
       data.companyId,
       data.planId,
       data.amount,
-      data.currency ?? 'USD',
+      data.currency ?? 'INR',
       data.status ?? 'pending',
       data.paymentMethod ?? 'dummy',
       data.invoiceId,
@@ -45,6 +57,12 @@ export class PaymentOrder {
       data.metadata,
       data.createdAt ?? now,
       data.updatedAt ?? now,
+      data.stripePaymentIntentId,
+      data.stripeInvoiceId,
+      data.stripeInvoiceUrl,
+      data.stripeInvoicePdf,
+      data.subscriptionId,
+      data.billingCycle,
     );
   }
 

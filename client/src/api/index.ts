@@ -94,11 +94,4 @@ api.interceptors.response.use(
   }
 )
 
-export { authApi } from './auth.api'
-export { adminApi } from './admin.api'
-export { companyApi } from './company.api'
-export { seekerApi } from './seeker.api'
 export { jobApplicationApi } from './job-application.api'
-export { notificationApi } from './notification.api'
-export type { Notification } from './notification.api'
-export * from './base.api'

@@ -1,4 +1,5 @@
-import { baseApi, uploadFile } from './base.api';
+import { api } from './index';
+import { uploadFile } from '@/shared/utils/file-upload.util';
 import type { ApiEnvelope } from '@/interfaces/auth';
 import type { JobPostingResponse, JobPostingQuery } from '@/types/job';
 
@@ -78,12 +79,12 @@ interface CompanyDashboard {
 
 export const companyApi = {
   async createProfile(data: CompanyProfileData): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    return baseApi.post<CompanyProfileResponse>('/api/company/profile')(data);
+    return (await api.post<ApiEnvelope<CompanyProfileResponse>>('/api/company/profile', data)).data;
   },
 
   async updateProfile(data: Partial<CompanyProfileData>): Promise<ApiEnvelope<CompanyProfileResponse>> {
     if (!data.logo && !data.business_license) {
-      return baseApi.put<CompanyProfileResponse>('/api/company/profile')(data);
+      return (await api.put<ApiEnvelope<CompanyProfileResponse>>('/api/company/profile', data)).data;
     }
 
     const formData = new FormData();
@@ -94,15 +95,15 @@ export const companyApi = {
       }
     });
 
-    return baseApi.put<CompanyProfileResponse>('/api/company/profile')(formData, {
+    return (await api.put<ApiEnvelope<CompanyProfileResponse>>('/api/company/profile', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    });
+    })).data;
   },
 
   async reapplyVerification(data: CompanyProfileData): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    return baseApi.post<CompanyProfileResponse>('/api/company/reapply-verification')(data);
+    return (await api.post<ApiEnvelope<CompanyProfileResponse>>('/api/company/reapply-verification', data)).data;
   },
 
   async uploadLogo(file: File): Promise<ApiEnvelope<{ url: string; filename: string }>> {
@@ -114,11 +115,11 @@ export const companyApi = {
   },
 
   async deleteImage(imageUrl: string): Promise<ApiEnvelope<{ message: string }>> {
-    return baseApi.delete<{ message: string }>('/api/company/upload/delete')({ imageUrl });
+    return (await api.delete<ApiEnvelope<{ message: string }>>('/api/company/upload/delete', { data: { imageUrl } })).data;
   },
 
   async getProfile(): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    return baseApi.get<CompanyProfileResponse>('/api/company/profile')();
+    return (await api.get<ApiEnvelope<CompanyProfileResponse>>('/api/company/profile')).data;
   },
 
   async getCompleteProfile(): Promise<ApiEnvelope<{
@@ -130,7 +131,7 @@ export const companyApi = {
     workplacePictures: any[];
     jobPostings: any[];
   }>> {
-    return baseApi.get<{
+    return (await api.get<ApiEnvelope<{
       profile: CompanyProfileResponse;
       contact: any | null;
       locations: any[];
@@ -138,19 +139,19 @@ export const companyApi = {
       benefits: any[];
       workplacePictures: any[];
       jobPostings: any[];
-    }>('/api/company/profile')();
+    }>>('/api/company/profile')).data;
   },
 
   async getProfileById(profileId: string): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    return baseApi.get<CompanyProfileResponse>(`/api/company/profile/${profileId}`)();
+    return (await api.get<ApiEnvelope<CompanyProfileResponse>>(`/api/company/profile/${profileId}`)).data;
   },
 
   async getDashboard(): Promise<ApiEnvelope<CompanyDashboard>> {
-    return baseApi.get<CompanyDashboard>('/api/company/dashboard')();
+    return (await api.get<ApiEnvelope<CompanyDashboard>>('/api/company/dashboard')).data;
   },
 
   async createJobPosting(data: JobPostingRequest): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.post<JobPostingResponse>('/api/company/jobs')(data);
+    return (await api.post<ApiEnvelope<JobPostingResponse>>('/api/company/jobs', data)).data;
   },
 
   async getJobPostings(query?: JobPostingQuery): Promise<ApiEnvelope<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>> {
@@ -168,95 +169,95 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `/api/company/jobs?${params.toString()}` : '/api/company/jobs';
-    return baseApi.get<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>(endpoint)();
+    return (await api.get<ApiEnvelope<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>>(endpoint)).data;
   },
 
   async getJobPosting(id: string): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.get<JobPostingResponse>(`/api/company/jobs/${id}`)();
+    return (await api.get<ApiEnvelope<JobPostingResponse>>(`/api/company/jobs/${id}`)).data;
   },
 
   async updateJobPosting(id: string, data: Partial<JobPostingRequest>): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.put<JobPostingResponse>(`/api/company/jobs/${id}`)(data);
+    return (await api.put<ApiEnvelope<JobPostingResponse>>(`/api/company/jobs/${id}`, data)).data;
   },
 
   async deleteJobPosting(id: string): Promise<ApiEnvelope<{ message: string }>> {
-    return baseApi.delete<{ message: string }>(`/api/company/jobs/${id}`)();
+    return (await api.delete<ApiEnvelope<{ message: string }>>(`/api/company/jobs/${id}`)).data;
   },
 
   async updateJobStatus(id: string, status: 'active' | 'unlisted' | 'expired' | 'blocked'): Promise<ApiEnvelope<JobPostingResponse>> {
-    return baseApi.patch<JobPostingResponse>(`/api/company/jobs/${id}/status`)({ status });
+    return (await api.patch<ApiEnvelope<JobPostingResponse>>(`/api/company/jobs/${id}/status`, { status })).data;
   },
 
   async getContact(): Promise<ApiEnvelope<any>> {
-    return baseApi.get<any>('/api/company/contact')();
+    return (await api.get<ApiEnvelope<any>>('/api/company/contact')).data;
   },
 
   async updateContact(data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.put<any>('/api/company/contact')(data);
+    return (await api.put<ApiEnvelope<any>>('/api/company/contact', data)).data;
   },
 
   async getTechStacks(): Promise<ApiEnvelope<any[]>> {
-    return baseApi.get<any[]>('/api/company/tech-stacks')();
+    return (await api.get<ApiEnvelope<any[]>>('/api/company/tech-stacks')).data;
   },
 
   async createTechStack(data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.post<any>('/api/company/tech-stacks')(data);
+    return (await api.post<ApiEnvelope<any>>('/api/company/tech-stacks', data)).data;
   },
 
   async updateTechStack(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.put<any>(`/api/company/tech-stacks/${id}`)(data);
+    return (await api.put<ApiEnvelope<any>>(`/api/company/tech-stacks/${id}`, data)).data;
   },
 
   async deleteTechStack(id: string): Promise<ApiEnvelope<any>> {
-    return baseApi.delete<any>(`/api/company/tech-stacks/${id}`)();
+    return (await api.delete<ApiEnvelope<any>>(`/api/company/tech-stacks/${id}`)).data;
   },
 
   async getOfficeLocations(): Promise<ApiEnvelope<any[]>> {
-    return baseApi.get<any[]>('/api/company/office-locations')();
+    return (await api.get<ApiEnvelope<any[]>>('/api/company/office-locations')).data;
   },
 
   async createOfficeLocation(data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.post<any>('/api/company/office-locations')(data);
+    return (await api.post<ApiEnvelope<any>>('/api/company/office-locations', data)).data;
   },
 
   async updateOfficeLocation(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.put<any>(`/api/company/office-locations/${id}`)(data);
+    return (await api.put<ApiEnvelope<any>>(`/api/company/office-locations/${id}`, data)).data;
   },
 
   async deleteOfficeLocation(id: string): Promise<ApiEnvelope<any>> {
-    return baseApi.delete<any>(`/api/company/office-locations/${id}`)();
+    return (await api.delete<ApiEnvelope<any>>(`/api/company/office-locations/${id}`)).data;
   },
 
   async getBenefits(): Promise<ApiEnvelope<any[]>> {
-    return baseApi.get<any[]>('/api/company/benefits')();
+    return (await api.get<ApiEnvelope<any[]>>('/api/company/benefits')).data;
   },
 
   async createBenefit(data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.post<any>('/api/company/benefits')(data);
+    return (await api.post<ApiEnvelope<any>>('/api/company/benefits', data)).data;
   },
 
   async updateBenefit(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.put<any>(`/api/company/benefits/${id}`)(data);
+    return (await api.put<ApiEnvelope<any>>(`/api/company/benefits/${id}`, data)).data;
   },
 
   async deleteBenefit(id: string): Promise<ApiEnvelope<any>> {
-    return baseApi.delete<any>(`/api/company/benefits/${id}`)();
+    return (await api.delete<ApiEnvelope<any>>(`/api/company/benefits/${id}`)).data;
   },
 
   async getWorkplacePictures(): Promise<ApiEnvelope<any[]>> {
-    return baseApi.get<any[]>('/api/company/workplace-pictures')();
+    return (await api.get<ApiEnvelope<any[]>>('/api/company/workplace-pictures')).data;
   },
 
   async createWorkplacePicture(data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.post<any>('/api/company/workplace-pictures')(data);
+    return (await api.post<ApiEnvelope<any>>('/api/company/workplace-pictures', data)).data;
   },
 
   async updateWorkplacePicture(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return baseApi.put<any>(`/api/company/workplace-pictures/${id}`)(data);
+    return (await api.put<ApiEnvelope<any>>(`/api/company/workplace-pictures/${id}`, data)).data;
   },
 
   async deleteWorkplacePicture(id: string): Promise<ApiEnvelope<any>> {
-    return baseApi.delete<any>(`/api/company/workplace-pictures/${id}`)();
+    return (await api.delete<ApiEnvelope<any>>(`/api/company/workplace-pictures/${id}`)).data;
   },
 
   async uploadWorkplacePicture(file: File): Promise<ApiEnvelope<{ url: string; filename: string }>> {
@@ -275,27 +276,56 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `/api/company/applications?${params.toString()}` : '/api/company/applications';
-    return baseApi.get<{ applications: any[], total: number, page: number, limit: number }>(endpoint)();
+    return (await api.get<ApiEnvelope<{ applications: any[], total: number, page: number, limit: number }>>(endpoint)).data;
   },
 
   async getApplicationDetails(id: string): Promise<ApiEnvelope<any>> {
-    return baseApi.get<any>(`/api/company/applications/${id}`)();
+    return (await api.get<ApiEnvelope<any>>(`/api/company/applications/${id}`)).data;
   },
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
-    return baseApi.get<{ plans: SubscriptionPlan[] }>('/api/company/subscription-plans')();
+    return (await api.get<ApiEnvelope<{ plans: SubscriptionPlan[] }>>('/api/company/subscription-plans')).data;
   },
 
   async purchaseSubscription(planId: string, billingCycle?: 'monthly' | 'annual'): Promise<ApiEnvelope<PurchaseSubscriptionResponse>> {
-    return baseApi.post<PurchaseSubscriptionResponse>('/api/company/subscriptions/purchase')({ planId, billingCycle });
+    return (await api.post<ApiEnvelope<PurchaseSubscriptionResponse>>('/api/company/subscriptions/purchase', { planId, billingCycle })).data;
   },
 
   async getActiveSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
-    return baseApi.get<ActiveSubscriptionResponse>('/api/company/subscriptions/active')();
+    return (await api.get<ApiEnvelope<ActiveSubscriptionResponse>>('/api/company/subscriptions/active')).data;
   },
 
   async getPaymentHistory(): Promise<ApiEnvelope<PaymentHistoryItem[]>> {
-    return baseApi.get<PaymentHistoryItem[]>('/api/company/subscriptions/payment-history')();
+    return (await api.get<ApiEnvelope<PaymentHistoryItem[]>>('/api/company/subscriptions/payment-history')).data;
+  },
+
+  // Stripe Subscription Methods
+  async createCheckoutSession(planId: string, billingCycle: 'monthly' | 'yearly', successUrl: string, cancelUrl: string): Promise<ApiEnvelope<CheckoutSessionResponse>> {
+    return (await api.post<ApiEnvelope<CheckoutSessionResponse>>('/api/company/subscriptions/create-checkout-session', {
+      planId,
+      billingCycle,
+      successUrl,
+      cancelUrl,
+    })).data;
+  },
+
+  async cancelSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return (await api.post<ApiEnvelope<ActiveSubscriptionResponse>>('/api/company/subscriptions/cancel', {})).data;
+  },
+
+  async resumeSubscription(): Promise<ApiEnvelope<ActiveSubscriptionResponse>> {
+    return (await api.post<ApiEnvelope<ActiveSubscriptionResponse>>('/api/company/subscriptions/resume', {})).data;
+  },
+
+  async changeSubscriptionPlan(planId: string, billingCycle?: 'monthly' | 'yearly'): Promise<ApiEnvelope<{ subscription: ActiveSubscriptionResponse }>> {
+    return (await api.post<ApiEnvelope<{ subscription: ActiveSubscriptionResponse }>>('/api/company/subscriptions/change-plan', {
+      planId,
+      billingCycle,
+    })).data;
+  },
+
+  async getBillingPortalUrl(returnUrl: string): Promise<ApiEnvelope<BillingPortalResponse>> {
+    return (await api.post<ApiEnvelope<BillingPortalResponse>>('/api/company/subscriptions/billing-portal', { returnUrl })).data;
   }
 }
 
@@ -312,11 +342,12 @@ export interface SubscriptionPlan {
   applicantAccessLimit: number;
   isActive: boolean;
   isPopular: boolean;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface PurchaseSubscriptionResponse {
+interface PurchaseSubscriptionResponse {
   subscription: {
     id: string;
     companyId: string;
@@ -343,22 +374,35 @@ export interface PurchaseSubscriptionResponse {
   };
 }
 
-export interface ActiveSubscriptionResponse {
+interface ActiveSubscriptionResponse {
   id: string;
   companyId: string;
   planId: string;
-  startDate: string;
-  expiryDate: string;
+  startDate: string | null;
+  expiryDate: string | null;
   isActive: boolean;
   jobPostsUsed: number;
   featuredJobsUsed: number;
   applicantAccessUsed: number;
+  activeJobCount: number;
   planName?: string;
   jobPostLimit?: number;
   featuredJobLimit?: number;
+  plan?: {
+    id: string;
+    name: string;
+    jobPostLimit: number;
+    featuredJobLimit: number;
+    isDefault?: boolean;
+  };
+  stripeStatus?: string;
+  billingCycle?: 'monthly' | 'yearly';
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
 }
 
-export interface PaymentHistoryItem {
+interface PaymentHistoryItem {
   id: string;
   amount: number;
   currency: string;
@@ -366,5 +410,17 @@ export interface PaymentHistoryItem {
   paymentMethod: string;
   invoiceId?: string;
   transactionId?: string;
+  stripeInvoiceUrl?: string;
+  stripeInvoicePdf?: string;
+  billingCycle?: 'monthly' | 'yearly';
   createdAt: string;
+}
+
+interface CheckoutSessionResponse {
+  sessionId: string;
+  sessionUrl: string;
+}
+
+interface BillingPortalResponse {
+  url: string;
 }

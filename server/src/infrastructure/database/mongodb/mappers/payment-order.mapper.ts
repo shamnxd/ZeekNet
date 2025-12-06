@@ -1,14 +1,19 @@
 import { PaymentOrder, PaymentStatus, PaymentMethod } from '../../../../domain/entities/payment-order.entity';
 import { PaymentOrderDocument } from '../models/payment-order.model';
+import { Types } from 'mongoose';
 
 export class PaymentOrderMapper {
   static toEntity(doc: PaymentOrderDocument): PaymentOrder {
-    const companyId = (doc as any).companyId && typeof (doc as any).companyId === 'object'
-      ? String((doc as any).companyId._id || (doc as any).companyId)
+    const companyId = doc.companyId instanceof Types.ObjectId 
+      ? doc.companyId.toString() 
       : String(doc.companyId);
-    const planId = (doc as any).planId && typeof (doc as any).planId === 'object'
-      ? String((doc as any).planId._id || (doc as any).planId)
+    const planId = doc.planId instanceof Types.ObjectId 
+      ? doc.planId.toString() 
       : String(doc.planId);
+    const subscriptionId = doc.subscriptionId 
+      ? (doc.subscriptionId instanceof Types.ObjectId ? doc.subscriptionId.toString() : String(doc.subscriptionId))
+      : undefined;
+    
     return PaymentOrder.create({
       id: String(doc._id),
       companyId,
@@ -22,13 +27,19 @@ export class PaymentOrderMapper {
       metadata: doc.metadata,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
+      stripePaymentIntentId: doc.stripePaymentIntentId,
+      stripeInvoiceId: doc.stripeInvoiceId,
+      stripeInvoiceUrl: doc.stripeInvoiceUrl,
+      stripeInvoicePdf: doc.stripeInvoicePdf,
+      subscriptionId,
+      billingCycle: doc.billingCycle,
     });
   }
 
   static toDocument(entity: PaymentOrder): Partial<PaymentOrderDocument> {
-    return {
-      companyId: entity.companyId as unknown as PaymentOrderDocument['companyId'],
-      planId: entity.planId as unknown as PaymentOrderDocument['planId'],
+    const doc: Partial<PaymentOrderDocument> = {
+      companyId: new Types.ObjectId(entity.companyId),
+      planId: new Types.ObjectId(entity.planId),
       amount: entity.amount,
       currency: entity.currency,
       status: entity.status,
@@ -37,5 +48,14 @@ export class PaymentOrderMapper {
       transactionId: entity.transactionId,
       metadata: entity.metadata,
     };
+    
+    if (entity.stripePaymentIntentId) doc.stripePaymentIntentId = entity.stripePaymentIntentId;
+    if (entity.stripeInvoiceId) doc.stripeInvoiceId = entity.stripeInvoiceId;
+    if (entity.stripeInvoiceUrl) doc.stripeInvoiceUrl = entity.stripeInvoiceUrl;
+    if (entity.stripeInvoicePdf) doc.stripeInvoicePdf = entity.stripeInvoicePdf;
+    if (entity.subscriptionId) doc.subscriptionId = new Types.ObjectId(entity.subscriptionId);
+    if (entity.billingCycle) doc.billingCycle = entity.billingCycle;
+    
+    return doc;
   }
 }
