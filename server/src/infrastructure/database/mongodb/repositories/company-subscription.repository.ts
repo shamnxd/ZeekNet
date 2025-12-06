@@ -41,9 +41,13 @@ export class CompanySubscriptionRepository implements ICompanySubscriptionReposi
     const doc = await CompanySubscriptionModel.findOne({
       companyId: new Types.ObjectId(companyId),
       isActive: true,
-      expiryDate: { $gt: new Date() },
+      $or: [
+        { expiryDate: null },
+        { expiryDate: { $gt: new Date() } },
+        { expiryDate: { $gte: new Date('2099-01-01') } },
+      ],
     })
-      .populate('planId', 'name jobPostLimit featuredJobLimit')
+      .populate('planId', 'name jobPostLimit featuredJobLimit isDefault')
       .sort({ expiryDate: -1 });
     
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
@@ -121,7 +125,6 @@ export class CompanySubscriptionRepository implements ICompanySubscriptionReposi
     });
   }
 
-  // Stripe-specific methods
   async findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<CompanySubscription | null> {
     const doc = await CompanySubscriptionModel.findOne({
       stripeSubscriptionId,

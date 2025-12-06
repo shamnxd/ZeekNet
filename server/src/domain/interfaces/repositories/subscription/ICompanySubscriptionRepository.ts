@@ -3,8 +3,8 @@ import { CompanySubscription, SubscriptionStatus } from '../../../entities/compa
 export interface CreateSubscriptionData {
   companyId: string;
   planId: string;
-  startDate: Date;
-  expiryDate: Date;
+  startDate: Date | null;
+  expiryDate: Date | null;
   isActive?: boolean;
   jobPostsUsed?: number;
   featuredJobsUsed?: number;
@@ -31,6 +31,5 @@ export interface ICompanySubscriptionRepository {
   decrementJobPostsUsed(subscriptionId: string): Promise<void>;
   decrementFeaturedJobsUsed(subscriptionId: string): Promise<void>;
   
-  // Stripe-specific methods
   findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<CompanySubscription | null>;
 }

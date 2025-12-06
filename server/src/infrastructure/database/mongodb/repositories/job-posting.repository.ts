@@ -67,6 +67,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   ): Promise<Partial<JobPosting>[]> {
     const { CompanyProfileModel } = await import('../models/company-profile.model');
     const { UserModel } = await import('../models/user.model');
+    const { CompanySubscriptionModel } = await import('../models/company-subcription.model');
     
     const blockedUsers = await UserModel.find({ isBlocked: true }).select('_id').lean();
     const blockedUserIds = blockedUsers.map(u => String(u._id));
@@ -76,12 +77,22 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     }).select('_id').lean();
     const blockedCompanyIds = blockedCompanies.map(c => c._id);
 
+    const expiredSubscriptions = await CompanySubscriptionModel.find({
+      isActive: true,
+      expiryDate: { $lt: new Date(), $gte: new Date('1900-01-01') },
+    }).select('companyId').lean();
+    const expiredCompanyIds = expiredSubscriptions.map(s => s.companyId);
+
     const andConditions: Record<string, unknown>[] = [
       { status: 'active' },
     ];
 
     if (blockedCompanyIds.length > 0) {
       andConditions.push({ company_id: { $nin: blockedCompanyIds } });
+    }
+
+    if (expiredCompanyIds.length > 0) {
+      andConditions.push({ company_id: { $nin: expiredCompanyIds } });
     }
 
     if (filters?.categoryIds && filters.categoryIds.length > 0) {
@@ -188,6 +199,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
         id: plainDoc._id.toString(),
         title: plainDoc.title,
         status: plainDoc.status,
+        isFeatured: plainDoc.is_featured,
         employmentTypes: plainDoc.employment_types,
         applicationCount: plainDoc.application_count,
         viewCount: plainDoc.view_count,

@@ -75,12 +75,23 @@ export class SubscriptionPlanRepository extends RepositoryBase<SubscriptionPlan,
     ).exec();
   }
 
+  async findDefault(): Promise<SubscriptionPlan | null> {
+    const doc = await this.model.findOne({ isDefault: true }).exec();
+    return doc ? this.mapToEntity(doc) : null;
+  }
+
+  async unmarkAllAsDefault(): Promise<void> {
+    await this.model.updateMany(
+      { isDefault: true },
+      { $set: { isDefault: false } },
+    ).exec();
+  }
+
   async findByIds(ids: string[]): Promise<SubscriptionPlan[]> {
     const docs = await this.model.find({ _id: { $in: ids } }).exec();
     return docs.map(doc => this.mapToEntity(doc));
   }
 
-  // Stripe-specific methods
   async findByStripePriceId(stripePriceId: string): Promise<SubscriptionPlan | null> {
     const doc = await this.model.findOne({
       $or: [
