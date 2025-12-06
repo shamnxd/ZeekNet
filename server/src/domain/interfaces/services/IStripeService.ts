@@ -36,22 +36,18 @@ export interface UpdateSubscriptionParams {
 }
 
 export interface IStripeService {
-  // Customer Management
   createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer>;
   getCustomer(customerId: string): Promise<Stripe.Customer | null>;
 
-  // Product & Price Management
   createProduct(params: CreateProductParams): Promise<Stripe.Product>;
   updateProduct(productId: string, params: Partial<CreateProductParams>): Promise<Stripe.Product>;
   archiveProduct(productId: string): Promise<Stripe.Product>;
   createPrice(params: CreatePriceParams): Promise<Stripe.Price>;
   archivePrice(priceId: string): Promise<Stripe.Price>;
 
-  // Checkout & Billing Portal
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<Stripe.Checkout.Session>;
   createBillingPortalSession(customerId: string, returnUrl: string): Promise<Stripe.BillingPortal.Session>;
 
-  // Subscription Management
   getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null>;
   listSubscriptionsByPrice(priceId: string, limit?: number, startingAfter?: string): Promise<{
     data: Stripe.Subscription[];
@@ -62,9 +58,7 @@ export interface IStripeService {
   cancelSubscription(subscriptionId: string, cancelAtPeriodEnd?: boolean): Promise<Stripe.Subscription>;
   resumeSubscription(subscriptionId: string): Promise<Stripe.Subscription>;
 
-  // Invoice Management
   getInvoice(invoiceId: string): Promise<Stripe.Invoice | null>;
 
-  // Webhook
   constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event;
 }
