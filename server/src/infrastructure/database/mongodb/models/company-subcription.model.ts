@@ -5,8 +5,8 @@ export type SubscriptionStatusType = 'active' | 'past_due' | 'canceled' | 'incom
 export interface CompanySubscriptionDocument extends Document {
   companyId: Types.ObjectId;
   planId: Types.ObjectId;
-  startDate: Date;
-  expiryDate: Date;
+  startDate: Date | null;
+  expiryDate: Date | null;
   isActive: boolean;
   jobPostsUsed: number;
   featuredJobsUsed: number;
@@ -37,12 +37,13 @@ const CompanySubscriptionSchema = new Schema<CompanySubscriptionDocument>(
     },
     startDate: {
       type: Date,
-      required: true,
-      default: Date.now,
+      required: false,
+      default: null,
     },
     expiryDate: {
       type: Date,
-      required: true,
+      required: false,
+      default: null,
       index: true,
     },
     isActive: {

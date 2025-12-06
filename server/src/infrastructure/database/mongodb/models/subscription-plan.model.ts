@@ -12,6 +12,7 @@ export interface SubscriptionPlanDocument extends Document {
   applicantAccessLimit: number;
   isActive: boolean;
   isPopular: boolean;
+  isDefault: boolean;
   stripeProductId?: string;
   stripePriceIdMonthly?: string;
   stripePriceIdYearly?: string;
@@ -37,7 +38,9 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
     },
     price: {
       type: Number,
-      required: true,
+      required: function(this: SubscriptionPlanDocument) {
+        return !this.isDefault;
+      },
       min: 0,
     },
     duration: {
@@ -81,6 +84,12 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
       type: Boolean,
       required: true,
       default: false,
+    },
+    isDefault: {
+      type: Boolean,
+      required: true,
+      default: false,
+      index: true,
     },
     stripeProductId: {
       type: String,
