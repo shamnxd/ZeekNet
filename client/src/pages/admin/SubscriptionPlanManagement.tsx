@@ -48,6 +48,7 @@ const SubscriptionPlanManagement = () => {
     featuredJobLimit: 0,
     applicantAccessLimit: 0,
     yearlyDiscount: 0,
+    isDefault: false,
   })
   const [featureInput, setFeatureInput] = useState('')
   
@@ -93,6 +94,7 @@ const SubscriptionPlanManagement = () => {
       featuredJobLimit: 0,
       applicantAccessLimit: 0,
       yearlyDiscount: 0,
+      isDefault: false,
     })
     setFeatureInput('')
     setSelectedPlan(null)
@@ -113,6 +115,7 @@ const SubscriptionPlanManagement = () => {
       yearlyDiscount: plan.yearlyDiscount || 0,
       isActive: plan.isActive,
       isPopular: plan.isPopular,
+      isDefault: plan.isDefault,
     })
     setFeatureInput('')
     setEditDialogOpen(true)
@@ -308,9 +311,20 @@ const SubscriptionPlanManagement = () => {
                 min="0"
                 step="0.01"
                 value={formData.price || 0}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) => {
+                  const price = parseFloat(e.target.value) || 0
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    price,
+                    isDefault: price === 0 ? (prev.isDefault || false) : false, // Unset default if price > 0
+                  }))
+                }}
                 className="mt-1"
+                disabled={Boolean((formData as any)?.isDefault)} // Disable price input if default
               />
+              {(formData as any)?.isDefault && (
+                <p className="text-xs text-amber-600 mt-1">Default plan must have price of ₹0</p>
+              )}
             </div>
 
             <div>
@@ -439,6 +453,32 @@ const SubscriptionPlanManagement = () => {
                 Mark as Popular Plan
               </label>
             </div>
+            
+            <div className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <input
+                type="checkbox"
+                id="isDefault"
+                checked={Boolean((formData as any)?.isDefault ?? false)}
+                onChange={(e) => {
+                  const isDefault = e.target.checked
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    isDefault,
+                    price: isDefault ? 0 : (prev.price || 0), // Set price to 0 if default
+                  }))
+                }}
+                className="h-4 w-4"
+                disabled={editDialogOpen && selectedPlan?.isDefault} // Disable if editing existing default plan
+              />
+              <label htmlFor="isDefault" className="text-sm font-medium cursor-pointer">
+                Set as Default Plan
+              </label>
+              {(formData as any)?.isDefault && (
+                <span className="text-xs text-amber-600 ml-2">
+                  (Price will be ₹0)
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -529,6 +569,11 @@ const SubscriptionPlanManagement = () => {
                               {plan.isPopular && (
                                 <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 whitespace-nowrap">
                                   Popular
+                                </Badge>
+                              )}
+                              {plan.isDefault && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 whitespace-nowrap">
+                                  Default
                                 </Badge>
                               )}
                             </div>

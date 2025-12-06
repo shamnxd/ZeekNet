@@ -181,6 +181,13 @@ const CompanyPlans = () => {
   }
 
   const handleSelectPlan = (plan: SubscriptionPlan) => {
+    // Default plans cannot be selected - they are automatically assigned
+    if (plan.isDefault || plan.price === 0) {
+      toast.info('Default plan is automatically assigned to your account')
+      return
+    }
+    
+    // For non-default plans, show confirmation dialog
     setSelectedPlan(plan)
     setShowConfirmDialog(true)
   }
@@ -326,16 +333,21 @@ const CompanyPlans = () => {
     name: activeSubscription.plan?.name || 'Subscription Plan',
     description: 'Your current active subscription plan.',
     price: 0, 
-    startDate: new Date(activeSubscription.startDate).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    }),
-    expiryDate: new Date(activeSubscription.expiryDate).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    }),
+    startDate: activeSubscription.startDate 
+      ? new Date(activeSubscription.startDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        })
+      : null,
+    expiryDate: activeSubscription.expiryDate 
+      ? new Date(activeSubscription.expiryDate).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        })
+      : null,
+    isDefault: activeSubscription.plan?.isDefault || false,
     status: activeSubscription.isActive ? 'Active' : 'Expired',
     benefits: [
       `${activeSubscription.plan?.jobPostLimit || 0} Active Jobs`,
@@ -345,7 +357,7 @@ const CompanyPlans = () => {
     ],
     usage: {
       activeJobs: { 
-        used: activeSubscription.jobPostsUsed || 0, 
+        used: activeSubscription.activeJobCount || activeSubscription.jobPostsUsed || 0, 
         total: activeSubscription.plan?.jobPostLimit || 0, 
         label: 'Active Jobs' 
       },
@@ -468,14 +480,16 @@ const CompanyPlans = () => {
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-3">
                 <div>
                   <p className="text-sm text-gray-500">Start Date</p>
-                  <p className="text-base font-semibold text-gray-900">{currentPlan.startDate}</p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {currentPlan.startDate || 'N/A'}
+                  </p>
                 </div>
-                {activeSubscription && currentPlan.expiryDate && (
-                  <div>
-                    <p className="text-sm text-gray-500">Expiry Date</p>
-                    <p className="text-base font-semibold text-gray-900">{currentPlan.expiryDate}</p>
-                  </div>
-                )}
+                <div>
+                  <p className="text-sm text-gray-500">Expiry Date</p>
+                  <p className="text-base font-semibold text-gray-900">
+                    {currentPlan.isDefault || !currentPlan.expiryDate ? 'Lifetime' : currentPlan.expiryDate}
+                  </p>
+                </div>
                 {!activeSubscription && (
                   <p className="text-xs text-gray-400">Free Forever Plan</p>
                 )}
@@ -495,7 +509,11 @@ const CompanyPlans = () => {
                 {activeSubscription?.cancelAtPeriodEnd && (
                   <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded">
                     <XCircle className="h-4 w-4" />
-                    <span>Cancels on {currentPlan.expiryDate}</span>
+                    <span>
+                      {currentPlan.isDefault || !currentPlan.expiryDate 
+                        ? 'Cancels at period end' 
+                        : `Cancels on ${currentPlan.expiryDate}`}
+                    </span>
                   </div>
                 )}
               </div>
@@ -708,17 +726,26 @@ const CompanyPlans = () => {
 
               <CardContent className="flex-1 flex flex-col gap-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {billingCycle === 'annual' 
-                      ? (plan.yearlyDiscount > 0 
-                          ? `${Math.round(plan.price * (1 - plan.yearlyDiscount / 100))}rs`
-                          : `${plan.price}rs`)
-                      : `${plan.price}rs`
-                    }
-                  </span>
-                  <span className="text-gray-500 font-medium">
-                    / month
-                  </span>
+                  {plan.isDefault ? (
+                    <>
+                      <span className="text-4xl font-bold text-gray-900">Free</span>
+                      <span className="text-gray-500 font-medium">Lifetime</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold text-gray-900">
+                        {billingCycle === 'annual' 
+                          ? (plan.yearlyDiscount > 0 
+                              ? `${Math.round(plan.price * (1 - plan.yearlyDiscount / 100))}rs`
+                              : `${plan.price}rs`)
+                          : `${plan.price}rs`
+                        }
+                      </span>
+                      <span className="text-gray-500 font-medium">
+                        / month
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {billingCycle === 'annual' && plan.yearlyDiscount > 0 && (
@@ -768,7 +795,7 @@ const CompanyPlans = () => {
                   className="w-full h-12 text-base font-bold shadow-sm mt-4"
                   variant={isPopular ? 'company' : 'companyOutline'}
                   onClick={() => handleSelectPlan(plan)}
-                  disabled={changingPlan}
+                  disabled={changingPlan || plan.isDefault || plan.price === 0}
                 >
                   {(() => {
                     if (changingPlan) return 'Changing...'
@@ -781,7 +808,10 @@ const CompanyPlans = () => {
                     if (activeSubscription && activeSubscription.stripeSubscriptionId) {
                       return plan.price > (activeSubscription.plan?.price || 0) ? 'Upgrade' : 'Downgrade'
                     }
-                    return plan.price === 0 ? 'Try for free' : 'Select plan'
+                    if (plan.isDefault || plan.price === 0) {
+                      return 'Default Plan'
+                    }
+                    return 'Select plan'
                   })()}
                 </Button>
               </CardContent>
