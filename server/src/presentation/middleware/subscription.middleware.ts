@@ -10,9 +10,6 @@ export class SubscriptionMiddleware {
     private _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  /**
-   * Middleware to check if company has an active subscription
-   */
   checkActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.userId;
@@ -24,7 +21,6 @@ export class SubscriptionMiddleware {
         });
       }
 
-      // Get company profile
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       
       if (!companyProfile) {
