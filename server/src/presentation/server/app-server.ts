@@ -51,8 +51,7 @@ export class AppServer {
       }),
     );
 
-    // Stripe webhook needs raw body - must be before express.json()
-    this._app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }));
+    this._app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));
@@ -96,9 +95,8 @@ export class AppServer {
     this._app.use('/api/public', new PublicRouter().router);
     this._app.use('/api/notifications', notificationRouter.router);
 
-    // Stripe Webhook route (no authentication required)
-    this._app.post('/api/webhooks/stripe', stripeWebhookController.handleWebhook);
-    logger.info('Stripe webhook endpoint configured at /api/webhooks/stripe');
+    this._app.post('/api/webhook/stripe', stripeWebhookController.handleWebhook);
+    logger.info('Stripe webhook endpoint configured at /api/webhook/stripe');
 
     this._app.use(errorHandler);
   }
