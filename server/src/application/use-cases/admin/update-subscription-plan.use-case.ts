@@ -27,6 +27,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       yearlyDiscount?: number;
       isActive?: boolean;
       isPopular?: boolean;
+      isDefault?: boolean;
     },
   ): Promise<SubscriptionPlan> {
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
@@ -66,11 +67,34 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       throw new AppError('Yearly discount must be between 0 and 100', 400);
     }
 
+    if (existingPlan.isDefault && data.isActive === false) {
+      throw new AppError('Cannot unlist the default plan', 400);
+    }
+
+    if (existingPlan.isDefault) {
+      if (data.price !== undefined && data.price !== 0) {
+        throw new AppError('Default plan cannot have a price. Price cannot be set or must be 0.', 400);
+      }
+      if (data.duration !== undefined && data.duration > 0) {
+        throw new AppError('Default plan cannot have a duration. Duration cannot be set.', 400);
+      }
+      if (data.yearlyDiscount !== undefined && data.yearlyDiscount > 0) {
+        throw new AppError('Default plan cannot have a yearly discount. Yearly discount cannot be set.', 400);
+      }
+    }
+
+    if (data.isDefault === true && !existingPlan.isDefault) {
+      const existingDefault = await this._subscriptionPlanRepository.findDefault();
+      if (existingDefault && existingDefault.id !== planId) {
+        throw new AppError('A default plan already exists. Please unset the existing default plan first.', 409);
+      }
+      await this._subscriptionPlanRepository.unmarkAllAsDefault();
+    }
+
     if (data.isPopular === true) {
       await this._subscriptionPlanRepository.unmarkAllAsPopular();
     }
 
-    // Handle price change: create new Stripe prices and archive old ones
     const priceChanged = data.price !== undefined && 
                          existingPlan.stripeProductId && 
                          data.price !== existingPlan.price;
@@ -86,7 +110,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     if (priceChanged || yearlyDiscountChanged) {
       if (this._stripeService && existingPlan.stripeProductId) {
         try {
-          // Archive old prices in Stripe
           if (existingPlan.stripePriceIdMonthly) {
             await this._stripeService.archivePrice(existingPlan.stripePriceIdMonthly);
             if (this._priceHistoryRepository) {
@@ -103,7 +126,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             logger.info(`Archived old yearly price: ${existingPlan.stripePriceIdYearly}`);
           }
 
-          // Create new monthly price
           const monthlyPriceInCents = Math.round(finalPrice * 100);
           const monthlyPrice = await this._stripeService.createPrice({
             productId: existingPlan.stripeProductId,
@@ -117,7 +139,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           });
           newMonthlyPriceId = monthlyPrice.id;
 
-          // Create price history for new monthly price
           if (this._priceHistoryRepository) {
             await this._priceHistoryRepository.create({
               planId: existingPlan.id,
@@ -128,7 +149,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             });
           }
 
-          // Create new yearly price if discount > 0
           if (finalYearlyDiscount > 0) {
             const yearlyPricePerMonth = finalPrice * (1 - finalYearlyDiscount / 100);
             const yearlyPriceInCents = Math.round(yearlyPricePerMonth * 12 * 100);
@@ -146,7 +166,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             });
             newYearlyPriceId = yearlyPrice.id;
 
-            // Create price history for new yearly price
             if (this._priceHistoryRepository) {
               const yearlyAmount = yearlyPricePerMonth * 12;
               await this._priceHistoryRepository.create({
@@ -159,7 +178,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             }
           }
 
-          // Update plan with new price IDs
           if (newMonthlyPriceId || newYearlyPriceId) {
             await this._subscriptionPlanRepository.updateStripeIds(planId, {
               stripePriceIdMonthly: newMonthlyPriceId ?? existingPlan.stripePriceIdMonthly,
@@ -175,7 +193,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       }
     }
 
-    // Update plan with Stripe IDs if prices changed
     if (newMonthlyPriceId || newYearlyPriceId !== undefined) {
       await this._subscriptionPlanRepository.updateStripeIds(planId, {
         stripePriceIdMonthly: newMonthlyPriceId ?? existingPlan.stripePriceIdMonthly,
@@ -183,19 +200,15 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       });
     }
 
-    // Update plan with other changes
     const updatedPlan = await this._subscriptionPlanRepository.update(planId, data as Partial<SubscriptionPlan>);
     
     if (!updatedPlan) {
       throw new NotFoundError('Subscription plan not found after update');
     }
 
-    // Sync with Stripe if service is available and plan has Stripe product
     if (this._stripeService && updatedPlan.stripeProductId) {
       try {
-        // If plan is being deactivated (unlisted), archive in Stripe
         if (data.isActive === false) {
-          // Archive prices
           if (updatedPlan.stripePriceIdMonthly) {
             await this._stripeService.archivePrice(updatedPlan.stripePriceIdMonthly);
             if (this._priceHistoryRepository) {
@@ -210,11 +223,9 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             }
             logger.info(`Archived Stripe yearly price: ${updatedPlan.stripePriceIdYearly}`);
           }
-          // Archive product
           await this._stripeService.archiveProduct(updatedPlan.stripeProductId);
           logger.info(`Archived Stripe product: ${updatedPlan.stripeProductId}`);
           
-          // Clear Stripe IDs from database since product is archived
           await this._subscriptionPlanRepository.update(planId, {
             stripeProductId: undefined,
             stripePriceIdMonthly: undefined,
@@ -223,7 +234,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           
           logger.info(`Subscription plan ${updatedPlan.name} unlisted and archived in Stripe`);
         } else if (!priceChanged && !yearlyDiscountChanged) {
-          // Update Stripe product metadata (only if price didn't change)
           await this._stripeService.updateProduct(updatedPlan.stripeProductId, {
             name: updatedPlan.name,
             description: updatedPlan.description,
@@ -239,7 +249,6 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
         }
       } catch (error) {
         logger.error(`Failed to sync plan ${updatedPlan.name} with Stripe`, error);
-        // Don't throw - the plan is already updated in database
       }
     }
 

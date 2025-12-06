@@ -35,7 +35,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     if (job.status !== 'active') {
       throw new ValidationError('This job posting is not available for applications');
     }
-
     const existingApplication = await this._jobApplicationRepository.findOne({ 
       seeker_id: new Types.ObjectId(seekerId), 
       job_id: new Types.ObjectId(data.job_id),

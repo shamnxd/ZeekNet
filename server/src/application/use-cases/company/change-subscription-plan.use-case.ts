@@ -1,9 +1,12 @@
+import Stripe from 'stripe';
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { logger } from '../../../infrastructure/config/logger';
 
 interface ChangeSubscriptionResult {
   subscription: CompanySubscription;
@@ -16,6 +19,7 @@ export class ChangeSubscriptionPlanUseCase {
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
   async execute(
@@ -66,15 +70,79 @@ export class ChangeSubscriptionPlanUseCase {
       prorationBehavior: 'create_prorations',
     });
 
+    const currentPlan = await this._subscriptionPlanRepository.findById(subscription.planId);
+    const isDowngrade = currentPlan && newPlan.jobPostLimit < currentPlan.jobPostLimit;
+
+    let unlistedCount = 0;
+    let remainingRegularJobs = subscription.jobPostsUsed;
+    let remainingFeaturedJobs = subscription.featuredJobsUsed;
+
+    if (isDowngrade) {
+      const allJobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, {
+        status: 1,
+        isFeatured: 1,
+        createdAt: 1,
+      });
+
+      const activeJobs = allJobs.filter(job => job.status === 'active');
+      
+      activeJobs.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      const newJobLimit = newPlan.jobPostLimit === -1 ? activeJobs.length : newPlan.jobPostLimit;
+      const jobsToKeep = activeJobs.slice(0, newJobLimit);
+      const jobsToUnlist = activeJobs.slice(newJobLimit);
+
+      for (const job of jobsToUnlist) {
+        try {
+          await this._jobPostingRepository.update(job.id!, { status: 'unlisted' });
+          unlistedCount++;
+          logger.info(`Unlisted job ${job.id} for company ${companyProfile.id} due to plan downgrade`);
+        } catch (error) {
+          logger.error(`Failed to unlist job ${job.id} for company ${companyProfile.id}`, error);
+        }
+      }
+
+      const remainingActiveJobs = jobsToKeep;
+      remainingFeaturedJobs = remainingActiveJobs.filter(job => job.isFeatured).length;
+      remainingRegularJobs = remainingActiveJobs.length - remainingFeaturedJobs;
+    }
+
+    const rawPeriodStart = (stripeSubscription as Stripe.Subscription & { current_period_start?: number }).current_period_start;
+    const rawPeriodEnd = (stripeSubscription as Stripe.Subscription & { current_period_end?: number }).current_period_end;
+    
+    const currentPeriodStart = rawPeriodStart 
+      ? new Date(rawPeriodStart * 1000)
+      : new Date();
+    const currentPeriodEnd = rawPeriodEnd
+      ? new Date(rawPeriodEnd * 1000)
+      : new Date(Date.now() + (effectiveBillingCycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000);
+
     const updatedSubscription = await this._companySubscriptionRepository.update(subscription.id, {
       planId: newPlan.id,
       billingCycle: effectiveBillingCycle,
       stripeStatus: stripeSubscription.status as 'active' | 'past_due' | 'canceled',
-      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
+      currentPeriodStart,
+      currentPeriodEnd,
+      startDate: currentPeriodStart,
+      expiryDate: currentPeriodEnd,
+      jobPostsUsed: remainingRegularJobs,
+      featuredJobsUsed: remainingFeaturedJobs,
     });
 
     if (!updatedSubscription) {
       throw new Error('Failed to update subscription');
+    }
+
+    if (unlistedCount > 0) {
+      logger.info(
+        `Plan changed for company ${companyProfile.id}. Unlisted ${unlistedCount} job(s). ` +
+        `Remaining active jobs: ${remainingRegularJobs} regular, ${remainingFeaturedJobs} featured`,
+      );
     }
 
     return {

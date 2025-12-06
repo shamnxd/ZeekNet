@@ -2,6 +2,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanyContactRepository } from '../../../domain/interfaces/repositories/company/ICompanyContactRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
+import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
+import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CreateCompanyProfileData, ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
@@ -13,6 +15,8 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     private readonly _companyContactRepository: ICompanyContactRepository,
     private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
   async execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile> {
@@ -52,6 +56,20 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
         isHeadquarters: true,
       });
       await this._companyOfficeLocationRepository.create(location);
+    }
+
+    const defaultPlan = await this._subscriptionPlanRepository.findDefault();
+    if (defaultPlan) {
+      await this._companySubscriptionRepository.create({
+        companyId: profile.id,
+        planId: defaultPlan.id,
+        startDate: null,
+        expiryDate: null,
+        isActive: true,
+        jobPostsUsed: 0,
+        featuredJobsUsed: 0,
+        applicantAccessUsed: 0,
+      });
     }
 
     return profile;

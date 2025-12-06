@@ -36,10 +36,7 @@ export class CreateCheckoutSessionUseCase {
       throw new NotFoundError('Company profile not found');
     }
 
-    const existingSubscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
-    if (existingSubscription && !existingSubscription.cancelAtPeriodEnd) {
-      throw new ValidationError('You already have an active subscription. Please cancel it first or wait for it to expire.');
-    }
+    // Allow checkout even with active subscription - will handle plan change via webhook
 
     const plan = await this._subscriptionPlanRepository.findById(planId);
     if (!plan) {
