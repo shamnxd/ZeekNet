@@ -342,6 +342,7 @@ export interface SubscriptionPlan {
   applicantAccessLimit: number;
   isActive: boolean;
   isPopular: boolean;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -377,12 +378,13 @@ interface ActiveSubscriptionResponse {
   id: string;
   companyId: string;
   planId: string;
-  startDate: string;
-  expiryDate: string;
+  startDate: string | null;
+  expiryDate: string | null;
   isActive: boolean;
   jobPostsUsed: number;
   featuredJobsUsed: number;
   applicantAccessUsed: number;
+  activeJobCount: number;
   planName?: string;
   jobPostLimit?: number;
   featuredJobLimit?: number;
@@ -391,6 +393,7 @@ interface ActiveSubscriptionResponse {
     name: string;
     jobPostLimit: number;
     featuredJobLimit: number;
+    isDefault?: boolean;
   };
   stripeStatus?: string;
   billingCycle?: 'monthly' | 'yearly';

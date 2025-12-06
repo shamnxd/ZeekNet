@@ -707,6 +707,7 @@ export interface SubscriptionPlan {
   yearlyDiscount: number;
   isActive: boolean;
   isPopular: boolean;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -731,6 +732,7 @@ export interface CreateSubscriptionPlanData {
   applicantAccessLimit: number;
   yearlyDiscount: number;
   isPopular?: boolean;
+  isDefault?: boolean;
 }
 
 export interface UpdateSubscriptionPlanData {
@@ -745,6 +747,7 @@ export interface UpdateSubscriptionPlanData {
   yearlyDiscount?: number;
   isActive?: boolean;
   isPopular?: boolean;
+  isDefault?: boolean;
 }
 
 interface GetAllJobCategoriesParams {
