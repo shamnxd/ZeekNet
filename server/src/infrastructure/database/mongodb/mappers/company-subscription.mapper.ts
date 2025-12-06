@@ -25,6 +25,7 @@ export class CompanySubscriptionMapper {
       planName: (doc as CompanySubscriptionDocument & { planId?: { name?: string } }).planId?.name ?? undefined,
       jobPostLimit: (doc as CompanySubscriptionDocument & { planId?: { jobPostLimit?: number } }).planId?.jobPostLimit ?? undefined,
       featuredJobLimit: (doc as CompanySubscriptionDocument & { planId?: { featuredJobLimit?: number } }).planId?.featuredJobLimit ?? undefined,
+      isDefault: (doc as CompanySubscriptionDocument & { planId?: { isDefault?: boolean } }).planId?.isDefault ?? false,
       stripeCustomerId: doc.stripeCustomerId,
       stripeSubscriptionId: doc.stripeSubscriptionId,
       stripeStatus: doc.stripeStatus as SubscriptionStatus | undefined,
@@ -40,8 +41,8 @@ export class CompanySubscriptionMapper {
     
     if (entity.companyId) doc.companyId = new Types.ObjectId(entity.companyId);
     if (entity.planId) doc.planId = new Types.ObjectId(entity.planId);
-    if (entity.startDate) doc.startDate = entity.startDate;
-    if (entity.expiryDate) doc.expiryDate = entity.expiryDate;
+    if ('startDate' in entity) doc.startDate = entity.startDate ?? null;
+    if ('expiryDate' in entity) doc.expiryDate = entity.expiryDate ?? null;
     if (entity.isActive !== undefined) doc.isActive = entity.isActive;
     if (entity.jobPostsUsed !== undefined) doc.jobPostsUsed = entity.jobPostsUsed;
     if (entity.featuredJobsUsed !== undefined) doc.featuredJobsUsed = entity.featuredJobsUsed;
