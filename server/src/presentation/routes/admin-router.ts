@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController } from '../../infrastructure/di/adminDi';
+import { Router, RequestHandler } from 'express';
+import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController } from '../../infrastructure/di/adminDi';
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
@@ -8,7 +8,7 @@ import { AdminGetAllJobsDto } from '../../application/dto/admin/admin-job.dto';
 import { GetAllJobCategoriesDto, CreateJobCategoryDto, UpdateJobCategoryDto } from '../../application/dto/admin/job-category.dto';
 import { GetAllSkillsDto, CreateSkillDto, UpdateSkillDto } from '../../application/dto/admin/skill-management.dto';
 import { GetAllJobRolesDto, CreateJobRoleDto, UpdateJobRoleDto } from '../../application/dto/admin/job-role-management.dto';
-import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto } from '../../application/dto/admin/subscription-plan-management.dto';
+import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, MigratePlanSubscribersDto } from '../../application/dto/admin/subscription-plan-management.dto';
 
 export class AdminRouter {
   public router: Router;
@@ -20,7 +20,7 @@ export class AdminRouter {
 
   private _initializeRoutes(): void {
     this.router.use(authenticateToken);
-    this.router.use(requireAdmin);
+    this.router.use(requireAdmin as RequestHandler);
 
     this.router.get('/users', validateQuery(GetAllUsersDto), adminController.getAllUsers);
     this.router.patch('/users/block', validateBody(BlockUserDto), adminController.blockUser);
@@ -58,6 +58,8 @@ export class AdminRouter {
     this.router.post('/subscription-plans', validateBody(CreateSubscriptionPlanDto), adminSubscriptionPlanController.createSubscriptionPlan);
     this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
     this.router.put('/subscription-plans/:id', validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
-    this.router.delete('/subscription-plans/:id', adminSubscriptionPlanController.deleteSubscriptionPlan);
+    this.router.post('/subscription-plans/:id/migrate-subscribers', validateBody(MigratePlanSubscribersDto), adminSubscriptionPlanController.migratePlanSubscribers);
+
+    this.router.get('/payment-orders', adminPaymentOrderController.getAllPaymentOrders);
   }
 }

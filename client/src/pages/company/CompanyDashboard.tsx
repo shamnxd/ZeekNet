@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import {
   Calendar,
   Eye
 } from 'lucide-react'
-import { companyApi, type CompanyProfileResponse } from '@/api/company.api'
+import { companyApi } from '@/api/company.api'
 import { toast } from 'sonner'
 import FormDialog from '@/components/common/FormDialog'
 import { Input } from '@/components/ui/input'
@@ -18,10 +18,13 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Upload, Loader2 } from 'lucide-react'
+import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 
 const CompanyDashboard = () => {
-  const [profile, setProfile] = useState<CompanyProfileResponse | null>(null)
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const { companyVerificationStatus } = useAppSelector((state) => state.auth)
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null)
   const [reverifyOpen, setReverifyOpen] = useState(false)
   const [reverifyStep, setReverifyStep] = useState<1 | 2>(1)
   const [form, setForm] = useState({
@@ -42,16 +45,15 @@ const CompanyDashboard = () => {
   const [uploading, setUploading] = useState<{ logo: boolean; business_license: boolean }>({ logo: false, business_license: false })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    const load = async () => {
+  // Load form data only when reverify dialog opens
+  const loadProfileForReverify = async () => {
+    if (reverifyOpen && !form.company_name) {
       try {
         const resp = await companyApi.getCompleteProfile()
         if (resp.success && resp.data) {
           const data = resp.data!
           const p = data.profile
-          setProfile(p)
-          setForm(prev => ({
-            ...prev,
+          setForm({
             company_name: p.company_name || '',
             email: data.contact?.email || '',
             website: p.website || p.website_link || '',
@@ -65,14 +67,31 @@ const CompanyDashboard = () => {
             logo: p.logo || '',
             business_license: p.business_license || '',
             tax_id: p.tax_id || ''
-          }))
+          })
+          if (p.rejection_reason) {
+            setRejectionReason(p.rejection_reason)
+          }
         }
-      } finally {
-        setLoading(false)
+      } catch {
+        toast.error('Failed to load profile data')
       }
     }
-    load()
-  }, [])
+  }
+
+  // Load rejection reason if status is rejected (only once)
+  useEffect(() => {
+    if (companyVerificationStatus === 'rejected' && !rejectionReason) {
+      companyApi.getProfile().then((res) => {
+        if (res.success && res.data) {
+          const resData = res.data as { profile?: { rejection_reason?: string } } | { rejection_reason?: string };
+          const profileData = 'profile' in resData && resData.profile ? resData.profile : ('rejection_reason' in resData ? resData : null);
+          if (profileData?.rejection_reason) {
+            setRejectionReason(profileData.rejection_reason)
+          }
+        }
+      }).catch(() => {})
+    }
+  }, [companyVerificationStatus, rejectionReason])
 
   const jobStats = [
     { day: 'Mon', views: 45, applied: 12 },
@@ -104,23 +123,28 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          {!loading && profile && profile.is_verified !== 'verified' && (
-            <div className={`mb-4 border rounded-lg p-4 ${profile.is_verified === 'rejected' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'}`}>
+          {companyVerificationStatus && companyVerificationStatus !== 'verified' && (
+            <div className={`mb-4 border rounded-lg p-4 ${companyVerificationStatus === 'rejected' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'}`}>
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-md font-bold text-gray-900">
-                    {profile.is_verified === 'rejected' ? 'Verification Rejected' : 'Verification Pending'}
+                    {companyVerificationStatus === 'rejected' ? 'Verification Rejected' : 'Verification Pending'}
                   </h3>
                   <p className="text-xs text-gray-600 mt-1">
-                    {profile.is_verified === 'rejected'
-                      ? profile.rejection_reason 
-                        ? `Reason: ${profile.rejection_reason}`
+                    {companyVerificationStatus === 'rejected'
+                      ? rejectionReason 
+                        ? `Reason: ${rejectionReason}`
                         : 'Reason: Your submission did not meet verification requirements.'
                       : 'Your company verification is currently under review.'}
                   </p>
                 </div>
-                {profile.is_verified === 'rejected' && (
-                  <Button size="sm" variant="destructive" onClick={() => { setReverifyStep(1); setValidationErrors({}); setReverifyOpen(true) }}>
+                {companyVerificationStatus === 'rejected' && (
+                  <Button size="sm" variant="destructive" onClick={() => { 
+                    setReverifyStep(1); 
+                    setValidationErrors({}); 
+                    setReverifyOpen(true);
+                    loadProfileForReverify();
+                  }}>
                     Reverify
                   </Button>
                 )}
@@ -453,8 +477,10 @@ const CompanyDashboard = () => {
               tax_id: form.tax_id,
             })
             if (resp.success) {
+              // Refresh verification status in Redux
+              dispatch(fetchCompanyProfileThunk()).catch(() => {})
+
               toast.success('Reverification submitted. Status set to pending.')
-              setProfile(prev => prev ? { ...prev, is_verified: 'pending' } : prev)
               setReverifyOpen(false)
               setValidationErrors({})
             } else {

@@ -19,7 +19,7 @@ import {
   Phone,
   Briefcase
 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { companyApi, type CompanyProfileResponse } from '@/api/company.api'
 import { toast } from 'sonner'
 
@@ -95,6 +95,7 @@ const CompanyProfile = () => {
   const [editOfficeLocationDialog, setEditOfficeLocationDialog] = useState(false)
   const [editAboutDialog, setEditAboutDialog] = useState(false)
   const [editWorkplacePicturesDialog, setEditWorkplacePicturesDialog] = useState(false)
+  const fetchedRef = useRef(false)
 
   const fetchCompanyData = async () => {
     try {
@@ -129,6 +130,8 @@ const CompanyProfile = () => {
   }
 
   useEffect(() => {
+    if (fetchedRef.current) return
+    fetchedRef.current = true
     fetchCompanyData()
   }, [])
 

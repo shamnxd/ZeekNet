@@ -32,13 +32,9 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
-    if (!job.isActive) {
-      throw new ValidationError('This job posting is no longer active');
+    if (job.status !== 'active') {
+      throw new ValidationError('This job posting is not available for applications');
     }
-    if (job.adminBlocked) {
-      throw new ValidationError('This job posting has been blocked');
-    }
-
     const existingApplication = await this._jobApplicationRepository.findOne({ 
       seeker_id: new Types.ObjectId(seekerId), 
       job_id: new Types.ObjectId(data.job_id),

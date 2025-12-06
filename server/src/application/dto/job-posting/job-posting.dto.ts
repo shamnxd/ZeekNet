@@ -24,6 +24,7 @@ export const CreateJobPostingRequestDto = z.object({
   location: z.string().min(2, 'Location must be at least 2 characters').max(100, 'Location must not exceed 100 characters'),
   skills_required: z.array(z.string()).default([]),
   category_ids: z.array(z.string().min(1, 'Category ID is required')).min(1, 'At least one category is required'),
+  is_featured: z.boolean().optional().default(false),
 });
 
 export const UpdateJobPostingDto = z.object({
@@ -39,6 +40,7 @@ export const UpdateJobPostingDto = z.object({
   skills_required: z.array(z.string()).optional(),
   category_ids: z.array(z.string().min(1, 'Category ID is required')).optional(),
   is_active: z.boolean().optional(),
+  is_featured: z.boolean().optional(),
 });
 
 export const JobPostingQueryDto = z.object({

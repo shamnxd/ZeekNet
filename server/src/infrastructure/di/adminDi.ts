@@ -6,6 +6,10 @@ import { JobCategoryRepository } from '../database/mongodb/repositories/job-cate
 import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
 import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
 import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
+import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
+import { PriceHistoryRepository } from '../database/mongodb/repositories/price-history.repository';
+import { stripeService } from './companyDi';
 import { GetAllUsersUseCase } from '../../application/use-cases/admin/get-all-users.use-case';
 import { BlockUserUseCase } from '../../application/use-cases/admin/block-user.use-case';
 import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-by-id.use-case';
@@ -36,13 +40,16 @@ import { CreateSubscriptionPlanUseCase } from '../../application/use-cases/admin
 import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
 import { GetSubscriptionPlanByIdUseCase } from '../../application/use-cases/admin/get-subscription-plan-by-id.use-case';
 import { UpdateSubscriptionPlanUseCase } from '../../application/use-cases/admin/update-subscription-plan.use-case';
-import { DeleteSubscriptionPlanUseCase } from '../../application/use-cases/admin/delete-subscription-plan.use-case';
+import { MigratePlanSubscribersUseCase } from '../../application/use-cases/admin/migrate-plan-subscribers.use-case';
+import { GetAllPaymentOrdersUseCase } from '../../application/use-cases/admin/get-all-payment-orders.use-case';
+import { NodemailerService } from '../messaging/mailer';
 import { AdminController } from '../../presentation/controllers/admin/admin.controller';
 import { AdminJobController } from '../../presentation/controllers/admin/admin-job.controller';
 import { AdminJobCategoryController } from '../../presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
 import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
 import { AdminSubscriptionPlanController } from '../../presentation/controllers/admin/admin-subscription-plan.controller';
+import { AdminPaymentOrderController } from '../../presentation/controllers/admin/admin-payment-order.controller';
 import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
 import { GetPendingCompaniesUseCase } from '../../application/use-cases/admin/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from '../../application/use-cases/admin/get-company-by-id.use-case';
@@ -55,6 +62,9 @@ const jobCategoryRepository = new JobCategoryRepository();
 const skillRepository = new SkillRepository();
 const jobRoleRepository = new JobRoleRepository();
 const subscriptionPlanRepository = new SubscriptionPlanRepository();
+const companySubscriptionRepository = new CompanySubscriptionRepository();
+const paymentOrderRepository = new PaymentOrderRepository();
+const priceHistoryRepository = new PriceHistoryRepository();
 
 const s3Service = new S3Service();
 
@@ -68,7 +78,7 @@ const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileReposito
 
 const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
-const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository);
+const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
 const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
 
@@ -112,13 +122,30 @@ const deleteJobRoleUseCase = new DeleteJobRoleUseCase(jobRoleRepository);
 
 const adminJobRoleController = new AdminJobRoleController(createJobRoleUseCase, getAllJobRolesUseCase, getJobRoleByIdUseCase, updateJobRoleUseCase, deleteJobRoleUseCase);
 
-const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository);
+const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository, stripeService, priceHistoryRepository);
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
-const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository);
-const deleteSubscriptionPlanUseCase = new DeleteSubscriptionPlanUseCase(subscriptionPlanRepository);
+const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, stripeService, priceHistoryRepository);
+const mailerService = new NodemailerService();
+const migratePlanSubscribersUseCase = new MigratePlanSubscribersUseCase(
+  subscriptionPlanRepository,
+  stripeService,
+  priceHistoryRepository,
+  companySubscriptionRepository,
+  mailerService,
+);
 
-const adminSubscriptionPlanController = new AdminSubscriptionPlanController(createSubscriptionPlanUseCase, getAllSubscriptionPlansUseCase, getSubscriptionPlanByIdUseCase, updateSubscriptionPlanUseCase, deleteSubscriptionPlanUseCase);
+const adminSubscriptionPlanController = new AdminSubscriptionPlanController(
+  createSubscriptionPlanUseCase,
+  getAllSubscriptionPlansUseCase,
+  getSubscriptionPlanByIdUseCase,
+  updateSubscriptionPlanUseCase,
+  migratePlanSubscribersUseCase,
+);
+
+const getAllPaymentOrdersUseCase = new GetAllPaymentOrdersUseCase(paymentOrderRepository, companyProfileRepository, subscriptionPlanRepository);
+
+const adminPaymentOrderController = new AdminPaymentOrderController(getAllPaymentOrdersUseCase);
 
 export {
   adminController,
@@ -127,4 +154,5 @@ export {
   adminSkillController,
   adminJobRoleController,
   adminSubscriptionPlanController,
+  adminPaymentOrderController,
 };

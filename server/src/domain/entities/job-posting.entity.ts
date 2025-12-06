@@ -18,14 +18,14 @@ export class JobPosting {
     public readonly location: string,
     public readonly skillsRequired: string[],
     public readonly categoryIds: string[],
-    public readonly isActive: boolean,
+    public readonly status: 'active' | 'unlisted' | 'expired' | 'blocked',
+    public readonly isFeatured: boolean,
     public readonly viewCount: number,
     public readonly applicationCount: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly companyName?: string,
     public readonly companyLogo?: string,
-    public readonly adminBlocked?: boolean,
     public readonly unpublishReason?: string,
   ) {}
 
@@ -43,14 +43,14 @@ export class JobPosting {
     location: string;
     skillsRequired: string[];
     categoryIds: string[];
-    isActive?: boolean;
+    status?: 'active' | 'unlisted' | 'expired' | 'blocked';
+    isFeatured?: boolean;
     viewCount?: number;
     applicationCount?: number;
     createdAt?: Date;
     updatedAt?: Date;
     companyName?: string;
     companyLogo?: string;
-    adminBlocked?: boolean;
     unpublishReason?: string;
   }): JobPosting {
     const now = new Date();
@@ -68,22 +68,21 @@ export class JobPosting {
       data.location,
       data.skillsRequired,
       data.categoryIds,
-      data.isActive ?? true,
+      data.status ?? 'active',
+      data.isFeatured ?? false,
       data.viewCount ?? 0,
       data.applicationCount ?? 0,
       data.createdAt ?? now,
       data.updatedAt ?? now,
       data.companyName,
       data.companyLogo,
-      data.adminBlocked,
       data.unpublishReason,
     );
   }
 }
 
 export interface JobPostingFilters {
-  isActive?: boolean;
-  adminBlocked?: boolean;
+  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
   categoryIds?: string[];
   employmentTypes?: string[];
   salaryMin?: number;

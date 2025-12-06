@@ -261,7 +261,14 @@ const AdminDashboard = () => {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-gray-800">Recently Purchased Orders</CardTitle>
-                <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">View All</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={() => navigate('/admin/payments')}
+                >
+                  View All
+                </Button>
               </div>
             </CardHeader>
             <CardContent>

@@ -42,34 +42,36 @@ export class JobApplicationMapper {
 
   static toDocument(entity: JobApplication): Partial<JobApplicationDocument> {
     return {
-      seeker_id: new Types.ObjectId(entity.seekerId),
-      job_id: new Types.ObjectId(entity.jobId),
-      company_id: new Types.ObjectId(entity.companyId),
-      cover_letter: entity.coverLetter,
-      resume_url: entity.resumeUrl,
-      resume_filename: entity.resumeFilename,
-      stage: entity.stage,
-      score: entity.score,
-      interviews: entity.interviews.map(i => ({
-        date: i.date,
-        time: i.time,
-        interview_type: i.interviewType,
-        location: i.location,
-        interviewer_name: i.interviewerName,
-        status: i.status,
-        feedback: i.feedback
-          ? {
-            reviewer_name: i.feedback.reviewerName,
-            rating: i.feedback.rating,
-            comment: i.feedback.comment,
-            reviewed_at: i.feedback.reviewedAt,
-          }
-          : undefined,
-        created_at: i.createdAt,
-        updated_at: i.updatedAt,
-      })),
-      rejection_reason: entity.rejectionReason,
-      applied_date: entity.appliedDate,
+      ...(entity.seekerId && { seeker_id: new Types.ObjectId(entity.seekerId) }),
+      ...(entity.jobId && { job_id: new Types.ObjectId(entity.jobId) }),
+      ...(entity.companyId && { company_id: new Types.ObjectId(entity.companyId) }),
+      ...(entity.coverLetter !== undefined && { cover_letter: entity.coverLetter }),
+      ...(entity.resumeUrl !== undefined && { resume_url: entity.resumeUrl }),
+      ...(entity.resumeFilename !== undefined && { resume_filename: entity.resumeFilename }),
+      ...(entity.stage !== undefined && { stage: entity.stage }),
+      ...(entity.score !== undefined && { score: entity.score }),
+      ...(entity.interviews && {
+        interviews: entity.interviews.map(i => ({
+          date: i.date,
+          time: i.time,
+          interview_type: i.interviewType,
+          location: i.location,
+          interviewer_name: i.interviewerName,
+          status: i.status,
+          feedback: i.feedback
+            ? {
+              reviewer_name: i.feedback.reviewerName,
+              rating: i.feedback.rating,
+              comment: i.feedback.comment,
+              reviewed_at: i.feedback.reviewedAt,
+            }
+            : undefined,
+          created_at: i.createdAt,
+          updated_at: i.updatedAt,
+        })),
+      }),
+      ...(entity.rejectionReason !== undefined && { rejection_reason: entity.rejectionReason }),
+      ...(entity.appliedDate && { applied_date: entity.appliedDate }),
     };
   }
 }

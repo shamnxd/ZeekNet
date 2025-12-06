@@ -1,12 +1,13 @@
-import { baseApi, uploadFile } from './base.api';
+import { api } from './index';
+import { uploadFile } from '@/shared/utils/file-upload.util';
 import type { ApiEnvelope } from '@/interfaces/auth';
 
-export interface SocialLink {
+interface SocialLink {
   name: string;
   link: string;
 }
 
-export interface ResumeMeta {
+interface ResumeMeta {
   url: string;
   fileName: string;
   uploadedAt: string;
@@ -58,7 +59,7 @@ export interface SeekerProfile {
   updatedAt: string;
 }
 
-export interface CreateSeekerProfileRequest {
+interface CreateSeekerProfileRequest {
   headline?: string;
   summary?: string;
   location?: string;
@@ -70,7 +71,7 @@ export interface CreateSeekerProfileRequest {
   socialLinks?: SocialLink[];
 }
 
-export interface UpdateSeekerProfileRequest {
+interface UpdateSeekerProfileRequest {
   headline?: string;
   summary?: string;
   location?: string;
@@ -84,7 +85,7 @@ export interface UpdateSeekerProfileRequest {
   socialLinks?: SocialLink[];
 }
 
-export interface AddExperienceRequest {
+interface AddExperienceRequest {
   title: string;
   company: string;
   startDate: string;
@@ -96,7 +97,7 @@ export interface AddExperienceRequest {
   isCurrent?: boolean;
 }
 
-export interface UpdateExperienceRequest {
+interface UpdateExperienceRequest {
   title?: string;
   company?: string;
   startDate?: string;
@@ -108,7 +109,7 @@ export interface UpdateExperienceRequest {
   isCurrent?: boolean;
 }
 
-export interface AddEducationRequest {
+interface AddEducationRequest {
   school: string;
   degree?: string;
   fieldOfStudy?: string;
@@ -117,7 +118,7 @@ export interface AddEducationRequest {
   grade?: string;
 }
 
-export interface UpdateEducationRequest {
+interface UpdateEducationRequest {
   school?: string;
   degree?: string;
   fieldOfStudy?: string;
@@ -126,7 +127,7 @@ export interface UpdateEducationRequest {
   grade?: string;
 }
 
-export interface UploadResumeRequest {
+interface UploadResumeRequest {
   url: string;
   fileName: string;
 }
@@ -134,64 +135,63 @@ export interface UploadResumeRequest {
 export const seekerApi = {
   
   async getProfile(): Promise<ApiEnvelope<SeekerProfile>> {
-    return baseApi.get<SeekerProfile>('/api/seeker/profile')();
-
+    return (await api.get<ApiEnvelope<SeekerProfile>>('/api/seeker/profile')).data;
   },
 
   async createProfile(data: CreateSeekerProfileRequest): Promise<ApiEnvelope<SeekerProfile>> {
-    return baseApi.post<SeekerProfile>('/api/seeker/profile')(data);
+    return (await api.post<ApiEnvelope<SeekerProfile>>('/api/seeker/profile', data)).data;
   },
 
   async updateProfile(data: UpdateSeekerProfileRequest): Promise<ApiEnvelope<SeekerProfile>> {
-    return baseApi.put<SeekerProfile>('/api/seeker/profile')(data);
+    return (await api.put<ApiEnvelope<SeekerProfile>>('/api/seeker/profile', data)).data;
   },
 
   async getExperiences(): Promise<ApiEnvelope<Experience[]>> {
-    return baseApi.get<Experience[]>('/api/seeker/profile/experiences')();
+    return (await api.get<ApiEnvelope<Experience[]>>('/api/seeker/profile/experiences')).data;
   },
 
   async addExperience(data: AddExperienceRequest): Promise<ApiEnvelope<Experience>> {
-    return baseApi.post<Experience>('/api/seeker/profile/experiences')(data);
+    return (await api.post<ApiEnvelope<Experience>>('/api/seeker/profile/experiences', data)).data;
   },
 
   async updateExperience(experienceId: string, data: UpdateExperienceRequest): Promise<ApiEnvelope<Experience>> {
-    return baseApi.put<Experience>(`/api/seeker/profile/experiences/${experienceId}`)(data);
+    return (await api.put<ApiEnvelope<Experience>>(`/api/seeker/profile/experiences/${experienceId}`, data)).data;
   },
 
   async removeExperience(experienceId: string): Promise<ApiEnvelope<{ message: string }>> {
-    return baseApi.delete<{ message: string }>(`/api/seeker/profile/experiences/${experienceId}`)();
+    return (await api.delete<ApiEnvelope<{ message: string }>>(`/api/seeker/profile/experiences/${experienceId}`)).data;
   },
 
   async getEducation(): Promise<ApiEnvelope<Education[]>> {
-    return baseApi.get<Education[]>('/api/seeker/profile/education')();
+    return (await api.get<ApiEnvelope<Education[]>>('/api/seeker/profile/education')).data;
   },
 
   async addEducation(data: AddEducationRequest): Promise<ApiEnvelope<Education>> {
-    return baseApi.post<Education>('/api/seeker/profile/education')(data);
+    return (await api.post<ApiEnvelope<Education>>('/api/seeker/profile/education', data)).data;
   },
 
   async updateEducation(educationId: string, data: UpdateEducationRequest): Promise<ApiEnvelope<Education>> {
-    return baseApi.put<Education>(`/api/seeker/profile/education/${educationId}`)(data);
+    return (await api.put<ApiEnvelope<Education>>(`/api/seeker/profile/education/${educationId}`, data)).data;
   },
 
   async removeEducation(educationId: string): Promise<ApiEnvelope<{ message: string }>> {
-    return baseApi.delete<{ message: string }>(`/api/seeker/profile/education/${educationId}`)();
+    return (await api.delete<ApiEnvelope<{ message: string }>>(`/api/seeker/profile/education/${educationId}`)).data;
   },
 
   async updateSkills(skills: string[]): Promise<ApiEnvelope<string[]>> {
-    return baseApi.put<string[]>('/api/seeker/profile/skills')({ skills });
+    return (await api.put<ApiEnvelope<string[]>>('/api/seeker/profile/skills', { skills })).data;
   },
 
   async updateLanguages(languages: string[]): Promise<ApiEnvelope<string[]>> {
-    return baseApi.put<string[]>('/api/seeker/profile/languages')({ languages });
+    return (await api.put<ApiEnvelope<string[]>>('/api/seeker/profile/languages', { languages })).data;
   },
 
   async uploadResume(data: UploadResumeRequest): Promise<ApiEnvelope<ResumeMeta>> {
-    return baseApi.post<ResumeMeta>('/api/seeker/profile/resume')(data);
+    return (await api.post<ApiEnvelope<ResumeMeta>>('/api/seeker/profile/resume', data)).data;
   },
 
   async removeResume(): Promise<ApiEnvelope<{ message: string }>> {
-    return baseApi.delete<{ message: string }>('/api/seeker/profile/resume')();
+    return (await api.delete<ApiEnvelope<{ message: string }>>('/api/seeker/profile/resume')).data;
   },
 
   async uploadAvatar(file: File): Promise<ApiEnvelope<SeekerProfile>> {

@@ -22,11 +22,11 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       throw new AppError('Job posting not found', 404);
     }
 
-    if (jobPosting.adminBlocked) {
+    if (jobPosting.status === 'blocked') {
       throw new AppError('Job posting not found', 404);
     }
 
-    if (!jobPosting.isActive) {
+    if (jobPosting.status !== 'active') {
       throw new AppError('Job posting not found', 404);
     }
 
@@ -58,10 +58,10 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       location: jobPosting.location,
       skills_required: jobPosting.skillsRequired,
       category_ids: jobPosting.categoryIds,
-      is_active: jobPosting.isActive,
-      admin_blocked: jobPosting.adminBlocked,
+      status: jobPosting.status,
+      is_featured: jobPosting.isFeatured,
       unpublish_reason: jobPosting.unpublishReason,
-      view_count: jobPosting.viewCount + 1,
+      view_count: jobPosting.viewCount,
       application_count: jobPosting.applicationCount,
       createdAt: jobPosting.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: jobPosting.updatedAt?.toISOString() || new Date().toISOString(),

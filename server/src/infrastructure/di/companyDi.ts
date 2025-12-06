@@ -13,6 +13,8 @@ import { SeekerExperienceRepository } from '../database/mongodb/repositories/see
 import { SeekerEducationRepository } from '../database/mongodb/repositories/seeker-education.repository';
 import { notificationRepository } from './notificationDi';
 import { S3Service } from '../external-services/s3/s3.service';
+import { StripeService } from '../external-services/stripe/stripe.service';
+import { logger } from '../config/logger';
 import { CreateCompanyProfileUseCase } from '../../application/use-cases/company/create-company-profile.use-case';
 import { CreateCompanyProfileFromDtoUseCase } from '../../application/use-cases/company/create-company-profile-from-dto.use-case';
 import { UpdateCompanyProfileUseCase } from '../../application/use-cases/company/update-company-profile.use-case';
@@ -70,8 +72,21 @@ import { UploadBusinessLicenseUseCase } from '../../application/use-cases/compan
 import { UploadWorkplacePictureUseCase } from '../../application/use-cases/company/upload-workplace-picture.use-case';
 import { DeleteImageUseCase } from '../../application/use-cases/company/delete-image.use-case';
 import { CompanySubscriptionPlanController } from '../../presentation/controllers/company/company-subscription-plan.controller';
+import { CompanySubscriptionController } from '../../presentation/controllers/company/company-subscription.controller';
+import { StripeWebhookController } from '../../presentation/controllers/company/stripe-webhook.controller';
 import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
 import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
+import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
+import { GetActiveSubscriptionUseCase } from '../../application/use-cases/company/get-active-subscription.use-case';
+import { GetPaymentHistoryUseCase } from '../../application/use-cases/company/get-payment-history.use-case';
+import { CreateCheckoutSessionUseCase } from '../../application/use-cases/company/create-checkout-session.use-case';
+import { HandleStripeWebhookUseCase } from '../../application/use-cases/company/handle-stripe-webhook.use-case';
+import { CancelSubscriptionUseCase } from '../../application/use-cases/company/cancel-subscription.use-case';
+import { ResumeSubscriptionUseCase } from '../../application/use-cases/company/resume-subscription.use-case';
+import { ChangeSubscriptionPlanUseCase } from '../../application/use-cases/company/change-subscription-plan.use-case';
+import { GetBillingPortalUseCase } from '../../application/use-cases/company/get-billing-portal.use-case';
+import { SubscriptionMiddleware } from '../../presentation/middleware/subscription.middleware';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -86,17 +101,21 @@ const userRepository = new UserRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
 const seekerExperienceRepository = new SeekerExperienceRepository();
 const seekerEducationRepository = new SeekerEducationRepository();
+const subscriptionPlanRepository = new SubscriptionPlanRepository();
+const companySubscriptionRepository = new CompanySubscriptionRepository();
+const paymentOrderRepository = new PaymentOrderRepository();
 
 const s3Service = new S3Service();
 
-const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository);
+const stripeService = new StripeService();
+logger.info('Stripe service initialized');
+
+const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
 const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository);
 
 const getCompanyProfileUseCase = new GetCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyTechStackRepository, companyOfficeLocationRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, companyVerificationRepository);
-
 const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository);
-
 const companyContactUseCase = new CompanyContactUseCase(companyContactRepository);
 
 const createCompanyTechStackUseCase = new CreateCompanyTechStackUseCase(companyTechStackRepository);
@@ -121,7 +140,7 @@ const getCompanyWorkplacePictureUseCase = new GetCompanyWorkplacePictureUseCase(
 
 const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
 
-const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase);
+const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase, companySubscriptionRepository);
 
 const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
 
@@ -148,7 +167,7 @@ const deleteJobPostingUseCase = new DeleteJobPostingUseCase(jobPostingRepository
 
 const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPostingRepository);
 
-const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository);
+const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, companySubscriptionRepository, companyProfileRepository);
 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
@@ -159,6 +178,23 @@ const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jo
 const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+
+const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
+const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
+
+const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, userRepository);
+
+const handleStripeWebhookUseCase = new HandleStripeWebhookUseCase(stripeService, subscriptionPlanRepository, companySubscriptionRepository, paymentOrderRepository, notificationRepository, companyProfileRepository, jobPostingRepository);
+
+const cancelSubscriptionUseCase = new CancelSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
+
+const resumeSubscriptionUseCase = new ResumeSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
+
+const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository);
+
+const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
+
+const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository);
 
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
@@ -226,9 +262,20 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   addInterviewFeedbackUseCase,
 );
 
-const subscriptionPlanRepository = new SubscriptionPlanRepository();
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const companySubscriptionPlanController = new CompanySubscriptionPlanController(getAllSubscriptionPlansUseCase);
+
+const companySubscriptionController = new CompanySubscriptionController(
+  getActiveSubscriptionUseCase,
+  getPaymentHistoryUseCase,
+  createCheckoutSessionUseCase,
+  cancelSubscriptionUseCase,
+  resumeSubscriptionUseCase,
+  changeSubscriptionPlanUseCase,
+  getBillingPortalUseCase,
+);
+
+const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
 export {
   companyProfileController,
@@ -241,5 +288,9 @@ export {
   companyJobPostingController,
   companyJobApplicationController,
   companySubscriptionPlanController,
+  companySubscriptionController,
+  stripeWebhookController,
   companyProfileRepository as companyRepository,
+  subscriptionMiddleware,
+  stripeService,
 };

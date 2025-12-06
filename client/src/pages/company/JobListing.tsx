@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import { companyApi } from '@/api/company.api'
 import type { JobPostingResponse, JobPostingQuery } from '@/types/job'
 import { Loading } from '@/components/ui/loading'
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { toast } from 'sonner'
 import { 
   Calendar,
@@ -17,7 +16,6 @@ import {
   ChevronRight,
   Eye,
   Edit,
-  Trash2,
   EyeOff,
   List
 } from 'lucide-react'
@@ -37,8 +35,19 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getStatusBadge = (isActive: boolean) => {
-  return isActive ? 'Live' : 'Unlisted';
+const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+  switch (status) {
+    case 'active':
+      return 'Live';
+    case 'unlisted':
+      return 'Unlisted';
+    case 'expired':
+      return 'Expired';
+    case 'blocked':
+      return 'Blocked';
+    default:
+      return 'Unknown';
+  }
 };
 
 const formatEmploymentTypes = (types: string[] | undefined) => {
@@ -58,17 +67,6 @@ const CompanyJobListing = () => {
     limit: 10,
     total: 0,
     totalPages: 0
-  })
-  const [deleteDialog, setDeleteDialog] = useState<{
-    isOpen: boolean
-    jobId: string | null
-    jobTitle: string
-    isLoading: boolean
-  }>({
-    isOpen: false,
-    jobId: null,
-    jobTitle: '',
-    isLoading: false
   })
 
   const fetchJobs = async (page: number = 1, limit: number = 10) => {
@@ -124,74 +122,16 @@ const CompanyJobListing = () => {
     navigate(`/company/edit-job/${jobId}`)
   }
 
-  const handleDeleteJob = (jobId: string, jobTitle: string) => {
-    setDeleteDialog({
-      isOpen: true,
-      jobId,
-      jobTitle,
-      isLoading: false
-    })
-  }
-
-  const confirmDeleteJob = async () => {
-    if (!deleteDialog.jobId) return
-
-    try {
-      setDeleteDialog(prev => ({ ...prev, isLoading: true }))
-
-      const previousJobs = [...jobs]
-      const jobId = deleteDialog.jobId;
-      setJobs(prevJobs => prevJobs.filter(job => (job.id || job._id) !== jobId))
-      setPagination(prev => ({ ...prev, total: prev.total - 1 }))
-      
-      const response = await companyApi.deleteJobPosting(deleteDialog.jobId)
-      
-      if (response.success) {
-        toast.success('Job deleted successfully', {
-          description: `"${deleteDialog.jobTitle}" has been deleted.`
-        })
-        setDeleteDialog({
-          isOpen: false,
-          jobId: null,
-          jobTitle: '',
-          isLoading: false
-        })
-      } else {
-        setJobs(previousJobs)
-        setPagination(prev => ({ ...prev, total: prev.total + 1 }))
-        toast.error('Failed to delete job', {
-          description: response.message || 'Please try again later.'
-        })
-      }
-    } catch {
-      toast.error('Failed to delete job', {
-        description: 'An unexpected error occurred. Please try again.'
-      })
-      await fetchJobs(pagination.page, pagination.limit) 
-    } finally {
-      setDeleteDialog(prev => ({ ...prev, isLoading: false }))
-    }
-  }
-
-  const cancelDeleteJob = () => {
-    setDeleteDialog({
-      isOpen: false,
-      jobId: null,
-      jobTitle: '',
-      isLoading: false
-    })
-  }
-
-  const handleToggleJobStatus = async (jobId: string, currentStatus: boolean) => {
-    const newStatus = !currentStatus
-    const statusText = newStatus ? 'listed' : 'unlisted'
+  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+    const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
+    const statusText = newStatus === 'active' ? 'listed' : 'unlisted'
     
     try {
       setJobs(prevJobs => 
         prevJobs.map(job => {
           const currentJobId = job.id || job._id;
           if (currentJobId === jobId) {
-            return { ...job, is_active: newStatus, isActive: newStatus };
+            return { ...job, status: newStatus };
           }
           return job;
         })
@@ -208,7 +148,7 @@ const CompanyJobListing = () => {
           prevJobs.map(job => {
             const currentJobId = job.id || job._id;
             if (currentJobId === jobId) {
-              return { ...job, is_active: currentStatus, isActive: currentStatus };
+              return { ...job, status: currentStatus };
             }
             return job;
           })
@@ -222,7 +162,7 @@ const CompanyJobListing = () => {
         prevJobs.map(job => {
           const currentJobId = job.id || job._id;
           if (currentJobId === jobId) {
-            return { ...job, is_active: currentStatus, isActive: currentStatus };
+            return { ...job, status: currentStatus };
           }
           return job;
         })
@@ -256,9 +196,9 @@ const CompanyJobListing = () => {
 
         <div className="px-5 pb-5">
           <Card className="border border-[#D6DDEB] rounded-lg">
-            <CardHeader className="border-b border-[#D6DDEB]">
+            <CardHeader className=" border-b border-[#D6DDEB]">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold text-[#25324B]">
+                <CardTitle className="!p-0 text-xl font-bold text-[#25324B]">
                   Job List
                 </CardTitle>
                 <div className="flex items-center gap-1 px-5 py-3 border border-[#D6DDEB] rounded-lg bg-white">
@@ -302,12 +242,26 @@ const CompanyJobListing = () => {
               ) : (
                 jobs.map((job, index) => {
                   const jobId = job.id || job._id || '';
-                  const isActive = job.isActive ?? job.is_active ?? false;
-                  const adminBlocked = job.adminBlocked ?? job.admin_blocked ?? false;
+                  const status = job.status ?? 'unlisted';
                   const unpublishReason = job.unpublishReason ?? job.unpublish_reason;
                   const employmentTypes = job.employmentTypes ?? job.employment_types ?? [];
                   const applicationCount = job.applicationCount ?? job.application_count ?? 0;
                   const viewCount = job.viewCount ?? job.view_count ?? 0;
+                  
+                  const getStatusColor = (status: string) => {
+                    switch (status) {
+                      case 'active':
+                        return 'border-[#56CDAD] text-[#56CDAD] bg-transparent';
+                      case 'unlisted':
+                        return 'border-[#FFB836] text-[#FFB836] bg-transparent';
+                      case 'expired':
+                        return 'border-[#7C8493] text-[#7C8493] bg-transparent';
+                      case 'blocked':
+                        return 'border-red-500 text-red-500 bg-transparent';
+                      default:
+                        return 'border-[#D6DDEB] text-[#7C8493] bg-transparent';
+                    }
+                  };
                   
                   return (
                   <div
@@ -327,37 +281,24 @@ const CompanyJobListing = () => {
                     </div>
 
                     <div className="w-[111px]">
-                      {adminBlocked ? (
-                        <div className="space-y-1">
-                          <Badge
-                            variant="outline"
-                            className="px-2 py-1 rounded-full text-xs font-semibold border-red-500 text-red-500 bg-transparent"
-                          >
-                            Blocked
-                          </Badge>
-                          {unpublishReason && (
-                            <div 
-                              className="text-[10px] text-red-600 truncate max-w-[100px]" 
-                              title={unpublishReason}
-                            >
-                              {unpublishReason.length > 20 
-                                ? `${unpublishReason.substring(0, 20)}...` 
-                                : unpublishReason}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
+                      <div className="space-y-1">
                         <Badge
                           variant="outline"
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            isActive 
-                              ? 'border-[#56CDAD] text-[#56CDAD] bg-transparent' 
-                              : 'border-[#FFB836] text-[#FFB836] bg-transparent'
-                          }`}
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}
                         >
-                          {getStatusBadge(isActive)}
+                          {getStatusBadge(status)}
                         </Badge>
-                      )}
+                        {status === 'blocked' && unpublishReason && (
+                          <div 
+                            className="text-[10px] text-red-600 truncate max-w-[100px]" 
+                            title={unpublishReason}
+                          >
+                            {unpublishReason.length > 20 
+                              ? `${unpublishReason.substring(0, 20)}...` 
+                              : unpublishReason}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="w-[149px]">
@@ -396,28 +337,31 @@ const CompanyJobListing = () => {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleToggleJobStatus(jobId, isActive)}
-                            disabled={adminBlocked}
-                            className={isActive ? 'text-orange-600' : 'text-green-600'}
+                            onClick={() => handleToggleJobStatus(jobId, status)}
+                            disabled={status === 'blocked' || status === 'expired'}
+                            className={status === 'active' ? 'text-orange-600' : 'text-green-600'}
                           >
-                            {isActive ? (
+                            {status === 'active' ? (
                               <>
                                 <EyeOff className="w-4 h-4 mr-2" />
                                 Unlist
                               </>
+                            ) : status === 'blocked' ? (
+                              <>
+                                <List className="w-4 h-4 mr-2" />
+                                List (Blocked)
+                              </>
+                            ) : status === 'expired' ? (
+                              <>
+                                <List className="w-4 h-4 mr-2" />
+                                List (Expired)
+                              </>
                             ) : (
                               <>
                                 <List className="w-4 h-4 mr-2" />
-                                {adminBlocked ? 'List (Blocked)' : 'List'}
+                                List
                               </>
                             )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteJob(jobId, job.title)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -488,18 +432,6 @@ const CompanyJobListing = () => {
             </div>
           </Card>
         </div>
-
-        <ConfirmationDialog
-          isOpen={deleteDialog.isOpen}
-          onClose={cancelDeleteJob}
-          onConfirm={confirmDeleteJob}
-          title="Delete Job Posting"
-          description={`Are you sure you want to delete "${deleteDialog.jobTitle}"? This action cannot be undone.`}
-          confirmText="Delete"
-          cancelText="Cancel"
-          variant="danger"
-          isLoading={deleteDialog.isLoading}
-        />
       </div>
     </CompanyLayout>
   )

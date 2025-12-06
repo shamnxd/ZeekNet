@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-export function SeekerDashboard() {
+function SeekerDashboard() {
   const stats = [
     {
       label: 'Total Jobs Applied',
@@ -127,7 +127,7 @@ export function SeekerDashboard() {
                       <span>•</span>
                       <span>Full-time</span>
                     </div>
-                    <p className="text-[12px] font-medium text-[#10b981]">$90k - $130k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹90k - ₹130k</p>
                   </div>
                 </div>
                 
@@ -161,7 +161,7 @@ export function SeekerDashboard() {
                       <span>•</span>
                       <span>Full-time</span>
                     </div>
-                    <p className="text-[12px] font-medium text-[#10b981]">$80k - $120k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹80k - ₹120k</p>
                   </div>
                 </div>
                 
@@ -195,7 +195,7 @@ export function SeekerDashboard() {
                       <span>•</span>
                       <span>Full-time</span>
                     </div>
-                    <p className="text-[12px] font-medium text-[#10b981]">$100k - $150k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹100k - ₹150k</p>
                   </div>
                 </div>
                 
@@ -279,7 +279,7 @@ export function SeekerDashboard() {
                     <span>Full-time</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[12px] font-medium text-[#10b981]">$120k - $180k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹120k - ₹180k</p>
                     <Badge variant="outline" className="text-[11px] text-[#4640de] border-[#4640de]/20">Remote</Badge>
                   </div>
                 </div>
@@ -313,7 +313,7 @@ export function SeekerDashboard() {
                     <span>Full-time</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[12px] font-medium text-[#10b981]">$130k - $200k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹130k - ₹200k</p>
                     <Badge variant="outline" className="text-[11px] text-[#f59e0b] border-[#f59e0b]/20">Hybrid</Badge>
                   </div>
                 </div>
@@ -347,7 +347,7 @@ export function SeekerDashboard() {
                     <span>Full-time</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[12px] font-medium text-[#10b981]">$110k - $170k</p>
+                    <p className="text-[12px] font-medium text-[#10b981]">₹110k - ₹170k</p>
                     <Badge variant="outline" className="text-[11px] text-[#f59e0b] border-[#f59e0b]/20">On-site</Badge>
                   </div>
                 </div>

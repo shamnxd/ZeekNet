@@ -2,6 +2,7 @@ export interface JobPostingResponse {
   id: string;
   _id?: string; 
   company_id?: string;
+  companyId?: string;
   company_name?: string;
   companyName?: string;
   company_logo?: string;
@@ -11,6 +12,7 @@ export interface JobPostingResponse {
   responsibilities?: string[];
   qualifications?: string[];
   nice_to_haves?: string[];
+  niceToHaves?: string[];
   benefits?: string[];
   salary?: {
     min: number;
@@ -22,10 +24,8 @@ export interface JobPostingResponse {
   skills_required?: string[];
   skillsRequired?: string[];
   category_ids?: string[];
-  is_active?: boolean;
-  isActive?: boolean;
-  admin_blocked?: boolean;
-  adminBlocked?: boolean;
+  categoryIds?: string[];
+  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
   unpublish_reason?: string;
   unpublishReason?: string;
   view_count?: number;
@@ -57,7 +57,7 @@ export interface JobPostingQuery {
   salary_max?: number;
   location?: string;
   search?: string;
-  is_active?: boolean;
+  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
 }
 
 export interface PaginatedJobPostings {

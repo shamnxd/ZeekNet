@@ -67,4 +67,57 @@ export class SubscriptionPlanRepository extends RepositoryBase<SubscriptionPlan,
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async unmarkAllAsPopular(): Promise<void> {
+    await this.model.updateMany(
+      { isPopular: true },
+      { $set: { isPopular: false } },
+    ).exec();
+  }
+
+  async findDefault(): Promise<SubscriptionPlan | null> {
+    const doc = await this.model.findOne({ isDefault: true }).exec();
+    return doc ? this.mapToEntity(doc) : null;
+  }
+
+  async unmarkAllAsDefault(): Promise<void> {
+    await this.model.updateMany(
+      { isDefault: true },
+      { $set: { isDefault: false } },
+    ).exec();
+  }
+
+  async findByIds(ids: string[]): Promise<SubscriptionPlan[]> {
+    const docs = await this.model.find({ _id: { $in: ids } }).exec();
+    return docs.map(doc => this.mapToEntity(doc));
+  }
+
+  async findByStripePriceId(stripePriceId: string): Promise<SubscriptionPlan | null> {
+    const doc = await this.model.findOne({
+      $or: [
+        { stripePriceIdMonthly: stripePriceId },
+        { stripePriceIdYearly: stripePriceId },
+      ],
+    }).exec();
+    return doc ? this.mapToEntity(doc) : null;
+  }
+
+  async updateStripeIds(id: string, data: {
+    stripeProductId?: string;
+    stripePriceIdMonthly?: string;
+    stripePriceIdYearly?: string;
+  }): Promise<SubscriptionPlan | null> {
+    const updateData: Record<string, string> = {};
+    if (data.stripeProductId) updateData.stripeProductId = data.stripeProductId;
+    if (data.stripePriceIdMonthly) updateData.stripePriceIdMonthly = data.stripePriceIdMonthly;
+    if (data.stripePriceIdYearly) updateData.stripePriceIdYearly = data.stripePriceIdYearly;
+
+    const doc = await this.model.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true },
+    ).exec();
+    
+    return doc ? this.mapToEntity(doc) : null;
+  }
 }

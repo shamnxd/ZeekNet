@@ -1,15 +1,21 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, ClipboardList, Heart } from "lucide-react";
+import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle } from "lucide-react";
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
 import type { JobPostingData } from "../../types/job-posting";
 import { companyApi, type JobPostingRequest } from "../../api/company.api";
 import { toast } from "sonner";
+import { useAppSelector } from "@/hooks/useRedux";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const PostJob = () => {
+  const navigate = useNavigate();
+  const { companyVerificationStatus } = useAppSelector((state) => state.auth);
+  const isVerified = companyVerificationStatus === 'verified';
   const [currentStep, setCurrentStep] = useState(1);
   const [jobData, setJobData] = useState<JobPostingData>({
     title: "",
@@ -118,7 +124,7 @@ const PostJob = () => {
         responsibilities: jobData.responsibilities,
         qualifications: jobData.qualifications,
         nice_to_haves: jobData.niceToHaves,
-        benefits: jobData.benefits.map(benefit => benefit.title),
+        benefits: jobData.benefits,
         salary: jobData.salary,
         employment_types: jobData.employmentTypes as ("full-time" | "part-time" | "contract" | "internship" | "remote")[],
         location: jobData.location,
@@ -157,9 +163,19 @@ const PostJob = () => {
         });
       }
     } catch (error: unknown) {
-      const errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message: string }).message 
-        : "Please try again later.";
+      let errorMessage = "Please try again later.";
+      
+      if (error && typeof error === 'object') {
+        if ('response' in error && error.response && typeof error.response === 'object') {
+          const response = error.response as { data?: { message?: string } };
+          errorMessage = response.data?.message || errorMessage;
+        } 
+
+        else if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message;
+        }
+      }
+      
       toast.error("Failed to post job", {
         description: errorMessage,
       });
@@ -167,6 +183,55 @@ const PostJob = () => {
   };
 
   const CurrentStepComponent = steps[currentStep - 1].component;
+
+  // Show verification required message if not verified
+  if (!isVerified) {
+    return (
+      <CompanyLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-amber-100 rounded-full">
+                  <AlertCircle className="h-8 w-8 text-amber-600" />
+                </div>
+              </div>
+              <CardTitle className="text-center">Profile Verification Required</CardTitle>
+              <CardDescription className="text-center">
+                Please complete and verify your company profile before posting jobs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center space-y-2">
+                <p className="text-sm text-gray-600">
+                  Your company profile status: <strong>{companyVerificationStatus || 'not_created'}</strong>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Complete your profile setup and wait for admin verification to post jobs.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => navigate('/company/dashboard')}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => navigate('/company/profile')}
+                >
+                  Go to Profile
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </CompanyLayout>
+    );
+  }
 
   return (
     <CompanyLayout>

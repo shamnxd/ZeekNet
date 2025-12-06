@@ -8,7 +8,6 @@ const SocialLinkSchema = z.object({
   link: z.string().url('Please enter a valid URL'),
 });
 
-// Create Seeker Profile DTO
 export const CreateSeekerProfileDto = z.object({
   headline: z.string().max(100, 'Headline must not exceed 100 characters').optional(),
   summary: z.string().max(2000, 'Summary must not exceed 2000 characters').optional(),
@@ -24,7 +23,6 @@ export const CreateSeekerProfileDto = z.object({
 
 export type CreateSeekerProfileRequestDto = z.infer<typeof CreateSeekerProfileDto>;
 
-// Update Seeker Profile DTO
 export const UpdateSeekerProfileDto = z.object({
   headline: z.string().max(100, 'Headline must not exceed 100 characters').optional(),
   summary: z.string().max(2000, 'Summary must not exceed 2000 characters').optional(),
@@ -41,7 +39,6 @@ export const UpdateSeekerProfileDto = z.object({
 
 export type UpdateSeekerProfileRequestDto = z.infer<typeof UpdateSeekerProfileDto>;
 
-// Add Experience DTO
 export const AddExperienceDto = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters'),
   company: z.string().min(1, 'Company is required').max(100, 'Company must not exceed 100 characters'),
@@ -56,7 +53,6 @@ export const AddExperienceDto = z.object({
 
 export type AddExperienceRequestDto = z.infer<typeof AddExperienceDto>;
 
-// Update Experience DTO
 export const UpdateExperienceDto = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters').optional(),
   company: z.string().min(1, 'Company is required').max(100, 'Company must not exceed 100 characters').optional(),
@@ -71,7 +67,6 @@ export const UpdateExperienceDto = z.object({
 
 export type UpdateExperienceRequestDto = z.infer<typeof UpdateExperienceDto>;
 
-// Add Education DTO
 export const AddEducationDto = z.object({
   school: z.string().min(1, 'School is required').max(200, 'School must not exceed 200 characters'),
   degree: z.string().max(100, 'Degree must not exceed 100 characters').optional(),
@@ -83,7 +78,6 @@ export const AddEducationDto = z.object({
 
 export type AddEducationRequestDto = z.infer<typeof AddEducationDto>;
 
-// Update Education DTO
 export const UpdateEducationDto = z.object({
   school: z.string().min(1, 'School is required').max(200, 'School must not exceed 200 characters').optional(),
   degree: z.string().max(100, 'Degree must not exceed 100 characters').optional(),
@@ -95,17 +89,14 @@ export const UpdateEducationDto = z.object({
 
 export type UpdateEducationRequestDto = z.infer<typeof UpdateEducationDto>;
 
-// Update Skills DTO
 export const UpdateSkillsDto = z.object({
   skills: z.array(z.string()).min(0, 'Skills must be an array'),
 });
 
-// Update Languages DTO
 export const UpdateLanguagesDto = z.object({
   languages: z.array(z.string()).min(0, 'Languages must be an array'),
 });
 
-// Upload Resume DTO
 export const UploadResumeDto = z.object({
   url: z.string().url('Please enter a valid resume URL'),
   fileName: z.string().min(1, 'File name is required'),

@@ -9,13 +9,13 @@ interface PopulatedCompany {
 }
 
 export class JobPostingMapper {
-  static toEntity(doc: JobPostingDocument): JobPosting {
-    const populatedCompany = (doc as unknown as { company_id?: Types.ObjectId | PopulatedCompany }).company_id;
+  static toEntity(doc: JobPostingDocument & { company_id?: Types.ObjectId | PopulatedCompany }): JobPosting {
+    const populatedCompany = doc.company_id;
     const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
-      ? populatedCompany.companyName as string
+      ? populatedCompany.companyName
       : undefined;
     const companyLogo = populatedCompany && typeof populatedCompany === 'object' && 'logo' in populatedCompany
-      ? populatedCompany.logo as string
+      ? populatedCompany.logo
       : undefined;
 
     const companyId = populatedCompany && typeof populatedCompany === 'object' && '_id' in populatedCompany
@@ -36,40 +36,87 @@ export class JobPostingMapper {
       location: doc.location || '',
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
-      isActive: doc.is_active !== undefined ? doc.is_active : true,
+      status: doc.status || 'active',
+      isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
       applicationCount: doc.application_count || 0,
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
       companyName,
       companyLogo,
-      adminBlocked: doc.admin_blocked,
       unpublishReason: doc.unpublish_reason,
     });
   }
 
-  static toDocument(entity: Partial<JobPosting>): Partial<JobPostingDocument> {
+  static toDocument(entity: Partial<JobPosting> | Record<string, unknown>): Partial<JobPostingDocument> {
     const doc: Partial<JobPostingDocument> = {};
     
-    if (entity.companyId !== undefined) {
-      doc.company_id = new Types.ObjectId(entity.companyId);
+    const input = entity as Record<string, unknown>;
+    
+    if (input.companyId !== undefined) {
+      doc.company_id = new Types.ObjectId(input.companyId as string);
     }
-    if (entity.title !== undefined) doc.title = entity.title;
-    if (entity.description !== undefined) doc.description = entity.description;
-    if (entity.responsibilities !== undefined) doc.responsibilities = entity.responsibilities;
-    if (entity.qualifications !== undefined) doc.qualifications = entity.qualifications;
-    if (entity.niceToHaves !== undefined) doc.nice_to_haves = entity.niceToHaves;
-    if (entity.benefits !== undefined) doc.benefits = entity.benefits;
-    if (entity.salary !== undefined) doc.salary = entity.salary;
-    if (entity.employmentTypes !== undefined) doc.employment_types = entity.employmentTypes;
-    if (entity.location !== undefined) doc.location = entity.location;
-    if (entity.skillsRequired !== undefined) doc.skills_required = entity.skillsRequired;
-    if (entity.categoryIds !== undefined) doc.category_ids = entity.categoryIds;
-    if (entity.isActive !== undefined) doc.is_active = entity.isActive;
-    if (entity.adminBlocked !== undefined) doc.admin_blocked = entity.adminBlocked;
-    if (entity.unpublishReason !== undefined) doc.unpublish_reason = entity.unpublishReason;
-    if (entity.viewCount !== undefined) doc.view_count = entity.viewCount;
-    if (entity.applicationCount !== undefined) doc.application_count = entity.applicationCount;
+    if (input.title !== undefined) doc.title = input.title as string;
+    if (input.description !== undefined) doc.description = input.description as string;
+    if (input.responsibilities !== undefined) doc.responsibilities = input.responsibilities as string[];
+    if (input.qualifications !== undefined) doc.qualifications = input.qualifications as string[];
+
+    if (input.niceToHaves !== undefined) {
+      doc.nice_to_haves = input.niceToHaves as string[];
+    } else if (input.nice_to_haves !== undefined) {
+      doc.nice_to_haves = input.nice_to_haves as string[];
+    }
+    
+    if (input.benefits !== undefined) doc.benefits = input.benefits as string[];
+    if (input.salary !== undefined) doc.salary = input.salary as { min: number; max: number };
+    
+    if (input.employmentTypes !== undefined) {
+      doc.employment_types = input.employmentTypes as string[];
+    } else if (input.employment_types !== undefined) {
+      doc.employment_types = input.employment_types as string[];
+    }
+    
+    if (input.location !== undefined) doc.location = input.location as string;
+
+    if (input.skillsRequired !== undefined) {
+      doc.skills_required = input.skillsRequired as string[];
+    } else if (input.skills_required !== undefined) {
+      doc.skills_required = input.skills_required as string[];
+    }
+
+    if (input.categoryIds !== undefined) {
+      doc.category_ids = input.categoryIds as string[];
+    } else if (input.category_ids !== undefined) {
+      doc.category_ids = input.category_ids as string[];
+    }
+    
+    if (input.status !== undefined) {
+      doc.status = input.status as 'active' | 'unlisted' | 'expired' | 'blocked';
+    }
+
+    if (input.isFeatured !== undefined) {
+      doc.is_featured = input.isFeatured as boolean;
+    } else if (input.is_featured !== undefined) {
+      doc.is_featured = input.is_featured as boolean;
+    }
+    
+    if (input.unpublishReason !== undefined) {
+      doc.unpublish_reason = input.unpublishReason as string;
+    } else if (input.unpublish_reason !== undefined) {
+      doc.unpublish_reason = input.unpublish_reason as string;
+    }
+    
+    if (input.viewCount !== undefined) {
+      doc.view_count = input.viewCount as number;
+    } else if (input.view_count !== undefined) {
+      doc.view_count = input.view_count as number;
+    }
+    
+    if (input.applicationCount !== undefined) {
+      doc.application_count = input.applicationCount as number;
+    } else if (input.application_count !== undefined) {
+      doc.application_count = input.application_count as number;
+    }
     
     return doc;
   }

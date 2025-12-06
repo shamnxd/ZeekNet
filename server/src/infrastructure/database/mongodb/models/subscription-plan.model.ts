@@ -5,11 +5,17 @@ export interface SubscriptionPlanDocument extends Document {
   description: string;
   price: number;
   duration: number;
+  yearlyDiscount: number;
   features: string[];
   jobPostLimit: number;
   featuredJobLimit: number;
   applicantAccessLimit: number;
   isActive: boolean;
+  isPopular: boolean;
+  isDefault: boolean;
+  stripeProductId?: string;
+  stripePriceIdMonthly?: string;
+  stripePriceIdYearly?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,13 +38,22 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
     },
     price: {
       type: Number,
-      required: true,
+      required: function(this: SubscriptionPlanDocument) {
+        return !this.isDefault;
+      },
       min: 0,
     },
     duration: {
       type: Number,
       required: true,
       min: 1,
+    },
+    yearlyDiscount: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+      max: 100,
     },
     features: {
       type: [String],
@@ -64,6 +79,30 @@ const SubscriptionPlanSchema = new Schema<SubscriptionPlanDocument>(
       type: Boolean,
       required: true,
       default: true,
+    },
+    isPopular: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    isDefault: {
+      type: Boolean,
+      required: true,
+      default: false,
+      index: true,
+    },
+    stripeProductId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+    stripePriceIdMonthly: {
+      type: String,
+      sparse: true,
+    },
+    stripePriceIdYearly: {
+      type: String,
+      sparse: true,
     },
   },
   {

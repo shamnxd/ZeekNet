@@ -7,8 +7,7 @@ interface GetAllJobsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  is_active?: boolean;
-  admin_blocked?: boolean;
+  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
   category_ids?: string[];
   employment_types?: string[];
   salary_min?: number;
@@ -26,11 +25,8 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   async execute(query: GetAllJobsQuery) {
     let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
 
-    if (query.is_active !== undefined) {
-      jobs = jobs.filter(job => job.isActive === query.is_active);
-    }
-    if (query.admin_blocked !== undefined) {
-      jobs = jobs.filter(job => (job.adminBlocked ?? false) === query.admin_blocked);
+    if (query.status !== undefined) {
+      jobs = jobs.filter(job => job.status === query.status);
     }
     if (query.category_ids && query.category_ids.length > 0) {
       jobs = jobs.filter(job => 
@@ -70,12 +66,12 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     const sortBy = query.sortBy || 'createdAt';
     const sortOrder = query.sortOrder || 'desc';
     jobs.sort((a, b) => {
-      const aValue = (a as unknown as Record<string, unknown>)[sortBy];
-      const bValue = (b as unknown as Record<string, unknown>)[sortBy];
+      const aValue = (a as unknown as Record<string, number | string>)[sortBy];
+      const bValue = (b as unknown as Record<string, number | string>)[sortBy];
       if (sortOrder === 'asc') {
-        return (aValue as number | string) > (bValue as number | string) ? 1 : -1;
+        return aValue > bValue ? 1 : -1;
       } else {
-        return (aValue as number | string) < (bValue as number | string) ? 1 : -1;
+        return aValue < bValue ? 1 : -1;
       }
     });
 
@@ -91,9 +87,7 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       companyName: job.companyName || 'Company',
       location: job.location,
       salary: job.salary,
-      status: job.isActive,
-      is_active: job.isActive,
-      admin_blocked: job.adminBlocked ?? false,
+      status: job.status,
       applications: job.applicationCount,
       viewCount: job.viewCount,
       createdAt: job.createdAt,

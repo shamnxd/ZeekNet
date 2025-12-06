@@ -36,11 +36,10 @@ export class GetCompanyJobPostingsUseCase {
     const projection = {
       _id: 1 as const,
       title: 1 as const,
-      is_active: 1 as const,
+      status: 1 as const,
       employment_types: 1 as const,
       application_count: 1 as const,
       view_count: 1 as const,
-      admin_blocked: 1 as const,
       unpublish_reason: 1 as const,
       createdAt: 1 as const,
     };
@@ -52,7 +51,7 @@ export class GetCompanyJobPostingsUseCase {
     }
 
     if (query.is_active !== undefined) {
-      jobs = jobs.filter(job => job.isActive === query.is_active);
+      jobs = jobs.filter(job => query.is_active ? job.status === 'active' : job.status !== 'active');
     }
 
     if (query.employment_types && query.employment_types.length > 0) {
@@ -77,11 +76,11 @@ export class GetCompanyJobPostingsUseCase {
     const jobDtos: CompanyJobPostingListItemDto[] = paginatedJobs.map(job => ({
       id: job.id!,
       title: job.title!,
-      isActive: job.isActive!,
+      status: job.status!,
       employmentTypes: job.employmentTypes!,
       applicationCount: job.applicationCount!,
       viewCount: job.viewCount!,
-      adminBlocked: job.adminBlocked,
+      isFeatured: job.isFeatured!,
       unpublishReason: job.unpublishReason,
       createdAt: job.createdAt!,
     }));

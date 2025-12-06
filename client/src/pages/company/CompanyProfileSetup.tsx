@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { companyApi, type CompanyProfileData } from '@/api/company.api'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { useAppDispatch } from '@/hooks/useRedux'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 import { 
   Building2, 
   Mail, 
@@ -51,6 +53,7 @@ type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
 
 const CompanyProfileSetup = () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   
   const [formData, setFormData] = useState<CompanyProfileFormData>({
     company_name: '',
@@ -79,18 +82,13 @@ const CompanyProfileSetup = () => {
   useEffect(() => {
     const checkVerificationStatus = async () => {
       try {
-        const response = await companyApi.getDashboard()
+        const response = await companyApi.getProfile()
         if (response.success && response.data) {
-          const data = response.data as any
-          const status = data.profileStatus || data.verificationStatus || 'not_created'
+          const status = response.data.is_verified || 'not_created'
           setIsReapplication(status === 'rejected')
-        } else if (response.message && (response.data as any)?.verificationStatus === 'rejected') {
-          setIsReapplication(true)
         }
-      } catch (err: any) {
-        if (err.response?.data?.data?.verificationStatus === 'rejected') {
-          setIsReapplication(true)
-        }
+      } catch (err: unknown) {
+        setIsReapplication(false)
       }
     }
     
@@ -173,6 +171,9 @@ const CompanyProfileSetup = () => {
         : await companyApi.createProfile(profileData)
       
       if (res.success) {
+        // Refresh verification status in Redux
+        dispatch(fetchCompanyProfileThunk()).catch(() => {})
+
         const successMessage = isReapplication 
           ? 'Reapplication Submitted Successfully!'
           : 'Profile Created Successfully!'

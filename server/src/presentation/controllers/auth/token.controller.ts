@@ -6,6 +6,7 @@ import { ICookieService } from '../../../domain/interfaces/services/ICookieServi
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
 import { UserRole } from '../../../domain/enums/user-role.enum';
+import { env } from '../../../infrastructure/config/env';
 
 export class TokenController {
   constructor(
@@ -16,7 +17,7 @@ export class TokenController {
   ) {}
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const cookieName = this._cookieService.getRefreshTokenCookieName();
+    const cookieName = env.COOKIE_NAME_REFRESH;
     const fromCookie = (req as Request & { cookies?: Record<string, string> }).cookies?.[cookieName];
 
     const parsed = fromCookie ? { success: true, data: { refreshToken: fromCookie } } : RefreshTokenDto.safeParse(req.body);

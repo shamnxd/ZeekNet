@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import type { JobPostingStepProps } from "../../types/job-posting";
 import { 
   Plus, 
@@ -18,37 +17,27 @@ const PerksBenefitsStep: React.FC<JobPostingStepProps> = ({
   onSubmit,
 }) => {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newBenefit, setNewBenefit] = useState({
-    title: "",
-    description: "",
-  });
+  const [newBenefitTitle, setNewBenefitTitle] = useState("");
 
   const handleAddBenefit = () => {
-    if (newBenefit.title.trim() && newBenefit.description.trim()) {
-      const benefit = {
-        id: Date.now().toString(),
-        title: newBenefit.title.trim(),
-        description: newBenefit.description.trim(),
-        icon: "stethoscope",
-      };
-      
+    if (newBenefitTitle.trim()) {
       onDataChange({
-        benefits: [...data.benefits, benefit]
+        benefits: [...data.benefits, newBenefitTitle.trim()]
       });
       
-      setNewBenefit({ title: "", description: "" });
+      setNewBenefitTitle("");
       setShowAddForm(false);
     }
   };
 
   const handleCancelAdd = () => {
-    setNewBenefit({ title: "", description: "" });
+    setNewBenefitTitle("");
     setShowAddForm(false);
   };
 
-  const handleRemoveBenefit = (id: string) => {
+  const handleRemoveBenefit = (benefitTitle: string) => {
     onDataChange({
-      benefits: data.benefits.filter((benefit) => benefit.id !== id)
+      benefits: data.benefits.filter((benefit) => benefit !== benefitTitle)
     });
   };
 
@@ -85,18 +74,9 @@ const PerksBenefitsStep: React.FC<JobPostingStepProps> = ({
                 <Label className="text-sm font-semibold text-[#515B6F]">Benefit Title</Label>
                 <Input
                   placeholder="e.g. Health Insurance"
-                  value={newBenefit.title}
-                  onChange={(e) => setNewBenefit(prev => ({ ...prev, title: e.target.value }))}
+                  value={newBenefitTitle}
+                  onChange={(e) => setNewBenefitTitle(e.target.value)}
                   className="h-10 px-4 py-3 border border-[#D6DDEB] rounded-[10px] text-sm text-[#25324B] placeholder:text-[#7C8493]"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm font-semibold text-[#515B6F]">Description</Label>
-                <Textarea
-                  placeholder="Describe this benefit..."
-                  value={newBenefit.description}
-                  onChange={(e) => setNewBenefit(prev => ({ ...prev, description: e.target.value }))}
-                  className="min-h-[108px] px-4 py-3 border border-[#D6DDEB] rounded-[10px] text-sm text-[#25324B] placeholder:text-[#7C8493] resize-none"
                 />
               </div>
               <div className="flex gap-3">
@@ -138,20 +118,17 @@ const PerksBenefitsStep: React.FC<JobPostingStepProps> = ({
           {data.benefits.length > 0 ? (
             <div className="flex flex-col gap-3">
               {data.benefits.map((benefit) => (
-                <div key={benefit.id} className="flex items-start gap-3 p-3 border border-[#D6DDEB] rounded-[10px] hover:shadow-md transition-shadow">
+                <div key={benefit} className="flex items-center gap-3 p-3 border border-[#D6DDEB] rounded-[10px] hover:shadow-md transition-shadow">
                   <div className="p-2 bg-[#4640DE] bg-opacity-10 rounded-lg">
                     <Heart className="h-4 w-4 text-[#ffff]" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-base font-semibold text-[#25324B] mb-1">
-                      {benefit.title}
+                    <h4 className="text-base font-semibold text-[#25324B]">
+                      {benefit}
                     </h4>
-                    <p className="text-sm text-[#7C8493]">
-                      {benefit.description}
-                    </p>
                   </div>
                   <button
-                    onClick={() => handleRemoveBenefit(benefit.id)}
+                    onClick={() => handleRemoveBenefit(benefit)}
                     className="p-1 hover:bg-[#CCCCF5] rounded-full transition-colors"
                   >
                     <X className="h-4 w-4 text-[#7C8493]" />

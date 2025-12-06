@@ -62,7 +62,10 @@ const JobManagement = () => {
   })
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearchTerm = useDebounce(searchInput, 500)
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    search: string
+    status: 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired'
+  }>({
     search: '',
     status: 'all'
   })
@@ -92,7 +95,7 @@ const JobManagement = () => {
         page: pagination.page,
         limit: pagination.limit,
         search: filters.search,
-        status: filters.status as 'all' | 'active' | 'inactive',
+        ...(filters.status !== 'all' && filters.status !== 'inactive' && { status: filters.status }),
       })
       
       if (response.success && response.data && Array.isArray(response.data.jobs)) {
@@ -117,17 +120,18 @@ const JobManagement = () => {
     navigate(`/admin/jobs/${jobId}`)
   }
 
-  const handleToggleStatus = async (jobId: string, currentStatus: boolean) => {
+  const handleToggleStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked') => {
     try {
-      const response = await adminApi.updateJobStatus(jobId, !currentStatus)
+      const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
+      const response = await adminApi.updateJobStatus(jobId, newStatus, undefined)
       
       if (response.success) {
         setJobs(jobs.map(job => 
           (job.id || job._id) === jobId 
-            ? { ...job, is_active: !currentStatus }
+            ? { ...job, status: newStatus }
             : job
         ))
-        toast.success(`Job ${!currentStatus ? 'activated' : 'deactivated'} successfully`)
+        toast.success(`Job ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
       } else {
         toast.error(response.message || 'Failed to update job status')
       }
@@ -182,7 +186,7 @@ const JobManagement = () => {
               Total: {pagination.total}
             </Badge>
             <Badge variant="outline" className="text-green-600 border-green-200">
-              Active: {jobs.filter(job => job.is_active).length}
+              Active: {jobs.filter(job => job.status === 'active').length}
             </Badge>
           </div>
         </div>
@@ -204,7 +208,7 @@ const JobManagement = () => {
               </div>
               <Select
                 value={filters.status}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as typeof filters.status }))}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
@@ -212,7 +216,8 @@ const JobManagement = () => {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="unlisted">Unlisted</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
                   <SelectItem value="blocked">Blocked</SelectItem>
                 </SelectContent>
               </Select>
@@ -275,22 +280,20 @@ const JobManagement = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="space-y-1">
-                            <Badge 
-                              variant={job.is_active ? "default" : "secondary"}
-                              className={job.is_active 
-                                ? "bg-green-100 text-green-800 border-green-200" 
-                                : "bg-gray-100 text-gray-800 border-gray-200"
-                              }
-                            >
-                              {job.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
-                            {job.admin_blocked && (
-                              <Badge className="bg-red-500 text-white text-xs">
-                                Blocked
-                              </Badge>
-                            )}
-                          </div>
+                          <Badge 
+                            variant={job.status === 'active' ? "default" : "secondary"}
+                            className={
+                              job.status === 'active' ? "bg-green-100 text-green-800 border-green-200" :
+                              job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
+                              job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
+                              "bg-gray-100 text-gray-800 border-gray-200"
+                            }
+                          >
+                            {job.status === 'active' ? 'Active' :
+                             job.status === 'blocked' ? 'Blocked' :
+                             job.status === 'expired' ? 'Expired' :
+                             job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
@@ -316,7 +319,7 @@ const JobManagement = () => {
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              {job.is_active ? (
+                              {job.status === 'active' ? (
                                 <DropdownMenuItem 
                                   onClick={() => {
                                     setReasonJob(job);
@@ -328,7 +331,7 @@ const JobManagement = () => {
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem 
-                                  onClick={() => handleToggleStatus(job.id || job._id || '', job.is_active ?? false)}
+                                  onClick={() => handleToggleStatus(job.id || job._id || '', job.status ?? 'unlisted')}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Publish
@@ -417,12 +420,12 @@ const JobManagement = () => {
           if (!reasonJob) return;
           
           try {
-            const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id || '', false, reason);
+            const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id || '', 'blocked', reason);
             
             if (response.success) {
               setJobs(jobs.map(job => 
                 (job.id || job._id) === (reasonJob.id || reasonJob._id)
-                  ? { ...job, is_active: false, unpublish_reason: reason }
+                  ? { ...job, status: 'blocked', unpublish_reason: reason }
                   : job
               ));
               toast.success(`Unpublished ${reasonJob?.title}`);

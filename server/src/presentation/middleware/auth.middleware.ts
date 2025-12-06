@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticationError, AuthorizationError } from '../../domain/errors/errors';
 import { JwtTokenService } from '../../infrastructure/security/jwt-token-service';
 
-interface AuthenticatedRequest extends Request {
-  user?: { id: string; email: string; role: string };
+export interface AuthenticatedRequest extends Request {
+  user?: { id: string; userId: string; email: string; role: string };
 }
 
 const tokenService = new JwtTokenService();
@@ -20,6 +20,7 @@ export function authenticateToken(req: AuthenticatedRequest, _res: Response, nex
 
     req.user = {
       id: payload.sub,
+      userId: payload.sub,
       email: payload.email || '',
       role: payload.role || 'seeker',
     };
@@ -52,6 +53,7 @@ export function optionalAuthentication(req: AuthenticatedRequest, _res: Response
     const payload = tokenService.verifyAccess(token);
     req.user = {
       id: payload.sub,
+      userId: payload.sub,
       email: payload.email || '',
       role: payload.role || 'seeker',
     };

@@ -20,8 +20,8 @@ export interface JobPostingDocument extends Document {
   location: string;
   skills_required: string[];
   category_ids: string[];
-  is_active: boolean;
-  admin_blocked?: boolean;
+  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
@@ -130,12 +130,14 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
         },
       },
     ],
-    is_active: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      enum: ['active', 'unlisted', 'expired', 'blocked'],
+      default: 'active',
+      required: true,
       index: true,
     },
-    admin_blocked: {
+    is_featured: {
       type: Boolean,
       default: false,
       index: true,
@@ -161,11 +163,10 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
   },
 );
 
-JobPostingSchema.index({ company_id: 1, is_active: 1 });
-JobPostingSchema.index({ category_ids: 1, is_active: 1 });
-JobPostingSchema.index({ location: 1, is_active: 1 });
-JobPostingSchema.index({ employment_types: 1, is_active: 1 });
-JobPostingSchema.index({ admin_blocked: 1, is_active: 1 });
+JobPostingSchema.index({ company_id: 1, status: 1 });
+JobPostingSchema.index({ category_ids: 1, status: 1 });
+JobPostingSchema.index({ location: 1, status: 1 });
+JobPostingSchema.index({ employment_types: 1, status: 1 });
 JobPostingSchema.index({ 'salary.min': 1, 'salary.max': 1 });
 
 JobPostingSchema.index({
@@ -176,7 +177,7 @@ JobPostingSchema.index({
 JobPostingSchema.index({
   category_ids: 1,
   location: 1,
-  is_active: 1,
+  status: 1,
 });
 
 JobPostingSchema.index({

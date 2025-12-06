@@ -11,7 +11,7 @@ export class CompanyVerificationRepository extends RepositoryBase<CompanyVerific
   }
 
   protected mapToEntity(doc: CompanyVerificationDocument): CompanyVerification {
-    return CompanyVerificationMapper.toEntity(doc as unknown as Parameters<typeof CompanyVerificationMapper.toEntity>[0]);
+    return CompanyVerificationMapper.toEntity(doc);
   }
 
   protected mapToDocument(entity: Partial<CompanyVerification>): Partial<CompanyVerificationDocument> {

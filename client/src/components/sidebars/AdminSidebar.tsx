@@ -31,8 +31,8 @@ const AdminSidebar = () => {
       icon: LayoutDashboard,
     },
     {
-      path: '/admin/orders',
-      label: 'Order',
+      path: '/admin/payments',
+      label: 'Payments',
       icon: FileText,
     },
     {

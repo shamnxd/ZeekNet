@@ -38,7 +38,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
 
   async addInterviewFeedback(applicationId: string, interviewId: string, feedbackData: InterviewFeedback): Promise<JobApplication | null> {
     const updated = await JobApplicationModel.findOneAndUpdate(
-      { _id: applicationId, 'interviews.id': interviewId },
+      { _id: applicationId, 'interviews._id': new Types.ObjectId(interviewId) },
       { 
         $set: { 
           'interviews.$.feedback': feedbackData,
@@ -56,7 +56,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     const updated = await JobApplicationModel.findByIdAndUpdate(
       applicationId,
       { 
-        $pull: { interviews: { id: interviewId } },
+        $pull: { interviews: { _id: new Types.ObjectId(interviewId) } },
         updatedAt: new Date(),
       },
       { new: true },
@@ -74,7 +74,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     updateFields['updatedAt'] = new Date();
 
     const updated = await JobApplicationModel.findOneAndUpdate(
-      { _id: applicationId, 'interviews.id': interviewId },
+      { _id: applicationId, 'interviews._id': new Types.ObjectId(interviewId) },
       { $set: updateFields },
       { new: true },
     );

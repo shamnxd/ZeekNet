@@ -13,7 +13,7 @@ export class GetJobPostingUseCase implements IGetJobPostingUseCase {
       throw new NotFoundError('Job posting not found');
     }
 
-    if (jobPosting.adminBlocked) {
+    if (jobPosting.status === 'blocked') {
       throw new AppError('Job posting not found', 404);
     }
 

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Loader2 } from 'lucide-react'
 
 interface ValidationRule {
   required?: boolean | string
@@ -47,6 +48,7 @@ interface BasicFormDialogProps {
   cancelText?: string
   confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
   isLoading?: boolean
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl'
   children: ReactNode
 }
 
@@ -321,12 +323,24 @@ const FormDialog = (props: FormDialogProps) => {
     cancelText = 'Cancel',
     confirmVariant = 'default',
     isLoading = false,
+    maxWidth = 'md',
     children,
   } = props
 
+  const maxWidthClasses = {
+    sm: 'sm:max-w-sm',
+    md: 'sm:max-w-md',
+    lg: 'sm:max-w-lg',
+    xl: 'sm:max-w-xl',
+    '2xl': 'sm:max-w-2xl',
+    '3xl': 'sm:max-w-3xl',
+    '4xl': 'sm:max-w-4xl',
+    '5xl': 'sm:max-w-5xl',
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className={maxWidthClasses[maxWidth]}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -348,7 +362,14 @@ const FormDialog = (props: FormDialogProps) => {
             disabled={isLoading}
             className={confirmVariant === 'default' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
           >
-            {isLoading ? 'Loading...' : confirmText}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              confirmText
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

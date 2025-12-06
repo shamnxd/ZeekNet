@@ -5,6 +5,7 @@ import { UserRole } from '../../domain/enums/user-role.enum';
 interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
+    userId: string;
     email: string;
     role: string;
   };

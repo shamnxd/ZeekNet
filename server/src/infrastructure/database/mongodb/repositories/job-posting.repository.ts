@@ -4,6 +4,7 @@ import { JobPostingModel, JobPostingDocument } from '../models/job-posting.model
 import { Types } from 'mongoose';
 import { JobPostingMapper } from '../mappers/job-posting.mapper';
 import { RepositoryBase } from './base-repository';
+import { DailyLimitErorr } from 'src/domain/errors/errors';
 
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
   constructor() {
@@ -30,6 +31,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   }
 
   async postJob(jobData: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'>): Promise<JobPosting> {
+
     const document = new JobPostingModel({
       company_id: new Types.ObjectId(jobData.companyId),
       title: jobData.title,
@@ -43,8 +45,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       location: jobData.location,
       skills_required: jobData.skillsRequired || [],
       category_ids: jobData.categoryIds || [],
-      is_active: true,
-      admin_blocked: false,
+      status: 'active',
       view_count: 0,
       application_count: 0,
     });
@@ -66,6 +67,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   ): Promise<Partial<JobPosting>[]> {
     const { CompanyProfileModel } = await import('../models/company-profile.model');
     const { UserModel } = await import('../models/user.model');
+    const { CompanySubscriptionModel } = await import('../models/company-subcription.model');
     
     const blockedUsers = await UserModel.find({ isBlocked: true }).select('_id').lean();
     const blockedUserIds = blockedUsers.map(u => String(u._id));
@@ -75,13 +77,22 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     }).select('_id').lean();
     const blockedCompanyIds = blockedCompanies.map(c => c._id);
 
+    const expiredSubscriptions = await CompanySubscriptionModel.find({
+      isActive: true,
+      expiryDate: { $lt: new Date(), $gte: new Date('1900-01-01') },
+    }).select('companyId').lean();
+    const expiredCompanyIds = expiredSubscriptions.map(s => s.companyId);
+
     const andConditions: Record<string, unknown>[] = [
-      { $or: [ { is_active: true }, { is_active: { $exists: false } } ] },
-      { $or: [ { admin_blocked: false }, { admin_blocked: { $exists: false } } ] },
+      { status: 'active' },
     ];
 
     if (blockedCompanyIds.length > 0) {
       andConditions.push({ company_id: { $nin: blockedCompanyIds } });
+    }
+
+    if (expiredCompanyIds.length > 0) {
+      andConditions.push({ company_id: { $nin: expiredCompanyIds } });
     }
 
     if (filters?.categoryIds && filters.categoryIds.length > 0) {
@@ -187,11 +198,11 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       return {
         id: plainDoc._id.toString(),
         title: plainDoc.title,
-        isActive: plainDoc.is_active,
+        status: plainDoc.status,
+        isFeatured: plainDoc.is_featured,
         employmentTypes: plainDoc.employment_types,
         applicationCount: plainDoc.application_count,
         viewCount: plainDoc.view_count,
-        adminBlocked: plainDoc.admin_blocked,
         unpublishReason: plainDoc.unpublish_reason,
         createdAt: plainDoc.createdAt,
       };
@@ -203,8 +214,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       title: 1,
       location: 1,
       salary: 1,
-      is_active: 1,
-      admin_blocked: 1,
+      status: 1,
       application_count: 1,
       view_count: 1,
       employment_types: 1,

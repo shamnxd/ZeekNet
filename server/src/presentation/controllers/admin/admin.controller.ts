@@ -18,7 +18,6 @@ export class AdminController {
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      
       const query = req.query as unknown as GetAllUsersRequestDto;
       const result = await this._getAllUsersUseCase.execute(query);
       sendSuccessResponse(res, 'Users retrieved successfully', result);
@@ -58,7 +57,6 @@ export class AdminController {
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      
       const query = req.query as unknown as GetAllCompaniesRequestDto;
       const result = await this._getAllCompaniesUseCase.execute(query);
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
