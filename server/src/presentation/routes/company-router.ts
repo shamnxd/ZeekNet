@@ -87,11 +87,8 @@ export class CompanyRouter {
     this.router.delete('/workplace-pictures/:id', companyWorkplacePictureController.deleteCompanyWorkplacePicture);
     this.router.post('/workplace-pictures/upload', uploadSingle('image'), companyUploadController.uploadWorkplacePicture);
 
-    // Subscription routes
     this.router.get('/subscriptions/active', companySubscriptionController.getActiveSubscription);
     this.router.get('/subscriptions/payment-history', companySubscriptionController.getPaymentHistory);
-    
-    // Stripe subscription routes
     this.router.post('/subscriptions/create-checkout-session', companySubscriptionController.createCheckoutSession);
     this.router.post('/subscriptions/cancel', companySubscriptionController.cancelSubscription);
     this.router.post('/subscriptions/resume', companySubscriptionController.resumeSubscription);
