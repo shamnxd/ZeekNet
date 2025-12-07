@@ -32,6 +32,14 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
       throw new NotFoundError('Failed to update profile');
     }
 
-    return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service);
+    const [avatarUrl, bannerUrl, resumeUrl] = await Promise.all([
+      updatedProfile.avatarFileName ? this._s3Service.getSignedUrl(updatedProfile.avatarFileName) : Promise.resolve(null),
+      updatedProfile.bannerFileName ? this._s3Service.getSignedUrl(updatedProfile.bannerFileName) : Promise.resolve(null),
+      updatedProfile.resume?.url ? (updatedProfile.resume.url.includes('/') && !updatedProfile.resume.url.startsWith('http') 
+        ? this._s3Service.getSignedUrl(updatedProfile.resume.url) 
+        : Promise.resolve(updatedProfile.resume.url)) : Promise.resolve(null),
+    ]);
+
+    return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
   }
 }

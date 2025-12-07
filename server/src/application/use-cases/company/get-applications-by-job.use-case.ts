@@ -58,10 +58,13 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
         this._userRepository.findById(app.seekerId),
         this._seekerProfileRepository.findOne({ userId: app.seekerId }),
       ]);
+      const avatarUrl = profile?.avatarFileName 
+        ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
+        : undefined;
       applications.push(
         JobApplicationMapper.toListResponse(app, {
           seekerName: user?.name,
-          seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+          seekerAvatar: avatarUrl,
           jobTitle: job?.title,
         }),
       );

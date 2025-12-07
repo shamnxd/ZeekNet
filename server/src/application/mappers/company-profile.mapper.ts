@@ -17,12 +17,13 @@ export class CompanyProfileMapper {
   static toResponse(
     profile: CompanyProfile,
     verification?: CompanyVerification | null,
+    signedUrls?: { logo?: string | null; banner?: string | null; businessLicense?: string | null },
   ): CompanyProfileResponseDto {
     return {
       id: profile.id,
       company_name: profile.companyName,
-      logo: profile.logo,
-      banner: profile.banner,
+      logo: signedUrls?.logo !== undefined ? signedUrls.logo : profile.logo,
+      banner: signedUrls?.banner !== undefined ? signedUrls.banner : profile.banner,
       website_link: profile.websiteLink,
       employee_count: profile.employeeCount,
       industry: profile.industry,
@@ -32,7 +33,7 @@ export class CompanyProfileMapper {
       is_blocked: profile.isBlocked,
       rejection_reason: profile.rejectionReason,
       tax_id: verification?.taxId,
-      business_license: verification?.businessLicenseUrl,
+      business_license: signedUrls?.businessLicense !== undefined ? signedUrls.businessLicense : verification?.businessLicenseUrl,
       created_at: profile.createdAt,
       updated_at: profile.updatedAt,
     };
@@ -47,14 +48,15 @@ export class CompanyProfileMapper {
     workplacePictures: CompanyWorkplacePictures[];
     jobPostings?: JobPosting[];
     verification: CompanyVerification | null;
+    signedUrls?: { logo?: string | null; banner?: string | null; businessLicense?: string | null; workplacePictures?: Array<{ id: string; pictureUrl: string }> };
   }): CompanyProfileWithDetailsResponseDto {
     return {
-      profile: this.toResponse(data.profile, data.verification),
+      profile: this.toResponse(data.profile, data.verification, data.signedUrls),
       contact: data.contact ? CompanyContactMapper.toResponse(data.contact) : null,
       locations: CompanyOfficeLocationMapper.toResponseList(data.locations),
       techStack: CompanyTechStackMapper.toResponseList(data.techStack),
       benefits: CompanyBenefitMapper.toResponseList(data.benefits),
-      workplacePictures: CompanyWorkplacePictureMapper.toResponseList(data.workplacePictures),
+      workplacePictures: data.signedUrls?.workplacePictures || CompanyWorkplacePictureMapper.toResponseList(data.workplacePictures),
       jobPostings: data.jobPostings
         ? data.jobPostings.map((job) => ({
           id: job.id,

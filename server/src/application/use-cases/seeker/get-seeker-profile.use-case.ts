@@ -51,7 +51,15 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
       this._seekerEducationRepository.findBySeekerProfileId(profile.id),
     ]);
 
-    const profileDto = SeekerProfileMapper.toResponse(profile, this._s3Service);
+    const [avatarUrl, bannerUrl, resumeUrl] = await Promise.all([
+      profile.avatarFileName ? this._s3Service.getSignedUrl(profile.avatarFileName) : Promise.resolve(null),
+      profile.bannerFileName ? this._s3Service.getSignedUrl(profile.bannerFileName) : Promise.resolve(null),
+      profile.resume?.url ? (profile.resume.url.includes('/') && !profile.resume.url.startsWith('http') 
+        ? this._s3Service.getSignedUrl(profile.resume.url) 
+        : Promise.resolve(profile.resume.url)) : Promise.resolve(null),
+    ]);
+
+    const profileDto = SeekerProfileMapper.toResponse(profile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
     
     return {
       ...profileDto,

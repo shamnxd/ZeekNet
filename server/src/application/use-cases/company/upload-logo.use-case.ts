@@ -8,10 +8,10 @@ export class UploadLogoUseCase implements IUploadLogoUseCase {
   async execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadLogoResult> {
     this.validateFileType(mimetype, originalname);
     
-    const imageUrl = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
 
     return {
-      url: imageUrl,
+      url: key,
       filename: originalname,
     };
   }

@@ -20,23 +20,21 @@ export class S3Service implements IS3Service {
   }
 
   async uploadImage(file: Buffer, fileName: string, contentType: string): Promise<string> {
-    const key = `company-images/${Date.now()}-${fileName}`;
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `company-images/${Date.now()}-${sanitizedFileName}`;
 
     const command = new PutObjectCommand({
       Bucket: this._bucketName,
       Key: key,
       Body: file,
       ContentType: contentType,
-      ACL: 'public-read',
     });
 
     await this._s3Client.send(command);
-    const region = env.AWS_REGION!;
-    return `https://s3.${region}.amazonaws.com/${this._bucketName}/${key}`;
+    return key;
   }
 
   async uploadImageToFolder(file: Buffer, fileName: string, contentType: string, folder: string): Promise<string> {
-    
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const key = `${folder}/${Date.now()}-${sanitizedFileName}`;
 
@@ -45,17 +43,10 @@ export class S3Service implements IS3Service {
       Key: key,
       Body: file,
       ContentType: contentType,
-      ACL: 'public-read',
     });
 
     await this._s3Client.send(command);
-    
     return key;
-  }
-
-  getImageUrl(key: string): string {
-    const region = env.AWS_REGION!;
-    return `https://s3.${region}.amazonaws.com/${this._bucketName}/${key}`;
   }
 
   async deleteImage(imageUrl: string): Promise<void> {
@@ -118,11 +109,9 @@ export class S3Service implements IS3Service {
       Key: key,
       Body: file,
       ContentType: contentType,
-      ACL: 'public-read',
     });
 
     await this._s3Client.send(command);
-    const region = env.AWS_REGION!;
-    return `https://s3.${region}.amazonaws.com/${this._bucketName}/${key}`;
+    return key;
   }
 }

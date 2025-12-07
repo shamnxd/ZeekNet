@@ -9,10 +9,10 @@ export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUse
     this.validateFileType(mimetype, originalname);
     this.validateFileSize(buffer.length);
     
-    const imageUrl = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
 
     return {
-      url: imageUrl,
+      url: key,
       filename: originalname,
     };
   }

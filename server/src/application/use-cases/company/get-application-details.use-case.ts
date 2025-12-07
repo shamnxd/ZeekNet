@@ -71,11 +71,18 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       }));
     }
 
+    const [avatarUrl, resumeUrl] = await Promise.all([
+      profile?.avatarFileName ? this._s3Service.getSignedUrl(profile.avatarFileName) : Promise.resolve(undefined),
+      application.resumeUrl && !application.resumeUrl.startsWith('http') 
+        ? this._s3Service.getSignedUrl(application.resumeUrl) 
+        : Promise.resolve(application.resumeUrl),
+    ]);
+
     return JobApplicationMapper.toDetailResponse(
       application,
       {
         name: user?.name,
-        avatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+        avatar: avatarUrl,
         headline: profile?.headline || undefined,
         email: profile?.email || undefined,
         phone: profile?.phone || undefined,
@@ -95,6 +102,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
         location: job?.location,
         employmentTypes: job?.employmentTypes,
       },
+      resumeUrl,
     );
   }
 }
