@@ -112,7 +112,7 @@ logger.info('Stripe service initialized');
 
 const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
-const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository);
+const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
 const getCompanyProfileUseCase = new GetCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyTechStackRepository, companyOfficeLocationRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, companyVerificationRepository);
 const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository);
@@ -157,7 +157,7 @@ const getCompanyJobPostingsUseCase = new GetCompanyJobPostingsUseCase(jobPosting
 
 const createCompanyProfileFromDtoUseCase = new CreateCompanyProfileFromDtoUseCase(createCompanyProfileUseCase);
 
-const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase);
+const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase, s3Service);
 
 const getCompanyDashboardUseCase = new GetCompanyDashboardUseCase(getCompanyProfileUseCase);
 
