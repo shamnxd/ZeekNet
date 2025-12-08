@@ -7,6 +7,11 @@ import { CompanyBenefits } from '../../entities/company-benefits.entity';
 import { CompanyWorkplacePictures } from '../../entities/company-workplace-pictures.entity';
 import { JobPosting, PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
 import { CompanyProfileResponseDto } from '../../../application/dto/company/company-response.dto';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
+import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
+import { JobPostingQueryRequestDto } from 'src/application/dto/job-posting/job-posting.dto';
+import { CompanyJobPostingListItemDto } from 'src/application/dto/job-posting/job-posting-response.dto';
+import { SimpleUpdateCompanyProfileRequestDto } from 'src/application/dto/company/company-profile.dto';
 
 export interface CreateCompanyProfileData {
   companyName: string;
@@ -98,23 +103,6 @@ export interface UpdateJobPostingData {
 
 export interface ICreateCompanyProfileUseCase {
   execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile>;
-}
-
-export interface IUpdateCompanyProfileUseCase {
-  execute(userId: string, updates: { 
-    profile?: {
-      companyName?: string;
-      logo?: string;
-      banner?: string;
-      websiteLink?: string;
-      employeeCount?: number;
-      industry?: string;
-      organisation?: string;
-      aboutUs?: string;
-      foundedDate?: Date;
-      phone?: string;
-    }
-  }): Promise<CompanyProfileResponseDto>;
 }
 
 export interface IGetCompanyProfileUseCase {
@@ -217,20 +205,8 @@ export interface IGetJobPostingUseCase {
   execute(jobId: string): Promise<JobPosting>;
 }
 
-export interface IGetCompanyJobPostingsUseCase {
-  execute(companyId: string, options: JobPostingFilters): Promise<{ jobs: Array<{ id: string; title: string; status: 'active' | 'unlisted' | 'expired' | 'blocked'; employmentTypes: string[]; applicationCount: number; viewCount: number; unpublishReason?: string; createdAt: Date; }>; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>;
-}
-
 export interface IUpdateJobPostingUseCase {
   execute(jobId: string, updates: UpdateJobPostingData): Promise<JobPosting>;
-}
-
-export interface IDeleteJobPostingUseCase {
-  execute(jobId: string, companyId: string): Promise<void>;
-}
-
-export interface IIncrementJobViewCountUseCase {
-  execute(jobId: string, userRole: string): Promise<void>;
 }
 
 export interface IUpdateJobStatusUseCase {
@@ -306,4 +282,79 @@ export interface ICreateCompanyProfileFromDtoUseCase {
     email?: string;
     location?: string;
   }): Promise<CompanyProfile>;
+}
+
+export interface IGetActiveSubscriptionUseCase {
+  execute(userId: string): Promise<(CompanySubscription & { activeJobCount?: number }) | null>;
+}
+
+export interface IResumeSubscriptionUseCase {
+  execute(userId: string): Promise<CompanySubscription>;
+}
+
+export interface ICancelSubscriptionUseCase {
+  execute(userId: string): Promise<CompanySubscription>;
+}
+
+export interface IRevertToDefaultPlanUseCase {
+  execute(companyId: string): Promise<CompanySubscription>;
+}
+
+export interface IHandleStripeWebhookUseCase {
+  execute(payload: string | Buffer, signature: string): Promise<{ received: boolean }>;
+}
+
+export interface IGetPaymentHistoryUseCase {
+  execute(userId: string): Promise<PaymentOrder[]>;
+}
+
+export interface IGetBillingPortalUseCase {
+  execute(userId: string, returnUrl: string): Promise<{ url: string }>;
+}
+
+export interface ICreateCheckoutSessionUseCase {
+  execute(
+    userId: string,
+    planId: string,
+    billingCycle: 'monthly' | 'yearly',
+    successUrl: string,
+    cancelUrl: string,
+  ): Promise<{ sessionId: string; sessionUrl: string }>;
+}
+
+export interface ChangeSubscriptionResult {
+  subscription: CompanySubscription;
+  prorationAmount?: number;
+}
+
+export interface IChangeSubscriptionPlanUseCase {
+  execute(
+    userId: string,
+    newPlanId: string,
+    billingCycle?: 'monthly' | 'yearly',
+  ): Promise<ChangeSubscriptionResult>;
+}
+
+export interface IGetCompanyJobPostingsUseCase {
+  execute(userId: string, query: JobPostingQueryRequestDto): Promise<{
+    jobs: CompanyJobPostingListItemDto[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }>;
+}
+
+export interface IUpdateCompanyProfileUseCase {
+  execute(userId: string, data: { profile: SimpleUpdateCompanyProfileRequestDto }): Promise<CompanyProfileResponseDto>;
+}
+
+export interface IDeleteJobPostingUseCase {
+  execute(id: string, userId: string): Promise<void>;
+}
+
+export interface IIncrementJobViewCountUseCase {
+  execute(id: string, userRole?: string): Promise<void>;
 }

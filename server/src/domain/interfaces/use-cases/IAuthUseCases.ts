@@ -54,7 +54,3 @@ export interface IUpdateUserVerificationStatusUseCase {
 export interface IUpdateUserRefreshTokenUseCase {
   execute(userId: string, hashedRefreshToken: string): Promise<void>;
 }
-
-export interface IRefreshTokenUseCase {
-  execute(refreshToken: string): Promise<LoginResult>;
-}
