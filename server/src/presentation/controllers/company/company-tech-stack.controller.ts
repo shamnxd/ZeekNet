@@ -12,8 +12,8 @@ import {
   IUpdateCompanyTechStackUseCase,
   IDeleteCompanyTechStackUseCase,
   IGetCompanyTechStackUseCase,
-  CompanyTechStackData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CompanyTechStackData } from 'src/domain/interfaces/use-cases/company/CompanyTechStackData';
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dto/company/company-tech-stack.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 

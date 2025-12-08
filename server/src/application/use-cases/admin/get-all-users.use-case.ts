@@ -1,5 +1,7 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { UserQueryOptions, PaginatedUsers, IGetAllUsersUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUseCases';
+import { UserQueryOptions } from 'src/domain/interfaces/use-cases/seeker/UserQueryOptions';
+import { PaginatedUsers } from 'src/domain/interfaces/use-cases/seeker/PaginatedUsers';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { User } from '../../../domain/entities/user.entity';
 

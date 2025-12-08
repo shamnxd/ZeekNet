@@ -1,6 +1,7 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { AppError } from '../../../domain/errors/errors';
-import { IAdminGetJobStatsUseCase, AdminJobStats } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetJobStatsUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { AdminJobStats } from 'src/domain/interfaces/use-cases/admin/AdminJobStats';
 
 export class AdminGetJobStatsUseCase implements IAdminGetJobStatsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}

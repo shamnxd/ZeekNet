@@ -1,5 +1,5 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
-import { IDeleteSkillUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IDeleteSkillUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
 import { AppError } from '../../../domain/errors/errors';
 
 export class DeleteSkillUseCase implements IDeleteSkillUseCase {

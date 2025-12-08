@@ -1,7 +1,7 @@
-import { RegisterResult, LoginResult } from '../../../application/dto/auth/auth-response.dto';
-import { UserResponseDto } from '../../../application/dto/auth/user-response.dto';
-import { User } from '../../entities/user.entity';
-import { CompanyProfile } from '../../entities/company-profile.entity';
+import { RegisterResult, LoginResult } from '../../../../application/dto/auth/auth-response.dto';
+import { UserResponseDto } from '../../../../application/dto/auth/user-response.dto';
+import { User } from '../../../entities/user.entity';
+import { CompanyProfile } from '../../../entities/company-profile.entity';
 
 export interface IRegisterUserUseCase {
   execute(email: string, password: string, role?: unknown, name?: string): Promise<RegisterResult>;

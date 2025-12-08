@@ -1,39 +1,13 @@
-import type { ApplicationStage, InterviewSchedule, JobApplication, InterviewStatus } from '../../entities/job-application.entity';
+import type { ApplicationStage, InterviewSchedule, JobApplication } from '../../entities/job-application.entity';
 import type { 
   JobApplicationListResponseDto, 
   JobApplicationDetailResponseDto, 
   PaginatedApplicationsResponseDto, 
 } from '../../../application/dto/application/job-application-response.dto';
-
-export interface CreateJobApplicationData {
-  job_id: string;
-  cover_letter: string;
-  resume_url: string;
-  resume_filename: string;
-}
-
-export interface AddInterviewData {
-  date: Date;
-  time: string;
-  interview_type: string;
-  location: string;
-  interviewer_name?: string;
-}
-
-export interface UpdateInterviewData {
-  date?: Date;
-  time?: string;
-  interview_type?: string;
-  location?: string;
-  interviewer_name?: string;
-  status?: InterviewStatus;
-}
-
-export interface AddInterviewFeedbackData {
-  reviewer_name: string;
-  rating?: number;
-  comment: string;
-}
+import { CreateJobApplicationData } from './applications/CreateJobApplicationData';
+import { AddInterviewData } from './interview/AddInterviewData';
+import { UpdateInterviewData } from './interview/UpdateInterviewData';
+import { AddInterviewFeedbackData } from './interview/AddInterviewFeedbackData';
 
 export interface ICreateJobApplicationUseCase {
   execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }>;

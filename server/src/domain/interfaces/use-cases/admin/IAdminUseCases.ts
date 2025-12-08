@@ -1,90 +1,20 @@
-import { User } from '../../entities/user.entity';
-import { CompanyProfile } from '../../entities/company-profile.entity';
-import { JobPosting, PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
-import { Skill } from '../../entities/skill.entity';
-import { JobRole } from '../../entities/job-role.entity';
-import { JobPostingResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
+import { JobPosting, JobPostingFilters } from 'src/domain/entities/job-posting.entity';
+import { CompanyQueryOptions } from '../company/CompanyQueryOptions';
+import { PaginatedCompanies } from '../company/PaginatedCompanies';
+import { PaginatedCompaniesWithVerification } from '../company/PaginatedCompaniesWithVerification';
+import { AdminJobStats } from './AdminJobStats';
+import { Skill } from 'src/domain/entities/skill.entity';
+import { PaginatedSkills } from '../skills/PaginatedSkills';
+import { JobRole } from 'src/domain/entities/job-role.entity';
+import { PaginatedJobRoles } from '../job-roles/PaginatedJobRoles';
+import { CompanyWithVerification } from '../company/CompanyWithVerification';
+import { MigratePlanSubscribersResult } from '../subscriptions/MigratePlanSubscribersResult';
+import { GetAllPaymentOrdersQuery } from '../payments/GetAllPaymentOrdersQuery';
+import { PaymentOrderWithDetails } from '../payments/PaymentOrderWithDetails';
+import { UserQueryOptions } from '../seeker/UserQueryOptions';
+import { PaginatedUsers } from '../seeker/PaginatedUsers';
+import { User } from 'src/domain/entities/user.entity';
 
-export interface PaginatedSkills {
-  skills: Skill[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface PaginatedJobRoles {
-  jobRoles: JobRole[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface PaginatedUsers {
-  users: User[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface CompanyWithVerification {
-  id: string;
-  userId: string;
-  companyName: string;
-  logo: string;
-  websiteLink: string;
-  employeeCount: number;
-  industry: string;
-  organisation: string;
-  aboutUs: string;
-  isVerified: 'pending' | 'rejected' | 'verified';
-  isBlocked: boolean;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  verification?: {
-    taxId: string;
-    businessLicenseUrl: string;
-  };
-}
-
-export interface PaginatedCompanies {
-  companies: CompanyProfile[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface PaginatedCompaniesWithVerification {
-  companies: CompanyWithVerification[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface UserQueryOptions {
-  page?: number;
-  limit?: number;
-  search?: string;
-  role?: string;
-  isBlocked?: boolean;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface CompanyQueryOptions {
-  page?: number;
-  limit?: number;
-  search?: string;
-  isVerified?: 'pending' | 'rejected' | 'verified';
-  isBlocked?: boolean;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
 
 export interface IGetAllUsersUseCase {
   execute(options: UserQueryOptions): Promise<PaginatedUsers>;
@@ -146,14 +76,6 @@ export interface IAdminDeleteJobUseCase {
   execute(jobId: string): Promise<boolean>;
 }
 
-export interface AdminJobStats {
-  total: number;
-  active: number;
-  inactive: number;
-  totalApplications: number;
-  totalViews: number;
-}
-
 export interface IAdminGetJobStatsUseCase {
   execute(): Promise<AdminJobStats>;
 }
@@ -210,48 +132,12 @@ export interface IGetCompanyByIdUseCase {
   execute(companyId: string): Promise<CompanyWithVerification>;
 }
 
-export interface MigratePlanSubscribersResult {
-  planId: string;
-  planName: string;
-  billingCycle: 'monthly' | 'yearly' | 'both';
-  fromPriceId: string;
-  toPriceId: string;
-  migratedCount: number;
-  failedCount: number;
-  errors: string[];
-}
-
 export interface IMigratePlanSubscribersUseCase {
   execute(
     planId: string,
     billingCycle?: 'monthly' | 'yearly' | 'both',
     prorationBehavior?: 'none' | 'create_prorations' | 'always_invoice',
   ): Promise<MigratePlanSubscribersResult>;
-}
-
-export interface PaymentOrderWithDetails {
-  id: string;
-  orderNo: string;
-  companyId: string;
-  companyName: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
-  invoiceId?: string;
-  transactionId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface GetAllPaymentOrdersQuery {
-  page?: number;
-  limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  search?: string;
-  sortOrder?: 'asc' | 'desc';
 }
 
 export interface IGetAllPaymentOrdersUseCase {

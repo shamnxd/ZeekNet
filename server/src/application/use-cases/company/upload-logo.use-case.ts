@@ -1,6 +1,7 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUploadLogoUseCase, UploadLogoResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUploadLogoUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { UploadLogoResult } from 'src/domain/interfaces/use-cases/public/UploadLogoResult';
 
 export class UploadLogoUseCase implements IUploadLogoUseCase {
   constructor(private readonly _s3Service: IS3Service) {}

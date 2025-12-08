@@ -1,7 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IAdminGetAllJobsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
-import { JobPostingMapper } from '../../mappers/job-posting.mapper';
-import { JobPostingResponseDto } from '../../dto/job-posting/job-posting-response.dto';
+import { IAdminGetAllJobsUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
 
 interface GetAllJobsQuery {
   page?: number;

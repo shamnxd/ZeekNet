@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ForgotPasswordDto } from '../../../application/dto/auth/forgot-password.dto';
 import { ResetPasswordDto } from '../../../application/dto/auth/reset-password.dto';
 import { LogoutDto } from '../../../application/dto/auth/logout.dto';
-import { IForgotPasswordUseCase, IResetPasswordUseCase, ILogoutUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IForgotPasswordUseCase, IResetPasswordUseCase, ILogoutUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';

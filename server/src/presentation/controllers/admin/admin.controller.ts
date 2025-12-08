@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BlockUserDto, CompanyVerificationDto } from '../../../application/dto/admin/user-management.dto';
 import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
-import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminController {

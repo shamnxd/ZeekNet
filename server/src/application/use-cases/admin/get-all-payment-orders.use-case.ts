@@ -2,7 +2,7 @@ import { IPaymentOrderRepository } from '../../../domain/interfaces/repositories
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/IAdminUseCases';
+import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUseCases';
 
 interface PaymentOrderWithDetails {
   id: string;

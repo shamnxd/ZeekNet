@@ -1,6 +1,7 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUploadWorkplacePictureUseCase, UploadWorkplacePictureResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUploadWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { UploadWorkplacePictureResult } from 'src/domain/interfaces/use-cases/company/UploadWorkplacePictureResult';
 
 export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
   constructor(private readonly _s3Service: IS3Service) {}

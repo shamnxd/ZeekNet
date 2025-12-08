@@ -1,5 +1,6 @@
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { PaginatedJobCategories, IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
+import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
+import { PaginatedJobCategories } from 'src/domain/interfaces/use-cases/job-categorys/PaginatedJobCategories';
 
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}

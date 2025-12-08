@@ -12,8 +12,8 @@ import {
   IUpdateCompanyOfficeLocationUseCase,
   IDeleteCompanyOfficeLocationUseCase,
   IGetCompanyOfficeLocationUseCase,
-  CompanyOfficeLocationData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CompanyOfficeLocationData } from 'src/domain/interfaces/use-cases/company/CompanyOfficeLocationData';
 import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dto/company/company-office-location.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 

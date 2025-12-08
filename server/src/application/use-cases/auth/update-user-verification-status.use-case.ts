@@ -1,5 +1,5 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IUpdateUserVerificationStatusUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IUpdateUserVerificationStatusUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
 import { AppError } from '../../../domain/errors/errors';
 
 export class UpdateUserVerificationStatusUseCase implements IUpdateUserVerificationStatusUseCase {

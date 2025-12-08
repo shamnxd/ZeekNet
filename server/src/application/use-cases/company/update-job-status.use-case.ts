@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { AppError, ValidationError } from '../../../domain/errors/errors';

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { LoginDto } from '../../../application/dto/auth/login.dto';
 import { GoogleLoginDto } from '../../../application/dto/auth/google-login.dto';
-import { ILoginUserUseCase, IAdminLoginUseCase, IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { ILoginUserUseCase, IAdminLoginUseCase, IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 

@@ -1,6 +1,7 @@
 import { ICompanyContactRepository } from '../../../domain/interfaces/repositories/company/ICompanyContactRepository';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
-import { ICompanyContactUseCase, CompanyContactData } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICompanyContactUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CompanyContactData } from 'src/domain/interfaces/use-cases/company/CompanyContactData';
 
 export class CompanyContactUseCase implements ICompanyContactUseCase {
   constructor(private readonly _companyContactRepository: ICompanyContactRepository) {}

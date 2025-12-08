@@ -4,7 +4,7 @@ import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
-import { IGetUserByEmailUseCase, IUpdateUserVerificationStatusUseCase, IUpdateUserRefreshTokenUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IGetUserByEmailUseCase, IUpdateUserVerificationStatusUseCase, IUpdateUserRefreshTokenUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
 import { z } from 'zod';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
 import { welcomeTemplate } from '../../../infrastructure/messaging/templates/welcome.template';

@@ -4,7 +4,7 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IRegisterUserUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IRegisterUserUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
 import { ValidationError } from '../../../domain/errors/errors';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
 import { UserMapper } from '../../mappers/user.mapper';

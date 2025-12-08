@@ -1,12 +1,5 @@
 import { JobCategory } from '../../entities/job-category.entity';
-
-export interface PaginatedJobCategories {
-  categories: JobCategory[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { PaginatedJobCategories } from './job-categorys/PaginatedJobCategories';
 
 export interface ICreateJobCategoryUseCase {
   execute(name: string): Promise<JobCategory>;

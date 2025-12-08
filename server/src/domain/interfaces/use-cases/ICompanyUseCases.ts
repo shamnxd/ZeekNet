@@ -5,101 +5,26 @@ import { CompanyTechStack } from '../../entities/company-tech-stack.entity';
 import { CompanyOfficeLocation } from '../../entities/company-office-location.entity';
 import { CompanyBenefits } from '../../entities/company-benefits.entity';
 import { CompanyWorkplacePictures } from '../../entities/company-workplace-pictures.entity';
-import { JobPosting, PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
+import { JobPosting } from '../../entities/job-posting.entity';
 import { CompanyProfileResponseDto } from '../../../application/dto/company/company-response.dto';
 import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
 import { JobPostingQueryRequestDto } from 'src/application/dto/job-posting/job-posting.dto';
 import { CompanyJobPostingListItemDto } from 'src/application/dto/job-posting/job-posting-response.dto';
 import { SimpleUpdateCompanyProfileRequestDto } from 'src/application/dto/company/company-profile.dto';
-
-export interface CreateCompanyProfileData {
-  companyName: string;
-  logo: string;
-  banner: string;
-  websiteLink: string;
-  employeeCount: number;
-  industry: string;
-  organisation: string;
-  aboutUs: string;
-  foundedDate?: Date;
-  phone?: string;
-  taxId?: string;
-  businessLicenseUrl?: string;
-  email?: string;
-  location?: string;
-}
-
-export interface CompanyVerificationData {
-  taxId?: string;
-  businessLicenseUrl?: string;
-}
-
-export interface CompanyContactData {
-  twitterLink?: string;
-  facebookLink?: string;
-  linkedin?: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface CompanyTechStackData {
-  techStack: string;
-}
-
-export interface CompanyOfficeLocationData {
-  location: string;
-  officeName?: string;
-  address?: string;
-  isHeadquarters?: boolean;
-}
-
-export interface CompanyBenefitsData {
-  perk: string;
-  description?: string;
-}
-
-export interface CompanyWorkplacePicturesData {
-  pictureUrl: string;
-  caption?: string;
-}
-
-export interface CreateJobPostingData {
-  title: string;
-  description: string;
-  responsibilities: string[];
-  qualifications: string[];
-  nice_to_haves: string[];
-  benefits: string[];
-  salary: {
-    min: number;
-    max: number;
-  };
-  employment_types: string[];
-  location: string;
-  skills_required: string[];
-  category_ids: string[];
-  is_featured?: boolean;
-}
-
-export interface UpdateJobPostingData {
-  title?: string;
-  description?: string;
-  responsibilities?: string[];
-  qualifications?: string[];
-  nice_to_haves?: string[];
-  benefits?: string[];
-  salary?: {
-    min: number;
-    max: number;
-  };
-  employment_types?: string[];
-  location?: string;
-  skills_required?: string[];
-  category_ids?: string[];
-  is_active?: boolean;
-  is_featured?: boolean;
-}
+import { CreateCompanyProfileData } from './company/CreateCompanyProfileData';
+import { CompanyVerificationData } from './company/CompanyVerificationData';
+import { CompanyContactData } from './company/CompanyContactData';
+import { CompanyTechStackData } from './company/CompanyTechStackData';
+import { CompanyOfficeLocationData } from './company/CompanyOfficeLocationData';
+import { CompanyBenefitsData } from './company/CompanyBenefitsData';
+import { CompanyWorkplacePicturesData } from './company/CompanyWorkplacePicturesData';
+import { CreateJobPostingData } from './jobs/CreateJobPostingData';
+import { UpdateJobPostingData } from './jobs/UpdateJobPostingData';
+import { ChangeSubscriptionResult } from './subscriptions/ChangeSubscriptionResult';
+import { UploadWorkplacePictureResult } from './company/UploadWorkplacePictureResult';
+import { UploadBusinessLicenseResult } from './company/UploadBusinessLicenseResult';
+import { UploadLogoResult } from './public/UploadLogoResult';
 
 export interface ICreateCompanyProfileUseCase {
   execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile>;
@@ -213,11 +138,6 @@ export interface IUpdateJobStatusUseCase {
   execute(jobId: string, status: string, userId?: string): Promise<JobPosting>;
 }
 
-export interface UploadLogoResult {
-  url: string;
-  filename: string;
-}
-
 export interface IUploadLogoUseCase {
   execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadLogoResult>;
 }
@@ -234,18 +154,8 @@ export interface IGetCompanyProfileByUserIdUseCase {
   execute(userId: string): Promise<CompanyProfile | null>;
 }
 
-export interface UploadBusinessLicenseResult {
-  url: string;
-  filename: string;
-}
-
 export interface IUploadBusinessLicenseUseCase {
   execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult>;
-}
-
-export interface UploadWorkplacePictureResult {
-  url: string;
-  filename: string;
 }
 
 export interface IUploadWorkplacePictureUseCase {
@@ -320,11 +230,6 @@ export interface ICreateCheckoutSessionUseCase {
     successUrl: string,
     cancelUrl: string,
   ): Promise<{ sessionId: string; sessionUrl: string }>;
-}
-
-export interface ChangeSubscriptionResult {
-  subscription: CompanySubscription;
-  prorationAmount?: number;
 }
 
 export interface IChangeSubscriptionPlanUseCase {

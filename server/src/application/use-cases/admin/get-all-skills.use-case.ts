@@ -1,5 +1,6 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
-import { PaginatedSkills, IGetAllSkillsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IGetAllSkillsUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { PaginatedSkills } from 'src/domain/interfaces/use-cases/skills/PaginatedSkills';
 
 export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) {}

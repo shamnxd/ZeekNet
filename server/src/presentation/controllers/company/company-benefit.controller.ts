@@ -12,8 +12,8 @@ import {
   IUpdateCompanyBenefitUseCase,
   IDeleteCompanyBenefitUseCase,
   IGetCompanyBenefitUseCase,
-  CompanyBenefitsData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CompanyBenefitsData } from 'src/domain/interfaces/use-cases/company/CompanyBenefitsData';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dto/company/company-benefits.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 

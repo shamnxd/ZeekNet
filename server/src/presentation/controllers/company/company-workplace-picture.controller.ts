@@ -12,8 +12,8 @@ import {
   IUpdateCompanyWorkplacePictureUseCase,
   IDeleteCompanyWorkplacePictureUseCase,
   IGetCompanyWorkplacePictureUseCase,
-  CompanyWorkplacePicturesData,
 } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CompanyWorkplacePicturesData } from 'src/domain/interfaces/use-cases/company/CompanyWorkplacePicturesData';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dto/company/company-workplace-pictures.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 

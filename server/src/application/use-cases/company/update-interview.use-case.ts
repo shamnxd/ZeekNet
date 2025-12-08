@@ -2,7 +2,8 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateInterviewUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { UpdateInterviewData } from 'src/domain/interfaces/use-cases/interview/UpdateInterviewData';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';

@@ -1,6 +1,7 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUploadBusinessLicenseUseCase, UploadBusinessLicenseResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUploadBusinessLicenseUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { UploadBusinessLicenseResult } from 'src/domain/interfaces/use-cases/company/UploadBusinessLicenseResult';
 
 export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCase {
   constructor(private readonly _s3Service: IS3Service) {}

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ICreateJobRoleUseCase, IGetAllJobRolesUseCase, IGetJobRoleByIdUseCase, IUpdateJobRoleUseCase, IDeleteJobRoleUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { ICreateJobRoleUseCase, IGetAllJobRolesUseCase, IGetJobRoleByIdUseCase, IUpdateJobRoleUseCase, IDeleteJobRoleUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
 
 export class AdminJobRoleController {
