@@ -5,7 +5,7 @@ import { IUpdateApplicationScoreUseCase } from '../../../domain/interfaces/use-c
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationListResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUseCase {
   constructor(

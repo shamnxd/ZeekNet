@@ -3,7 +3,7 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IGetSeekerApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplicationDetailsUseCase {
   constructor(

@@ -20,12 +20,12 @@ import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { CompanyVerificationMiddleware } from '../middleware/company-verification.middleware';
 import { CreateJobPostingRequestDto, UpdateJobPostingDto, JobPostingQueryDto } from '../../application/dto/job-posting/job-posting.dto';
 import { SimpleCompanyProfileDto } from '../../application/dto/company/create-company.dto';
-import { ApplicationFiltersDto } from '../../application/dto/job-application/application-filters.dto';
-import { UpdateApplicationStageDto } from '../../application/dto/job-application/update-application-stage.dto';
-import { UpdateScoreDto } from '../../application/dto/job-application/update-score.dto';
-import { AddInterviewDto } from '../../application/dto/job-application/add-interview.dto';
-import { UpdateInterviewDto } from '../../application/dto/job-application/update-interview.dto';
-import { AddInterviewFeedbackDto } from '../../application/dto/job-application/add-interview-feedback.dto';
+import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
+import { UpdateApplicationStageDto } from '../../application/dto/application/update-application-stage.dto';
+import { UpdateScoreDto } from '../../application/dto/application/update-score.dto';
+import { AddInterviewDto } from '../../application/dto/application/add-interview.dto';
+import { UpdateInterviewDto } from '../../application/dto/application/update-interview.dto';
+import { AddInterviewFeedbackDto } from '../../application/dto/application/add-interview-feedback.dto';
 
 
 export class CompanyRouter {

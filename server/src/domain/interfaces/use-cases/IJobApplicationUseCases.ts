@@ -3,7 +3,7 @@ import type {
   JobApplicationListResponseDto, 
   JobApplicationDetailResponseDto, 
   PaginatedApplicationsResponseDto, 
-} from '../../../application/dto/job-application/job-application-response.dto';
+} from '../../../application/dto/application/job-application-response.dto';
 
 export interface CreateJobApplicationData {
   job_id: string;

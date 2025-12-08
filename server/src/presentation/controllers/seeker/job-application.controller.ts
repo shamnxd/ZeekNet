@@ -17,8 +17,8 @@ import {
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { UploadService } from '../../../shared/services/upload.service';
-import { CreateJobApplicationDto } from '../../../application/dto/job-application/create-job-application.dto';
-import { ApplicationFiltersDto } from '../../../application/dto/job-application/application-filters.dto';
+import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';
+import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 
 export class SeekerJobApplicationController {
   constructor(

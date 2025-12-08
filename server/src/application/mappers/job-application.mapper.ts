@@ -3,7 +3,7 @@ import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
   InterviewScheduleResponseDto,
-} from '../dto/job-application/job-application-response.dto';
+} from '../dto/application/job-application-response.dto';
 
 export class JobApplicationMapper {
   static toListResponse(

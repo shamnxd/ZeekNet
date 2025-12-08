@@ -8,7 +8,7 @@ import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(

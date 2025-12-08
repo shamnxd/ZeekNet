@@ -5,7 +5,7 @@ import { validateQuery, validateBody } from '../middleware/validation.middleware
 import { uploadSingle } from '../middleware/upload.middleware';
 import { uploadResume } from '../middleware/upload-resume.middleware';
 import { JobPostingQueryDto } from '../../application/dto/job-posting/job-posting.dto';
-import { ApplicationFiltersDto } from '../../application/dto/job-application/application-filters.dto';
+import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
 import { 
   CreateSeekerProfileDto, 
   UpdateSeekerProfileDto, 

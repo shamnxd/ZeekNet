@@ -5,7 +5,7 @@ import { IDeleteInterviewUseCase } from '../../../domain/interfaces/use-cases/IJ
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
   constructor(

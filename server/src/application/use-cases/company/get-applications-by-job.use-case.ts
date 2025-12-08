@@ -8,7 +8,7 @@ import { IGetApplicationsByJobUseCase } from '../../../domain/interfaces/use-cas
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
 import { Types } from 'mongoose';
 
 export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase {
