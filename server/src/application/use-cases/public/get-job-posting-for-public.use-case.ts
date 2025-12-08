@@ -120,7 +120,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       workplacePictures.map(pic => {
         const picKey = pic.pictureUrl && !pic.pictureUrl.startsWith('http') ? pic.pictureUrl : null;
         return picKey ? this._s3Service.getSignedUrl(picKey) : Promise.resolve(pic.pictureUrl);
-      })
+      }),
     );
 
     return {

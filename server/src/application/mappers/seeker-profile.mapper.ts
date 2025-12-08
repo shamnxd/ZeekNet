@@ -18,7 +18,7 @@ export class SeekerProfileMapper {
   static toResponse(
     profile: SeekerProfile, 
     s3Service: IS3Service,
-    signedUrls?: { avatarUrl?: string | null; bannerUrl?: string | null; resumeUrl?: string | null }
+    signedUrls?: { avatarUrl?: string | null; bannerUrl?: string | null; resumeUrl?: string | null },
   ): SeekerProfileResponseDto {
     return {
       id: profile.id,
