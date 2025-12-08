@@ -4,13 +4,14 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { ICreateCheckoutSessionUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
 interface CreateCheckoutSessionResult {
   sessionId: string;
   sessionUrl: string;
 }
 
-export class CreateCheckoutSessionUseCase {
+export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,

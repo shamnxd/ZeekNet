@@ -2,6 +2,7 @@ import { IPaymentOrderRepository } from '../../../domain/interfaces/repositories
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
+import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/IAdminUseCases';
 
 interface PaymentOrderWithDetails {
   id: string;
@@ -28,7 +29,7 @@ interface GetAllPaymentOrdersQuery {
   sortOrder?: 'asc' | 'desc';
 }
 
-export class GetAllPaymentOrdersUseCase {
+export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
     private _paymentOrderRepository: IPaymentOrderRepository,
     private _companyProfileRepository: ICompanyProfileRepository,

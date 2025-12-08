@@ -2,12 +2,13 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
 interface BillingPortalResult {
   url: string;
 }
 
-export class GetBillingPortalUseCase {
+export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _companyProfileRepository: ICompanyProfileRepository,

@@ -209,3 +209,57 @@ export interface IGetPendingCompaniesUseCase {
 export interface IGetCompanyByIdUseCase {
   execute(companyId: string): Promise<CompanyWithVerification>;
 }
+
+export interface MigratePlanSubscribersResult {
+  planId: string;
+  planName: string;
+  billingCycle: 'monthly' | 'yearly' | 'both';
+  fromPriceId: string;
+  toPriceId: string;
+  migratedCount: number;
+  failedCount: number;
+  errors: string[];
+}
+
+export interface IMigratePlanSubscribersUseCase {
+  execute(
+    planId: string,
+    billingCycle?: 'monthly' | 'yearly' | 'both',
+    prorationBehavior?: 'none' | 'create_prorations' | 'always_invoice',
+  ): Promise<MigratePlanSubscribersResult>;
+}
+
+export interface PaymentOrderWithDetails {
+  id: string;
+  orderNo: string;
+  companyId: string;
+  companyName: string;
+  planId: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
+  paymentMethod: 'dummy' | 'stripe' | 'card';
+  invoiceId?: string;
+  transactionId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GetAllPaymentOrdersQuery {
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
+  search?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface IGetAllPaymentOrdersUseCase {
+  execute(query: GetAllPaymentOrdersQuery): Promise<{
+    orders: PaymentOrderWithDetails[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>;
+}

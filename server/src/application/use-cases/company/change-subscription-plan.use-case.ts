@@ -7,13 +7,14 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
+import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
 interface ChangeSubscriptionResult {
   subscription: CompanySubscription;
   prorationAmount?: number;
 }
 
-export class ChangeSubscriptionPlanUseCase {
+export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,

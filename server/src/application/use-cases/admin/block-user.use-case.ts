@@ -1,7 +1,8 @@
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { IBlockUserUseCase } from 'src/domain/interfaces/use-cases/IAdminUseCases';
 
-export class BlockUserUseCase {
+export class BlockUserUseCase implements IBlockUserUseCase {
   constructor(private readonly _userRepository: IUserRepository) {}
 
   async execute(userId: string, isBlocked: boolean): Promise<void> {

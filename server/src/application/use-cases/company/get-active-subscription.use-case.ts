@@ -3,8 +3,9 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { AppError } from '../../../domain/errors/errors';
+import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
-export class GetActiveSubscriptionUseCase {
+export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCase {
   constructor(
     private _companySubscriptionRepository: ICompanySubscriptionRepository,
     private _companyProfileRepository: ICompanyProfileRepository,

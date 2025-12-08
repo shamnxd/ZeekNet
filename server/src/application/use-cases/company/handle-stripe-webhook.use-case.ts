@@ -11,8 +11,9 @@ import { SubscriptionStatus } from '../../../domain/entities/company-subscriptio
 import { NotificationType, Notification } from '../../../domain/entities/notification.entity';
 import { logger } from '../../../infrastructure/config/logger';
 import { RevertToDefaultPlanUseCase } from './revert-to-default-plan.use-case';
+import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
-export class HandleStripeWebhookUseCase {
+export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
   private readonly _revertToDefaultPlanUseCase: RevertToDefaultPlanUseCase;
 
   constructor(

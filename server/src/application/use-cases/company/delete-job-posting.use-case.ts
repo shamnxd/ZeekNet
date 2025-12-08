@@ -1,8 +1,9 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { AppError } from '../../../domain/errors/errors';
+import { IDeleteJobPostingUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
-export class DeleteJobPostingUseCase {
+export class DeleteJobPostingUseCase implements IDeleteJobPostingUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,

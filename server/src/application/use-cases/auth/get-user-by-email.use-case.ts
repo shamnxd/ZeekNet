@@ -2,8 +2,9 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { AppError } from '../../../domain/errors/errors';
 import { UserMapper } from '../../mappers/user.mapper';
 import { UserResponseDto } from '../../dto/auth/user-response.dto';
+import { IGetUserByEmailUseCase } from 'src/domain/interfaces/use-cases/IAuthUseCases';
 
-export class GetUserByEmailUseCase {
+export class GetUserByEmailUseCase implements IGetUserByEmailUseCase {
   constructor(private readonly _userRepository: IUserRepository) {}
 
   async execute(email: string): Promise<UserResponseDto | null> {

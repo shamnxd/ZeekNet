@@ -7,6 +7,7 @@ import { NotFoundError, AppError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
+import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/IAdminUseCases';
 
 type BillingCycle = 'monthly' | 'yearly' | 'both';
 type ProrationBehavior = 'none' | 'create_prorations' | 'always_invoice';
@@ -22,7 +23,7 @@ interface MigratePlanSubscribersResult {
   errors: string[];
 }
 
-export class MigratePlanSubscribersUseCase {
+export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUseCase {
   constructor(
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     private readonly _stripeService: IStripeService,

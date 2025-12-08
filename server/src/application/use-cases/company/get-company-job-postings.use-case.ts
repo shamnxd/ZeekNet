@@ -3,6 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { JobPostingQueryRequestDto } from '../../dto/job-posting/job-posting.dto';
 import { AppError } from '../../../domain/errors/errors';
 import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
+import { IGetCompanyJobPostingsUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 
 interface PaginatedCompanyJobPostings {
   jobs: CompanyJobPostingListItemDto[];
@@ -14,7 +15,7 @@ interface PaginatedCompanyJobPostings {
   };
 }
 
-export class GetCompanyJobPostingsUseCase {
+export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
