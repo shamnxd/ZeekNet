@@ -44,6 +44,7 @@ export const UpdateJobPostingDto = z.object({
 });
 
 export const JobPostingQueryDto = z.object({
+  userId: z.string().optional(),
   is_active: z.coerce.boolean().optional(),
   category_ids: z
     .string()

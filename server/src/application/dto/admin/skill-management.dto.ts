@@ -5,8 +5,11 @@ export const CreateSkillDto = z.object({
 });
 
 export const UpdateSkillDto = z.object({
+  skillId: z.string().min(1, 'Skill ID is required'),
   name: z.string().min(1, 'Skill name is required').max(100, 'Skill name must be less than 100 characters').trim(),
 });
+
+export type UpdateSkillRequestDto = z.infer<typeof UpdateSkillDto>;
 
 export const GetAllSkillsDto = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
@@ -15,3 +18,5 @@ export const GetAllSkillsDto = z.object({
   sortBy: z.string().optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
+
+export type GetAllSkillsRequestDto = z.infer<typeof GetAllSkillsDto>;

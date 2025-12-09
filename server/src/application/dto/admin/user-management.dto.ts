@@ -17,11 +17,6 @@ export const GetAllUsersDto = z.object({
   ),
 });
 
-export const BlockUserDto = z.object({
-  userId: z.string().min(1),
-  isBlocked: z.boolean(),
-});
-
 export const CompanyVerificationDto = z.object({
   companyId: z.string().min(1),
   isVerified: z.enum(['pending', 'rejected', 'verified']),

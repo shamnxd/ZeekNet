@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const SimpleUpdateCompanyProfileDto = z.object({
+  userId: z.string().optional(),
   company_name: z.string().min(1).optional(),
   logo: z.string().optional(),
   banner: z.string().optional(),

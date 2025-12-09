@@ -8,3 +8,5 @@ export const RegisterDto = z.object({
   password: commonValidations.password,
   role: z.nativeEnum(UserRole).optional().default(UserRole.SEEKER),
 });
+
+export type RegisterRequestDto = z.infer<typeof RegisterDto>;

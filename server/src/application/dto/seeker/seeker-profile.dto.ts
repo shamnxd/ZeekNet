@@ -9,6 +9,7 @@ const SocialLinkSchema = z.object({
 });
 
 export const CreateSeekerProfileDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
   headline: z.string().max(100, 'Headline must not exceed 100 characters').optional(),
   summary: z.string().max(2000, 'Summary must not exceed 2000 characters').optional(),
   location: z.string().max(100, 'Location must not exceed 100 characters').optional(),
@@ -24,6 +25,7 @@ export const CreateSeekerProfileDto = z.object({
 export type CreateSeekerProfileRequestDto = z.infer<typeof CreateSeekerProfileDto>;
 
 export const UpdateSeekerProfileDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
   headline: z.string().max(100, 'Headline must not exceed 100 characters').optional(),
   summary: z.string().max(2000, 'Summary must not exceed 2000 characters').optional(),
   location: z.string().max(100, 'Location must not exceed 100 characters').optional(),
@@ -40,6 +42,7 @@ export const UpdateSeekerProfileDto = z.object({
 export type UpdateSeekerProfileRequestDto = z.infer<typeof UpdateSeekerProfileDto>;
 
 export const AddExperienceDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
   title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters'),
   company: z.string().min(1, 'Company is required').max(100, 'Company must not exceed 100 characters'),
   startDate: z.string().date('Please enter a valid start date'),
@@ -54,6 +57,8 @@ export const AddExperienceDto = z.object({
 export type AddExperienceRequestDto = z.infer<typeof AddExperienceDto>;
 
 export const UpdateExperienceDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  experienceId: z.string().min(1, 'Experience ID is required'),
   title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters').optional(),
   company: z.string().min(1, 'Company is required').max(100, 'Company must not exceed 100 characters').optional(),
   startDate: z.string().date('Please enter a valid start date').optional(),
@@ -68,6 +73,7 @@ export const UpdateExperienceDto = z.object({
 export type UpdateExperienceRequestDto = z.infer<typeof UpdateExperienceDto>;
 
 export const AddEducationDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
   school: z.string().min(1, 'School is required').max(200, 'School must not exceed 200 characters'),
   degree: z.string().max(100, 'Degree must not exceed 100 characters').optional(),
   fieldOfStudy: z.string().max(100, 'Field of study must not exceed 100 characters').optional(),
@@ -79,6 +85,8 @@ export const AddEducationDto = z.object({
 export type AddEducationRequestDto = z.infer<typeof AddEducationDto>;
 
 export const UpdateEducationDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  educationId: z.string().min(1, 'Education ID is required'),
   school: z.string().min(1, 'School is required').max(200, 'School must not exceed 200 characters').optional(),
   degree: z.string().max(100, 'Degree must not exceed 100 characters').optional(),
   fieldOfStudy: z.string().max(100, 'Field of study must not exceed 100 characters').optional(),
@@ -98,6 +106,7 @@ export const UpdateLanguagesDto = z.object({
 });
 
 export const UploadResumeDto = z.object({
+  userId: z.string().min(1, 'User ID is required'),
   url: z.string().url('Please enter a valid resume URL'),
   fileName: z.string().min(1, 'File name is required'),
 });

@@ -21,8 +21,10 @@ export const AdminGetAllJobsDto = z.object({
 });
 
 export const AdminUpdateJobStatusDto = z.object({
+  jobId: z.string().min(1, 'Job ID is required'),
   status: z.enum(['active', 'unlisted', 'expired', 'blocked']),
   unpublish_reason: z.string().optional(),
 });
 
 export type AdminGetAllJobsDtoType = z.infer<typeof AdminGetAllJobsDto>;
+export type AdminUpdateJobStatusRequestDto = z.infer<typeof AdminUpdateJobStatusDto>;

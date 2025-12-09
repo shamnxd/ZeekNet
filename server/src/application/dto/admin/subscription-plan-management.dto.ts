@@ -24,6 +24,7 @@ export const CreateSubscriptionPlanDto = z.object({
 });
 
 export const UpdateSubscriptionPlanDto = z.object({
+  planId: z.string().min(1, 'Plan ID is required'),
   name: z.string().min(1, 'Plan name cannot be empty').max(100, 'Plan name must be less than 100 characters').trim().optional(),
   description: z.string().min(1, 'Plan description cannot be empty').max(500, 'Plan description must be less than 500 characters').trim().optional(),
   price: z.number().min(0, 'Price must be a positive number').optional(),
@@ -57,6 +58,11 @@ export const GetAllSubscriptionPlansDto = z.object({
 });
 
 export const MigratePlanSubscribersDto = z.object({
+  planId: z.string().min(1, 'Plan ID is required'),
   billingCycle: z.enum(['monthly', 'yearly', 'both']).optional().default('both'),
   prorationBehavior: z.enum(['none', 'create_prorations', 'always_invoice']).optional().default('none'),
 });
+
+export type CreateSubscriptionPlanRequestDto = z.infer<typeof CreateSubscriptionPlanDto>;
+export type UpdateSubscriptionPlanRequestDto = z.infer<typeof UpdateSubscriptionPlanDto>;
+export type MigratePlanSubscribersRequestDto = z.infer<typeof MigratePlanSubscribersDto>;
