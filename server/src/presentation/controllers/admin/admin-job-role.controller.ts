@@ -4,6 +4,7 @@ import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/IDe
 import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetJobRoleByIdUseCase';
 import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllJobRolesUseCase';
 import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/ICreateJobRoleUseCase';
+import { GetAllJobRolesRequestDto } from '../../../application/dto/admin/job-role-management.dto';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
 
 export class AdminJobRoleController {
@@ -26,7 +27,8 @@ export class AdminJobRoleController {
 
   getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._getAllJobRolesUseCase.execute(req.query);
+      const query = req.query as unknown as GetAllJobRolesRequestDto;
+      const result = await this._getAllJobRolesUseCase.execute(query);
       sendSuccessResponse(res, 'Job roles retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

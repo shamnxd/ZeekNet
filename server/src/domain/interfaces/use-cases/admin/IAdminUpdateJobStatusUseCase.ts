@@ -1,6 +1,5 @@
-import { AdminUpdateJobStatusRequestDto } from 'src/application/dto/admin/admin-job.dto';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 
 export interface IAdminUpdateJobStatusUseCase {
-  execute(data: AdminUpdateJobStatusRequestDto): Promise<JobPosting>;
+  execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<JobPosting>;
 }

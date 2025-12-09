@@ -16,7 +16,7 @@ export interface IGetJobCategoryByIdUseCase {
 }
 
 export interface IUpdateJobCategoryUseCase {
-  execute(data: UpdateJobCategoryRequestDto): Promise<JobCategory>;
+  execute(id: string, name: string): Promise<JobCategory>;
 }
 
 export interface IDeleteJobCategoryUseCase {

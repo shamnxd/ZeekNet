@@ -61,11 +61,11 @@ export interface ICompanyContactUseCase {
 }
 
 export interface ICreateCompanyTechStackUseCase {
-  execute(data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(companyId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
 }
 
 export interface IUpdateCompanyTechStackUseCase {
-  execute(data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(techStackId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
 }
 
 export interface IDeleteCompanyTechStackUseCase {
@@ -95,11 +95,11 @@ export interface IGetCompanyOfficeLocationUseCase {
 }
 
 export interface ICreateCompanyBenefitUseCase {
-  execute(data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(companyId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
 }
 
 export interface IUpdateCompanyBenefitUseCase {
-  execute(data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(companyId: string, benefitId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
 }
 
 export interface IDeleteCompanyBenefitUseCase {
@@ -112,11 +112,11 @@ export interface IGetCompanyBenefitUseCase {
 }
 
 export interface ICreateCompanyWorkplacePictureUseCase {
-  execute(data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
+  execute(companyId: string, data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
 }
 
 export interface IUpdateCompanyWorkplacePictureUseCase {
-  execute(data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
+  execute(pictureId: string, data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
 }
 
 export interface IDeleteCompanyWorkplacePictureUseCase {
@@ -161,11 +161,11 @@ export interface IGetCompanyProfileByUserIdUseCase {
 }
 
 export interface IUploadBusinessLicenseUseCase {
-  execute(data: UploadBusinessLicenseRequestDto): Promise<UploadBusinessLicenseResult>;
+  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult>;
 }
 
 export interface IUploadWorkplacePictureUseCase {
-  execute(data: UploadWorkplacePictureRequestDto): Promise<UploadWorkplacePictureResult>;
+  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadWorkplacePictureResult>;
 }
 
 export interface IDeleteImageUseCase {

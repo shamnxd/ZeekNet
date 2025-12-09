@@ -8,7 +8,7 @@ export interface ICreateNotificationUseCase {
 }
 
 export interface IGetNotificationsUseCase {
-  execute(data: GetNotificationsRequestDto): Promise<NotificationResponseDto[]>;
+  execute(userId: string, limit: number, skip: number): Promise<NotificationResponseDto[]>;
 }
 
 export interface IMarkNotificationAsReadUseCase {

@@ -12,7 +12,12 @@ export class RegistrationController {
     validateBody(RegisterDto),
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        const { user } = await this._registerUserUseCase.execute(req.body.email, req.body.password, req.body.role, req.body.name);
+        const { user } = await this._registerUserUseCase.execute(
+          req.body.email,
+          req.body.password,
+          req.body.role,
+          req.body.name,
+        );
 
         sendSuccessResponse(res, 'User registered successfully. Please verify your email.', user, undefined, 201);
       } catch (error) {

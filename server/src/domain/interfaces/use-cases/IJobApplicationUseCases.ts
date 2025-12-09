@@ -1,4 +1,5 @@
 import type { ApplicationStage, InterviewSchedule, JobApplication } from '../../entities/job-application.entity';
+import { ApplicationStage as AppStage } from '../../entities/job-application.entity';
 import type { 
   JobApplicationListResponseDto, 
   JobApplicationDetailResponseDto, 
@@ -8,7 +9,6 @@ import { CreateJobApplicationData } from './applications/CreateJobApplicationDat
 import { AddInterviewData } from './interview/AddInterviewData';
 import { UpdateInterviewData } from './interview/UpdateInterviewData';
 import { AddInterviewFeedbackData } from './interview/AddInterviewFeedbackData';
-import { DeleteInterviewData } from './interview/DeleteInterviewData';
 import { ApplicationFiltersRequestDto } from 'src/application/dto/application/application-filters.dto';
 import { UpdateApplicationStageRequestDto } from 'src/application/dto/application/update-application-stage.dto';
 import { GetApplicationsByJobRequestDto } from 'src/application/dto/application/get-applications-by-job.dto';
@@ -37,15 +37,15 @@ export interface IGetApplicationDetailsUseCase {
 }
 
 export interface IGetSeekerApplicationDetailsUseCase {
-  execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto>;
+  execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateApplicationStageUseCase {
-  execute(data: UpdateApplicationStageRequestDto): Promise<JobApplicationListResponseDto>;
+  execute(userId: string, applicationId: string, stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired', rejectionReason?: string): Promise<JobApplicationListResponseDto>;
 }
 
 export interface IUpdateApplicationScoreUseCase {
-  execute(data: UpdateScoreRequestDto): Promise<JobApplicationListResponseDto>;
+  execute(userId: string, applicationId: string, score: number): Promise<JobApplicationListResponseDto>;
 }
 
 export interface IAddInterviewUseCase {

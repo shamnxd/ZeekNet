@@ -17,7 +17,7 @@ import {
 } from 'src/application/dto/seeker/seeker-profile.dto';
 
 export interface ICreateSeekerProfileUseCase {
-  execute(data: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IGetSeekerProfileUseCase {
@@ -25,11 +25,11 @@ export interface IGetSeekerProfileUseCase {
 }
 
 export interface IUpdateSeekerProfileUseCase {
-  execute(data: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, dto: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IAddExperienceUseCase {
-  execute(data: AddExperienceRequestDto): Promise<ExperienceResponseDto>;
+  execute(userId: string, dto: AddExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IGetExperiencesUseCase {
@@ -37,7 +37,7 @@ export interface IGetExperiencesUseCase {
 }
 
 export interface IUpdateExperienceUseCase {
-  execute(data: UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
+  execute(userId: string, experienceId: string, dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IRemoveExperienceUseCase {
@@ -45,7 +45,7 @@ export interface IRemoveExperienceUseCase {
 }
 
 export interface IAddEducationUseCase {
-  execute(data: AddEducationRequestDto): Promise<EducationResponseDto>;
+  execute(userId: string, dto: AddEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IGetEducationUseCase {
@@ -53,7 +53,7 @@ export interface IGetEducationUseCase {
 }
 
 export interface IUpdateEducationUseCase {
-  execute(data: UpdateEducationRequestDto): Promise<EducationResponseDto>;
+  execute(userId: string, educationId: string, dto: UpdateEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IRemoveEducationUseCase {
@@ -69,7 +69,7 @@ export interface IUpdateLanguagesUseCase {
 }
 
 export interface IUploadResumeUseCase {
-  execute(data: UploadResumeRequestDto): Promise<ResumeMetaResponseDto>;
+  execute(userId: string, dto: UploadResumeRequestDto): Promise<ResumeMetaResponseDto>;
 }
 
 export interface IRemoveResumeUseCase {
@@ -77,9 +77,9 @@ export interface IRemoveResumeUseCase {
 }
 
 export interface IUploadAvatarUseCase {
-  execute(data: UploadAvatarRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IUploadBannerUseCase {
-  execute(data: UploadBannerRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
 }
