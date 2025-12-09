@@ -1,6 +1,6 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
 import { Skill } from '../../../domain/entities/skill.entity';
-import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetSkillByIdUseCase';
+import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/skills/IGetSkillByIdUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class GetSkillByIdUseCase implements IGetSkillByIdUseCase {

@@ -7,7 +7,7 @@ import { NotFoundError, AppError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
-import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/admin/IMigratePlanSubscribersUseCase';
+import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
 import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
 import { MigratePlanSubscribersResult } from '../../../domain/interfaces/use-cases/subscriptions/MigratePlanSubscribersResult';
 

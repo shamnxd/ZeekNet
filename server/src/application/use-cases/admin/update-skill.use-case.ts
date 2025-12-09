@@ -1,6 +1,6 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
 import { Skill } from '../../../domain/entities/skill.entity';
-import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/IUpdateSkillUseCase';
+import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/skills/IUpdateSkillUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class UpdateSkillUseCase implements IUpdateSkillUseCase {

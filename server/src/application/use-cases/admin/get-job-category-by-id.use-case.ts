@@ -1,7 +1,7 @@
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
 import { JobCategory } from '../../../domain/entities/job-category.entity';
-import { IGetJobCategoryByIdUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
 import { AppError } from '../../../domain/errors/errors';
+import { IGetJobCategoryByIdUseCase } from 'src/domain/interfaces/use-cases/job-categorys/IGetJobCategoryByIdUseCase';
 
 export class GetJobCategoryByIdUseCase implements IGetJobCategoryByIdUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
