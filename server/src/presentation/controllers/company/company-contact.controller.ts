@@ -38,7 +38,7 @@ export class CompanyContactController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const contact = await this._companyContactUseCase.upsertContact(companyId, parsed.data);
+      const contact = await this._companyContactUseCase.upsertContact({ companyId, ...parsed.data });
       const message = contact.id ? 'Company contact updated successfully' : 'Company contact created successfully';
       sendSuccessResponse(res, message, contact);
     } catch (error) {

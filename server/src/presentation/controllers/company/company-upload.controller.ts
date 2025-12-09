@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 import { IUploadBusinessLicenseUseCase, IUploadWorkplacePictureUseCase, IDeleteImageUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { DeleteImageDto } from '../../../application/dto/company/delete-image.dto';
 
 export class CompanyUploadController {
   constructor(
@@ -41,13 +40,13 @@ export class CompanyUploadController {
   };
 
   deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = DeleteImageDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError(`Invalid image deletion data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    const { imageUrl } = req.body;
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return handleValidationError('Image URL is required and must be a string', next);
     }
 
     try {
-      await this._deleteImageUseCase.execute(parsed.data.imageUrl);
+      await this._deleteImageUseCase.execute(imageUrl);
       sendSuccessResponse(res, 'Image deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

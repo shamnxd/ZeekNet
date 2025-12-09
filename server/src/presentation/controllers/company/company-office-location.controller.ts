@@ -48,7 +48,7 @@ export class CompanyOfficeLocationController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const location = await this._createCompanyOfficeLocationUseCase.execute(companyId, parsed.data);
+      const location = await this._createCompanyOfficeLocationUseCase.execute({ companyId, ...parsed.data });
       sendSuccessResponse(res, 'Office location created successfully', location, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -66,7 +66,7 @@ export class CompanyOfficeLocationController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const location = await this._updateCompanyOfficeLocationUseCase.execute(companyId, id, parsed.data as CompanyOfficeLocationData);
+      const location = await this._updateCompanyOfficeLocationUseCase.execute({ companyId, locationId: id, ...parsed.data as CompanyOfficeLocationData });
       sendSuccessResponse(res, 'Office location updated successfully', location);
     } catch (error) {
       handleAsyncError(error, next);

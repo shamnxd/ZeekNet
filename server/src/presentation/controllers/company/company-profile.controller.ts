@@ -36,7 +36,7 @@ export class CompanyProfileController {
 
     try {
       const userId = validateUserId(req);
-      const profile = await this._createCompanyProfileFromDtoUseCase.execute(userId, parsed.data);
+      const profile = await this._createCompanyProfileFromDtoUseCase.execute({ userId, ...parsed.data });
 
       sendSuccessResponse(res, 'Company profile created successfully', profile, undefined, 201);
     } catch (error) {
@@ -52,10 +52,7 @@ export class CompanyProfileController {
 
     try {
       const userId = validateUserId(req);
-      const updateData = {
-        profile: parsed.data,
-      };
-      const companyProfile = await this._updateCompanyProfileUseCase.execute(userId, updateData);
+      const companyProfile = await this._updateCompanyProfileUseCase.execute({ userId, ...parsed.data });
 
       sendSuccessResponse(res, 'Company profile updated successfully', companyProfile, undefined, 200);
     } catch (error) {
@@ -105,10 +102,11 @@ export class CompanyProfileController {
       }
 
       const verificationData = {
+        userId,
         taxId: parsed.data.tax_id,
         businessLicenseUrl: parsed.data.business_license,
       };
-      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(userId, verificationData);
+      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(verificationData);
 
       sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', updatedProfile);
     } catch (error) {

@@ -12,10 +12,6 @@ import { getDashboardLink } from '../../../shared/utils/dashboard.utils';
 import { UserRole } from 'src/domain/enums/user-role.enum';
 
 const RequestOtpDto = z.object({ email: z.string().email() });
-const VerifyOtpDto = z.object({
-  email: z.string().email(),
-  code: z.string().length(6),
-});
 
 export class OtpController {
   constructor(
@@ -87,16 +83,21 @@ export class OtpController {
   };
 
   verify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = VerifyOtpDto.safeParse(req.body);
-    if (!parsed.success) return handleValidationError('Invalid OTP data', next);
+    const { email, code } = req.body;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return handleValidationError('Invalid email address', next);
+    }
+    if (!code || typeof code !== 'string' || code.length !== 6) {
+      return handleValidationError('OTP code must be 6 characters', next);
+    }
 
     try {
-      const ok = await this._otpService.verifyOtp(parsed.data.email, parsed.data.code);
+      const ok = await this._otpService.verifyOtp(email, code);
       if (!ok) return handleValidationError('Invalid or expired OTP', next);
 
-      await this._updateUserVerificationStatusUseCase.execute(parsed.data.email, true);
+      await this._updateUserVerificationStatusUseCase.execute(email, true);
 
-      const user = await this._getUserByEmailUseCase.execute(parsed.data.email);
+      const user = await this._getUserByEmailUseCase.execute(email);
       if (!user) {
         return handleValidationError('User not found', next);
       }

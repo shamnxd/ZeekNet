@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateSkillDto, UpdateSkillDto, GetAllSkillsDto } from '../../../application/dto/admin/skill-management.dto';
-import { ICreateSkillUseCase, IGetAllSkillsUseCase, IGetSkillByIdUseCase, IUpdateSkillUseCase, IDeleteSkillUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/IDeleteSkillUseCase';
+import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/IUpdateSkillUseCase';
+import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetSkillByIdUseCase';
+import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllSkillsUseCase';
+import { ICreateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/ICreateSkillUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminSkillController {

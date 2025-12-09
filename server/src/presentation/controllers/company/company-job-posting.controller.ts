@@ -32,7 +32,7 @@ export class CompanyJobPostingController {
 
     try {
       const userId = validateUserId(req);
-      const jobPosting = await this._createJobPostingUseCase.execute(userId, parsed.data);
+      const jobPosting = await this._createJobPostingUseCase.execute({ userId, ...parsed.data });
       sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -65,7 +65,7 @@ export class CompanyJobPostingController {
       const userId = validateUserId(req);
 
       const query = req.query as unknown as JobPostingQueryRequestDto;
-      const result = await this._getCompanyJobPostingsUseCase.execute(userId, query);
+      const result = await this._getCompanyJobPostingsUseCase.execute({ userId, ...query });
 
       sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
     } catch (error) {
@@ -87,7 +87,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobPostingUseCase.execute(id, parsed.data);
+      const jobPosting = await this._updateJobPostingUseCase.execute({ jobId: id, ...parsed.data });
 
       sendSuccessResponse(res, 'Job posting updated successfully', jobPosting);
     } catch (error) {
@@ -127,7 +127,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobStatusUseCase.execute(id, status, userId);
+      const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
 
       sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
     } catch (error) {

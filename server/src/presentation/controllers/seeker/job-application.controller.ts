@@ -12,7 +12,6 @@ import {
   ICreateJobApplicationUseCase,
   IGetApplicationsBySeekerUseCase,
   IGetSeekerApplicationDetailsUseCase,
-  IDeleteJobApplicationUseCase,
 } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
