@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { commonValidations } from '../../../shared/validation/common';
 
 export const CreateCompanyOfficeLocationDto = z.object({
   companyId: z.string().min(1, 'Company ID is required').optional(),
