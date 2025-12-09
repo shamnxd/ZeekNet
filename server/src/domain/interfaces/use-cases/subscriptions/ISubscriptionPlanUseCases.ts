@@ -1,5 +1,5 @@
-import { SubscriptionPlan } from '../../entities/subscription-plan.entity';
-import { PaginatedSubscriptionPlans, SubscriptionPlanQueryOptions } from '../repositories/subscription-plan/ISubscriptionPlanRepository';
+import { SubscriptionPlan } from '../../../entities/subscription-plan.entity';
+import { PaginatedSubscriptionPlans, SubscriptionPlanQueryOptions } from '../../repositories/subscription-plan/ISubscriptionPlanRepository';
 import { CreateSubscriptionPlanRequestDto, UpdateSubscriptionPlanRequestDto } from 'src/application/dto/admin/subscription-plan-management.dto';
 
 export interface ICreateSubscriptionPlanUseCase {

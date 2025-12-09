@@ -1,5 +1,5 @@
 import { ISubscriptionPlanRepository, SubscriptionPlanQueryOptions, PaginatedSubscriptionPlans } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
-import { IGetAllSubscriptionPlansUseCase } from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
+import { IGetAllSubscriptionPlansUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ISubscriptionPlanUseCases';
 
 export class GetAllSubscriptionPlansUseCase implements IGetAllSubscriptionPlansUseCase {
   constructor(private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository) {}
