@@ -81,6 +81,7 @@ export class JobPosting {
   }
 }
 
+// be
 export interface JobPostingFilters {
   status?: 'active' | 'unlisted' | 'expired' | 'blocked';
   categoryIds?: string[];
