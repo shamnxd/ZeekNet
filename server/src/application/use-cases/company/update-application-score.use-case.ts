@@ -1,7 +1,7 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IUpdateApplicationScoreUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateApplicationScoreUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';

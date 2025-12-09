@@ -1,7 +1,7 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IAddInterviewFeedbackUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewFeedbackUseCase';
 import { AddInterviewFeedbackData } from 'src/domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
