@@ -19,7 +19,10 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const interviewDate = dto.date instanceof Date ? dto.date : new Date(dto.date);
     const interviewData = {
       date: interviewDate,

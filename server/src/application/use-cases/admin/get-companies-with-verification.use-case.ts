@@ -1,6 +1,6 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
-import { IGetCompaniesWithVerificationUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
 import { CompanyQueryOptions } from 'src/domain/interfaces/use-cases/company/CompanyQueryOptions';
 import { PaginatedCompaniesWithVerification } from 'src/domain/interfaces/use-cases/company/PaginatedCompaniesWithVerification';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';

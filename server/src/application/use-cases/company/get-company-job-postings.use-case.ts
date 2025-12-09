@@ -21,7 +21,9 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+  async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+    const { userId, ...query } = data;
+    if (!userId) throw new Error('User ID is required');
     let companyProfile = null;
     if (query.company_id) {
       companyProfile = await this._companyProfileRepository.findById(query.company_id);

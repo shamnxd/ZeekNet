@@ -20,7 +20,9 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile> {
+  async execute(data: CreateCompanyProfileData): Promise<CompanyProfile> {
+    const { userId, ...profileData } = data;
+    if (!userId) throw new Error('User ID is required');
     const profile = await this._companyProfileRepository.create({
       userId,
       companyName: profileData.companyName,

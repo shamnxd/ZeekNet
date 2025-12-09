@@ -1,7 +1,7 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { JobRole } from '../../../domain/entities/job-role.entity';
 import { AppError } from '../../../domain/errors/errors';
-import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUseCases';
+import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/ICreateJobRoleUseCase';
 
 export class CreateJobRoleUseCase implements ICreateJobRoleUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}

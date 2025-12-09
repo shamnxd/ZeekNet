@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IAdminGetAllJobsUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
 
 interface GetAllJobsQuery {
   page?: number;

@@ -5,6 +5,7 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByCompanyUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { ApplicationFiltersRequestDto } from '../../dto/application/application-filters.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -21,7 +22,9 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto> {
+  async execute(data: ApplicationFiltersRequestDto): Promise<PaginatedApplicationsResponseDto> {
+    const { userId, ...filters } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

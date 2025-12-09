@@ -7,6 +7,7 @@ import { ISeekerExperienceRepository } from '../../../domain/interfaces/reposito
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { GetApplicationDetailsRequestDto } from '../../dto/application/get-application-details.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
@@ -23,7 +24,10 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

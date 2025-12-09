@@ -1,4 +1,5 @@
-import { IGetCompaniesWithVerificationUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
+import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
 import { CompanyWithVerification } from 'src/domain/interfaces/use-cases/company/CompanyWithVerification';
 import { AppError } from '../../../domain/errors/errors';
 

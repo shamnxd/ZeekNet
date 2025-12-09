@@ -19,7 +19,11 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, interviewId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
+    if (!interviewId) throw new Error('Interview ID is required');
     const interviewData: Partial<{
       date: Date;
       time: string;

@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IAdminDeleteJobUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminDeleteJobUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class AdminDeleteJobUseCase implements IAdminDeleteJobUseCase {

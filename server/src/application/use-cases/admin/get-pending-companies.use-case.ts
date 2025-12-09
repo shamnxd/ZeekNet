@@ -1,4 +1,5 @@
-import { IGetCompaniesWithVerificationUseCase, IGetPendingCompaniesUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
+import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
 import { PaginatedCompaniesWithVerification } from 'src/domain/interfaces/use-cases/company/PaginatedCompaniesWithVerification';
 
 export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {

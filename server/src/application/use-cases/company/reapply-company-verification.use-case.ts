@@ -10,7 +10,9 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
   ) {}
 
-  async execute(userId: string, verificationData: CompanyVerificationData): Promise<CompanyProfile> {
+  async execute(data: CompanyVerificationData): Promise<CompanyProfile> {
+    const { userId, ...verificationData } = data;
+    if (!userId) throw new Error('User ID is required');
     const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
       throw new Error('Company profile not found');

@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IUpdateJobStatusUseCase';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { AppError, ValidationError } from '../../../domain/errors/errors';
@@ -12,7 +12,8 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', userId?: string): Promise<JobPosting> {
+  async execute(data: { jobId: string; status: 'active' | 'unlisted' | 'expired' | 'blocked'; userId?: string }): Promise<JobPosting> {
+    const { jobId, status, userId } = data;
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {

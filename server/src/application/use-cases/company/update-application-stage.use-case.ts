@@ -3,6 +3,7 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { UpdateApplicationStageRequestDto } from '../../dto/application/update-application-stage.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -18,12 +19,10 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    applicationId: string,
-    stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired',
-    rejectionReason?: string,
-  ): Promise<JobApplicationListResponseDto> {
+  async execute(data: UpdateApplicationStageRequestDto): Promise<JobApplicationListResponseDto> {
+    const { userId, applicationId, stage, rejectionReason } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

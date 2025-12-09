@@ -2,6 +2,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IUpdateApplicationScoreUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { UpdateScoreRequestDto } from '../../dto/application/update-score.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
@@ -14,7 +15,10 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, score: number): Promise<JobApplicationListResponseDto> {
+  async execute(data: UpdateScoreRequestDto): Promise<JobApplicationListResponseDto> {
+    const { userId, applicationId, score } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

@@ -15,6 +15,9 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
   ) {}
 
   async execute(userId: string, applicationId: string, interviewId: string): Promise<JobApplicationDetailResponseDto> {
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
+    if (!interviewId) throw new Error('Interview ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

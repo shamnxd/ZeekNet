@@ -1,4 +1,4 @@
-import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllCompaniesUseCase';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyQueryOptions } from 'src/domain/interfaces/use-cases/company/CompanyQueryOptions';
 import { PaginatedCompanies } from 'src/domain/interfaces/use-cases/company/PaginatedCompanies';

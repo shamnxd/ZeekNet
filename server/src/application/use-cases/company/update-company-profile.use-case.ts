@@ -13,22 +13,24 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, data: { profile: SimpleUpdateCompanyProfileRequestDto }): Promise<CompanyProfileResponseDto> {
+  async execute(data: SimpleUpdateCompanyProfileRequestDto): Promise<CompanyProfileResponseDto> {
+    const { userId, ...profileData } = data;
+    if (!userId) throw new Error('User ID is required');
     const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
       throw new Error('Company profile not found');
     }
 
-    if (data.profile) {
+    if (profileData.company_name || profileData.logo || profileData.banner || profileData.website_link || profileData.employee_count || profileData.industry || profileData.organisation || profileData.about_us) {
       const updatedProfile = await this._companyProfileRepository.update(existingProfile.id, {
-        companyName: data.profile.company_name,
-        logo: data.profile.logo,
-        banner: data.profile.banner,
-        websiteLink: data.profile.website_link,
-        employeeCount: data.profile.employee_count,
-        industry: data.profile.industry,
-        organisation: data.profile.organisation || existingProfile.organisation,
-        aboutUs: data.profile.about_us,
+        companyName: profileData.company_name,
+        logo: profileData.logo,
+        banner: profileData.banner,
+        websiteLink: profileData.website_link,
+        employeeCount: profileData.employee_count,
+        industry: profileData.industry,
+        organisation: profileData.organisation || existingProfile.organisation,
+        aboutUs: profileData.about_us,
       });
     }
 

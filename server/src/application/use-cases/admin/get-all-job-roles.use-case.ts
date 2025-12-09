@@ -1,5 +1,5 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
-import { IGetAllJobRolesUseCase } from '../../../domain/interfaces/use-cases/admin/IAdminUseCases';
+import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllJobRolesUseCase';
 import { PaginatedJobRoles } from 'src/domain/interfaces/use-cases/job-roles/PaginatedJobRoles';
 
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {

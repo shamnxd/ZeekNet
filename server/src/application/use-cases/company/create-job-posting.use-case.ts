@@ -12,7 +12,9 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, jobData: CreateJobPostingData): Promise<JobPosting> {
+  async execute(data: CreateJobPostingData): Promise<JobPosting> {
+    const { userId, ...jobData } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
     if (!companyProfile) {
       throw new AppError('Company profile not found', 404);
