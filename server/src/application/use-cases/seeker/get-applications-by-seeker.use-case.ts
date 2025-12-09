@@ -1,6 +1,6 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsBySeekerUseCase';
 import { GetApplicationsBySeekerRequestDto } from '../../dto/application/get-applications-by-seeker.dto';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';

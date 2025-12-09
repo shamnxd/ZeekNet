@@ -3,7 +3,7 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateJobApplicationUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobApplicationUseCase';
 import { CreateJobApplicationData } from 'src/domain/interfaces/use-cases/applications/CreateJobApplicationData';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
