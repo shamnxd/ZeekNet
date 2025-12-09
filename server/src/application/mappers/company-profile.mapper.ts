@@ -22,8 +22,8 @@ export class CompanyProfileMapper {
     return {
       id: profile.id,
       company_name: profile.companyName,
-      logo: signedUrls?.logo ?? profile.logo,
-      banner: signedUrls?.banner ?? profile.banner,
+      logo: signedUrls?.logo !== undefined ? signedUrls.logo : profile.logo,
+      banner: signedUrls?.banner !== undefined ? signedUrls.banner : profile.banner,
       website_link: profile.websiteLink,
       employee_count: profile.employeeCount,
       industry: profile.industry,
@@ -33,7 +33,7 @@ export class CompanyProfileMapper {
       is_blocked: profile.isBlocked,
       rejection_reason: profile.rejectionReason,
       tax_id: verification?.taxId,
-      business_license: signedUrls?.businessLicense ?? verification?.businessLicenseUrl ?? undefined,
+      business_license: signedUrls?.businessLicense !== undefined ? signedUrls.businessLicense : verification?.businessLicenseUrl ?? undefined,
       created_at: profile.createdAt,
       updated_at: profile.updatedAt,
     };
