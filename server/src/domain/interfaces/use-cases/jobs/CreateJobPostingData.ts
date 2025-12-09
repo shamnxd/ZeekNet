@@ -1,5 +1,6 @@
 
 export interface CreateJobPostingData {
+  userId?: string;
   title: string;
   description: string;
   responsibilities: string[];

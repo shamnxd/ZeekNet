@@ -1,5 +1,6 @@
 
 export interface CreateCompanyProfileData {
+  userId?: string;
   companyName: string;
   logo: string;
   banner: string;

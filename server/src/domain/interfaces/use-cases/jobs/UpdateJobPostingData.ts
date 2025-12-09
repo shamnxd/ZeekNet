@@ -1,5 +1,6 @@
 
 export interface UpdateJobPostingData {
+  jobId?: string;
   title?: string;
   description?: string;
   responsibilities?: string[];
