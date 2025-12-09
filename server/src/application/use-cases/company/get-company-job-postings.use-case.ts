@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { JobPostingQueryRequestDto } from '../../dto/job-posting/job-posting.dto';
 import { AppError } from '../../../domain/errors/errors';
 import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
-import { IGetCompanyJobPostingsUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
 
 interface PaginatedCompanyJobPostings {
   jobs: CompanyJobPostingListItemDto[];

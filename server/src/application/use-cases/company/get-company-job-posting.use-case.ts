@@ -1,7 +1,7 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
 
 export class GetCompanyJobPostingUseCase implements IGetCompanyJobPostingUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}

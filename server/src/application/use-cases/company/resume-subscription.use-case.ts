@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
 
 export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
   constructor(

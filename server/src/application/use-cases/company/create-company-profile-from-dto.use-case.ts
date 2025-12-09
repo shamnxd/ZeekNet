@@ -1,4 +1,5 @@
-import { ICreateCompanyProfileUseCase, ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
+import { ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
 import { CreateCompanyProfileData } from 'src/domain/interfaces/use-cases/company/CreateCompanyProfileData';
 import { CreateCompanyProfileFromDtoRequestDto } from '../../dto/company/create-company-profile-from-dto.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';

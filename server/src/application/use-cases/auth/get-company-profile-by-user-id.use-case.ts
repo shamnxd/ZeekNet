@@ -1,7 +1,7 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { AppError } from '../../../domain/errors/errors';
-import { IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 
 export class GetCompanyProfileByUserIdUseCase implements IGetCompanyProfileByUserIdUseCase {
   constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}

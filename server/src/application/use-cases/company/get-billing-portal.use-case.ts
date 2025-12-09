@@ -2,7 +2,7 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
 import { GetBillingPortalRequestDto } from '../../dto/company/get-billing-portal.dto';
 
 export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {

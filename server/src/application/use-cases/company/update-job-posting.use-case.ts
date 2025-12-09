@@ -1,8 +1,8 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { UpdateJobPostingData } from 'src/domain/interfaces/use-cases/jobs/UpdateJobPostingData';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
+import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
 
 export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}

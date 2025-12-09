@@ -4,7 +4,7 @@ import { ICompanyVerificationRepository } from '../../../domain/interfaces/repos
 import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
 import { CompanyProfileResponseDto } from '../../dto/company/company-response.dto';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IUpdateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
 
 export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase {
   constructor(

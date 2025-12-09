@@ -1,6 +1,7 @@
 import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-import { IDeleteCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IDeleteCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyBenefitUseCase';
+
 
 export class DeleteCompanyBenefitUseCase implements IDeleteCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}

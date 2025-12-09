@@ -1,6 +1,6 @@
 import { ICompanyTechStackRepository } from '../../../domain/interfaces/repositories/company/ICompanyTechStackRepository';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { IDeleteCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IDeleteCompanyTechStackUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyTechStackUseCase';
 
 export class DeleteCompanyTechStackUseCase implements IDeleteCompanyTechStackUseCase {
   constructor(private readonly _companyTechStackRepository: ICompanyTechStackRepository) {}

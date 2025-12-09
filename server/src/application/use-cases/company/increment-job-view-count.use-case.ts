@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IIncrementJobViewCountUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
 
 export class IncrementJobViewCountUseCase implements IIncrementJobViewCountUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}

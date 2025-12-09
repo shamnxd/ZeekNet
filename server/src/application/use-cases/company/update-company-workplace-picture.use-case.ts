@@ -2,7 +2,7 @@ import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
 import { UpdateCompanyWorkplacePicturesRequestDto } from '../../dto/company/company-workplace-pictures.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyWorkplacePictureUseCase';
 
 export class UpdateCompanyWorkplacePictureUseCase implements IUpdateCompanyWorkplacePictureUseCase {
   constructor(private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository) {}

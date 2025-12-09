@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { AppError } from '../../../domain/errors/errors';
-import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
 
 export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCase {
   constructor(

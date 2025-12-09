@@ -1,6 +1,6 @@
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-import { IDeleteCompanyOfficeLocationUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IDeleteCompanyOfficeLocationUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
 
 export class DeleteCompanyOfficeLocationUseCase implements IDeleteCompanyOfficeLocationUseCase {
   constructor(private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository) {}

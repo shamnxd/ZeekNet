@@ -2,7 +2,7 @@ import { IPaymentOrderRepository } from '../../../domain/interfaces/repositories
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { PaymentOrder } from '../../../domain/entities/payment-order.entity';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { IGetPaymentHistoryUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetPaymentHistoryUseCase } from '../../../domain/interfaces/use-cases/payments/IGetPaymentHistoryUseCase';
 
 export class GetPaymentHistoryUseCase implements IGetPaymentHistoryUseCase {
   constructor(

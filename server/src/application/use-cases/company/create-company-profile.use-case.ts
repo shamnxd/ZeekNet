@@ -4,7 +4,7 @@ import { ICompanyVerificationRepository } from '../../../domain/interfaces/repos
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
 import { CreateCompanyProfileData } from 'src/domain/interfaces/use-cases/company/CreateCompanyProfileData';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';

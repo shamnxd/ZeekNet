@@ -2,7 +2,7 @@ import { ICompanyTechStackRepository } from '../../../domain/interfaces/reposito
 import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.entity';
 import { UpdateCompanyTechStackRequestDto } from '../../dto/company/company-tech-stack.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyTechStackUseCase';
 
 export class UpdateCompanyTechStackUseCase implements IUpdateCompanyTechStackUseCase {
   constructor(private readonly _companyTechStackRepository: ICompanyTechStackRepository) {}

@@ -4,12 +4,11 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
-import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
 import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
 import { ChangeSubscriptionResult } from '../../../domain/interfaces/use-cases/subscriptions/ChangeSubscriptionResult';
+import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(

@@ -1,4 +1,5 @@
-import { IGetCompanyProfileUseCase, IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class GetCompanyIdByUserIdUseCase implements IGetCompanyIdByUserIdUseCase {

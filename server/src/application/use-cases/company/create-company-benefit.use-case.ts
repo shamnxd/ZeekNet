@@ -1,7 +1,7 @@
 import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
 import { CreateCompanyBenefitsRequestDto } from '../../dto/company/company-benefits.dto';
-import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyBenefitUseCase';
 
 export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}

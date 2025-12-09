@@ -1,4 +1,6 @@
-import { IGetCompanyProfileUseCase, IGetCompanyJobPostingsUseCase, IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
+import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
+import { IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { CompanyProfileWithDetailsResponseDto } from '../../dto/company/company-response.dto';
 import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';

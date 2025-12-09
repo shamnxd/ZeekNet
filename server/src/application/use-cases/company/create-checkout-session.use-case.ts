@@ -4,7 +4,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { ICreateCheckoutSessionUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
 import { CreateCheckoutSessionRequestDto } from '../../dto/company/create-checkout-session.dto';
 import { CreateCheckoutSessionResponseDto } from '../../dto/company/checkout-session-response.dto';
 
