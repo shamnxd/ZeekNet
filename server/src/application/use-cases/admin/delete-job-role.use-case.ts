@@ -1,5 +1,5 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
-import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/IDeleteJobRoleUseCase';
+import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IDeleteJobRoleUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class DeleteJobRoleUseCase implements IDeleteJobRoleUseCase {

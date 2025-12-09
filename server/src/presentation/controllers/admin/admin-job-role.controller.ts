@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/IUpdateJobRoleUseCase';
-import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/IDeleteJobRoleUseCase';
-import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetJobRoleByIdUseCase';
-import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllJobRolesUseCase';
-import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/ICreateJobRoleUseCase';
+import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IUpdateJobRoleUseCase';
+import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IDeleteJobRoleUseCase';
+import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
+import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
+import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/ICreateJobRoleUseCase';
 import { GetAllJobRolesRequestDto } from '../../../application/dto/admin/job-role-management.dto';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
 
