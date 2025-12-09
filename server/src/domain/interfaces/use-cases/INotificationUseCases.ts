@@ -1,13 +1,14 @@
 import { Notification } from '../../entities/notification.entity';
 import { NotificationResponseDto } from '../../../application/dto/notification/notification-response.dto';
 import { CreateNotificationData } from '../repositories/notification/INotificationRepository';
+import { GetNotificationsRequestDto } from 'src/application/dto/notification/get-notifications.dto';
 
 export interface ICreateNotificationUseCase {
   execute(data: CreateNotificationData): Promise<Notification>;
 }
 
 export interface IGetNotificationsUseCase {
-  execute(userId: string, limit: number, skip: number): Promise<NotificationResponseDto[]>;
+  execute(data: GetNotificationsRequestDto): Promise<NotificationResponseDto[]>;
 }
 
 export interface IMarkNotificationAsReadUseCase {

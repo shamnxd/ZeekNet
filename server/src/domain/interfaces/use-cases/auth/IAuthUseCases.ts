@@ -2,17 +2,21 @@ import { RegisterResult, LoginResult } from '../../../../application/dto/auth/au
 import { UserResponseDto } from '../../../../application/dto/auth/user-response.dto';
 import { User } from '../../../entities/user.entity';
 import { CompanyProfile } from '../../../entities/company-profile.entity';
+import { RegisterRequestDto } from '../../../../application/dto/auth/register.dto';
+import { LoginRequestDto } from '../../../../application/dto/auth/login.dto';
+import { UpdateUserVerificationStatusRequestDto } from '../../../../application/dto/auth/update-user-verification-status.dto';
+import { UpdateUserRefreshTokenRequestDto } from '../../../../application/dto/auth/update-user-refresh-token.dto';
 
 export interface IRegisterUserUseCase {
-  execute(email: string, password: string, role?: unknown, name?: string): Promise<RegisterResult>;
+  execute(data: RegisterRequestDto): Promise<RegisterResult>;
 }
 
 export interface ILoginUserUseCase {
-  execute(email: string, password: string): Promise<LoginResult>;
+  execute(data: LoginRequestDto): Promise<LoginResult>;
 }
 
 export interface IAdminLoginUseCase {
-  execute(email: string, password: string): Promise<LoginResult>;
+  execute(data: LoginRequestDto): Promise<LoginResult>;
 }
 
 export interface IGoogleLoginUseCase {
@@ -48,9 +52,9 @@ export interface IGetUserByEmailUseCase {
 }
 
 export interface IUpdateUserVerificationStatusUseCase {
-  execute(email: string, isVerified: boolean): Promise<void>;
+  execute(data: UpdateUserVerificationStatusRequestDto): Promise<void>;
 }
 
 export interface IUpdateUserRefreshTokenUseCase {
-  execute(userId: string, hashedRefreshToken: string): Promise<void>;
+  execute(data: UpdateUserRefreshTokenRequestDto): Promise<void>;
 }

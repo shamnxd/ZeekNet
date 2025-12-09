@@ -1,28 +1,9 @@
-import { PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
+  import { PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
 import { JobPostingDetailResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
+import { GetAllJobPostingsResponseDto } from 'src/application/dto/public/public-job-postings-response.dto';
 
 export interface IGetAllJobPostingsUseCase {
-  execute(query: JobPostingFilters): Promise<{
-    jobs: Array<{
-      id: string;
-      title: string;
-      viewCount: number;
-      applicationCount: number;
-      salary: { min: number; max: number };
-      companyName: string;
-      companyLogo?: string;
-      createdAt: Date;
-      location: string;
-      description: string;
-      skillsRequired: string[];
-    }>;
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  }>;
+  execute(query: JobPostingFilters): Promise<GetAllJobPostingsResponseDto>;
 }
 
 export interface IGetJobPostingForPublicUseCase {

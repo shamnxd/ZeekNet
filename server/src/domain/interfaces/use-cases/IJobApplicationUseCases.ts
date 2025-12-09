@@ -8,45 +8,52 @@ import { CreateJobApplicationData } from './applications/CreateJobApplicationDat
 import { AddInterviewData } from './interview/AddInterviewData';
 import { UpdateInterviewData } from './interview/UpdateInterviewData';
 import { AddInterviewFeedbackData } from './interview/AddInterviewFeedbackData';
+import { DeleteInterviewData } from './interview/DeleteInterviewData';
+import { ApplicationFiltersRequestDto } from 'src/application/dto/application/application-filters.dto';
+import { UpdateApplicationStageRequestDto } from 'src/application/dto/application/update-application-stage.dto';
+import { GetApplicationsByJobRequestDto } from 'src/application/dto/application/get-applications-by-job.dto';
+import { GetApplicationDetailsRequestDto } from 'src/application/dto/application/get-application-details.dto';
+import { UpdateScoreRequestDto } from 'src/application/dto/application/update-score.dto';
+import { GetApplicationsBySeekerRequestDto } from 'src/application/dto/application/get-applications-by-seeker.dto';
 
 export interface ICreateJobApplicationUseCase {
-  execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }>;
+  execute(data: CreateJobApplicationData): Promise<{ id: string }>;
 }
 
 export interface IGetApplicationsByJobUseCase {
-  execute(userId: string, jobId: string, filters: { stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
+  execute(data: GetApplicationsByJobRequestDto): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationsBySeekerUseCase {
-  execute(seekerId: string, filters: { stage?: ApplicationStage; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
+  execute(data: GetApplicationsBySeekerRequestDto): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationsByCompanyUseCase {
-  execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto>;
+  execute(data: ApplicationFiltersRequestDto): Promise<PaginatedApplicationsResponseDto>;
 }
 
 export interface IGetApplicationDetailsUseCase {
-  execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto>;
+  execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IGetSeekerApplicationDetailsUseCase {
-  execute(seekerId: string, applicationId: string): Promise<JobApplicationDetailResponseDto>;
+  execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateApplicationStageUseCase {
-  execute(userId: string, applicationId: string, stage: ApplicationStage, rejectionReason?: string): Promise<JobApplicationListResponseDto>;
+  execute(data: UpdateApplicationStageRequestDto): Promise<JobApplicationListResponseDto>;
 }
 
 export interface IUpdateApplicationScoreUseCase {
-  execute(userId: string, applicationId: string, score: number): Promise<JobApplicationListResponseDto>;
+  execute(data: UpdateScoreRequestDto): Promise<JobApplicationListResponseDto>;
 }
 
 export interface IAddInterviewUseCase {
-  execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(data: AddInterviewData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IUpdateInterviewUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto>;
+  execute(data: UpdateInterviewData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteInterviewUseCase {
@@ -54,7 +61,7 @@ export interface IDeleteInterviewUseCase {
 }
 
 export interface IAddInterviewFeedbackUseCase {
-  execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto>;
+  execute(data: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto>;
 }
 
 export interface IDeleteJobApplicationUseCase {

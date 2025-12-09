@@ -1,17 +1,9 @@
 import { SubscriptionPlan } from '../../entities/subscription-plan.entity';
 import { PaginatedSubscriptionPlans, SubscriptionPlanQueryOptions } from '../repositories/subscription-plan/ISubscriptionPlanRepository';
+import { CreateSubscriptionPlanRequestDto, UpdateSubscriptionPlanRequestDto } from 'src/application/dto/admin/subscription-plan-management.dto';
 
 export interface ICreateSubscriptionPlanUseCase {
-  execute(data: {
-    name: string;
-    description: string;
-    price: number;
-    duration: number;
-    features: string[];
-    jobPostLimit: number;
-    featuredJobLimit: number;
-    applicantAccessLimit: number;
-  }): Promise<SubscriptionPlan>;
+  execute(data: CreateSubscriptionPlanRequestDto): Promise<SubscriptionPlan>;
 }
 
 export interface IGetAllSubscriptionPlansUseCase {
@@ -23,19 +15,6 @@ export interface IGetSubscriptionPlanByIdUseCase {
 }
 
 export interface IUpdateSubscriptionPlanUseCase {
-  execute(
-    planId: string,
-    data: {
-      name?: string;
-      description?: string;
-      price?: number;
-      duration?: number;
-      features?: string[];
-      jobPostLimit?: number;
-      featuredJobLimit?: number;
-      applicantAccessLimit?: number;
-      isActive?: boolean;
-    }
-  ): Promise<SubscriptionPlan>;
+  execute(data: UpdateSubscriptionPlanRequestDto): Promise<SubscriptionPlan>;
 }
 

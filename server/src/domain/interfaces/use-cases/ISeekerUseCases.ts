@@ -5,9 +5,19 @@ import {
   EducationResponseDto, 
   ResumeMetaResponseDto, 
 } from '../../../application/dto/seeker/seeker-profile-response.dto';
+import { UploadAvatarRequestDto, UploadBannerRequestDto } from 'src/application/dto/seeker/upload-file.dto';
+import {
+  CreateSeekerProfileRequestDto,
+  UpdateSeekerProfileRequestDto,
+  AddExperienceRequestDto,
+  UpdateExperienceRequestDto,
+  AddEducationRequestDto,
+  UpdateEducationRequestDto,
+  UploadResumeRequestDto,
+} from 'src/application/dto/seeker/seeker-profile.dto';
 
 export interface ICreateSeekerProfileUseCase {
-  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(data: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IGetSeekerProfileUseCase {
@@ -15,11 +25,11 @@ export interface IGetSeekerProfileUseCase {
 }
 
 export interface IUpdateSeekerProfileUseCase {
-  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(data: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IAddExperienceUseCase {
-  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').AddExperienceRequestDto): Promise<ExperienceResponseDto>;
+  execute(data: AddExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IGetExperiencesUseCase {
@@ -27,7 +37,7 @@ export interface IGetExperiencesUseCase {
 }
 
 export interface IUpdateExperienceUseCase {
-  execute(userId: string, experienceId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
+  execute(data: UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
 }
 
 export interface IRemoveExperienceUseCase {
@@ -35,7 +45,7 @@ export interface IRemoveExperienceUseCase {
 }
 
 export interface IAddEducationUseCase {
-  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').AddEducationRequestDto): Promise<EducationResponseDto>;
+  execute(data: AddEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IGetEducationUseCase {
@@ -43,7 +53,7 @@ export interface IGetEducationUseCase {
 }
 
 export interface IUpdateEducationUseCase {
-  execute(userId: string, educationId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UpdateEducationRequestDto): Promise<EducationResponseDto>;
+  execute(data: UpdateEducationRequestDto): Promise<EducationResponseDto>;
 }
 
 export interface IRemoveEducationUseCase {
@@ -59,7 +69,7 @@ export interface IUpdateLanguagesUseCase {
 }
 
 export interface IUploadResumeUseCase {
-  execute(userId: string, dto: import('../../../application/dto/seeker/seeker-profile.dto').UploadResumeRequestDto): Promise<ResumeMetaResponseDto>;
+  execute(data: UploadResumeRequestDto): Promise<ResumeMetaResponseDto>;
 }
 
 export interface IRemoveResumeUseCase {
@@ -67,9 +77,9 @@ export interface IRemoveResumeUseCase {
 }
 
 export interface IUploadAvatarUseCase {
-  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+  execute(data: UploadAvatarRequestDto): Promise<SeekerProfileResponseDto>;
 }
 
 export interface IUploadBannerUseCase {
-  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+  execute(data: UploadBannerRequestDto): Promise<SeekerProfileResponseDto>;
 }

@@ -12,11 +12,25 @@ import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
 import { JobPostingQueryRequestDto } from 'src/application/dto/job-posting/job-posting.dto';
 import { CompanyJobPostingListItemDto } from 'src/application/dto/job-posting/job-posting-response.dto';
 import { SimpleUpdateCompanyProfileRequestDto } from 'src/application/dto/company/company-profile.dto';
+import { CreateCompanyProfileFromDtoRequestDto } from 'src/application/dto/company/create-company-profile-from-dto.dto';
+import { CreateCheckoutSessionRequestDto } from 'src/application/dto/company/create-checkout-session.dto';
+import { GetCompanyProfileResponseDto } from 'src/application/dto/company/company-profile-response.dto';
+import { GetCompanyDashboardResponseDto } from 'src/application/dto/company/company-dashboard-response.dto';
+import { CreateCheckoutSessionResponseDto } from 'src/application/dto/company/checkout-session-response.dto';
+import { GetCompanyJobPostingsResponseDto } from 'src/application/dto/company/company-job-postings-response.dto';
+import { UploadLogoRequestDto } from 'src/application/dto/company/upload-logo.dto';
+import { UploadBusinessLicenseRequestDto } from 'src/application/dto/company/upload-business-license.dto';
+import { UploadWorkplacePictureRequestDto } from 'src/application/dto/company/upload-workplace-picture.dto';
+import { GetBillingPortalRequestDto } from 'src/application/dto/company/get-billing-portal.dto';
+import { ChangeSubscriptionPlanRequestDto } from 'src/application/dto/company/change-subscription-plan.dto';
+import { HandleStripeWebhookRequestDto } from 'src/application/dto/company/handle-stripe-webhook.dto';
+import { CompanyProfileWithDetailsResponseDto } from 'src/application/dto/company/company-response.dto';
 import { CreateCompanyProfileData } from './company/CreateCompanyProfileData';
 import { CompanyVerificationData } from './company/CompanyVerificationData';
 import { CompanyContactData } from './company/CompanyContactData';
 import { CompanyTechStackData } from './company/CompanyTechStackData';
 import { CompanyOfficeLocationData } from './company/CompanyOfficeLocationData';
+import { CreateCompanyOfficeLocationRequestDto, UpdateCompanyOfficeLocationRequestDto } from 'src/application/dto/company/company-office-location.dto';
 import { CompanyBenefitsData } from './company/CompanyBenefitsData';
 import { CompanyWorkplacePicturesData } from './company/CompanyWorkplacePicturesData';
 import { CreateJobPostingData } from './jobs/CreateJobPostingData';
@@ -27,39 +41,31 @@ import { UploadBusinessLicenseResult } from './company/UploadBusinessLicenseResu
 import { UploadLogoResult } from './public/UploadLogoResult';
 
 export interface ICreateCompanyProfileUseCase {
-  execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile>;
+  execute(data: CreateCompanyProfileData): Promise<CompanyProfile>;
 }
 
 export interface IGetCompanyProfileUseCase {
-  execute(userId: string): Promise<{
-    profile: CompanyProfile;
-    contact: CompanyContact | null;
-    locations: CompanyOfficeLocation[];
-    techStack: CompanyTechStack[];
-    benefits: CompanyBenefits[];
-    workplacePictures: CompanyWorkplacePictures[];
-    verification: CompanyVerification | null;
-  } | null>;
+  execute(userId: string): Promise<GetCompanyProfileResponseDto | null>;
 }
 
 export interface IReapplyCompanyVerificationUseCase {
-  execute(userId: string, verificationData: CompanyVerificationData): Promise<CompanyProfile>;
+  execute(data: CompanyVerificationData): Promise<CompanyProfile>;
 }
 
 export interface ICompanyContactUseCase {
-  createContact(companyId: string, data: CompanyContactData): Promise<CompanyContact>;
+  createContact(data: CompanyContactData): Promise<CompanyContact>;
   getContactsByCompanyId(companyId: string): Promise<CompanyContact[]>;
-  updateContact(contactId: string, data: CompanyContactData): Promise<CompanyContact>;
+  updateContact(data: CompanyContactData): Promise<CompanyContact>;
   deleteContact(contactId: string): Promise<void>;
-  upsertContact(companyId: string, data: CompanyContactData): Promise<CompanyContact>;
+  upsertContact(data: CompanyContactData): Promise<CompanyContact>;
 }
 
 export interface ICreateCompanyTechStackUseCase {
-  execute(companyId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(data: CompanyTechStackData): Promise<CompanyTechStack>;
 }
 
 export interface IUpdateCompanyTechStackUseCase {
-  execute(techStackId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(data: CompanyTechStackData): Promise<CompanyTechStack>;
 }
 
 export interface IDeleteCompanyTechStackUseCase {
@@ -72,11 +78,11 @@ export interface IGetCompanyTechStackUseCase {
 }
 
 export interface ICreateCompanyOfficeLocationUseCase {
-  execute(companyId: string, data: CompanyOfficeLocationData): Promise<CompanyOfficeLocation>;
+  execute(data: CreateCompanyOfficeLocationRequestDto): Promise<CompanyOfficeLocation>;
 }
 
 export interface IUpdateCompanyOfficeLocationUseCase {
-  execute(companyId: string, locationId: string, data: CompanyOfficeLocationData): Promise<CompanyOfficeLocation>;
+  execute(data: UpdateCompanyOfficeLocationRequestDto): Promise<CompanyOfficeLocation>;
 }
 
 export interface IDeleteCompanyOfficeLocationUseCase {
@@ -89,11 +95,11 @@ export interface IGetCompanyOfficeLocationUseCase {
 }
 
 export interface ICreateCompanyBenefitUseCase {
-  execute(companyId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(data: CompanyBenefitsData): Promise<CompanyBenefits>;
 }
 
 export interface IUpdateCompanyBenefitUseCase {
-  execute(companyId: string, benefitId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(data: CompanyBenefitsData): Promise<CompanyBenefits>;
 }
 
 export interface IDeleteCompanyBenefitUseCase {
@@ -106,11 +112,11 @@ export interface IGetCompanyBenefitUseCase {
 }
 
 export interface ICreateCompanyWorkplacePictureUseCase {
-  execute(companyId: string, data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
+  execute(data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
 }
 
 export interface IUpdateCompanyWorkplacePictureUseCase {
-  execute(pictureId: string, data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
+  execute(data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
 }
 
 export interface IDeleteCompanyWorkplacePictureUseCase {
@@ -123,7 +129,7 @@ export interface IGetCompanyWorkplacePictureUseCase {
 }
 
 export interface ICreateJobPostingUseCase {
-  execute(userId: string, jobData: CreateJobPostingData): Promise<JobPosting>;
+  execute(data: CreateJobPostingData): Promise<JobPosting>;
 }
 
 export interface IGetJobPostingUseCase {
@@ -131,15 +137,15 @@ export interface IGetJobPostingUseCase {
 }
 
 export interface IUpdateJobPostingUseCase {
-  execute(jobId: string, updates: UpdateJobPostingData): Promise<JobPosting>;
+  execute(data: UpdateJobPostingData): Promise<JobPosting>;
 }
 
 export interface IUpdateJobStatusUseCase {
-  execute(jobId: string, status: string, userId?: string): Promise<JobPosting>;
+  execute(data: { jobId: string; status: 'active' | 'unlisted' | 'expired' | 'blocked'; userId?: string }): Promise<JobPosting>;
 }
 
 export interface IUploadLogoUseCase {
-  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadLogoResult>;
+  execute(data: UploadLogoRequestDto): Promise<UploadLogoResult>;
 }
 
 export interface IGetCompanyJobPostingUseCase {
@@ -155,11 +161,11 @@ export interface IGetCompanyProfileByUserIdUseCase {
 }
 
 export interface IUploadBusinessLicenseUseCase {
-  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult>;
+  execute(data: UploadBusinessLicenseRequestDto): Promise<UploadBusinessLicenseResult>;
 }
 
 export interface IUploadWorkplacePictureUseCase {
-  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadWorkplacePictureResult>;
+  execute(data: UploadWorkplacePictureRequestDto): Promise<UploadWorkplacePictureResult>;
 }
 
 export interface IDeleteImageUseCase {
@@ -167,31 +173,15 @@ export interface IDeleteImageUseCase {
 }
 
 export interface IGetCompanyProfileWithJobPostingsUseCase {
-  execute(userId: string): Promise<import('../../../application/dto/company/company-response.dto').CompanyProfileWithDetailsResponseDto>;
+  execute(userId: string): Promise<CompanyProfileWithDetailsResponseDto>;
 }
 
 export interface IGetCompanyDashboardUseCase {
-  execute(userId: string): Promise<{
-    hasProfile: boolean;
-    profile: Awaited<ReturnType<IGetCompanyProfileUseCase['execute']>>;
-    profileStatus: 'not_created' | 'pending' | 'verified' | 'rejected';
-  }>;
+  execute(userId: string): Promise<GetCompanyDashboardResponseDto>;
 }
 
 export interface ICreateCompanyProfileFromDtoUseCase {
-  execute(userId: string, dto: {
-    company_name: string;
-    logo?: string;
-    website?: string;
-    employees: string;
-    industry: string;
-    organisation: string;
-    description: string;
-    tax_id?: string;
-    business_license?: string;
-    email?: string;
-    location?: string;
-  }): Promise<CompanyProfile>;
+  execute(data: CreateCompanyProfileFromDtoRequestDto): Promise<CompanyProfile>;
 }
 
 export interface IGetActiveSubscriptionUseCase {
@@ -211,7 +201,7 @@ export interface IRevertToDefaultPlanUseCase {
 }
 
 export interface IHandleStripeWebhookUseCase {
-  execute(payload: string | Buffer, signature: string): Promise<{ received: boolean }>;
+  execute(data: HandleStripeWebhookRequestDto): Promise<{ received: boolean }>;
 }
 
 export interface IGetPaymentHistoryUseCase {
@@ -219,41 +209,23 @@ export interface IGetPaymentHistoryUseCase {
 }
 
 export interface IGetBillingPortalUseCase {
-  execute(userId: string, returnUrl: string): Promise<{ url: string }>;
+  execute(data: GetBillingPortalRequestDto): Promise<{ url: string }>;
 }
 
 export interface ICreateCheckoutSessionUseCase {
-  execute(
-    userId: string,
-    planId: string,
-    billingCycle: 'monthly' | 'yearly',
-    successUrl: string,
-    cancelUrl: string,
-  ): Promise<{ sessionId: string; sessionUrl: string }>;
+  execute(data: CreateCheckoutSessionRequestDto): Promise<CreateCheckoutSessionResponseDto>;
 }
 
 export interface IChangeSubscriptionPlanUseCase {
-  execute(
-    userId: string,
-    newPlanId: string,
-    billingCycle?: 'monthly' | 'yearly',
-  ): Promise<ChangeSubscriptionResult>;
+  execute(data: ChangeSubscriptionPlanRequestDto): Promise<ChangeSubscriptionResult>;
 }
 
 export interface IGetCompanyJobPostingsUseCase {
-  execute(userId: string, query: JobPostingQueryRequestDto): Promise<{
-    jobs: CompanyJobPostingListItemDto[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  }>;
+  execute(data: JobPostingQueryRequestDto): Promise<GetCompanyJobPostingsResponseDto>;
 }
 
 export interface IUpdateCompanyProfileUseCase {
-  execute(userId: string, data: { profile: SimpleUpdateCompanyProfileRequestDto }): Promise<CompanyProfileResponseDto>;
+  execute(data: SimpleUpdateCompanyProfileRequestDto): Promise<CompanyProfileResponseDto>;
 }
 
 export interface IDeleteJobPostingUseCase {
