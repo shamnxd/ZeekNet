@@ -122,7 +122,11 @@ export class CompanyProfileController {
         return handleValidationError('No logo uploaded', next);
       }
 
-      const result = await this._uploadLogoUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadLogoUseCase.execute({
+        buffer: file.buffer,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+      });
       sendSuccessResponse(res, 'Logo uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

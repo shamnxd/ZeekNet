@@ -8,11 +8,8 @@ import { CompanySubscription } from '../../../domain/entities/company-subscripti
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
-
-interface ChangeSubscriptionResult {
-  subscription: CompanySubscription;
-  prorationAmount?: number;
-}
+import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
+import { ChangeSubscriptionResult } from '../../../domain/interfaces/use-cases/subscriptions/ChangeSubscriptionResult';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
@@ -23,11 +20,9 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    newPlanId: string,
-    billingCycle?: 'monthly' | 'yearly',
-  ): Promise<ChangeSubscriptionResult> {
+  async execute(data: ChangeSubscriptionPlanRequestDto): Promise<ChangeSubscriptionResult> {
+    const { userId, newPlanId, billingCycle } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

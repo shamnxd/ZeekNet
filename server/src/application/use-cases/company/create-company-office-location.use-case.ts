@@ -6,7 +6,7 @@ import { ICreateCompanyOfficeLocationUseCase } from '../../../domain/interfaces/
 export class CreateCompanyOfficeLocationUseCase implements ICreateCompanyOfficeLocationUseCase {
   constructor(private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository) {}
 
-  async execute(data: CompanyOfficeLocationData): Promise<CompanyOfficeLocation> {
+  async execute(data: CreateCompanyOfficeLocationRequestDto): Promise<CompanyOfficeLocation> {
     const { companyId, ...locationData } = data;
     if (!companyId) throw new Error('Company ID is required');
     const officeLocation = CompanyOfficeLocation.create({ ...locationData, companyId });

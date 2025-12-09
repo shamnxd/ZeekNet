@@ -63,7 +63,7 @@ export class SeekerJobApplicationController {
         );
       }
 
-      const application = await this._createJobApplicationUseCase.execute(userId, dto.data);
+      const application = await this._createJobApplicationUseCase.execute({ seekerId: userId, ...dto.data });
 
       sendSuccessResponse(res, 'Application submitted successfully', { id: application.id }, undefined, 201);
     } catch (error) {
@@ -83,7 +83,8 @@ export class SeekerJobApplicationController {
         );
       }
 
-      const result = await this._getApplicationsBySeekerUseCase.execute(userId, {
+      const result = await this._getApplicationsBySeekerUseCase.execute({
+        seekerId: userId,
         stage: filters.data.stage,
         page: filters.data.page,
         limit: filters.data.limit,

@@ -82,7 +82,8 @@ export class AdminSubscriptionPlanController {
     }
 
     try {
-      const plan = await this._updateSubscriptionPlanUseCase.execute(id, parsed.data);
+      const { planId: _, ...updateData } = parsed.data;
+      const plan = await this._updateSubscriptionPlanUseCase.execute(id, updateData);
       sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
     } catch (error) {
       handleAsyncError(error, next);
@@ -104,11 +105,11 @@ export class AdminSubscriptionPlanController {
     }
 
     try {
-      const result = await this._migratePlanSubscribersUseCase.execute(
-        id,
-        parsed.data.billingCycle,
-        parsed.data.prorationBehavior,
-      );
+      const result = await this._migratePlanSubscribersUseCase.execute({
+        planId: id,
+        billingCycle: parsed.data.billingCycle,
+        prorationBehavior: parsed.data.prorationBehavior,
+      });
       sendSuccessResponse(res, `Migration completed: ${result.migratedCount} subscribers migrated`, result);
     } catch (error) {
       handleAsyncError(error, next);

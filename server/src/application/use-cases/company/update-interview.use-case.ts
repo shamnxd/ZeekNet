@@ -30,7 +30,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       interviewType: string;
       location: string;
       interviewerName: string;
-      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
     }> = {};
     if (dto.date !== undefined) {
       interviewData.date = dto.date instanceof Date ? dto.date : new Date(dto.date);

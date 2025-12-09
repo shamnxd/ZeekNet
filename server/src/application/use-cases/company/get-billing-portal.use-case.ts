@@ -3,10 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
-
-interface BillingPortalResult {
-  url: string;
-}
+import { GetBillingPortalRequestDto } from '../../dto/company/get-billing-portal.dto';
 
 export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
   constructor(
@@ -15,7 +12,9 @@ export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, returnUrl: string): Promise<BillingPortalResult> {
+  async execute(data: GetBillingPortalRequestDto): Promise<{ url: string }> {
+    const { userId, returnUrl } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

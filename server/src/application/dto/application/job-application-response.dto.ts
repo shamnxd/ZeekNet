@@ -5,7 +5,7 @@ export interface InterviewScheduleResponseDto {
   interview_type: string;
   location: string;
   interviewer_name?: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
   feedback?: {
     reviewer_name: string;
     rating?: number;

@@ -12,6 +12,7 @@ import { NotificationType, Notification } from '../../../domain/entities/notific
 import { logger } from '../../../infrastructure/config/logger';
 import { RevertToDefaultPlanUseCase } from './revert-to-default-plan.use-case';
 import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/ICompanyUseCases';
+import { HandleStripeWebhookRequestDto } from '../../dto/company/handle-stripe-webhook.dto';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
   private readonly _revertToDefaultPlanUseCase: RevertToDefaultPlanUseCase;
@@ -34,7 +35,8 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     );
   }
 
-  async execute(payload: string | Buffer, signature: string): Promise<{ received: boolean }> {
+  async execute(data: HandleStripeWebhookRequestDto): Promise<{ received: boolean }> {
+    const { payload, signature } = data;
     try {
       const event = this._stripeService.constructWebhookEvent(payload, signature);
 

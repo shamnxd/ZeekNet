@@ -2,11 +2,13 @@ import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
 import { IUploadLogoUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { UploadLogoResult } from 'src/domain/interfaces/use-cases/public/UploadLogoResult';
+import { UploadLogoRequestDto } from '../../dto/company/upload-logo.dto';
 
 export class UploadLogoUseCase implements IUploadLogoUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
 
-  async execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadLogoResult> {
+  async execute(data: UploadLogoRequestDto): Promise<UploadLogoResult> {
+    const { buffer, originalname, mimetype } = data;
     this.validateFileType(mimetype, originalname);
     
     const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);

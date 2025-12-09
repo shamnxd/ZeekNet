@@ -6,17 +6,18 @@ import { RegisterRequestDto } from '../../../../application/dto/auth/register.dt
 import { LoginRequestDto } from '../../../../application/dto/auth/login.dto';
 import { UpdateUserVerificationStatusRequestDto } from '../../../../application/dto/auth/update-user-verification-status.dto';
 import { UpdateUserRefreshTokenRequestDto } from '../../../../application/dto/auth/update-user-refresh-token.dto';
+import { UserRole } from '../../../enums/user-role.enum';
 
 export interface IRegisterUserUseCase {
-  execute(data: RegisterRequestDto): Promise<RegisterResult>;
+  execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResult>;
 }
 
 export interface ILoginUserUseCase {
-  execute(data: LoginRequestDto): Promise<LoginResult>;
+  execute(email: string, password: string): Promise<LoginResult>;
 }
 
 export interface IAdminLoginUseCase {
-  execute(data: LoginRequestDto): Promise<LoginResult>;
+  execute(email: string, password: string): Promise<LoginResult>;
 }
 
 export interface IGoogleLoginUseCase {
@@ -52,9 +53,9 @@ export interface IGetUserByEmailUseCase {
 }
 
 export interface IUpdateUserVerificationStatusUseCase {
-  execute(data: UpdateUserVerificationStatusRequestDto): Promise<void>;
+  execute(email: string, isVerified: boolean): Promise<void>;
 }
 
 export interface IUpdateUserRefreshTokenUseCase {
-  execute(data: UpdateUserRefreshTokenRequestDto): Promise<void>;
+  execute(userId: string, hashedRefreshToken: string): Promise<void>;
 }

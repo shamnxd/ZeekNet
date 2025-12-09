@@ -23,6 +23,9 @@ import { UpdateScoreDto } from '../../../application/dto/application/update-scor
 import { AddInterviewDto } from '../../../application/dto/application/add-interview.dto';
 import { UpdateInterviewDto } from '../../../application/dto/application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/application/add-interview-feedback.dto';
+import { AddInterviewData } from '../../../domain/interfaces/use-cases/interview/AddInterviewData';
+import { UpdateInterviewData } from '../../../domain/interfaces/use-cases/interview/UpdateInterviewData';
+import { AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -52,9 +55,13 @@ export class CompanyJobApplicationController {
 
       let result;
       if (job_id) {
-        result = await this._getApplicationsByJobUseCase.execute(userId, job_id as string, filters.data);
+        result = await this._getApplicationsByJobUseCase.execute({
+          jobId: job_id as string,
+          ...filters.data,
+          userId,
+        });
       } else {
-        result = await this._getApplicationsByCompanyUseCase.execute(userId, filters.data);
+        result = await this._getApplicationsByCompanyUseCase.execute({ ...filters.data, userId });
       }
 
       sendSuccessResponse(res, 'Applications retrieved successfully', result);
@@ -68,7 +75,7 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const response = await this._getApplicationDetailsUseCase.execute(userId, id);
+      const response = await this._getApplicationDetailsUseCase.execute({ userId, applicationId: id });
 
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {
@@ -93,7 +100,7 @@ export class CompanyJobApplicationController {
         userId,
         id,
         dto.data.stage,
-        dto.data.rejection_reason,
+        dto.data.rejectionReason,
       );
 
       sendSuccessResponse(res, 'Application stage updated successfully', application);
@@ -136,7 +143,16 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const application = await this._addInterviewUseCase.execute(userId, id, dto.data);
+      const interviewData: AddInterviewData = {
+        userId,
+        applicationId: id,
+        date: new Date(dto.data.interview_date),
+        time: dto.data.interview_time,
+        interview_type: dto.data.interview_type,
+        location: dto.data.location || '',
+        interviewer_name: dto.data.interviewer_name,
+      };
+      const application = await this._addInterviewUseCase.execute(interviewData);
 
       sendSuccessResponse(res, 'Interview added successfully', application);
     } catch (error) {
@@ -160,7 +176,18 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const application = await this._updateInterviewUseCase.execute(userId, id, interviewId, dto.data);
+      const interviewData: UpdateInterviewData = {
+        userId,
+        applicationId: id,
+        interviewId,
+        date: dto.data.interview_date ? new Date(dto.data.interview_date) : undefined,
+        time: dto.data.interview_time,
+        interview_type: dto.data.interview_type,
+        location: dto.data.location,
+        interviewer_name: dto.data.interviewer_name,
+        status: dto.data.status,
+      };
+      const application = await this._updateInterviewUseCase.execute(interviewData);
 
       sendSuccessResponse(res, 'Interview updated successfully', application);
     } catch (error) {
@@ -197,7 +224,15 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const application = await this._addInterviewFeedbackUseCase.execute(userId, id, interviewId, dto.data);
+      const feedbackData: AddInterviewFeedbackData = {
+        userId,
+        applicationId: id,
+        interviewId,
+        reviewer_name: dto.data.reviewer_name,
+        rating: dto.data.rating,
+        comment: dto.data.comment,
+      };
+      const application = await this._addInterviewFeedbackUseCase.execute(feedbackData);  
 
       sendSuccessResponse(res, 'Interview feedback added successfully', application);
     } catch (error) {

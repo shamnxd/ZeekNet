@@ -31,7 +31,7 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
       search: undefined,
     };
 
-    const jobPostings = await this._getCompanyJobPostingsUseCase.execute(userId, jobPostingsQuery);
+    const jobPostings = await this._getCompanyJobPostingsUseCase.execute({ userId, ...jobPostingsQuery });
 
     const jobEntities: JobPosting[] = jobPostings.jobs.map(j => JobPosting.create({
       id: j.id,
