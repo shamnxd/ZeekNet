@@ -1,6 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IGetNotificationsUseCase, IMarkNotificationAsReadUseCase, IMarkAllNotificationsAsReadUseCase, IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
+import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
+import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
+import { IMarkAllNotificationsAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
+import { IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { sendSuccessResponse, handleAsyncError, validateUserId } from '../../../shared/utils/controller.utils';
 
 export class NotificationController {
