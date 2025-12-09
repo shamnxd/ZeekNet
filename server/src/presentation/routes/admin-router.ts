@@ -3,7 +3,7 @@ import { adminController, adminJobController, adminJobCategoryController, adminS
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
-import { GetAllUsersDto, BlockUserDto } from '../../application/dto/admin/user-management.dto';
+import { GetAllUsersDto } from '../../application/dto/admin/user-management.dto';
 import { AdminGetAllJobsDto } from '../../application/dto/admin/admin-job.dto';
 import { GetAllJobCategoriesDto, CreateJobCategoryDto, UpdateJobCategoryDto } from '../../application/dto/admin/job-category.dto';
 import { GetAllSkillsDto, CreateSkillDto, UpdateSkillDto } from '../../application/dto/admin/skill-management.dto';
@@ -23,7 +23,7 @@ export class AdminRouter {
     this.router.use(requireAdmin as RequestHandler);
 
     this.router.get('/users', validateQuery(GetAllUsersDto), adminController.getAllUsers);
-    this.router.patch('/users/block', validateBody(BlockUserDto), adminController.blockUser);
+    this.router.patch('/users/block', adminController.blockUser);
     this.router.get('/users/:id', adminController.getUserById);
 
     this.router.get('/companies', adminController.getAllCompanies);
