@@ -1,5 +1,5 @@
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
-import { UpdateJobPostingData } from '../jobs/UpdateJobPostingData';
+import { UpdateJobPostingData } from './UpdateJobPostingData';
 
 
 export interface IUpdateJobPostingUseCase {

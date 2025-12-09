@@ -1,5 +1,5 @@
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
-import { CreateJobPostingData } from '../jobs/CreateJobPostingData';
+import { CreateJobPostingData } from './CreateJobPostingData';
 
 
 export interface ICreateJobPostingUseCase {
