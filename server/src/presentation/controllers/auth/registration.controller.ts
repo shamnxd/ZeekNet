@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RegisterDto } from '../../../application/dto/auth/register.dto';
-import { IRegisterUserUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/IRegisterUserUseCase';
 import { validateBody } from '../../middleware/validation.middleware';
 import { handleAsyncError } from '../../../shared/utils/controller.utils';
 import { sendSuccessResponse } from '../../../shared/utils/controller.utils';

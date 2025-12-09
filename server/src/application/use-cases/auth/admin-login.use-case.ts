@@ -4,7 +4,7 @@ import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHa
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IAdminLoginUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
 import { AuthenticationError, AuthorizationError } from '../../../domain/errors/errors';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { UserMapper } from '../../mappers/user.mapper';

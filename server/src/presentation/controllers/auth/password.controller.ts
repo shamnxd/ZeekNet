@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { IForgotPasswordUseCase, IResetPasswordUseCase, ILogoutUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { ILogoutUseCase } from 'src/domain/interfaces/use-cases/auth/ILogoutUseCase';
+import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IResetPasswordUseCase';
+import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IForgotPasswordUseCase';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';

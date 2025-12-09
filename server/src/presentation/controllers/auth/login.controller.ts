@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { LoginDto } from '../../../application/dto/auth/login.dto';
-import { ILoginUserUseCase, IAdminLoginUseCase, IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
+import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
+import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUserUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 

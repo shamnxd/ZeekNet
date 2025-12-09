@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { IRefreshTokenUseCase, IAuthGetUserByIdUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/IAuthGetUserByIdUseCase';
+import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IRefreshTokenUseCase';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';

@@ -5,7 +5,7 @@ import { ITokenService } from '../../../domain/interfaces/services/ITokenService
 import { IGoogleTokenVerifier } from '../../../domain/interfaces/services/IGoogleTokenVerifier';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/auth/IAuthUseCases';
+import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { AuthorizationError } from '../../../domain/errors/errors';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
