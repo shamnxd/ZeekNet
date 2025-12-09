@@ -1,5 +1,5 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IUpdateSkillsUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IUpdateSkillsUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateSkillsUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class UpdateSkillsUseCase implements IUpdateSkillsUseCase {

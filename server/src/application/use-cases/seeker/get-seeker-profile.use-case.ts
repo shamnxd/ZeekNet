@@ -2,7 +2,7 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';

@@ -1,4 +1,4 @@
-import { IUploadBannerUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IUploadBannerUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadBannerUseCase';
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';

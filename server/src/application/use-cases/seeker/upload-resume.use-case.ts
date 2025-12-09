@@ -1,10 +1,10 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IUploadResumeUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { ResumeMeta } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { ResumeMetaResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
 import { UploadResumeRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { IUploadResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadResumeUseCase';
 
 export class UploadResumeUseCase implements IUploadResumeUseCase {
   constructor(

@@ -1,6 +1,6 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { IUpdateExperienceUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IUpdateExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateExperienceUseCase';
 import { Experience } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';

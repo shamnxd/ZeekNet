@@ -1,11 +1,11 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
-import { IUpdateEducationUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { Education } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { EducationResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
 import { UpdateEducationRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { IUpdateEducationUseCase } from 'src/domain/interfaces/use-cases/seeker/IUpdateEducationUseCase';
 
 export class UpdateEducationUseCase implements IUpdateEducationUseCase {
   constructor(

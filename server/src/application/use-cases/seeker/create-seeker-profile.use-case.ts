@@ -1,5 +1,5 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/ICreateSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';

@@ -1,25 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse, validateUserId, badRequest } from '../../../shared/utils/controller.utils';
-import {
-  ICreateSeekerProfileUseCase,
-  IGetSeekerProfileUseCase,
-  IUpdateSeekerProfileUseCase,
-  IAddExperienceUseCase,
-  IGetExperiencesUseCase,
-  IUpdateExperienceUseCase,
-  IRemoveExperienceUseCase,
-  IAddEducationUseCase,
-  IGetEducationUseCase,
-  IUpdateEducationUseCase,
-  IRemoveEducationUseCase,
-  IUpdateSkillsUseCase,
-  IUpdateLanguagesUseCase,
-  IUploadResumeUseCase,
-  IRemoveResumeUseCase,
-  IUploadAvatarUseCase,
-  IUploadBannerUseCase,
-} from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/ICreateSeekerProfileUseCase';
+import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetSeekerProfileUseCase';
+import { IUpdateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateSeekerProfileUseCase';
+import { IAddExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IAddExperienceUseCase';
+import { IGetExperiencesUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetExperiencesUseCase';
+import { IUpdateExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateExperienceUseCase';
+import { IRemoveExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveExperienceUseCase';
+import { IAddEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IAddEducationUseCase';
+import { IGetEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetEducationUseCase';
+import { IUpdateEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateEducationUseCase';
+import { IRemoveEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveEducationUseCase';
+import { IUpdateSkillsUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateSkillsUseCase';
+import { IUpdateLanguagesUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateLanguagesUseCase';
+import { IUploadResumeUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadResumeUseCase';
+import { IRemoveResumeUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveResumeUseCase';
+import { IUploadAvatarUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
+import { IUploadBannerUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadBannerUseCase';
 import { 
   CreateSeekerProfileRequestDto, 
   UpdateSeekerProfileRequestDto,

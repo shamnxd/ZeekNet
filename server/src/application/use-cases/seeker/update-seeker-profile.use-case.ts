@@ -1,5 +1,5 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IUpdateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IUpdateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfile } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError } from '../../../domain/errors/errors';

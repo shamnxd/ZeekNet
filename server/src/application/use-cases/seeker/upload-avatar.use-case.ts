@@ -1,9 +1,9 @@
-import { IUploadAvatarUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
+import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
 
 export class UploadAvatarUseCase implements IUploadAvatarUseCase {
   constructor(

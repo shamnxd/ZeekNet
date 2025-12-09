@@ -1,6 +1,6 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
-import { IRemoveEducationUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IRemoveEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveEducationUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class RemoveEducationUseCase implements IRemoveEducationUseCase {
