@@ -1,5 +1,5 @@
+import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/job-categorys/IGetAllJobCategoriesUseCase';
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
 import { PaginatedJobCategories } from 'src/domain/interfaces/use-cases/job-categorys/PaginatedJobCategories';
 
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {

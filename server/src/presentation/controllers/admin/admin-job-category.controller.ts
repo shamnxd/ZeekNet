@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateJobCategoryDto, UpdateJobCategoryDto, GetAllJobCategoriesDto, GetAllJobCategoriesRequestDto } from '../../../application/dto/admin/job-category.dto';
-import { ICreateJobCategoryUseCase, IGetAllJobCategoriesUseCase, IGetJobCategoryByIdUseCase, IUpdateJobCategoryUseCase, IDeleteJobCategoryUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
+import { ICreateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/ICreateJobCategoryUseCase';
+import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IGetAllJobCategoriesUseCase';
+import { IGetJobCategoryByIdUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IGetJobCategoryByIdUseCase';
+import { IUpdateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IUpdateJobCategoryUseCase';
+import { IDeleteJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IDeleteJobCategoryUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminJobCategoryController {
