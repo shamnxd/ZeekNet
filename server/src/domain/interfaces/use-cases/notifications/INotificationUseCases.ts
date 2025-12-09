@@ -1,7 +1,7 @@
-import { Notification } from '../../entities/notification.entity';
-import { NotificationResponseDto } from '../../../application/dto/notification/notification-response.dto';
-import { CreateNotificationData } from '../repositories/notification/INotificationRepository';
+
 import { GetNotificationsRequestDto } from 'src/application/dto/notification/get-notifications.dto';
+import { CreateNotificationData } from '../../repositories/notification/INotificationRepository';
+import { NotificationResponseDto } from 'src/application/dto/notification/notification-response.dto';
 
 export interface ICreateNotificationUseCase {
   execute(data: CreateNotificationData): Promise<Notification>;
