@@ -1,5 +1,5 @@
+import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/skills/IGetAllSkillsUseCase';
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
-import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllSkillsUseCase';
 import { PaginatedSkills } from 'src/domain/interfaces/use-cases/skills/PaginatedSkills';
 
 export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
