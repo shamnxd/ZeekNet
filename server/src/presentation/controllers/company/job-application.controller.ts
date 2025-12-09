@@ -6,17 +6,15 @@ import {
   sendSuccessResponse,
   validateUserId,
 } from '../../../shared/utils/controller.utils';
-import {
-  IGetApplicationsByJobUseCase,
-  IGetApplicationsByCompanyUseCase,
-  IGetApplicationDetailsUseCase,
-  IUpdateApplicationStageUseCase,
-  IUpdateApplicationScoreUseCase,
-  IAddInterviewUseCase,
-  IUpdateInterviewUseCase,
-  IDeleteInterviewUseCase,
-  IAddInterviewFeedbackUseCase,
-} from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewFeedbackUseCase';
+import { IDeleteInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IDeleteInterviewUseCase';
+import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateInterviewUseCase';
+import { IAddInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewUseCase';
+import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateApplicationScoreUseCase';
+import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateApplicationStageUseCase';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationDetailsUseCase';
+import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsByCompanyUseCase';
+import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsByJobUseCase';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';

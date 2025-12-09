@@ -1,4 +1,4 @@
-  import { PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
+import { PaginatedJobPostings, JobPostingFilters } from '../../entities/job-posting.entity';
 import { JobPostingDetailResponseDto } from '../../../application/dto/job-posting/job-posting-response.dto';
 import { GetAllJobPostingsResponseDto } from 'src/application/dto/public/public-job-postings-response.dto';
 
