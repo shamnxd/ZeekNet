@@ -7,8 +7,9 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import { ICompanyContactUseCase, IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { UpdateCompanyContactDto } from '../../../application/dto/company/company-contact.dto';
+import { ICompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/ICompanyContactUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyContactController {
   constructor(

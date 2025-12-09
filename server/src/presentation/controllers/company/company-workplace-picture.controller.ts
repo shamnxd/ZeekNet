@@ -7,15 +7,13 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyWorkplacePictureUseCase,
-  IUpdateCompanyWorkplacePictureUseCase,
-  IDeleteCompanyWorkplacePictureUseCase,
-  IGetCompanyWorkplacePictureUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyWorkplacePictureUseCase';
+import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyWorkplacePictureUseCase';
+import { IDeleteCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyWorkplacePictureUseCase';
+import { IGetCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyWorkplacePictureUseCase';
 import { CompanyWorkplacePicturesData } from 'src/domain/interfaces/use-cases/company/CompanyWorkplacePicturesData';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dto/company/company-workplace-pictures.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyWorkplacePictureController {
   constructor(

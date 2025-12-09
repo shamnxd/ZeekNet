@@ -7,15 +7,13 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyBenefitUseCase,
-  IUpdateCompanyBenefitUseCase,
-  IDeleteCompanyBenefitUseCase,
-  IGetCompanyBenefitUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyBenefitUseCase';
+import { IUpdateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyBenefitUseCase';
+import { IDeleteCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyBenefitUseCase';
+import { IGetCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyBenefitUseCase';
 import { CompanyBenefitsData } from 'src/domain/interfaces/use-cases/company/CompanyBenefitsData';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dto/company/company-benefits.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyBenefitController {
   constructor(

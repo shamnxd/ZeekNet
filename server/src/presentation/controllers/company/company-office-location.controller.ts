@@ -5,17 +5,14 @@ import {
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-  sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyOfficeLocationUseCase,
-  IUpdateCompanyOfficeLocationUseCase,
-  IDeleteCompanyOfficeLocationUseCase,
-  IGetCompanyOfficeLocationUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CompanyOfficeLocationData } from 'src/domain/interfaces/use-cases/company/CompanyOfficeLocationData';
 import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dto/company/company-office-location.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyOfficeLocationUseCase';
+import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyOfficeLocationUseCase';
+import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
+import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyOfficeLocationUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyOfficeLocationController {
   constructor(

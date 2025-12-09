@@ -7,15 +7,13 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyTechStackUseCase,
-  IUpdateCompanyTechStackUseCase,
-  IDeleteCompanyTechStackUseCase,
-  IGetCompanyTechStackUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyTechStackUseCase';
+import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyTechStackUseCase';
+import { IDeleteCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyTechStackUseCase';
+import { IGetCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyTechStackUseCase';
 import { CompanyTechStackData } from 'src/domain/interfaces/use-cases/company/CompanyTechStackData';
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dto/company/company-tech-stack.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyTechStackController {
   constructor(

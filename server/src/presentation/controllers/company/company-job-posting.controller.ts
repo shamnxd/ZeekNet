@@ -1,15 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from '../../../shared/utils/controller.utils';
-import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { CreateJobPostingRequestDto, UpdateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
-import { IGetCompanyJobPostingUseCase, IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
+import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IGetJobPostingUseCase';
+import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
+import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
+import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IDeleteJobPostingUseCase';
+import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
+import { CreateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
+import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
 
 export class CompanyJobPostingController {
   constructor(

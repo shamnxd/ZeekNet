@@ -7,16 +7,14 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyProfileFromDtoUseCase,
-  IUpdateCompanyProfileUseCase,
-  IGetCompanyProfileWithJobPostingsUseCase,
-  IReapplyCompanyVerificationUseCase,
-  IGetCompanyDashboardUseCase,
-  IUploadLogoUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { SimpleCompanyProfileDto } from '../../../application/dto/company/create-company.dto';
 import { SimpleUpdateCompanyProfileDto } from '../../../application/dto/company/company-profile.dto';
+import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
+import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
+import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
+import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
+import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
+import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
 
 export class CompanyProfileController {
   constructor(
