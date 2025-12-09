@@ -128,7 +128,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
+      const jobPosting = await this._updateJobStatusUseCase.execute(id, status, userId);
 
       sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
     } catch (error) {

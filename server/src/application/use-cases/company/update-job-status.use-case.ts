@@ -12,8 +12,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(data: { jobId: string; status: 'active' | 'unlisted' | 'expired' | 'blocked'; userId?: string }): Promise<JobPosting> {
-    const { jobId, status, userId } = data;
+  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', userId?: string): Promise<JobPosting> {
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {
