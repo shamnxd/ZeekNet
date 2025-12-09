@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dto/admin/subscription-plan-management.dto';
-import { 
-  ICreateSubscriptionPlanUseCase, 
-  IGetAllSubscriptionPlansUseCase, 
-  IGetSubscriptionPlanByIdUseCase, 
-  IUpdateSubscriptionPlanUseCase, 
-} from '../../../domain/interfaces/use-cases/subscriptions/ISubscriptionPlanUseCases';
+import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
+import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
+import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
+import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
