@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateSkillDto, UpdateSkillDto, GetAllSkillsDto } from '../../../application/dto/admin/skill-management.dto';
-import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/IDeleteSkillUseCase';
-import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/IUpdateSkillUseCase';
-import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetSkillByIdUseCase';
-import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllSkillsUseCase';
-import { ICreateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/ICreateSkillUseCase';
+import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/skills/IDeleteSkillUseCase';
+import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/skills/IUpdateSkillUseCase';
+import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/skills/IGetSkillByIdUseCase';
+import { ICreateSkillUseCase } from 'src/domain/interfaces/use-cases/skills/ICreateSkillUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/skills/IGetAllSkillsUseCase';
 
 export class AdminSkillController {
   constructor(
