@@ -1,5 +1,5 @@
 import { MigratePlanSubscribersRequestDto } from 'src/application/dto/admin/subscription-plan-management.dto';
-import { MigratePlanSubscribersResult } from '../subscriptions/MigratePlanSubscribersResult';
+import { MigratePlanSubscribersResult } from './MigratePlanSubscribersResult';
 
 
 export interface IMigratePlanSubscribersUseCase {
