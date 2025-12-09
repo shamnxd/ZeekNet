@@ -10,4 +10,4 @@ export const AddInterviewDto = z.object({
   interviewer_email: z.string().email().optional(),
 });
 
-export type AddInterviewRequestDto = z.infer<typeof AddInterviewDto>;
+

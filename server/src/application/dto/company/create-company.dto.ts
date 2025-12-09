@@ -72,4 +72,3 @@ const UpdateCompanyProfileDto = z.object({
   workplace_pictures: z.array(WorkplacePictureDto).optional(),
 });
 
-export type SimpleCompanyProfileRequestDto = z.infer<typeof SimpleCompanyProfileDto>;

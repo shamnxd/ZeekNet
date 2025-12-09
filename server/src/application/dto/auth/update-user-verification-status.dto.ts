@@ -5,4 +5,3 @@ export const UpdateUserVerificationStatusDto = z.object({
   isVerified: z.boolean(),
 });
 
-export type UpdateUserVerificationStatusRequestDto = z.infer<typeof UpdateUserVerificationStatusDto>;

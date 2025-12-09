@@ -9,8 +9,6 @@ export const UpdateSkillDto = z.object({
   name: z.string().min(1, 'Skill name is required').max(100, 'Skill name must be less than 100 characters').trim(),
 });
 
-export type UpdateSkillRequestDto = z.infer<typeof UpdateSkillDto>;
-
 export const GetAllSkillsDto = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(10),

@@ -27,4 +27,3 @@ export const AdminUpdateJobStatusDto = z.object({
 });
 
 export type AdminGetAllJobsDtoType = z.infer<typeof AdminGetAllJobsDto>;
-export type AdminUpdateJobStatusRequestDto = z.infer<typeof AdminUpdateJobStatusDto>;

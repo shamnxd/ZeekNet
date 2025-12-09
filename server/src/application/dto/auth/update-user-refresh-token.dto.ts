@@ -5,4 +5,3 @@ export const UpdateUserRefreshTokenDto = z.object({
   hashedRefreshToken: z.string().min(1, 'Refresh token is required'),
 });
 
-export type UpdateUserRefreshTokenRequestDto = z.infer<typeof UpdateUserRefreshTokenDto>;

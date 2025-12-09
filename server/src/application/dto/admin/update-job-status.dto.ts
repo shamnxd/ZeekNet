@@ -5,4 +5,3 @@ export const UpdateJobStatusDto = z.object({
   userId: z.string().optional(),
 });
 
-export type UpdateJobStatusRequestDto = z.infer<typeof UpdateJobStatusDto>;

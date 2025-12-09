@@ -9,8 +9,6 @@ export const UpdateJobRoleDto = z.object({
   name: z.string().min(1, 'Job role name is required').max(100, 'Job role name must be less than 100 characters').trim(),
 });
 
-export type UpdateJobRoleRequestDto = z.infer<typeof UpdateJobRoleDto>;
-
 export const GetAllJobRolesDto = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(10),

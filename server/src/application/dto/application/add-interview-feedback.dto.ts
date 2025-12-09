@@ -12,5 +12,3 @@ export const AddInterviewFeedbackDto = z.object({
   comment: z.string().min(1, 'Comment is required'),
 });
 
-export type AddInterviewFeedbackRequestDto = z.infer<typeof AddInterviewFeedbackDto>;
-export type AddInterviewFeedbackParamsRequestDto = z.infer<typeof AddInterviewFeedbackParamsDto>;

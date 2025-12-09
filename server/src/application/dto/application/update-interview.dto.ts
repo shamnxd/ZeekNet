@@ -17,5 +17,3 @@ export const UpdateInterviewDto = z.object({
   status: z.enum(['scheduled', 'completed', 'cancelled', 'no-show']).optional(),
 });
 
-export type UpdateInterviewRequestDto = z.infer<typeof UpdateInterviewDto>;
-export type UpdateInterviewParamsRequestDto = z.infer<typeof UpdateInterviewParamsDto>;
