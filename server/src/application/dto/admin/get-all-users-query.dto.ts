@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 
-export const GetAllUsersDto = z.object({
+export const GetAllUsersQueryDtoSchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).optional().default(10),
   search: z.string().optional(),
@@ -17,11 +17,8 @@ export const GetAllUsersDto = z.object({
   ),
 });
 
-export const CompanyVerificationDto = z.object({
-  companyId: z.string().min(1),
-  isVerified: z.enum(['pending', 'rejected', 'verified']),
-  rejection_reason: z.string().optional(),
-});
+export type GetAllUsersQueryDto = z.infer<typeof GetAllUsersQueryDtoSchema>;
 
-export type GetAllUsersRequestDto = z.infer<typeof GetAllUsersDto>;
-export type GetAllCompaniesRequestDto = GetAllUsersRequestDto;
+// Export as GetAllUsersDto for backward compatibility with router validation
+export const GetAllUsersDto = GetAllUsersQueryDtoSchema;
+

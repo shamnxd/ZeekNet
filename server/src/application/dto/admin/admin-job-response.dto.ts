@@ -21,3 +21,11 @@ export interface AdminJobListResponseDto {
     totalPages: number;
   };
 }
+
+export interface AdminJobStatsResponseDto {
+  total: number;
+  active: number;
+  inactive: number;
+  totalApplications: number;
+  totalViews: number;
+}
