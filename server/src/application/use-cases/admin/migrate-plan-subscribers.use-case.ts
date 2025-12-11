@@ -9,7 +9,7 @@ import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging
 import Stripe from 'stripe';
 import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
 import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
-import { MigratePlanSubscribersResult } from '../../../domain/interfaces/use-cases/subscriptions/MigratePlanSubscribersResult';
+import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
 
 export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUseCase {
   constructor(

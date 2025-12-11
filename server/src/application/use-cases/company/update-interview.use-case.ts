@@ -2,14 +2,14 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateInterviewUseCase';
-import { UpdateInterviewData } from 'src/domain/interfaces/use-cases/interview/UpdateInterviewData';
+import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IUpdateInterviewUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { UpdateInterviewData } from '../../../domain/interfaces/use-cases/interview/UpdateInterviewData';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(

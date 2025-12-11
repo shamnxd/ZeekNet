@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { JobPostingQueryRequestDto } from '../../dto/job-posting/job-posting.dto';
+import { JobPostingQueryRequestDto } from '../../dto/job-posting/get-job-postings-query.dto';
 import { AppError } from '../../../domain/errors/errors';
 import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';

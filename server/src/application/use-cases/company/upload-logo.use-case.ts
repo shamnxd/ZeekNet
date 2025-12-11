@@ -1,6 +1,6 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { UploadLogoResult } from 'src/domain/interfaces/use-cases/public/UploadLogoResult';
+import { UploadLogoResult } from '../../dto/public/upload-logo-result.dto';
 import { UploadLogoRequestDto } from '../../dto/company/upload-logo.dto';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
 

@@ -4,6 +4,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { AppError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
+import { UpdateJobStatusDto } from '../../dto/jobs/update-job-status.dto';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
@@ -12,7 +13,8 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', userId?: string): Promise<JobPosting> {
+  async execute(dto: UpdateJobStatusDto): Promise<JobPosting> {
+    const { jobId, status, userId } = dto;
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {

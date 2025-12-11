@@ -3,31 +3,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
 import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/payments/IGetAllPaymentOrdersUseCase';
-
-interface PaymentOrderWithDetails {
-  id: string;
-  orderNo: string;
-  companyId: string;
-  companyName: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
-  invoiceId?: string;
-  transactionId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface GetAllPaymentOrdersQuery {
-  page?: number;
-  limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  search?: string;
-  sortOrder?: 'asc' | 'desc';
-}
+import { GetAllPaymentOrdersRequestDto } from '../../dto/admin/payment-order.dto';
+import { GetAllPaymentOrdersResponseDto } from '../../dto/admin/get-all-payment-orders-response.dto';
 
 export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
@@ -36,13 +13,7 @@ export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
     private _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) {}
 
-  async execute(query: GetAllPaymentOrdersQuery): Promise<{
-    orders: PaymentOrderWithDetails[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
+  async execute(query: GetAllPaymentOrdersRequestDto): Promise<GetAllPaymentOrdersResponseDto> {
     const page = query.page || 1;
     const limit = query.limit || 10;
 

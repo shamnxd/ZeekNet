@@ -4,7 +4,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsByJobUseCase';
+import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
 import { GetApplicationsByJobRequestDto } from '../../dto/application/get-applications-by-job.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';

@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/IGetAllJobPostingsUseCase';
-import { JobPostingFilters } from '../../../domain/entities/job-posting.entity';
+import { JobPostingFilters } from 'src/application/dto/jobs/job-posting-filters.dto';
 import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
 
 interface PaginatedPublicJobs {

@@ -7,7 +7,8 @@ import { IUpdateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/co
 export class UpdateCompanyBenefitUseCase implements IUpdateCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}
 
-  async execute(companyId: string, benefitId: string, data: UpdateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+  async execute(data: UpdateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+    const { companyId, benefitId } = data;
     const existingBenefit = await this._companyBenefitsRepository.findById(benefitId);
     if (!existingBenefit) {
       throw new NotFoundError(`Company benefit with ID ${benefitId} not found`);

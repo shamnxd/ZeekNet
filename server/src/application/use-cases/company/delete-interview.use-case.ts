@@ -1,11 +1,12 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IDeleteInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IDeleteInterviewUseCase';
+import { IDeleteInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IDeleteInterviewUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { DeleteInterviewDto } from '../../dto/interview/delete-interview.dto';
 
 export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
   constructor(
@@ -14,7 +15,8 @@ export class DeleteInterviewUseCase implements IDeleteInterviewUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string): Promise<JobApplicationDetailResponseDto> {
+  async execute(dto: DeleteInterviewDto): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, interviewId } = dto;
     if (!userId) throw new Error('User ID is required');
     if (!applicationId) throw new Error('Application ID is required');
     if (!interviewId) throw new Error('Interview ID is required');

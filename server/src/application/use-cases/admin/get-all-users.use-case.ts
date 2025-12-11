@@ -1,14 +1,14 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllUsersUseCase';
-import { UserQueryOptions } from 'src/domain/interfaces/use-cases/seeker/UserQueryOptions';
-import { PaginatedUsers } from 'src/domain/interfaces/use-cases/seeker/PaginatedUsers';
+import { GetUsersQueryDto } from '../../dto/seeker/get-users-query.dto';
+import { PaginatedUsersResultDto } from '../../dto/seeker/paginated-users-result.dto';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { User } from '../../../domain/entities/user.entity';
 
 export class GetAllUsersUseCase implements IGetAllUsersUseCase {
   constructor(private readonly _userRepository: IUserRepository) {}
 
-  async execute(options: UserQueryOptions): Promise<PaginatedUsers> {
+  async execute(options: GetUsersQueryDto): Promise<PaginatedUsersResultDto> {
     const page = options.page || 1;
     const limit = options.limit || 10;
 

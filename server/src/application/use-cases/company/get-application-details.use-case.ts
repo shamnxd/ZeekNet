@@ -6,7 +6,7 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationDetailsUseCase';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
 import { GetApplicationDetailsRequestDto } from '../../dto/application/get-application-details.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';

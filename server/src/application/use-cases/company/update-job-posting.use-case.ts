@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { UpdateJobPostingData } from 'src/domain/interfaces/use-cases/jobs/UpdateJobPostingData';
+import { UpdateJobPostingRequestDto } from '../../dto/job-posting/update-job-posting-request.dto';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
@@ -7,7 +7,7 @@ import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/I
 export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(data: UpdateJobPostingData): Promise<JobPosting> {
+  async execute(data: UpdateJobPostingRequestDto & { jobId?: string }): Promise<JobPosting> {
     const { jobId, ...updates } = data;
     if (!jobId) throw new Error('Job ID is required');
     const existingJob = await this._jobPostingRepository.findById(jobId);

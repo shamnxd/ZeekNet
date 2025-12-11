@@ -7,7 +7,7 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
-import { ChangeSubscriptionResult } from '../../../domain/interfaces/use-cases/subscriptions/ChangeSubscriptionResult';
+import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {

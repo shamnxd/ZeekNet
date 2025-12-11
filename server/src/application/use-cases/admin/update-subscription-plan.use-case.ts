@@ -5,6 +5,7 @@ import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.ent
 import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
 import { AppError, NotFoundError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
+import { UpdateSubscriptionPlanDto } from '../../dto/subscriptions/update-subscription-plan.dto';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
@@ -13,23 +14,8 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
 
-  async execute(
-    planId: string,
-    data: {
-      name?: string;
-      description?: string;
-      price?: number;
-      duration?: number;
-      features?: string[];
-      jobPostLimit?: number;
-      featuredJobLimit?: number;
-      applicantAccessLimit?: number;
-      yearlyDiscount?: number;
-      isActive?: boolean;
-      isPopular?: boolean;
-      isDefault?: boolean;
-    },
-  ): Promise<SubscriptionPlan> {
+  async execute(dto: UpdateSubscriptionPlanDto): Promise<SubscriptionPlan> {
+    const { planId, ...data } = dto;
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
     
     if (!existingPlan) {

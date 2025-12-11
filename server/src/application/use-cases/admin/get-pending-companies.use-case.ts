@@ -1,15 +1,16 @@
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
-import { PaginatedCompaniesWithVerification } from 'src/domain/interfaces/use-cases/company/PaginatedCompaniesWithVerification';
+import { PaginatedCompaniesWithVerificationResultDto } from '../../dto/company/paginated-companies-with-verification-result.dto';
 
 export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {
   constructor(private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
 
-  async execute(): Promise<PaginatedCompaniesWithVerification> {
+  async execute(): Promise<PaginatedCompaniesWithVerificationResultDto> {
     return await this._getCompaniesWithVerificationUseCase.execute({
       page: 1,
       limit: 100,
       isVerified: 'pending',
+      sortOrder: 'desc' as const,
     });
   }
 }

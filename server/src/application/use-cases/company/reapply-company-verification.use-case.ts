@@ -1,7 +1,7 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { IReapplyCompanyVerificationUseCase } from '../../../domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
-import { CompanyVerificationData } from '../../../domain/interfaces/use-cases/company/CompanyVerificationData';
+import { CompanyVerificationRequestDtoType } from '../../dto/company/company-verification-request.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 
 export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerificationUseCase {
@@ -10,7 +10,7 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
   ) {}
 
-  async execute(data: CompanyVerificationData): Promise<CompanyProfile> {
+  async execute(data: CompanyVerificationRequestDtoType): Promise<CompanyProfile> {
     const { userId, ...verificationData } = data;
     if (!userId) throw new Error('User ID is required');
     const existingProfile = await this._companyProfileRepository.findOne({ userId });

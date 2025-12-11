@@ -5,12 +5,8 @@ import { IGetCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/u
 export class GetCompanyWorkplacePictureUseCase implements IGetCompanyWorkplacePictureUseCase {
   constructor(private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository) {}
 
-  async executeByCompanyId(companyId: string): Promise<CompanyWorkplacePictures[]> {
+  async execute(companyId: string): Promise<CompanyWorkplacePictures[]> {
     return this._companyWorkplacePicturesRepository.findMany({ companyId });
-  }
-
-  async executeById(pictureId: string): Promise<CompanyWorkplacePictures | null> {
-    return this._companyWorkplacePicturesRepository.findById(pictureId);
   }
 }
 

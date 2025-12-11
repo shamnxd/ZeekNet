@@ -1,6 +1,6 @@
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
 import { AppError } from '../../../domain/errors/errors';
-import { IDeleteJobCategoryUseCase } from 'src/domain/interfaces/use-cases/job-categorys/IDeleteJobCategoryUseCase';
+import { IDeleteJobCategoryUseCase } from 'src/domain/interfaces/use-cases/job-categories/IDeleteJobCategoryUseCase';
 
 export class DeleteJobCategoryUseCase implements IDeleteJobCategoryUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}

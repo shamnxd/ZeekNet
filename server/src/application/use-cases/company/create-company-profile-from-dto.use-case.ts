@@ -1,6 +1,6 @@
 import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
 import { ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
-import { CreateCompanyProfileData } from 'src/domain/interfaces/use-cases/company/CreateCompanyProfileData';
+import { CreateCompanyProfileRequestDtoType } from '../../dto/company/create-company-profile-request.dto';
 import { CreateCompanyProfileFromDtoRequestDto } from '../../dto/company/create-company-profile-from-dto.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 
@@ -10,7 +10,7 @@ export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfile
   async execute(data: CreateCompanyProfileFromDtoRequestDto): Promise<CompanyProfile> {
     const { userId, ...dto } = data;
     if (!userId) throw new Error('User ID is required');
-    const profileData: CreateCompanyProfileData = {
+    const profileData: CreateCompanyProfileRequestDtoType = {
       companyName: dto.company_name,
       logo: dto.logo || '/default-logo.png',
       banner: '/default-banner.png',

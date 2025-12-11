@@ -6,7 +6,11 @@ import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cas
 export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}
 
-  async execute(companyId: string, data: CreateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+  async execute(data: CreateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+    const { companyId } = data;
+    if (!companyId) {
+      throw new Error('Company ID is required');
+    }
     const benefit = CompanyBenefits.create({ ...data, companyId });
     return this._companyBenefitsRepository.create(benefit);
   }

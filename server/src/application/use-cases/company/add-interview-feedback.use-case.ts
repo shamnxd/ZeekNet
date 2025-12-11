@@ -1,12 +1,12 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewFeedbackUseCase';
-import { AddInterviewFeedbackData } from 'src/domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
+import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/interview/IAddInterviewFeedbackUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
 
 export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase {
   constructor(

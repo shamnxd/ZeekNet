@@ -6,7 +6,11 @@ import { ICreateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use
 export class CreateCompanyWorkplacePictureUseCase implements ICreateCompanyWorkplacePictureUseCase {
   constructor(private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository) {}
 
-  async execute(companyId: string, data: CreateCompanyWorkplacePicturesRequestDto): Promise<CompanyWorkplacePictures> {
+  async execute(data: CreateCompanyWorkplacePicturesRequestDto): Promise<CompanyWorkplacePictures> {
+    const { companyId } = data;
+    if (!companyId) {
+      throw new Error('Company ID is required');
+    }
     const picture = CompanyWorkplacePictures.create({ ...data, companyId });
     return this._companyWorkplacePicturesRepository.create(picture);
   }
