@@ -1,8 +1,6 @@
 import { ExperienceResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-import { UpdateExperienceRequestDto } from 'src/application/dto/seeker/seeker-profile.dto';
-
-// be
+import { UpdateExperienceRequestDto } from 'src/application/dto/seeker/update-experience-request.dto';
 
 export interface IUpdateExperienceUseCase {
-  execute(userId: string, experienceId: string, dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
+  execute(dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto>;
 }

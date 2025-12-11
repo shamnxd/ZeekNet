@@ -4,6 +4,7 @@ import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
+import { UploadBannerDto } from '../../dto/seeker/upload-banner.dto';
 
 export class UploadBannerUseCase implements IUploadBannerUseCase {
   constructor(
@@ -11,7 +12,8 @@ export class UploadBannerUseCase implements IUploadBannerUseCase {
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto> {
+  async execute(dto: UploadBannerDto): Promise<SeekerProfileResponseDto> {
+    const { userId, fileBuffer, fileName, mimeType } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');

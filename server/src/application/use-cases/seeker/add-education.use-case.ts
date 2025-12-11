@@ -4,7 +4,7 @@ import { IAddEducationUseCase } from '../../../domain/interfaces/use-cases/seeke
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { EducationResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { AddEducationRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { AddEducationRequestDto } from '../../dto/seeker/add-education-request.dto';
 
 export class AddEducationUseCase implements IAddEducationUseCase {
   constructor(

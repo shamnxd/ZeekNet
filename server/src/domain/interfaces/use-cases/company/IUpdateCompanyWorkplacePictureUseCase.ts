@@ -1,8 +1,6 @@
 import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
-import { CompanyWorkplacePicturesData } from './CompanyWorkplacePicturesData';
-
-// be
+import { UpdateCompanyWorkplacePicturesRequestDto } from 'src/application/dto/company/company-workplace-pictures.dto';
 
 export interface IUpdateCompanyWorkplacePictureUseCase {
-  execute(pictureId: string, data: CompanyWorkplacePicturesData): Promise<CompanyWorkplacePictures>;
+  execute(companyId: string, pictureId: string, data: UpdateCompanyWorkplacePicturesRequestDto): Promise<CompanyWorkplacePictures>;
 }

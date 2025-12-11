@@ -11,7 +11,8 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
     private readonly _seekerProfileRepository: ISeekerProfileRepository,
   ) {}
 
-  async execute(userId: string, dto: UploadResumeRequestDto): Promise<ResumeMetaResponseDto> {
+  async execute(dto: UploadResumeRequestDto): Promise<ResumeMetaResponseDto> {
+    const { userId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');

@@ -4,6 +4,7 @@ import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-respon
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
+import { UploadAvatarDto } from '../../dto/seeker/upload-avatar.dto';
 
 export class UploadAvatarUseCase implements IUploadAvatarUseCase {
   constructor(
@@ -11,7 +12,8 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto> {
+  async execute(dto: UploadAvatarDto): Promise<SeekerProfileResponseDto> {
+    const { userId, fileBuffer, fileName, mimeType } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');

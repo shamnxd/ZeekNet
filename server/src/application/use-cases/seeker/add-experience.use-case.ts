@@ -4,7 +4,7 @@ import { IAddExperienceUseCase } from '../../../domain/interfaces/use-cases/seek
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { ExperienceResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { AddExperienceRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { AddExperienceRequestDto } from '../../dto/seeker/add-experience-request.dto';
 
 export class AddExperienceUseCase implements IAddExperienceUseCase {
   constructor(
@@ -12,7 +12,8 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
     private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
   ) {}
 
-  async execute(userId: string, dto: AddExperienceRequestDto): Promise<ExperienceResponseDto> {
+  async execute(dto: AddExperienceRequestDto): Promise<ExperienceResponseDto> {
+    const { userId } = dto;
     const startDate = new Date(dto.startDate);
     const endDate = dto.endDate ? new Date(dto.endDate) : undefined;
 

@@ -1,5 +1,5 @@
 import { EducationResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-import { AddEducationRequestDto } from 'src/application/dto/seeker/seeker-profile.dto';
+import { AddEducationRequestDto } from 'src/application/dto/seeker/add-education-request.dto';
 
 
 export interface IAddEducationUseCase {

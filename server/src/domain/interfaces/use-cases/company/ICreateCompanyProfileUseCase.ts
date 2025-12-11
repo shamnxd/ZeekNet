@@ -1,8 +1,8 @@
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
-import { CreateCompanyProfileData } from './CreateCompanyProfileData';
+import { CreateCompanyProfileRequestDtoType } from 'src/application/dto/company/create-company-profile-request.dto';
 
 
 
 export interface ICreateCompanyProfileUseCase {
-  execute(data: CreateCompanyProfileData): Promise<CompanyProfile>;
+  execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfile>;
 }

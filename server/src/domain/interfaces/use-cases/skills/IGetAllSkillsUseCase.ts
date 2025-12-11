@@ -1,6 +1,6 @@
 import { GetAllSkillsRequestDto } from 'src/application/dto/admin/skill-management.dto';
-import { PaginatedSkills } from '../skills/PaginatedSkills';
+import { PaginatedSkillsResultDto } from 'src/application/dto/skills/paginated-skills-result.dto';
 
 export interface IGetAllSkillsUseCase {
-  execute(options: GetAllSkillsRequestDto): Promise<PaginatedSkills>;
+  execute(options: GetAllSkillsRequestDto): Promise<PaginatedSkillsResultDto>;
 }

@@ -1,6 +1,6 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetSeekerApplicationDetailsUseCase';
+import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';

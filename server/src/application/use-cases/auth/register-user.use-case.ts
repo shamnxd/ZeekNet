@@ -1,4 +1,4 @@
-import { RegisterResult } from '../../dto/auth/auth-response.dto';
+import { RegisterResponseDto } from '../../dto/auth/register-response.dto';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
@@ -18,7 +18,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResult> {
+  async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResponseDto> {
     const validationResult = this.validateInput(email, password, name);
     if (!validationResult.isValid) {
       throw new ValidationError(validationResult.errors.join(', '));

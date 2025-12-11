@@ -1,7 +1,6 @@
-import { UploadBusinessLicenseResult } from './UploadBusinessLicenseResult';
-
-// be
+import { UploadBusinessLicenseResult } from 'src/application/dto/company/upload-business-license-result.dto';
+import { UploadBusinessLicenseDto } from 'src/application/dto/company/upload-business-license.dto';
 
 export interface IUploadBusinessLicenseUseCase {
-  execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult>;
+  execute(dto: UploadBusinessLicenseDto): Promise<UploadBusinessLicenseResult>;
 }

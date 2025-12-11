@@ -1,7 +1,6 @@
 import { SeekerProfileResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-
-// be
+import { UploadBannerDto } from 'src/application/dto/seeker/upload-banner.dto';
 
 export interface IUploadBannerUseCase {
-  execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto>;
+  execute(dto: UploadBannerDto): Promise<SeekerProfileResponseDto>;
 }

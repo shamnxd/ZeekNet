@@ -1,4 +1,4 @@
-import { LoginResult } from '../../dto/auth/auth-response.dto';
+import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
@@ -22,7 +22,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(idToken: string): Promise<LoginResult> {
+  async execute(idToken: string): Promise<LoginResponseDto> {
     const profile = await this._googleVerifier.verifyIdToken(idToken);
     let user = await this._userRepository.findOne({ email: profile.email });
     if (!user) {

@@ -1,4 +1,4 @@
-import { GetAllPaymentOrdersResponseDto } from 'src/application/dto/admin/payment-order-response.dto';
+import { GetAllPaymentOrdersResponseDto } from 'src/application/dto/admin/get-all-payment-orders-response.dto';
 import { GetAllPaymentOrdersRequestDto } from 'src/application/dto/admin/payment-order.dto';
 
 

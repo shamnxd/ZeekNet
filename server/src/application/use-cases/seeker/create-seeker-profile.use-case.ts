@@ -4,7 +4,7 @@ import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { CreateSeekerProfileRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { CreateSeekerProfileRequestDto } from '../../dto/seeker/create-seeker-profile-request.dto';
 
 export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
   constructor(
@@ -12,7 +12,8 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto> {
+  async execute(dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto> {
+    const { userId } = dto;
     const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     if (existingProfile) {
       throw new ValidationError('Profile already exists. Use update endpoint to modify.');

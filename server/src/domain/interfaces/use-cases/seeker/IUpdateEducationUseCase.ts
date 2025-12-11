@@ -1,8 +1,6 @@
 import { EducationResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-import { UpdateEducationRequestDto } from 'src/application/dto/seeker/seeker-profile.dto';
-
-// be
+import { UpdateEducationRequestDto } from 'src/application/dto/seeker/update-education-request.dto';
 
 export interface IUpdateEducationUseCase {
-  execute(userId: string, educationId: string, dto: UpdateEducationRequestDto): Promise<EducationResponseDto>;
+  execute(dto: UpdateEducationRequestDto): Promise<EducationResponseDto>;
 }

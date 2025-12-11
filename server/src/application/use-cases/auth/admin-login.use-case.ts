@@ -1,4 +1,4 @@
-import { LoginResult } from '../../dto/auth/auth-response.dto';
+import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
@@ -18,7 +18,7 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(email: string, password: string): Promise<LoginResult> {
+  async execute(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AuthenticationError('Invalid credentials');

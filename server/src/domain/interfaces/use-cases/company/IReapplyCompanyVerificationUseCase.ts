@@ -1,8 +1,8 @@
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
-import { CompanyVerificationData } from './CompanyVerificationData';
+import { CompanyVerificationRequestDtoType } from 'src/application/dto/company/company-verification-request.dto';
 
 
 
 export interface IReapplyCompanyVerificationUseCase {
-  execute(data: CompanyVerificationData): Promise<CompanyProfile>;
+  execute(data: CompanyVerificationRequestDtoType): Promise<CompanyProfile>;
 }

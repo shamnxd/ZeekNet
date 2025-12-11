@@ -1,8 +1,6 @@
 import { SeekerProfileResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-import { UpdateSeekerProfileRequestDto } from 'src/application/dto/seeker/seeker-profile.dto';
-
-// be
+import { UpdateSeekerProfileRequestDto } from 'src/application/dto/seeker/update-seeker-profile-request.dto';
 
 export interface IUpdateSeekerProfileUseCase {
-  execute(userId: string, dto: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(dto: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }

@@ -1,4 +1,3 @@
-
 export interface IDeleteCompanyWorkplacePictureUseCase {
-  execute(pictureId: string): Promise<void>;
+  execute(companyId: string, pictureId: string): Promise<void>;
 }

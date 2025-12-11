@@ -1,8 +1,6 @@
 import { SeekerProfileResponseDto } from 'src/application/dto/seeker/seeker-profile-response.dto';
-import { CreateSeekerProfileRequestDto } from 'src/application/dto/seeker/seeker-profile.dto';
-
-// be
+import { CreateSeekerProfileRequestDto } from 'src/application/dto/seeker/create-seeker-profile-request.dto';
 
 export interface ICreateSeekerProfileUseCase {
-  execute(userId: string, dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
+  execute(dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto>;
 }

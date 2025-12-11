@@ -1,8 +1,6 @@
 import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
-import { CompanyTechStackData } from './CompanyTechStackData';
-
-// be
+import { UpdateCompanyTechStackRequestDto } from 'src/application/dto/company/company-tech-stack.dto';
 
 export interface IUpdateCompanyTechStackUseCase {
-  execute(techStackId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(companyId: string, techStackId: string, data: UpdateCompanyTechStackRequestDto): Promise<CompanyTechStack>;
 }

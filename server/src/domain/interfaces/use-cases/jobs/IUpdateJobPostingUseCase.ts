@@ -1,7 +1,7 @@
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
-import { UpdateJobPostingData } from './UpdateJobPostingData';
+import { UpdateJobPostingRequestDto } from 'src/application/dto/job-posting/update-job-posting-request.dto';
 
 
 export interface IUpdateJobPostingUseCase {
-  execute(data: UpdateJobPostingData): Promise<JobPosting>;
+  execute(data: UpdateJobPostingRequestDto & { jobId?: string }): Promise<JobPosting>;
 }

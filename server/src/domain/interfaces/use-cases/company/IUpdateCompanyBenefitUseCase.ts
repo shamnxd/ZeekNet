@@ -1,8 +1,6 @@
 import { CompanyBenefits } from 'src/domain/entities/company-benefits.entity';
-import { CompanyBenefitsData } from './CompanyBenefitsData';
-
-// be
+import { UpdateCompanyBenefitsRequestDto } from 'src/application/dto/company/company-benefits.dto';
 
 export interface IUpdateCompanyBenefitUseCase {
-  execute(companyId: string, benefitId: string, data: CompanyBenefitsData): Promise<CompanyBenefits>;
+  execute(data: UpdateCompanyBenefitsRequestDto): Promise<CompanyBenefits>;
 }

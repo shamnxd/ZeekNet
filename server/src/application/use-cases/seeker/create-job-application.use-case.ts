@@ -3,8 +3,9 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobApplicationUseCase';
-import { CreateJobApplicationData } from 'src/domain/interfaces/use-cases/applications/CreateJobApplicationData';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
+import { CreateJobApplicationDto } from '../../dto/application/create-job-application.dto';
+import { z } from 'zod';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -20,7 +21,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(data: CreateJobApplicationData): Promise<{ id: string }> {
+  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }): Promise<{ id: string }> {
     const { seekerId, ...applicationData } = data;
     if (!seekerId) throw new Error('Seeker ID is required');
     const user = await this._userRepository.findById(seekerId);

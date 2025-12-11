@@ -1,6 +1,6 @@
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { UpdateJobStatusDto } from 'src/application/dto/jobs/update-job-status.dto';
 
-// be
 export interface IUpdateJobStatusUseCase {
-  execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', userId?: string): Promise<JobPosting>;
+  execute(dto: UpdateJobStatusDto): Promise<JobPosting>;
 }

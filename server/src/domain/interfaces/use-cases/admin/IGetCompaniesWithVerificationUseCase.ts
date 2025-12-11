@@ -1,6 +1,6 @@
-import { CompanyQueryOptions } from '../company/CompanyQueryOptions';
-import { PaginatedCompaniesWithVerification } from '../company/PaginatedCompaniesWithVerification';
+import { GetCompaniesQueryDto } from 'src/application/dto/company/get-companies-query.dto';
+import { PaginatedCompaniesWithVerificationResultDto } from 'src/application/dto/company/paginated-companies-with-verification-result.dto';
 
 export interface IGetCompaniesWithVerificationUseCase {
-  execute(options: CompanyQueryOptions): Promise<PaginatedCompaniesWithVerification>;
+  execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesWithVerificationResultDto>;
 }

@@ -1,4 +1,4 @@
-import { LoginResult } from '../../dto/auth/auth-response.dto';
+import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
@@ -13,7 +13,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     private readonly _passwordHasher: IPasswordHasher,
   ) {}
 
-  async execute(refreshToken: string): Promise<LoginResult> {
+  async execute(refreshToken: string): Promise<LoginResponseDto> {
     const payload = this._tokenService.verifyRefresh(refreshToken);
     const user = await this._userRepository.findById(payload.sub);
     if (!user) {

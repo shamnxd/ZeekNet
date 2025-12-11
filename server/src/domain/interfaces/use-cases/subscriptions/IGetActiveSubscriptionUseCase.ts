@@ -1,7 +1,5 @@
-import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
-
-// be - res
+import { ActiveSubscriptionResponseDto } from 'src/application/dto/subscriptions/active-subscription-response.dto';
 
 export interface IGetActiveSubscriptionUseCase {
-  execute(userId: string): Promise<(CompanySubscription & { activeJobCount?: number; }) | null>;
+  execute(userId: string): Promise<ActiveSubscriptionResponseDto | null>;
 }

@@ -1,8 +1,6 @@
 import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
-import { CompanyTechStackData } from './CompanyTechStackData';
-
-// be
+import { CreateCompanyTechStackRequestDto } from 'src/application/dto/company/company-tech-stack.dto';
 
 export interface ICreateCompanyTechStackUseCase {
-  execute(companyId: string, data: CompanyTechStackData): Promise<CompanyTechStack>;
+  execute(data: CreateCompanyTechStackRequestDto): Promise<CompanyTechStack>;
 }
