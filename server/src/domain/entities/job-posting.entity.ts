@@ -80,27 +80,3 @@ export class JobPosting {
     );
   }
 }
-
-// be
-export interface JobPostingFilters {
-  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
-  categoryIds?: string[];
-  employmentTypes?: string[];
-  salaryMin?: number;
-  salaryMax?: number;
-  companyId?: string;
-  location?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface PaginatedJobPostings {
-  jobs: JobPosting[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
