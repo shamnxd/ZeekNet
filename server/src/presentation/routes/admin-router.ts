@@ -3,12 +3,21 @@ import { adminController, adminJobController, adminJobCategoryController, adminS
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
-import { GetAllUsersDto } from '../../application/dto/admin/user-management.dto';
-import { AdminGetAllJobsDto } from '../../application/dto/admin/admin-job.dto';
-import { GetAllJobCategoriesDto, CreateJobCategoryDto, UpdateJobCategoryDto } from '../../application/dto/admin/job-category.dto';
-import { GetAllSkillsDto, CreateSkillDto, UpdateSkillDto } from '../../application/dto/admin/skill-management.dto';
-import { GetAllJobRolesDto, CreateJobRoleDto, UpdateJobRoleDto } from '../../application/dto/admin/job-role-management.dto';
-import { GetAllSubscriptionPlansDto, CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, MigratePlanSubscribersDto } from '../../application/dto/admin/subscription-plan-management.dto';
+import { GetAllUsersDto } from '../../application/dto/admin/get-all-users-query.dto';
+import { AdminGetAllJobsDto } from '../../application/dto/admin/get-all-jobs-query.dto';
+import { GetAllJobCategoriesDto } from '../../application/dto/admin/get-all-job-categories-query.dto';
+import { CreateJobCategoryDto } from '../../application/dto/admin/create-job-category-request.dto';
+import { UpdateJobCategoryDto } from '../../application/dto/admin/update-job-category-request.dto';
+import { GetAllSkillsDto } from '../../application/dto/admin/get-all-skills-query.dto';
+import { CreateSkillDto } from '../../application/dto/admin/create-skill-request.dto';
+import { UpdateSkillDto } from '../../application/dto/admin/update-skill-request.dto';
+import { GetAllJobRolesDto } from '../../application/dto/admin/get-all-job-roles-query.dto';
+import { CreateJobRoleDto } from '../../application/dto/admin/create-job-role-request.dto';
+import { UpdateJobRoleDto } from '../../application/dto/admin/update-job-role-request.dto';
+import { GetAllSubscriptionPlansDto } from '../../application/dto/admin/get-all-subscription-plans-query.dto';
+import { CreateSubscriptionPlanDto } from '../../application/dto/admin/create-subscription-plan-request.dto';
+import { UpdateSubscriptionPlanDto } from '../../application/dto/admin/update-subscription-plan-request.dto';
+import { MigratePlanSubscribersDto } from '../../application/dto/admin/migrate-plan-subscribers-request.dto';
 
 export class AdminRouter {
   public router: Router;

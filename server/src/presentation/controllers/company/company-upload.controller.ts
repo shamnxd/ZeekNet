@@ -19,7 +19,7 @@ export class CompanyUploadController {
         return handleValidationError('No business license uploaded', next);
       }
 
-      const result = await this._uploadBusinessLicenseUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadBusinessLicenseUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
       sendSuccessResponse(res, 'Business license uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -34,7 +34,7 @@ export class CompanyUploadController {
         return handleValidationError('No workplace picture uploaded', next);
       }
 
-      const result = await this._uploadWorkplacePictureUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadWorkplacePictureUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
       sendSuccessResponse(res, 'Workplace picture uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

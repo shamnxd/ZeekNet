@@ -6,24 +6,22 @@ import {
   sendSuccessResponse,
   validateUserId,
 } from '../../../shared/utils/controller.utils';
-import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewFeedbackUseCase';
-import { IDeleteInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IDeleteInterviewUseCase';
-import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateInterviewUseCase';
-import { IAddInterviewUseCase } from 'src/domain/interfaces/use-cases/jobs/IAddInterviewUseCase';
-import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateApplicationScoreUseCase';
-import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateApplicationStageUseCase';
-import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationDetailsUseCase';
-import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsByCompanyUseCase';
-import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsByJobUseCase';
+import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/interview/IAddInterviewFeedbackUseCase';
+import { IDeleteInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IDeleteInterviewUseCase';
+import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IUpdateInterviewUseCase';
+import { IAddInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IAddInterviewUseCase';
+import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationScoreUseCase';
+import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
+import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
+import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';
 import { AddInterviewDto } from '../../../application/dto/application/add-interview.dto';
 import { UpdateInterviewDto } from '../../../application/dto/application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/application/add-interview-feedback.dto';
-import { AddInterviewData } from '../../../domain/interfaces/use-cases/interview/AddInterviewData';
-import { UpdateInterviewData } from '../../../domain/interfaces/use-cases/interview/UpdateInterviewData';
-import { AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
+import { z } from 'zod';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -86,20 +84,12 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const dto = UpdateApplicationStageDto.safeParse(req.body);
-      if (!dto.success) {
-        return handleValidationError(
-          `Validation error: ${dto.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
-      }
-
-      const application = await this._updateApplicationStageUseCase.execute(
+      const application = await this._updateApplicationStageUseCase.execute({
         userId,
-        id,
-        dto.data.stage,
-        dto.data.rejectionReason,
-      );
+        applicationId: id,
+        stage: req.body.stage,
+        rejectionReason: req.body.rejectionReason,
+      });
 
       sendSuccessResponse(res, 'Application stage updated successfully', application);
     } catch (error) {
@@ -120,7 +110,7 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const application = await this._updateApplicationScoreUseCase.execute(userId, id, dto.data.score);
+      const application = await this._updateApplicationScoreUseCase.execute({ userId, applicationId: id, score: dto.data.score });
 
       sendSuccessResponse(res, 'Application score updated successfully', application);
     } catch (error) {
@@ -141,14 +131,14 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData: AddInterviewData = {
+      const interviewData = {
         userId,
         applicationId: id,
         date: new Date(dto.data.interview_date),
         time: dto.data.interview_time,
         interview_type: dto.data.interview_type,
         location: dto.data.location || '',
-        interviewer_name: dto.data.interviewer_name,
+        interviewer_name: dto.data.interviewer_name || '',
       };
       const application = await this._addInterviewUseCase.execute(interviewData);
 
@@ -174,7 +164,7 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const interviewData: UpdateInterviewData = {
+      const interviewData = {
         userId,
         applicationId: id,
         interviewId,
@@ -198,7 +188,7 @@ export class CompanyJobApplicationController {
       const userId = validateUserId(req);
       const { id, interviewId } = req.params;
 
-      const application = await this._deleteInterviewUseCase.execute(userId, id, interviewId);
+      const application = await this._deleteInterviewUseCase.execute({ userId, applicationId: id, interviewId });
 
       sendSuccessResponse(res, 'Interview deleted successfully', application);
     } catch (error) {
@@ -222,12 +212,12 @@ export class CompanyJobApplicationController {
         );
       }
 
-      const feedbackData: AddInterviewFeedbackData = {
+      const feedbackData = {
         userId,
         applicationId: id,
         interviewId,
         reviewer_name: dto.data.reviewer_name,
-        rating: dto.data.rating,
+        rating: dto.data.rating || 0,
         comment: dto.data.comment,
       };
       const application = await this._addInterviewFeedbackUseCase.execute(feedbackData);  

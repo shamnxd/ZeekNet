@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
+import { GetAllUsersQueryDto } from '../../../application/dto/admin/get-all-users-query.dto';
+import { GetCompaniesQueryDto } from '../../../application/dto/company/get-companies-query.dto';
 import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
@@ -24,8 +25,8 @@ export class AdminController {
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as GetAllUsersRequestDto;
-      const result = await this._getAllUsersUseCase.execute(query);
+      const query = req.query as unknown as GetAllUsersQueryDto;
+      const result = await this._getAllUsersUseCase.execute({ ...query, sortOrder: (query as any).sortOrder || 'desc' as const });
       sendSuccessResponse(res, 'Users retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -66,7 +67,7 @@ export class AdminController {
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as GetAllCompaniesRequestDto;
+      const query = req.query as unknown as GetCompaniesQueryDto;
       const result = await this._getAllCompaniesUseCase.execute(query);
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
     } catch (error) {

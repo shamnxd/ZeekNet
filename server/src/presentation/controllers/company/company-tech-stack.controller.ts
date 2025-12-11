@@ -11,7 +11,6 @@ import { ICreateCompanyTechStackUseCase } from '../../../domain/interfaces/use-c
 import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyTechStackUseCase';
 import { IDeleteCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyTechStackUseCase';
 import { IGetCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyTechStackUseCase';
-import { CompanyTechStackData } from 'src/domain/interfaces/use-cases/company/CompanyTechStackData';
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dto/company/company-tech-stack.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
@@ -29,7 +28,7 @@ export class CompanyTechStackController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const techStacks = await this._getCompanyTechStackUseCase.executeByCompanyId(companyId);
+      const techStacks = await this._getCompanyTechStackUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company tech stacks retrieved successfully', techStacks);
     } catch (error) {
       handleAsyncError(error, next);
@@ -46,7 +45,7 @@ export class CompanyTechStackController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const techStack = await this._createCompanyTechStackUseCase.execute(companyId, parsed.data);
+      const techStack = await this._createCompanyTechStackUseCase.execute({ ...parsed.data, companyId });
       sendSuccessResponse(res, 'Tech stack created successfully', techStack, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -64,12 +63,7 @@ export class CompanyTechStackController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingTechStack = await this._getCompanyTechStackUseCase.executeById(id);
-      if (!existingTechStack || existingTechStack.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Tech stack not found or unauthorized');
-      }
-
-      const techStack = await this._updateCompanyTechStackUseCase.execute(id, parsed.data as CompanyTechStackData);
+      const techStack = await this._updateCompanyTechStackUseCase.execute(companyId, id, parsed.data);
       sendSuccessResponse(res, 'Tech stack updated successfully', techStack);
     } catch (error) {
       handleAsyncError(error, next);
@@ -82,12 +76,7 @@ export class CompanyTechStackController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingTechStack = await this._getCompanyTechStackUseCase.executeById(id);
-      if (!existingTechStack || existingTechStack.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Tech stack not found or unauthorized');
-      }
-
-      await this._deleteCompanyTechStackUseCase.execute(id);
+      await this._deleteCompanyTechStackUseCase.execute(companyId, id);
       sendSuccessResponse(res, 'Tech stack deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

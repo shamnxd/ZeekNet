@@ -81,7 +81,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const { planId: _, ...updateData } = parsed.data;
-      const plan = await this._updateSubscriptionPlanUseCase.execute(id, updateData);
+      const plan = await this._updateSubscriptionPlanUseCase.execute({ planId: id, ...updateData });
       sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
     } catch (error) {
       handleAsyncError(error, next);

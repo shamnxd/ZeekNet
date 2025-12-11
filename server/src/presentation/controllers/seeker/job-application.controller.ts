@@ -8,9 +8,9 @@ import {
   validateUserId,
   badRequest,
 } from '../../../shared/utils/controller.utils';
-import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetSeekerApplicationDetailsUseCase';
-import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/jobs/IGetApplicationsBySeekerUseCase';
-import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobApplicationUseCase';
+import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
+import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { UploadService } from '../../../shared/services/upload.service';

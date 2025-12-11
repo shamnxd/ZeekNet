@@ -11,7 +11,6 @@ import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cas
 import { IUpdateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyBenefitUseCase';
 import { IDeleteCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyBenefitUseCase';
 import { IGetCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyBenefitUseCase';
-import { CompanyBenefitsData } from 'src/domain/interfaces/use-cases/company/CompanyBenefitsData';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dto/company/company-benefits.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
@@ -29,7 +28,7 @@ export class CompanyBenefitController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const benefits = await this._getCompanyBenefitUseCase.executeByCompanyId(companyId);
+      const benefits = await this._getCompanyBenefitUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company benefits retrieved successfully', benefits);
     } catch (error) {
       handleAsyncError(error, next);
@@ -46,7 +45,7 @@ export class CompanyBenefitController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const benefit = await this._createCompanyBenefitUseCase.execute(companyId, parsed.data as CompanyBenefitsData);
+      const benefit = await this._createCompanyBenefitUseCase.execute({ ...parsed.data, companyId });
       sendSuccessResponse(res, 'Benefit created successfully', benefit, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -64,7 +63,7 @@ export class CompanyBenefitController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const benefit = await this._updateCompanyBenefitUseCase.execute(companyId, id, parsed.data as CompanyBenefitsData);
+      const benefit = await this._updateCompanyBenefitUseCase.execute({ ...parsed.data, companyId, benefitId: id });
       sendSuccessResponse(res, 'Benefit updated successfully', benefit);
     } catch (error) {
       handleAsyncError(error, next);

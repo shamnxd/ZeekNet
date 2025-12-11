@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateJobCategoryDto, UpdateJobCategoryDto, GetAllJobCategoriesDto, GetAllJobCategoriesRequestDto } from '../../../application/dto/admin/job-category.dto';
-import { ICreateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/ICreateJobCategoryUseCase';
-import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IGetAllJobCategoriesUseCase';
-import { IGetJobCategoryByIdUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IGetJobCategoryByIdUseCase';
-import { IUpdateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IUpdateJobCategoryUseCase';
-import { IDeleteJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categorys/IDeleteJobCategoryUseCase';
+import { ICreateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/ICreateJobCategoryUseCase';
+import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/job-categories/IGetAllJobCategoriesUseCase';
+import { IGetJobCategoryByIdUseCase } from '../../../domain/interfaces/use-cases/job-categories/IGetJobCategoryByIdUseCase';
+import { IUpdateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/IUpdateJobCategoryUseCase';
+import { IDeleteJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/IDeleteJobCategoryUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminJobCategoryController {

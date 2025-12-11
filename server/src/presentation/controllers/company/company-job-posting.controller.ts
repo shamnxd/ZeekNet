@@ -8,6 +8,7 @@ import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/j
 import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IDeleteJobPostingUseCase';
 import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
 import { CreateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
+import { CreateJobPostingRequestDtoSchema } from '../../../application/dto/job-posting/create-job-posting-request.dto';
 import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
@@ -26,7 +27,7 @@ export class CompanyJobPostingController {
   ) {}
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = CreateJobPostingRequestDto.safeParse(req.body);
+    const parsed = CreateJobPostingRequestDtoSchema.safeParse(req.body);
     if (!parsed.success) {
       return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
     }
@@ -128,7 +129,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobStatusUseCase.execute(id, status, userId);
+      const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
 
       sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
     } catch (error) {
