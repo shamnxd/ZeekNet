@@ -45,6 +45,7 @@ import EditJob from './pages/company/EditJob'
 import AllApplications from './pages/company/AllApplications'
 import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
+import CompanyChat from './pages/company/CompanyChat'
 
 function App() {
   return (
@@ -209,6 +210,11 @@ function App() {
           <Route path="/company/billing" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <CompanyPlans />
+            </ProtectedRoute>
+          } />
+          <Route path="/company/messages" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <CompanyChat />
             </ProtectedRoute>
           } />
           
