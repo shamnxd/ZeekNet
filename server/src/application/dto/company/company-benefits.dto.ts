@@ -6,7 +6,12 @@ const CreateCompanyBenefitsDtoSchema = z.object({
   description: z.string().optional(),
 });
 
-const UpdateCompanyBenefitsDtoSchema = CreateCompanyBenefitsDtoSchema.partial();
+const UpdateCompanyBenefitsDtoSchema = z.object({
+  companyId: z.string().optional(),
+  benefitId: z.string().min(1, 'Benefit ID is required'),
+  perk: z.string().min(1, 'Perk name cannot be empty').optional(),
+  description: z.string().optional(),
+});
 
 export { CreateCompanyBenefitsDtoSchema as CreateCompanyBenefitsDto, UpdateCompanyBenefitsDtoSchema as UpdateCompanyBenefitsDto };
 

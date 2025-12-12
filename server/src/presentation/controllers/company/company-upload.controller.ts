@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
-import { IUploadBusinessLicenseUseCase, IUploadWorkplacePictureUseCase, IDeleteImageUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { DeleteImageDto } from '../../../application/dto/company/delete-image.dto';
+import { IUploadBusinessLicenseUseCase } from '../../../domain/interfaces/use-cases/company/IUploadBusinessLicenseUseCase';
+import { IUploadWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUploadWorkplacePictureUseCase';
+import { IDeleteImageUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteImageUseCase';
 
 export class CompanyUploadController {
   constructor(
@@ -18,7 +19,7 @@ export class CompanyUploadController {
         return handleValidationError('No business license uploaded', next);
       }
 
-      const result = await this._uploadBusinessLicenseUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadBusinessLicenseUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
       sendSuccessResponse(res, 'Business license uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -33,7 +34,7 @@ export class CompanyUploadController {
         return handleValidationError('No workplace picture uploaded', next);
       }
 
-      const result = await this._uploadWorkplacePictureUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadWorkplacePictureUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
       sendSuccessResponse(res, 'Workplace picture uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -41,13 +42,13 @@ export class CompanyUploadController {
   };
 
   deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = DeleteImageDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError(`Invalid image deletion data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    const { imageUrl } = req.body;
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return handleValidationError('Image URL is required and must be a string', next);
     }
 
     try {
-      await this._deleteImageUseCase.execute(parsed.data.imageUrl);
+      await this._deleteImageUseCase.execute(imageUrl);
       sendSuccessResponse(res, 'Image deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

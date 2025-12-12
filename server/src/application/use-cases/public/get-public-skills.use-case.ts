@@ -1,5 +1,5 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
-import { IGetPublicSkillsUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicSkillsUseCase';
 
 export class GetPublicSkillsUseCase implements IGetPublicSkillsUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) {}

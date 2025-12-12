@@ -4,19 +4,17 @@ import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
 import { uploadResume } from '../middleware/upload-resume.middleware';
-import { JobPostingQueryDto } from '../../application/dto/job-posting/job-posting.dto';
-import { ApplicationFiltersDto } from '../../application/dto/job-application/application-filters.dto';
-import { 
-  CreateSeekerProfileDto, 
-  UpdateSeekerProfileDto, 
-  AddExperienceDto, 
-  UpdateExperienceDto, 
-  AddEducationDto, 
-  UpdateEducationDto, 
-  UpdateSkillsDto,
-  UpdateLanguagesDto, 
-  UploadResumeDto, 
-} from '../../application/dto/seeker/seeker-profile.dto';
+import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
+import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
+import { CreateSeekerProfileDto } from '../../application/dto/seeker/create-seeker-profile-request.dto';
+import { UpdateSeekerProfileDto } from '../../application/dto/seeker/update-seeker-profile-request.dto';
+import { AddExperienceDto } from '../../application/dto/seeker/add-experience-request.dto';
+import { UpdateExperienceDto } from '../../application/dto/seeker/update-experience-request.dto';
+import { AddEducationDto } from '../../application/dto/seeker/add-education-request.dto';
+import { UpdateEducationDto } from '../../application/dto/seeker/update-education-request.dto';
+import { UpdateSkillsDto } from '../../application/dto/seeker/update-skills-request.dto';
+import { UpdateLanguagesDto } from '../../application/dto/seeker/update-languages-request.dto';
+import { UploadResumeDto } from '../../application/dto/seeker/seeker-profile.dto';
 
 export class SeekerRouter {
   public router: Router;

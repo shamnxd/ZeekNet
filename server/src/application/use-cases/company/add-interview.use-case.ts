@@ -2,13 +2,14 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IAddInterviewUseCase, AddInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IAddInterviewUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { AddInterviewData } from '../../../domain/interfaces/use-cases/interview/AddInterviewData';
 
 export class AddInterviewUseCase implements IAddInterviewUseCase {
   constructor(
@@ -18,7 +19,10 @@ export class AddInterviewUseCase implements IAddInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, dto: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: AddInterviewData): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const interviewDate = dto.date instanceof Date ? dto.date : new Date(dto.date);
     const interviewData = {
       date: interviewDate,

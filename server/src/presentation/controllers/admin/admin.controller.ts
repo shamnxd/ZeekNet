@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { BlockUserDto, CompanyVerificationDto } from '../../../application/dto/admin/user-management.dto';
-import { GetAllUsersRequestDto, GetAllCompaniesRequestDto } from '../../../application/dto/admin/user-management.dto';
-import { IAdminGetUserByIdUseCase, IGetAllUsersUseCase, IBlockUserUseCase, IGetAllCompaniesUseCase, IGetCompaniesWithVerificationUseCase, IVerifyCompanyUseCase, IGetPendingCompaniesUseCase, IGetCompanyByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { GetAllUsersQueryDto } from '../../../application/dto/admin/get-all-users-query.dto';
+import { GetCompaniesQueryDto } from '../../../application/dto/company/get-companies-query.dto';
+import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
+import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
+import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
+import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
+import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllCompaniesUseCase';
+import { IAdminGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetUserByIdUseCase';
+import { IBlockUserUseCase } from 'src/domain/interfaces/use-cases/admin/IBlockUserUseCase';
+import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllUsersUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminController {
@@ -18,8 +25,8 @@ export class AdminController {
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as GetAllUsersRequestDto;
-      const result = await this._getAllUsersUseCase.execute(query);
+      const query = req.query as unknown as GetAllUsersQueryDto;
+      const result = await this._getAllUsersUseCase.execute({ ...query, sortOrder: (query as any).sortOrder || 'desc' as const });
       sendSuccessResponse(res, 'Users retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -27,14 +34,17 @@ export class AdminController {
   };
 
   blockUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = BlockUserDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError('Invalid block user data', next);
+    const { userId, isBlocked } = req.body;
+    if (!userId || typeof userId !== 'string') {
+      return handleValidationError('User ID is required and must be a string', next);
+    }
+    if (typeof isBlocked !== 'boolean') {
+      return handleValidationError('isBlocked is required and must be a boolean', next);
     }
 
     try {
-      await this._blockUserUseCase.execute(parsed.data.userId, parsed.data.isBlocked);
-      const message = `User ${parsed.data.isBlocked ? 'blocked' : 'unblocked'} successfully`;
+      await this._blockUserUseCase.execute(userId, isBlocked);
+      const message = `User ${isBlocked ? 'blocked' : 'unblocked'} successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
       handleAsyncError(error, next);
@@ -57,7 +67,7 @@ export class AdminController {
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const query = req.query as unknown as GetAllCompaniesRequestDto;
+      const query = req.query as unknown as GetCompaniesQueryDto;
       const result = await this._getAllCompaniesUseCase.execute(query);
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
     } catch (error) {
@@ -89,19 +99,17 @@ export class AdminController {
   };
 
   verifyCompany = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = CompanyVerificationDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError('Invalid verification data', next);
+    const { companyId, isVerified, rejection_reason } = req.body;
+    if (!companyId || typeof companyId !== 'string') {
+      return handleValidationError('Company ID is required and must be a string', next);
+    }
+    if (!isVerified || !['pending', 'rejected', 'verified'].includes(isVerified)) {
+      return handleValidationError('isVerified must be one of: pending, rejected, verified', next);
     }
 
     try {
-      await this._verifyCompanyUseCase.execute(
-        parsed.data.companyId,
-        parsed.data.isVerified,
-        parsed.data.rejection_reason,
-      );
-
-      const message = `Company ${parsed.data.isVerified} successfully`;
+      await this._verifyCompanyUseCase.execute(companyId, isVerified, rejection_reason);
+      const message = `Company ${isVerified} successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
       handleAsyncError(error, next);

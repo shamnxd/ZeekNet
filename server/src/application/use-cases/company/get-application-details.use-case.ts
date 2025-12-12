@@ -6,10 +6,11 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IGetApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
+import { GetApplicationDetailsRequestDto } from '../../dto/application/get-application-details.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCase {
   constructor(
@@ -23,7 +24,10 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -71,11 +75,18 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       }));
     }
 
+    const [avatarUrl, resumeUrl] = await Promise.all([
+      profile?.avatarFileName ? this._s3Service.getSignedUrl(profile.avatarFileName) : Promise.resolve(undefined),
+      application.resumeUrl && !application.resumeUrl.startsWith('http') 
+        ? this._s3Service.getSignedUrl(application.resumeUrl) 
+        : Promise.resolve(application.resumeUrl),
+    ]);
+
     return JobApplicationMapper.toDetailResponse(
       application,
       {
         name: user?.name,
-        avatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+        avatar: avatarUrl,
         headline: profile?.headline || undefined,
         email: profile?.email || undefined,
         phone: profile?.phone || undefined,
@@ -95,6 +106,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
         location: job?.location,
         employmentTypes: job?.employmentTypes,
       },
+      resumeUrl,
     );
   }
 }

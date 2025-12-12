@@ -1,4 +1,5 @@
-import { IGetCompanyProfileUseCase, IGetCompanyDashboardUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
+import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
 
 export class GetCompanyDashboardUseCase implements IGetCompanyDashboardUseCase {
   constructor(private readonly _getCompanyProfileUseCase: IGetCompanyProfileUseCase) {}

@@ -12,6 +12,7 @@ import { CompanyOfficeLocation } from '../../../domain/entities/company-office-l
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
 import { CompanyVerification } from '../../../domain/entities/company-verification.entity';
+import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
 
 interface CompanyProfileWithDetails {
   profile: CompanyProfile;
@@ -23,7 +24,7 @@ interface CompanyProfileWithDetails {
   verification: CompanyVerification | null;
 }
 
-export class GetCompanyProfileUseCase {
+export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companyContactRepository: ICompanyContactRepository,

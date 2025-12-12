@@ -1,10 +1,11 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
-import { PaginatedJobRoles, IGetAllJobRolesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
+import { PaginatedJobRolesResultDto } from '../../dto/job-roles/paginated-job-roles-result.dto';
 
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
 
-  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRoles> {
+  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRolesResultDto> {
     const query: Record<string, unknown> = {};
     if (options.search) {
       query.name = { $regex: options.search, $options: 'i' };

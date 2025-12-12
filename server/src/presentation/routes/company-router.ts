@@ -18,14 +18,16 @@ import { uploadSingle } from '../middleware/upload.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
 import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { CompanyVerificationMiddleware } from '../middleware/company-verification.middleware';
-import { CreateJobPostingRequestDto, UpdateJobPostingDto, JobPostingQueryDto } from '../../application/dto/job-posting/job-posting.dto';
+import { CreateJobPostingRequestDtoSchema } from '../../application/dto/job-posting/create-job-posting-request.dto';
+import { UpdateJobPostingDto } from '../../application/dto/job-posting/update-job-posting-request.dto';
+import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
 import { SimpleCompanyProfileDto } from '../../application/dto/company/create-company.dto';
-import { ApplicationFiltersDto } from '../../application/dto/job-application/application-filters.dto';
-import { UpdateApplicationStageDto } from '../../application/dto/job-application/update-application-stage.dto';
-import { UpdateScoreDto } from '../../application/dto/job-application/update-score.dto';
-import { AddInterviewDto } from '../../application/dto/job-application/add-interview.dto';
-import { UpdateInterviewDto } from '../../application/dto/job-application/update-interview.dto';
-import { AddInterviewFeedbackDto } from '../../application/dto/job-application/add-interview-feedback.dto';
+import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
+import { UpdateApplicationStageRequestDtoSchema } from '../../application/dto/application/update-application-stage.dto';
+import { UpdateScoreDto } from '../../application/dto/application/update-score.dto';
+import { AddInterviewDto } from '../../application/dto/application/add-interview.dto';
+import { UpdateInterviewDto } from '../../application/dto/application/update-interview.dto';
+import { AddInterviewFeedbackDto } from '../../application/dto/application/add-interview-feedback.dto';
 
 
 export class CompanyRouter {
@@ -95,7 +97,7 @@ export class CompanyRouter {
     this.router.post('/subscriptions/change-plan', companySubscriptionController.changeSubscriptionPlan);
     this.router.post('/subscriptions/billing-portal', companySubscriptionController.getBillingPortal);
 
-    this.router.post('/jobs', validateBody(CreateJobPostingRequestDto), companyJobPostingController.createJobPosting);
+    this.router.post('/jobs', validateBody(CreateJobPostingRequestDtoSchema), companyJobPostingController.createJobPosting);
     this.router.get('/jobs', validateQuery(JobPostingQueryDto), companyJobPostingController.getCompanyJobPostings);
     this.router.get('/jobs/:id', companyJobPostingController.getJobPosting);
     this.router.put('/jobs/:id', validateBody(UpdateJobPostingDto), companyJobPostingController.updateJobPosting);
@@ -105,7 +107,7 @@ export class CompanyRouter {
 
     this.router.get('/applications', validateQuery(ApplicationFiltersDto), companyJobApplicationController.getApplications);
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
-    this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageDto), companyJobApplicationController.updateStage);
+    this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageRequestDtoSchema), companyJobApplicationController.updateStage);
     this.router.patch('/applications/:id/score', validateBody(UpdateScoreDto), companyJobApplicationController.updateScore);
     this.router.post('/applications/:id/interviews', validateBody(AddInterviewDto), companyJobApplicationController.addInterview);
     this.router.patch('/applications/:id/interviews/:interviewId', validateBody(UpdateInterviewDto), companyJobApplicationController.updateInterview);

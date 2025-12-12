@@ -3,7 +3,9 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateJobApplicationUseCase, CreateJobApplicationData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
+import { CreateJobApplicationDto } from '../../dto/application/create-job-application.dto';
+import { z } from 'zod';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
@@ -19,7 +21,9 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(seekerId: string, data: CreateJobApplicationData): Promise<{ id: string }> {
+  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }): Promise<{ id: string }> {
+    const { seekerId, ...applicationData } = data;
+    if (!seekerId) throw new Error('Seeker ID is required');
     const user = await this._userRepository.findById(seekerId);
     if (!user) {
       throw new NotFoundError('User not found');
@@ -28,7 +32,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('Please verify your email before applying for jobs');
     }
 
-    const job = await this._jobPostingRepository.findById(data.job_id);
+    const job = await this._jobPostingRepository.findById(applicationData.job_id);
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
@@ -37,7 +41,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
     const existingApplication = await this._jobApplicationRepository.findOne({ 
       seeker_id: new Types.ObjectId(seekerId), 
-      job_id: new Types.ObjectId(data.job_id),
+      job_id: new Types.ObjectId(applicationData.job_id),
     });
     if (existingApplication) {
       throw new ValidationError('You have already applied for this job');
@@ -45,17 +49,17 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
 
     const application = await this._jobApplicationRepository.create({
       seekerId: seekerId,
-      jobId: data.job_id,
+      jobId: applicationData.job_id,
       companyId: job.companyId,
-      coverLetter: data.cover_letter,
-      resumeUrl: data.resume_url,
-      resumeFilename: data.resume_filename,
+      coverLetter: applicationData.cover_letter,
+      resumeUrl: applicationData.resume_url,
+      resumeFilename: applicationData.resume_filename,
       stage: 'applied',
       interviews: [],
       appliedDate: new Date(),
     });
 
-    await this._jobPostingRepository.update(data.job_id, { 
+    await this._jobPostingRepository.update(applicationData.job_id, { 
       applicationCount: job.applicationCount + 1, 
     });
 

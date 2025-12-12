@@ -1,11 +1,11 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
-import { IUpdateEducationUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { Education } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { EducationResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { UpdateEducationRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { UpdateEducationRequestDto } from '../../dto/seeker/update-education-request.dto';
+import { IUpdateEducationUseCase } from 'src/domain/interfaces/use-cases/seeker/IUpdateEducationUseCase';
 
 export class UpdateEducationUseCase implements IUpdateEducationUseCase {
   constructor(
@@ -13,7 +13,8 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
     private readonly _seekerEducationRepository: ISeekerEducationRepository,
   ) {}
 
-  async execute(userId: string, educationId: string, dto: UpdateEducationRequestDto): Promise<EducationResponseDto> {
+  async execute(dto: UpdateEducationRequestDto): Promise<EducationResponseDto> {
+    const { userId, educationId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');

@@ -7,16 +7,14 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyProfileFromDtoUseCase,
-  IUpdateCompanyProfileUseCase,
-  IGetCompanyProfileWithJobPostingsUseCase,
-  IReapplyCompanyVerificationUseCase,
-  IGetCompanyDashboardUseCase,
-  IUploadLogoUseCase,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { SimpleCompanyProfileDto } from '../../../application/dto/company/create-company.dto';
 import { SimpleUpdateCompanyProfileDto } from '../../../application/dto/company/company-profile.dto';
+import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
+import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
+import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
+import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
+import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
+import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
 
 export class CompanyProfileController {
   constructor(
@@ -36,7 +34,7 @@ export class CompanyProfileController {
 
     try {
       const userId = validateUserId(req);
-      const profile = await this._createCompanyProfileFromDtoUseCase.execute(userId, parsed.data);
+      const profile = await this._createCompanyProfileFromDtoUseCase.execute({ userId, ...parsed.data });
 
       sendSuccessResponse(res, 'Company profile created successfully', profile, undefined, 201);
     } catch (error) {
@@ -52,10 +50,7 @@ export class CompanyProfileController {
 
     try {
       const userId = validateUserId(req);
-      const updateData = {
-        profile: parsed.data,
-      };
-      const companyProfile = await this._updateCompanyProfileUseCase.execute(userId, updateData);
+      const companyProfile = await this._updateCompanyProfileUseCase.execute({ userId, ...parsed.data });
 
       sendSuccessResponse(res, 'Company profile updated successfully', companyProfile, undefined, 200);
     } catch (error) {
@@ -105,10 +100,11 @@ export class CompanyProfileController {
       }
 
       const verificationData = {
+        userId,
         taxId: parsed.data.tax_id,
         businessLicenseUrl: parsed.data.business_license,
       };
-      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(userId, verificationData);
+      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(verificationData);
 
       sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', updatedProfile);
     } catch (error) {
@@ -124,7 +120,11 @@ export class CompanyProfileController {
         return handleValidationError('No logo uploaded', next);
       }
 
-      const result = await this._uploadLogoUseCase.execute(file.buffer, file.originalname, file.mimetype);
+      const result = await this._uploadLogoUseCase.execute({
+        buffer: file.buffer,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+      });
       sendSuccessResponse(res, 'Logo uploaded successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

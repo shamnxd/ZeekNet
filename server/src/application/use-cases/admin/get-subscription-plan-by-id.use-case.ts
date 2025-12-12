@@ -1,6 +1,6 @@
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { IGetSubscriptionPlanByIdUseCase } from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
+import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetSubscriptionPlanByIdUseCase implements IGetSubscriptionPlanByIdUseCase {

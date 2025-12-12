@@ -1,9 +1,10 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { AppError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
+import { UpdateJobStatusDto } from '../../dto/jobs/update-job-status.dto';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
@@ -12,7 +13,8 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', userId?: string): Promise<JobPosting> {
+  async execute(dto: UpdateJobStatusDto): Promise<JobPosting> {
+    const { jobId, status, userId } = dto;
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {

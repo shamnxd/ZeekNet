@@ -2,19 +2,19 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
+import { GetBillingPortalRequestDto } from '../../dto/company/get-billing-portal.dto';
 
-interface BillingPortalResult {
-  url: string;
-}
-
-export class GetBillingPortalUseCase {
+export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, returnUrl: string): Promise<BillingPortalResult> {
+  async execute(data: GetBillingPortalRequestDto): Promise<{ url: string }> {
+    const { userId, returnUrl } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

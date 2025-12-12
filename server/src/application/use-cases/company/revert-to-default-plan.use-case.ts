@@ -7,8 +7,9 @@ import { CompanySubscription } from '../../../domain/entities/company-subscripti
 import { NotFoundError } from '../../../domain/errors/errors';
 import { NotificationType, Notification } from '../../../domain/entities/notification.entity';
 import { logger } from '../../../infrastructure/config/logger';
+import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 
-export class RevertToDefaultPlanUseCase {
+export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
   constructor(
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,

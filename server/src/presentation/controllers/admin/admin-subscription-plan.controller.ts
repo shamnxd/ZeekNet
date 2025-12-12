@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dto/admin/subscription-plan-management.dto';
-import { 
-  ICreateSubscriptionPlanUseCase, 
-  IGetAllSubscriptionPlansUseCase, 
-  IGetSubscriptionPlanByIdUseCase, 
-  IUpdateSubscriptionPlanUseCase, 
-} from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
+import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
+import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
+import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
+import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
@@ -82,7 +80,8 @@ export class AdminSubscriptionPlanController {
     }
 
     try {
-      const plan = await this._updateSubscriptionPlanUseCase.execute(id, parsed.data);
+      const { planId: _, ...updateData } = parsed.data;
+      const plan = await this._updateSubscriptionPlanUseCase.execute({ planId: id, ...updateData });
       sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
     } catch (error) {
       handleAsyncError(error, next);
@@ -104,11 +103,11 @@ export class AdminSubscriptionPlanController {
     }
 
     try {
-      const result = await this._migratePlanSubscribersUseCase.execute(
-        id,
-        parsed.data.billingCycle,
-        parsed.data.prorationBehavior,
-      );
+      const result = await this._migratePlanSubscribersUseCase.execute({
+        planId: id,
+        billingCycle: parsed.data.billingCycle,
+        prorationBehavior: parsed.data.prorationBehavior,
+      });
       sendSuccessResponse(res, `Migration completed: ${result.migratedCount} subscribers migrated`, result);
     } catch (error) {
       handleAsyncError(error, next);

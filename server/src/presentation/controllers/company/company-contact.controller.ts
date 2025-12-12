@@ -7,12 +7,15 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import { ICompanyContactUseCase, IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { UpdateCompanyContactDto } from '../../../application/dto/company/company-contact.dto';
+import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyContactUseCase';
+import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IUpsertCompanyContactUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyContactController {
   constructor(
-    private readonly _companyContactUseCase: ICompanyContactUseCase,
+    private readonly _getCompanyContactUseCase: IGetCompanyContactUseCase,
+    private readonly _upsertCompanyContactUseCase: IUpsertCompanyContactUseCase,
     private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
@@ -21,7 +24,7 @@ export class CompanyContactController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const contact = await this._companyContactUseCase.getContactsByCompanyId(companyId);
+      const contact = await this._getCompanyContactUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company contact retrieved successfully', contact);
     } catch (error) {
       handleAsyncError(error, next);
@@ -38,7 +41,7 @@ export class CompanyContactController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const contact = await this._companyContactUseCase.upsertContact(companyId, parsed.data);
+      const contact = await this._upsertCompanyContactUseCase.execute({ companyId, ...parsed.data });
       const message = contact.id ? 'Company contact updated successfully' : 'Company contact created successfully';
       sendSuccessResponse(res, message, contact);
     } catch (error) {

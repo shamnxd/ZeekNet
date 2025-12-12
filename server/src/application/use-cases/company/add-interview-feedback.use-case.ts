@@ -1,11 +1,12 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { IAddInterviewFeedbackUseCase, AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IAddInterviewFeedbackUseCase } from 'src/domain/interfaces/use-cases/interview/IAddInterviewFeedbackUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { AddInterviewFeedbackData } from '../../../domain/interfaces/use-cases/interview/AddInterviewFeedbackData';
 
 export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase {
   constructor(
@@ -14,7 +15,11 @@ export class AddInterviewFeedbackUseCase implements IAddInterviewFeedbackUseCase
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, dto: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: AddInterviewFeedbackData): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, interviewId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
+    if (!interviewId) throw new Error('Interview ID is required');
     const feedbackData = {
       reviewer_name: dto.reviewer_name,
       rating: dto.rating,

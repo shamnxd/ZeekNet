@@ -1,5 +1,5 @@
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { IGetPublicJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobCategoriesUseCase';
 
 export class GetPublicJobCategoriesUseCase implements IGetPublicJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}

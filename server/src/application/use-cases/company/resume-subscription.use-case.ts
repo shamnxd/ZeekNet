@@ -3,8 +3,9 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
 
-export class ResumeSubscriptionUseCase {
+export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _companyProfileRepository: ICompanyProfileRepository,

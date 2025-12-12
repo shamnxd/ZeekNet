@@ -90,10 +90,10 @@ export class UploadService {
 
     this.validateFileType(mimetype, originalname);
 
-    const imageUrl = await s3Service.uploadImage(buffer, originalname, mimetype);
+    const key = await s3Service.uploadImage(buffer, originalname, mimetype);
 
     return {
-      url: imageUrl,
+      url: key,
       filename: originalname,
     };
   }
@@ -110,10 +110,10 @@ export class UploadService {
 
       this.validateFileType(mimetype, originalname);
 
-      const imageUrl = await s3Service.uploadImage(buffer, originalname, mimetype);
+      const key = await s3Service.uploadImage(buffer, originalname, mimetype);
 
       return {
-        url: imageUrl,
+        url: key,
         filename: originalname,
       };
     });
@@ -156,16 +156,15 @@ export class UploadService {
     this.validateResumeFileType(mimetype, originalname);
     this.validateFileSize(file.size, 5);
 
-    let resumeUrl: string;
+    let resumeKey: string;
     if (typeof s3Service.uploadResume === 'function') {
-      resumeUrl = await s3Service.uploadResume(buffer, originalname, mimetype);
+      resumeKey = await s3Service.uploadResume(buffer, originalname, mimetype);
     } else {
-      const key = await s3Service.uploadImageToFolder(buffer, originalname, mimetype, 'resumes');
-      resumeUrl = s3Service.getImageUrl(key);
+      resumeKey = await s3Service.uploadImageToFolder(buffer, originalname, mimetype, 'resumes');
     }
 
     return {
-      url: resumeUrl,
+      url: resumeKey,
       filename: originalname,
     };
   }

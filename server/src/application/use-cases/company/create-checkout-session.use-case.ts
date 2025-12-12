@@ -4,13 +4,11 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
+import { CreateCheckoutSessionRequestDto } from '../../dto/company/create-checkout-session.dto';
+import { CreateCheckoutSessionResponseDto } from '../../dto/company/checkout-session-response.dto';
 
-interface CreateCheckoutSessionResult {
-  sessionId: string;
-  sessionUrl: string;
-}
-
-export class CreateCheckoutSessionUseCase {
+export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
@@ -19,13 +17,9 @@ export class CreateCheckoutSessionUseCase {
     private readonly _userRepository: IUserRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    planId: string,
-    billingCycle: 'monthly' | 'yearly',
-    successUrl: string,
-    cancelUrl: string,
-  ): Promise<CreateCheckoutSessionResult> {
+  async execute(data: CreateCheckoutSessionRequestDto): Promise<CreateCheckoutSessionResponseDto> {
+    const { userId, planId, billingCycle, successUrl, cancelUrl } = data;
+    if (!userId) throw new Error('User ID is required');
     const user = await this._userRepository.findById(userId);
     if (!user) {
       throw new NotFoundError('User not found');
@@ -105,6 +99,6 @@ export class CreateCheckoutSessionUseCase {
     return {
       sessionId: session.id,
       sessionUrl: session.url || '',
-    };
+    } as CreateCheckoutSessionResponseDto;
   }
 }

@@ -1,6 +1,6 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { IRemoveExperienceUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IRemoveExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveExperienceUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class RemoveExperienceUseCase implements IRemoveExperienceUseCase {

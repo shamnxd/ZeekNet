@@ -4,8 +4,9 @@ import { JwtTokenService } from '../../security/jwt-token-service';
 import { notificationService } from '../../di/notificationDi';
 import { logger } from '../../config/logger';
 import { env } from '../../config/env';
+import { ISocketServer } from 'src/domain/interfaces/services/ISocketServer';
 
-export class SocketServer {
+export class SocketServer implements ISocketServer {
   private io: SocketIOServer;
 
   constructor(httpServer: HTTPServer) {

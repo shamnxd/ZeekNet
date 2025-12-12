@@ -1,10 +1,11 @@
+import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/job-categories/IGetAllJobCategoriesUseCase';
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { PaginatedJobCategories, IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/IJobCategoryUseCases';
+import { PaginatedJobCategoriesResultDto } from '../../dto/job-categories/paginated-job-categories-result.dto';
 
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
-  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategories> {
+  async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategoriesResultDto> {
     const query: Record<string, unknown> = {};
     if (options.search) {
       query.name = { $regex: options.search, $options: 'i' };

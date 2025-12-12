@@ -4,11 +4,12 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IGetApplicationsByCompanyUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
+import { ApplicationFiltersRequestDto } from '../../dto/application/application-filters.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
 import { Types } from 'mongoose';
 
 export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompanyUseCase {
@@ -21,7 +22,9 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, filters: { job_id?: string; stage?: ApplicationStage; search?: string; page?: number; limit?: number }): Promise<PaginatedApplicationsResponseDto> {
+  async execute(data: ApplicationFiltersRequestDto): Promise<PaginatedApplicationsResponseDto> {
+    const { userId, ...filters } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -47,10 +50,13 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
         this._jobPostingRepository.findById(app.jobId),
         this._seekerProfileRepository.findOne({ userId: app.seekerId }),
       ]);
+      const avatarUrl = profile?.avatarFileName 
+        ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
+        : undefined;
       applications.push(
         JobApplicationMapper.toListResponse(app, {
           seekerName: user?.name,
-          seekerAvatar: profile?.avatarFileName ? this._s3Service.getImageUrl(profile.avatarFileName) : undefined,
+          seekerAvatar: avatarUrl,
           jobTitle: job?.title,
         }),
       );

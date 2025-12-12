@@ -4,7 +4,8 @@ import { ICompanyVerificationRepository } from '../../../domain/interfaces/repos
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { CreateCompanyProfileData, ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
+import { CreateCompanyProfileRequestDtoType } from '../../dto/company/create-company-profile-request.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
@@ -19,7 +20,9 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, profileData: CreateCompanyProfileData): Promise<CompanyProfile> {
+  async execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfile> {
+    const { userId, ...profileData } = data;
+    if (!userId) throw new Error('User ID is required');
     const profile = await this._companyProfileRepository.create({
       userId,
       companyName: profileData.companyName,

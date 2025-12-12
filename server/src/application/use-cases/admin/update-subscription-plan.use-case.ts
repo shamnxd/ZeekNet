@@ -2,9 +2,10 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { IUpdateSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/ISubscriptionPlanUseCases';
+import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
 import { AppError, NotFoundError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
+import { UpdateSubscriptionPlanDto } from '../../dto/subscriptions/update-subscription-plan.dto';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
@@ -13,23 +14,8 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
 
-  async execute(
-    planId: string,
-    data: {
-      name?: string;
-      description?: string;
-      price?: number;
-      duration?: number;
-      features?: string[];
-      jobPostLimit?: number;
-      featuredJobLimit?: number;
-      applicantAccessLimit?: number;
-      yearlyDiscount?: number;
-      isActive?: boolean;
-      isPopular?: boolean;
-      isDefault?: boolean;
-    },
-  ): Promise<SubscriptionPlan> {
+  async execute(dto: UpdateSubscriptionPlanDto): Promise<SubscriptionPlan> {
+    const { planId, ...data } = dto;
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
     
     if (!existingPlan) {

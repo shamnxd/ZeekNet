@@ -2,13 +2,14 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateInterviewUseCase, UpdateInterviewData } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IUpdateInterviewUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { UpdateInterviewData } from '../../../domain/interfaces/use-cases/interview/UpdateInterviewData';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
@@ -18,14 +19,18 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string, interviewId: string, dto: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+  async execute(data: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
+    const { userId, applicationId, interviewId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    if (!applicationId) throw new Error('Application ID is required');
+    if (!interviewId) throw new Error('Interview ID is required');
     const interviewData: Partial<{
       date: Date;
       time: string;
       interviewType: string;
       location: string;
       interviewerName: string;
-      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
     }> = {};
     if (dto.date !== undefined) {
       interviewData.date = dto.date instanceof Date ? dto.date : new Date(dto.date);

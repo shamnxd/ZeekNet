@@ -1,7 +1,7 @@
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { IVerifyCompanyUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
 
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(

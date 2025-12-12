@@ -1,8 +1,9 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
+import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
+import { INotificationService } from 'src/domain/interfaces/services/INotificationService';
 
-export class NotificationService {
+export class NotificationService implements INotificationService {
   private io: SocketIOServer | null = null;
   private userSockets: Map<string, string> = new Map();
 

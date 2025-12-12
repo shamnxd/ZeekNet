@@ -1,9 +1,10 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
+import { GetApplicationsBySeekerRequestDto } from '../../dto/application/get-applications-by-seeker.dto';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
 import { Types } from 'mongoose';
 
 export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerUseCase {
@@ -12,10 +13,9 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(
-    seekerId: string,
-    filters: { stage?: ApplicationStage; page?: number; limit?: number },
-  ): Promise<PaginatedApplicationsResponseDto> {
+  async execute(data: GetApplicationsBySeekerRequestDto): Promise<PaginatedApplicationsResponseDto> {
+    const { seekerId, ...filters } = data;
+    if (!seekerId) throw new Error('Seeker ID is required');
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 

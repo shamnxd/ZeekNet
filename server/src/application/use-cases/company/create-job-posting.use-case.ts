@@ -1,8 +1,10 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { CreateJobPostingData, ICreateJobPostingUseCase, IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { CreateJobPostingRequestDto } from '../../dto/job-posting/create-job-posting-request.dto';
 import { AppError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
+import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
@@ -11,7 +13,9 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string, jobData: CreateJobPostingData): Promise<JobPosting> {
+  async execute(data: CreateJobPostingRequestDto & { userId?: string }): Promise<JobPosting> {
+    const { userId, ...jobData } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
     if (!companyProfile) {
       throw new AppError('Company profile not found', 404);

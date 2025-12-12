@@ -1,5 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { ICreateJobRoleUseCase, IGetAllJobRolesUseCase, IGetJobRoleByIdUseCase, IUpdateJobRoleUseCase, IDeleteJobRoleUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IUpdateJobRoleUseCase';
+import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IDeleteJobRoleUseCase';
+import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
+import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
+import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/ICreateJobRoleUseCase';
+import { GetAllJobRolesRequestDto } from '../../../application/dto/admin/job-role-management.dto';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
 
 export class AdminJobRoleController {
@@ -22,7 +27,8 @@ export class AdminJobRoleController {
 
   getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const result = await this._getAllJobRolesUseCase.execute(req.query);
+      const query = req.query as unknown as GetAllJobRolesRequestDto;
+      const result = await this._getAllJobRolesUseCase.execute(query);
       sendSuccessResponse(res, 'Job roles retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);

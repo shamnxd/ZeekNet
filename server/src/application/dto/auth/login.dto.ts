@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { commonValidations } from '../../../shared/validation/common';
 
 export const LoginDto = z.object({
-  email: commonValidations.email,
-  password: commonValidations.password,
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
+

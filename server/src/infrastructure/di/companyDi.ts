@@ -22,7 +22,8 @@ import { GetCompanyProfileUseCase } from '../../application/use-cases/company/ge
 import { GetCompanyProfileWithJobPostingsUseCase } from '../../application/use-cases/company/get-company-profile-with-job-postings.use-case';
 import { GetCompanyDashboardUseCase } from '../../application/use-cases/company/get-company-dashboard.use-case';
 import { ReapplyCompanyVerificationUseCase } from '../../application/use-cases/company/reapply-company-verification.use-case';
-import { CompanyContactUseCase } from '../../application/use-cases/company/company-contact.use-case';
+import { GetCompanyContactUseCase } from '../../application/use-cases/company/get-company-contact.use-case';
+import { UpsertCompanyContactUseCase } from '../../application/use-cases/company/upsert-company-contact.use-case';
 import { CreateCompanyTechStackUseCase } from '../../application/use-cases/company/create-company-tech-stack.use-case';
 import { UpdateCompanyTechStackUseCase } from '../../application/use-cases/company/update-company-tech-stack.use-case';
 import { DeleteCompanyTechStackUseCase } from '../../application/use-cases/company/delete-company-tech-stack.use-case';
@@ -112,11 +113,12 @@ logger.info('Stripe service initialized');
 
 const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
-const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository);
+const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
 const getCompanyProfileUseCase = new GetCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyTechStackRepository, companyOfficeLocationRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, companyVerificationRepository);
 const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository);
-const companyContactUseCase = new CompanyContactUseCase(companyContactRepository);
+const getCompanyContactUseCase = new GetCompanyContactUseCase(companyContactRepository);
+const upsertCompanyContactUseCase = new UpsertCompanyContactUseCase(companyContactRepository);
 
 const createCompanyTechStackUseCase = new CreateCompanyTechStackUseCase(companyTechStackRepository);
 const updateCompanyTechStackUseCase = new UpdateCompanyTechStackUseCase(companyTechStackRepository);
@@ -157,7 +159,7 @@ const getCompanyJobPostingsUseCase = new GetCompanyJobPostingsUseCase(jobPosting
 
 const createCompanyProfileFromDtoUseCase = new CreateCompanyProfileFromDtoUseCase(createCompanyProfileUseCase);
 
-const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase);
+const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase, s3Service);
 
 const getCompanyDashboardUseCase = new GetCompanyDashboardUseCase(getCompanyProfileUseCase);
 
@@ -206,7 +208,8 @@ const companyProfileController = new CompanyProfileController(
 );
 
 const companyContactController = new CompanyContactController(
-  companyContactUseCase,
+  getCompanyContactUseCase,
+  upsertCompanyContactUseCase,
   getCompanyIdByUserIdUseCase,
 );
 

@@ -1,5 +1,5 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IUpdateUserRefreshTokenUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IUpdateUserRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserRefreshTokenUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class UpdateUserRefreshTokenUseCase implements IUpdateUserRefreshTokenUseCase {

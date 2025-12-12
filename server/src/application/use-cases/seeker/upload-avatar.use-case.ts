@@ -1,9 +1,10 @@
-import { IUploadAvatarUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
+import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
+import { UploadAvatarDto } from '../../dto/seeker/upload-avatar.dto';
 
 export class UploadAvatarUseCase implements IUploadAvatarUseCase {
   constructor(
@@ -11,7 +12,8 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(userId: string, fileBuffer: Buffer, fileName: string, mimeType: string): Promise<SeekerProfileResponseDto> {
+  async execute(dto: UploadAvatarDto): Promise<SeekerProfileResponseDto> {
+    const { userId, fileBuffer, fileName, mimeType } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');
@@ -32,6 +34,14 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
       throw new NotFoundError('Failed to update profile');
     }
 
-    return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service);
+    const [avatarUrl, bannerUrl, resumeUrl] = await Promise.all([
+      updatedProfile.avatarFileName ? this._s3Service.getSignedUrl(updatedProfile.avatarFileName) : Promise.resolve(null),
+      updatedProfile.bannerFileName ? this._s3Service.getSignedUrl(updatedProfile.bannerFileName) : Promise.resolve(null),
+      updatedProfile.resume?.url ? (updatedProfile.resume.url.includes('/') && !updatedProfile.resume.url.startsWith('http') 
+        ? this._s3Service.getSignedUrl(updatedProfile.resume.url) 
+        : Promise.resolve(updatedProfile.resume.url)) : Promise.resolve(null),
+    ]);
+
+    return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
   }
 }

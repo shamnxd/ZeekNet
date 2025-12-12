@@ -1,6 +1,6 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { JobRole } from '../../../domain/entities/job-role.entity';
-import { IGetJobRoleByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
 import { AppError } from '../../../domain/errors/errors';
 
 export class GetJobRoleByIdUseCase implements IGetJobRoleByIdUseCase {

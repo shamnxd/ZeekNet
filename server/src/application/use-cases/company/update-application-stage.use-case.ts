@@ -2,13 +2,14 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationListResponseDto } from '../../dto/application/job-application-response.dto';
+import { UpdateApplicationStageDto } from '../../dto/application/update-application-stage.dto';
 
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
   constructor(
@@ -18,12 +19,8 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    applicationId: string,
-    stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired',
-    rejectionReason?: string,
-  ): Promise<JobApplicationListResponseDto> {
+  async execute(dto: UpdateApplicationStageDto): Promise<JobApplicationListResponseDto> {
+    const { userId, applicationId, stage, rejectionReason } = dto;
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

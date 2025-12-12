@@ -6,8 +6,8 @@ export class PriceHistory {
     public readonly planId: string,
     public readonly stripePriceId: string,
     public readonly type: PriceType,
-    public readonly amount: number, // Amount in rupees
-    public readonly isActive: boolean, // Current active price or archived
+    public readonly amount: number, 
+    public readonly isActive: boolean, 
     public readonly createdAt: Date,
     public readonly archivedAt: Date | null,
   ) {}

@@ -1,14 +1,16 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IGetJobPostingForPublicUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { Types } from 'mongoose';
 
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(jobId: string, userId?: string): Promise<JobPostingDetailResponseDto> {
@@ -109,14 +111,26 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       .select('pictureUrl caption')
       .limit(4);
 
+    const logoKey = companyProfile.logo && !companyProfile.logo.startsWith('http') && companyProfile.logo !== '/white.png' 
+      ? companyProfile.logo 
+      : null;
+    const logoUrl = logoKey ? await this._s3Service.getSignedUrl(logoKey) : (companyProfile.logo || '/white.png');
+
+    const workplacePictureUrls = await Promise.all(
+      workplacePictures.map(pic => {
+        const picKey = pic.pictureUrl && !pic.pictureUrl.startsWith('http') ? pic.pictureUrl : null;
+        return picKey ? this._s3Service.getSignedUrl(picKey) : Promise.resolve(pic.pictureUrl);
+      }),
+    );
+
     return {
       companyName: companyProfile.companyName || 'Unknown Company',
-      logo: companyProfile.logo || '/white.png',
+      logo: logoUrl,
       organisation: companyProfile.organisation || 'Unknown',
       employeeCount: companyProfile.employeeCount || 0,
       websiteLink: companyProfile.websiteLink || '',
-      workplacePictures: workplacePictures.map((pic) => ({
-        pictureUrl: pic.pictureUrl,
+      workplacePictures: workplacePictures.map((pic, index) => ({
+        pictureUrl: workplacePictureUrls[index] || pic.pictureUrl,
         caption: pic.caption,
       })),
     };

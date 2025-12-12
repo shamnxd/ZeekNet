@@ -15,7 +15,11 @@ import {
 import { IS3Service } from '../../domain/interfaces/services/IS3Service';
 
 export class SeekerProfileMapper {
-  static toResponse(profile: SeekerProfile, s3Service: IS3Service): SeekerProfileResponseDto {
+  static toResponse(
+    profile: SeekerProfile, 
+    s3Service: IS3Service,
+    signedUrls?: { avatarUrl?: string | null; bannerUrl?: string | null; resumeUrl?: string | null },
+  ): SeekerProfileResponseDto {
     return {
       id: profile.id,
       userId: profile.userId,
@@ -25,14 +29,14 @@ export class SeekerProfileMapper {
       location: profile.location,
       phone: profile.phone,
       email: profile.email,
-      avatarUrl: profile.avatarFileName ? s3Service.getImageUrl(profile.avatarFileName) : null,
-      bannerUrl: profile.bannerFileName ? s3Service.getImageUrl(profile.bannerFileName) : null,
+      avatarUrl: signedUrls?.avatarUrl !== undefined ? signedUrls.avatarUrl : (profile.avatarFileName ? null : null),
+      bannerUrl: signedUrls?.bannerUrl !== undefined ? signedUrls.bannerUrl : (profile.bannerFileName ? null : null),
       dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : null,
       gender: profile.gender,
       skills: profile.skills,
       languages: profile.languages,
       socialLinks: profile.socialLinks.map((link) => this.socialLinkToResponse(link)),
-      resume: profile.resume ? this.resumeMetaToResponse(profile.resume) : null,
+      resume: profile.resume ? this.resumeMetaToResponse(profile.resume, signedUrls?.resumeUrl) : null,
       experiences: [],
       education: [],
       createdAt: profile.createdAt.toISOString(),
@@ -67,9 +71,9 @@ export class SeekerProfileMapper {
     };
   }
 
-  static resumeMetaToResponse(resume: ResumeMeta): ResumeMetaResponseDto {
+  static resumeMetaToResponse(resume: ResumeMeta, signedUrl?: string | null): ResumeMetaResponseDto {
     return {
-      url: resume.url,
+      url: signedUrl || resume.url,
       fileName: resume.fileName,
       uploadedAt: resume.uploadedAt.toISOString(),
     };

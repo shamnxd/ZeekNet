@@ -1,6 +1,8 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
-import { CompanyQueryOptions, PaginatedCompaniesWithVerification, IGetCompaniesWithVerificationUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
+import { GetCompaniesQueryDto } from '../../dto/company/get-companies-query.dto';
+import { PaginatedCompaniesWithVerificationResultDto } from '../../dto/company/paginated-companies-with-verification-result.dto';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 
@@ -11,7 +13,7 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
     private readonly _s3Service: IS3Service,
   ) {}
 
-  async execute(options: CompanyQueryOptions): Promise<PaginatedCompaniesWithVerification> {
+  async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesWithVerificationResultDto> {
     const page = options.page || 1;
     const limit = options.limit || 10;
 

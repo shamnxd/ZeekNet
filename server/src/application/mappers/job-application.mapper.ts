@@ -3,7 +3,7 @@ import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
   InterviewScheduleResponseDto,
-} from '../dto/job-application/job-application-response.dto';
+} from '../dto/application/job-application-response.dto';
 
 export class JobApplicationMapper {
   static toListResponse(
@@ -68,6 +68,7 @@ export class JobApplicationMapper {
       location?: string;
       employmentTypes?: string[];
     },
+    signedResumeUrl?: string,
   ): JobApplicationDetailResponseDto {
     return {
       id: application.id,
@@ -83,7 +84,7 @@ export class JobApplicationMapper {
       company_name: jobData?.companyName,
       company_logo: jobData?.companyLogo,
       cover_letter: application.coverLetter,
-      resume_url: application.resumeUrl,
+      resume_url: signedResumeUrl || application.resumeUrl,
       resume_filename: application.resumeFilename,
       score: application.score,
       stage: application.stage,

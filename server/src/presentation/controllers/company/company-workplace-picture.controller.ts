@@ -7,15 +7,12 @@ import {
   validateUserId,
   sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyWorkplacePictureUseCase,
-  IUpdateCompanyWorkplacePictureUseCase,
-  IDeleteCompanyWorkplacePictureUseCase,
-  IGetCompanyWorkplacePictureUseCase,
-  CompanyWorkplacePicturesData,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyWorkplacePictureUseCase';
+import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyWorkplacePictureUseCase';
+import { IDeleteCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyWorkplacePictureUseCase';
+import { IGetCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyWorkplacePictureUseCase';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dto/company/company-workplace-pictures.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyWorkplacePictureController {
   constructor(
@@ -31,7 +28,7 @@ export class CompanyWorkplacePictureController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const pictures = await this._getCompanyWorkplacePictureUseCase.executeByCompanyId(companyId);
+      const pictures = await this._getCompanyWorkplacePictureUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company workplace pictures retrieved successfully', pictures);
     } catch (error) {
       handleAsyncError(error, next);
@@ -48,7 +45,7 @@ export class CompanyWorkplacePictureController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const picture = await this._createCompanyWorkplacePictureUseCase.execute(companyId, parsed.data as CompanyWorkplacePicturesData);
+      const picture = await this._createCompanyWorkplacePictureUseCase.execute({ ...parsed.data, companyId });
       sendSuccessResponse(res, 'Workplace picture created successfully', picture, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -66,12 +63,7 @@ export class CompanyWorkplacePictureController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingPicture = await this._getCompanyWorkplacePictureUseCase.executeById(id);
-      if (!existingPicture || existingPicture.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Workplace picture not found or unauthorized');
-      }
-
-      const picture = await this._updateCompanyWorkplacePictureUseCase.execute(id, parsed.data as CompanyWorkplacePicturesData);
+      const picture = await this._updateCompanyWorkplacePictureUseCase.execute(companyId, id, parsed.data);
       sendSuccessResponse(res, 'Workplace picture updated successfully', picture);
     } catch (error) {
       handleAsyncError(error, next);
@@ -84,12 +76,7 @@ export class CompanyWorkplacePictureController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const existingPicture = await this._getCompanyWorkplacePictureUseCase.executeById(id);
-      if (!existingPicture || existingPicture.companyId !== companyId) {
-        return sendNotFoundResponse(res, 'Workplace picture not found or unauthorized');
-      }
-
-      await this._deleteCompanyWorkplacePictureUseCase.execute(id);
+      await this._deleteCompanyWorkplacePictureUseCase.execute(companyId, id);
       sendSuccessResponse(res, 'Workplace picture deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

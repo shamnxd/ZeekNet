@@ -2,46 +2,18 @@ import { IPaymentOrderRepository } from '../../../domain/interfaces/repositories
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
+import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/payments/IGetAllPaymentOrdersUseCase';
+import { GetAllPaymentOrdersRequestDto } from '../../dto/admin/payment-order.dto';
+import { GetAllPaymentOrdersResponseDto } from '../../dto/admin/get-all-payment-orders-response.dto';
 
-interface PaymentOrderWithDetails {
-  id: string;
-  orderNo: string;
-  companyId: string;
-  companyName: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
-  invoiceId?: string;
-  transactionId?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface GetAllPaymentOrdersQuery {
-  page?: number;
-  limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  search?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export class GetAllPaymentOrdersUseCase {
+export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
     private _paymentOrderRepository: IPaymentOrderRepository,
     private _companyProfileRepository: ICompanyProfileRepository,
     private _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) {}
 
-  async execute(query: GetAllPaymentOrdersQuery): Promise<{
-    orders: PaymentOrderWithDetails[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
+  async execute(query: GetAllPaymentOrdersRequestDto): Promise<GetAllPaymentOrdersResponseDto> {
     const page = query.page || 1;
     const limit = query.limit || 10;
 

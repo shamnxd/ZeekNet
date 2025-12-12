@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { 
-  IGetPublicSkillsUseCase, 
-  IGetPublicJobCategoriesUseCase, 
-  IGetPublicJobRolesUseCase, 
-} from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobRolesUseCase';
+import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobCategoriesUseCase';
+import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicSkillsUseCase';
 import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 
 export class PublicDataController {

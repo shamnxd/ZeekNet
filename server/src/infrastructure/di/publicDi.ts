@@ -3,6 +3,7 @@ import { JobApplicationRepository } from '../database/mongodb/repositories/job-a
 import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
 import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
 import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
+import { S3Service } from '../external-services/s3/s3.service';
 import { GetAllJobPostingsUseCase } from '../../application/use-cases/public/get-all-job-postings.use-case';
 import { GetJobPostingForPublicUseCase } from '../../application/use-cases/public/get-job-posting-for-public.use-case';
 import { GetPublicSkillsUseCase } from '../../application/use-cases/public/get-public-skills.use-case';
@@ -16,10 +17,11 @@ const jobApplicationRepository = new JobApplicationRepository();
 const skillRepository = new SkillRepository();
 const jobCategoryRepository = new JobCategoryRepository();
 const jobRoleRepository = new JobRoleRepository();
+const s3Service = new S3Service();
 
 const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
 
-const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository, jobApplicationRepository);
+const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository, jobApplicationRepository, s3Service);
 
 const getPublicSkillsUseCase = new GetPublicSkillsUseCase(skillRepository);
 const getPublicJobCategoriesUseCase = new GetPublicJobCategoriesUseCase(jobCategoryRepository);

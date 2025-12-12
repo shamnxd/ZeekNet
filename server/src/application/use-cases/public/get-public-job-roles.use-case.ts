@@ -1,5 +1,5 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
-import { IGetPublicJobRolesUseCase } from '../../../domain/interfaces/use-cases/IPublicUseCases';
+import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobRolesUseCase';
 
 export class GetPublicJobRolesUseCase implements IGetPublicJobRolesUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}

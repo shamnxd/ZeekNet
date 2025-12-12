@@ -1,10 +1,10 @@
-import { LoginResult } from '../../dto/auth/auth-response.dto';
+import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IAdminLoginUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
 import { AuthenticationError, AuthorizationError } from '../../../domain/errors/errors';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { UserMapper } from '../../mappers/user.mapper';
@@ -18,7 +18,7 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(email: string, password: string): Promise<LoginResult> {
+  async execute(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AuthenticationError('Invalid credentials');

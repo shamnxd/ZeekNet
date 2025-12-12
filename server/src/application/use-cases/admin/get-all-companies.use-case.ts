@@ -1,10 +1,12 @@
+import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllCompaniesUseCase';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { CompanyQueryOptions, PaginatedCompanies, IGetAllCompaniesUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { GetCompaniesQueryDto } from '../../dto/company/get-companies-query.dto';
+import { PaginatedCompaniesResultDto } from '../../dto/company/paginated-companies-result.dto';
 
 export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
   constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
 
-  async execute(options: CompanyQueryOptions): Promise<PaginatedCompanies> {
+  async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesResultDto> {
     const page = options.page || 1;
     const limit = options.limit || 10;
 

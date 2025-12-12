@@ -16,7 +16,10 @@ export class StripeWebhookController {
         return;
       }
 
-      const result = await this._handleStripeWebhookUseCase.execute(req.body, signature);
+      const result = await this._handleStripeWebhookUseCase.execute({
+        payload: req.body,
+        signature,
+      });
 
       res.status(200).json(result);
     } catch (error) {

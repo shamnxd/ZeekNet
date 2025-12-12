@@ -8,17 +8,14 @@ import {
   validateUserId,
   badRequest,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateJobApplicationUseCase,
-  IGetApplicationsBySeekerUseCase,
-  IGetSeekerApplicationDetailsUseCase,
-  IDeleteJobApplicationUseCase,
-} from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
+import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { UploadService } from '../../../shared/services/upload.service';
-import { CreateJobApplicationDto } from '../../../application/dto/job-application/create-job-application.dto';
-import { ApplicationFiltersDto } from '../../../application/dto/job-application/application-filters.dto';
+import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';
+import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 
 export class SeekerJobApplicationController {
   constructor(
@@ -64,7 +61,7 @@ export class SeekerJobApplicationController {
         );
       }
 
-      const application = await this._createJobApplicationUseCase.execute(userId, dto.data);
+      const application = await this._createJobApplicationUseCase.execute({ seekerId: userId, ...dto.data });
 
       sendSuccessResponse(res, 'Application submitted successfully', { id: application.id }, undefined, 201);
     } catch (error) {
@@ -84,7 +81,8 @@ export class SeekerJobApplicationController {
         );
       }
 
-      const result = await this._getApplicationsBySeekerUseCase.execute(userId, {
+      const result = await this._getApplicationsBySeekerUseCase.execute({
+        seekerId: userId,
         stage: filters.data.stage,
         page: filters.data.page,
         limit: filters.data.limit,

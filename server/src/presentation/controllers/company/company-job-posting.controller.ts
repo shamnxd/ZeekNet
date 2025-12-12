@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from '../../../shared/utils/controller.utils';
-import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { IUpdateJobStatusUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { CreateJobPostingRequestDto, UpdateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
-import { IGetCompanyJobPostingUseCase, IGetCompanyProfileByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
+import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IGetJobPostingUseCase';
+import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
+import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
+import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IDeleteJobPostingUseCase';
+import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
+import { CreateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dto/job-posting/job-posting.dto';
+import { CreateJobPostingRequestDtoSchema } from '../../../application/dto/job-posting/create-job-posting-request.dto';
+import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
 
 export class CompanyJobPostingController {
   constructor(
@@ -25,14 +27,14 @@ export class CompanyJobPostingController {
   ) {}
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = CreateJobPostingRequestDto.safeParse(req.body);
+    const parsed = CreateJobPostingRequestDtoSchema.safeParse(req.body);
     if (!parsed.success) {
       return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
     }
 
     try {
       const userId = validateUserId(req);
-      const jobPosting = await this._createJobPostingUseCase.execute(userId, parsed.data);
+      const jobPosting = await this._createJobPostingUseCase.execute({ userId, ...parsed.data });
       sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -65,7 +67,7 @@ export class CompanyJobPostingController {
       const userId = validateUserId(req);
 
       const query = req.query as unknown as JobPostingQueryRequestDto;
-      const result = await this._getCompanyJobPostingsUseCase.execute(userId, query);
+      const result = await this._getCompanyJobPostingsUseCase.execute({ userId, ...query });
 
       sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
     } catch (error) {
@@ -87,7 +89,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobPostingUseCase.execute(id, parsed.data);
+      const jobPosting = await this._updateJobPostingUseCase.execute({ jobId: id, ...parsed.data });
 
       sendSuccessResponse(res, 'Job posting updated successfully', jobPosting);
     } catch (error) {
@@ -127,7 +129,7 @@ export class CompanyJobPostingController {
         throw new Error('Company profile not found');
       }
 
-      const jobPosting = await this._updateJobStatusUseCase.execute(id, status, userId);
+      const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
 
       sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
     } catch (error) {

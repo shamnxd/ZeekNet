@@ -8,3 +8,4 @@ export const RegisterDto = z.object({
   password: commonValidations.password,
   role: z.nativeEnum(UserRole).optional().default(UserRole.SEEKER),
 });
+

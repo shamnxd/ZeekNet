@@ -1,17 +1,20 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUploadBusinessLicenseUseCase, UploadBusinessLicenseResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUploadBusinessLicenseUseCase } from '../../../domain/interfaces/use-cases/company/IUploadBusinessLicenseUseCase';
+import { UploadBusinessLicenseResult } from '../../dto/company/upload-business-license-result.dto';
+import { UploadBusinessLicenseDto } from '../../dto/company/upload-business-license.dto';
 
 export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
 
-  async execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadBusinessLicenseResult> {
+  async execute(dto: UploadBusinessLicenseDto): Promise<UploadBusinessLicenseResult> {
+    const { buffer, originalname, mimetype } = dto;
     this.validateFileType(mimetype, originalname);
     
-    const imageUrl = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
 
     return {
-      url: imageUrl,
+      url: key,
       filename: originalname,
     };
   }

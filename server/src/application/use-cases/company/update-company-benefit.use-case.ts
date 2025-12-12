@@ -2,12 +2,13 @@ import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositor
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
 import { UpdateCompanyBenefitsRequestDto } from '../../dto/company/company-benefits.dto';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-import { IUpdateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { IUpdateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyBenefitUseCase';
 
 export class UpdateCompanyBenefitUseCase implements IUpdateCompanyBenefitUseCase {
   constructor(private readonly _companyBenefitsRepository: ICompanyBenefitsRepository) {}
 
-  async execute(companyId: string, benefitId: string, data: UpdateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+  async execute(data: UpdateCompanyBenefitsRequestDto): Promise<CompanyBenefits> {
+    const { companyId, benefitId } = data;
     const existingBenefit = await this._companyBenefitsRepository.findById(benefitId);
     if (!existingBenefit) {
       throw new NotFoundError(`Company benefit with ID ${benefitId} not found`);

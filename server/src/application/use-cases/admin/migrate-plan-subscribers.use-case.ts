@@ -7,22 +7,11 @@ import { NotFoundError, AppError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
+import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
+import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
+import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
 
-type BillingCycle = 'monthly' | 'yearly' | 'both';
-type ProrationBehavior = 'none' | 'create_prorations' | 'always_invoice';
-
-interface MigratePlanSubscribersResult {
-  planId: string;
-  planName: string;
-  billingCycle: BillingCycle;
-  fromPriceId: string;
-  toPriceId: string;
-  migratedCount: number;
-  failedCount: number;
-  errors: string[];
-}
-
-export class MigratePlanSubscribersUseCase {
+export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUseCase {
   constructor(
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     private readonly _stripeService: IStripeService,
@@ -31,11 +20,8 @@ export class MigratePlanSubscribersUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(
-    planId: string,
-    billingCycle: BillingCycle = 'both',
-    prorationBehavior: ProrationBehavior = 'none',
-  ): Promise<MigratePlanSubscribersResult> {
+  async execute(data: MigratePlanSubscribersRequestDto): Promise<MigratePlanSubscribersResult> {
+    const { planId, billingCycle = 'both', prorationBehavior = 'none' } = data;
     const plan = await this._subscriptionPlanRepository.findById(planId);
     
     if (!plan) {
@@ -90,7 +76,7 @@ export class MigratePlanSubscribersUseCase {
     planId: string,
     planName: string,
     type: 'monthly' | 'yearly',
-    prorationBehavior: ProrationBehavior,
+    prorationBehavior: 'none' | 'create_prorations' | 'always_invoice',
   ): Promise<{
     fromPriceId: string;
     toPriceId: string;

@@ -1,5 +1,5 @@
 export type ApplicationStage = 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
-export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
 
 export interface InterviewFeedback {
   reviewerName: string;

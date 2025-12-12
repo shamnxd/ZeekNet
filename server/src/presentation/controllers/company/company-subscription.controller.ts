@@ -88,13 +88,13 @@ export class CompanySubscriptionController {
         throw new AppError('Success and cancel URLs are required', 400);
       }
 
-      const result = await this._createCheckoutSessionUseCase.execute(
+      const result = await this._createCheckoutSessionUseCase.execute({
         userId,
         planId,
-        billingCycle || 'monthly',
+        billingCycle: billingCycle || 'monthly',
         successUrl,
         cancelUrl,
-      );
+      });
 
       res.status(200).json({
         success: true,
@@ -157,7 +157,11 @@ export class CompanySubscriptionController {
         throw new AppError('New plan ID is required', 400);
       }
 
-      const result = await this._changeSubscriptionPlanUseCase.execute(userId, planId, billingCycle);
+      const result = await this._changeSubscriptionPlanUseCase.execute({
+        userId,
+        newPlanId: planId,
+        billingCycle,
+      });
 
       res.status(200).json({
         success: true,
@@ -184,7 +188,10 @@ export class CompanySubscriptionController {
         throw new AppError('Return URL is required', 400);
       }
 
-      const result = await this._getBillingPortalUseCase.execute(userId, returnUrl);
+      const result = await this._getBillingPortalUseCase.execute({
+        userId,
+        returnUrl,
+      });
 
       res.status(200).json({
         success: true,

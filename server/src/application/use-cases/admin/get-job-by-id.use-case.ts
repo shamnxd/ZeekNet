@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IAdminGetJobByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobByIdUseCase';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 

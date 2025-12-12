@@ -1,11 +1,11 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { IUpdateExperienceUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IUpdateExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateExperienceUseCase';
 import { Experience } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { ExperienceResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { UpdateExperienceRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { UpdateExperienceRequestDto } from '../../dto/seeker/update-experience-request.dto';
 
 export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
   constructor(
@@ -13,7 +13,8 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
     private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
   ) {}
 
-  async execute(userId: string, experienceId: string, dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto> {
+  async execute(dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto> {
+    const { userId, experienceId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
       throw new NotFoundError('Seeker profile not found');

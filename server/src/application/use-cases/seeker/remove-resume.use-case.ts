@@ -1,5 +1,5 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { IRemoveResumeUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IRemoveResumeUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveResumeUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class RemoveResumeUseCase implements IRemoveResumeUseCase {

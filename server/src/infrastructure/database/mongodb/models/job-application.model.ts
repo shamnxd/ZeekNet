@@ -14,7 +14,7 @@ interface InterviewSchedule {
   interview_type: string;
   location: string;
   interviewer_name?: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
   feedback?: InterviewFeedback;
   created_at?: Date;
   updated_at?: Date;
@@ -56,7 +56,7 @@ const InterviewScheduleSchema = new Schema<InterviewSchedule>(
     interviewer_name: { type: String, trim: true },
     status: {
       type: String,
-      enum: ['scheduled', 'completed', 'cancelled', 'rescheduled'],
+      enum: ['scheduled', 'completed', 'cancelled', 'rescheduled', 'no-show'],
       default: 'scheduled',
       required: true,
       index: true,

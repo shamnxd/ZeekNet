@@ -1,6 +1,7 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
 
-export class IncrementJobViewCountUseCase {
+export class IncrementJobViewCountUseCase implements IIncrementJobViewCountUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute(id: string, userRole?: string): Promise<void> {

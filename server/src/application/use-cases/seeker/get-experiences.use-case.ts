@@ -1,9 +1,9 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { IGetExperiencesUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
 import { ExperienceResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { IGetExperiencesUseCase } from 'src/domain/interfaces/use-cases/seeker/IGetExperiencesUseCase';
 
 export class GetExperiencesUseCase implements IGetExperiencesUseCase {
   constructor(

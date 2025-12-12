@@ -4,16 +4,13 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
+import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
+import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
+import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 
-interface ChangeSubscriptionResult {
-  subscription: CompanySubscription;
-  prorationAmount?: number;
-}
-
-export class ChangeSubscriptionPlanUseCase {
+export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
@@ -22,11 +19,9 @@ export class ChangeSubscriptionPlanUseCase {
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    newPlanId: string,
-    billingCycle?: 'monthly' | 'yearly',
-  ): Promise<ChangeSubscriptionResult> {
+  async execute(data: ChangeSubscriptionPlanRequestDto): Promise<ChangeSubscriptionResult> {
+    const { userId, newPlanId, billingCycle } = data;
+    if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');

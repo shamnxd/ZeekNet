@@ -1,8 +1,8 @@
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
 import { NotificationResponseDto } from '../../dto/notification/notification-response.dto';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/notifications/INotificationUseCases';
 
 export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUseCase {
   constructor(

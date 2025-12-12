@@ -1,8 +1,9 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { JobPostingQueryRequestDto } from '../../dto/job-posting/job-posting.dto';
+import { JobPostingQueryRequestDto } from '../../dto/job-posting/get-job-postings-query.dto';
 import { AppError } from '../../../domain/errors/errors';
 import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
+import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
 
 interface PaginatedCompanyJobPostings {
   jobs: CompanyJobPostingListItemDto[];
@@ -14,13 +15,15 @@ interface PaginatedCompanyJobPostings {
   };
 }
 
-export class GetCompanyJobPostingsUseCase {
+export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(userId: string, query: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+  async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+    const { userId, ...query } = data;
+    if (!userId) throw new Error('User ID is required');
     let companyProfile = null;
     if (query.company_id) {
       companyProfile = await this._companyProfileRepository.findById(query.company_id);

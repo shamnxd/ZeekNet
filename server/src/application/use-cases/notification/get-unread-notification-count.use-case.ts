@@ -1,5 +1,5 @@
+import { IGetUnreadNotificationCountUseCase } from 'src/domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
 import { Types } from 'mongoose';
 
 export class GetUnreadNotificationCountUseCase implements IGetUnreadNotificationCountUseCase {

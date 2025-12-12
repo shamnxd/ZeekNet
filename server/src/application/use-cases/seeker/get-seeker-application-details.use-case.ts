@@ -1,9 +1,9 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetSeekerApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/IJobApplicationUseCases';
+import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/job-application/job-application-response.dto';
+import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 
 export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplicationDetailsUseCase {
   constructor(
@@ -11,7 +11,8 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(seekerId: string, applicationId: string): Promise<JobApplicationDetailResponseDto> {
+  async execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto> {
+    const seekerId = userId;
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');

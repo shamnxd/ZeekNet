@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AdminGetAllJobsDtoType, AdminUpdateJobStatusDto } from '../../../application/dto/admin/admin-job.dto';
-import { IAdminGetAllJobsUseCase, IAdminGetJobByIdUseCase, IAdminUpdateJobStatusUseCase, IAdminDeleteJobUseCase, IAdminGetJobStatsUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobStatsUseCase';
+import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminDeleteJobUseCase';
+import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUpdateJobStatusUseCase';
+import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobByIdUseCase';
+import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
 import { handleValidationError } from '../../../shared/utils/controller.utils';
 import { handleAsyncError } from '../../../shared/utils/controller.utils';
 import { sendSuccessResponse } from '../../../shared/utils/controller.utils';

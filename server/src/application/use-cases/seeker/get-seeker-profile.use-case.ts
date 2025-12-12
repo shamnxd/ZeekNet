@@ -2,7 +2,7 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/ISeekerUseCases';
+import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
@@ -51,7 +51,15 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
       this._seekerEducationRepository.findBySeekerProfileId(profile.id),
     ]);
 
-    const profileDto = SeekerProfileMapper.toResponse(profile, this._s3Service);
+    const [avatarUrl, bannerUrl, resumeUrl] = await Promise.all([
+      profile.avatarFileName ? this._s3Service.getSignedUrl(profile.avatarFileName) : Promise.resolve(null),
+      profile.bannerFileName ? this._s3Service.getSignedUrl(profile.bannerFileName) : Promise.resolve(null),
+      profile.resume?.url ? (profile.resume.url.includes('/') && !profile.resume.url.startsWith('http') 
+        ? this._s3Service.getSignedUrl(profile.resume.url) 
+        : Promise.resolve(profile.resume.url)) : Promise.resolve(null),
+    ]);
+
+    const profileDto = SeekerProfileMapper.toResponse(profile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
     
     return {
       ...profileDto,

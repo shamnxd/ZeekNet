@@ -1,12 +1,16 @@
-import { ICreateCompanyProfileUseCase, CreateCompanyProfileData, ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
-import { SimpleCompanyProfileRequestDto } from '../../dto/company/create-company.dto';
+import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
+import { ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
+import { CreateCompanyProfileRequestDtoType } from '../../dto/company/create-company-profile-request.dto';
+import { CreateCompanyProfileFromDtoRequestDto } from '../../dto/company/create-company-profile-from-dto.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 
 export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfileFromDtoUseCase {
   constructor(private readonly _createCompanyProfileUseCase: ICreateCompanyProfileUseCase) {}
 
-  async execute(userId: string, dto: SimpleCompanyProfileRequestDto): Promise<CompanyProfile> {
-    const profileData: CreateCompanyProfileData = {
+  async execute(data: CreateCompanyProfileFromDtoRequestDto): Promise<CompanyProfile> {
+    const { userId, ...dto } = data;
+    if (!userId) throw new Error('User ID is required');
+    const profileData: CreateCompanyProfileRequestDtoType = {
       companyName: dto.company_name,
       logo: dto.logo || '/default-logo.png',
       banner: '/default-banner.png',
@@ -21,7 +25,7 @@ export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfile
       location: dto.location,
     };
 
-    return await this._createCompanyProfileUseCase.execute(userId, profileData);
+    return await this._createCompanyProfileUseCase.execute({ ...profileData, userId });
   }
 }
 

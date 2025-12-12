@@ -5,17 +5,13 @@ import {
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-  sendNotFoundResponse,
 } from '../../../shared/utils/controller.utils';
-import {
-  ICreateCompanyOfficeLocationUseCase,
-  IUpdateCompanyOfficeLocationUseCase,
-  IDeleteCompanyOfficeLocationUseCase,
-  IGetCompanyOfficeLocationUseCase,
-  CompanyOfficeLocationData,
-} from '../../../domain/interfaces/use-cases/ICompanyUseCases';
 import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dto/company/company-office-location.dto';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyOfficeLocationUseCase';
+import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyOfficeLocationUseCase';
+import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
+import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyOfficeLocationUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyOfficeLocationController {
   constructor(
@@ -31,7 +27,7 @@ export class CompanyOfficeLocationController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const locations = await this._getCompanyOfficeLocationUseCase.executeByCompanyId(companyId);
+      const locations = await this._getCompanyOfficeLocationUseCase.execute(companyId);
       sendSuccessResponse(res, 'Company office locations retrieved successfully', locations);
     } catch (error) {
       handleAsyncError(error, next);
@@ -48,7 +44,7 @@ export class CompanyOfficeLocationController {
       const userId = validateUserId(req);
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const location = await this._createCompanyOfficeLocationUseCase.execute(companyId, parsed.data);
+      const location = await this._createCompanyOfficeLocationUseCase.execute({ companyId, ...parsed.data });
       sendSuccessResponse(res, 'Office location created successfully', location, undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
@@ -66,7 +62,7 @@ export class CompanyOfficeLocationController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
 
-      const location = await this._updateCompanyOfficeLocationUseCase.execute(companyId, id, parsed.data as CompanyOfficeLocationData);
+      const location = await this._updateCompanyOfficeLocationUseCase.execute({ ...parsed.data, companyId, locationId: id });
       sendSuccessResponse(res, 'Office location updated successfully', location);
     } catch (error) {
       handleAsyncError(error, next);

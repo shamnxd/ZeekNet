@@ -1,5 +1,5 @@
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/INotificationUseCases';
+import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { NotificationResponseDto } from '../../dto/notification/notification-response.dto';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { Types } from 'mongoose';

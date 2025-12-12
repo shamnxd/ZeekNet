@@ -1,5 +1,5 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { IAdminGetUserByIdUseCase } from '../../../domain/interfaces/use-cases/IAdminUseCases';
+import { IAdminGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetUserByIdUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { User } from '../../../domain/entities/user.entity';
 

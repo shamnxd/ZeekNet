@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { LoginDto } from '../../../application/dto/auth/login.dto';
-import { GoogleLoginDto } from '../../../application/dto/auth/google-login.dto';
-import { ILoginUserUseCase, IAdminLoginUseCase, IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
+import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
+import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUserUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
 
@@ -54,13 +55,13 @@ export class LoginController {
   };
 
   googleLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = GoogleLoginDto.safeParse(req.body);
-    if (!parsed.success) {
+    const { idToken } = req.body;
+    if (!idToken || typeof idToken !== 'string' || idToken.length < 10) {
       return handleValidationError('Invalid Google token', next);
     }
 
     try {
-      const result = await this._googleLoginUseCase.execute(parsed.data.idToken);
+      const result = await this._googleLoginUseCase.execute(idToken);
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);

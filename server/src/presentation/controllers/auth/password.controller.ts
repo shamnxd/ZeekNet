@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { ForgotPasswordDto } from '../../../application/dto/auth/forgot-password.dto';
-import { ResetPasswordDto } from '../../../application/dto/auth/reset-password.dto';
-import { LogoutDto } from '../../../application/dto/auth/logout.dto';
-import { IForgotPasswordUseCase, IResetPasswordUseCase, ILogoutUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { ILogoutUseCase } from 'src/domain/interfaces/use-cases/auth/ILogoutUseCase';
+import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IResetPasswordUseCase';
+import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IForgotPasswordUseCase';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
 import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
@@ -16,13 +15,13 @@ export class PasswordController {
   ) {}
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = ForgotPasswordDto.safeParse(req.body);
-    if (!parsed.success) {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
       return handleValidationError('Invalid email address', next);
     }
 
     try {
-      await this._forgotPasswordUseCase.execute(parsed.data.email);
+      await this._forgotPasswordUseCase.execute(email);
       sendSuccessResponse(res, 'Password reset link has been sent to your email.', null);
     } catch (error) {
       handleAsyncError(error, next);
@@ -30,13 +29,16 @@ export class PasswordController {
   };
 
   resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = ResetPasswordDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError('Invalid reset data', next);
+    const { token, newPassword } = req.body;
+    if (!token || typeof token !== 'string') {
+      return handleValidationError('Token is required', next);
+    }
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return handleValidationError('New password must be at least 6 characters', next);
     }
 
     try {
-      await this._resetPasswordUseCase.execute(parsed.data.token, parsed.data.newPassword);
+      await this._resetPasswordUseCase.execute(token, newPassword);
       sendSuccessResponse(res, 'Password has been reset successfully', null);
     } catch (error) {
       handleAsyncError(error, next);
@@ -45,8 +47,7 @@ export class PasswordController {
 
   logout = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const maybe = LogoutDto.safeParse(req.body);
-      const userId = extractUserId(req) ?? (maybe.success ? maybe.data.userId : undefined);
+      const userId = extractUserId(req) ?? req.body?.userId;
 
       if (userId) {
         try {

@@ -1,10 +1,10 @@
-import { RegisterResult } from '../../dto/auth/auth-response.dto';
+import { RegisterResponseDto } from '../../dto/auth/register-response.dto';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IRegisterUserUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/IRegisterUserUseCase';
 import { ValidationError } from '../../../domain/errors/errors';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
 import { UserMapper } from '../../mappers/user.mapper';
@@ -18,7 +18,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResult> {
+  async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResponseDto> {
     const validationResult = this.validateInput(email, password, name);
     if (!validationResult.isValid) {
       throw new ValidationError(validationResult.errors.join(', '));

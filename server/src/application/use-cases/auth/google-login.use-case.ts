@@ -1,11 +1,11 @@
-import { LoginResult } from '../../dto/auth/auth-response.dto';
+import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IGoogleTokenVerifier } from '../../../domain/interfaces/services/IGoogleTokenVerifier';
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IGoogleLoginUseCase } from '../../../domain/interfaces/use-cases/IAuthUseCases';
+import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { AuthorizationError } from '../../../domain/errors/errors';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
@@ -22,7 +22,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     private readonly _mailerService: IMailerService,
   ) {}
 
-  async execute(idToken: string): Promise<LoginResult> {
+  async execute(idToken: string): Promise<LoginResponseDto> {
     const profile = await this._googleVerifier.verifyIdToken(idToken);
     let user = await this._userRepository.findOne({ email: profile.email });
     if (!user) {

@@ -1,18 +1,21 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUploadWorkplacePictureUseCase, UploadWorkplacePictureResult } from '../../../domain/interfaces/use-cases/ICompanyUseCases';
+import { UploadWorkplacePictureResult } from '../../dto/company/upload-workplace-picture-result.dto';
+import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/IUploadWorkplacePictureUseCase';
+import { UploadWorkplacePictureDto } from '../../dto/company/upload-workplace-picture.dto';
 
 export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
 
-  async execute(buffer: Buffer, originalname: string, mimetype: string): Promise<UploadWorkplacePictureResult> {
+  async execute(dto: UploadWorkplacePictureDto): Promise<UploadWorkplacePictureResult> {
+    const { buffer, originalname, mimetype } = dto;
     this.validateFileType(mimetype, originalname);
     this.validateFileSize(buffer.length);
     
-    const imageUrl = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
 
     return {
-      url: imageUrl,
+      url: key,
       filename: originalname,
     };
   }
