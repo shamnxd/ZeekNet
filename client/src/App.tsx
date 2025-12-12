@@ -46,6 +46,7 @@ import AllApplications from './pages/company/AllApplications'
 import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
 import CompanyChat from './pages/company/CompanyChat'
+import SeekerChat from './pages/seeker/SeekerChat'
 
 function App() {
   return (
@@ -244,6 +245,11 @@ function App() {
               <SeekerLayout>
                 <SeekerSettings />
               </SeekerLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/seeker/messages" element={
+            <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
+              <SeekerChat />
             </ProtectedRoute>
           } />
           
