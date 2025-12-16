@@ -26,7 +26,11 @@ export class AdminController {
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const query = req.query as unknown as GetAllUsersQueryDto;
-      const result = await this._getAllUsersUseCase.execute({ ...query, sortOrder: (query as any).sortOrder || 'desc' as const });
+      const sortOrder = query && typeof (query as Partial<GetAllUsersQueryDto> & { sortOrder?: string }).sortOrder === 'string'
+        && ['asc', 'desc'].includes((query as { sortOrder?: string }).sortOrder!)
+        ? ((query as { sortOrder?: 'asc' | 'desc' }).sortOrder as 'asc' | 'desc')
+        : 'desc';
+      const result = await this._getAllUsersUseCase.execute({ ...query, sortOrder });
       sendSuccessResponse(res, 'Users retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
