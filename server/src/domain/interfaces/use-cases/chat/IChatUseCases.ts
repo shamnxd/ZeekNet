@@ -9,6 +9,10 @@ export interface SendMessageInput {
   replyToMessageId?: string;
 }
 
+export interface IDeleteMessageUseCase {
+  execute(userId: string, messageId: string): Promise<ChatMessage | null>;
+}
+
 export interface ISendMessageUseCase {
   execute(data: SendMessageInput): Promise<{ conversation: Conversation; message: ChatMessage }>;
 }

@@ -11,6 +11,7 @@ export class ChatMessagePersistenceMapper {
       receiverId: String(doc.receiver_id),
       content: doc.content,
       status: doc.status,
+      isDeleted: doc.isDeleted,
       createdAt: doc.createdAt,
       readAt: doc.read_at,
       replyToMessageId: doc.reply_to_message_id ? String(doc.reply_to_message_id) : null,
@@ -25,6 +26,7 @@ export class ChatMessagePersistenceMapper {
     if (entity.receiverId) doc.receiver_id = new Types.ObjectId(entity.receiverId);
     if (entity.content !== undefined) doc.content = entity.content;
     if (entity.status !== undefined) doc.status = entity.status;
+    if (entity.isDeleted !== undefined) doc.isDeleted = entity.isDeleted;
     if (entity.readAt !== undefined) doc.read_at = entity.readAt;
     if (entity.replyToMessageId !== undefined) {
       doc.reply_to_message_id = entity.replyToMessageId ? new Types.ObjectId(entity.replyToMessageId) : null;

@@ -33,4 +33,8 @@ export const chatApi = {
   async markAsRead(conversationId: string) {
     await api.post(`/api/chat/conversations/${conversationId}/read`);
   },
+
+  async deleteMessage(messageId: string) {
+    await api.delete<{ success: boolean; message: string; data: null }>(`/api/chat/messages/${messageId}`);
+  },
 };

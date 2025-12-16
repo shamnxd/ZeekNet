@@ -6,6 +6,7 @@ import {
   IGetMessagesUseCase,
   IMarkMessagesAsReadUseCase,
   ICreateConversationUseCase,
+  IDeleteMessageUseCase,
   SendMessageInput,
 } from '../../domain/interfaces/use-cases/chat/IChatUseCases';
 import { ConversationMapper } from '../mappers/conversation.mapper';
@@ -24,6 +25,7 @@ export class ChatService implements IChatService {
     private readonly _getMessagesUseCase: IGetMessagesUseCase,
     private readonly _markMessagesAsReadUseCase: IMarkMessagesAsReadUseCase,
     private readonly _createConversationUseCase: ICreateConversationUseCase,
+    private readonly _deleteMessageUseCase: IDeleteMessageUseCase,
     private readonly _conversationRepository: IConversationRepository,
   ) {}
 
@@ -86,6 +88,28 @@ export class ChatService implements IChatService {
     if (otherParticipant) {
       this.emitMessagesRead(conversationId, userId, otherParticipant.userId);
     }
+  }
+
+  async deleteMessage(userId: string, messageId: string): Promise<void> {
+    const deletedMessage = await this._deleteMessageUseCase.execute(userId, messageId);
+    if (deletedMessage) {
+      const conversation = await this._conversationRepository.findById(deletedMessage.conversationId);
+      if (conversation) {
+        this.emitMessageDeleted(deletedMessage, conversation);
+      }
+    }
+  }
+
+  emitMessageDeleted(message: ChatMessage, conversation: Conversation): void {
+    if (!this.io) return;
+    const payload = {
+      conversationId: conversation.id,
+      messageId: message.id,
+      participants: conversation.participants.map((p) => p.userId),
+    };
+    
+    const userRooms = conversation.participants.map((p) => this.getUserRoom(p.userId));
+    this.io.to(userRooms).emit('message_deleted', payload);
   }
 
   emitTyping(conversationId: string, senderId: string, receiverId: string): void {

@@ -7,6 +7,7 @@ export interface ChatMessageDocument extends Document {
   receiver_id: Types.ObjectId;
   content: string;
   status: MessageStatus;
+  isDeleted: boolean;
   read_at?: Date | null;
   reply_to_message_id?: Types.ObjectId | null;
   createdAt: Date;
@@ -20,6 +21,7 @@ const ChatMessageSchema = new Schema<ChatMessageDocument>(
     receiver_id: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     content: { type: String, required: true, trim: true },
     status: { type: String, enum: Object.values(MessageStatus), default: MessageStatus.SENT },
+    isDeleted: { type: Boolean, default: false },
     read_at: { type: Date, default: null },
     reply_to_message_id: { type: Schema.Types.ObjectId, ref: 'ChatMessage', default: null },
   },

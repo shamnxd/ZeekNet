@@ -80,6 +80,20 @@ export class ChatMessageRepository
 
     return result.modifiedCount ?? 0;
   }
+
+  async deleteMessage(messageId: string): Promise<ChatMessage | null> {
+    if (!Types.ObjectId.isValid(messageId)) {
+      return null;
+    }
+
+    const result = await ChatMessageModel.findByIdAndUpdate(
+      messageId,
+      { isDeleted: true },
+      { new: true },
+    );
+
+    return result ? this.mapToEntity(result) : null;
+  }
 }
 
 

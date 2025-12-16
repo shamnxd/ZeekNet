@@ -20,6 +20,7 @@ export interface IConversationRepository extends IBaseRepository<Conversation> {
     lastMessage: { messageId: string; senderId: string; content: string; createdAt: Date },
     unreadUserId: string,
   ): Promise<Conversation | null>;
+  updateLastMessageContent(conversationId: string, messageId: string, newContent: string): Promise<void>;
   resetUnread(conversationId: string, userId: string): Promise<Conversation | null>;
 }
 

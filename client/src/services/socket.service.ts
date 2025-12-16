@@ -96,6 +96,14 @@ class SocketService {
     this.socket?.off('typing_indicator', callback);
   }
 
+  onMessageDeleted(callback: (data: unknown) => void) {
+    this.socket?.on('message_deleted', callback);
+  }
+
+  offMessageDeleted(callback?: (data: unknown) => void) {
+    this.socket?.off('message_deleted', callback);
+  }
+
   onUserBlocked(callback: (data: unknown) => void): void {
     this.userBlockedCallback = callback;
   }

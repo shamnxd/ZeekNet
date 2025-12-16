@@ -6,6 +6,7 @@ import { GetConversationsUseCase } from '../../application/use-cases/chat/get-co
 import { GetMessagesUseCase } from '../../application/use-cases/chat/get-messages.use-case';
 import { MarkMessagesAsReadUseCase } from '../../application/use-cases/chat/mark-messages-as-read.use-case';
 import { CreateConversationUseCase } from '../../application/use-cases/chat/create-conversation.use-case';
+import { DeleteMessageUseCase } from '../../application/use-cases/chat/delete-message.use-case';
 import { ChatService } from '../../application/services/chat.service';
 import { ChatController } from '../../presentation/controllers/chat/chat.controller';
 import { ChatRouter } from '../../presentation/routes/chat-router';
@@ -19,6 +20,7 @@ const getConversationsUseCase = new GetConversationsUseCase(conversationReposito
 const getMessagesUseCase = new GetMessagesUseCase(messageRepository, conversationRepository);
 const markMessagesAsReadUseCase = new MarkMessagesAsReadUseCase(messageRepository, conversationRepository);
 const createConversationUseCase = new CreateConversationUseCase(conversationRepository, userRepository);
+const deleteMessageUseCase = new DeleteMessageUseCase(messageRepository, conversationRepository);
 
 export const chatService = new ChatService(
   sendMessageUseCase,
@@ -26,6 +28,7 @@ export const chatService = new ChatService(
   getMessagesUseCase,
   markMessagesAsReadUseCase,
   createConversationUseCase,
+  deleteMessageUseCase,
   conversationRepository,
 );
 

@@ -23,10 +23,11 @@ export interface ConversationResponseDto {
 export interface ChatMessageResponseDto {
   id: string;
   conversationId: string;
+  content: string;
   senderId: string;
   receiverId: string;
-  content: string;
-  status: 'sent' | 'read';
+  status: 'sent' | 'delivered' | 'read';
+  isDeleted: boolean;
   createdAt: string;
   readAt?: string | null;
   replyToMessageId?: string | null;

@@ -29,10 +29,7 @@ export class ChatRouter {
       controller.getMessages,
     );
     this.router.post('/messages', validateBody(SendMessageDto), controller.sendMessage);
+    this.router.delete('/messages/:messageId', controller.deleteMessage);
     this.router.post('/conversations/:conversationId/read', controller.markAsRead);
   }
 }
-
-
-
-

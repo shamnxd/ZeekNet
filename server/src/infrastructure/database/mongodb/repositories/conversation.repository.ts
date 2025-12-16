@@ -135,6 +135,20 @@ export class ConversationRepository
     return conversation ? this.mapToEntity(conversation) : null;
   }
 
+  async updateLastMessageContent(conversationId: string, messageId: string, newContent: string): Promise<void> {
+    if (!Types.ObjectId.isValid(conversationId)) return;
+
+    await ConversationModel.updateOne(
+      { 
+        _id: new Types.ObjectId(conversationId),
+        'last_message.message_id': new Types.ObjectId(messageId)
+      },
+      {
+        $set: { 'last_message.content': newContent }
+      }
+    );
+  }
+
   async resetUnread(conversationId: string, userId: string): Promise<Conversation | null> {
     if (!Types.ObjectId.isValid(conversationId) || !Types.ObjectId.isValid(userId)) {
       return null;

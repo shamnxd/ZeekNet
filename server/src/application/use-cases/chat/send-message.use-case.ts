@@ -46,6 +46,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       receiverId: data.receiverId,
       content: data.content,
       status: MessageStatus.SENT,
+      isDeleted: false,
       readAt: null,
       replyToMessageId: data.replyToMessageId || null,
     };

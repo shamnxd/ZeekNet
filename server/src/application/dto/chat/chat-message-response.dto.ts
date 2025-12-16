@@ -5,6 +5,7 @@ export interface ChatMessageResponseDto {
   receiverId: string;
   content: string;
   status: string;
+  isDeleted: boolean;
   createdAt: Date;
   readAt?: Date | null;
   replyToMessageId?: string | null;

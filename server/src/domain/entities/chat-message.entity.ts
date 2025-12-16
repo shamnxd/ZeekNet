@@ -11,6 +11,7 @@ export class ChatMessage {
     public readonly receiverId: string,
     public readonly content: string,
     public readonly status: MessageStatus,
+    public readonly isDeleted: boolean,
     public readonly createdAt: Date,
     public readonly readAt?: Date | null,
     public readonly replyToMessageId?: string | null,
@@ -23,6 +24,7 @@ export class ChatMessage {
     receiverId: string;
     content: string;
     status?: MessageStatus;
+    isDeleted?: boolean;
     createdAt?: Date;
     readAt?: Date | null;
     replyToMessageId?: string | null;
@@ -35,6 +37,7 @@ export class ChatMessage {
       data.receiverId,
       data.content,
       data.status ?? MessageStatus.SENT,
+      data.isDeleted ?? false,
       data.createdAt ?? now,
       data.readAt ?? null,
       data.replyToMessageId ?? null,

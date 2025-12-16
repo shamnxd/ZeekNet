@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X } from 'lucide-react';
+import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X, Trash2 } from 'lucide-react';
 import CompanyLayout from '../../components/layouts/CompanyLayout';
 import { chatApi } from '@/api/chat.api';
 import { socketService } from '@/services/socket.service';
 import { useAppSelector } from '@/hooks/useRedux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfaces/chat';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
@@ -27,6 +28,7 @@ const CompanyChat: React.FC = () => {
   const [selectedConversation, setSelectedConversation] = useState<UiConversation | null>(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const selectedConversationRef = useRef<UiConversation | null>(null);
@@ -219,13 +221,44 @@ const CompanyChat: React.FC = () => {
       }, 1000);
     };
 
+    const onMessageDeleted = (payload: any) => {
+      const { conversationId, messageId } = payload || {};
+      if (!conversationId) return;
+
+      if (selectedConversationRef.current?.id === conversationId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === messageId ? { ...m, isDeleted: true, content: 'This message was deleted' } : m
+          )
+        );
+      }
+      
+      setConversations((prev) =>
+        prev.map((c) => {
+           if (c.id === conversationId && c.lastMessage?.messageId === messageId) {
+             return {
+               ...c,
+               lastMessage: {
+                 ...c.lastMessage,
+                 content: 'This message was deleted'
+               }
+             }
+           }
+           return c;
+        })
+      );
+    };
+
     socketService.onMessageReceived(onMessage);
     socketService.onMessagesRead(onMessagesRead);
     socketService.onTyping(onTyping);
+    socketService.onMessageDeleted(onMessageDeleted);
+
     return () => {
       socketService.offMessageReceived(onMessage);
       socketService.offMessagesRead(onMessagesRead);
       socketService.offTyping(onTyping);
+      socketService.offMessageDeleted(onMessageDeleted);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
@@ -302,6 +335,26 @@ const CompanyChat: React.FC = () => {
 
   const formatMessageTime = (iso: string) => {
     return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleDeleteClick = (messageId: string) => {
+    setMessageToDelete(messageId);
+  };
+
+  const confirmDeleteMessage = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      await chatApi.deleteMessage(messageToDelete);
+      // Optimistic update
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageToDelete ? { ...m, isDeleted: true, content: 'This message was deleted' } : m))
+      );
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    } finally {
+      setMessageToDelete(null);
+    }
   };
 
   const handleSelectConversation = async (conversation: UiConversation) => {
@@ -476,8 +529,8 @@ const CompanyChat: React.FC = () => {
                                 ? 'bg-gradient-to-r from-primary to-primary/90 text-white rounded-2xl rounded-br-sm'
                                 : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm'
                             }`}
-                          >                            {/* Quoted Message */}
-                            {message.replyToMessageId && (
+                          >                          {/* Quoted Message */}
+                            {message.replyToMessageId && !message.isDeleted && (
                               <div className="mb-2 pl-2 border-l-2 border-primary/30 bg-gray-50/50 p-2 rounded">
                                 <p className="text-xs text-gray-500 mb-0.5">Replying to</p>
                                 <p className="text-xs text-gray-700 truncate">
@@ -486,18 +539,33 @@ const CompanyChat: React.FC = () => {
                               </div>
                             )}
 
-                            <p className="text-sm leading-relaxed">{message.content}</p>
+                            <p className={`text-sm leading-relaxed ${message.isDeleted ? 'italic text-gray-500' : ''}`}>
+                              {message.content}
+                            </p>
                           </div>
-                          {/* Reply Button */}
-                          <button
-                            onClick={() => setReplyingTo(message)}
-                            className={`absolute -top-2 ${
-                              message.senderId === selfId ? '-left-8' : '-right-8'
-                            } opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50`}
-                            title="Reply to this message"
-                          >
-                            <Reply size={12} className="text-gray-600" />
-                          </button>
+                          {/* Message Actions */}
+                          {!message.isDeleted && (
+                            <div className={`absolute -top-2 ${
+                              message.senderId === selfId ? '-left-16' : '-right-16'
+                            } opacity-0 group-hover:opacity-100 transition-opacity flex gap-2`}>
+                               <button
+                                onClick={() => setReplyingTo(message)}
+                                className="w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                                title="Reply"
+                              >
+                                <Reply size={12} className="text-gray-600" />
+                              </button>
+                              {message.senderId === selfId && (
+                                <button
+                                  onClick={() => handleDeleteClick(message.id)}
+                                  className="w-6 h-6 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center hover:bg-red-50"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={12} className="text-red-500" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1 px-1">
                           <span className="text-xs text-gray-500">
@@ -617,9 +685,17 @@ const CompanyChat: React.FC = () => {
           )}
         </div>
       </div>
+      <ConfirmationDialog
+        isOpen={!!messageToDelete}
+        onClose={() => setMessageToDelete(null)}
+        onConfirm={confirmDeleteMessage}
+        title="Delete Message"
+        description="Are you sure you want to delete this message? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </CompanyLayout>
   );
 };
 
 export default CompanyChat;
-

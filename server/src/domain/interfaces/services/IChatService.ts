@@ -28,9 +28,9 @@ export interface IChatService {
     totalPages: number;
   }>;
   markMessagesAsRead(userId: string, conversationId: string): Promise<void>;
+  deleteMessage(userId: string, messageId: string): Promise<void>;
   emitTyping(conversationId: string, senderId: string, receiverId: string): void;
   emitMessageDelivered(message: ChatMessage, conversation: Conversation): void;
   emitMessagesRead(conversationId: string, readerId: string, otherParticipantId: string): void;
   ensureParticipant(conversationId: string, userId: string): Promise<boolean>;
 }
-

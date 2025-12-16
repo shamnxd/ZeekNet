@@ -15,5 +15,6 @@ export interface IMessageRepository extends IBaseRepository<ChatMessage> {
     totalPages: number;
   }>;
   markAsRead(conversationId: string, readerId: string): Promise<number>;
+  deleteMessage(messageId: string): Promise<ChatMessage | null>;
 }
 

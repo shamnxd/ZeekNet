@@ -71,6 +71,19 @@ export class ChatController {
       handleAsyncError(error, next);
     }
   };
+
+
+  deleteMessage = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = validateUserId(req);
+      const messageId = req.params.messageId;
+
+      await this._chatService.deleteMessage(userId, messageId);
+      sendSuccessResponse(res, 'Message deleted successfully', null);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
 }
 
 
