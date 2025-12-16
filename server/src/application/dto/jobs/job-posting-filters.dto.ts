@@ -31,7 +31,7 @@ export interface JobPostingFilters {
   limit?: number;
 }
 
-export interface PaginatedJobPostings<T = any> {
+export interface PaginatedJobPostings<T = unknown> {
   jobs: T[];
   pagination: {
     page: number;
