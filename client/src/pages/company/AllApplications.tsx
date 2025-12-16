@@ -16,7 +16,8 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
-  Eye
+  Eye,
+  MessageCircle
 } from 'lucide-react'
 import {
   Select,
@@ -26,6 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { jobApplicationApi } from '@/api'
+import { chatApi } from '@/api/chat.api'
 
 interface Application {
   _id: string
@@ -160,6 +162,15 @@ const AllApplications = () => {
     navigate(`/company/applicants/${applicationId}`)
   }
 
+  const handleChatWithApplicant = async (seekerId: string) => {
+    try {
+      const conversation = await chatApi.createConversation({ participantId: seekerId })
+      navigate(`/company/messages?chat=${conversation.id}`)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Unable to start chat')
+    }
+  }
+
   return (
     <CompanyLayout>
       <div className="min-h-screen bg-white">
@@ -288,7 +299,16 @@ const AllApplications = () => {
                     </span>
 
                     {/* Action */}
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-[#4640DE] text-[#4640DE] bg-white hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
+                        onClick={() => handleChatWithApplicant(application.seeker_id)}
+                        title="Chat with applicant"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
