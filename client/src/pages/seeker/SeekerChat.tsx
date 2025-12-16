@@ -45,9 +45,9 @@ const SeekerChat: React.FC = () => {
 
   const [conversations, setConversations] = useState<UiConversation[]>([]);
   const [messages, setMessages] = useState<UiMessage[]>([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [onlineUsers] = useState<Set<string>>(new Set());
   const [replyingTo, setReplyingTo] = useState<UiMessage | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -82,7 +82,7 @@ const SeekerChat: React.FC = () => {
   const loadConversations = async () => {
     if (!token) return;
     try {
-      setLoading(true);
+      // setLoading(true);
       const result = await chatApi.getConversations({ page: 1, limit: 50 });
       const mapped = result.data.map((c) => ({
         ...c,
@@ -92,7 +92,7 @@ const SeekerChat: React.FC = () => {
       }));
       setConversations(mapped);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

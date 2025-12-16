@@ -47,11 +47,11 @@ class SocketService {
   }
 
   /* Notifications */
-  onNotification(callback: (notification: unknown) => void): void {
+  onNotification(callback: (notification: any) => void): void {
     this.socket?.on('notification', callback);
   }
 
-  offNotification(callback?: (notification: unknown) => void): void {
+  offNotification(callback?: (notification: any) => void): void {
     this.socket?.off('notification', callback);
   }
 

@@ -50,6 +50,7 @@ export const ScoreBadge: React.FC<ScoreBadgeProps> = ({ score }) => {
 
   return (
     <div className={`flex w-fit items-center gap-2 border ${borderColor} rounded-full px-3 py-1 text-sm ${textColor} ${bgColor}`}>
+      <div className={`w-2 h-2 rounded-full ${dotColor}`} />
       <span className="font-semibold">{score}%</span>
     </div>
   );
