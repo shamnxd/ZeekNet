@@ -7,6 +7,7 @@ import {
 import { ConversationModel, ConversationDocument } from '../models/conversation.model';
 import { RepositoryBase } from './base-repository';
 import { ConversationPersistenceMapper } from '../mappers/conversation.mapper';
+import { UserRole } from '../../../../domain/enums/user-role.enum';
 
 export class ConversationRepository
   extends RepositoryBase<Conversation, ConversationDocument>
@@ -86,7 +87,7 @@ export class ConversationRepository
 
         return {
           userId: String(participant.user_id._id),
-          role: participant.role as import('../../../../domain/enums/user-role.enum').UserRole,
+          role: participant.role as UserRole,
           unreadCount: participant.unread_count,
           lastReadAt: participant.last_read_at ?? null,
           name,
@@ -179,7 +180,7 @@ export class ConversationRepository
 
             return {
               userId: String(participant.user_id._id),
-              role: participant.role as import('../../../../domain/enums/user-role.enum').UserRole,
+              role: participant.role as UserRole,
               unreadCount: participant.unread_count,
               lastReadAt: participant.last_read_at ?? null,
               name,

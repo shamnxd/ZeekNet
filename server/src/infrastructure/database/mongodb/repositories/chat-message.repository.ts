@@ -47,7 +47,12 @@ export class ChatMessageRepository
     const filter = { conversation_id: new Types.ObjectId(conversationId) };
 
     const [documents, total] = await Promise.all([
-      ChatMessageModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      ChatMessageModel.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('sender_id', 'name role')
+        .populate('receiver_id', 'name role'),
       ChatMessageModel.countDocuments(filter),
     ]);
 
