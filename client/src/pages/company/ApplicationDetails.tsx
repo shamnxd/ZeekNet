@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loading } from '@/components/ui/loading'
+import { ScoreBadge } from '@/components/ui/score-badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
@@ -497,10 +498,54 @@ const ApplicationDetails = () => {
                     </Avatar>
                     <div className="flex-1">
                       <h2 className="text-lg font-semibold text-[#25324B] mb-1">{application.seeker_name}</h2>
-                      <p className="text-sm text-[#7C8493] mb-2">{application.seeker_headline || application.job_title}</p>
-                      <div className="flex items-center gap-1.5">
-                        <Star className="w-4 h-4 text-[#FFB836] fill-[#FFB836]" />
-                        <span className="text-sm font-medium text-[#25324B]">{application.score?.toFixed(1) || '0.0'}</span>
+                      <p className="text-sm text-[#7C8493] mb-3">{application.seeker_headline || application.job_title}</p>
+                      
+                      {/* ATS Score Badge */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border border-blue-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-gray-600">ATS Match Score</span>
+                          <ScoreBadge score={application.score} />
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {application.score === -1 ? (
+                            <>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                <div className="h-full rounded-full bg-blue-400 animate-pulse" style={{ width: '50%' }} />
+                              </div>
+                              <span className="text-sm font-medium text-gray-500 min-w-[4rem] text-right">
+                                Calculating...
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full transition-all ${
+                                    application.score !== undefined && application.score !== null
+                                      ? application.score >= 80 ? 'bg-green-500' 
+                                        : application.score >= 60 ? 'bg-blue-500'
+                                        : application.score >= 40 ? 'bg-yellow-500'
+                                        : 'bg-orange-500'
+                                      : 'bg-gray-400'
+                                  }`}
+                                  style={{ width: `${application.score || 0}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-semibold text-gray-700 min-w-[4rem] text-right">
+                                {application.score !== undefined && application.score !== null ? (
+                                  <>
+                                    {application.score >= 80 ? '🟢 Excellent' : ''}
+                                    {application.score >= 60 && application.score < 80 ? '🔵 Good' : ''}
+                                    {application.score >= 40 && application.score < 60 ? '🟡 Fair' : ''}
+                                    {application.score < 40 ? '🟠 Poor' : ''}
+                                  </>
+                                ) : (
+                                  'Not Scored'
+                                )}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
