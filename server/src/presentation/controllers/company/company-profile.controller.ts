@@ -120,10 +120,12 @@ export class CompanyProfileController {
         return handleValidationError('No logo uploaded', next);
       }
 
+      const userId = validateUserId(req as AuthenticatedRequest);
       const result = await this._uploadLogoUseCase.execute({
         buffer: file.buffer,
         originalname: file.originalname,
         mimetype: file.mimetype,
+        userId,
       });
       sendSuccessResponse(res, 'Logo uploaded successfully', result);
     } catch (error) {

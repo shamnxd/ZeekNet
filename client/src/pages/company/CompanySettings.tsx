@@ -104,19 +104,12 @@ const CompanySettings = () => {
       
       if (response.success && response.data) {
         setLogo(response.data.url)
-        
-        const updateResponse = await companyApi.updateProfile({ logo: response.data.url })
-        
-        if (updateResponse.success) {
-          toast.success('Logo uploaded and saved successfully')
-        } else {
-          toast.error('Logo uploaded but failed to save to profile')
-        }
+        toast.success('Logo uploaded and saved successfully')
       } else {
         throw new Error(response.message || 'Upload failed')
       }
-      } catch {
-        toast.error('Failed to upload logo')
+    } catch {
+      toast.error('Failed to upload logo')
     } finally {
       setUploadingLogo(false)
     }

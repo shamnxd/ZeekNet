@@ -20,6 +20,7 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
     if (!existingProfile) {
       throw new Error('Company profile not found');
     }
+// be
 
     if (profileData.company_name || profileData.logo || profileData.banner || profileData.website_link || profileData.employee_count || profileData.industry || profileData.organisation || profileData.about_us) {
       const updatedProfile = await this._companyProfileRepository.update(existingProfile.id, {
