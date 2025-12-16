@@ -10,6 +10,8 @@ export class ConversationMapper {
         role: participant.role,
         unreadCount: participant.unreadCount,
         lastReadAt: participant.lastReadAt,
+        name: participant.name,
+        profileImage: participant.profileImage,
       })),
       createdAt: conversation.createdAt,
       updatedAt: conversation.updatedAt,

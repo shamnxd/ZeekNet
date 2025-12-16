@@ -56,6 +56,54 @@ export class ConversationRepository
     return this.mapToEntity(savedDocument);
   }
 
+  async findById(id: string): Promise<Conversation | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+
+    const doc = await ConversationModel.findById(id).populate('participants.user_id', 'name role').exec();
+    if (!doc) return null;
+
+    const participantsWithProfiles = await Promise.all(
+      (doc as { participants: Array<{ user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }> }).participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }) => {
+        const user = participant.user_id;
+        let profileImage: string | null = null;
+        let name = 'Unknown';
+
+        if (user && user.role) {
+          if (user.role === 'seeker') {
+            const SeekerProfileModel = this.model.db.model('SeekerProfile');
+            const seekerProfile = await SeekerProfileModel.findOne({ user_id: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
+            profileImage = seekerProfile?.avatarFileName || null;
+            name = user.name || 'Unknown';
+          } else if (user.role === 'company') {
+            const CompanyProfileModel = this.model.db.model('CompanyProfile');
+            const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
+            profileImage = companyProfile?.logo || null;
+            name = companyProfile?.companyName || 'Unknown';
+          }
+        }
+
+        return {
+          userId: String(participant.user_id._id),
+          role: participant.role as import('../../../../domain/enums/user-role.enum').UserRole,
+          unreadCount: participant.unread_count,
+          lastReadAt: participant.last_read_at ?? null,
+          name,
+          profileImage,
+        };
+      }),
+    );
+
+    return Conversation.create({
+      id: String(doc._id),
+      participants: participantsWithProfiles,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      lastMessage: doc.last_message ? { messageId: String(doc.last_message.message_id), senderId: String(doc.last_message.sender_id), content: doc.last_message.content, createdAt: doc.last_message.created_at } : null,
+    });
+  }
+
   async findByParticipants(userAId: string, userBId: string): Promise<Conversation | null> {
     if (!Types.ObjectId.isValid(userAId) || !Types.ObjectId.isValid(userBId)) {
       return null;
@@ -89,11 +137,73 @@ export class ConversationRepository
     const filter = { 'participants.user_id': new Types.ObjectId(userId) };
 
     const [documents, total] = await Promise.all([
-      ConversationModel.find(filter).sort({ updatedAt: -1 }).skip(skip).limit(limit),
+      ConversationModel.find(filter)
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('participants.user_id', 'name role')
+        .lean(),
       ConversationModel.countDocuments(filter),
     ]);
 
-    const data = documents.map((doc) => this.mapToEntity(doc));
+    // Populate profile images for each participant
+    const data = await Promise.all(
+      documents.map(async (doc: { _id: unknown; participants: Array<{ user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }>; createdAt: Date; updatedAt: Date; last_message?: { message_id: unknown; sender_id: unknown; content: string; created_at: Date } | null }) => {
+        const participantsWithProfiles = await Promise.all(
+          doc.participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }) => {
+            const user = participant.user_id;
+            let profileImage: string | null = null;
+            let name = 'Unknown';
+
+            if (user && user.role) {
+              if (user.role === 'seeker') {
+                // Fetch seeker profile for avatar
+                const SeekerProfileModel = this.model.db.model('SeekerProfile');
+                const seekerProfile = await SeekerProfileModel.findOne(
+                  { user_id: user._id },
+                  'avatarFileName',
+                ).lean() as { avatarFileName?: string } | null;
+                profileImage = seekerProfile?.avatarFileName || null;
+                name = user.name || 'Unknown';
+              } else if (user.role === 'company') {
+                // Fetch company profile for logo and name
+                const CompanyProfileModel = this.model.db.model('CompanyProfile');
+                const companyProfile = await CompanyProfileModel.findOne(
+                  { userId: String(user._id) },
+                  'companyName logo',
+                ).lean() as { companyName?: string; logo?: string } | null;
+                profileImage = companyProfile?.logo || null;
+                name = companyProfile?.companyName || 'Unknown';
+              }
+            }
+
+            return {
+              userId: String(participant.user_id._id),
+              role: participant.role as import('../../../../domain/enums/user-role.enum').UserRole,
+              unreadCount: participant.unread_count,
+              lastReadAt: participant.last_read_at ?? null,
+              name,
+              profileImage,
+            };
+          }),
+        );
+
+        return Conversation.create({
+          id: String(doc._id),
+          participants: participantsWithProfiles,
+          createdAt: doc.createdAt,
+          updatedAt: doc.updatedAt,
+          lastMessage: doc.last_message
+            ? {
+              messageId: String(doc.last_message.message_id),
+              senderId: String(doc.last_message.sender_id),
+              content: doc.last_message.content,
+              createdAt: doc.last_message.created_at,
+            }
+            : null,
+        });
+      }),
+    );
 
     return {
       data,
@@ -141,11 +251,11 @@ export class ConversationRepository
     await ConversationModel.updateOne(
       { 
         _id: new Types.ObjectId(conversationId),
-        'last_message.message_id': new Types.ObjectId(messageId)
+        'last_message.message_id': new Types.ObjectId(messageId),
       },
       {
-        $set: { 'last_message.content': newContent }
-      }
+        $set: { 'last_message.content': newContent },
+      },
     );
   }
 

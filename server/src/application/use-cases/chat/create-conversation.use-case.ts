@@ -30,8 +30,8 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
 
     const payload: Omit<Conversation, 'id' | '_id' | 'createdAt' | 'updatedAt'> = {
       participants: [
-        { userId: creator.id, role: creator.role, unreadCount: 0, lastReadAt: null },
-        { userId: participant.id, role: participant.role, unreadCount: 0, lastReadAt: null },
+        { userId: creator.id, role: creator.role, unreadCount: 0, lastReadAt: null, name: creator.name, profileImage: null },
+        { userId: participant.id, role: participant.role, unreadCount: 0, lastReadAt: null, name: participant.name, profileImage: null },
       ],
       lastMessage: null,
       withLastMessage: Conversation.prototype.withLastMessage,

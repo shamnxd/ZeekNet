@@ -4,11 +4,20 @@ import { ChatMessageDocument } from '../models/chat-message.model';
 
 export class ChatMessagePersistenceMapper {
   static toEntity(doc: ChatMessageDocument): ChatMessage {
+    // Handle populated or non-populated sender_id and receiver_id
+    const senderId = typeof doc.sender_id === 'object' && doc.sender_id !== null && '_id' in doc.sender_id
+      ? String((doc.sender_id as { _id: unknown })._id)
+      : String(doc.sender_id);
+    
+    const receiverId = typeof doc.receiver_id === 'object' && doc.receiver_id !== null && '_id' in doc.receiver_id
+      ? String((doc.receiver_id as { _id: unknown })._id)
+      : String(doc.receiver_id);
+
     return ChatMessage.create({
       id: String(doc._id),
       conversationId: String(doc.conversation_id),
-      senderId: String(doc.sender_id),
-      receiverId: String(doc.receiver_id),
+      senderId,
+      receiverId,
       content: doc.content,
       status: doc.status,
       isDeleted: doc.isDeleted,

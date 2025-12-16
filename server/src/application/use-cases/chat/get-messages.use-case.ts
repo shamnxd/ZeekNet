@@ -23,4 +23,3 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
     return this._messageRepository.getByConversationId(conversationId, { page, limit });
   }
 }
-

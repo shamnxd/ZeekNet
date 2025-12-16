@@ -10,14 +10,27 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
-  return other?.userId || 'Conversation';
+  return other?.name || 'Unknown';
+};
+
+const getOtherParticipantImage = (conversation: ConversationResponseDto, selfId: string | null) => {
+  const other = conversation.participants.find((p) => p.userId !== selfId);
+  return other?.profileImage || null;
+};
+
+const getParticipantData = (conversation: ConversationResponseDto, userId: string) => {
+  const participant = conversation.participants.find((p) => p.userId === userId);
+  return {
+    name: participant?.name || 'Unknown',
+    profileImage: participant?.profileImage || null,
+  };
 };
 
 const getOtherParticipant = (conversation: ConversationResponseDto, selfId: string) => {
   return conversation.participants.find((p) => p.userId !== selfId)?.userId || '';
 };
 
-type UiConversation = ConversationResponseDto & { displayName: string; subtitle?: string };
+type UiConversation = ConversationResponseDto & { displayName: string; profileImage: string | null; subtitle?: string };
 type UiMessage = ChatMessageResponseDto;
 
 const CompanyChat: React.FC = () => {
@@ -74,6 +87,7 @@ const CompanyChat: React.FC = () => {
     const mapped = result.data.map((c) => ({
       ...c,
       displayName: deriveDisplayName(c, userId),
+      profileImage: getOtherParticipantImage(c, userId),
       subtitle: c.lastMessage?.content,
     }));
     setConversations(mapped);
@@ -242,7 +256,7 @@ const CompanyChat: React.FC = () => {
                  ...c.lastMessage,
                  content: 'This message was deleted'
                }
-             }
+             } as UiConversation;
            }
            return c;
         })
@@ -296,6 +310,7 @@ const CompanyChat: React.FC = () => {
                 {
                   ...conversation,
                   displayName: deriveDisplayName(conversation, userId),
+                  profileImage: getOtherParticipantImage(conversation, userId),
                   subtitle: conversation.lastMessage?.content,
                 },
                 ...prev,
@@ -415,7 +430,18 @@ const CompanyChat: React.FC = () => {
                   onClick={() => handleSelectConversation(conversation)}
                 >
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full border-2 border-gray-100 bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                    {conversation.profileImage ? (
+                      <img
+                        src={conversation.profileImage}
+                        alt={conversation.displayName}
+                        className="w-12 h-12 rounded-full border-2 border-gray-100 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-12 h-12 rounded-full border-2 border-gray-100 bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary ${conversation.profileImage ? 'hidden' : ''}`}>
                       {conversation.displayName.charAt(0).toUpperCase()}
                     </div>
                   </div>
@@ -461,11 +487,20 @@ const CompanyChat: React.FC = () => {
                       <ArrowLeft size={20} />
                     </button>
                     <div className="relative flex-shrink-0">
-                      <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedConversation.displayName}`}
-                        alt={selectedConversation.displayName}
-                        className="w-10 h-10 rounded-full border-2 border-gray-100"
-                      />
+                      {selectedConversation.profileImage ? (
+                        <img
+                          src={selectedConversation.profileImage}
+                          alt={selectedConversation.displayName}
+                          className="w-10 h-10 rounded-full border-2 border-gray-100 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-10 h-10 rounded-full border-2 border-gray-100 bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary ${selectedConversation.profileImage ? 'hidden' : ''}`}>
+                        {selectedConversation.displayName.charAt(0).toUpperCase()}
+                      </div>
                     </div>
                     <div>
                       <h2 className="text-base font-semibold text-gray-900">
@@ -514,13 +549,27 @@ const CompanyChat: React.FC = () => {
                         message.senderId === selfId ? 'flex-row-reverse' : ''
                       }`}
                     >
-                      {message.senderId !== selfId && (
-                        <img
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedConversation.displayName}`}
-                          alt={selectedConversation.displayName}
-                          className="w-8 h-8 rounded-full flex-shrink-0"
-                        />
-                      )}
+                      {message.senderId !== selfId && (() => {
+                        const senderData = selectedConversation ? getParticipantData(selectedConversation, message.senderId) : { name: 'Unknown', profileImage: null };
+                        return (
+                          <>
+                            {senderData.profileImage ? (
+                              <img
+                                src={senderData.profileImage}
+                                alt={senderData.name}
+                                className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <div className={`w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0 ${senderData.profileImage ? 'hidden' : ''}`}>
+                              {senderData.name.charAt(0).toUpperCase()}
+                            </div>
+                          </>
+                        );
+                      })()}
                       <div className={`flex flex-col max-w-[65%] ${message.senderId === selfId ? 'items-end' : ''}`}>
                         <div className="relative">
                           <div
@@ -588,11 +637,22 @@ const CompanyChat: React.FC = () => {
                   {/* Typing Indicator */}
                   {isTyping && (
                     <div className="flex gap-3 animate-in slide-in-from-bottom-2 duration-300">
-                      <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedConversation.displayName}`}
-                        alt={selectedConversation.displayName}
-                        className="w-8 h-8 rounded-full flex-shrink-0"
-                      />
+                    <>
+                      {selectedConversation.profileImage ? (
+                        <img
+                          src={selectedConversation.profileImage}
+                          alt={selectedConversation.displayName}
+                          className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0 ${selectedConversation.profileImage ? 'hidden' : ''}`}>
+                        {selectedConversation.displayName.charAt(0).toUpperCase()}
+                      </div>
+                    </>
                       <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-4 py-3">
                         <div className="flex gap-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>

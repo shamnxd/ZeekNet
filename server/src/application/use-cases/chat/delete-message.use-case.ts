@@ -6,7 +6,7 @@ import { ChatMessage } from '../../../domain/entities/chat-message.entity';
 export class DeleteMessageUseCase implements IDeleteMessageUseCase {
   constructor(
     private readonly _messageRepository: IMessageRepository,
-    private readonly _conversationRepository: IConversationRepository
+    private readonly _conversationRepository: IConversationRepository,
   ) {}
 
   async execute(userId: string, messageId: string): Promise<ChatMessage | null> {
@@ -28,7 +28,7 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
         await this._conversationRepository.updateLastMessageContent(
           conversation.id,
           messageId,
-          'This message was deleted'
+          'This message was deleted',
         );
       }
     }

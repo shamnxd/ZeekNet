@@ -6,6 +6,8 @@ export interface ConversationParticipant {
   role: UserRole;
   unreadCount: number;
   lastReadAt?: Date | null;
+  name: string;
+  profileImage: string | null;
 }
 
 export interface LastMessageSummary {

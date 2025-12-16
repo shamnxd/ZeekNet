@@ -3,6 +3,8 @@ export interface ConversationParticipantDto {
   role: string;
   unreadCount: number;
   lastReadAt?: Date | null;
+  name: string;
+  profileImage: string | null;
 }
 
 export interface LastMessageDto {
