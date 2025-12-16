@@ -9,7 +9,7 @@ import { GetMessagesQueryDto } from '../../application/dto/chat/get-messages-que
 import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
 
-export class ChatRouter {
+export class ChatRouter {  
   public router: Router;
 
   constructor(controller: ChatController, userRepository: IUserRepository) {
