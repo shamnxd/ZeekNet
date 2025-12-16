@@ -19,3 +19,7 @@ export interface CompanyWithVerificationResult {
   };
 }
 
+
+
+
+
