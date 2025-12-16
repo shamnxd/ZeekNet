@@ -67,6 +67,7 @@ import { AddInterviewUseCase } from '../../application/use-cases/company/add-int
 import { UpdateInterviewUseCase } from '../../application/use-cases/company/update-interview.use-case';
 import { DeleteInterviewUseCase } from '../../application/use-cases/company/delete-interview.use-case';
 import { AddInterviewFeedbackUseCase } from '../../application/use-cases/company/add-interview-feedback.use-case';
+import { BulkUpdateApplicationsUseCase } from '../../application/use-cases/company/bulk-update-applications.use-case';
 import { GetCompanyIdByUserIdUseCase } from '../../application/use-cases/company/get-company-id-by-user-id.use-case';
 import { UploadLogoUseCase } from '../../application/use-cases/company/upload-logo.use-case';
 import { UploadBusinessLicenseUseCase } from '../../application/use-cases/company/upload-business-license.use-case';
@@ -180,6 +181,7 @@ const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jo
 const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobApplicationRepository, companyProfileRepository);
 
 const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
 const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
@@ -263,6 +265,7 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   updateInterviewUseCase,
   deleteInterviewUseCase,
   addInterviewFeedbackUseCase,
+  bulkUpdateApplicationsUseCase,
 );
 
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
