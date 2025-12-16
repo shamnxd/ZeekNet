@@ -8,12 +8,13 @@ import { ConversationModel, ConversationDocument } from '../models/conversation.
 import { RepositoryBase } from './base-repository';
 import { ConversationPersistenceMapper } from '../mappers/conversation.mapper';
 import { UserRole } from '../../../../domain/enums/user-role.enum';
+import { IS3Service } from '../../../../domain/interfaces/services/IS3Service';
 
 export class ConversationRepository
   extends RepositoryBase<Conversation, ConversationDocument>
   implements IConversationRepository
 {
-  constructor() {
+  constructor(private readonly _s3Service?: IS3Service) {
     super(ConversationModel);
   }
 
@@ -74,13 +75,17 @@ export class ConversationRepository
         if (user && user.role) {
           if (user.role === 'seeker') {
             const SeekerProfileModel = this.model.db.model('SeekerProfile');
-            const seekerProfile = await SeekerProfileModel.findOne({ user_id: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
-            profileImage = seekerProfile?.avatarFileName || null;
+            const seekerProfile = await SeekerProfileModel.findOne({ userId: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
+            const avatarKey = seekerProfile?.avatarFileName || null;
+            // Generate signed URL if S3Service is available and key exists
+            profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
             name = user.name || 'Unknown';
           } else if (user.role === 'company') {
             const CompanyProfileModel = this.model.db.model('CompanyProfile');
             const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
-            profileImage = companyProfile?.logo || null;
+            const logoKey = companyProfile?.logo || null;
+            // Generate signed URL if S3Service is available and key exists
+            profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
             name = companyProfile?.companyName || 'Unknown';
           }
         }
@@ -161,10 +166,12 @@ export class ConversationRepository
                 // Fetch seeker profile for avatar
                 const SeekerProfileModel = this.model.db.model('SeekerProfile');
                 const seekerProfile = await SeekerProfileModel.findOne(
-                  { user_id: user._id },
+                  { userId: user._id },
                   'avatarFileName',
                 ).lean() as { avatarFileName?: string } | null;
-                profileImage = seekerProfile?.avatarFileName || null;
+                const avatarKey = seekerProfile?.avatarFileName || null;
+                // Generate signed URL if S3Service is available and key exists
+                profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
                 name = user.name || 'Unknown';
               } else if (user.role === 'company') {
                 // Fetch company profile for logo and name
@@ -173,7 +180,9 @@ export class ConversationRepository
                   { userId: String(user._id) },
                   'companyName logo',
                 ).lean() as { companyName?: string; logo?: string } | null;
-                profileImage = companyProfile?.logo || null;
+                const logoKey = companyProfile?.logo || null;
+                // Generate signed URL if S3Service is available and key exists
+                profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
                 name = companyProfile?.companyName || 'Unknown';
               }
             }

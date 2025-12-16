@@ -10,8 +10,10 @@ import { DeleteMessageUseCase } from '../../application/use-cases/chat/delete-me
 import { ChatService } from '../../application/services/chat.service';
 import { ChatController } from '../../presentation/controllers/chat/chat.controller';
 import { ChatRouter } from '../../presentation/routes/chat-router';
+import { S3Service } from '../external-services/s3/s3.service';
 
-const conversationRepository = new ConversationRepository();
+const s3Service = new S3Service();
+const conversationRepository = new ConversationRepository(s3Service);
 const messageRepository = new ChatMessageRepository();
 const userRepository = new UserRepository();
 
