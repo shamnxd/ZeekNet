@@ -105,7 +105,7 @@ export class CompanyRouter {
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
 
 
-    this.router.get('/applications', validateQuery(ApplicationFiltersDto), companyJobApplicationController.getApplications);
+    this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
     this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageRequestDtoSchema), companyJobApplicationController.updateStage);
     this.router.patch('/applications/:id/score', validateBody(UpdateScoreDto), companyJobApplicationController.updateScore);
