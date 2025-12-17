@@ -19,13 +19,14 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
   async execute(
     data: z.infer<typeof BulkUpdateApplicationsDto> & { companyId: string },
   ): Promise<{ success: boolean; updated: number; failed: number; errors: Array<{ application_id: string; error: string }> }> {
-    const { application_ids, stage, companyId } = data;
+    const { application_ids, stage, companyId: userId } = data;
 
-    // Verify company exists
-    const company = await this._companyProfileRepository.findById(companyId);
-    if (!company) {
-      throw new NotFoundError('Company not found');
+    // Get company profile from user ID
+    const companyProfile = await this._companyProfileRepository.findOne({ userId });
+    if (!companyProfile) {
+      throw new NotFoundError('Company profile not found');
     }
+    const companyId = companyProfile.id;
 
     const results = {
       success: true,
