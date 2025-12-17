@@ -1,6 +1,8 @@
 import { JobPosting } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
 import { Types } from 'mongoose';
+import { JobStatus } from '../../../../domain/enums/job-status.enum';
+import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
 
 interface PopulatedCompany {
   _id: Types.ObjectId;
@@ -36,7 +38,7 @@ export class JobPostingMapper {
       location: doc.location || '',
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
-      status: doc.status || 'active',
+      status: doc.status || JobStatus.ACTIVE,
       isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
       applicationCount: doc.application_count || 0,
@@ -71,9 +73,9 @@ export class JobPostingMapper {
     if (input.salary !== undefined) doc.salary = input.salary as { min: number; max: number };
     
     if (input.employmentTypes !== undefined) {
-      doc.employment_types = input.employmentTypes as string[];
+      doc.employment_types = input.employmentTypes as EmploymentType[];
     } else if (input.employment_types !== undefined) {
-      doc.employment_types = input.employment_types as string[];
+      doc.employment_types = input.employment_types as EmploymentType[];
     }
     
     if (input.location !== undefined) doc.location = input.location as string;
@@ -91,7 +93,7 @@ export class JobPostingMapper {
     }
     
     if (input.status !== undefined) {
-      doc.status = input.status as 'active' | 'unlisted' | 'expired' | 'blocked';
+      doc.status = input.status as JobStatus;
     }
 
     if (input.isFeatured !== undefined) {
