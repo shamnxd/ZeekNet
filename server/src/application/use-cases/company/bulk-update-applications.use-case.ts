@@ -4,12 +4,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { BulkUpdateApplicationsDto } from '../../dto/application/bulk-update-applications.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
-
-export interface IBulkUpdateApplicationsUseCase {
-  execute(
-    data: z.infer<typeof BulkUpdateApplicationsDto> & { companyId: string }
-  ): Promise<{ success: boolean; updated: number; failed: number; errors: Array<{ application_id: string; error: string }> }>;
-}
+import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
 
 export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUseCase {
   constructor(

@@ -4,16 +4,7 @@ import { JobPostingQueryRequestDto } from '../../dto/job-posting/get-job-posting
 import { AppError } from '../../../domain/errors/errors';
 import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
-
-interface PaginatedCompanyJobPostings {
-  jobs: CompanyJobPostingListItemDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import { PaginatedCompanyJobPostingsDto } from '../../dto/company/paginated-company-job-postings.dto';
 
 export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
@@ -21,7 +12,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) {}
 
-  async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostings> {
+  async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostingsDto> {
     const { userId, ...query } = data;
     if (!userId) throw new Error('User ID is required');
     let companyProfile = null;

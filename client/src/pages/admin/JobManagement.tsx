@@ -35,7 +35,7 @@ import {
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { toast } from 'sonner'
 import { adminApi } from '@/api/admin.api'
-import type { JobPostingResponse } from '@/types/job'
+import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
 

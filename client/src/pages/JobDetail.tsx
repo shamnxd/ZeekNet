@@ -32,7 +32,7 @@ import PublicFooter from "@/components/layouts/PublicFooter";
 import ResumeAnalyzerModal from "@/components/jobs/ResumeAnalyzerModal";
 import { jobApi } from "@/api/job.api";
 import { jobApplicationApi } from "@/api";
-import type { JobPostingResponse } from "@/types/job";
+import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";
 import { UserRole } from "@/constants/enums";

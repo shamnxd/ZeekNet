@@ -1,12 +1,6 @@
 import { Loader2 } from 'lucide-react'
 import { Card, CardContent } from './card'
-
-interface LoadingProps {
-  message?: string
-  size?: 'sm' | 'md' | 'lg'
-  variant?: 'default' | 'card' | 'inline'
-  className?: string
-}
+import type { LoadingProps } from '@/interfaces/ui/loading-props.interface';
 
 export const Loading = ({ 
   message = 'Loading...', 

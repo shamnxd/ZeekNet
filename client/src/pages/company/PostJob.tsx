@@ -6,7 +6,7 @@ import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle } from "lucide-
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
-import type { JobPostingData } from "../../types/job-posting";
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { companyApi, type JobPostingRequest } from "../../api/company.api";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";

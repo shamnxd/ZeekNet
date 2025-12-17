@@ -6,12 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { companyApi } from '@/api/company.api';
-
-interface WorkplacePicture {
-  id?: string;
-  pictureUrl: string;
-  caption?: string;
-}
+import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface';
 
 interface EditWorkplacePicturesDialogProps {
   isOpen: boolean;

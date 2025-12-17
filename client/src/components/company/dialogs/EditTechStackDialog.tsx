@@ -6,11 +6,7 @@ import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import { publicApi } from '@/api/public.api';
 import { X } from 'lucide-react';
-
-interface TechStackItem {
-  id?: string;
-  techStack: string;
-}
+import type { TechStackItem } from '@/interfaces/company/tech-stack-item.interface';
 
 interface EditTechStackDialogProps {
   isOpen: boolean;

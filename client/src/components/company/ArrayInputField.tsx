@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
-import type { JobPostingData } from "../../types/job-posting";
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 
 interface ArrayInputFieldProps {
   field: keyof JobPostingData;

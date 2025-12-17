@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Users, Clock } from "lucide-react";
-import type { JobPostingResponse } from "@/types/job";
+import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 
 interface JobCardProps {
   job: JobPostingResponse;

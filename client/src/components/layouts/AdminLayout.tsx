@@ -1,10 +1,6 @@
-import type { ReactNode } from 'react'
 import AdminHeader from '../headers/AdminHeader'
 import AdminSidebar from '../sidebars/AdminSidebar'
-
-interface AdminLayoutProps {
-  children: ReactNode
-}
+import type { AdminLayoutProps } from '@/interfaces/layout/admin-layout-props.interface';
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (

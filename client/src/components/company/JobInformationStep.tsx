@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { IndianRupee } from "lucide-react";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { publicApi } from "@/api/public.api";
-import type { JobPostingStepProps } from "../../types/job-posting";
+import type { JobPostingStepProps } from "@/interfaces/job/job-posting-step-props.interface";
 
 const JobInformationStep: React.FC<JobPostingStepProps> = ({
   data,

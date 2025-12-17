@@ -1,14 +1,7 @@
 import * as React from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-interface CheckboxProps {
-  checked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  id?: string
-  className?: string
-  disabled?: boolean
-}
+import type { CheckboxProps } from '@/interfaces/ui/checkbox-props.interface';
 
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, checked, onCheckedChange, id, disabled, ...props }, ref) => {

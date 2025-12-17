@@ -29,53 +29,12 @@ import EditBenefitsDialog from '@/components/company/dialogs/EditBenefitsDialog'
 import EditOfficeLocationDialog from '@/components/company/dialogs/EditOfficeLocationDialog'
 import EditAboutDialog from '@/components/company/dialogs/EditAboutDialog'
 import EditWorkplacePicturesDialog from '@/components/company/dialogs/EditWorkplacePicturesDialog'
-
-interface CompanyContact {
-  id?: string;
-  email: string;
-  phone: string;
-  twitter_link: string;
-  facebook_link: string;
-  linkedin: string;
-}
-
-interface TechStackItem {
-  id?: string;
-  techStack: string;
-}
-
-interface Benefit {
-  id?: string;
-  perk: string;
-  description: string;
-}
-
-interface OfficeLocation {
-  id?: string;
-  location: string;
-  officeName: string;
-  address: string;
-  isHeadquarters: boolean;
-}
-
-interface WorkplacePicture {
-  id?: string;
-  pictureUrl: string;
-  caption?: string;
-}
-
-interface JobPosting {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  employmentType: string;
-  salaryMin?: number;
-  salaryMax?: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { CompanyContact } from '@/interfaces/company/company-contact.interface'
+import type { TechStackItem } from '@/interfaces/company/tech-stack-item.interface'
+import type { Benefit } from '@/interfaces/company/benefit.interface'
+import type { OfficeLocation } from '@/interfaces/company/office-location.interface'
+import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface'
+import type { JobPosting } from '@/interfaces/company/job-posting.interface'
 
 const CompanyProfile = () => {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileResponse | null>(null)

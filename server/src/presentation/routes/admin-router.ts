@@ -5,7 +5,7 @@ import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
 import { GetAllUsersDto } from '../../application/dto/admin/get-all-users-query.dto';
-import { AdminGetAllJobsDto } from '../../application/dto/admin/get-all-jobs-query.dto';
+import { GetAllJobsQueryDto } from '../../application/dto/admin/get-all-jobs-query.dto';
 import { GetAllJobCategoriesDto } from '../../application/dto/admin/get-all-job-categories-query.dto';
 import { CreateJobCategoryDto } from '../../application/dto/admin/create-job-category-request.dto';
 import { UpdateJobCategoryDto } from '../../application/dto/admin/update-job-category-request.dto';
@@ -40,7 +40,7 @@ export class AdminRouter {
     this.router.get('/companies/verification', adminController.getPendingCompanies);
     this.router.patch('/companies/verify', adminController.verifyCompany);
 
-    this.router.get('/jobs', validateQuery(AdminGetAllJobsDto), adminJobController.getAllJobs);
+    this.router.get('/jobs', validateQuery(GetAllJobsQueryDto), adminJobController.getAllJobs);
     this.router.get('/jobs/stats', adminJobController.getJobStats);
     this.router.get('/jobs/:id', adminJobController.getJobById);
     this.router.patch('/jobs/:id/status', adminJobController.updateJobStatus);

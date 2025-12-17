@@ -14,7 +14,8 @@ import {
 import JobCard from "@/components/jobs/JobCard";
 import SidebarFilters from "@/components/jobs/SidebarFilters";
 import { jobApi } from "@/api/job.api";
-import type { JobPostingResponse, JobPostingQuery } from "@/types/job";
+import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
+import type { JobPostingQuery } from "@/interfaces/job/job-posting-query.interface";
 import PublicHeader from "@/components/layouts/PublicHeader";
 import PublicFooter from "@/components/layouts/PublicFooter";
 

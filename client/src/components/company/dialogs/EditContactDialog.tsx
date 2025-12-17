@@ -3,15 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-interface CompanyContact {
-  id?: string;
-  email: string;
-  phone: string;
-  twitter_link: string;
-  facebook_link: string;
-  linkedin: string;
-}
+import type { CompanyContact } from '@/interfaces/company/company-contact.interface';
 
 interface EditContactDialogProps {
   isOpen: boolean;

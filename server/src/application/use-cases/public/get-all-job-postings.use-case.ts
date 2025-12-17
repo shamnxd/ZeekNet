@@ -2,21 +2,12 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/IGetAllJobPostingsUseCase';
 import { JobPostingFilters } from 'src/application/dto/jobs/job-posting-filters.dto';
 import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
-
-interface PaginatedPublicJobs {
-  jobs: PublicJobListItemDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+import { PaginatedPublicJobsDto } from '../../dto/public/paginated-public-jobs.dto';
 
 export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(query: JobPostingFilters): Promise<PaginatedPublicJobs> {
+  async execute(query: JobPostingFilters): Promise<PaginatedPublicJobsDto> {
     const projection = {
       _id: 1 as const,
       company_id: 1 as const,

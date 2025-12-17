@@ -8,18 +8,7 @@ import {
 } from './dialog'
 import { Button } from './button'
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
-
-interface ConfirmationDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  description: string
-  confirmText: string
-  cancelText?: string
-  variant?: 'danger' | 'warning' | 'success'
-  isLoading?: boolean
-}
+import type { ConfirmationDialogProps } from '@/interfaces/ui/confirmation-dialog-props.interface';
 
 export function ConfirmationDialog({
   isOpen,
