@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ChatController } from '../controllers/chat/chat.controller';
-import { ChatRoutes } from '../../domain/enums/routes.enum';
+
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
 import { SendMessageDto } from '../../application/dto/chat/send-message.dto';
@@ -22,15 +22,15 @@ export class ChatRouter {
   private setupRoutes(controller: ChatController, userBlockedMiddleware: UserBlockedMiddleware): void {
     this.router.use(authenticateToken, userBlockedMiddleware.checkUserBlocked);
 
-    this.router.post(ChatRoutes.CONVERSATIONS, validateBody(CreateConversationDto), controller.createConversation);
-    this.router.get(ChatRoutes.CONVERSATIONS, validateQuery(GetConversationsQueryDto), controller.getConversations);
+    this.router.post('/conversations', validateBody(CreateConversationDto), controller.createConversation);
+    this.router.get('/conversations', validateQuery(GetConversationsQueryDto), controller.getConversations);
     this.router.get(
-      ChatRoutes.CONVERSATIONS_MESSAGES,
+      '/conversations/:conversationId/messages',
       validateQuery(GetMessagesQueryDto),
       controller.getMessages,
     );
-    this.router.post(ChatRoutes.MESSAGES, validateBody(SendMessageDto), controller.sendMessage);
-    this.router.delete(ChatRoutes.MESSAGES_DELETE, controller.deleteMessage);
-    this.router.post(ChatRoutes.CONVERSATIONS_READ, controller.markAsRead);
+    this.router.post('/messages', validateBody(SendMessageDto), controller.sendMessage);
+    this.router.delete('/messages/:messageId', controller.deleteMessage);
+    this.router.post('/conversations/:conversationId/read', controller.markAsRead);
   }
 }
