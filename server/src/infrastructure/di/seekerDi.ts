@@ -1,4 +1,6 @@
 import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
+import { AnalyzeResumeUseCase } from '../../application/use-cases/seeker/analyze-resume.use-case';
+
 import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
 import { SeekerProfileRepository } from '../database/mongodb/repositories/seeker-profile.repository';
 import { SeekerExperienceRepository } from '../database/mongodb/repositories/seeker-experience.repository';
@@ -61,6 +63,7 @@ const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3S
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
+const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository);
 
 const seekerProfileController = new SeekerProfileController(
   createSeekerProfileUseCase,
@@ -86,6 +89,7 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   createJobApplicationUseCase,
   getApplicationsBySeekerUseCase,
   getSeekerApplicationDetailsUseCase,
+  analyzeResumeUseCase,
   s3Service,
   jobPostingRepository,
 );

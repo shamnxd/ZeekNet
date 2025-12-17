@@ -4,6 +4,7 @@ import { env } from '../config/env';
 export interface ATSScoreResult {
   score: number;
   reasoning?: string;
+  missingKeywords?: string[];
 }
 
 export class GroqService {
@@ -40,7 +41,8 @@ Your task is to analyze how well a candidate matches a job posting based on thei
 You must return ONLY a valid JSON object with this exact structure:
 {
   "score": <number between 0-100>,
-  "reasoning": "<brief explanation of the score>"
+  "reasoning": "<brief explanation of the score>",
+  "missingKeywords": ["<keyword1>", "<keyword2>", ...]
 }
 
 Scoring criteria:
@@ -49,7 +51,16 @@ Scoring criteria:
 - 40-59: Fair match - candidate has some relevant experience but significant gaps
 - 0-39: Poor match - candidate lacks most required qualifications
 
-Consider: skills match, experience relevance, qualifications, and overall fit.`,
+Consider: skills match, experience relevance, qualifications, and overall fit.
+For "reasoning", write directly to the candidate using "You" and "Your". For example: "You have relevant experience in..." instead of "The candidate has...".
+For "missingKeywords", list specific technical skills, qualifications, or requirements from the job description that are NOT found or weakly evidenced in the candidate's application.
+
+CRITICAL: If the provided candidate application text does not appear to be a resume or cover letter (e.g., if it is random text, an invoice, code snippets, or unrelated content), you MUST return:
+{
+  "score": 0,
+  "reasoning": "The uploaded document does not appear to be a valid resume or job application. Please upload a relevant professional document.",
+  "missingKeywords": []
+}`,
           },
           {
             role: 'user',
@@ -77,13 +88,15 @@ Consider: skills match, experience relevance, qualifications, and overall fit.`,
       return {
         score: Math.round(score),
         reasoning: result.reasoning || 'Score calculated based on job requirements match',
+        missingKeywords: Array.isArray(result.missingKeywords) ? result.missingKeywords : [],
       };
     } catch (error) {
       console.error('Error calculating ATS score with Groq:', error);
       // Return a default neutral score on error
       return {
-        score: 50,
-        reasoning: 'Unable to calculate precise score - manual review recommended',
+        score: 0,
+        reasoning: 'Unable to process the resume. Please ensure it is a valid text-based file.',
+        missingKeywords: [],
       };
     }
   }
@@ -125,7 +138,7 @@ ${candidateData.resumeText ? `Resume:\n${candidateData.resumeText}` : ''}
 
 ---
 
-Analyze this application and provide an ATS score (0-100) with reasoning.
+Analyze this application and provide an ATS score (0-100) with reasoning and missing keywords.
 `.trim();
   }
 }

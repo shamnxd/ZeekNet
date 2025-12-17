@@ -24,10 +24,12 @@ import {
   AlertCircle,
   Upload,
   FileText,
-  X
+  X,
+  Sparkles
 } from "lucide-react";
 import PublicHeader from "@/components/layouts/PublicHeader";
 import PublicFooter from "@/components/layouts/PublicFooter";
+import ResumeAnalyzerModal from "@/components/jobs/ResumeAnalyzerModal";
 import { jobApi } from "@/api/job.api";
 import { jobApplicationApi } from "@/api";
 import type { JobPostingResponse } from "@/types/job";
@@ -48,7 +50,9 @@ const JobDetail = () => {
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeFileName, setResumeFileName] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false);
 
   const canApply = isAuthenticated && role === UserRole.SEEKER;
 
@@ -119,6 +123,13 @@ const JobDetail = () => {
   const handleRemoveResume = () => {
     setResumeFile(null);
     setResumeFileName("");
+  };
+
+  const handleResumeVerified = (file: File) => {
+    setResumeFile(file);
+    setResumeFileName(file.name);
+    setIsApplyModalOpen(true); // Ensure apply modal is open
+    // Analyzer modal closes automatically via its onClose prop in integration
   };
 
   const handleApply = async () => {
@@ -697,9 +708,21 @@ const JobDetail = () => {
 
             {/* Resume Upload */}
             <div className="space-y-2">
-              <Label htmlFor="resume" className="text-base font-semibold text-[#25324B]">
-                Resume <span className="text-red-500">*</span>
-              </Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="resume" className="text-base font-semibold text-[#25324B]">
+                  Resume <span className="text-red-500">*</span>
+                </Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 h-auto p-1 font-medium"
+                  onClick={() => setIsAnalyzerOpen(true)}
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-1" />
+                  Check Resume Score
+                </Button>
+              </div>
               {!resumeFile ? (
                 <div className="relative">
                   <Input
@@ -787,6 +810,13 @@ const JobDetail = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ResumeAnalyzerModal 
+        isOpen={isAnalyzerOpen}
+        onClose={() => setIsAnalyzerOpen(false)}
+        jobId={id || ''}
+        onResumeVerified={handleResumeVerified}
+      />
     </div>
   );
 };

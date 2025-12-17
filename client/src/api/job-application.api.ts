@@ -8,6 +8,12 @@ export const jobApplicationApi = {
     })
   },
 
+  async analyzeResume(formData: FormData) {
+    return api.post('/api/seeker/applications/analyze-resume', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
   async getSeekerApplications(params?: {
     stage?: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
     page?: number
