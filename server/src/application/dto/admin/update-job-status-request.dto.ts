@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export const UpdateJobStatusRequestDtoSchema = z.object({
   jobId: z.string().min(1, 'Job ID is required'),
-  status: z.enum(['active', 'unlisted', 'expired', 'blocked']),
+  status: z.nativeEnum(JobStatus),
   unpublish_reason: z.string().optional(),
 });
 

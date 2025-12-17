@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const JobStatusSchema = z.enum(['active', 'unlisted', 'expired', 'blocked']);
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+
+const JobStatusSchema = z.nativeEnum(JobStatus);
 
 export const JobPostingFiltersDtoSchema = z.object({
   status: JobStatusSchema.optional(),
@@ -19,7 +21,7 @@ export type JobPostingFiltersDto = z.infer<typeof JobPostingFiltersDtoSchema>;
 
 // Legacy type for backward compatibility
 export interface JobPostingFilters {
-  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
+  status?: JobStatus;
   categoryIds?: string[];
   employmentTypes?: string[];
   salaryMin?: number;
