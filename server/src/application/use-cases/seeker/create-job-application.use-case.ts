@@ -12,6 +12,7 @@ import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { Types } from 'mongoose';
 import { groqService } from '../../../infrastructure/services/groq.service';
+import { ResumeParser } from '../../../shared/utils/resume-parser.utils';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -32,7 +33,9 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       skillsRequired: string[];
     },
     candidateData: {
+
       coverLetter: string;
+      resumeText?: string;
     },
   ): Promise<void> {
     try {
@@ -54,7 +57,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
   }
 
-  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }): Promise<{ id: string }> {
+  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }, resumeBuffer?: Buffer, mimeType?: string): Promise<{ id: string }> {
     const { seekerId, ...applicationData } = data;
     if (!seekerId) throw new Error('Seeker ID is required');
     const user = await this._userRepository.findById(seekerId);
@@ -94,6 +97,16 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       score: -1, // -1 indicates ATS score is being processed
     });
 
+    let resumeText = '';
+    if (resumeBuffer && mimeType) {
+      try {
+        resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
+      } catch (error) {
+        console.warn('Failed to parse resume for ATS scoring:', error);
+        // Continue without resume text, scoring will rely on cover letter
+      }
+    }
+
     // Calculate ATS score asynchronously (don't block the response)
     this.calculateAndUpdateATSScore(
       application.id,
@@ -106,6 +119,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       },
       {
         coverLetter: applicationData.cover_letter,
+        resumeText: resumeText,
       },
     ).catch(error => {
       console.error(`Failed to calculate ATS score for application ${application.id}:`, error);
