@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { publicJobController, publicDataController } from '../../infrastructure/di/publicDi';
+import { PublicRoutes } from '../../domain/enums/routes.enum';
 import { validateQuery } from '../middleware/validation.middleware';
 import { optionalAuthentication } from '../middleware/auth.middleware';
 import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
@@ -13,11 +14,11 @@ export class PublicRouter {
   }
 
   private _initializeRoutes(): void {
-    this.router.get('/jobs', validateQuery(JobPostingQueryDto), publicJobController.getAllJobPostings);
-    this.router.get('/jobs/:id', optionalAuthentication, publicJobController.getJobPosting);
+    this.router.get(PublicRoutes.JOBS, validateQuery(JobPostingQueryDto), publicJobController.getAllJobPostings);
+    this.router.get(PublicRoutes.JOBS_ID, optionalAuthentication, publicJobController.getJobPosting);
 
-    this.router.get('/skills', publicDataController.getAllSkills);
-    this.router.get('/job-categories', publicDataController.getAllJobCategories);
-    this.router.get('/job-roles', publicDataController.getAllJobRoles);
+    this.router.get(PublicRoutes.SKILLS, publicDataController.getAllSkills);
+    this.router.get(PublicRoutes.JOB_CATEGORIES, publicDataController.getAllJobCategories);
+    this.router.get(PublicRoutes.JOB_ROLES, publicDataController.getAllJobRoles);
   }
 }

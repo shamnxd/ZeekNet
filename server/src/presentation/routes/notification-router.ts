@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { NotificationController } from '../controllers/notification/notification.controller';
+import { NotificationRoutes } from '../../domain/enums/routes.enum';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 export class NotificationRouter {
@@ -11,10 +12,10 @@ export class NotificationRouter {
   }
 
   private setupRoutes(controller: NotificationController): void {
-    this.router.get('/', authenticateToken, controller.getNotifications);
-    this.router.get('/unread-count', authenticateToken, controller.getUnreadCount);
-    this.router.patch('/:id/read', authenticateToken, controller.markAsRead);
-    this.router.patch('/read-all', authenticateToken, controller.markAllAsRead);
+    this.router.get(NotificationRoutes.GET_NOTIFICATIONS, authenticateToken, controller.getNotifications);
+    this.router.get(NotificationRoutes.UNREAD_COUNT, authenticateToken, controller.getUnreadCount);
+    this.router.patch(NotificationRoutes.MARK_READ, authenticateToken, controller.markAsRead);
+    this.router.patch(NotificationRoutes.READ_ALL, authenticateToken, controller.markAllAsRead);
   }
 }
 

@@ -1,5 +1,6 @@
 import { Router, RequestHandler } from 'express';
 import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController } from '../../infrastructure/di/adminDi';
+import { AdminRoutes } from '../../domain/enums/routes.enum';
 import { requireAdmin } from '../middleware/admin.middleware';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
@@ -31,44 +32,44 @@ export class AdminRouter {
     this.router.use(authenticateToken);
     this.router.use(requireAdmin as RequestHandler);
 
-    this.router.get('/users', validateQuery(GetAllUsersDto), adminController.getAllUsers);
-    this.router.patch('/users/block', adminController.blockUser);
-    this.router.get('/users/:id', adminController.getUserById);
+    this.router.get(AdminRoutes.USERS, validateQuery(GetAllUsersDto), adminController.getAllUsers);
+    this.router.patch(AdminRoutes.USERS_BLOCK, adminController.blockUser);
+    this.router.get(AdminRoutes.USERS_ID, adminController.getUserById);
 
-    this.router.get('/companies', adminController.getAllCompanies);
-    this.router.get('/companies/verification', adminController.getPendingCompanies);
-    this.router.patch('/companies/verify', adminController.verifyCompany);
+    this.router.get(AdminRoutes.COMPANIES, adminController.getAllCompanies);
+    this.router.get(AdminRoutes.COMPANIES_VERIFICATION, adminController.getPendingCompanies);
+    this.router.patch(AdminRoutes.COMPANIES_VERIFY, adminController.verifyCompany);
 
-    this.router.get('/jobs', validateQuery(AdminGetAllJobsDto), adminJobController.getAllJobs);
-    this.router.get('/jobs/stats', adminJobController.getJobStats);
-    this.router.get('/jobs/:id', adminJobController.getJobById);
-    this.router.patch('/jobs/:id/status', adminJobController.updateJobStatus);
-    this.router.delete('/jobs/:id', adminJobController.deleteJob);
+    this.router.get(AdminRoutes.JOBS, validateQuery(AdminGetAllJobsDto), adminJobController.getAllJobs);
+    this.router.get(AdminRoutes.JOBS_STATS, adminJobController.getJobStats);
+    this.router.get(AdminRoutes.JOBS_ID, adminJobController.getJobById);
+    this.router.patch(AdminRoutes.JOBS_ID_STATUS, adminJobController.updateJobStatus);
+    this.router.delete(AdminRoutes.JOBS_ID, adminJobController.deleteJob);
 
-    this.router.get('/job-categories', validateQuery(GetAllJobCategoriesDto), adminJobCategoryController.getAllJobCategories);
-    this.router.post('/job-categories', validateBody(CreateJobCategoryDto), adminJobCategoryController.createJobCategory);
-    this.router.get('/job-categories/:id', adminJobCategoryController.getJobCategoryById);
-    this.router.put('/job-categories/:id', validateBody(UpdateJobCategoryDto), adminJobCategoryController.updateJobCategory);
-    this.router.delete('/job-categories/:id', adminJobCategoryController.deleteJobCategory);
+    this.router.get(AdminRoutes.JOB_CATEGORIES, validateQuery(GetAllJobCategoriesDto), adminJobCategoryController.getAllJobCategories);
+    this.router.post(AdminRoutes.JOB_CATEGORIES, validateBody(CreateJobCategoryDto), adminJobCategoryController.createJobCategory);
+    this.router.get(AdminRoutes.JOB_CATEGORIES_ID, adminJobCategoryController.getJobCategoryById);
+    this.router.put(AdminRoutes.JOB_CATEGORIES_ID, validateBody(UpdateJobCategoryDto), adminJobCategoryController.updateJobCategory);
+    this.router.delete(AdminRoutes.JOB_CATEGORIES_ID, adminJobCategoryController.deleteJobCategory);
 
-    this.router.get('/skills', validateQuery(GetAllSkillsDto), adminSkillController.getAllSkills);
-    this.router.post('/skills', validateBody(CreateSkillDto), adminSkillController.createSkill);
-    this.router.get('/skills/:id', adminSkillController.getSkillById);
-    this.router.put('/skills/:id', validateBody(UpdateSkillDto), adminSkillController.updateSkill);
-    this.router.delete('/skills/:id', adminSkillController.deleteSkill);
+    this.router.get(AdminRoutes.SKILLS, validateQuery(GetAllSkillsDto), adminSkillController.getAllSkills);
+    this.router.post(AdminRoutes.SKILLS, validateBody(CreateSkillDto), adminSkillController.createSkill);
+    this.router.get(AdminRoutes.SKILLS_ID, adminSkillController.getSkillById);
+    this.router.put(AdminRoutes.SKILLS_ID, validateBody(UpdateSkillDto), adminSkillController.updateSkill);
+    this.router.delete(AdminRoutes.SKILLS_ID, adminSkillController.deleteSkill);
 
-    this.router.get('/job-roles', validateQuery(GetAllJobRolesDto), adminJobRoleController.getAllJobRoles);
-    this.router.post('/job-roles', validateBody(CreateJobRoleDto), adminJobRoleController.createJobRole);
-    this.router.get('/job-roles/:id', adminJobRoleController.getJobRoleById);
-    this.router.put('/job-roles/:id', validateBody(UpdateJobRoleDto), adminJobRoleController.updateJobRole);
-    this.router.delete('/job-roles/:id', adminJobRoleController.deleteJobRole);
+    this.router.get(AdminRoutes.JOB_ROLES, validateQuery(GetAllJobRolesDto), adminJobRoleController.getAllJobRoles);
+    this.router.post(AdminRoutes.JOB_ROLES, validateBody(CreateJobRoleDto), adminJobRoleController.createJobRole);
+    this.router.get(AdminRoutes.JOB_ROLES_ID, adminJobRoleController.getJobRoleById);
+    this.router.put(AdminRoutes.JOB_ROLES_ID, validateBody(UpdateJobRoleDto), adminJobRoleController.updateJobRole);
+    this.router.delete(AdminRoutes.JOB_ROLES_ID, adminJobRoleController.deleteJobRole);
 
-    this.router.get('/subscription-plans', validateQuery(GetAllSubscriptionPlansDto), adminSubscriptionPlanController.getAllSubscriptionPlans);
-    this.router.post('/subscription-plans', validateBody(CreateSubscriptionPlanDto), adminSubscriptionPlanController.createSubscriptionPlan);
-    this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
-    this.router.put('/subscription-plans/:id', validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
-    this.router.post('/subscription-plans/:id/migrate-subscribers', validateBody(MigratePlanSubscribersDto), adminSubscriptionPlanController.migratePlanSubscribers);
+    this.router.get(AdminRoutes.SUBSCRIPTION_PLANS, validateQuery(GetAllSubscriptionPlansDto), adminSubscriptionPlanController.getAllSubscriptionPlans);
+    this.router.post(AdminRoutes.SUBSCRIPTION_PLANS, validateBody(CreateSubscriptionPlanDto), adminSubscriptionPlanController.createSubscriptionPlan);
+    this.router.get(AdminRoutes.SUBSCRIPTION_PLANS_ID, adminSubscriptionPlanController.getSubscriptionPlanById);
+    this.router.put(AdminRoutes.SUBSCRIPTION_PLANS_ID, validateBody(UpdateSubscriptionPlanDto), adminSubscriptionPlanController.updateSubscriptionPlan);
+    this.router.post(AdminRoutes.SUBSCRIPTION_PLANS_MIGRATE, validateBody(MigratePlanSubscribersDto), adminSubscriptionPlanController.migratePlanSubscribers);
 
-    this.router.get('/payment-orders', adminPaymentOrderController.getAllPaymentOrders);
+    this.router.get(AdminRoutes.PAYMENT_ORDERS, adminPaymentOrderController.getAllPaymentOrders);
   }
 }

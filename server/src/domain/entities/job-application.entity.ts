@@ -1,4 +1,7 @@
-export type ApplicationStage = 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+import { ApplicationStage } from '../enums/application-stage.enum';
+
+export { ApplicationStage };
+
 export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
 
 export interface InterviewFeedback {
@@ -64,7 +67,7 @@ export class JobApplication {
       data.coverLetter,
       data.resumeUrl,
       data.resumeFilename,
-      data.stage ?? 'applied',
+      data.stage ?? ApplicationStage.APPLIED,
       data.interviews ?? [],
       data.appliedDate ?? now,
       data.createdAt ?? now,

@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
 import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
 import { toast } from 'sonner'
+import { ApplicationStage } from '@/constants/enums'
 import { 
   ArrowLeft, Star, Mail, Phone, Instagram, Twitter, Globe,
   Download, Plus, MoreHorizontal, Clock, MapPin, MessageCircle
@@ -39,7 +40,7 @@ interface ApplicationDetails {
   job_location?: string
   job_type?: string
   score?: number
-  stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+  stage: ApplicationStage
   applied_date: string
   resume_url?: string
   cover_letter?: string
@@ -229,13 +230,13 @@ const ApplicationDetails = () => {
 
   const getStageBadge = (stage: string) => {
     const stageMap: Record<string, { label: string; className: string }> = {
-      applied: { label: 'Applied', className: 'border-[#4640DE] text-[#4640DE]' },
-      shortlisted: { label: 'Shortlisted', className: 'border-[#4640DE] text-[#4640DE]' },
-      interview: { label: 'Interview', className: 'border-[#4640DE] text-[#4640DE]' },
-      rejected: { label: 'Rejected', className: 'border-red-500 text-red-500' },
-      hired: { label: 'Hired', className: 'border-[#56CDAD] text-[#56CDAD]' },
+      [ApplicationStage.APPLIED]: { label: 'Applied', className: 'border-[#4640DE] text-[#4640DE]' },
+      [ApplicationStage.SHORTLISTED]: { label: 'Shortlisted', className: 'border-[#4640DE] text-[#4640DE]' },
+      [ApplicationStage.INTERVIEW]: { label: 'Interview', className: 'border-[#4640DE] text-[#4640DE]' },
+      [ApplicationStage.REJECTED]: { label: 'Rejected', className: 'border-red-500 text-red-500' },
+      [ApplicationStage.HIRED]: { label: 'Hired', className: 'border-[#56CDAD] text-[#56CDAD]' },
     }
-    const stageInfo = stageMap[stage] || stageMap.applied
+    const stageInfo = stageMap[stage] || stageMap[ApplicationStage.APPLIED]
     return (
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 rounded-full bg-[#4640DE]"></div>
@@ -369,13 +370,13 @@ const ApplicationDetails = () => {
   const handleMoveToNextStep = () => {
     if (!application) return
 
-    if (application.stage === 'shortlisted') {
+    if (application.stage === ApplicationStage.SHORTLISTED) {
       setMoveToNextStepOpen(false)
       setAddScheduleOpen(true)
       return
     }
 
-    if (application.stage === 'interview') {
+    if (application.stage === ApplicationStage.INTERVIEW) {
       setMoveToNextStepOpen(false)
       setHireRejectDialogOpen(true)
       return
@@ -387,10 +388,13 @@ const ApplicationDetails = () => {
   const handleMoveToNextStepConfirm = async () => {
     if (!id || !application) return
     const nextMap: Record<string, string> = {
-      applied: 'shortlisted', shortlisted: 'interview', interview: 'hired',
-      rejected: 'rejected', hired: 'hired',
+      [ApplicationStage.APPLIED]: ApplicationStage.SHORTLISTED,
+      [ApplicationStage.SHORTLISTED]: ApplicationStage.INTERVIEW,
+      [ApplicationStage.INTERVIEW]: ApplicationStage.HIRED,
+      [ApplicationStage.REJECTED]: ApplicationStage.REJECTED,
+      [ApplicationStage.HIRED]: ApplicationStage.HIRED,
     }
-    const next = nextMap[application.stage] || 'shortlisted'
+    const next = nextMap[application.stage] || ApplicationStage.SHORTLISTED
     try {
       await jobApplicationApi.updateApplicationStage(id, { stage: next as any })
       toast.success('Application moved to next step')
@@ -404,7 +408,7 @@ const ApplicationDetails = () => {
   const handleHire = async () => {
     if (!id) return
     try {
-      await jobApplicationApi.updateApplicationStage(id, { stage: 'hired' })
+      await jobApplicationApi.updateApplicationStage(id, { stage: ApplicationStage.HIRED })
       toast.success('Application moved to hired stage')
       await reload()
     } catch (e: any) {
@@ -416,7 +420,7 @@ const ApplicationDetails = () => {
   const handleRejectApplication = async () => {
     if (!id) return
     try {
-      await jobApplicationApi.updateApplicationStage(id, { stage: 'rejected', rejection_reason: rejectReason })
+      await jobApplicationApi.updateApplicationStage(id, { stage: ApplicationStage.REJECTED, rejection_reason: rejectReason })
       toast.success('Application rejected')
       await reload()
     } catch (e: any) {
@@ -552,7 +556,7 @@ const ApplicationDetails = () => {
                   </div>
 
                   <div className="flex items-center gap-2 mb-5">
-                    {application.stage === 'shortlisted' ? (
+                    {application.stage === ApplicationStage.SHORTLISTED ? (
                       <Button 
                         variant="outline" 
                         className="flex-1 border-[#CCCCF5] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
@@ -565,7 +569,7 @@ const ApplicationDetails = () => {
                         variant="outline" 
                         className="flex-1 border-[#CCCCF5] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
                         onClick={handleMoveToNextStep}
-                        disabled={application.stage === 'rejected' || application.stage === 'hired'}
+                        disabled={application.stage === ApplicationStage.REJECTED || application.stage === ApplicationStage.HIRED}
                       >
                         Move To Next Stage
                       </Button>

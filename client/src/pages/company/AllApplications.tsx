@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/dialog'
 import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
+import { ApplicationStage } from '@/constants/enums'
 
 interface Application {
   _id: string
@@ -47,7 +48,8 @@ interface Application {
   job_id: string
   job_title: string
   score?: number
-  stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+  stage: ApplicationStage
+
   applied_date: string
   resume_url?: string
 }
@@ -81,7 +83,7 @@ const AllApplications = () => {
       const params: any = { page, limit, search }
       
       if (stageFilter && stageFilter !== 'all') {
-        params.stage = stageFilter as 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+        params.stage = stageFilter as ApplicationStage
       }
       
       if (minScore) params.min_score = parseInt(minScore)
@@ -154,14 +156,14 @@ const AllApplications = () => {
 
   const getStageBadge = (stage: string) => {
     const stageMap: Record<string, { label: string; className: string }> = {
-      applied: { label: 'Applied', className: 'border-[#4640DE] text-[#4640DE]' },
-      shortlisted: { label: 'Shortlisted', className: 'border-[#4640DE] text-[#4640DE]' },
-      interview: { label: 'Interview', className: 'border-[#FFB836] text-[#FFB836]' },
-      rejected: { label: 'Rejected', className: 'border-red-500 text-red-500' },
-      hired: { label: 'Hired', className: 'border-[#56CDAD] text-[#56CDAD]' },
+      [ApplicationStage.APPLIED]: { label: 'Applied', className: 'border-[#4640DE] text-[#4640DE]' },
+      [ApplicationStage.SHORTLISTED]: { label: 'Shortlisted', className: 'border-[#4640DE] text-[#4640DE]' },
+      [ApplicationStage.INTERVIEW]: { label: 'Interview', className: 'border-[#FFB836] text-[#FFB836]' },
+      [ApplicationStage.REJECTED]: { label: 'Rejected', className: 'border-red-500 text-red-500' },
+      [ApplicationStage.HIRED]: { label: 'Hired', className: 'border-[#56CDAD] text-[#56CDAD]' },
     }
     
-    const stageInfo = stageMap[stage] || stageMap.applied
+    const stageInfo = stageMap[stage] || stageMap[ApplicationStage.APPLIED]
     return (
       <Badge
         variant="outline"
@@ -239,7 +241,7 @@ const AllApplications = () => {
     const selectedApps = applications.filter(app => selectedApplications.has(app._id))
     
     // Cannot change hired or rejected applications
-    const unchangeableApps = selectedApps.filter(app => app.stage === 'hired' || app.stage === 'rejected')
+    const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
       setShowShortlistConfirm(false)
@@ -247,7 +249,7 @@ const AllApplications = () => {
     }
     
     // Only 'applied' applications can be shortlisted
-    const invalidApps = selectedApps.filter(app => app.stage !== 'applied')
+    const invalidApps = selectedApps.filter(app => app.stage !== ApplicationStage.APPLIED)
     if (invalidApps.length > 0) {
       toast.error(`Cannot shortlist ${invalidApps.length} application(s). Only 'applied' applications can be shortlisted.`)
       setShowShortlistConfirm(false)
@@ -264,14 +266,14 @@ const AllApplications = () => {
       setBulkActionLoading(true)
       await jobApplicationApi.bulkUpdateApplicationStage({ 
         application_ids: Array.from(selectedApplications), 
-        stage: 'shortlisted' 
+        stage: ApplicationStage.SHORTLISTED 
       })
       toast.success(`${selectedApps.length} application(s) moved to shortlisted`)
       
       // Update local state instead of refetching
       setApplications(prev => prev.map(app => 
         selectedApplications.has(app._id) 
-          ? { ...app, stage: 'shortlisted' as const }
+          ? { ...app, stage: ApplicationStage.SHORTLISTED }
           : app
       ))
       setSelectedApplications(new Set())
@@ -287,7 +289,7 @@ const AllApplications = () => {
     const selectedApps = applications.filter(app => selectedApplications.has(app._id))
     
     // Cannot change hired or rejected applications
-    const unchangeableApps = selectedApps.filter(app => app.stage === 'hired' || app.stage === 'rejected')
+    const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
       setShowRejectConfirm(false)
@@ -296,7 +298,7 @@ const AllApplications = () => {
     
     // Can only reject applied, shortlisted, or interview stages
     const invalidApps = selectedApps.filter(app => 
-      app.stage !== 'applied' && app.stage !== 'shortlisted' && app.stage !== 'interview'
+      app.stage !== ApplicationStage.APPLIED && app.stage !== ApplicationStage.SHORTLISTED && app.stage !== ApplicationStage.INTERVIEW
     )
     if (invalidApps.length > 0) {
       toast.error(`Cannot reject ${invalidApps.length} application(s) in invalid stage`)
@@ -314,14 +316,14 @@ const AllApplications = () => {
       setBulkActionLoading(true)
       await jobApplicationApi.bulkUpdateApplicationStage({ 
         application_ids: Array.from(selectedApplications), 
-        stage: 'rejected' 
+        stage: ApplicationStage.REJECTED 
       })
       toast.success(`${selectedApps.length} application(s) rejected`)
       
       // Update local state instead of refetching
       setApplications(prev => prev.map(app => 
         selectedApplications.has(app._id) 
-          ? { ...app, stage: 'rejected' as const }
+          ? { ...app, stage: ApplicationStage.REJECTED }
           : app
       ))
       setSelectedApplications(new Set())
@@ -369,11 +371,11 @@ const AllApplications = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All stages</SelectItem>
-                  <SelectItem value="applied">Applied</SelectItem>
-                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                  <SelectItem value="interview">Interview</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="hired">Hired</SelectItem>
+                  <SelectItem value={ApplicationStage.APPLIED}>Applied</SelectItem>
+                  <SelectItem value={ApplicationStage.SHORTLISTED}>Shortlisted</SelectItem>
+                  <SelectItem value={ApplicationStage.INTERVIEW}>Interview</SelectItem>
+                  <SelectItem value={ApplicationStage.REJECTED}>Rejected</SelectItem>
+                  <SelectItem value={ApplicationStage.HIRED}>Hired</SelectItem>
                 </SelectContent>
               </Select>
               <Input
@@ -412,12 +414,12 @@ const AllApplications = () => {
             
             // Disable both buttons if any selected app is rejected or hired
             const hasRejectedOrHired = selectedApps.some(app => 
-              app.stage === 'rejected' || app.stage === 'hired'
+              app.stage === ApplicationStage.REJECTED || app.stage === ApplicationStage.HIRED
             )
             
             // Disable shortlist if any selected app is shortlisted, interview, hired, or rejected
             const cannotShortlist = hasRejectedOrHired || selectedApps.some(app => 
-              app.stage === 'shortlisted' || app.stage === 'interview'
+              app.stage === ApplicationStage.SHORTLISTED || app.stage === ApplicationStage.INTERVIEW
             )
             
             // Disable reject if any selected app is hired or rejected

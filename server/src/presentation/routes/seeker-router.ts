@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { seekerJobApplicationController, seekerProfileController } from '../../infrastructure/di/seekerDi';
+import { SeekerRoutes } from '../../domain/enums/routes.enum';
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
@@ -27,34 +28,34 @@ export class SeekerRouter {
   private _initializeRoutes(): void {
     this.router.use(authenticateToken);
 
-    this.router.post('/profile', validateBody(CreateSeekerProfileDto), seekerProfileController.createSeekerProfile);
-    this.router.get('/profile', seekerProfileController.getSeekerProfile);
-    this.router.put('/profile', validateBody(UpdateSeekerProfileDto), seekerProfileController.updateSeekerProfile);
+    this.router.post(SeekerRoutes.PROFILE, validateBody(CreateSeekerProfileDto), seekerProfileController.createSeekerProfile);
+    this.router.get(SeekerRoutes.PROFILE, seekerProfileController.getSeekerProfile);
+    this.router.put(SeekerRoutes.PROFILE, validateBody(UpdateSeekerProfileDto), seekerProfileController.updateSeekerProfile);
 
-    this.router.post('/profile/experiences', validateBody(AddExperienceDto), seekerProfileController.addExperience);
-    this.router.get('/profile/experiences', seekerProfileController.getExperiences);
-    this.router.put('/profile/experiences/:experienceId', validateBody(UpdateExperienceDto), seekerProfileController.updateExperience);
-    this.router.delete('/profile/experiences/:experienceId', seekerProfileController.removeExperience);
+    this.router.post(SeekerRoutes.PROFILE_EXPERIENCES, validateBody(AddExperienceDto), seekerProfileController.addExperience);
+    this.router.get(SeekerRoutes.PROFILE_EXPERIENCES, seekerProfileController.getExperiences);
+    this.router.put(SeekerRoutes.PROFILE_EXPERIENCES_ID, validateBody(UpdateExperienceDto), seekerProfileController.updateExperience);
+    this.router.delete(SeekerRoutes.PROFILE_EXPERIENCES_ID, seekerProfileController.removeExperience);
 
-    this.router.post('/profile/education', validateBody(AddEducationDto), seekerProfileController.addEducation);
-    this.router.get('/profile/education', seekerProfileController.getEducation);
-    this.router.put('/profile/education/:educationId', validateBody(UpdateEducationDto), seekerProfileController.updateEducation);
-    this.router.delete('/profile/education/:educationId', seekerProfileController.removeEducation);
+    this.router.post(SeekerRoutes.PROFILE_EDUCATION, validateBody(AddEducationDto), seekerProfileController.addEducation);
+    this.router.get(SeekerRoutes.PROFILE_EDUCATION, seekerProfileController.getEducation);
+    this.router.put(SeekerRoutes.PROFILE_EDUCATION_ID, validateBody(UpdateEducationDto), seekerProfileController.updateEducation);
+    this.router.delete(SeekerRoutes.PROFILE_EDUCATION_ID, seekerProfileController.removeEducation);
 
-    this.router.put('/profile/skills', validateBody(UpdateSkillsDto), seekerProfileController.updateSkills);
+    this.router.put(SeekerRoutes.PROFILE_SKILLS, validateBody(UpdateSkillsDto), seekerProfileController.updateSkills);
 
-    this.router.put('/profile/languages', validateBody(UpdateLanguagesDto), seekerProfileController.updateLanguages);
+    this.router.put(SeekerRoutes.PROFILE_LANGUAGES, validateBody(UpdateLanguagesDto), seekerProfileController.updateLanguages);
 
-    this.router.post('/profile/resume', validateBody(UploadResumeDto), seekerProfileController.uploadResume);
-    this.router.delete('/profile/resume', seekerProfileController.removeResume);
+    this.router.post(SeekerRoutes.PROFILE_RESUME, validateBody(UploadResumeDto), seekerProfileController.uploadResume);
+    this.router.delete(SeekerRoutes.PROFILE_RESUME, seekerProfileController.removeResume);
 
-    this.router.post('/profile/avatar', uploadSingle('avatar'), seekerProfileController.uploadAvatar);
-    this.router.post('/profile/banner', uploadSingle('banner'), seekerProfileController.uploadBanner);
+    this.router.post(SeekerRoutes.PROFILE_AVATAR, uploadSingle('avatar'), seekerProfileController.uploadAvatar);
+    this.router.post(SeekerRoutes.PROFILE_BANNER, uploadSingle('banner'), seekerProfileController.uploadBanner);
 
 
-    this.router.post('/applications', uploadResume('resume'), seekerJobApplicationController.createApplication);
-    this.router.post('/applications/analyze-resume', uploadResume('resume'), seekerJobApplicationController.analyzeResume);
-    this.router.get('/applications', validateQuery(ApplicationFiltersDto), seekerJobApplicationController.getApplications);
-    this.router.get('/applications/:id', seekerJobApplicationController.getApplicationDetails);
+    this.router.post(SeekerRoutes.APPLICATIONS, uploadResume('resume'), seekerJobApplicationController.createApplication);
+    this.router.post(SeekerRoutes.APPLICATIONS_ANALYZE_RESUME, uploadResume('resume'), seekerJobApplicationController.analyzeResume);
+    this.router.get(SeekerRoutes.APPLICATIONS, validateQuery(ApplicationFiltersDto), seekerJobApplicationController.getApplications);
+    this.router.get(SeekerRoutes.APPLICATIONS_ID, seekerJobApplicationController.getApplicationDetails);
   }
 }

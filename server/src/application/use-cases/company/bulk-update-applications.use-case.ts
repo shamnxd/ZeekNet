@@ -3,6 +3,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { BulkUpdateApplicationsDto } from '../../dto/application/bulk-update-applications.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
+import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
 
 export interface IBulkUpdateApplicationsUseCase {
   execute(
@@ -93,20 +94,20 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
 
   private validateStageTransition(currentStage: string, newStage: string): string | null {
     // Cannot change hired or rejected applications
-    if (currentStage === 'hired' || currentStage === 'rejected') {
+    if (currentStage === ApplicationStage.HIRED || currentStage === ApplicationStage.REJECTED) {
       return `Cannot change application in '${currentStage}' stage`;
     }
 
     // Validate shortlist transition
-    if (newStage === 'shortlisted') {
-      if (currentStage !== 'applied') {
+    if (newStage === ApplicationStage.SHORTLISTED) {
+      if (currentStage !== ApplicationStage.APPLIED) {
         return `Cannot shortlist application in '${currentStage}' stage. Only 'applied' applications can be shortlisted.`;
       }
     }
 
     // Validate reject transition
-    if (newStage === 'rejected') {
-      if (currentStage !== 'applied' && currentStage !== 'shortlisted' && currentStage !== 'interview') {
+    if (newStage === ApplicationStage.REJECTED) {
+      if (currentStage !== ApplicationStage.APPLIED && currentStage !== ApplicationStage.SHORTLISTED && currentStage !== ApplicationStage.INTERVIEW) {
         return `Cannot reject application in '${currentStage}' stage`;
       }
     }

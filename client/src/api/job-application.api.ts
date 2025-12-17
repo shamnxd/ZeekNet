@@ -1,4 +1,5 @@
 import { api } from './index'
+import { ApplicationStage } from '@/constants/enums'
 
 export const jobApplicationApi = {
 
@@ -15,7 +16,7 @@ export const jobApplicationApi = {
   },
 
   async getSeekerApplications(params?: {
-    stage?: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+    stage?: ApplicationStage
     page?: number
     limit?: number
   }) {
@@ -29,7 +30,7 @@ export const jobApplicationApi = {
 
   async getCompanyApplications(params?: {
     job_id?: string
-    stage?: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+    stage?: ApplicationStage
     search?: string
     page?: number
     limit?: number
@@ -41,13 +42,13 @@ export const jobApplicationApi = {
     return api.get(`/api/company/applications/${id}`)
   },
 
-  async updateApplicationStage(id: string, body: { stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'; rejection_reason?: string }) {
+  async updateApplicationStage(id: string, body: { stage: ApplicationStage; rejection_reason?: string }) {
     return api.patch(`/api/company/applications/${id}/stage`, body)
   },
 
   async bulkUpdateApplicationStage(body: { 
     application_ids: string[], 
-    stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired' 
+    stage: ApplicationStage 
   }) {
     return api.post(`/api/company/applications/bulk-update`, body)
   },

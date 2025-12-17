@@ -5,14 +5,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { jobApplicationApi } from '@/api'
 import { toast } from 'sonner'
 
-type Stage = 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+import { ApplicationStage } from '@/constants/enums'
+
+type Stage = ApplicationStage
 
 const stageStyles: Record<Stage, string> = {
-  applied: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',
-  shortlisted: 'border-[#34d39933] text-[#047857] bg-[#dcfce7]/70',
-  interview: 'border-[#fb923c33] text-[#c2410c] bg-[#ffedd5]/70',
-  rejected: 'border-[#f8717133] text-[#b91c1c] bg-[#fee2e2]/70',
-  hired: 'border-[#4f46e533] text-[#4338ca] bg-[#e0e7ff]/70',
+  [ApplicationStage.APPLIED]: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',
+  [ApplicationStage.SHORTLISTED]: 'border-[#34d39933] text-[#047857] bg-[#dcfce7]/70',
+  [ApplicationStage.INTERVIEW]: 'border-[#fb923c33] text-[#c2410c] bg-[#ffedd5]/70',
+  [ApplicationStage.REJECTED]: 'border-[#f8717133] text-[#b91c1c] bg-[#fee2e2]/70',
+  [ApplicationStage.HIRED]: 'border-[#4f46e533] text-[#4338ca] bg-[#e0e7ff]/70',
 }
 
 function SeekerApplications() {
@@ -48,11 +50,11 @@ function SeekerApplications() {
 
   const tabs = [
     { label: 'All', key: undefined },
-    { label: 'Applied', key: 'applied' },
-    { label: 'Shortlisted', key: 'shortlisted' },
-    { label: 'Interview', key: 'interview' },
-    { label: 'Rejected', key: 'rejected' },
-    { label: 'Hired', key: 'hired' },
+    { label: 'Applied', key: ApplicationStage.APPLIED },
+    { label: 'Shortlisted', key: ApplicationStage.SHORTLISTED },
+    { label: 'Interview', key: ApplicationStage.INTERVIEW },
+    { label: 'Rejected', key: ApplicationStage.REJECTED },
+    { label: 'Hired', key: ApplicationStage.HIRED },
   ] as { label: string; key: Stage | undefined }[]
 
   return (
