@@ -1,5 +1,6 @@
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-export type PaymentMethod = 'dummy' | 'stripe' | 'card';
+import { PaymentStatus } from '../enums/payment-status.enum';
+import { PaymentMethod } from '../enums/payment-method.enum';
+import { BillingCycle } from '../enums/billing-cycle.enum';
 
 export class PaymentOrder {
   constructor(
@@ -20,7 +21,7 @@ export class PaymentOrder {
     public readonly stripeInvoiceUrl?: string,
     public readonly stripeInvoicePdf?: string,
     public readonly subscriptionId?: string,
-    public readonly billingCycle?: 'monthly' | 'yearly',
+    public readonly billingCycle?: BillingCycle,
   ) {}
 
   static create(data: {
@@ -41,7 +42,7 @@ export class PaymentOrder {
     stripeInvoiceUrl?: string;
     stripeInvoicePdf?: string;
     subscriptionId?: string;
-    billingCycle?: 'monthly' | 'yearly';
+    billingCycle?: BillingCycle;
   }): PaymentOrder {
     const now = new Date();
     return new PaymentOrder(
@@ -50,8 +51,8 @@ export class PaymentOrder {
       data.planId,
       data.amount,
       data.currency ?? 'INR',
-      data.status ?? 'pending',
-      data.paymentMethod ?? 'dummy',
+      data.status ?? PaymentStatus.PENDING,
+      data.paymentMethod ?? PaymentMethod.DUMMY,
       data.invoiceId,
       data.transactionId,
       data.metadata,
@@ -67,14 +68,14 @@ export class PaymentOrder {
   }
 
   isCompleted(): boolean {
-    return this.status === 'completed';
+    return this.status === PaymentStatus.COMPLETED;
   }
 
   isFailed(): boolean {
-    return this.status === 'failed';
+    return this.status === PaymentStatus.FAILED;
   }
 
   isPending(): boolean {
-    return this.status === 'pending';
+    return this.status === PaymentStatus.PENDING;
   }
 }

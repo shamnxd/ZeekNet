@@ -1,4 +1,7 @@
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'unpaid';
+import { BillingCycle } from '../enums/billing-cycle.enum';
+import { SubscriptionStatus } from '../enums/subscription-status.enum';
+
+export { SubscriptionStatus };
 
 export class CompanySubscription {
   constructor(
@@ -20,7 +23,7 @@ export class CompanySubscription {
     public readonly stripeCustomerId?: string,
     public readonly stripeSubscriptionId?: string,
     public readonly stripeStatus?: SubscriptionStatus,
-    public readonly billingCycle?: 'monthly' | 'yearly',
+    public readonly billingCycle?: BillingCycle,
     public readonly cancelAtPeriodEnd?: boolean,
     public readonly currentPeriodStart?: Date,
     public readonly currentPeriodEnd?: Date,
@@ -45,7 +48,7 @@ export class CompanySubscription {
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
     stripeStatus?: SubscriptionStatus;
-    billingCycle?: 'monthly' | 'yearly';
+    billingCycle?: BillingCycle;
     cancelAtPeriodEnd?: boolean;
     currentPeriodStart?: Date;
     currentPeriodEnd?: Date;
@@ -100,10 +103,10 @@ export class CompanySubscription {
   }
 
   isPastDue(): boolean {
-    return this.stripeStatus === 'past_due';
+    return this.stripeStatus === SubscriptionStatus.PAST_DUE;
   }
 
   isCanceled(): boolean {
-    return this.stripeStatus === 'canceled' || this.cancelAtPeriodEnd === true;
+    return this.stripeStatus === SubscriptionStatus.CANCELED || this.cancelAtPeriodEnd === true;
   }
 }
