@@ -1,4 +1,5 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
+import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
@@ -40,7 +41,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     }
 
     const updateData: Partial<JobApplication> & { rejectionReason?: string } = { stage };
-    if (stage === 'rejected' && rejectionReason) {
+    if (stage === ApplicationStage.REJECTED && rejectionReason) {
       updateData.rejectionReason = rejectionReason;
     }
 
@@ -51,19 +52,19 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     }
 
     const stageMessages: Record<string, { title: string; message: string }> = {
-      shortlisted: {
+      [ApplicationStage.SHORTLISTED]: {
         title: 'Application Shortlisted',
         message: `Congratulations! Your application for ${job.title} has been shortlisted`,
       },
-      interview: {
+      [ApplicationStage.INTERVIEW]: {
         title: 'Interview Stage',
         message: `Your application for ${job.title} has moved to the interview stage`,
       },
-      rejected: {
+      [ApplicationStage.REJECTED]: {
         title: 'Application Status Updated',
         message: `Your application status for ${job.title} has been updated`,
       },
-      hired: {
+      [ApplicationStage.HIRED]: {
         title: 'Congratulations! You\'re Hired',
         message: `Congratulations! You have been hired for ${job.title}`,
       },

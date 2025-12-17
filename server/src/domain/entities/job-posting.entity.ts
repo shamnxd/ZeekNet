@@ -1,3 +1,6 @@
+import { EmploymentType } from '../enums/employment-type.enum';
+import { JobStatus } from '../enums/job-status.enum';
+
 interface Salary {
   min: number;
   max: number;
@@ -14,11 +17,11 @@ export class JobPosting {
     public readonly niceToHaves: string[],
     public readonly benefits: string[],
     public readonly salary: Salary,
-    public readonly employmentTypes: string[],
+    public readonly employmentTypes: EmploymentType[],
     public readonly location: string,
     public readonly skillsRequired: string[],
     public readonly categoryIds: string[],
-    public readonly status: 'active' | 'unlisted' | 'expired' | 'blocked',
+    public readonly status: JobStatus,
     public readonly isFeatured: boolean,
     public readonly viewCount: number,
     public readonly applicationCount: number,
@@ -39,11 +42,11 @@ export class JobPosting {
     niceToHaves?: string[];
     benefits?: string[];
     salary: Salary;
-    employmentTypes: string[];
+    employmentTypes: EmploymentType[];
     location: string;
     skillsRequired: string[];
     categoryIds: string[];
-    status?: 'active' | 'unlisted' | 'expired' | 'blocked';
+    status?: JobStatus;
     isFeatured?: boolean;
     viewCount?: number;
     applicationCount?: number;
@@ -68,7 +71,7 @@ export class JobPosting {
       data.location,
       data.skillsRequired,
       data.categoryIds,
-      data.status ?? 'active',
+      data.status ?? JobStatus.ACTIVE,
       data.isFeatured ?? false,
       data.viewCount ?? 0,
       data.applicationCount ?? 0,

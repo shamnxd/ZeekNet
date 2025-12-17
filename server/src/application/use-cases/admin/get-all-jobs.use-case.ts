@@ -1,11 +1,13 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
 
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+
 interface GetAllJobsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  status?: 'active' | 'unlisted' | 'expired' | 'blocked';
+  status?: JobStatus;
   category_ids?: string[];
   employment_types?: string[];
   salary_min?: number;

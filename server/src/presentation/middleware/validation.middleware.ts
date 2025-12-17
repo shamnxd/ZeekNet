@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodSchema } from 'zod';
+import { HttpStatus } from '../../domain/enums/http-status.enum';
 
 export const validateBody = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -14,7 +15,7 @@ export const validateBody = (schema: ZodSchema) => {
           message: err.message,
         }));
 
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: 'Validation failed',
           data: null,
@@ -23,7 +24,7 @@ export const validateBody = (schema: ZodSchema) => {
         return;
       }
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Internal server error',
         data: null,
@@ -45,7 +46,7 @@ export const validateQuery = (schema: ZodSchema) => {
           message: err.message,
         }));
 
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: 'Query validation failed',
           data: null,
@@ -54,7 +55,7 @@ export const validateQuery = (schema: ZodSchema) => {
         return;
       }
 
-      res.status(500).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Internal server error',
         data: null,

@@ -1,3 +1,4 @@
+import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
 import { PaginatedCompaniesWithVerificationResultDto } from '../../dto/company/paginated-companies-with-verification-result.dto';
@@ -9,7 +10,7 @@ export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {
     return await this._getCompaniesWithVerificationUseCase.execute({
       page: 1,
       limit: 100,
-      isVerified: 'pending',
+      isVerified: CompanyVerificationStatus.PENDING,
       sortOrder: 'desc' as const,
     });
   }

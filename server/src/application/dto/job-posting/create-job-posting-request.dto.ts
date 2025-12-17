@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const EmploymentTypeSchema = z.enum(['full-time', 'part-time', 'contract', 'internship', 'remote']);
+import { EmploymentType } from '../../../domain/enums/employment-type.enum';
+
+const EmploymentTypeSchema = z.nativeEnum(EmploymentType);
 
 const SalarySchema = z
   .object({

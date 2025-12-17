@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { seekerJobApplicationController, seekerProfileController } from '../../infrastructure/di/seekerDi';
+
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';

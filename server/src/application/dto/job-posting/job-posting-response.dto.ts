@@ -1,3 +1,6 @@
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { EmploymentType } from '../../../domain/enums/employment-type.enum';
+
 export interface JobPostingResponseDto {
   id: string;
   company_id: string;
@@ -10,11 +13,11 @@ export interface JobPostingResponseDto {
   nice_to_haves: string[];
   benefits: string[];
   salary: { min: number; max: number };
-  employment_types: string[];
+  employment_types: EmploymentType[];
   location: string;
   skills_required: string[];
   category_ids: string[];
-  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  status: JobStatus;
   is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
@@ -26,8 +29,8 @@ export interface JobPostingResponseDto {
 export interface CompanyJobPostingListItemDto {
   id: string;
   title: string;
-  status: 'active' | 'unlisted' | 'expired' | 'blocked';
-  employmentTypes: string[];
+  status: JobStatus;
+  employmentTypes: EmploymentType[];
   applicationCount: number;
   viewCount: number;
   isFeatured: boolean;
@@ -48,7 +51,7 @@ export interface PublicJobListItemDto {
   location: string;
   description: string;
   skillsRequired: string[];
-  employmentTypes: string[];
+  employmentTypes: EmploymentType[];
 }
 
 export interface JobPostingDetailResponseDto {
@@ -60,11 +63,11 @@ export interface JobPostingDetailResponseDto {
   nice_to_haves: string[];
   benefits: string[];
   salary: { min: number; max: number };
-  employment_types: string[];
+  employment_types: EmploymentType[];
   location: string;
   skills_required: string[];
   category_ids: string[];
-  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  status: JobStatus;
   is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;

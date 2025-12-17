@@ -5,6 +5,7 @@ import { AppError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
 import { UpdateJobStatusDto } from '../../dto/jobs/update-job-status.dto';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
@@ -21,14 +22,14 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new AppError('Job not found', 404);
     }
 
-    if (existingJob.status === 'blocked') {
+    if (existingJob.status === JobStatus.BLOCKED) {
       throw new AppError('This job has been blocked by admin and cannot be modified', 403);
     }
 
     const oldStatus = existingJob.status;
     const newStatus = status;
 
-    if (userId && newStatus === 'active' && oldStatus !== 'active') {
+    if (userId && newStatus === JobStatus.ACTIVE && oldStatus !== JobStatus.ACTIVE) {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
         throw new AppError('Company profile not found', 404);
@@ -59,7 +60,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       await this._companySubscriptionRepository.incrementJobPostsUsed(subscription.id);
     }
 
-    if (userId && oldStatus === 'active' && newStatus !== 'active') {
+    if (userId && oldStatus === JobStatus.ACTIVE && newStatus !== JobStatus.ACTIVE) {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (companyProfile) {
         const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);

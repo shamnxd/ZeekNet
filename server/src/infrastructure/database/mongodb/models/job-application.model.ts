@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { ApplicationStage } from '../../../../domain/enums/application-stage.enum';
 
 interface InterviewFeedback {
   reviewer_name: string;
@@ -28,7 +29,7 @@ export interface JobApplicationDocument extends Document {
   cover_letter: string;
   resume_url: string;
   resume_filename: string;
-  stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+  stage: ApplicationStage;
   score?: number;
   interviews: InterviewSchedule[];
   rejection_reason?: string;
@@ -78,8 +79,8 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
     resume_filename: { type: String, required: true, trim: true },
     stage: {
       type: String,
-      enum: ['applied', 'shortlisted', 'interview', 'rejected', 'hired'],
-      default: 'applied',
+      enum: Object.values(ApplicationStage),
+      default: ApplicationStage.APPLIED,
       index: true,
     },
     score: { type: Number, min: -1, max: 100 }, // -1 = processing, 0-100 = ATS score

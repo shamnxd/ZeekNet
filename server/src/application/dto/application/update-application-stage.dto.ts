@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
 
-const ApplicationStageSchema = z.enum(['applied', 'shortlisted', 'interview', 'rejected', 'hired']);
+const ApplicationStageSchema = z.nativeEnum(ApplicationStage);
 
 export const UpdateApplicationStageDtoSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),

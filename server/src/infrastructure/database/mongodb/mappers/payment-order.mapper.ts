@@ -1,4 +1,7 @@
-import { PaymentOrder, PaymentStatus, PaymentMethod } from '../../../../domain/entities/payment-order.entity';
+import { PaymentOrder } from '../../../../domain/entities/payment-order.entity';
+import { PaymentStatus } from '../../../../domain/enums/payment-status.enum';
+import { PaymentMethod } from '../../../../domain/enums/payment-method.enum';
+import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
 import { PaymentOrderDocument } from '../models/payment-order.model';
 import { Types } from 'mongoose';
 
@@ -32,7 +35,7 @@ export class PaymentOrderMapper {
       stripeInvoiceUrl: doc.stripeInvoiceUrl,
       stripeInvoicePdf: doc.stripeInvoicePdf,
       subscriptionId,
-      billingCycle: doc.billingCycle,
+      billingCycle: doc.billingCycle as BillingCycle,
     });
   }
 

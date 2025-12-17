@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { HttpStatus } from '../../domain/enums/http-status.enum';
 import { UserRole } from '../../domain/enums/user-role.enum';
 
 interface AuthenticatedRequest extends Request {
@@ -24,7 +25,7 @@ export class CompanyVerificationMiddleware {
       }
 
       if (!userId) {
-        res.status(401).json({
+        res.status(HttpStatus.UNAUTHORIZED).json({
           success: false,
           message: 'User not authenticated',
           data: null,
@@ -35,7 +36,7 @@ export class CompanyVerificationMiddleware {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
-        res.status(403).json({
+        res.status(HttpStatus.FORBIDDEN).json({
           success: false,
           message: 'Company profile not found. Please complete your profile setup.',
           data: null,
@@ -44,7 +45,7 @@ export class CompanyVerificationMiddleware {
       }
 
       if (companyProfile.isVerified !== 'verified') {
-        res.status(403).json({
+        res.status(HttpStatus.FORBIDDEN).json({
           success: false,
           message: 'Company profile is not verified. Please wait for admin approval.',
           data: {

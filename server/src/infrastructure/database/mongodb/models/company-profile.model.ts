@@ -1,4 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
+import { CompanyVerificationStatus } from '../../../../domain/enums/verification-status.enum';
 
 export interface CompanyProfileDocument extends Document {
   userId: string;
@@ -12,7 +13,7 @@ export interface CompanyProfileDocument extends Document {
   aboutUs: string;
   foundedDate?: Date;
   phone?: string;
-  isVerified: 'pending' | 'rejected' | 'verified';
+  isVerified: CompanyVerificationStatus;
   rejectionReason?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -31,7 +32,7 @@ const CompanyProfileSchema = new Schema<CompanyProfileDocument>(
     aboutUs: { type: String, default: '' },
     foundedDate: { type: Date },
     phone: { type: String, default: '' },
-    isVerified: { type: String, enum: ['pending', 'rejected', 'verified'], default: 'pending' },
+    isVerified: { type: String, enum: Object.values(CompanyVerificationStatus), default: CompanyVerificationStatus.PENDING },
     rejectionReason: { type: String },
   },
   {

@@ -1,5 +1,6 @@
 import { api } from './index';
 import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '@/types/job';
+import { AdminRoutes } from '@/constants/api-routes';
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
@@ -28,7 +29,8 @@ export const adminApi = {
         if (query.sortBy) params.append('sortBy', query.sortBy);
         if (query.sortOrder) params.append('sortOrder', query.sortOrder);
 
-        const response = await api.get(`/api/admin/jobs?${params.toString()}`);
+        const endpoint = params.toString() ? `${AdminRoutes.JOBS}?${params.toString()}` : AdminRoutes.JOBS;
+        const response = await api.get(endpoint);
         return response.data;
       } catch (error: any) {
         return {
@@ -44,7 +46,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.get(`/api/admin/jobs/${id}`);
+        const response = await api.get(AdminRoutes.JOBS_ID.replace(':id', id));
         return response.data;
       } catch (error: any) {
         return {
@@ -59,7 +61,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.patch(`/api/admin/jobs/${jobId}/status`, {
+        const response = await api.patch(AdminRoutes.JOBS_ID_STATUS.replace(':id', jobId), {
           status: status,
           unpublish_reason: unpublishReason
         });
@@ -77,7 +79,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/jobs/${jobId}`);
+        const response = await api.delete(AdminRoutes.JOBS_ID.replace(':id', jobId));
         return response.data;
       } catch (error: any) {
         return {
@@ -99,7 +101,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.get('/api/admin/jobs/stats');
+        const response = await api.get(AdminRoutes.JOBS_STATS);
         return response.data;
       } catch (error: any) {
         return {
@@ -132,7 +134,7 @@ export const adminApi = {
           params.append('isBlocked', blocked);
         }
 
-        const response = await api.get(`/api/admin/users?${params.toString()}`);
+        const response = await api.get(`${AdminRoutes.USERS}?${params.toString()}`);
         return response.data;
       } catch (error: any) {
         console.error('API Error:', error.response || error); 
@@ -149,7 +151,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.get(`/api/admin/users/${userId}`);
+        const response = await api.get(AdminRoutes.USERS_ID.replace(':id', userId));
         return response.data;
     } catch (error: any) {
       return {
@@ -164,7 +166,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.patch('/api/admin/users/block', {
+        const response = await api.patch(AdminRoutes.USERS_BLOCK, {
           userId,
           isBlocked
         });
@@ -198,7 +200,7 @@ export const adminApi = {
         if (query.isVerified) params.append('isVerified', query.isVerified);
         if (query.isBlocked !== undefined) params.append('isBlocked', query.isBlocked.toString());
 
-        const response = await api.get(`/api/admin/companies?${params.toString()}`);
+        const response = await api.get(`${AdminRoutes.COMPANIES}?${params.toString()}`);
         return response.data;
       } catch (error: any) {
         return {
@@ -220,7 +222,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.get('/api/admin/companies/verification');
+        const response = await api.get(AdminRoutes.COMPANIES_VERIFICATION);
         return response.data;
       } catch (error: any) {
         return {
@@ -236,7 +238,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.get(`/api/admin/companies/${companyId}`);
+        const response = await api.get(AdminRoutes.COMPANIES_VERIFICATION.replace('verification', companyId));
         return response.data;
     } catch (error: any) {
       return {
@@ -251,7 +253,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.patch('/api/admin/companies/verify', data);
+        const response = await api.patch(AdminRoutes.COMPANIES_VERIFY, data);
         return response.data;
       } catch (error: any) {
         return {
@@ -281,7 +283,7 @@ export const adminApi = {
         if (params.sortBy) queryParams.append('sortBy', params.sortBy);
         if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-        const response = await api.get(`/api/admin/skills?${queryParams.toString()}`);
+        const response = await api.get(`${AdminRoutes.SKILLS}?${queryParams.toString()}`);
         return response.data;
       } catch (error: any) {
         return {
@@ -297,7 +299,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.post('/api/admin/skills', data);
+        const response = await api.post(AdminRoutes.SKILLS, data);
         return response.data;
       } catch (error: any) {
         return {
@@ -313,7 +315,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.put(`/api/admin/skills/${id}`, data);
+        const response = await api.put(AdminRoutes.SKILLS_ID.replace(':id', id), data);
         return response.data;
       } catch (error: any) {
         return {
@@ -328,7 +330,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/skills/${id}`);
+        const response = await api.delete(AdminRoutes.SKILLS_ID.replace(':id', id));
         return response.data;
       } catch (error: any) {
         return {
@@ -356,7 +358,7 @@ export const adminApi = {
         if (params.limit) queryParams.append('limit', params.limit.toString());
         if (params.search) queryParams.append('search', params.search);
 
-        const response = await api.get(`/api/admin/job-categories?${queryParams.toString()}`);
+        const response = await api.get(`${AdminRoutes.JOB_CATEGORIES}?${queryParams.toString()}`);
         return response.data;
       } catch (error: any) {
         return {
@@ -372,7 +374,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.post('/api/admin/job-categories', data);
+        const response = await api.post(AdminRoutes.JOB_CATEGORIES, data);
         return response.data;
       } catch (error: any) {
         return {
@@ -388,7 +390,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.put(`/api/admin/job-categories/${id}`, data);
+        const response = await api.put(AdminRoutes.JOB_CATEGORIES_ID.replace(':id', id), data);
         return response.data;
       } catch (error: any) {
         return {
@@ -403,7 +405,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/job-categories/${id}`);
+        const response = await api.delete(AdminRoutes.JOB_CATEGORIES_ID.replace(':id', id));
         return response.data;
       } catch (error: any) {
         return {
@@ -433,7 +435,7 @@ export const adminApi = {
         if (params.sortBy) queryParams.append('sortBy', params.sortBy);
         if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-        const response = await api.get(`/api/admin/job-roles?${queryParams.toString()}`);
+        const response = await api.get(`${AdminRoutes.JOB_ROLES}?${queryParams.toString()}`);
         return response.data;
       } catch (error: any) {
         return {
@@ -449,7 +451,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.post('/api/admin/job-roles', data);
+        const response = await api.post(AdminRoutes.JOB_ROLES, data);
         return response.data;
       } catch (error: any) {
         return {
@@ -465,7 +467,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.put(`/api/admin/job-roles/${id}`, data);
+        const response = await api.put(AdminRoutes.JOB_ROLES_ID.replace(':id', id), data);
         return response.data;
       } catch (error: any) {
         return {
@@ -480,7 +482,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.delete(`/api/admin/job-roles/${id}`);
+        const response = await api.delete(AdminRoutes.JOB_ROLES_ID.replace(':id', id));
         return response.data;
       } catch (error: any) {
         return {
@@ -511,7 +513,7 @@ export const adminApi = {
         if (params.sortBy) queryParams.append('sortBy', params.sortBy);
         if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-        const response = await api.get(`/api/admin/subscription-plans?${queryParams.toString()}`);
+        const response = await api.get(`${AdminRoutes.SUBSCRIPTION_PLANS}?${queryParams.toString()}`);
         return response.data;
       } catch (error: any) {
         return {
@@ -527,7 +529,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.post('/api/admin/subscription-plans', data);
+        const response = await api.post(AdminRoutes.SUBSCRIPTION_PLANS, data);
         return response.data;
       } catch (error: any) {
         return {
@@ -543,7 +545,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.put(`/api/admin/subscription-plans/${id}`, data);
+        const response = await api.put(AdminRoutes.SUBSCRIPTION_PLANS_ID.replace(':id', id), data);
         return response.data;
       } catch (error: any) {
         return {
@@ -565,7 +567,7 @@ export const adminApi = {
       message?: string;
     }> => {
       try {
-        const response = await api.post(`/api/admin/subscription-plans/${planId}/migrate-subscribers`, options);
+        const response = await api.post(AdminRoutes.SUBSCRIPTION_PLANS_MIGRATE.replace(':id', planId), options);
         return response.data;
       } catch (error: any) {
         return {
@@ -595,7 +597,7 @@ export const adminApi = {
         if (query.search) params.append('search', query.search);
         if (query.sortOrder) params.append('sortOrder', query.sortOrder);
 
-        const response = await api.get(`/api/admin/payment-orders?${params.toString()}`);
+        const response = await api.get(`${AdminRoutes.PAYMENT_ORDERS}?${params.toString()}`);
         return response.data;
       } catch (error: any) {
         return {

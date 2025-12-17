@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { ChatController } from '../controllers/chat/chat.controller';
+
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
 import { SendMessageDto } from '../../application/dto/chat/send-message.dto';

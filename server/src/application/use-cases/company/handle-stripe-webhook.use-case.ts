@@ -13,6 +13,10 @@ import { logger } from '../../../infrastructure/config/logger';
 import { RevertToDefaultPlanUseCase } from './revert-to-default-plan.use-case';
 import { HandleStripeWebhookRequestDto } from '../../dto/company/handle-stripe-webhook.dto';
 import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/payments/IHandleStripeWebhookUseCase';
+import { PaymentStatus } from '../../../domain/enums/payment-status.enum';
+import { PaymentMethod } from '../../../domain/enums/payment-method.enum';
+import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
   private readonly _revertToDefaultPlanUseCase: RevertToDefaultPlanUseCase;
@@ -100,7 +104,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         // Deactivate old subscription in our database
         await this._companySubscriptionRepository.update(existingActiveSubscription.id, {
           isActive: false,
-          stripeStatus: 'canceled',
+          stripeStatus: SubscriptionStatus.CANCELED,
         });
         logger.info(`Deactivated old subscription ${existingActiveSubscription.id} for company ${companyId}`);
       }
@@ -158,7 +162,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
             createdAt: 1,
           });
 
-          const activeJobs = allJobs.filter(job => job.status === 'active');
+          const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
           
           activeJobs.sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -172,7 +176,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
           for (const job of jobsToUnlist) {
             try {
-              await this._jobPostingRepository.update(job.id!, { status: 'unlisted' });
+              await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
               unlistedCount++;
               logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
             } catch (error) {
@@ -202,7 +206,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         stripeCustomerId: session.customer as string,
         stripeSubscriptionId,
         stripeStatus: stripeSubscription.status as SubscriptionStatus,
-        billingCycle: billingCycle as 'monthly' | 'yearly',
+        billingCycle: billingCycle as BillingCycle,
         cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
         currentPeriodStart,
         currentPeriodEnd,
@@ -224,8 +228,8 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
                 planId,
                 amount: invoice.amount_paid / 100,
                 currency: invoice.currency.toUpperCase(),
-                status: 'completed',
-                paymentMethod: 'stripe',
+                status: PaymentStatus.COMPLETED,
+                paymentMethod: PaymentMethod.STRIPE,
                 invoiceId: invoice.number || undefined,
                 transactionId: this.getPaymentIntentId(invoice),
                 stripeInvoiceId: invoice.id,
@@ -233,7 +237,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
                 stripeInvoicePdf: invoice.invoice_pdf || undefined,
                 stripePaymentIntentId: this.getPaymentIntentId(invoice),
                 subscriptionId: subscription.id,
-                billingCycle: billingCycle as 'monthly' | 'yearly',
+                billingCycle: billingCycle as BillingCycle,
                 metadata: {
                   planName: plan.name,
                   billingCycle: billingCycle,
@@ -333,15 +337,15 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
               planId: stripeSubscription.metadata.planId,
               amount: (invoice.amount_paid || 0) / 100,
               currency: invoice.currency.toUpperCase(),
-              status: 'completed',
-              paymentMethod: 'stripe',
+              status: PaymentStatus.COMPLETED,
+              paymentMethod: PaymentMethod.STRIPE,
               invoiceId: invoice.number || undefined,
               transactionId: this.getPaymentIntentId(invoice),
               stripeInvoiceId: invoice.id,
               stripeInvoiceUrl: invoice.hosted_invoice_url || undefined,
               stripeInvoicePdf: invoice.invoice_pdf || undefined,
               stripePaymentIntentId: this.getPaymentIntentId(invoice),
-              billingCycle: stripeSubscription.metadata.billingCycle as 'monthly' | 'yearly' | undefined,
+              billingCycle: stripeSubscription.metadata.billingCycle as BillingCycle | undefined,
               metadata: {
                 planName: plan.name,
                 billingCycle: stripeSubscription.metadata.billingCycle,
@@ -377,8 +381,8 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         planId: subscription.planId,
         amount: (invoice.amount_paid || 0) / 100,
         currency: invoice.currency.toUpperCase(),
-        status: 'completed',
-        paymentMethod: 'stripe',
+        status: PaymentStatus.COMPLETED,
+        paymentMethod: PaymentMethod.STRIPE,
         invoiceId: invoice.number || undefined,
         transactionId: this.getPaymentIntentId(invoice),
         stripeInvoiceId: invoice.id,
@@ -411,7 +415,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     }
 
     await this._companySubscriptionRepository.update(subscription.id, {
-      stripeStatus: 'past_due',
+      stripeStatus: SubscriptionStatus.PAST_DUE,
       isActive: false,
     });
 
@@ -441,8 +445,8 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         planId: subscription.planId,
         amount: (invoice.amount_due || 0) / 100,
         currency: invoice.currency.toUpperCase(),
-        status: 'failed',
-        paymentMethod: 'stripe',
+        status: PaymentStatus.FAILED,
+        paymentMethod: PaymentMethod.STRIPE,
         invoiceId: invoice.number || undefined,
         stripeInvoiceId: invoice.id,
         subscriptionId: subscription.id,
@@ -475,7 +479,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
       }
     }
 
-    const isCanceled = stripeSubscription.status === 'canceled';
+    const isCanceled = stripeSubscription.status === SubscriptionStatus.CANCELED;
     const wasSetToCancelAtPeriodEnd = subscription.cancelAtPeriodEnd === true;
     const periodHasEnded = currentPeriodEnd && new Date() >= currentPeriodEnd;
 
@@ -527,7 +531,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
     await this._companySubscriptionRepository.update(subscription.id, {
       isActive: false,
-      stripeStatus: 'canceled',
+      stripeStatus: SubscriptionStatus.CANCELED,
     });
 
     // Revert to default plan when subscription is deleted

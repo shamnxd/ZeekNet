@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export const GetAllJobsQueryDtoSchema = z.object({
   page: z.coerce.number().min(1).optional().default(1),
   limit: z.coerce.number().min(1).max(100).optional().default(10),
   search: z.string().optional(),
-  status: z.enum(['active', 'unlisted', 'expired', 'blocked']).optional(),
+  status: z.nativeEnum(JobStatus).optional(),
   category_ids: z
     .string()
     .optional()

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ValidationError } from '../../domain/errors/errors';
 import { ZodError } from 'zod';
+import { HttpStatus } from '../../domain/enums/http-status.enum';
 
 export function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction): void {
   if (error instanceof ZodError) {
@@ -18,5 +19,5 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
     return;
   }
   const message = error instanceof Error ? error.message : 'Internal server error';
-  res.status(500).json({ success: false, message });
+  res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message });
 }

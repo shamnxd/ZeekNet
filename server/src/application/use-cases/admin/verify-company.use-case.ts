@@ -2,6 +2,7 @@ import { ICompanyVerificationRepository } from '../../../domain/interfaces/repos
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
+import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
@@ -10,10 +11,10 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(companyId: string, isVerified: 'pending' | 'rejected' | 'verified', rejectionReason?: string): Promise<void> {
+  async execute(companyId: string, isVerified: CompanyVerificationStatus, rejectionReason?: string): Promise<void> {
     await this._companyVerificationRepository.updateVerificationStatus(companyId, isVerified, rejectionReason);
 
-    if (isVerified === 'verified') {
+    if (isVerified === CompanyVerificationStatus.VERIFIED) {
       const defaultPlan = await this._subscriptionPlanRepository.findDefault();
       if (defaultPlan) {
         const existingSubscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyId);

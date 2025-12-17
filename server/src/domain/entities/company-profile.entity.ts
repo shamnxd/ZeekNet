@@ -1,3 +1,5 @@
+import { CompanyVerificationStatus } from '../enums/verification-status.enum';
+
 export class CompanyProfile {
   constructor(
     public readonly id: string,
@@ -10,7 +12,7 @@ export class CompanyProfile {
     public readonly industry: string,
     public readonly organisation: string,
     public readonly aboutUs: string,
-    public readonly isVerified: 'pending' | 'rejected' | 'verified',
+    public readonly isVerified: CompanyVerificationStatus,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly email: string,
@@ -32,7 +34,7 @@ export class CompanyProfile {
     industry: string;
     organisation: string;
     aboutUs: string;
-    isVerified?: 'pending' | 'rejected' | 'verified';
+    isVerified?: CompanyVerificationStatus;
     createdAt?: Date;
     updatedAt?: Date;
     email?: string;
@@ -53,7 +55,7 @@ export class CompanyProfile {
       data.industry,
       data.organisation,
       data.aboutUs,
-      data.isVerified ?? 'pending',
+      data.isVerified ?? CompanyVerificationStatus.PENDING,
       data.createdAt ?? now,
       data.updatedAt ?? now,
       data.email ?? '',

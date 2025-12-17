@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
+import { HttpStatus } from '../../domain/enums/http-status.enum';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -28,7 +29,7 @@ export class UserBlockedMiddleware {
       }
 
       if (user.isBlocked) {
-        res.status(403).json({
+        res.status(HttpStatus.FORBIDDEN).json({
           success: false,
           message: 'User account is blocked. Please contact support for assistance.',
           data: null,

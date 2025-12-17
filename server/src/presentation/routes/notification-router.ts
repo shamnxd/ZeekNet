@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { NotificationController } from '../controllers/notification/notification.controller';
+
 import { authenticateToken } from '../middleware/auth.middleware';
 
 export class NotificationRouter {

@@ -1,4 +1,5 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
+import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -91,7 +92,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       coverLetter: applicationData.cover_letter,
       resumeUrl: applicationData.resume_url,
       resumeFilename: applicationData.resume_filename,
-      stage: 'applied',
+      stage: ApplicationStage.APPLIED,
       interviews: [],
       appliedDate: new Date(),
       score: -1, // -1 indicates ATS score is being processed

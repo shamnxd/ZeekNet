@@ -1,4 +1,6 @@
 import { IGetCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { EmploymentType } from '../../../domain/enums/employment-type.enum';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
 import { IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
@@ -45,11 +47,11 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
       niceToHaves: [],
       benefits: [],
       salary: { min: 0, max: 0 },
-      employmentTypes: j.employmentTypes || [],
+      employmentTypes: j.employmentTypes as EmploymentType[],
       location: '',
       skillsRequired: [],
       categoryIds: [],
-      status: j.status,
+      status: j.status as JobStatus,
       viewCount: j.viewCount,
       applicationCount: j.applicationCount,
       createdAt: j.createdAt,

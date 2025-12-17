@@ -12,7 +12,9 @@ import {
   companySubscriptionPlanController,
   companySubscriptionController,
   subscriptionMiddleware,
+
 } from '../../infrastructure/di/companyDi';
+
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
@@ -103,7 +105,6 @@ export class CompanyRouter {
     this.router.put('/jobs/:id', validateBody(UpdateJobPostingDto), companyJobPostingController.updateJobPosting);
     this.router.delete('/jobs/:id', companyJobPostingController.deleteJobPosting);
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
-
 
     this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);

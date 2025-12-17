@@ -1,5 +1,6 @@
 import { api } from './index';
 import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '@/types/job';
+import { PublicRoutes } from '@/constants/api-routes';
 
 export const jobApi = {
   getAllJobs: async (query: JobPostingQuery = {}): Promise<{
@@ -19,7 +20,7 @@ export const jobApi = {
       if (query.location) params.append('location', query.location);
       if (query.search) params.append('search', query.search);
 
-      const response = await api.get(`/api/public/jobs?${params.toString()}`);
+      const response = await api.get(`${PublicRoutes.JOBS}?${params.toString()}`);
       return response.data;
     } catch (error: any) {
       return {
@@ -35,7 +36,7 @@ export const jobApi = {
     message?: string;
   }> => {
     try {
-      const response = await api.get(`/api/public/jobs/${id}`);
+      const response = await api.get(PublicRoutes.JOBS_ID.replace(':id', id));
       return response.data;
     } catch (error: any) {
       return {

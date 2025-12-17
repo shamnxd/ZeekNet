@@ -5,6 +5,7 @@ import { AppError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
@@ -52,7 +53,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       location: jobData.location,
       skillsRequired: jobData.skills_required || [],
       categoryIds: jobData.category_ids || [],
-      status: 'active',
+      status: JobStatus.ACTIVE,
       isFeatured,
       viewCount: 0,
       applicationCount: 0,
