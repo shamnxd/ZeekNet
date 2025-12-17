@@ -147,6 +147,8 @@ const JobDetail = () => {
 
       await jobApplicationApi.createApplication(formData);
 
+      // Update job state to reflect that user has applied
+      setJob((prevJob: any) => ({ ...prevJob, has_applied: true }));
 
       setIsApplyModalOpen(false);
       setCoverLetter("");

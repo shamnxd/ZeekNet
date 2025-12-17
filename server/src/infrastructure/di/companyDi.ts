@@ -150,7 +150,7 @@ const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRe
 
 const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
 
-const uploadLogoUseCase = new UploadLogoUseCase(s3Service);
+const uploadLogoUseCase = new UploadLogoUseCase(s3Service, companyProfileRepository);
 const uploadBusinessLicenseUseCase = new UploadBusinessLicenseUseCase(s3Service);
 const uploadWorkplacePictureUseCase = new UploadWorkplacePictureUseCase(s3Service);
 const deleteImageUseCase = new DeleteImageUseCase(s3Service);
@@ -293,7 +293,7 @@ export {
   companySubscriptionPlanController,
   companySubscriptionController,
   stripeWebhookController,
-  companyProfileRepository as companyRepository,
+  companyProfileRepository,
   subscriptionMiddleware,
   stripeService,
 };

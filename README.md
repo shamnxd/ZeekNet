@@ -17,7 +17,7 @@
 ## 🏁 Overview
 
 **ZeekNet** is a scalable, real-time job portal that connects **job seekers**, **companies**, and **administrators** through a clean, modular architecture.  
-It’s built using **SOLID principles**, **dependency injection**, and a **clean separation of layers**, ensuring maintainability and scalability.
+It’s built using **SOLID principles**, **dependency injection**, and a **clean separation of layers**, ensuring maintainability and scalability..
 
 ### 🎭 Roles
 - **Job Seekers** → Find jobs, apply, and track applications  

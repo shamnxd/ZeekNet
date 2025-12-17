@@ -95,3 +95,4 @@ api.interceptors.response.use(
 )
 
 export { jobApplicationApi } from './job-application.api'
+export { chatApi } from './chat.api'

@@ -8,10 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { jobApplicationApi } from '@/api'
+import { chatApi } from '@/api/chat.api'
 import { toast } from 'sonner'
 import { 
   ArrowLeft, Star, Mail, Phone, Instagram, Twitter, Globe,
-  Download, Plus, MoreHorizontal, Clock, MapPin
+  Download, Plus, MoreHorizontal, Clock, MapPin, MessageCircle
 } from 'lucide-react'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -427,6 +428,16 @@ const ApplicationDetails = () => {
     setMessageForm({ subject: '', message: '' })
   }
 
+  const handleChatWithApplicant = async () => {
+    if (!application?.seeker_id) return
+    try {
+      const conversation = await chatApi.createConversation({ participantId: application.seeker_id })
+      navigate(`/company/messages?chat=${conversation.id}`)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Unable to start chat')
+    }
+  }
+
   if (loading) {
     return (
       <CompanyLayout>
@@ -537,6 +548,15 @@ const ApplicationDetails = () => {
                         Move To Next Stage
                       </Button>
                     )}
+                    <Button 
+                      variant="outline" 
+                      className="border-[#CCCCF5] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
+                      onClick={handleChatWithApplicant}
+                      title="Chat with applicant"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Chat
+                    </Button>
                     {application.resume_url && (
                       <Button variant="outline" className="border-[#CCCCF5] text-[#4640DE]"
                         onClick={() => application.resume_url && window.open(application.resume_url, '_blank')}>

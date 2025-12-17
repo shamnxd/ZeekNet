@@ -8,3 +8,7 @@ export const CompanyVerificationRequestDto = z.object({
 
 export type CompanyVerificationRequestDtoType = z.infer<typeof CompanyVerificationRequestDto>;
 
+
+
+
+

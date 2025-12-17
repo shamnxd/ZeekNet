@@ -45,6 +45,8 @@ import EditJob from './pages/company/EditJob'
 import AllApplications from './pages/company/AllApplications'
 import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
+import CompanyChat from './pages/company/CompanyChat'
+import SeekerChat from './pages/seeker/SeekerChat'
 
 function App() {
   return (
@@ -211,6 +213,11 @@ function App() {
               <CompanyPlans />
             </ProtectedRoute>
           } />
+          <Route path="/company/messages" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <CompanyChat />
+            </ProtectedRoute>
+          } />
           
           <Route path="/seeker/dashboard" element={
             <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
@@ -238,6 +245,11 @@ function App() {
               <SeekerLayout>
                 <SeekerSettings />
               </SeekerLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/seeker/messages" element={
+            <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
+              <SeekerChat />
             </ProtectedRoute>
           } />
           

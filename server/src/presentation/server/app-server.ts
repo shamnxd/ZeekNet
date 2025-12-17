@@ -21,6 +21,7 @@ import { errorHandler } from '../middleware/error-handler';
 import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { userRepository } from '../../infrastructure/di/authDi';
 import { notificationRouter } from '../../infrastructure/di/notificationDi';
+import { chatRouter } from '../../infrastructure/di/chatDi';
 import { DateTimeUtil } from '../../shared/utils/datetime.utils';
 import { stripeWebhookController } from '../../infrastructure/di/companyDi';
 
@@ -94,6 +95,7 @@ export class AppServer {
     this._app.use('/api/seeker', new SeekerRouter().router);
     this._app.use('/api/public', new PublicRouter().router);
     this._app.use('/api/notifications', notificationRouter.router);
+    this._app.use('/api/chat', chatRouter.router);
 
     this._app.post('/api/webhook/stripe', stripeWebhookController.handleWebhook);
     logger.info('Stripe webhook endpoint configured at /api/webhook/stripe');

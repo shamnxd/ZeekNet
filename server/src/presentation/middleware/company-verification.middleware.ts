@@ -12,7 +12,7 @@ interface AuthenticatedRequest extends Request {
 }
 
 export class CompanyVerificationMiddleware {
-  constructor(private readonly _companyRepository: ICompanyProfileRepository) {}
+  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
 
   checkCompanyVerified = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -32,7 +32,7 @@ export class CompanyVerificationMiddleware {
         return;
       }
 
-      const companyProfile = await this._companyRepository.findOne({ userId });
+      const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
         res.status(403).json({
