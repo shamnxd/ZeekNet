@@ -2,6 +2,7 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
+import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
 
@@ -35,7 +36,7 @@ export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
 
     const updatedSubscription = await this._companySubscriptionRepository.update(subscription.id, {
       cancelAtPeriodEnd: false,
-      stripeStatus: stripeSubscription.status as 'active' | 'past_due' | 'canceled',
+      stripeStatus: stripeSubscription.status as SubscriptionStatus,
     });
 
     if (!updatedSubscription) {

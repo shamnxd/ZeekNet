@@ -3,6 +3,7 @@ import { ICompanyVerificationRepository } from '../../../domain/interfaces/repos
 import { IReapplyCompanyVerificationUseCase } from '../../../domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
 import { CompanyVerificationRequestDtoType } from '../../dto/company/company-verification-request.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
+import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 
 export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerificationUseCase {
   constructor(
@@ -18,7 +19,7 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
       throw new Error('Company profile not found');
     }
 
-    if (existingProfile.isVerified !== 'rejected') {
+    if (existingProfile.isVerified !== CompanyVerificationStatus.REJECTED) {
       throw new Error('Only rejected companies can reapply for verification');
     }
 
@@ -32,7 +33,7 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
       }
     }
 
-    await this._companyVerificationRepository.updateVerificationStatus(existingProfile.id, 'pending');
+    await this._companyVerificationRepository.updateVerificationStatus(existingProfile.id, CompanyVerificationStatus.PENDING);
 
     const updatedProfile = await this._companyProfileRepository.findOne({ userId });
     if (!updatedProfile) {

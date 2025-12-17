@@ -1,4 +1,5 @@
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
+import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
@@ -41,7 +42,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
       throw new ValidationError('This subscription plan is not available');
     }
 
-    const priceId = billingCycle === 'yearly' ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly;
+    const priceId = billingCycle === BillingCycle.YEARLY ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly;
     if (!priceId) {
       throw new ValidationError(`This plan does not have ${billingCycle} pricing configured in Stripe`);
     }

@@ -9,6 +9,9 @@ import { logger } from '../../../infrastructure/config/logger';
 import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
 import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
+import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
@@ -49,9 +52,9 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
       throw new ValidationError('You are already on this plan with this billing cycle');
     }
 
-    const effectiveBillingCycle = billingCycle || subscription.billingCycle || 'monthly';
+    const effectiveBillingCycle = billingCycle || subscription.billingCycle || BillingCycle.MONTHLY;
     
-    const priceId = effectiveBillingCycle === 'yearly' 
+    const priceId = effectiveBillingCycle === BillingCycle.YEARLY  
       ? newPlan.stripePriceIdYearly 
       : newPlan.stripePriceIdMonthly;
 
@@ -79,7 +82,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
         createdAt: 1,
       });
 
-      const activeJobs = allJobs.filter(job => job.status === 'active');
+      const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
       
       activeJobs.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -93,7 +96,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
 
       for (const job of jobsToUnlist) {
         try {
-          await this._jobPostingRepository.update(job.id!, { status: 'unlisted' });
+          await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
           unlistedCount++;
           logger.info(`Unlisted job ${job.id} for company ${companyProfile.id} due to plan downgrade`);
         } catch (error) {
@@ -114,12 +117,12 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
       : new Date();
     const currentPeriodEnd = rawPeriodEnd
       ? new Date(rawPeriodEnd * 1000)
-      : new Date(Date.now() + (effectiveBillingCycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000);
+      : new Date(Date.now() + (effectiveBillingCycle === BillingCycle.YEARLY ? 365 : 30) * 24 * 60 * 60 * 1000);
 
     const updatedSubscription = await this._companySubscriptionRepository.update(subscription.id, {
       planId: newPlan.id,
       billingCycle: effectiveBillingCycle,
-      stripeStatus: stripeSubscription.status as 'active' | 'past_due' | 'canceled',
+      stripeStatus: stripeSubscription.status as SubscriptionStatus,
       cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
       currentPeriodStart,
       currentPeriodEnd,

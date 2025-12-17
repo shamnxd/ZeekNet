@@ -2,24 +2,25 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUpdateJobStatusUseCase';
 import { AppError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<JobPosting> {
+  async execute(jobId: string, status: JobStatus, unpublishReason?: string): Promise<JobPosting> {
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
       throw new AppError('Job not found', 404);
     }
 
-    const updateData: { status: 'active' | 'unlisted' | 'expired' | 'blocked'; unpublishReason?: string } = {
+    const updateData: { status: JobStatus; unpublishReason?: string } = {
       status: status,
     };
 
-    if (status === 'blocked' && unpublishReason) {
+    if (status === JobStatus.BLOCKED && unpublishReason) {
       updateData.unpublishReason = unpublishReason;
-    } else if (status === 'active') {
+    } else if (status === JobStatus.ACTIVE) {
       updateData.unpublishReason = undefined;
     }
 

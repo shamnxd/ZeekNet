@@ -8,6 +8,7 @@ import { NotFoundError } from '../../../domain/errors/errors';
 import { NotificationType, Notification } from '../../../domain/entities/notification.entity';
 import { logger } from '../../../infrastructure/config/logger';
 import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
   constructor(
@@ -47,7 +48,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
       createdAt: 1,
     });
 
-    const activeJobs = allJobs.filter(job => job.status === 'active');
+    const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
     
     activeJobs.sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -62,7 +63,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     let unlistedCount = 0;
     for (const job of jobsToUnlist) {
       try {
-        await this._jobPostingRepository.update(job.id!, { status: 'unlisted' });
+        await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
         unlistedCount++;
         logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
       } catch (error) {
