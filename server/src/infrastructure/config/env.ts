@@ -31,4 +31,5 @@ export const env = {
   LOG_LEVEL: getEnv('LOG_LEVEL'),
   STRIPE_SECRET_KEY: getEnv('STRIPE_SECRET_KEY'),
   STRIPE_WEBHOOK_SECRET: getEnv('STRIPE_WEBHOOK_SECRET'),
+  GROQ_API_KEY: getEnv('GROQ_API_KEY'),
 };

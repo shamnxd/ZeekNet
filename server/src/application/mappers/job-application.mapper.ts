@@ -92,6 +92,8 @@ export class JobApplicationMapper {
       rejection_reason: application.rejectionReason,
       interviews: application.interviews.map((interview) => this.interviewToResponse(interview)),
       full_name: seekerData?.name,
+      date_of_birth: seekerData?.date_of_birth,
+      gender: seekerData?.gender,
       email: seekerData?.email,
       phone: seekerData?.phone,
       address: seekerData?.location,

@@ -8,6 +8,12 @@ export const jobApplicationApi = {
     })
   },
 
+  async analyzeResume(formData: FormData) {
+    return api.post('/api/seeker/applications/analyze-resume', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
   async getSeekerApplications(params?: {
     stage?: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
     page?: number
@@ -37,6 +43,13 @@ export const jobApplicationApi = {
 
   async updateApplicationStage(id: string, body: { stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'; rejection_reason?: string }) {
     return api.patch(`/api/company/applications/${id}/stage`, body)
+  },
+
+  async bulkUpdateApplicationStage(body: { 
+    application_ids: string[], 
+    stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired' 
+  }) {
+    return api.post(`/api/company/applications/bulk-update`, body)
   },
 
   async updateApplicationScore(id: string, body: { score: number }) {

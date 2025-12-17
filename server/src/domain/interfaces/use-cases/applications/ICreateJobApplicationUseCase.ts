@@ -3,5 +3,5 @@ import { z } from 'zod';
 
 
 export interface ICreateJobApplicationUseCase {
-  execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }): Promise<{ id: string; }>;
+  execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }, resumeBuffer?: Buffer, mimeType?: string): Promise<{ id: string; }>;
 }

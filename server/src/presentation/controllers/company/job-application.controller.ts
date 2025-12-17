@@ -15,12 +15,14 @@ import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
 import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
 import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
+import { IBulkUpdateApplicationsUseCase } from '../../../application/use-cases/company/bulk-update-applications.use-case';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';
 import { AddInterviewDto } from '../../../application/dto/application/add-interview.dto';
 import { UpdateInterviewDto } from '../../../application/dto/application/update-interview.dto';
 import { AddInterviewFeedbackDto } from '../../../application/dto/application/add-interview-feedback.dto';
+import { BulkUpdateApplicationsDto } from '../../../application/dto/application/bulk-update-applications.dto';
 import { z } from 'zod';
 
 export class CompanyJobApplicationController {
@@ -34,6 +36,7 @@ export class CompanyJobApplicationController {
     private readonly _updateInterviewUseCase: IUpdateInterviewUseCase,
     private readonly _deleteInterviewUseCase: IDeleteInterviewUseCase,
     private readonly _addInterviewFeedbackUseCase: IAddInterviewFeedbackUseCase,
+    private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
   ) {}
 
   getApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -223,6 +226,29 @@ export class CompanyJobApplicationController {
       const application = await this._addInterviewFeedbackUseCase.execute(feedbackData);  
 
       sendSuccessResponse(res, 'Interview feedback added successfully', application);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  bulkUpdate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = validateUserId(req);
+
+      const dto = BulkUpdateApplicationsDto.safeParse(req.body);
+      if (!dto.success) {
+        return handleValidationError(
+          `Validation error: ${dto.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
+          next,
+        );
+      }
+
+      const result = await this._bulkUpdateApplicationsUseCase.execute({
+        ...dto.data,
+        companyId: userId,
+      });
+
+      sendSuccessResponse(res, 'Applications updated successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }

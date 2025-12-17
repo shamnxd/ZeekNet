@@ -11,6 +11,8 @@ import { JobApplication } from '../../../domain/entities/job-application.entity'
 import { notificationService } from '../../../infrastructure/di/notificationDi';
 import { NotificationType } from '../../../domain/entities/notification.entity';
 import { Types } from 'mongoose';
+import { groqService } from '../../../infrastructure/services/groq.service';
+import { ResumeParser } from '../../../shared/utils/resume-parser.utils';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -21,7 +23,41 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }): Promise<{ id: string }> {
+  private async calculateAndUpdateATSScore(
+    applicationId: string,
+    jobDetails: {
+      title: string;
+      description: string;
+      qualifications?: string[];
+      responsibilities?: string[];
+      skillsRequired: string[];
+    },
+    candidateData: {
+
+      coverLetter: string;
+      resumeText?: string;
+    },
+  ): Promise<void> {
+    try {
+      const atsResult = await groqService.calculateATSScore(jobDetails, candidateData);
+      
+      // Update the application with the calculated score
+      await this._jobApplicationRepository.update(applicationId, {
+        score: atsResult.score,
+      });
+      
+      console.log(`✅ ATS Score updated for application ${applicationId}: ${atsResult.score}/100 - ${atsResult.reasoning}`);
+    } catch (error) {
+      console.error(`❌ Failed to calculate ATS score for application ${applicationId}:`, error);
+      
+      // Set score to null if calculation fails (instead of leaving it at -1)
+      await this._jobApplicationRepository.update(applicationId, {
+        score: undefined,
+      });
+    }
+  }
+
+  async execute(data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string }, resumeBuffer?: Buffer, mimeType?: string): Promise<{ id: string }> {
     const { seekerId, ...applicationData } = data;
     if (!seekerId) throw new Error('Seeker ID is required');
     const user = await this._userRepository.findById(seekerId);
@@ -47,6 +83,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('You have already applied for this job');
     }
 
+    // Create application with score = -1 (processing)
     const application = await this._jobApplicationRepository.create({
       seekerId: seekerId,
       jobId: applicationData.job_id,
@@ -57,6 +94,35 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       stage: 'applied',
       interviews: [],
       appliedDate: new Date(),
+      score: -1, // -1 indicates ATS score is being processed
+    });
+
+    let resumeText = '';
+    if (resumeBuffer && mimeType) {
+      try {
+        resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
+      } catch (error) {
+        console.warn('Failed to parse resume for ATS scoring:', error);
+        // Continue without resume text, scoring will rely on cover letter
+      }
+    }
+
+    // Calculate ATS score asynchronously (don't block the response)
+    this.calculateAndUpdateATSScore(
+      application.id,
+      {
+        title: job.title,
+        description: job.description,
+        qualifications: job.qualifications,
+        responsibilities: job.responsibilities,
+        skillsRequired: job.skillsRequired,
+      },
+      {
+        coverLetter: applicationData.cover_letter,
+        resumeText: resumeText,
+      },
+    ).catch(error => {
+      console.error(`Failed to calculate ATS score for application ${application.id}:`, error);
     });
 
     await this._jobPostingRepository.update(applicationData.job_id, { 

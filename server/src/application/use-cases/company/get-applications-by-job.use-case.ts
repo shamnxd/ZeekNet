@@ -44,12 +44,23 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
 
     const query: Record<string, unknown> = { job_id: new Types.ObjectId(jobId) };
     if (filters.stage) query.stage = filters.stage;
+    
+    // Add ATS score filtering
+    if (filters.min_score !== undefined || filters.max_score !== undefined) {
+      query.score = {};
+      if (filters.min_score !== undefined) {
+        (query.score as Record<string, unknown>).$gte = filters.min_score;
+      }
+      if (filters.max_score !== undefined) {
+        (query.score as Record<string, unknown>).$lte = filters.max_score;
+      }
+    }
 
     const result = await this._jobApplicationRepository.paginate(query, {
       page,
       limit,
-      sortBy: 'applied_date',
-      sortOrder: 'desc',
+      sortBy: filters.sort_by || 'applied_date',
+      sortOrder: filters.sort_order || 'desc',
     });
 
     const applications: JobApplicationListResponseDto[] = [];

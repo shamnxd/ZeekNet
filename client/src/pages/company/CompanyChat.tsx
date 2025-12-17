@@ -49,7 +49,7 @@ const CompanyChat: React.FC = () => {
   const [conversations, setConversations] = useState<UiConversation[]>([]);
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [onlineUsers] = useState<Set<string>>(new Set());
   const [replyingTo, setReplyingTo] = useState<UiMessage | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
