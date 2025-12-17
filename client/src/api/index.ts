@@ -4,6 +4,11 @@ import type { AxiosInstance } from 'axios'
 let refreshPromise: Promise<string | null> | null = null
 let getAuthToken: () => string | null = () => null
 let logoutCallback: (() => void) | null = null
+let updateTokenCallback: ((data: any, token: string) => void) | null = null
+
+export const setUpdateTokenCallback = (callback: (data: any, token: string) => void) => {
+  updateTokenCallback = callback
+}
 
 export const setAuthTokenGetter = (getter: () => string | null) => {
   getAuthToken = getter
@@ -64,6 +69,12 @@ api.interceptors.response.use(
               headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
             })
             const newToken = resp.data?.token || resp.data?.data?.token || null
+            const userData = resp.data?.data || null
+            
+            if (newToken && userData && updateTokenCallback) {
+              updateTokenCallback(userData, newToken)
+            }
+            
             return newToken
           } catch (refreshError: any) {
             const refreshErrorMessage = refreshError?.response?.data?.message || ''
