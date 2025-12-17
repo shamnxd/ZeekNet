@@ -1,5 +1,6 @@
-import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { JobPosting } from '../../../entities/job-posting.entity';
+import { JobStatus } from '../../../enums/job-status.enum';
 
 export interface IAdminUpdateJobStatusUseCase {
-  execute(jobId: string, status: 'active' | 'unlisted' | 'expired' | 'blocked', unpublishReason?: string): Promise<JobPosting>;
+  execute(jobId: string, status: JobStatus, unpublishReason?: string): Promise<JobPosting>;
 }
