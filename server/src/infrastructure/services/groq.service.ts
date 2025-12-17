@@ -1,4 +1,5 @@
 import Groq from 'groq-sdk';
+import { env } from '../config/env';
 
 export interface ATSScoreResult {
   score: number;
@@ -9,10 +10,7 @@ export class GroqService {
   private client: Groq;
 
   constructor() {
-    const apiKey = process.env.GROQ_API_KEY || '';
-    if (!apiKey) {
-      throw new Error('GROQ_API_KEY is not configured in environment variables');
-    }
+    const apiKey = env.GROQ_API_KEY;
     this.client = new Groq({ apiKey });
   }
 
