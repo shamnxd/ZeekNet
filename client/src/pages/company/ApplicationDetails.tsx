@@ -163,6 +163,8 @@ const ApplicationDetails = () => {
           cover_letter: a.cover_letter,
           resume_url: a.resume_url,
           full_name: a.full_name,
+          date_of_birth: a.date_of_birth,
+          gender: a.gender,
           email: a.email,
           phone: a.phone,
           address: a.address,
@@ -198,9 +200,10 @@ const ApplicationDetails = () => {
         job_id: a.job_id, job_title: a.job_title, job_company: a.job_company,
         job_location: a.job_location, job_type: a.job_type, score: a.score,
         stage: a.stage, applied_date: a.applied_date, cover_letter: a.cover_letter,
-        resume_url: a.resume_url, full_name: a.full_name, email: a.email,
-        phone: a.phone, address: a.address, about_me: a.about_me,
-        languages: a.languages, skills: a.skills, resume_data: a.resume_data,
+        resume_url: a.resume_url, full_name: a.full_name, date_of_birth: a.date_of_birth,
+        gender: a.gender, email: a.email, phone: a.phone, address: a.address,
+        about_me: a.about_me, languages: a.languages, skills: a.skills,
+        resume_data: a.resume_data,
         interview_schedule: (a.interviews || []).map((iv: any) => ({
           id: iv.id, date: iv.date, interviewer_name: iv.interviewer_name || '',
           interviewer_avatar: undefined, interview_type: iv.interview_type,
@@ -501,7 +504,6 @@ const ApplicationDetails = () => {
                       <p className="text-sm text-[#7C8493] mb-3">{application.seeker_headline || application.job_title}</p>
                       
                       {/* ATS Score Badge */}
-                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 border border-blue-200">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-gray-600">ATS Match Score</span>
                           <ScoreBadge score={application.score} />
@@ -518,35 +520,10 @@ const ApplicationDetails = () => {
                             </>
                           ) : (
                             <>
-                              <div className="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all ${
-                                    application.score !== undefined && application.score !== null
-                                      ? application.score >= 80 ? 'bg-green-500' 
-                                        : application.score >= 60 ? 'bg-blue-500'
-                                        : application.score >= 40 ? 'bg-yellow-500'
-                                        : 'bg-orange-500'
-                                      : 'bg-gray-400'
-                                  }`}
-                                  style={{ width: `${application.score || 0}%` }}
-                                />
-                              </div>
-                              <span className="text-sm font-semibold text-gray-700 min-w-[4rem] text-right">
-                                {application.score !== undefined && application.score !== null ? (
-                                  <>
-                                    {application.score >= 80 ? '🟢 Excellent' : ''}
-                                    {application.score >= 60 && application.score < 80 ? '🔵 Good' : ''}
-                                    {application.score >= 40 && application.score < 60 ? '🟡 Fair' : ''}
-                                    {application.score < 40 ? '🟠 Poor' : ''}
-                                  </>
-                                ) : (
-                                  'Not Scored'
-                                )}
-                              </span>
+
                             </>
                           )}
                         </div>
-                      </div>
                     </div>
                   </div>
 
@@ -602,13 +579,6 @@ const ApplicationDetails = () => {
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Chat
                     </Button>
-                    {application.resume_url && (
-                      <Button variant="outline" className="border-[#CCCCF5] text-[#4640DE]"
-                        onClick={() => application.resume_url && window.open(application.resume_url, '_blank')}>
-                        <Download className="w-4 h-4 mr-2" />
-                        View Resume
-                      </Button>
-                    )}
                   </div>
 
                   <div className="h-px bg-[#D6DDEB] mb-5"></div>
@@ -707,11 +677,15 @@ const ApplicationDetails = () => {
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Date of Birth</p>
-                          <p className="text-sm font-medium text-[#25324B]">--</p>
+                          <p className="text-sm font-medium text-[#25324B]">
+                            {application.date_of_birth ? new Date(application.date_of_birth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                          </p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Gender</p>
-                          <p className="text-sm font-medium text-[#25324B]">--</p>
+                          <p className="text-sm font-medium text-[#25324B]">
+                            {application.gender ? application.gender.charAt(0).toUpperCase() + application.gender.slice(1) : 'N/A'}
+                          </p>
                         </div>
                         <div>
                           <p className="text-sm text-[#7C8493] mb-1">Language</p>

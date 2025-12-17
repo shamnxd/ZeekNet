@@ -4,20 +4,21 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loading } from '@/components/ui/loading'
+import { ScoreBadge } from '@/components/ui/score-badge'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { 
   Search,
   Filter,
-  Star,
   Calendar,
   User,
   Briefcase,
   ChevronLeft,
   ChevronRight,
   Eye,
-  MessageCircle
+  MessageCircle,
+  ArrowUpDown
 } from 'lucide-react'
 import {
   Select,
@@ -26,6 +27,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
 
@@ -49,6 +59,14 @@ const AllApplications = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [stage, setStage] = useState<string>('all')
+  const [minScore, setMinScore] = useState<string>('')
+  const [maxScore, setMaxScore] = useState<string>('')
+  const [selectedApplications, setSelectedApplications] = useState<Set<string>>(new Set())
+  const [sortBy, setSortBy] = useState<'date' | 'score'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [bulkActionLoading, setBulkActionLoading] = useState(false)
+  const [showShortlistConfirm, setShowShortlistConfirm] = useState(false)
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false)
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -60,7 +78,18 @@ const AllApplications = () => {
     try {
       setLoading(true)
 
-      const res = await jobApplicationApi.getCompanyApplications({ page, limit, search, stage: stageFilter && stageFilter !== 'all' ? stageFilter as 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired' : undefined })
+      const params: any = { page, limit, search }
+      
+      if (stageFilter && stageFilter !== 'all') {
+        params.stage = stageFilter as 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired'
+      }
+      
+      if (minScore) params.min_score = parseInt(minScore)
+      if (maxScore) params.max_score = parseInt(maxScore)
+      if (sortBy) params.sort_by = sortBy === 'score' ? 'score' : 'applied_date'
+      if (sortOrder) params.sort_order = sortOrder
+
+      const res = await jobApplicationApi.getCompanyApplications(params)
       const data = res?.data?.data || res?.data
       const list = (data?.applications || []).map((a: any) => ({
         _id: a.id,
@@ -101,7 +130,7 @@ const AllApplications = () => {
 
   useEffect(() => {
     fetchApplications(pagination.page, pagination.limit, debouncedSearchQuery, stage)
-  }, [pagination.page, stage, debouncedSearchQuery])
+  }, [pagination.page, stage, debouncedSearchQuery, minScore, maxScore, sortBy, sortOrder])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -171,10 +200,151 @@ const AllApplications = () => {
     }
   }
 
+  // Selection handlers
+  const handleSelectAll = () => {
+    if (selectedApplications.size === applications.length) {
+      setSelectedApplications(new Set())
+    } else {
+      setSelectedApplications(new Set(applications.map(app => app._id)))
+    }
+  }
+
+  const handleSelectApplication = (applicationId: string) => {
+    setSelectedApplications(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(applicationId)) {
+        newSet.delete(applicationId)
+      } else {
+        newSet.add(applicationId)
+      }
+      return newSet
+    })
+  }
+
+  // Sorting
+  const toggleSort = () => {
+    if (sortBy === 'date') {
+      setSortBy('score')
+      setSortOrder('desc')
+    } else if (sortBy === 'score' && sortOrder === 'desc') {
+      setSortOrder('asc')
+    } else {
+      setSortBy('date')
+      setSortOrder('desc')
+    }
+  }
+
+  // Bulk actions
+  const executeBulkShortlist = async () => {
+    const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+    
+    // Cannot change hired or rejected applications
+    const unchangeableApps = selectedApps.filter(app => app.stage === 'hired' || app.stage === 'rejected')
+    if (unchangeableApps.length > 0) {
+      toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
+      setShowShortlistConfirm(false)
+      return
+    }
+    
+    // Only 'applied' applications can be shortlisted
+    const invalidApps = selectedApps.filter(app => app.stage !== 'applied')
+    if (invalidApps.length > 0) {
+      toast.error(`Cannot shortlist ${invalidApps.length} application(s). Only 'applied' applications can be shortlisted.`)
+      setShowShortlistConfirm(false)
+      return
+    }
+
+    if (selectedApps.length === 0) {
+      toast.error('Please select at least one application')
+      setShowShortlistConfirm(false)
+      return
+    }
+
+    try {
+      setBulkActionLoading(true)
+      await jobApplicationApi.bulkUpdateApplicationStage({ 
+        application_ids: Array.from(selectedApplications), 
+        stage: 'shortlisted' 
+      })
+      toast.success(`${selectedApps.length} application(s) moved to shortlisted`)
+      
+      // Update local state instead of refetching
+      setApplications(prev => prev.map(app => 
+        selectedApplications.has(app._id) 
+          ? { ...app, stage: 'shortlisted' as const }
+          : app
+      ))
+      setSelectedApplications(new Set())
+      setShowShortlistConfirm(false)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to update applications')
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  const executeBulkReject = async () => {
+    const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+    
+    // Cannot change hired or rejected applications
+    const unchangeableApps = selectedApps.filter(app => app.stage === 'hired' || app.stage === 'rejected')
+    if (unchangeableApps.length > 0) {
+      toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
+      setShowRejectConfirm(false)
+      return
+    }
+    
+    // Can only reject applied, shortlisted, or interview stages
+    const invalidApps = selectedApps.filter(app => 
+      app.stage !== 'applied' && app.stage !== 'shortlisted' && app.stage !== 'interview'
+    )
+    if (invalidApps.length > 0) {
+      toast.error(`Cannot reject ${invalidApps.length} application(s) in invalid stage`)
+      setShowRejectConfirm(false)
+      return
+    }
+
+    if (selectedApps.length === 0) {
+      toast.error('Please select at least one application')
+      setShowRejectConfirm(false)
+      return
+    }
+
+    try {
+      setBulkActionLoading(true)
+      await jobApplicationApi.bulkUpdateApplicationStage({ 
+        application_ids: Array.from(selectedApplications), 
+        stage: 'rejected' 
+      })
+      toast.success(`${selectedApps.length} application(s) rejected`)
+      
+      // Update local state instead of refetching
+      setApplications(prev => prev.map(app => 
+        selectedApplications.has(app._id) 
+          ? { ...app, stage: 'rejected' as const }
+          : app
+      ))
+      setSelectedApplications(new Set())
+      setShowRejectConfirm(false)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to update applications')
+    } finally {
+      setBulkActionLoading(false)
+    }
+  }
+
+  const handleBulkShortlist = () => {
+    setShowShortlistConfirm(true)
+  }
+
+  const handleBulkReject = () => {
+    setShowRejectConfirm(true)
+  }
+
   return (
     <CompanyLayout>
       <div className="min-h-screen bg-white">
-        <div className="px-7 py-7 border-b border-[#D6DDEB]">
+        <div className="px-7 py-7">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-semibold text-[#25324B]">
               Total Applicants : {pagination.total}
@@ -206,8 +376,79 @@ const AllApplications = () => {
                   <SelectItem value="hired">Hired</SelectItem>
                 </SelectContent>
               </Select>
+              <Input
+                type="number"
+                placeholder="Min Score"
+                value={minScore}
+                onChange={(e) => setMinScore(e.target.value)}
+                className="w-[100px] border-[#D6DDEB] rounded-lg"
+                min="0"
+                max="100"
+              />
+              <Input
+                type="number"
+                placeholder="Max Score"
+                value={maxScore}
+                onChange={(e) => setMaxScore(e.target.value)}
+                className="w-[100px] border-[#D6DDEB] rounded-lg"
+                min="0"
+                max="100"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSort}
+                className="border-[#D6DDEB] text-[#7C8493] hover:bg-[#F8F8FD] rounded-lg"
+              >
+                <ArrowUpDown className="w-4 h-4 mr-2" />
+                {sortBy === 'score' ? 'Score' : 'Date'} {sortOrder === 'asc' ? '↑' : '↓'}
+              </Button>
             </div>
           </div>
+
+          {/* Bulk Actions */}
+          {selectedApplications.size > 0 && (() => {
+            const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+            
+            // Disable both buttons if any selected app is rejected or hired
+            const hasRejectedOrHired = selectedApps.some(app => 
+              app.stage === 'rejected' || app.stage === 'hired'
+            )
+            
+            // Disable shortlist if any selected app is shortlisted, interview, hired, or rejected
+            const cannotShortlist = hasRejectedOrHired || selectedApps.some(app => 
+              app.stage === 'shortlisted' || app.stage === 'interview'
+            )
+            
+            // Disable reject if any selected app is hired or rejected
+            const cannotReject = hasRejectedOrHired
+            
+            return (
+            <div className="mt-4 flex items-center gap-3 p-3 bg-[#F8F8FD] rounded-lg border border-[#D6DDEB]">
+              <span className="text-sm text-[#25324B] font-medium">
+                {selectedApplications.size} selected
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkShortlist}
+                disabled={bulkActionLoading || cannotShortlist}
+                className="border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Move to Shortlisted
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkReject}
+                disabled={bulkActionLoading || cannotReject}
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Reject
+              </Button>
+            </div>
+            )
+          })()}
         </div>
 
         {/* Applications Table */}
@@ -215,13 +456,18 @@ const AllApplications = () => {
           <div className="border border-[#D6DDEB] rounded-lg overflow-hidden">
             {/* Table Header */}
             <div className="bg-white border-b border-[#D6DDEB] px-5 py-4">
-              <div className="grid grid-cols-6 gap-4 items-center">
+              <div className="grid gap-4 items-center" style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}>
+                <div>
+                  <Checkbox
+                    checked={selectedApplications.size === applications.length && applications.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </div>
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-[#7C8493]" />
                   <span className="text-sm font-medium text-[#7C8493]">Full Name</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-[#7C8493]" />
                   <span className="text-sm font-medium text-[#7C8493]">Score</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -256,10 +502,19 @@ const AllApplications = () => {
                 applications.map((application, index) => (
                   <div
                     key={application._id}
-                    className={`px-5 py-4 grid grid-cols-6 gap-4 items-center ${
+                    className={`px-5 py-4 grid gap-4 items-center ${
                       index % 2 === 0 ? 'bg-white' : 'bg-[#F8F8FD]'
                     }`}
+                    style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}
                   >
+                    {/* Checkbox */}
+                    <div>
+                      <Checkbox
+                        checked={selectedApplications.has(application._id)}
+                        onCheckedChange={() => handleSelectApplication(application._id)}
+                      />
+                    </div>
+
                     {/* Full Name */}
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
@@ -276,11 +531,8 @@ const AllApplications = () => {
                     </div>
 
                     {/* Score */}
-                    <div className="flex items-center gap-1.5">
-                      <Star className="w-4 h-4 text-[#FFB836] fill-[#FFB836]" />
-                      <span className="text-sm font-medium text-[#25324B]">
-                        {application.score?.toFixed(1) || '0.0'}
-                      </span>
+                    <div className="flex items-center">
+                      <ScoreBadge score={application.score} />
                     </div>
 
                     {/* Hiring Stage */}
@@ -391,6 +643,53 @@ const AllApplications = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialogs */}
+      <Dialog open={showShortlistConfirm} onOpenChange={setShowShortlistConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move to Shortlisted</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to move {selectedApplications.size} application(s) to shortlisted stage?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowShortlistConfirm(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={executeBulkShortlist} 
+              disabled={bulkActionLoading}
+              className="bg-[#4640DE] hover:bg-[#4640DE]/90"
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showRejectConfirm} onOpenChange={setShowRejectConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Applications</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to reject {selectedApplications.size} application(s)? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRejectConfirm(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={executeBulkReject} 
+              disabled={bulkActionLoading}
+              variant="destructive"
+            >
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </CompanyLayout>
   )
 }

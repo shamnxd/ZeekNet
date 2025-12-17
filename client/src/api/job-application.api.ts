@@ -45,6 +45,13 @@ export const jobApplicationApi = {
     return api.patch(`/api/company/applications/${id}/stage`, body)
   },
 
+  async bulkUpdateApplicationStage(body: { 
+    application_ids: string[], 
+    stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired' 
+  }) {
+    return api.post(`/api/company/applications/bulk-update`, body)
+  },
+
   async updateApplicationScore(id: string, body: { score: number }) {
     return api.patch(`/api/company/applications/${id}/score`, body)
   },
