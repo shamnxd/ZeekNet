@@ -1,4 +1,5 @@
 import { api } from './index';
+import { PublicRoutes } from '@/constants/api-routes';
 
 interface GetAllSkillsParams {
   page?: number;
@@ -37,7 +38,7 @@ export const publicApi = {
       if (params.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-      const response = await api.get(`/api/public/skills?${queryParams.toString()}`);
+      const response = await api.get(`${PublicRoutes.SKILLS}?${queryParams.toString()}`);
       return response.data;
     } catch (error: any) {
       return {
@@ -59,7 +60,7 @@ export const publicApi = {
       if (params.limit) queryParams.append('limit', params.limit.toString());
       if (params.search) queryParams.append('search', params.search);
 
-      const response = await api.get(`/api/public/job-categories?${queryParams.toString()}`);
+      const response = await api.get(`${PublicRoutes.JOB_CATEGORIES}?${queryParams.toString()}`);
       return response.data;
     } catch (error: any) {
       return {
@@ -83,7 +84,7 @@ export const publicApi = {
       if (params.sortBy) queryParams.append('sortBy', params.sortBy);
       if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-      const response = await api.get(`/api/public/job-roles?${queryParams.toString()}`);
+      const response = await api.get(`${PublicRoutes.JOB_ROLES}?${queryParams.toString()}`);
       return response.data;
     } catch (error: any) {
       return {
