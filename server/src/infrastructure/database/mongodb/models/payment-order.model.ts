@@ -1,12 +1,15 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { PaymentStatus } from '../../../../domain/enums/payment-status.enum';
+import { PaymentMethod } from '../../../../domain/enums/payment-method.enum';
+import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
 
 export interface PaymentOrderDocument extends Document {
   companyId: Types.ObjectId;
   planId: Types.ObjectId;
   amount: number;
   currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
+  status: PaymentStatus;
+  paymentMethod: PaymentMethod;
   invoiceId?: string;
   transactionId?: string;
   metadata?: Record<string, unknown>;
@@ -15,7 +18,7 @@ export interface PaymentOrderDocument extends Document {
   stripeInvoiceUrl?: string;
   stripeInvoicePdf?: string;
   subscriptionId?: Types.ObjectId;
-  billingCycle?: 'monthly' | 'yearly';
+  billingCycle?: BillingCycle;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,14 +46,14 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
     },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'cancelled', 'refunded'],
-      default: 'pending',
+      enum: Object.values(PaymentStatus),
+      default: PaymentStatus.PENDING,
       index: true,
     },
     paymentMethod: {
       type: String,
-      enum: ['dummy', 'stripe', 'card'],
-      default: 'dummy',
+      enum: Object.values(PaymentMethod),
+      default: PaymentMethod.DUMMY,
     },
     invoiceId: {
       type: String,
@@ -85,7 +88,7 @@ const PaymentOrderSchema = new Schema<PaymentOrderDocument>(
     },
     billingCycle: {
       type: String,
-      enum: ['monthly', 'yearly'],
+      enum: Object.values(BillingCycle),
     },
   },
   {

@@ -1,4 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
+import { JobStatus } from '../../../../domain/enums/job-status.enum';
 
 export interface JobPostingDocument extends Document {
   _id: Types.ObjectId;
@@ -16,11 +18,11 @@ export interface JobPostingDocument extends Document {
     max: number;
   };
 
-  employment_types: string[];
+  employment_types: EmploymentType[];
   location: string;
   skills_required: string[];
   category_ids: string[];
-  status: 'active' | 'unlisted' | 'expired' | 'blocked';
+  status: JobStatus;
   is_featured: boolean;
   unpublish_reason?: string;
   view_count: number;
@@ -96,7 +98,7 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
       {
         type: String,
         required: true,
-        enum: ['full-time', 'part-time', 'contract', 'internship', 'remote'],
+        enum: Object.values(EmploymentType),
         validate: {
           validator: function (arr: string[]) {
             return arr && arr.length > 0;
@@ -132,8 +134,8 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
     ],
     status: {
       type: String,
-      enum: ['active', 'unlisted', 'expired', 'blocked'],
-      default: 'active',
+      enum: Object.values(JobStatus),
+      default: JobStatus.ACTIVE,
       required: true,
       index: true,
     },

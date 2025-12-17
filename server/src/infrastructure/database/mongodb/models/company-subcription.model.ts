@@ -1,6 +1,9 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-export type SubscriptionStatusType = 'active' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'unpaid';
+import { SubscriptionStatus } from '../../../../domain/enums/subscription-status.enum';
+import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
+
+export type SubscriptionStatusType = SubscriptionStatus;
 
 export interface CompanySubscriptionDocument extends Document {
   companyId: Types.ObjectId;
@@ -14,7 +17,7 @@ export interface CompanySubscriptionDocument extends Document {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripeStatus?: SubscriptionStatusType;
-  billingCycle?: 'monthly' | 'yearly';
+  billingCycle?: BillingCycle;
   cancelAtPeriodEnd?: boolean;
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
@@ -82,11 +85,11 @@ const CompanySubscriptionSchema = new Schema<CompanySubscriptionDocument>(
     },
     stripeStatus: {
       type: String,
-      enum: ['active', 'past_due', 'canceled', 'incomplete', 'incomplete_expired', 'trialing', 'unpaid'],
+      enum: Object.values(SubscriptionStatus),
     },
     billingCycle: {
       type: String,
-      enum: ['monthly', 'yearly'],
+      enum: Object.values(BillingCycle),
     },
     cancelAtPeriodEnd: {
       type: Boolean,
