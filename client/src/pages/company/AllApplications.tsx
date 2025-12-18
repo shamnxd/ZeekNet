@@ -100,7 +100,7 @@ const AllApplications = () => {
         total: data?.pagination?.total || list.length,
         totalPages: data?.pagination?.totalPages || Math.ceil((data?.pagination?.total || list.length) / (data?.pagination?.limit || limit)),
       })
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch applications')
     } finally {
       setLoading(false)

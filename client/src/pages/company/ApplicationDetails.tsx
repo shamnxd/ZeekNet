@@ -96,7 +96,7 @@ const ApplicationDetails = () => {
           })),
         }
         setApplication(mapped)
-      } catch (error) {
+      } catch {
         toast.error('Failed to load application details')
         navigate('/company/applicants')
       } finally {

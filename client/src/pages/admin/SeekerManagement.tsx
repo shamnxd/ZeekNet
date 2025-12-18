@@ -359,7 +359,7 @@ const UserManagement = () => {
               toast.success(`${reasonUser.name} ${newBlockedStatus ? 'blocked' : 'unblocked'} successfully${!newBlockedStatus ? '' : `. Reason: ${reason}`}`);
               setReasonDialogOpen(false);
               setReasonUser(null);
-            } catch (error) {
+            } catch {
               toast.error(`Failed to ${reasonUser.isBlocked ? 'unblock' : 'block'} ${reasonUser.name}`);
             }
           }}

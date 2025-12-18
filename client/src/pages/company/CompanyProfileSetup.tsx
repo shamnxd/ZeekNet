@@ -87,7 +87,7 @@ const CompanyProfileSetup = () => {
           const status = response.data.is_verified || 'not_created'
           setIsReapplication(status === 'rejected')
         }
-      } catch (err: unknown) {
+      } catch {
         setIsReapplication(false)
       }
     }

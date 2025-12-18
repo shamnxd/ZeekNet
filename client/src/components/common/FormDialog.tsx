@@ -72,183 +72,161 @@ const isAdvancedFormDialog = (props: FormDialogProps): props is AdvancedFormDial
   return 'open' in props && 'onOpenChange' in props
 }
 
-const FormDialog = (props: FormDialogProps) => {
-  
-  if (isAdvancedFormDialog(props)) {
-    const {
-      open,
-      onOpenChange,
-      title,
-      description,
-      fields = [],
-      fieldGroups = [],
-      onSubmit,
-      submitLabel = 'Save',
-      cancelLabel = 'Cancel',
-      maxWidth = 'md',
-      children,
-    } = props
+const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
+  const {
+    open,
+    onOpenChange,
+    title,
+    description,
+    fields = [],
+    fieldGroups = [],
+    onSubmit,
+    submitLabel = 'Save',
+    cancelLabel = 'Cancel',
+    maxWidth = 'md',
+    children,
+  } = props
 
-    const [errors, setErrors] = useState<Record<string, string>>({})
-    const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
 
-    const maxWidthClasses = {
-      sm: 'max-w-sm',
-      md: 'max-w-md',
-      lg: 'max-w-lg',
-      xl: 'max-w-xl',
-      '2xl': 'max-w-2xl',
+  const maxWidthClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+  }
+
+  const validateField = (field: FormField): string | null => {
+    const value = field.value?.trim() || ''
+    const validation = field.validation
+    
+
+    if ((validation?.required || field.required) && !value) {
+      const message = typeof validation?.required === 'string' 
+        ? validation.required 
+        : `${field.label} is required`
+      return message
     }
 
-    const validateField = (field: FormField): string | null => {
-      const value = field.value?.trim() || ''
-      const validation = field.validation
+
+    if (validation?.minLength && value.length > 0 && value.length < validation.minLength.value) {
+      return validation.minLength.message
+    }
+
+
+    if (validation?.maxLength && value.length > validation.maxLength.value) {
+      return validation.maxLength.message
+    }
+
+
+    if (validation?.pattern && value && !validation.pattern.value.test(value)) {
+      return validation.pattern.message
+    }
+
+
+    if (field.type === 'email' && value) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailPattern.test(value)) {
+        return 'Please enter a valid email address'
+      }
+    }
+
+
+    if (field.type === 'date' && value) {
+      const date = new Date(value)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
       
 
-      if ((validation?.required || field.required) && !value) {
-        const message = typeof validation?.required === 'string' 
-          ? validation.required 
-          : `${field.label} is required`
-        return message
+      if (isNaN(date.getTime())) {
+        return 'Please enter a valid date'
       }
+      
 
-
-      if (validation?.minLength && value.length > 0 && value.length < validation.minLength.value) {
-        return validation.minLength.message
-      }
-
-
-      if (validation?.maxLength && value.length > validation.maxLength.value) {
-        return validation.maxLength.message
-      }
-
-
-      if (validation?.pattern && value && !validation.pattern.value.test(value)) {
-        return validation.pattern.message
-      }
-
-
-      if (field.type === 'email' && value) {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailPattern.test(value)) {
-          return 'Please enter a valid email address'
-        }
-      }
-
-
-      if (field.type === 'date' && value) {
-        const date = new Date(value)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        
-
-        if (isNaN(date.getTime())) {
-          return 'Please enter a valid date'
-        }
-        
-
-        if (validation?.validate) {
-          const result = validation.validate(value)
-          if (result !== true) {
-            return typeof result === 'string' ? result : 'Invalid date'
-          }
-        }
-      }
-
-
-      if (validation?.validate && !field.type) {
+      if (validation?.validate) {
         const result = validation.validate(value)
         if (result !== true) {
-          return typeof result === 'string' ? result : 'Validation failed'
+          return typeof result === 'string' ? result : 'Invalid date'
         }
       }
-
-      return null
     }
 
-    const handleFieldBlur = (fieldId: string, field: FormField) => {
-      setTouched(prev => ({ ...prev, [fieldId]: true }))
+
+    if (validation?.validate && !field.type) {
+      const result = validation.validate(value)
+      if (result !== true) {
+        return typeof result === 'string' ? result : 'Validation failed'
+      }
+    }
+
+    return null
+  }
+
+  const handleFieldBlur = (fieldId: string, field: FormField) => {
+    setTouched(prev => ({ ...prev, [fieldId]: true }))
+    const error = validateField(field)
+    setErrors(prev => ({
+      ...prev,
+      [fieldId]: error || ''
+    }))
+  }
+
+  const handleFieldChange = (field: FormField, value: string) => {
+    field.onChange(value)
+    
+
+    if (errors[field.id]) {
+      setErrors(prev => ({ ...prev, [field.id]: '' }))
+    }
+  }
+
+  const validateAllFields = (): boolean => {
+    const allFields = [...fields, ...fieldGroups.flatMap(g => g.fields)]
+    const newErrors: Record<string, string> = {}
+    let isValid = true
+
+    allFields.forEach(field => {
       const error = validateField(field)
-      setErrors(prev => ({
-        ...prev,
-        [fieldId]: error || ''
-      }))
+      if (error) {
+        newErrors[field.id] = error
+        isValid = false
+      }
+    })
+
+    setErrors(newErrors)
+    setTouched(
+      allFields.reduce((acc, field) => ({ ...acc, [field.id]: true }), {})
+    )
+
+    return isValid
+  }
+
+  const handleSubmit = () => {
+    if (validateAllFields()) {
+      onSubmit()
+    }
+  }
+
+
+  const hasErrors = Object.values(errors).some(error => error !== '')
+
+  const renderField = (field: FormField) => {
+    const error = touched[field.id] ? errors[field.id] : ''
+    const hasError = !!error
+
+    const commonProps = {
+      id: field.id,
+      value: field.value,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
+        handleFieldChange(field, e.target.value),
+      onBlur: () => handleFieldBlur(field.id, field),
+      placeholder: field.placeholder,
+      'aria-invalid': hasError,
     }
 
-    const handleFieldChange = (field: FormField, value: string) => {
-      field.onChange(value)
-      
-
-      if (errors[field.id]) {
-        setErrors(prev => ({ ...prev, [field.id]: '' }))
-      }
-    }
-
-    const validateAllFields = (): boolean => {
-      const allFields = [...fields, ...fieldGroups.flatMap(g => g.fields)]
-      const newErrors: Record<string, string> = {}
-      let isValid = true
-
-      allFields.forEach(field => {
-        const error = validateField(field)
-        if (error) {
-          newErrors[field.id] = error
-          isValid = false
-        }
-      })
-
-      setErrors(newErrors)
-      setTouched(
-        allFields.reduce((acc, field) => ({ ...acc, [field.id]: true }), {})
-      )
-
-      return isValid
-    }
-
-    const handleSubmit = () => {
-      if (validateAllFields()) {
-        onSubmit()
-      }
-    }
-
-
-    const hasErrors = Object.values(errors).some(error => error !== '')
-
-    const renderField = (field: FormField) => {
-      const error = touched[field.id] ? errors[field.id] : ''
-      const hasError = !!error
-
-      const commonProps = {
-        id: field.id,
-        value: field.value,
-        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
-          handleFieldChange(field, e.target.value),
-        onBlur: () => handleFieldBlur(field.id, field),
-        placeholder: field.placeholder,
-        'aria-invalid': hasError,
-      }
-
-      if (field.type === 'textarea') {
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {(field.required || field.validation?.required) && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
-            </Label>
-            <Textarea
-              {...commonProps}
-              rows={field.rows || 3}
-              className="resize-none"
-            />
-            {hasError && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
-          </div>
-        )
-      }
-
+    if (field.type === 'textarea') {
       return (
         <div key={field.id} className="space-y-2">
           <Label htmlFor={field.id}>
@@ -257,9 +235,10 @@ const FormDialog = (props: FormDialogProps) => {
               <span className="text-red-500 ml-1">*</span>
             )}
           </Label>
-          <Input
+          <Textarea
             {...commonProps}
-            type={field.type || 'text'}
+            rows={field.rows || 3}
+            className="resize-none"
           />
           {hasError && (
             <p className="text-sm text-red-600">{error}</p>
@@ -269,50 +248,70 @@ const FormDialog = (props: FormDialogProps) => {
     }
 
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={`${maxWidthClasses[maxWidth]}`}>
-          <DialogHeader>
-            <DialogTitle className="!text-lg !font-bold">{title}</DialogTitle>
-            {description && <DialogDescription className="!mb-2">{description}</DialogDescription>}
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {children}
-            
-            {fields.map(renderField)}
-
-            {fieldGroups.map((group, groupIndex) => (
-              <div 
-                key={groupIndex} 
-                className={`grid gap-4 ${
-                  group.gridCols === 2 ? 'grid-cols-2' : 
-                  group.gridCols === 3 ? 'grid-cols-3' : 
-                  group.gridCols === 4 ? 'grid-cols-4' : 
-                  'grid-cols-1'
-                }`}
-              >
-                {group.fields.map(renderField)}
-              </div>
-            ))}
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {cancelLabel}
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              className="bg-cyan-600 hover:bg-cyan-700"
-              disabled={hasErrors && Object.keys(touched).length > 0}
-            >
-              {submitLabel}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <div key={field.id} className="space-y-2">
+        <Label htmlFor={field.id}>
+          {field.label}
+          {(field.required || field.validation?.required) && (
+            <span className="text-red-500 ml-1">*</span>
+          )}
+        </Label>
+        <Input
+          {...commonProps}
+          type={field.type || 'text'}
+        />
+        {hasError && (
+          <p className="text-sm text-red-600">{error}</p>
+        )}
+      </div>
     )
   }
 
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={`${maxWidthClasses[maxWidth]}`}>
+        <DialogHeader>
+          <DialogTitle className="!text-lg !font-bold">{title}</DialogTitle>
+          {description && <DialogDescription className="!mb-2">{description}</DialogDescription>}
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {children}
+          
+          {fields.map(renderField)}
+
+          {fieldGroups.map((group, groupIndex) => (
+            <div 
+              key={groupIndex} 
+              className={`grid gap-4 ${
+                group.gridCols === 2 ? 'grid-cols-2' : 
+                group.gridCols === 3 ? 'grid-cols-3' : 
+                group.gridCols === 4 ? 'grid-cols-4' : 
+                'grid-cols-1'
+              }`}
+            >
+              {group.fields.map(renderField)}
+            </div>
+          ))}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {cancelLabel}
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            className="bg-cyan-600 hover:bg-cyan-700"
+            disabled={hasErrors && Object.keys(touched).length > 0}
+          >
+            {submitLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+const BasicFormDialog = (props: BasicFormDialogProps) => {
   const {
     isOpen,
     onClose,
@@ -375,6 +374,13 @@ const FormDialog = (props: FormDialogProps) => {
       </DialogContent>
     </Dialog>
   )
+}
+
+const FormDialog = (props: FormDialogProps) => {
+  if (isAdvancedFormDialog(props)) {
+    return <AdvancedFormDialog {...props} />
+  }
+  return <BasicFormDialog {...props} />
 }
 
 export default FormDialog

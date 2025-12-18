@@ -99,7 +99,7 @@ const CompanyPlans = () => {
             setIsPollingSubscription(false)
             toast.info('Subscription is being processed. Please refresh the page in a moment if it doesn\'t appear.')
           }
-        } catch (error) {
+        } catch {
           retries++
           if (retries < maxRetries) {
             timeoutId = setTimeout(checkSubscription, 2000)
@@ -148,7 +148,7 @@ const CompanyPlans = () => {
         setActiveSubscription(response.data)
         await fetchBillingHistory()
       }
-    } catch (error: unknown) {
+    } catch {
       console.log('No active subscription found')
     }
   }
@@ -175,7 +175,7 @@ const CompanyPlans = () => {
         }))
         setBillingHistory(formattedHistory)
       }
-    } catch (error: unknown) {
+    } catch {
       console.log('Failed to fetch billing history')
     }
   }

@@ -19,5 +19,11 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Downgrade 'any' type from error to warning for gradual fixing
+      '@typescript-eslint/no-explicit-any': 'warn',
+      // Allow empty blocks with comments
+      'no-empty': ['error', { 'allowEmptyCatch': true }],
+    },
   },
 ])
