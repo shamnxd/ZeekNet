@@ -16,6 +16,7 @@ import type { JobCategory } from '@/api/admin.api'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import type { ApiError } from '@/types/api-error.type'
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<JobCategory[]>([])
@@ -58,8 +59,9 @@ const CategoryManagement = () => {
         setError(response.message || 'Failed to fetch categories')
         setCategories([])
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch categories')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to fetch categories')
     } finally {
       setLoading(false)
     }
@@ -111,8 +113,9 @@ const CategoryManagement = () => {
       } else {
         toast.error(response.message || 'Failed to create category')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create category')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to create category')
     }
   }
 
@@ -139,8 +142,9 @@ const CategoryManagement = () => {
       } else {
         toast.error(response.message || 'Failed to update category')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update category')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update category')
     }
   }
 
@@ -160,8 +164,9 @@ const CategoryManagement = () => {
       } else {
         toast.error(response.message || 'Failed to delete category')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete category')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to delete category')
     }
   }
 

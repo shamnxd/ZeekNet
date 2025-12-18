@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { jobApplicationApi } from '@/api'
 import { toast } from 'sonner'
+import type { ApiError } from '@/types/api-error.type'
 
 import { ApplicationStage } from '@/constants/enums'
 
@@ -37,8 +38,9 @@ function SeekerApplications() {
         const data = res?.data?.data || res?.data
         setItems(data?.applications || [])
         setTotal(data?.pagination?.total || 0)
-      } catch (e: any) {
-        const message = e?.response?.data?.message || 'Failed to load applications'
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        const message = apiError?.response?.data?.message || 'Failed to load applications'
         setError(message)
         toast.error(message)
       } finally {

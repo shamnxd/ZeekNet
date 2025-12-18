@@ -20,6 +20,7 @@ import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPl
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
+import type { ApiError } from '@/types/api-error.type'
 
 const SubscriptionPlanManagement = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
@@ -72,8 +73,9 @@ const SubscriptionPlanManagement = () => {
         setError(response.message || 'Failed to fetch subscription plans')
         setPlans([])
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch subscription plans')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to fetch subscription plans')
     } finally {
       setLoading(false)
     }
@@ -207,8 +209,9 @@ const SubscriptionPlanManagement = () => {
       } else {
         toast.error(response.message || 'Failed to create subscription plan')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create subscription plan')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to create subscription plan')
     } finally {
       setCreatingPlan(false)
     }
@@ -244,8 +247,9 @@ const SubscriptionPlanManagement = () => {
       } else {
         toast.error(response.message || 'Failed to update subscription plan')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update subscription plan')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update subscription plan')
     } finally {
       setUpdatingPlanId(null)
     }
@@ -320,9 +324,9 @@ const SubscriptionPlanManagement = () => {
                   }))
                 }}
                 className="mt-1"
-                disabled={Boolean((formData as any)?.isDefault)} // Disable price input if default
+                disabled={Boolean(formData.isDefault)} // Disable price input if default
               />
-              {(formData as any)?.isDefault && (
+              {formData.isDefault && (
                 <p className="text-xs text-amber-600 mt-1">Default plan must have price of ₹0</p>
               )}
             </div>
@@ -445,7 +449,7 @@ const SubscriptionPlanManagement = () => {
               <input
                 type="checkbox"
                 id="isPopular"
-                checked={Boolean((formData as any)?.isPopular ?? false)}
+                checked={Boolean(formData.isPopular ?? false)}
                 onChange={(e) => setFormData(prev => ({ ...prev, isPopular: e.target.checked }))}
                 className="h-4 w-4"
               />
@@ -458,7 +462,7 @@ const SubscriptionPlanManagement = () => {
               <input
                 type="checkbox"
                 id="isDefault"
-                checked={Boolean((formData as any)?.isDefault ?? false)}
+                checked={Boolean(formData.isDefault ?? false)}
                 onChange={(e) => {
                   const isDefault = e.target.checked
                   setFormData(prev => ({ 
@@ -473,7 +477,7 @@ const SubscriptionPlanManagement = () => {
               <label htmlFor="isDefault" className="text-sm font-medium cursor-pointer">
                 Set as Default Plan
               </label>
-              {(formData as any)?.isDefault && (
+              {formData.isDefault && (
                 <span className="text-xs text-amber-600 ml-2">
                   (Price will be ₹0)
                 </span>

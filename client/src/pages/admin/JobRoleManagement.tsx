@@ -16,6 +16,7 @@ import type { JobRole } from '@/api/admin.api'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import type { ApiError } from '@/types/api-error.type'
 
 const JobRoleManagement = () => {
   const [jobRoles, setJobRoles] = useState<JobRole[]>([])
@@ -58,8 +59,9 @@ const JobRoleManagement = () => {
         setError(response.message || 'Failed to fetch job roles')
         setJobRoles([])
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch job roles')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to fetch job roles')
     } finally {
       setLoading(false)
     }
@@ -111,8 +113,9 @@ const JobRoleManagement = () => {
       } else {
         toast.error(response.message || 'Failed to create job role')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create job role')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to create job role')
     }
   }
 
@@ -139,8 +142,9 @@ const JobRoleManagement = () => {
       } else {
         toast.error(response.message || 'Failed to update job role')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update job role')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update job role')
     }
   }
 
@@ -160,8 +164,9 @@ const JobRoleManagement = () => {
       } else {
         toast.error(response.message || 'Failed to delete job role')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete job role')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to delete job role')
     }
   }
 

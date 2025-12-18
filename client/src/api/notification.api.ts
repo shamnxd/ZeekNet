@@ -17,7 +17,7 @@ export interface Notification {
 
 export const notificationApi = {
   async getNotifications(params?: { limit?: number; skip?: number }): Promise<ApiEnvelope<Notification[]>> {
-    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
     return (await api.get<ApiEnvelope<Notification[]>>(`${NotificationRoutes.GET_NOTIFICATIONS}${query}`)).data;
   },
 

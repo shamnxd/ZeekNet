@@ -4,6 +4,7 @@ import type { ApiEnvelope } from '@/interfaces/auth';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
+import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, Application } from '@/interfaces/company/company-data.interface';
 
 
 export interface CompanyProfileData {
@@ -127,21 +128,21 @@ export const companyApi = {
 
   async getCompleteProfile(): Promise<ApiEnvelope<{
     profile: CompanyProfileResponse;
-    contact: any | null;
-    locations: any[];
-    techStack: any[];
-    benefits: any[];
-    workplacePictures: any[];
-    jobPostings: any[];
+    contact: CompanyContact | null;
+    locations: OfficeLocation[];
+    techStack: TechStackItem[];
+    benefits: Benefit[];
+    workplacePictures: WorkplacePicture[];
+    jobPostings: JobPostingResponse[];
   }>> {
     return (await api.get<ApiEnvelope<{
       profile: CompanyProfileResponse;
-      contact: any | null;
-      locations: any[];
-      techStack: any[];
-      benefits: any[];
-      workplacePictures: any[];
-      jobPostings: any[];
+      contact: CompanyContact | null;
+      locations: OfficeLocation[];
+      techStack: TechStackItem[];
+      benefits: Benefit[];
+      workplacePictures: WorkplacePicture[];
+      jobPostings: JobPostingResponse[];
     }>>(CompanyRoutes.PROFILE)).data;
   },
 
@@ -191,83 +192,83 @@ export const companyApi = {
     return (await api.patch<ApiEnvelope<JobPostingResponse>>(CompanyRoutes.JOBS_ID_STATUS.replace(':id', id), { status })).data;
   },
 
-  async getContact(): Promise<ApiEnvelope<any>> {
-    return (await api.get<ApiEnvelope<any>>(CompanyRoutes.CONTACT)).data;
+  async getContact(): Promise<ApiEnvelope<CompanyContact | null>> {
+    return (await api.get<ApiEnvelope<CompanyContact | null>>(CompanyRoutes.CONTACT)).data;
   },
 
-  async updateContact(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.CONTACT, data)).data;
+  async updateContact(data: Partial<CompanyContact>): Promise<ApiEnvelope<CompanyContact>> {
+    return (await api.put<ApiEnvelope<CompanyContact>>(CompanyRoutes.CONTACT, data)).data;
   },
 
-  async getTechStacks(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.TECH_STACKS)).data;
+  async getTechStacks(): Promise<ApiEnvelope<TechStackItem[]>> {
+    return (await api.get<ApiEnvelope<TechStackItem[]>>(CompanyRoutes.TECH_STACKS)).data;
   },
 
-  async createTechStack(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS, data)).data;
+  async createTechStack(data: Partial<TechStackItem>): Promise<ApiEnvelope<TechStackItem>> {
+    return (await api.post<ApiEnvelope<TechStackItem>>(CompanyRoutes.TECH_STACKS, data)).data;
   },
 
-  async updateTechStack(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id), data)).data;
+  async updateTechStack(id: string, data: Partial<TechStackItem>): Promise<ApiEnvelope<TechStackItem>> {
+    return (await api.put<ApiEnvelope<TechStackItem>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteTechStack(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id))).data;
+  async deleteTechStack(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id))).data;
   },
 
-  async getOfficeLocations(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.OFFICE_LOCATIONS)).data;
+  async getOfficeLocations(): Promise<ApiEnvelope<OfficeLocation[]>> {
+    return (await api.get<ApiEnvelope<OfficeLocation[]>>(CompanyRoutes.OFFICE_LOCATIONS)).data;
   },
 
-  async createOfficeLocation(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS, data)).data;
+  async createOfficeLocation(data: Partial<OfficeLocation>): Promise<ApiEnvelope<OfficeLocation>> {
+    return (await api.post<ApiEnvelope<OfficeLocation>>(CompanyRoutes.OFFICE_LOCATIONS, data)).data;
   },
 
-  async updateOfficeLocation(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id), data)).data;
+  async updateOfficeLocation(id: string, data: Partial<OfficeLocation>): Promise<ApiEnvelope<OfficeLocation>> {
+    return (await api.put<ApiEnvelope<OfficeLocation>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteOfficeLocation(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id))).data;
+  async deleteOfficeLocation(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id))).data;
   },
 
-  async getBenefits(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.BENEFITS)).data;
+  async getBenefits(): Promise<ApiEnvelope<Benefit[]>> {
+    return (await api.get<ApiEnvelope<Benefit[]>>(CompanyRoutes.BENEFITS)).data;
   },
 
-  async createBenefit(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.BENEFITS, data)).data;
+  async createBenefit(data: Partial<Benefit>): Promise<ApiEnvelope<Benefit>> {
+    return (await api.post<ApiEnvelope<Benefit>>(CompanyRoutes.BENEFITS, data)).data;
   },
 
-  async updateBenefit(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.BENEFITS_ID.replace(':id', id), data)).data;
+  async updateBenefit(id: string, data: Partial<Benefit>): Promise<ApiEnvelope<Benefit>> {
+    return (await api.put<ApiEnvelope<Benefit>>(CompanyRoutes.BENEFITS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteBenefit(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.BENEFITS_ID.replace(':id', id))).data;
+  async deleteBenefit(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.BENEFITS_ID.replace(':id', id))).data;
   },
 
-  async getWorkplacePictures(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.WORKPLACE_PICTURES)).data;
+  async getWorkplacePictures(): Promise<ApiEnvelope<WorkplacePicture[]>> {
+    return (await api.get<ApiEnvelope<WorkplacePicture[]>>(CompanyRoutes.WORKPLACE_PICTURES)).data;
   },
 
-  async createWorkplacePicture(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES, data)).data;
+  async createWorkplacePicture(data: Partial<WorkplacePicture>): Promise<ApiEnvelope<WorkplacePicture>> {
+    return (await api.post<ApiEnvelope<WorkplacePicture>>(CompanyRoutes.WORKPLACE_PICTURES, data)).data;
   },
 
-  async updateWorkplacePicture(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id), data)).data;
+  async updateWorkplacePicture(id: string, data: Partial<WorkplacePicture>): Promise<ApiEnvelope<WorkplacePicture>> {
+    return (await api.put<ApiEnvelope<WorkplacePicture>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id), data)).data;
   },
 
-  async deleteWorkplacePicture(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id))).data;
+  async deleteWorkplacePicture(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id))).data;
   },
 
   async uploadWorkplacePicture(file: File): Promise<ApiEnvelope<{ url: string; filename: string }>> {
     return uploadFile<{ url: string; filename: string }>(CompanyRoutes.WORKPLACE_PICTURES_UPLOAD, file, 'image');
   },
 
-  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: any[], total: number, page: number, limit: number }>> {
+  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: Application[], total: number, page: number, limit: number }>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -279,11 +280,11 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `${CompanyRoutes.APPLICATIONS}?${params.toString()}` : CompanyRoutes.APPLICATIONS;
-    return (await api.get<ApiEnvelope<{ applications: any[], total: number, page: number, limit: number }>>(endpoint)).data;
+    return (await api.get<ApiEnvelope<{ applications: Application[], total: number, page: number, limit: number }>>(endpoint)).data;
   },
 
-  async getApplicationDetails(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.get<ApiEnvelope<any>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
+  async getApplicationDetails(id: string): Promise<ApiEnvelope<Application>> {
+    return (await api.get<ApiEnvelope<Application>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
   },
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {

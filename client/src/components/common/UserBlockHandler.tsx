@@ -4,16 +4,17 @@ import { useAppDispatch } from '@/hooks/useRedux';
 import { logoutThunk } from '@/store/slices/auth.slice';
 import { socketService } from '@/services/socket.service';
 import { toast } from 'sonner';
+import type { UserBlockedData } from '@/types/socket.types';
 
 const UserBlockHandler: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const handleUserBlocked = (data: any) => {
+    const handleUserBlocked = (data: UserBlockedData) => {
       console.log('User blocked event received:', data);
       toast.error('Your account has been blocked', {
-        description: data.message || 'Your account has been blocked by the administrator. You will be logged out.',
+        description: data.reason || 'Your account has been blocked by the administrator. You will be logged out.',
         duration: 5000,
       });
 

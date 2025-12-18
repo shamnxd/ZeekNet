@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import AdminLayout from '../../components/layouts/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,14 +36,10 @@ const PaymentManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  useEffect(() => {
-    fetchPaymentOrders();
-  }, [page, statusFilter, sortOrder]);
-
-  const fetchPaymentOrders = async () => {
+  const fetchPaymentOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const query: any = {
+      const query: Record<string, unknown> = {
         page,
         limit,
         sortOrder,
@@ -72,7 +68,11 @@ const PaymentManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, sortOrder, statusFilter, search]);
+
+  useEffect(() => {
+    fetchPaymentOrders();
+  }, [fetchPaymentOrders]);
 
   const handleSearch = () => {
     setPage(1);
