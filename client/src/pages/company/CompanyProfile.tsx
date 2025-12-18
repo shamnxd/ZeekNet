@@ -66,19 +66,44 @@ const CompanyProfile = () => {
         const { profile, contact, locations, techStack, benefits, workplacePictures, jobPostings } = response.data
         
         setCompanyProfile(profile)
-        setContact(contact)
+        setContact(contact as any)
         const mappedLocations = locations.map((location: any) => ({
           id: location.id,
           location: location.location,
-          officeName: location.office_name,
+          officeName: location.officeName,
           address: location.address,
-          isHeadquarters: location.is_headquarters
+          isHeadquarters: location.isPrimary // mapped from isPrimary to isHeadquarters
         }))
         setOfficeLocations(mappedLocations)
-        setTechStack(techStack)
-        setBenefits(benefits)
-        setWorkplacePictures(workplacePictures)
-        setJobPostings(jobPostings || [])
+
+        // Map Tech Stack (name -> techStack)
+        const mappedTechStack = techStack.map((item: any) => ({
+          ...item,
+          techStack: item.name || item.techStack
+        }))
+        setTechStack(mappedTechStack)
+
+        // Map Benefits (title -> perk)
+        const mappedBenefits = benefits.map((item: any) => ({
+          ...item,
+          perk: item.title || item.perk
+        }))
+        setBenefits(mappedBenefits)
+
+        // Map Workplace Pictures (url -> pictureUrl)
+        const mappedPictures = workplacePictures.map((item: any) => ({
+          ...item,
+          pictureUrl: item.url || item.pictureUrl
+        }))
+        setWorkplacePictures(mappedPictures)
+        
+        // Map Job Postings to include missing fields if needed
+        const mappedJobs = (jobPostings || []).map((job: any) => ({
+          ...job,
+          employmentType: job.employment_types?.[0] || 'Full-time', // Map first type to employmentType
+          isActive: job.status === 'active'
+        }))
+        setJobPostings(mappedJobs)
       }
       
     } catch {
@@ -136,7 +161,7 @@ const CompanyProfile = () => {
       const itemsToCreate = techStackData.filter(item => !item.id)
       
       for (const item of itemsToCreate) {
-        await companyApi.createTechStack(item)
+        await companyApi.createTechStack({ name: item.techStack } as any)
       }
       
       const itemsToUpdate = techStackData.filter(item => 
@@ -147,7 +172,7 @@ const CompanyProfile = () => {
       
       for (const item of itemsToUpdate) {
         if (item.id) {
-          await companyApi.updateTechStack(item.id, item)
+          await companyApi.updateTechStack(item.id, { name: item.techStack } as any)
         }
       }
       
@@ -178,9 +203,9 @@ const CompanyProfile = () => {
       
       for (const benefit of benefitsToCreate) {
         await companyApi.createBenefit({
-          perk: benefit.perk,
+          title: benefit.perk,
           description: benefit.description
-        })
+        } as any)
       }
       
       const benefitsToUpdate = benefitsData.filter(benefit => 
@@ -193,9 +218,9 @@ const CompanyProfile = () => {
       for (const benefit of benefitsToUpdate) {
         if (benefit.id) {
           await companyApi.updateBenefit(benefit.id, {
-            perk: benefit.perk,
+            title: benefit.perk,
             description: benefit.description
-          })
+          } as any)
         }
       }
       
@@ -229,8 +254,8 @@ const CompanyProfile = () => {
           location: location.location,
           officeName: location.officeName,
           address: location.address,
-          isHeadquarters: location.isHeadquarters
-        })
+          isPrimary: location.isHeadquarters
+        } as any)
       }
       
       const locationsToUpdate = locationsData.filter(location => 
@@ -249,8 +274,8 @@ const CompanyProfile = () => {
             location: location.location,
             officeName: location.officeName,
             address: location.address,
-            isHeadquarters: location.isHeadquarters
-          })
+            isPrimary: location.isHeadquarters
+          } as any)
         }
       }
       
@@ -298,9 +323,9 @@ const CompanyProfile = () => {
       
       for (const picture of picturesToCreate) {
         await companyApi.createWorkplacePicture({
-          pictureUrl: picture.pictureUrl,
+          url: picture.pictureUrl,
           caption: picture.caption
-        })
+        } as any)
       }
       
       const picturesToUpdate = pictures.filter(picture => 
@@ -313,9 +338,9 @@ const CompanyProfile = () => {
       for (const picture of picturesToUpdate) {
         if (picture.id) {
           await companyApi.updateWorkplacePicture(picture.id, {
-            pictureUrl: picture.pictureUrl,
+            url: picture.pictureUrl,
             caption: picture.caption
-          })
+          } as any)
         }
       }
       
