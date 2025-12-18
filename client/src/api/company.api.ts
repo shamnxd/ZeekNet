@@ -6,7 +6,7 @@ import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interfa
 import { CompanyRoutes } from '@/constants/api-routes';
 import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, Application } from '@/interfaces/company/company-data.interface';
 
-
+// be
 export interface CompanyProfileData {
   company_name?: string
   website_link?: string

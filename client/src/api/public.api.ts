@@ -2,27 +2,11 @@ import { api } from './index';
 import { PublicRoutes } from '@/constants/api-routes';
 import type { ApiError } from '@/types/api-error.type';
 
-interface GetAllSkillsParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-interface GetAllJobCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
-interface GetAllJobRolesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
+import type {
+  GetAllSkillsParams,
+  GetAllJobCategoriesParams,
+  GetAllJobRolesParams
+} from '@/interfaces/public/public.interface';
 
 export const publicApi = {
   getAllSkills: async (params: GetAllSkillsParams = {}): Promise<{

@@ -640,177 +640,32 @@ export const adminApi = {
     }
 };
 
-export interface User {
-  id: string;
-  name?: string;
-  email: string;
-  role: string;
-  isVerified: boolean;
-  isBlocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface';
+import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface';
+import type { JobCategory, GetAllJobCategoriesParams } from '@/interfaces/job/job-category.interface';
+import type { JobRole, GetAllJobRolesParams } from '@/interfaces/job/job-role.interface';
+import type { Skill, GetAllSkillsParams } from '@/interfaces/job/skill.interface';
+import type { 
+  SubscriptionPlan, 
+  GetAllSubscriptionPlansParams, 
+  CreateSubscriptionPlanData, 
+  UpdateSubscriptionPlanData 
+} from '@/interfaces/admin/subscription-plan.interface';
+import type { PaymentOrder, GetAllPaymentOrdersParams } from '@/interfaces/admin/payment-order.interface';
 
-export interface Company {
-  id: string;
-  userId: string;
-  companyName: string;
-  logo: string;
-  banner: string;
-  websiteLink: string;
-  employeeCount: number;
-  industry: string;
-  organisation: string;
-  aboutUs: string;
-  isVerified: 'pending' | 'rejected' | 'verified';
-  isBlocked: boolean;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  verification?: {
-    taxId: string;
-    businessLicenseUrl: string;
-  } | null;
-}
+// Re-export types that were originally exported from this file
+export type { 
+  User, GetAllUsersParams,
+  Company, GetAllCompaniesParams,
+  JobCategory, JobRole, Skill,
+  SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData,
+  PaymentOrder
+};
 
-export interface GetAllUsersParams {
-  page: number;
-  limit: number;
-  search?: string;
-  role?: string;
-  isBlocked?: boolean | string;
-}
-
-export interface GetAllCompaniesParams {
-  page: number;
-  limit: number;
-  search?: string;
-  industry?: string;
-  isVerified?: 'pending' | 'rejected' | 'verified';
-  isBlocked?: boolean | string;
-}
-
-export interface JobCategory {
-  id: string;
-  name: string;
-  icon?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Skill {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllSkillsParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface JobRole {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllJobRolesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  yearlyDiscount: number;
-  isActive: boolean;
-  isPopular: boolean;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllSubscriptionPlansParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  isActive?: boolean;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface CreateSubscriptionPlanData {
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  yearlyDiscount: number;
-  isPopular?: boolean;
-  isDefault?: boolean;
-}
-
-export interface UpdateSubscriptionPlanData {
-  name?: string;
-  description?: string;
-  price?: number;
-  duration?: number;
-  features?: string[];
-  jobPostLimit?: number;
-  featuredJobLimit?: number;
-  applicantAccessLimit?: number;
-  yearlyDiscount?: number;
-  isActive?: boolean;
-  isPopular?: boolean;
-  isDefault?: boolean;
-}
-
-interface GetAllJobCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
-export interface PaymentOrder {
-  id: string;
-  orderNo: string;
-  companyId: string;
-  companyName: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
-  invoiceId?: string;
-  transactionId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllPaymentOrdersParams {
-  page?: number;
-  limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled';
-  search?: string;
-  sortOrder?: 'asc' | 'desc';
+export interface AdminStats {
+  total: number;
+  active: number;
+  inactive: number;
+  totalApplications: number;
+  totalViews: number;
 }
