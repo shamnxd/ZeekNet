@@ -46,4 +46,12 @@ export interface JobPostingResponse {
       caption?: string
     }[]
   }
+  analytics?: {
+    totalViews: number
+    totalViewsChange: number
+    totalApplied: number
+    totalAppliedChange: number
+    traffic: { label: string; value: number; color: string }[]
+    visitors: { country: string; count: number; flag: string }[]
+  }
 }

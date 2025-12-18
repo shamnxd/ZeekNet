@@ -1,4 +1,4 @@
-import type { Benefit } from '@/interfaces/company/benefit.interface';
+import type { Benefit } from '@/interfaces/company/company-data.interface';
 
 export interface EditBenefitsDialogProps {
   isOpen: boolean;
