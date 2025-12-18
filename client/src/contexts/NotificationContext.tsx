@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { notificationApi } from '../api/notification.api';
 import type { Notification } from '../api/notification.api';
 import { socketService } from '../services/socket.service';
 import { useAppSelector } from '../hooks/useRedux';
 import { toast } from 'sonner';
-import type { NotificationContextType } from '@/interfaces/notification/notification-context.interface';
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+import { NotificationContext } from './notification-context-definition';
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -114,12 +112,4 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       {children}
     </NotificationContext.Provider>
   );
-};
-
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within NotificationProvider');
-  }
-  return context;
 };

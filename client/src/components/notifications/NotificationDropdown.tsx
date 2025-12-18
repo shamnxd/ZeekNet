@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useNotifications } from '@/hooks/use-notifications';
 import type { Notification } from '../../api/notification.api';
 import type { NotificationDropdownProps } from '@/interfaces/ui/notification-dropdown-props.interface';
 
