@@ -28,6 +28,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import type { ApplicationDetails as ApplicationDetailsData } from '@/interfaces/application/application-details.interface'
+import type { ApiError } from '@/types/api-error.type'
 
 const ApplicationDetails = () => {
   const { id } = useParams()
@@ -89,7 +90,7 @@ const ApplicationDetails = () => {
           languages: a.languages,
           skills: a.skills,
           resume_data: a.resume_data,
-          interview_schedule: (a.interviews || []).map((iv: any) => ({
+          interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interviewer_name?: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
             id: iv.id, date: iv.date, interviewer_name: iv.interviewer_name || '',
             interviewer_avatar: undefined, interview_type: iv.interview_type,
             time: iv.time, location: iv.location, status: iv.status, feedback: iv.feedback
@@ -121,7 +122,7 @@ const ApplicationDetails = () => {
         gender: a.gender, email: a.email, phone: a.phone, address: a.address,
         about_me: a.about_me, languages: a.languages, skills: a.skills,
         resume_data: a.resume_data,
-        interview_schedule: (a.interviews || []).map((iv: any) => ({
+        interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interviewer_name?: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
           id: iv.id, date: iv.date, interviewer_name: iv.interviewer_name || '',
           interviewer_avatar: undefined, interview_type: iv.interview_type,
           time: iv.time, location: iv.location, status: iv.status, feedback: iv.feedback
@@ -176,8 +177,9 @@ const ApplicationDetails = () => {
       await jobApplicationApi.updateApplicationScore(id, { score: ratingForm.rating })
       toast.success('Rating submitted successfully')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to update score')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update score')
     }
     setGiveRatingOpen(false)
     setRatingForm({ rating: 0 })
@@ -196,20 +198,22 @@ const ApplicationDetails = () => {
         try {
           await jobApplicationApi.updateApplicationStage(id, { stage: 'interview' })
           toast.success('Application moved to interview stage')
-        } catch (e: any) {
-          toast.error(e?.response?.data?.message || 'Failed to update stage')
+        } catch (error: unknown) {
+          const apiError = error as ApiError;
+          toast.error(apiError?.response?.data?.message || 'Failed to update stage')
         }
       }
       
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to add interview')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to add interview')
     }
     setAddScheduleOpen(false)
     setScheduleForm({ date: '', time: '', location: '', interviewType: '', interviewer: '', notes: '' })
   }
 
-  const handleOpenEditSchedule = (iv: any) => {
+  const handleOpenEditSchedule = (iv: { id: string; date: string; time?: string; location?: string; interview_type?: string; interviewer_name?: string }) => {
     setSelectedInterviewId(iv.id)
     setScheduleForm({
       date: iv.date ? String(iv.date).slice(0, 10) : '',
@@ -228,8 +232,9 @@ const ApplicationDetails = () => {
       })
       toast.success('Interview updated successfully')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to update interview')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update interview')
     }
     setEditScheduleOpen(false)
     setSelectedInterviewId(null)
@@ -241,8 +246,9 @@ const ApplicationDetails = () => {
       await jobApplicationApi.deleteInterview(id, interviewId)
       toast.success('Interview cancelled')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to cancel interview')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to cancel interview')
     }
   }
 
@@ -262,8 +268,9 @@ const ApplicationDetails = () => {
       })
       toast.success('Interview marked as completed')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to mark interview as completed')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to mark interview as completed')
     }
   }
 
@@ -275,8 +282,9 @@ const ApplicationDetails = () => {
       })
       toast.success('Feedback added successfully')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to add feedback')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to add feedback')
     }
     setAddFeedbackOpen(false)
     setFeedbackForm({ feedback: '' })
@@ -312,11 +320,12 @@ const ApplicationDetails = () => {
     }
     const next = nextMap[application.stage] || ApplicationStage.SHORTLISTED
     try {
-      await jobApplicationApi.updateApplicationStage(id, { stage: next as any })
+      await jobApplicationApi.updateApplicationStage(id, { stage: next as ApplicationStage })
       toast.success('Application moved to next step')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to update stage')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update stage')
     }
     setMoveToNextStepOpen(false)
   }
@@ -327,8 +336,9 @@ const ApplicationDetails = () => {
       await jobApplicationApi.updateApplicationStage(id, { stage: ApplicationStage.HIRED })
       toast.success('Application moved to hired stage')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to update stage')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update stage')
     }
     setHireRejectDialogOpen(false)
   }
@@ -339,8 +349,9 @@ const ApplicationDetails = () => {
       await jobApplicationApi.updateApplicationStage(id, { stage: ApplicationStage.REJECTED, rejection_reason: rejectReason })
       toast.success('Application rejected')
       await reload()
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || 'Failed to reject application')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to reject application')
     }
     setRejectApplicationOpen(false)
     setRejectReason('')
@@ -357,8 +368,9 @@ const ApplicationDetails = () => {
     try {
       const conversation = await chatApi.createConversation({ participantId: application.seeker_id })
       navigate(`/company/messages?chat=${conversation.id}`)
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Unable to start chat')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Unable to start chat')
     }
   }
 

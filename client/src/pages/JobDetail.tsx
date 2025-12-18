@@ -34,6 +34,7 @@ import { jobApi } from "@/api/job.api";
 import { jobApplicationApi } from "@/api";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import { toast } from "sonner";
+import type { ApiError } from '@/types/api-error.type';
 import { useAppSelector } from "@/hooks/useRedux";
 import { UserRole } from "@/constants/enums";
 
@@ -42,7 +43,7 @@ const JobDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, role, isInitialized } = useAppSelector((state) => state.auth);
-  const [job, setJob] = useState<any>(null);
+  const [job, setJob] = useState<JobPostingResponse | null>(null);
   const [similarJobs, setSimilarJobs] = useState<JobPostingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ const JobDetail = () => {
           
           if (similarResponse.success && similarResponse.data) {
             const filtered = similarResponse.data.jobs
-              .filter((j: any) => (j.id || j._id) !== id)
+              .filter((j: { id?: string; _id?: string }) => (j.id || j._id) !== id)
               .slice(0, 4);
             setSimilarJobs(filtered);
           }
@@ -159,7 +160,7 @@ const JobDetail = () => {
       await jobApplicationApi.createApplication(formData);
 
       // Update job state to reflect that user has applied
-      setJob((prevJob: any) => ({ ...prevJob, has_applied: true }));
+      setJob((prevJob) => (prevJob ? { ...prevJob, has_applied: true } : null));
 
       setIsApplyModalOpen(false);
       setCoverLetter("");
@@ -168,10 +169,11 @@ const JobDetail = () => {
 
       toast.success('Application submitted successfully');
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       const message =
-        error?.response?.data?.message ||
-        (Array.isArray(error?.response?.data?.errors) && error.response.data.errors[0]?.message) ||
+        apiError?.response?.data?.message ||
+        (Array.isArray((apiError?.response?.data as any)?.errors) && (apiError.response?.data as any).errors[0]?.message) ||
         'Failed to submit application';
       toast.error(message);
     } finally {
@@ -260,7 +262,7 @@ const JobDetail = () => {
               <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {(job.company_logo || job.company?.logo) ? (
                   <img 
-                    src={job.company_logo || job.company.logo} 
+                    src={job.company_logo || job.company?.logo} 
                     alt={job.company_name || job.company?.companyName}
                     className="w-full h-full object-cover"
                   />
@@ -369,13 +371,13 @@ const JobDetail = () => {
                 <div className="flex justify-between">
                   <span className="text-base text-[#515B6F]">Salary</span>
                   <span className="text-base font-semibold text-[#202430]">
-                    ₹{(job.salary.min / 1000)}k-₹{(job.salary.max / 1000)}k
+                    ₹{((job.salary?.min || 0) / 1000)}k-₹{((job.salary?.max || 0) / 1000)}k
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-base text-[#515B6F]">Posted</span>
                   <span className="text-base font-semibold text-[#25324B]">
-                    {new Date(job.createdAt).toLocaleDateString()}
+                    {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -408,7 +410,7 @@ const JobDetail = () => {
             <div>
               <h3 className="text-[26px] font-bold text-[#25324B] mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {job.skills_required.map((skill: string) => (
+                {job.skills_required?.map((skill: string) => (
                   <Badge 
                     key={skill}
                     variant="outline"
@@ -451,7 +453,7 @@ const JobDetail = () => {
                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                   {(job.company_logo || job.company?.logo) ? (
                     <img 
-                      src={job.company_logo || job.company.logo} 
+                      src={job.company_logo || job.company?.logo}  
                       alt={job.company_name || job.company?.companyName}
                       className="w-full h-full object-cover"
                     />
@@ -681,7 +683,7 @@ const JobDetail = () => {
                       {job?.employment_types?.[0]?.toUpperCase() || 'FULL-TIME'}
                     </Badge>
                     <span className="text-sm text-[#515B6F]">
-                      ₹{(job?.salary?.min / 1000)}k-₹{(job?.salary?.max / 1000)}k
+                      ₹{((job?.salary?.min || 0) / 1000)}k-₹{((job?.salary?.max || 0) / 1000)}k
                     </span>
                   </div>
                 </div>
