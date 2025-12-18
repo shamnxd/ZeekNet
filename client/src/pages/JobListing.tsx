@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -34,11 +34,7 @@ const JobListing = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const fetchJobs = async (query: JobPostingQuery = {}, page: number = 1) => {
+  const fetchJobs = useCallback(async (query: JobPostingQuery = {}, page: number = 1) => {
     try {
       setLoading(true);
       setError(null);
@@ -50,13 +46,15 @@ const JobListing = () => {
       });
       
       if (response.success && response.data) {
-        setJobs(response.data.jobs || []);
-        setPagination({
-          page: response.data.pagination?.page || page,
-          limit: response.data.pagination?.limit || pagination.limit,
-          total: response.data.pagination?.total || 0,
-          totalPages: response.data.pagination?.totalPages || 0,
-        });
+        const responseData = response.data;
+        setJobs(responseData.jobs || []);
+        setPagination((prev) => ({
+          ...prev,
+          page: responseData.pagination?.page || page,
+          limit: responseData.pagination?.limit || prev.limit,
+          total: responseData.pagination?.total || 0,
+          totalPages: responseData.pagination?.totalPages || 0,
+        }));
         setCurrentQuery(query);
       } else {
         setError(response.message || 'Failed to fetch jobs');
@@ -67,7 +65,11 @@ const JobListing = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.limit]);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
 
   const handleSearch = async (filterQuery: JobPostingQuery) => {
     await fetchJobs({

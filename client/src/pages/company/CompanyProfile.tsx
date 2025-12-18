@@ -19,8 +19,18 @@ import {
   Phone,
   Briefcase
 } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
-import { companyApi, type CompanyProfileResponse } from '@/api/company.api'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { companyApi } from '@/api/company.api'
+import type { CompanyProfileResponse } from '@/interfaces/company/company-api.interface'
+import type { TechStackItem, Benefit, WorkplacePicture, OfficeLocation, CompanyContact } from '@/interfaces/company/company-data.interface'
+import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
+
+type CompanyProfileJobPosting = JobPostingResponse & {
+  employmentType?: string
+  isActive?: boolean
+  salaryMin?: number
+  salaryMax?: number
+}
 import { toast } from 'sonner'
 
 import EditContactDialog from '@/components/company/dialogs/EditContactDialog'
@@ -29,12 +39,7 @@ import EditBenefitsDialog from '@/components/company/dialogs/EditBenefitsDialog'
 import EditOfficeLocationDialog from '@/components/company/dialogs/EditOfficeLocationDialog'
 import EditAboutDialog from '@/components/company/dialogs/EditAboutDialog'
 import EditWorkplacePicturesDialog from '@/components/company/dialogs/EditWorkplacePicturesDialog'
-import type { CompanyContact } from '@/interfaces/company/company-contact.interface'
-import type { TechStackItem } from '@/interfaces/company/tech-stack-item.interface'
-import type { Benefit } from '@/interfaces/company/benefit.interface'
-import type { OfficeLocation } from '@/interfaces/company/office-location.interface'
-import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface'
-import type { JobPosting } from '@/interfaces/company/job-posting.interface'
+
 
 const CompanyProfile = () => {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfileResponse | null>(null)
@@ -43,7 +48,7 @@ const CompanyProfile = () => {
   const [benefits, setBenefits] = useState<Benefit[]>([])
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([])
   const [workplacePictures, setWorkplacePictures] = useState<WorkplacePicture[]>([])
-  const [jobPostings, setJobPostings] = useState<JobPosting[]>([])
+  const [jobPostings, setJobPostings] = useState<CompanyProfileJobPosting[]>([])
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -56,7 +61,7 @@ const CompanyProfile = () => {
   const [editWorkplacePicturesDialog, setEditWorkplacePicturesDialog] = useState(false)
   const fetchedRef = useRef(false)
 
-  const fetchCompanyData = async () => {
+  const fetchCompanyData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -66,42 +71,45 @@ const CompanyProfile = () => {
         const { profile, contact, locations, techStack, benefits, workplacePictures, jobPostings } = response.data
         
         setCompanyProfile(profile)
-        setContact(contact as any)
-        const mappedLocations = locations.map((location: any) => ({
-          id: location.id,
-          location: location.location,
-          officeName: location.officeName,
-          address: location.address,
-          isHeadquarters: location.isPrimary // mapped from isPrimary to isHeadquarters
+        if (contact) {
+            setContact(contact)
+        }
+        const mappedLocations = locations.map((location: OfficeLocation) => ({
+          ...location,
+          location: location.location || location.city, // fallback if needed
+          officeName: location.officeName || 'Office',
+          isHeadquarters: location.isPrimary
         }))
         setOfficeLocations(mappedLocations)
 
         // Map Tech Stack (name -> techStack)
-        const mappedTechStack = techStack.map((item: any) => ({
+        const mappedTechStack = techStack.map((item: TechStackItem) => ({
           ...item,
           techStack: item.name || item.techStack
         }))
         setTechStack(mappedTechStack)
 
         // Map Benefits (title -> perk)
-        const mappedBenefits = benefits.map((item: any) => ({
+        const mappedBenefits = benefits.map((item: Benefit) => ({
           ...item,
           perk: item.title || item.perk
         }))
         setBenefits(mappedBenefits)
 
         // Map Workplace Pictures (url -> pictureUrl)
-        const mappedPictures = workplacePictures.map((item: any) => ({
+        const mappedPictures = workplacePictures.map((item: WorkplacePicture) => ({
           ...item,
           pictureUrl: item.url || item.pictureUrl
         }))
         setWorkplacePictures(mappedPictures)
         
         // Map Job Postings to include missing fields if needed
-        const mappedJobs = (jobPostings || []).map((job: any) => ({
+        const mappedJobs: CompanyProfileJobPosting[] = (jobPostings || []).map((job: JobPostingResponse) => ({
           ...job,
-          employmentType: job.employment_types?.[0] || 'Full-time', // Map first type to employmentType
-          isActive: job.status === 'active'
+          employmentType: job.employment_types?.[0] || 'Full-time',
+          isActive: job.status === 'active',
+          salaryMin: job.salary?.min,
+          salaryMax: job.salary?.max
         }))
         setJobPostings(mappedJobs)
       }
@@ -111,13 +119,13 @@ const CompanyProfile = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, []) // No dependencies needed as companyApi is stable
 
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
     fetchCompanyData()
-  }, [])
+  }, [fetchCompanyData])
 
   const handleSaveContact = async (contactData: CompanyContact) => {
     try {
@@ -161,7 +169,7 @@ const CompanyProfile = () => {
       const itemsToCreate = techStackData.filter(item => !item.id)
       
       for (const item of itemsToCreate) {
-        await companyApi.createTechStack({ name: item.techStack } as any)
+        await companyApi.createTechStack({ name: item.techStack })
       }
       
       const itemsToUpdate = techStackData.filter(item => 
@@ -172,7 +180,7 @@ const CompanyProfile = () => {
       
       for (const item of itemsToUpdate) {
         if (item.id) {
-          await companyApi.updateTechStack(item.id, { name: item.techStack } as any)
+          await companyApi.updateTechStack(item.id, { name: item.techStack })
         }
       }
       
@@ -205,7 +213,7 @@ const CompanyProfile = () => {
         await companyApi.createBenefit({
           title: benefit.perk,
           description: benefit.description
-        } as any)
+        })
       }
       
       const benefitsToUpdate = benefitsData.filter(benefit => 
@@ -220,7 +228,7 @@ const CompanyProfile = () => {
           await companyApi.updateBenefit(benefit.id, {
             title: benefit.perk,
             description: benefit.description
-          } as any)
+          })
         }
       }
       
@@ -255,7 +263,7 @@ const CompanyProfile = () => {
           officeName: location.officeName,
           address: location.address,
           isPrimary: location.isHeadquarters
-        } as any)
+        })
       }
       
       const locationsToUpdate = locationsData.filter(location => 
@@ -275,7 +283,7 @@ const CompanyProfile = () => {
             officeName: location.officeName,
             address: location.address,
             isPrimary: location.isHeadquarters
-          } as any)
+          })
         }
       }
       
@@ -325,7 +333,7 @@ const CompanyProfile = () => {
         await companyApi.createWorkplacePicture({
           url: picture.pictureUrl,
           caption: picture.caption
-        } as any)
+        })
       }
       
       const picturesToUpdate = pictures.filter(picture => 
@@ -340,7 +348,7 @@ const CompanyProfile = () => {
           await companyApi.updateWorkplacePicture(picture.id, {
             url: picture.pictureUrl,
             caption: picture.caption
-          } as any)
+          })
         }
       }
       
@@ -699,9 +707,9 @@ const CompanyProfile = () => {
                     {techStack.slice(rowIndex * 3, (rowIndex + 1) * 3).map((tech, index) => (
                       <div key={tech.id || index} className="flex flex-col items-center gap-1.5 p-2.5">
                   <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-semibold">{tech.techStack.charAt(0).toUpperCase()}</span>
+                          <span className="text-xs font-semibold">{(tech.techStack || tech.name || '').charAt(0).toUpperCase()}</span>
                   </div>
-                        <span className="text-xs">{tech.techStack}</span>
+                        <span className="text-xs">{tech.techStack || tech.name}</span>
                 </div>
                     ))}
                   </div>

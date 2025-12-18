@@ -9,6 +9,7 @@ import type { ApiError } from '@/types/api-error.type'
 import { ApplicationStage } from '@/constants/enums'
 
 import type { Stage } from '@/interfaces/application/stage.type';
+import type { Application } from '@/interfaces/application/application.interface';
 
 const stageStyles: Record<Stage, string> = {
   [ApplicationStage.APPLIED]: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',
@@ -19,7 +20,7 @@ const stageStyles: Record<Stage, string> = {
 }
 
 function SeekerApplications() {
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<Application[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [stage, setStage] = useState<Stage | undefined>(undefined)
@@ -121,9 +122,9 @@ function SeekerApplications() {
               </tr>
             </thead>
             <tbody>
-              {(loading ? Array.from({ length: 5 }) : items).map((application: any, index: number) => (
+              {(loading ? (Array.from({ length: 5 }) as (Application | undefined)[]) : items).map((application, index) => (
                 <tr
-                  key={application?.id || index}
+                  key={application?._id || index}
                   className={cn(
                     'align-middle text-[14px] text-[#1f2937] transition-colors duration-200',
                     index % 2 === 1 ? 'bg-[#f9fafc]' : 'bg-white',

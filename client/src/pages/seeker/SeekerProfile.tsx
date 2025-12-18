@@ -14,7 +14,8 @@ import { Combobox, type ComboboxOption } from '../../components/ui/combobox';
 import FormDialog from '../../components/common/FormDialog';
 import { ImageCropper } from '../../components/common/ImageCropper';
 import { toast } from 'sonner';
-import { seekerApi, type SeekerProfile as SeekerProfileType, type Experience, type Education } from '../../api/seeker.api';
+import { seekerApi } from '../../api/seeker.api';
+import type { SeekerProfile as SeekerProfileType, Experience, Education } from '@/interfaces/seeker/seeker.interface';
 import { publicApi } from '../../api/public.api';
 import type { Area } from 'react-easy-crop';
 
@@ -524,7 +525,7 @@ export function SeekerProfile() {
         setSelectedSkills(profile.skills);
       }
     }
-  }, [addSkillOpen]);
+  }, [addSkillOpen, profile?.skills]);
 
   useEffect(() => {
     if (addExperienceOpen || editExperienceOpen) {

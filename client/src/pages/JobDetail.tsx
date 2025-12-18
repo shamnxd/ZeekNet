@@ -173,7 +173,7 @@ const JobDetail = () => {
       const apiError = error as ApiError;
       const message =
         apiError?.response?.data?.message ||
-        (Array.isArray((apiError?.response?.data as any)?.errors) && (apiError.response?.data as any).errors[0]?.message) ||
+        (Array.isArray((apiError?.response?.data as { errors?: { message: string }[] })?.errors) && (apiError.response?.data as { errors: { message: string }[] }).errors[0]?.message) ||
         'Failed to submit application';
       toast.error(message);
     } finally {
@@ -499,7 +499,7 @@ const JobDetail = () => {
                       className="w-full h-full object-cover" 
                     />
                   </div>
-                  {job.company.workplacePictures.slice(1, 3).map((picture: any, index: number) => (
+                  {job.company.workplacePictures.slice(1, 3).map((picture: { pictureUrl: string; caption?: string }, index: number) => (
                     <div key={index} className="h-[104px] bg-gray-200 rounded overflow-hidden">
                       <img 
                         src={picture.pictureUrl} 

@@ -14,6 +14,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { companyApi } from '@/api/company.api'
+import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface"
+import type { CompanySideApplication } from '@/interfaces/company/company-data.interface';
 import { jobApplicationApi } from '@/api'
 import { toast } from 'sonner'
 import { 
@@ -41,9 +43,9 @@ import { Input } from '@/components/ui/input'
 const JobDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [jobData, setJobData] = useState<any>(null)
+  const [jobData, setJobData] = useState<JobPostingResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [applications, setApplications] = useState<any[]>([])
+  const [applications, setApplications] = useState<CompanySideApplication[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'applicants' | 'details' | 'analytics'>('details')
   const [searchTerm, setSearchTerm] = useState('')
@@ -221,7 +223,7 @@ const JobDetails = () => {
   }
 
   const applicants: Applicant[] = applications.length > 0
-    ? applications.map((applicant: any, index: number) => ({
+    ? applications.map((applicant, index: number) => ({
         id: applicant.id || applicant._id || `applicant-${index}`,
         name: applicant.seeker_name || applicant.name || applicant.full_name || 'Unknown Applicant',
         email: applicant.email,
@@ -328,12 +330,12 @@ const JobDetails = () => {
 
   const chartPoints = chartPointsByRange[viewRange]
   const maxViews = Math.max(...chartPoints.map((point) => point.views)) || 1
-  const totalTraffic = analyticsData.traffic.reduce((sum: number, item: any) => sum + item.value, 0) || 1
+  const totalTraffic = analyticsData.traffic.reduce((sum: number, item: TrafficChannel) => sum + item.value, 0) || 1
   type TrafficSegment = TrafficChannel & { start: number; end: number }
   const trafficSegments: TrafficSegment[] = analyticsData.traffic.map(
     (segment: TrafficChannel, index: number) => {
     const start =
-      analyticsData.traffic.slice(0, index).reduce((sum: number, item: any) => sum + item.value, 0) /
+      analyticsData.traffic.slice(0, index).reduce((sum: number, item: TrafficChannel) => sum + item.value, 0) /
       totalTraffic
     const end = start + segment.value / totalTraffic
     return { ...segment, start, end }
@@ -730,11 +732,11 @@ const JobDetails = () => {
                       <div className="space-y-3.5">
                         <div className="flex justify-between">
                           <span className="text-sm text-[#515B6F]">Job Posted On</span>
-                          <span className="text-sm font-semibold text-[#25324B]">{formatDate(jobData.createdAt)}</span>
+                          <span className="text-sm font-semibold text-[#25324B]">{formatDate(jobData.createdAt || '')}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-[#515B6F]">Last Updated</span>
-                          <span className="text-sm font-semibold text-[#25324B]">{formatDate(jobData.updatedAt)}</span>
+                          <span className="text-sm font-semibold text-[#25324B]">{formatDate(jobData.updatedAt || '')}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-[#515B6F]">Job Type</span>
@@ -784,8 +786,8 @@ const JobDetails = () => {
                     <CardContent className="p-3.5">
                       <h3 className="text-xl font-semibold text-[#25324B] mb-5">Categories</h3>
                       <div className="flex flex-wrap gap-1.5">
-                        {(jobData.categoryIds || jobData.category_ids) && (jobData.categoryIds || jobData.category_ids).length > 0 ? (
-                          (jobData.categoryIds || jobData.category_ids).map((category: string, index: number) => (
+                        {((jobData.categoryIds || jobData.category_ids) ?? []).length > 0 ? (
+                          (jobData.categoryIds || jobData.category_ids)?.map((category: string, index: number) => (
                             <Badge key={index} className="bg-[#EB8533]/10 text-[#FFB836] border-0 px-2.5 py-1 rounded-full text-xs">
                               {category}
                             </Badge>

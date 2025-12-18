@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Button } from '@/components/ui/button'
@@ -27,7 +27,9 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table'
-import { companyApi, type SubscriptionPlan } from '@/api/company.api'
+import { companyApi } from '@/api/company.api'
+import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface'
+import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface'
 import { toast } from 'sonner'
 import { PurchaseConfirmationDialog, PurchaseResultDialog } from '@/components/company/dialogs/PurchaseSubscriptionDialog'
 
@@ -37,8 +39,21 @@ const CompanyPlans = () => {
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'dashboard' | 'plans'>('dashboard')
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
-  const [activeSubscription, setActiveSubscription] = useState<any>(null)
-  const [billingHistory, setBillingHistory] = useState<any[]>([])
+  const [activeSubscription, setActiveSubscription] = useState<ActiveSubscriptionResponse | null>(null)
+  
+  interface BillingHistoryView {
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    status: string;
+    invoiceUrl: string;
+    invoiceId?: string;
+    transactionId?: string;
+    hasStripeInvoice: boolean;
+  }
+
+  const [billingHistory, setBillingHistory] = useState<BillingHistoryView[]>([])
   
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -56,14 +71,74 @@ const CompanyPlans = () => {
   const [changingPlan, setChangingPlan] = useState(false)
   const [isPollingSubscription, setIsPollingSubscription] = useState(false)
 
+  const fetchBillingHistory = useCallback(async () => {
+    try {
+      const response = await companyApi.getPaymentHistory()
+      
+      if (response.success && response.data) {
+        const formattedHistory: BillingHistoryView[] = response.data.map((payment) => ({
+          id: payment.invoiceId || payment.id,
+          date: new Date(payment.createdAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          }),
+          description: `Subscription Plan${payment.billingCycle ? ` (${payment.billingCycle})` : ''}`,
+          amount: payment.amount,
+          status: payment.status === 'completed' ? 'Completed' : payment.status,
+          invoiceUrl: payment.stripeInvoiceUrl || payment.stripeInvoicePdf || '#',
+          invoiceId: payment.invoiceId,
+          transactionId: payment.transactionId,
+          hasStripeInvoice: !!(payment.stripeInvoiceUrl || payment.stripeInvoicePdf)
+        }))
+        setBillingHistory(formattedHistory)
+      }
+    } catch {
+      console.log('Failed to fetch billing history')
+    }
+  }, [])
+
+  const fetchPlans = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await companyApi.getSubscriptionPlans()
+      
+      if (response.success && response.data?.plans) {
+        const activePlans = response.data.plans.filter(plan => plan.isActive)
+        setPlans(activePlans)
+      } else {
+        toast.error(response.message || 'Failed to load subscription plans')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to load subscription plans'
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const fetchActiveSubscription = useCallback(async () => {
+    try {
+      const response = await companyApi.getActiveSubscription()
+      
+      if (response.success && response.data) {
+        setActiveSubscription(response.data)
+        await fetchBillingHistory()
+      }
+    } catch {
+      console.log('No active subscription found')
+    }
+  }, [fetchBillingHistory])
+
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
-  }, [])
+  }, [fetchPlans, fetchActiveSubscription])
 
+  const sessionId = searchParams.get('session_id')
+  
   // Handle Stripe redirect separately to avoid unnecessary re-renders
   useEffect(() => {
-    const sessionId = searchParams.get('session_id')
     if (sessionId && !isPollingSubscription) {
       // Payment was successful, show success message
       toast.success('Payment successful! Your subscription is being activated.')
@@ -119,66 +194,9 @@ const CompanyPlans = () => {
         setIsPollingSubscription(false)
       }
     }
-  }, [searchParams.get('session_id')]) // Only depend on session_id, not entire searchParams
+  }, [sessionId, isPollingSubscription, fetchBillingHistory]) // Only depend on session_id, not entire searchParams
 
-  const fetchPlans = async () => {
-    try {
-      setLoading(true)
-      const response = await companyApi.getSubscriptionPlans()
-      
-      if (response.success && response.data?.plans) {
-        const activePlans = response.data.plans.filter(plan => plan.isActive)
-        setPlans(activePlans)
-      } else {
-        toast.error(response.message || 'Failed to load subscription plans')
-      }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to load subscription plans'
-      toast.error(message)
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  const fetchActiveSubscription = async () => {
-    try {
-      const response = await companyApi.getActiveSubscription()
-      
-      if (response.success && response.data) {
-        setActiveSubscription(response.data)
-        await fetchBillingHistory()
-      }
-    } catch {
-      console.log('No active subscription found')
-    }
-  }
-
-  const fetchBillingHistory = async () => {
-    try {
-      const response = await companyApi.getPaymentHistory()
-      
-      if (response.success && response.data) {
-        const formattedHistory = response.data.map((payment) => ({
-          id: payment.invoiceId || payment.id,
-          date: new Date(payment.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          }),
-          description: `Subscription Plan${payment.billingCycle ? ` (${payment.billingCycle})` : ''}`,
-          amount: payment.amount,
-          status: payment.status === 'completed' ? 'Completed' : payment.status,
-          invoiceUrl: payment.stripeInvoiceUrl || payment.stripeInvoicePdf || '#',
-          invoiceId: payment.invoiceId,
-          transactionId: payment.transactionId,
-          hasStripeInvoice: !!(payment.stripeInvoiceUrl || payment.stripeInvoicePdf)
-        }))
-        setBillingHistory(formattedHistory)
-      }
-    } catch {
-      console.log('Failed to fetch billing history')
-    }
-  }
 
   const handleSelectPlan = (plan: SubscriptionPlan) => {
     // Default plans cannot be selected - they are automatically assigned
