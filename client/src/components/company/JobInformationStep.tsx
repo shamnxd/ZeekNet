@@ -29,7 +29,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     { value: "internship", label: "Internship" }
   ];
 
-  const fetchCategories = async (searchTerm?: string) => {
+  const fetchCategories = useCallback(async (searchTerm?: string) => {
     try {
       setCategoriesLoading(true);
       const response = await publicApi.getAllJobCategories({
@@ -59,9 +59,9 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     } finally {
       setCategoriesLoading(false);
     }
-  };
+  }, [data.categoryIds]);
 
-  const fetchSkills = async (searchTerm?: string) => {
+  const fetchSkills = useCallback(async (searchTerm?: string) => {
     try {
       setSkillsLoading(true);
       const response = await publicApi.getAllSkills({
@@ -91,7 +91,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     } finally {
       setSkillsLoading(false);
     }
-  };
+  }, [data.skillsRequired]);
 
   const fetchJobRoles = async (searchTerm?: string) => {
     try {
@@ -119,7 +119,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     };
     
     initializeOptions();
-  }, [data.categoryIds, data.skillsRequired]);
+  }, [data.categoryIds, data.skillsRequired, fetchCategories, fetchSkills]);
 
   const handleTitleChange = (value: string) => {
     handleFieldChange('title', value);

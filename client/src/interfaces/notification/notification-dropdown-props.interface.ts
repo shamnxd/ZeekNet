@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface NotificationDropdownProps {
-  // Add props as needed
+  // Props will be added as needed
 }

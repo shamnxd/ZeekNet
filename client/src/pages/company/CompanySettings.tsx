@@ -12,7 +12,8 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react'
-import { companyApi, type CompanyProfileResponse } from '@/api/company.api'
+import { companyApi } from '@/api/company.api'
+import type { CompanyProfileResponse } from '@/interfaces/company/company-api.interface'
 import { toast } from 'sonner'
 
 const CompanySettings = () => {

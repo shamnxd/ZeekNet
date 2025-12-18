@@ -20,7 +20,8 @@ import {
   FileText,
   ExternalLink
 } from 'lucide-react'
-import { adminApi, type Company } from '@/api/admin.api'
+import { adminApi } from '@/api/admin.api'
+import type { Company } from '@/interfaces/admin/admin-company.interface'
 import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
 

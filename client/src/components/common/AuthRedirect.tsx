@@ -3,10 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAppSelector } from '@/hooks/useRedux';
 import { UserRole } from '@/constants/enums';
 import { Loading } from '@/components/ui/loading';
-
-interface AuthRedirectProps {
-  children: React.ReactNode;
-}
+import type { AuthRedirectProps } from '@/interfaces/ui/auth-redirect-props.interface';
 
 const AuthRedirect: React.FC<AuthRedirectProps> = ({ children }) => {
   const { isAuthenticated, role, isInitialized } = useAppSelector((state) => state.auth);

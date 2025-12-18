@@ -1,26 +1,16 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { notificationApi } from '../api/notification.api';
 import type { Notification } from '../api/notification.api';
 import { socketService } from '../services/socket.service';
 import { useAppSelector } from '../hooks/useRedux';
 import { toast } from 'sonner';
-
-interface NotificationContextType {
-  notifications: Notification[];
-  unreadCount: number;
-  loading: boolean;
-  markAsRead: (id: string) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
-  refreshNotifications: () => Promise<void>;
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+import { NotificationContext } from './notification-context-definition';
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const token = useAppSelector((state) => state.auth.token);
+  const token = useAppSelector((state) => state.auth.token as string);
 
   const refreshNotifications = useCallback(async () => {
     if (!token) return;
@@ -58,10 +48,26 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         });
       };
 
-      socketService.onNotification(handleNotification);
+      const handleSocketNotification = (data: import('@/types/socket.types').NotificationSocketData) => {
+        const notification: Notification = {
+          id: data.id,
+          user_id: data.userId,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          is_read: data.isRead,
+          created_at: data.createdAt,
+          // Map optional properties if they exist
+          read_at: undefined, // Socket data might not have this initially
+          data: {} // Default or map if available
+        };
+        handleNotification(notification);
+      };
+
+      socketService.onNotification(handleSocketNotification);
 
       return () => {
-        socketService.offNotification(handleNotification);
+        socketService.offNotification(handleSocketNotification);
       };
     } else {
       socketService.disconnect();
@@ -107,12 +113,3 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     </NotificationContext.Provider>
   );
 };
-
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within NotificationProvider');
-  }
-  return context;
-};
-

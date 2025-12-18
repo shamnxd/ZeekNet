@@ -1,27 +1,12 @@
 import { api } from './index';
 import { PublicRoutes } from '@/constants/api-routes';
+import type { ApiError } from '@/types/api-error.type';
 
-interface GetAllSkillsParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-interface GetAllJobCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
-interface GetAllJobRolesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
+import type {
+  GetAllSkillsParams,
+  GetAllJobCategoriesParams,
+  GetAllJobRolesParams
+} from '@/interfaces/public/public.interface';
 
 export const publicApi = {
   getAllSkills: async (params: GetAllSkillsParams = {}): Promise<{
@@ -40,10 +25,11 @@ export const publicApi = {
 
       const response = await api.get(`${PublicRoutes.SKILLS}?${queryParams.toString()}`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch skills',
+        message: apiError.response?.data?.message || 'Failed to fetch skills',
       };
     }
   },
@@ -62,10 +48,11 @@ export const publicApi = {
 
       const response = await api.get(`${PublicRoutes.JOB_CATEGORIES}?${queryParams.toString()}`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch job categories',
+        message: apiError.response?.data?.message || 'Failed to fetch job categories',
       };
     }
   },
@@ -86,10 +73,11 @@ export const publicApi = {
 
       const response = await api.get(`${PublicRoutes.JOB_ROLES}?${queryParams.toString()}`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch job roles',
+        message: apiError.response?.data?.message || 'Failed to fetch job roles',
       };
     }
   },

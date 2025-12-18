@@ -1,11 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Users, Clock } from "lucide-react";
-import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 
-interface JobCardProps {
-  job: JobPostingResponse;
-  onViewDetails?: (jobId: string) => void;
-}
+import type { JobCardProps } from '@/interfaces/job/job-card-props.interface';
 
 const JobCard = ({ job, onViewDetails }: JobCardProps) => {
   const formatSalary = (min: number, max: number) => {

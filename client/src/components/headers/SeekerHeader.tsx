@@ -1,9 +1,7 @@
 import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { NotificationBell } from '../notifications/NotificationBell';
-interface SeekerHeaderProps {
-  currentPage: string;
-}
+import type { SeekerHeaderProps } from '@/interfaces/ui/seeker-header-props.interface';
 
 const pageTitles: Record<string, string> = {
   dashboard: 'Dashboard',

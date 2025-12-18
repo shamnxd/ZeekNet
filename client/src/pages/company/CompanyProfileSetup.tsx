@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { companyApi, type CompanyProfileData } from '@/api/company.api'
+import { companyApi } from '@/api/company.api'
+import type { CompanyProfileData } from '@/interfaces/company/company-api.interface'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useAppDispatch } from '@/hooks/useRedux'
@@ -87,7 +88,7 @@ const CompanyProfileSetup = () => {
           const status = response.data.is_verified || 'not_created'
           setIsReapplication(status === 'rejected')
         }
-      } catch (err: unknown) {
+      } catch {
         setIsReapplication(false)
       }
     }
@@ -214,8 +215,8 @@ const CompanyProfileSetup = () => {
 
   const nextStep = () => {
     if (currentStep < 3) {
-      let stepData: any = {}
-      let stepSchema: any = null
+      let stepData: Partial<CompanyProfileFormData> = {}
+      let stepSchema: z.ZodTypeAny | null = null
 
       if (currentStep === 1) {
         stepData = {
@@ -250,7 +251,9 @@ const CompanyProfileSetup = () => {
       }
 
       try {
-        stepSchema.parse(stepData)
+        if (stepSchema) {
+          stepSchema.parse(stepData)
+        }
         setCurrentStep(currentStep + 1)
         setValidationErrors({})
       } catch (err) {

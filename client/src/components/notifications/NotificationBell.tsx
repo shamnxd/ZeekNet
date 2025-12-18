@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useNotifications } from '@/hooks/use-notifications';
 import { NotificationDropdown } from './NotificationDropdown';
 
 export const NotificationBell: React.FC = () => {

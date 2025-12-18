@@ -1,4 +1,4 @@
-import type { CompanyContact } from '../company-contact.interface';
+import type { CompanyContact } from '@/interfaces/company/company-data.interface';
 
 export interface EditContactDialogProps {
   isOpen: boolean;

@@ -4,9 +4,9 @@ import type { AxiosInstance } from 'axios'
 let refreshPromise: Promise<string | null> | null = null
 let getAuthToken: () => string | null = () => null
 let logoutCallback: (() => void) | null = null
-let updateTokenCallback: ((data: any, token: string) => void) | null = null
+let updateTokenCallback: ((data: Record<string, unknown>, token: string) => void) | null = null
 
-export const setUpdateTokenCallback = (callback: (data: any, token: string) => void) => {
+export const setUpdateTokenCallback = (callback: (data: Record<string, unknown>, token: string) => void) => {
   updateTokenCallback = callback
 }
 
@@ -76,8 +76,8 @@ api.interceptors.response.use(
             }
             
             return newToken
-          } catch (refreshError: any) {
-            const refreshErrorMessage = refreshError?.response?.data?.message || ''
+          } catch (refreshError: unknown) {
+            const refreshErrorMessage = (refreshError as { response?: { data?: { message?: string } } })?.response?.data?.message || ''
             if (refreshErrorMessage.includes('Invalid refresh token') && logoutCallback) {
               logoutCallback()
             } else if (logoutCallback) {

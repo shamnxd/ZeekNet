@@ -47,6 +47,7 @@ const JobView = () => {
 
   useEffect(() => {
     fetchJob()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId])
 
   const fetchJob = async () => {
@@ -72,8 +73,9 @@ const JobView = () => {
     if (!job) return
 
     try {
-      const newStatus = job.status === 'active' ? 'unlisted' : 'active'
-      const response = await adminApi.updateJobStatus(job.id || (job as any)._id, newStatus, undefined)
+      const jobId = job.id || '';
+      const newStatus = job.status === 'active' ? 'unlisted' : 'active';
+      const response = await adminApi.updateJobStatus(jobId, newStatus, undefined)
       
       if (response.success) {
         setJob({ ...job, status: newStatus } as JobPostingResponse)
@@ -90,7 +92,8 @@ const JobView = () => {
     if (!job) return
 
     try {
-      const response = await adminApi.deleteJob((job.id ?? (job as any)._id ?? '') as string)
+      const jobId = job.id || '';
+      const response = await adminApi.deleteJob(jobId)
       
       if (response.success) {
         toast.success('Job deleted successfully')
@@ -218,7 +221,7 @@ const JobView = () => {
                   <div className="flex items-center space-x-2">
                     <Building2 className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Company:</span>
-                    <span className="text-sm">{(job as any).companyName ?? job.company_name ?? job.company?.companyName ?? 'Unknown'}</span>
+                    <span className="text-sm">{job.company_name || 'Unknown'}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4 text-gray-400" />
@@ -233,7 +236,7 @@ const JobView = () => {
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Type:</span>
-                    <span className="text-sm">{(((job as any).employmentTypes ?? (job as any).employment_types ?? []) as string[]).join(', ')}</span>
+                    <span className="text-sm">{(job.employment_types || []).join(', ')}</span>
                   </div>
                 </div>
                 <Separator />
@@ -282,7 +285,7 @@ const JobView = () => {
               </CardContent>
             </Card>
 
-            {(((job as any).niceToHaves ?? (job as any).nice_to_haves ?? []) as string[]).length > 0 && (
+            {(job.nice_to_haves || []).length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -292,7 +295,7 @@ const JobView = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {(((job as any).niceToHaves ?? (job as any).nice_to_haves ?? []) as string[]).map((item, index) => (
+                    {(job.nice_to_haves || []).map((item, index) => (
                       <li key={index} className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-sm text-gray-600">{item}</span>
@@ -334,14 +337,14 @@ const JobView = () => {
                     <Eye className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Views</span>
                   </div>
-                  <span className="font-medium">{(job as any).viewCount ?? (job as any).view_count ?? 0}</span>
+                  <span className="font-medium">{job.view_count || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Users className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">Applications</span>
                   </div>
-                  <span className="font-medium">{(job as any).applicationCount ?? (job as any).applications ?? (job as any).application_count ?? 0}</span>
+                  <span className="font-medium">{job.application_count || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -357,13 +360,13 @@ const JobView = () => {
                   </div>
                   <span className="font-medium text-sm">{formatDate(job.updatedAt ?? '')}</span>
                 </div>
-                {(job.status === 'blocked' && (job.unpublish_reason ?? (job as any).unpublishReason)) && (
+                {(job.status === 'blocked' && job.unpublish_reason) && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <XCircle className="h-4 w-4 text-red-400" />
                       <span className="text-sm">Block Reason</span>
                     </div>
-                    <span className="font-medium text-sm text-red-600">{job.unpublish_reason ?? (job as any).unpublishReason}</span>
+                    <span className="font-medium text-sm text-red-600">{job.unpublish_reason || ''}</span>
                   </div>
                 )}
               </CardContent>
@@ -378,7 +381,7 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {(((job as any).skillsRequired ?? (job as any).skills_required ?? []) as string[]).map((skill, index) => (
+                  {(job.skills_required || []).map((skill, index) => (
                     <Badge key={index} variant="outline" className="text-blue-600 border-blue-200">
                       {skill}
                     </Badge>
@@ -396,15 +399,15 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-3">
-                  {(((job as any).companyLogo ?? job.company?.logo) && (
+                  {job.company_logo && (
                     <img 
-                      src={(job as any).companyLogo ?? (job.company?.logo as string)} 
-                      alt={((job as any).companyName ?? job.company?.companyName ?? 'Company') as string}
+                      src={job.company_logo || ''} 
+                      alt={job.company_name || 'Company'}
                       className="w-16 h-16 mx-auto rounded-lg object-cover"
                     />
-                  ))}
+                  )}
                   <div>
-                    <h3 className="font-medium">{(job as any).companyName ?? job.company_name ?? job.company?.companyName ?? 'Unknown Company'}</h3>
+                    <h3 className="font-medium">{job.company_name || 'Unknown Company'}</h3>
                     
                   </div>
                 </div>
@@ -433,7 +436,8 @@ const JobView = () => {
         reasonOptions={unpublishReasons}
         onConfirm={async reason => {
           try {
-            const response = await adminApi.updateJobStatus((job as any)?.id || (job as any)?._id || '', 'blocked', reason);
+            const jobId = job?.id || '';
+            const response = await adminApi.updateJobStatus(jobId, 'blocked', reason);
             
             if (response.success) {
               setJob({ ...job, status: 'blocked', unpublish_reason: reason } as JobPostingResponse);

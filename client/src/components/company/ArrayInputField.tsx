@@ -2,18 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
-import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 
-interface ArrayInputFieldProps {
-  field: keyof JobPostingData;
-  label: string;
-  placeholder: string;
-  helperText: string;
-  value: string[];
-  required?: boolean;
-  error?: string;
-  onChange: (field: keyof JobPostingData, value: string[]) => void;
-}
+import type { ArrayInputFieldProps } from '@/interfaces/company/array-input-field-props.interface';
 
 export const ArrayInputField: React.FC<ArrayInputFieldProps> = ({
   field,

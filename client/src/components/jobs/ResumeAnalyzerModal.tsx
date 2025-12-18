@@ -15,13 +15,8 @@ import { jobApplicationApi } from '@/api';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { ScoreBadge } from '@/components/ui/score-badge';
-
-interface ResumeAnalyzerModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  jobId: string;
-  onResumeVerified?: (file: File) => void;
-}
+import type { ApiError } from '@/types/api-error.type';
+import type { ResumeAnalyzerModalProps } from '@/interfaces/job/resume-analyzer-modal-props.interface';
 
 export default function ResumeAnalyzerModal({ isOpen, onClose, jobId, onResumeVerified }: ResumeAnalyzerModalProps) {
   const [file, setFile] = useState<File | null>(null);
@@ -53,8 +48,9 @@ export default function ResumeAnalyzerModal({ isOpen, onClose, jobId, onResumeVe
       if (response.data.success) {
         setResult(response.data.data);
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to analyze resume');
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError.response?.data?.message || 'Failed to analyze resume');
     } finally {
       setAnalyzing(false);
     }

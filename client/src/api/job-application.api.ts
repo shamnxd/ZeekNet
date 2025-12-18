@@ -1,6 +1,15 @@
 import { api } from './index'
-import { ApplicationStage } from '@/constants/enums'
 import { CompanyRoutes, SeekerRoutes } from '@/constants/api-routes'
+import type {
+  GetSeekerApplicationsParams,
+  GetCompanyApplicationsParams,
+  UpdateApplicationStageRequest,
+  BulkUpdateApplicationStageRequest,
+  UpdateApplicationScoreRequest,
+  AddInterviewRequest,
+  UpdateInterviewRequest,
+  AddInterviewFeedbackRequest
+} from '@/interfaces/job-application/job-application.interface';
 
 export const jobApplicationApi = {
 
@@ -16,11 +25,7 @@ export const jobApplicationApi = {
     })
   },
 
-  async getSeekerApplications(params?: {
-    stage?: ApplicationStage
-    page?: number
-    limit?: number
-  }) {
+  async getSeekerApplications(params?: GetSeekerApplicationsParams) {
     return api.get(SeekerRoutes.APPLICATIONS, { params })
   },
 
@@ -29,13 +34,7 @@ export const jobApplicationApi = {
   },
 
 
-  async getCompanyApplications(params?: {
-    job_id?: string
-    stage?: ApplicationStage
-    search?: string
-    page?: number
-    limit?: number
-  }) {
+  async getCompanyApplications(params?: GetCompanyApplicationsParams) {
     return api.get(CompanyRoutes.APPLICATIONS, { params })
   },
 
@@ -43,26 +42,23 @@ export const jobApplicationApi = {
     return api.get(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))
   },
 
-  async updateApplicationStage(id: string, body: { stage: ApplicationStage; rejection_reason?: string }) {
+  async updateApplicationStage(id: string, body: UpdateApplicationStageRequest) {
     return api.patch(CompanyRoutes.APPLICATIONS_ID_STAGE.replace(':id', id), body)
   },
 
-  async bulkUpdateApplicationStage(body: { 
-    application_ids: string[], 
-    stage: ApplicationStage 
-  }) {
+  async bulkUpdateApplicationStage(body: BulkUpdateApplicationStageRequest) {
     return api.post(CompanyRoutes.APPLICATIONS_BULK_UPDATE, body)
   },
 
-  async updateApplicationScore(id: string, body: { score: number }) {
+  async updateApplicationScore(id: string, body: UpdateApplicationScoreRequest) {
     return api.patch(CompanyRoutes.APPLICATIONS_ID_SCORE.replace(':id', id), body)
   },
 
-  async addInterview(id: string, body: { date: string | Date; time: string; interview_type: string; location: string; interviewer_name?: string }) {
+  async addInterview(id: string, body: AddInterviewRequest) {
     return api.post(CompanyRoutes.APPLICATIONS_ID_INTERVIEWS.replace(':id', id), body)
   },
 
-  async updateInterview(id: string, interviewId: string, body: Partial<{ date: string | Date; time: string; interview_type: string; location: string; interviewer_name?: string; status?: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' }>) {
+  async updateInterview(id: string, interviewId: string, body: UpdateInterviewRequest) {
     return api.patch(CompanyRoutes.APPLICATIONS_ID_INTERVIEWS_INTERVIEW_ID.replace(':id', id).replace(':interviewId', interviewId), body)
   },
 
@@ -70,7 +66,7 @@ export const jobApplicationApi = {
     return api.delete(CompanyRoutes.APPLICATIONS_ID_INTERVIEWS_INTERVIEW_ID.replace(':id', id).replace(':interviewId', interviewId))
   },
 
-  async addInterviewFeedback(id: string, interviewId: string, body: { reviewer_name: string; rating?: number; comment: string }) {
+  async addInterviewFeedback(id: string, interviewId: string, body: AddInterviewFeedbackRequest) {
     return api.post(CompanyRoutes.APPLICATIONS_ID_INTERVIEWS_FEEDBACK.replace(':id', id).replace(':interviewId', interviewId), body)
   },
 }

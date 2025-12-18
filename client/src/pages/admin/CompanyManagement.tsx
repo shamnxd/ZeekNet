@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { adminApi, type Company, type GetAllCompaniesParams } from '@/api/admin.api'
+import { adminApi } from '@/api/admin.api'
+import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface'
 import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'

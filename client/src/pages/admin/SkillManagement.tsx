@@ -12,10 +12,11 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import type { Skill } from '@/api/admin.api'
+import type { Skill } from '@/interfaces/job/skill.interface'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import type { ApiError } from '@/types/api-error.type'
 
 const SkillManagement = () => {
   const [skills, setSkills] = useState<Skill[]>([])
@@ -58,8 +59,9 @@ const SkillManagement = () => {
         setError(response.message || 'Failed to fetch skills')
         setSkills([])
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch skills')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to fetch skills')
     } finally {
       setLoading(false)
     }
@@ -111,8 +113,9 @@ const SkillManagement = () => {
       } else {
         toast.error(response.message || 'Failed to create skill')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create skill')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to create skill')
     }
   }
 
@@ -139,8 +142,9 @@ const SkillManagement = () => {
       } else {
         toast.error(response.message || 'Failed to update skill')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update skill')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update skill')
     }
   }
 
@@ -160,8 +164,9 @@ const SkillManagement = () => {
       } else {
         toast.error(response.message || 'Failed to delete skill')
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to delete skill')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to delete skill')
     }
   }
 

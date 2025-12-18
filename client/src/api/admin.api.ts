@@ -3,6 +3,20 @@ import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.i
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import type { PaginatedJobPostings } from '@/interfaces/job/paginated-job-postings.interface';
 import { AdminRoutes } from '@/constants/api-routes';
+import type { ApiError } from '@/types/api-error.type';
+import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface';
+import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface';
+import type { JobCategory, GetAllJobCategoriesParams } from '@/interfaces/job/job-category.interface';
+import type { JobRole, GetAllJobRolesParams } from '@/interfaces/job/job-role.interface';
+import type { Skill, GetAllSkillsParams } from '@/interfaces/job/skill.interface';
+import type { 
+  SubscriptionPlan, 
+  GetAllSubscriptionPlansParams, 
+  CreateSubscriptionPlanData, 
+  UpdateSubscriptionPlanData 
+} from '@/interfaces/admin/subscription-plan.interface';
+import type { PaymentOrder, GetAllPaymentOrdersParams } from '@/interfaces/admin/payment-order.interface';
+import type { AdminStats } from '@/interfaces/admin/admin-stats.interface';
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
@@ -34,10 +48,11 @@ export const adminApi = {
         const endpoint = params.toString() ? `${AdminRoutes.JOBS}?${params.toString()}` : AdminRoutes.JOBS;
         const response = await api.get(endpoint);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch jobs',
+          message: apiError.response?.data?.message || 'Failed to fetch jobs',
         };
       }
     },
@@ -50,10 +65,11 @@ export const adminApi = {
       try {
         const response = await api.get(AdminRoutes.JOBS_ID.replace(':id', id));
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch job',
+          message: apiError.response?.data?.message || 'Failed to fetch job',
         };
       }
     },
@@ -68,10 +84,11 @@ export const adminApi = {
           unpublish_reason: unpublishReason
         });
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update job status',
+          message: apiError.response?.data?.message || 'Failed to update job status',
         };
       }
     },
@@ -83,32 +100,28 @@ export const adminApi = {
       try {
         const response = await api.delete(AdminRoutes.JOBS_ID.replace(':id', jobId));
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete job',
+          message: apiError.response?.data?.message || 'Failed to delete job',
         };
       }
     },
 
   getJobStats: async (): Promise<{
       success: boolean;
-      data?: {
-        total: number;
-        active: number;
-        inactive: number;
-        totalApplications: number;
-        totalViews: number;
-      };
+      data?: AdminStats;
       message?: string;
     }> => {
       try {
         const response = await api.get(AdminRoutes.JOBS_STATS);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch job statistics',
+          message: apiError.response?.data?.message || 'Failed to fetch job statistics',
         };
       }
     },
@@ -116,7 +129,7 @@ export const adminApi = {
   getAllUsers: async (query: GetAllUsersParams = {} as GetAllUsersParams): Promise<{
       success: boolean;
       data?: {
-        users: any[];
+        users: User[];
         total: number;      
         page: number;       
         limit: number;
@@ -138,27 +151,29 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.USERS}?${params.toString()}`);
         return response.data;
-      } catch (error: any) {
-        console.error('API Error:', error.response || error); 
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        console.error('API Error:', apiError.response || apiError); 
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch users',
+          message: apiError.response?.data?.message || 'Failed to fetch users',
         };
       }
     },
 
   getUserById: async (userId: string): Promise<{
       success: boolean;
-      data?: any;
+      data?: User;
       message?: string;
     }> => {
       try {
         const response = await api.get(AdminRoutes.USERS_ID.replace(':id', userId));
         return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch user',
+          message: apiError.response?.data?.message || 'Failed to fetch user',
         };
       }
     },
@@ -173,10 +188,11 @@ export const adminApi = {
           isBlocked
         });
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update user status',
+          message: apiError.response?.data?.message || 'Failed to update user status',
         };
       }
     },
@@ -204,10 +220,11 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.COMPANIES}?${params.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch companies',
+          message: apiError.response?.data?.message || 'Failed to fetch companies',
         };
       }
     },
@@ -226,26 +243,28 @@ export const adminApi = {
       try {
         const response = await api.get(AdminRoutes.COMPANIES_VERIFICATION);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch pending companies',
+          message: apiError.response?.data?.message || 'Failed to fetch pending companies',
         };
       }
     },
 
   getCompanyById: async (companyId: string): Promise<{
       success: boolean;
-      data?: any;
+      data?: Company;
       message?: string;
     }> => {
       try {
         const response = await api.get(AdminRoutes.COMPANIES_VERIFICATION.replace('verification', companyId));
         return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch company',
+          message: apiError.response?.data?.message || 'Failed to fetch company',
         };
       }
     },
@@ -257,10 +276,11 @@ export const adminApi = {
       try {
         const response = await api.patch(AdminRoutes.COMPANIES_VERIFY, data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to verify company',
+          message: apiError.response?.data?.message || 'Failed to verify company',
         };
       }
     },
@@ -287,10 +307,11 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.SKILLS}?${queryParams.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch skills',
+          message: apiError.response?.data?.message || 'Failed to fetch skills',
         };
       }
     },
@@ -303,10 +324,11 @@ export const adminApi = {
       try {
         const response = await api.post(AdminRoutes.SKILLS, data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to create skill',
+          message: apiError.response?.data?.message || 'Failed to create skill',
         };
       }
     },
@@ -319,10 +341,11 @@ export const adminApi = {
       try {
         const response = await api.put(AdminRoutes.SKILLS_ID.replace(':id', id), data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update skill',
+          message: apiError.response?.data?.message || 'Failed to update skill',
         };
       }
     },
@@ -334,10 +357,11 @@ export const adminApi = {
       try {
         const response = await api.delete(AdminRoutes.SKILLS_ID.replace(':id', id));
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete skill',
+          message: apiError.response?.data?.message || 'Failed to delete skill',
         };
       }
     },
@@ -362,10 +386,11 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.JOB_CATEGORIES}?${queryParams.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch job categories',
+          message: apiError.response?.data?.message || 'Failed to fetch job categories',
         };
       }
     },
@@ -378,10 +403,11 @@ export const adminApi = {
       try {
         const response = await api.post(AdminRoutes.JOB_CATEGORIES, data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to create job category',
+          message: apiError.response?.data?.message || 'Failed to create job category',
         };
       }
     },
@@ -394,10 +420,11 @@ export const adminApi = {
       try {
         const response = await api.put(AdminRoutes.JOB_CATEGORIES_ID.replace(':id', id), data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update job category',
+          message: apiError.response?.data?.message || 'Failed to update job category',
         };
       }
     },
@@ -409,10 +436,11 @@ export const adminApi = {
       try {
         const response = await api.delete(AdminRoutes.JOB_CATEGORIES_ID.replace(':id', id));
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete job category',
+          message: apiError.response?.data?.message || 'Failed to delete job category',
         };
       }
     },
@@ -439,10 +467,11 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.JOB_ROLES}?${queryParams.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch job roles',
+          message: apiError.response?.data?.message || 'Failed to fetch job roles',
         };
       }
     },
@@ -455,10 +484,11 @@ export const adminApi = {
       try {
         const response = await api.post(AdminRoutes.JOB_ROLES, data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to create job role',
+          message: apiError.response?.data?.message || 'Failed to create job role',
         };
       }
     },
@@ -471,10 +501,11 @@ export const adminApi = {
       try {
         const response = await api.put(AdminRoutes.JOB_ROLES_ID.replace(':id', id), data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update job role',
+          message: apiError.response?.data?.message || 'Failed to update job role',
         };
       }
     },
@@ -486,10 +517,11 @@ export const adminApi = {
       try {
         const response = await api.delete(AdminRoutes.JOB_ROLES_ID.replace(':id', id));
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to delete job role',
+          message: apiError.response?.data?.message || 'Failed to delete job role',
         };
       }
     },
@@ -517,10 +549,11 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.SUBSCRIPTION_PLANS}?${queryParams.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch subscription plans',
+          message: apiError.response?.data?.message || 'Failed to fetch subscription plans',
         };
       }
     },
@@ -533,10 +566,11 @@ export const adminApi = {
       try {
         const response = await api.post(AdminRoutes.SUBSCRIPTION_PLANS, data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to create subscription plan',
+          message: apiError.response?.data?.message || 'Failed to create subscription plan',
         };
       }
     },
@@ -549,10 +583,11 @@ export const adminApi = {
       try {
         const response = await api.put(AdminRoutes.SUBSCRIPTION_PLANS_ID.replace(':id', id), data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to update subscription plan',
+          message: apiError.response?.data?.message || 'Failed to update subscription plan',
         };
       }
     },
@@ -571,10 +606,11 @@ export const adminApi = {
       try {
         const response = await api.post(AdminRoutes.SUBSCRIPTION_PLANS_MIGRATE.replace(':id', planId), options);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to migrate subscribers',
+          message: apiError.response?.data?.message || 'Failed to migrate subscribers',
         };
       }
     },
@@ -601,186 +637,12 @@ export const adminApi = {
 
         const response = await api.get(`${AdminRoutes.PAYMENT_ORDERS}?${params.toString()}`);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
         return {
           success: false,
-          message: error.response?.data?.message || 'Failed to fetch payment orders',
+          message: apiError.response?.data?.message || 'Failed to fetch payment orders',
         };
       }
     }
 };
-
-export interface User {
-  id: string;
-  name?: string;
-  email: string;
-  role: string;
-  isVerified: boolean;
-  isBlocked: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Company {
-  id: string;
-  userId: string;
-  companyName: string;
-  logo: string;
-  banner: string;
-  websiteLink: string;
-  employeeCount: number;
-  industry: string;
-  organisation: string;
-  aboutUs: string;
-  isVerified: 'pending' | 'rejected' | 'verified';
-  isBlocked: boolean;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  verification?: {
-    taxId: string;
-    businessLicenseUrl: string;
-  } | null;
-}
-
-export interface GetAllUsersParams {
-  page: number;
-  limit: number;
-  search?: string;
-  role?: string;
-  isBlocked?: boolean | string;
-}
-
-export interface GetAllCompaniesParams {
-  page: number;
-  limit: number;
-  search?: string;
-  industry?: string;
-  isVerified?: 'pending' | 'rejected' | 'verified';
-  isBlocked?: boolean | string;
-}
-
-export interface JobCategory {
-  id: string;
-  name: string;
-  icon?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Skill {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllSkillsParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface JobRole {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllJobRolesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  yearlyDiscount: number;
-  isActive: boolean;
-  isPopular: boolean;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllSubscriptionPlansParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  isActive?: boolean;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface CreateSubscriptionPlanData {
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  yearlyDiscount: number;
-  isPopular?: boolean;
-  isDefault?: boolean;
-}
-
-export interface UpdateSubscriptionPlanData {
-  name?: string;
-  description?: string;
-  price?: number;
-  duration?: number;
-  features?: string[];
-  jobPostLimit?: number;
-  featuredJobLimit?: number;
-  applicantAccessLimit?: number;
-  yearlyDiscount?: number;
-  isActive?: boolean;
-  isPopular?: boolean;
-  isDefault?: boolean;
-}
-
-interface GetAllJobCategoriesParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
-export interface PaymentOrder {
-  id: string;
-  orderNo: string;
-  companyId: string;
-  companyName: string;
-  planId: string;
-  planName: string;
-  amount: number;
-  currency: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
-  paymentMethod: 'dummy' | 'stripe' | 'card';
-  invoiceId?: string;
-  transactionId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface GetAllPaymentOrdersParams {
-  page?: number;
-  limit?: number;
-  status?: 'pending' | 'completed' | 'failed' | 'cancelled';
-  search?: string;
-  sortOrder?: 'asc' | 'desc';
-}

@@ -11,4 +11,8 @@ export interface Application {
   stage: ApplicationStage
   applied_date: string
   resume_url?: string
+  company_name?: string
+  company_logo?: string
+  companyName?: string
+  jobTitle?: string
 }

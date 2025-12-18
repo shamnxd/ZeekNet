@@ -1,5 +1,5 @@
 // User-related interfaces
-import { type User } from '@/api/admin.api'
+import { type User } from '@/interfaces/admin/admin-user.interface';
 
 export interface UserWithDisplayData extends User {
   name: string

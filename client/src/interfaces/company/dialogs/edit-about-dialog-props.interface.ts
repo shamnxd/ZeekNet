@@ -1,6 +1,6 @@
 export interface EditAboutDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (about: string) => void;
-  about: string;
+  onSave: (aboutUs: string) => void;
+  aboutUs: string;
 }

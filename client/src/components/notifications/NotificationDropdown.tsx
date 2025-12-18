@@ -1,11 +1,8 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useNotifications } from '@/hooks/use-notifications';
 import type { Notification } from '../../api/notification.api';
-
-interface NotificationDropdownProps {
-  onClose: () => void;
-}
+import type { NotificationDropdownProps } from '@/interfaces/ui/notification-dropdown-props.interface';
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) => {
   const { notifications, markAsRead, markAllAsRead } = useNotifications();

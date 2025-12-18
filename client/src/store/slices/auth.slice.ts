@@ -11,21 +11,7 @@ import type {
   AuthResponseData,
 } from "@/interfaces/auth";
 import { UserRole } from "@/constants/enums";
-
-interface AuthState {
-  token: string | null;
-  id: string | null;
-  name: string | null;
-  email: string | null;
-  role: UserRole | null;
-  isVerified: boolean;
-  isBlocked: boolean;
-  loading: boolean;
-  error: string | null;
-  isAuthenticated: boolean;
-  isInitialized: boolean;
-  companyVerificationStatus?: 'not_created' | 'pending' | 'verified' | 'rejected' | null;
-}
+import type { AuthState } from "@/interfaces/auth/auth-state.interface";
 
 const initialState: AuthState = {
   token: null,

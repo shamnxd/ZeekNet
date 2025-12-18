@@ -4,9 +4,7 @@ import { initializeAuthThunk } from '@/store/slices/auth.slice';
 import { Loading } from '@/components/ui/loading';
 import { store } from '@/store/store';
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
+import type { AuthProviderProps } from '@/interfaces/ui/auth-provider-props.interface';
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useAppDispatch();

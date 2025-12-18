@@ -3,16 +3,7 @@ import Cropper, { type Area, type Point } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-
-interface ImageCropperProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  image: string;
-  aspect?: number; 
-  cropShape?: 'rect' | 'round';
-  onCropComplete: (croppedAreaPixels: Area, croppedImage: string) => void;
-  title?: string;
-}
+import type { ImageCropperProps } from '@/interfaces/ui/image-cropper-props.interface';
 
 export function ImageCropper({
   open,

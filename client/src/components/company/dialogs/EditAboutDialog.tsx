@@ -3,13 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
-interface EditAboutDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (aboutUs: string) => void;
-  aboutUs: string;
-}
+import type { EditAboutDialogProps } from '@/interfaces/company/dialogs/edit-about-dialog-props.interface';
 
 const EditAboutDialog: React.FC<EditAboutDialogProps> = ({
   isOpen,

@@ -4,81 +4,21 @@ import type { ApiEnvelope } from '@/interfaces/auth';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
+import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, CompanySideApplication } from '@/interfaces/company/company-data.interface';
 
+import type { 
+  CompanyProfileData, 
+  CompanyProfileResponse, 
+  JobPostingRequest, 
+  CompanyDashboard 
+} from '@/interfaces/company/company-api.interface';
 
-export interface CompanyProfileData {
-  company_name?: string
-  website_link?: string
-  website?: string
-  industry?: string
-  organisation?: string
-  employee_count?: number
-  employees?: string
-  about_us?: string
-  description?: string
-  location?: string
-  phone?: string
-  foundedDate?: string
-  logo?: string
-  banner?: string
-  business_license?: string
-  tax_id?: string
-  email?: string
-}
-
-export interface CompanyProfileResponse {
-  id: string
-  company_name: string
-  logo: string
-  banner: string
-  website_link: string
-  website?: string
-  employee_count: number
-  employees?: string
-  industry: string
-  organisation: string
-  about_us: string
-  description?: string
-  location?: string
-  phone?: string
-  foundedDate?: string
-  business_license?: string
-  tax_id?: string
-  email?: string
-  is_verified: 'pending' | 'rejected' | 'verified'
-  is_blocked: boolean
-  rejection_reason?: string
-  created_at: string
-  updated_at: string
-}
-
-export interface JobPostingRequest {
-  title: string
-  description: string
-  responsibilities: string[]
-  qualifications: string[]
-  nice_to_haves?: string[]
-  benefits?: string[]
-  salary: {
-    min: number
-    max: number
-  }
-  employment_types: ("full-time" | "part-time" | "contract" | "internship" | "remote")[]
-  location: string
-  skills_required?: string[]
-  category_ids: string[]
-}
-
-interface CompanyDashboard {
-  totalJobs: number;
-  activeJobs: number;
-  pendingJobs: number;
-  totalApplications: number;
-  recentApplications: unknown[];
-  profileCompletion: number;
-  profileStatus: string;
-  verificationStatus?: string;
-}
+export type { 
+  CompanyProfileData, 
+  CompanyProfileResponse, 
+  JobPostingRequest, 
+  CompanyDashboard 
+};
 
 export const companyApi = {
   async createProfile(data: CompanyProfileData): Promise<ApiEnvelope<CompanyProfileResponse>> {
@@ -127,21 +67,21 @@ export const companyApi = {
 
   async getCompleteProfile(): Promise<ApiEnvelope<{
     profile: CompanyProfileResponse;
-    contact: any | null;
-    locations: any[];
-    techStack: any[];
-    benefits: any[];
-    workplacePictures: any[];
-    jobPostings: any[];
+    contact: CompanyContact | null;
+    locations: OfficeLocation[];
+    techStack: TechStackItem[];
+    benefits: Benefit[];
+    workplacePictures: WorkplacePicture[];
+    jobPostings: JobPostingResponse[];
   }>> {
     return (await api.get<ApiEnvelope<{
       profile: CompanyProfileResponse;
-      contact: any | null;
-      locations: any[];
-      techStack: any[];
-      benefits: any[];
-      workplacePictures: any[];
-      jobPostings: any[];
+      contact: CompanyContact | null;
+      locations: OfficeLocation[];
+      techStack: TechStackItem[];
+      benefits: Benefit[];
+      workplacePictures: WorkplacePicture[];
+      jobPostings: JobPostingResponse[];
     }>>(CompanyRoutes.PROFILE)).data;
   },
 
@@ -191,83 +131,83 @@ export const companyApi = {
     return (await api.patch<ApiEnvelope<JobPostingResponse>>(CompanyRoutes.JOBS_ID_STATUS.replace(':id', id), { status })).data;
   },
 
-  async getContact(): Promise<ApiEnvelope<any>> {
-    return (await api.get<ApiEnvelope<any>>(CompanyRoutes.CONTACT)).data;
+  async getContact(): Promise<ApiEnvelope<CompanyContact | null>> {
+    return (await api.get<ApiEnvelope<CompanyContact | null>>(CompanyRoutes.CONTACT)).data;
   },
 
-  async updateContact(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.CONTACT, data)).data;
+  async updateContact(data: Partial<CompanyContact>): Promise<ApiEnvelope<CompanyContact>> {
+    return (await api.put<ApiEnvelope<CompanyContact>>(CompanyRoutes.CONTACT, data)).data;
   },
 
-  async getTechStacks(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.TECH_STACKS)).data;
+  async getTechStacks(): Promise<ApiEnvelope<TechStackItem[]>> {
+    return (await api.get<ApiEnvelope<TechStackItem[]>>(CompanyRoutes.TECH_STACKS)).data;
   },
 
-  async createTechStack(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS, data)).data;
+  async createTechStack(data: Partial<TechStackItem>): Promise<ApiEnvelope<TechStackItem>> {
+    return (await api.post<ApiEnvelope<TechStackItem>>(CompanyRoutes.TECH_STACKS, data)).data;
   },
 
-  async updateTechStack(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id), data)).data;
+  async updateTechStack(id: string, data: Partial<TechStackItem>): Promise<ApiEnvelope<TechStackItem>> {
+    return (await api.put<ApiEnvelope<TechStackItem>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteTechStack(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id))).data;
+  async deleteTechStack(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.TECH_STACKS_ID.replace(':id', id))).data;
   },
 
-  async getOfficeLocations(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.OFFICE_LOCATIONS)).data;
+  async getOfficeLocations(): Promise<ApiEnvelope<OfficeLocation[]>> {
+    return (await api.get<ApiEnvelope<OfficeLocation[]>>(CompanyRoutes.OFFICE_LOCATIONS)).data;
   },
 
-  async createOfficeLocation(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS, data)).data;
+  async createOfficeLocation(data: Partial<OfficeLocation>): Promise<ApiEnvelope<OfficeLocation>> {
+    return (await api.post<ApiEnvelope<OfficeLocation>>(CompanyRoutes.OFFICE_LOCATIONS, data)).data;
   },
 
-  async updateOfficeLocation(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id), data)).data;
+  async updateOfficeLocation(id: string, data: Partial<OfficeLocation>): Promise<ApiEnvelope<OfficeLocation>> {
+    return (await api.put<ApiEnvelope<OfficeLocation>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteOfficeLocation(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id))).data;
+  async deleteOfficeLocation(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.OFFICE_LOCATIONS_ID.replace(':id', id))).data;
   },
 
-  async getBenefits(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.BENEFITS)).data;
+  async getBenefits(): Promise<ApiEnvelope<Benefit[]>> {
+    return (await api.get<ApiEnvelope<Benefit[]>>(CompanyRoutes.BENEFITS)).data;
   },
 
-  async createBenefit(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.BENEFITS, data)).data;
+  async createBenefit(data: Partial<Benefit>): Promise<ApiEnvelope<Benefit>> {
+    return (await api.post<ApiEnvelope<Benefit>>(CompanyRoutes.BENEFITS, data)).data;
   },
 
-  async updateBenefit(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.BENEFITS_ID.replace(':id', id), data)).data;
+  async updateBenefit(id: string, data: Partial<Benefit>): Promise<ApiEnvelope<Benefit>> {
+    return (await api.put<ApiEnvelope<Benefit>>(CompanyRoutes.BENEFITS_ID.replace(':id', id), data)).data;
   },
 
-  async deleteBenefit(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.BENEFITS_ID.replace(':id', id))).data;
+  async deleteBenefit(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.BENEFITS_ID.replace(':id', id))).data;
   },
 
-  async getWorkplacePictures(): Promise<ApiEnvelope<any[]>> {
-    return (await api.get<ApiEnvelope<any[]>>(CompanyRoutes.WORKPLACE_PICTURES)).data;
+  async getWorkplacePictures(): Promise<ApiEnvelope<WorkplacePicture[]>> {
+    return (await api.get<ApiEnvelope<WorkplacePicture[]>>(CompanyRoutes.WORKPLACE_PICTURES)).data;
   },
 
-  async createWorkplacePicture(data: any): Promise<ApiEnvelope<any>> {
-    return (await api.post<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES, data)).data;
+  async createWorkplacePicture(data: Partial<WorkplacePicture>): Promise<ApiEnvelope<WorkplacePicture>> {
+    return (await api.post<ApiEnvelope<WorkplacePicture>>(CompanyRoutes.WORKPLACE_PICTURES, data)).data;
   },
 
-  async updateWorkplacePicture(id: string, data: any): Promise<ApiEnvelope<any>> {
-    return (await api.put<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id), data)).data;
+  async updateWorkplacePicture(id: string, data: Partial<WorkplacePicture>): Promise<ApiEnvelope<WorkplacePicture>> {
+    return (await api.put<ApiEnvelope<WorkplacePicture>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id), data)).data;
   },
 
-  async deleteWorkplacePicture(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.delete<ApiEnvelope<any>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id))).data;
+  async deleteWorkplacePicture(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.delete<ApiEnvelope<{ message: string }>>(CompanyRoutes.WORKPLACE_PICTURES_ID.replace(':id', id))).data;
   },
 
   async uploadWorkplacePicture(file: File): Promise<ApiEnvelope<{ url: string; filename: string }>> {
     return uploadFile<{ url: string; filename: string }>(CompanyRoutes.WORKPLACE_PICTURES_UPLOAD, file, 'image');
   },
 
-  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: any[], total: number, page: number, limit: number }>> {
+  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -279,11 +219,11 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `${CompanyRoutes.APPLICATIONS}?${params.toString()}` : CompanyRoutes.APPLICATIONS;
-    return (await api.get<ApiEnvelope<{ applications: any[], total: number, page: number, limit: number }>>(endpoint)).data;
+    return (await api.get<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>>(endpoint)).data;
   },
 
-  async getApplicationDetails(id: string): Promise<ApiEnvelope<any>> {
-    return (await api.get<ApiEnvelope<any>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
+  async getApplicationDetails(id: string): Promise<ApiEnvelope<CompanySideApplication>> {
+    return (await api.get<ApiEnvelope<CompanySideApplication>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
   },
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
@@ -332,98 +272,9 @@ export const companyApi = {
   }
 }
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  yearlyDiscount: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  isActive: boolean;
-  isPopular: boolean;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PurchaseSubscriptionResponse {
-  subscription: {
-    id: string;
-    companyId: string;
-    planId: string;
-    startDate: string;
-    expiryDate: string;
-    isActive: boolean;
-    jobPostsUsed: number;
-    featuredJobsUsed: number;
-    applicantAccessUsed: number;
-    planName?: string;
-    jobPostLimit?: number;
-    featuredJobLimit?: number;
-  };
-  paymentOrder: {
-    id: string;
-    amount: number;
-    currency: string;
-    status: string;
-    invoiceId?: string;
-    transactionId?: string;
-    paymentMethod: string;
-    createdAt: string;
-  };
-}
-
-interface ActiveSubscriptionResponse {
-  id: string;
-  companyId: string;
-  planId: string;
-  startDate: string | null;
-  expiryDate: string | null;
-  isActive: boolean;
-  jobPostsUsed: number;
-  featuredJobsUsed: number;
-  applicantAccessUsed: number;
-  activeJobCount: number;
-  planName?: string;
-  jobPostLimit?: number;
-  featuredJobLimit?: number;
-  plan?: {
-    id: string;
-    name: string;
-    jobPostLimit: number;
-    featuredJobLimit: number;
-    isDefault?: boolean;
-  };
-  stripeStatus?: string;
-  billingCycle?: 'monthly' | 'yearly';
-  cancelAtPeriodEnd?: boolean;
-  currentPeriodStart?: string;
-  currentPeriodEnd?: string;
-}
-
-interface PaymentHistoryItem {
-  id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  paymentMethod: string;
-  invoiceId?: string;
-  transactionId?: string;
-  stripeInvoiceUrl?: string;
-  stripeInvoicePdf?: string;
-  billingCycle?: 'monthly' | 'yearly';
-  createdAt: string;
-}
-
-interface CheckoutSessionResponse {
-  sessionId: string;
-  sessionUrl: string;
-}
-
-interface BillingPortalResponse {
-  url: string;
-}
+import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface';
+import type { PurchaseSubscriptionResponse } from '@/interfaces/company/subscription/purchase-subscription-response.interface';
+import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface';
+import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
+import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
+import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';

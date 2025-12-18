@@ -1,7 +1,12 @@
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
+
 export interface ArrayInputFieldProps {
+  field: keyof JobPostingData;
   label: string;
-  values: string[];
-  onChange: (values: string[]) => void;
-  placeholder?: string;
-  maxItems?: number;
+  placeholder: string;
+  helperText: string;
+  value: string[];
+  required?: boolean;
+  error?: string;
+  onChange: (field: keyof JobPostingData, value: string[]) => void;
 }

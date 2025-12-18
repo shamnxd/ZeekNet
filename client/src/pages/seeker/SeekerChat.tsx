@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X, Trash2 } from 'lucide-react';
 import SeekerLayout from '../../components/layouts/SeekerLayout';
 import { chatApi } from '@/api/chat.api';
 import { socketService } from '@/services/socket.service';
 import { useAppSelector } from '@/hooks/useRedux';
-import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfaces/chat';
+import type { ConversationResponseDto } from '@/interfaces/chat';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import type { ChatMessagePayload, MessagesReadPayload, TypingPayload, MessageDeletedPayload } from '@/types/socket.types';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
@@ -29,8 +30,7 @@ const getOtherParticipant = (conversation: ConversationResponseDto, selfId: stri
   return conversation.participants.find((p) => p.userId !== selfId)?.userId || '';
 };
 
-type UiConversation = ConversationResponseDto & { displayName: string; profileImage: string | null; subtitle?: string };
-type UiMessage = ChatMessageResponseDto;
+import type { UiConversation, UiMessage } from '@/interfaces/ui/chat-ui.interface';
 
 const SeekerChat: React.FC = () => {
   const { token, id: userId } = useAppSelector((s) => s.auth);
@@ -79,7 +79,7 @@ const SeekerChat: React.FC = () => {
     }
   }, [selectedConversation]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!token) return;
     try {
       // setLoading(true);
@@ -94,7 +94,7 @@ const SeekerChat: React.FC = () => {
     } finally {
       // setLoading(false);
     }
-  };
+  }, [token, userId]);
 
   const loadMessages = async (conversationId: string, pageNum = 1) => {
     const result = await chatApi.getMessages(conversationId, { page: pageNum, limit: 20 });
@@ -138,16 +138,12 @@ const SeekerChat: React.FC = () => {
       socketService.connect(token);
       loadConversations().catch(() => {});
     }
-  }, [token]);
+  }, [token, loadConversations]);
 
   useEffect(() => {
-    const onMessage = (payload: any) => {
+    const onMessage = (payload: ChatMessagePayload) => {
       if (!payload) return;
-      const { conversationId, message, participants } = payload as {
-        conversationId: string;
-        message: UiMessage;
-        participants: string[];
-      };
+      const { conversationId, message, participants } = payload;
       if (!participants?.includes(userIdRef.current || '')) return;
 
       setConversations((prev) => {
@@ -183,7 +179,7 @@ const SeekerChat: React.FC = () => {
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
-          return [...prev, message];
+          return [...prev, { ...message, conversationId } as UiMessage];
         });
         
         // Automatically mark as read if we're viewing this conversation
@@ -194,7 +190,7 @@ const SeekerChat: React.FC = () => {
       }
     };
 
-    const onMessagesRead = (payload: any) => {
+    const onMessagesRead = (payload: MessagesReadPayload) => {
       const { conversationId } = payload || {};
       if (!conversationId) return;
       setConversations((prev) =>
@@ -211,7 +207,7 @@ const SeekerChat: React.FC = () => {
       }
     };
 
-    const onTyping = (payload: any) => {
+    const onTyping = (payload: TypingPayload) => {
       const { conversationId, senderId } = payload || {};
       if (!conversationId || !selectedConversationRef.current || conversationId !== selectedConversationRef.current.id) return;
       if (senderId === userIdRef.current) return;
@@ -225,7 +221,7 @@ const SeekerChat: React.FC = () => {
       }, 1000);
     };
 
-    const onMessageDeleted = (payload: any) => {
+    const onMessageDeleted = (payload: MessageDeletedPayload) => {
       const { conversationId, messageId } = payload || {};
       if (!conversationId) return;
 

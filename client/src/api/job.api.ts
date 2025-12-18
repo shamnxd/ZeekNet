@@ -3,6 +3,7 @@ import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.i
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import type { PaginatedJobPostings } from '@/interfaces/job/paginated-job-postings.interface';
 import { PublicRoutes } from '@/constants/api-routes';
+import type { ApiError } from '@/types/api-error.type';
 
 export const jobApi = {
   getAllJobs: async (query: JobPostingQuery = {}): Promise<{
@@ -24,10 +25,11 @@ export const jobApi = {
 
       const response = await api.get(`${PublicRoutes.JOBS}?${params.toString()}`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch jobs',
+        message: apiError.response?.data?.message || 'Failed to fetch jobs',
       };
     }
   },
@@ -40,10 +42,11 @@ export const jobApi = {
     try {
       const response = await api.get(PublicRoutes.JOBS_ID.replace(':id', id));
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to fetch job',
+        message: apiError.response?.data?.message || 'Failed to fetch job',
       };
     }
   },

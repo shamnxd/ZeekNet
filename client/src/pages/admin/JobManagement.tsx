@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
@@ -84,11 +84,7 @@ const JobManagement = () => {
     setPagination(prev => ({ ...prev, page: 1 }))
   }, [debouncedSearchTerm])
 
-  useEffect(() => {
-    fetchJobs()
-  }, [pagination.page, filters])
-
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true)
     try {
       const response = await adminApi.getAllJobs({
@@ -114,7 +110,11 @@ const JobManagement = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [pagination.page, pagination.limit, filters.search, filters.status])
+
+  useEffect(() => {
+    fetchJobs()
+  }, [fetchJobs])
 
   const handleViewJob = (jobId: string) => {
     navigate(`/admin/jobs/${jobId}`)
@@ -264,7 +264,7 @@ const JobManagement = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Building2 className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm">{(job as any).companyName || job.company_name || 'Unknown'}</span>
+                            <span className="text-sm">{job.company_name || 'Unknown'}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -297,8 +297,8 @@ const JobManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <div>{(job as any).applications ?? job.application_count ?? 0} applications</div>
-                            <div className="text-gray-500">{(job as any).viewCount ?? job.view_count ?? 0} views</div>
+                            <div>{job.application_count ?? 0} applications</div>
+                            <div className="text-gray-500">{job.view_count ?? 0} views</div>
                           </div>
                         </TableCell>
                         <TableCell>
