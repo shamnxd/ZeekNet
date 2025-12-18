@@ -16,7 +16,7 @@ import {
   EyeOff,
   Loader2,
 } from 'lucide-react'
-import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData } from '@/api/admin.api'
+import type { SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData } from '@/interfaces/admin/subscription-plan.interface'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'

@@ -17,8 +17,7 @@ import type {
   UploadResumeRequest
 } from '@/interfaces/seeker/seeker.interface';
 
-// Re-export publicly available interfaces
-export type { SeekerProfile, Experience, Education };
+
 
 export const seekerApi = {
   

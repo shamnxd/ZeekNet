@@ -12,7 +12,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import type { JobCategory } from '@/api/admin.api'
+import type { JobCategory } from '@/interfaces/job/job-category.interface'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'

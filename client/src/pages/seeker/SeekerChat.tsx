@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X, Trash2 } from 'lucide-react';
 import SeekerLayout from '../../components/layouts/SeekerLayout';
 import { chatApi } from '@/api/chat.api';
@@ -79,7 +79,7 @@ const SeekerChat: React.FC = () => {
     }
   }, [selectedConversation]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!token) return;
     try {
       // setLoading(true);
@@ -94,7 +94,7 @@ const SeekerChat: React.FC = () => {
     } finally {
       // setLoading(false);
     }
-  };
+  }, [token, userId]);
 
   const loadMessages = async (conversationId: string, pageNum = 1) => {
     const result = await chatApi.getMessages(conversationId, { page: pageNum, limit: 20 });
@@ -138,7 +138,7 @@ const SeekerChat: React.FC = () => {
       socketService.connect(token);
       loadConversations().catch(() => {});
     }
-  }, [token]);
+  }, [token, loadConversations]);
 
   useEffect(() => {
     const onMessage = (payload: ChatMessagePayload) => {
@@ -179,7 +179,7 @@ const SeekerChat: React.FC = () => {
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
-          return [...prev, { ...message, conversationId } as any];
+          return [...prev, { ...message, conversationId } as UiMessage];
         });
         
         // Automatically mark as read if we're viewing this conversation

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X, Trash2 } from 'lucide-react';
 import CompanyLayout from '../../components/layouts/CompanyLayout';
 import { chatApi } from '@/api/chat.api';
@@ -82,7 +82,7 @@ const CompanyChat: React.FC = () => {
     }
   }, [selectedConversation]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!token) return;
     const result = await chatApi.getConversations({ page: 1, limit: 50 });
     const mapped = result.data.map((c) => ({
@@ -104,7 +104,7 @@ const CompanyChat: React.FC = () => {
         navigate('/company/messages', { replace: true });
       }
     }
-  };
+  }, [token, userId, chatIdParam, navigate]);
 
   const loadMessages = async (conversationId: string, pageNum = 1) => {
     const result = await chatApi.getMessages(conversationId, { page: pageNum, limit: 20 });
@@ -148,7 +148,7 @@ const CompanyChat: React.FC = () => {
       socketService.connect(token);
       loadConversations().catch(() => {});
     }
-  }, [token, chatIdParam, navigate]);
+  }, [token, loadConversations]);
 
   useEffect(() => {
     const onMessage = (payload: ChatMessagePayload) => {
@@ -192,7 +192,7 @@ const CompanyChat: React.FC = () => {
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
-          return [...prev, { ...message, conversationId } as any];
+          return [...prev, { ...message, conversationId } as UiMessage];
         });
         
         // Automatically mark as read if we're viewing this conversation

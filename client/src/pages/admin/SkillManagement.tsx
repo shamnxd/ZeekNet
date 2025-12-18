@@ -12,7 +12,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import type { Skill } from '@/api/admin.api'
+import type { Skill } from '@/interfaces/job/skill.interface'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'

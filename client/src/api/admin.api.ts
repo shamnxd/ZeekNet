@@ -4,6 +4,19 @@ import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interfa
 import type { PaginatedJobPostings } from '@/interfaces/job/paginated-job-postings.interface';
 import { AdminRoutes } from '@/constants/api-routes';
 import type { ApiError } from '@/types/api-error.type';
+import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface';
+import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface';
+import type { JobCategory, GetAllJobCategoriesParams } from '@/interfaces/job/job-category.interface';
+import type { JobRole, GetAllJobRolesParams } from '@/interfaces/job/job-role.interface';
+import type { Skill, GetAllSkillsParams } from '@/interfaces/job/skill.interface';
+import type { 
+  SubscriptionPlan, 
+  GetAllSubscriptionPlansParams, 
+  CreateSubscriptionPlanData, 
+  UpdateSubscriptionPlanData 
+} from '@/interfaces/admin/subscription-plan.interface';
+import type { PaymentOrder, GetAllPaymentOrdersParams } from '@/interfaces/admin/payment-order.interface';
+import type { AdminStats } from '@/interfaces/admin/admin-stats.interface';
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
@@ -98,13 +111,7 @@ export const adminApi = {
 
   getJobStats: async (): Promise<{
       success: boolean;
-      data?: {
-        total: number;
-        active: number;
-        inactive: number;
-        totalApplications: number;
-        totalViews: number;
-      };
+      data?: AdminStats;
       message?: string;
     }> => {
       try {
@@ -639,33 +646,3 @@ export const adminApi = {
       }
     }
 };
-
-import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface';
-import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface';
-import type { JobCategory, GetAllJobCategoriesParams } from '@/interfaces/job/job-category.interface';
-import type { JobRole, GetAllJobRolesParams } from '@/interfaces/job/job-role.interface';
-import type { Skill, GetAllSkillsParams } from '@/interfaces/job/skill.interface';
-import type { 
-  SubscriptionPlan, 
-  GetAllSubscriptionPlansParams, 
-  CreateSubscriptionPlanData, 
-  UpdateSubscriptionPlanData 
-} from '@/interfaces/admin/subscription-plan.interface';
-import type { PaymentOrder, GetAllPaymentOrdersParams } from '@/interfaces/admin/payment-order.interface';
-
-// Re-export types that were originally exported from this file
-export type { 
-  User, GetAllUsersParams,
-  Company, GetAllCompaniesParams,
-  JobCategory, JobRole, Skill,
-  SubscriptionPlan, CreateSubscriptionPlanData, UpdateSubscriptionPlanData,
-  PaymentOrder
-};
-
-export interface AdminStats {
-  total: number;
-  active: number;
-  inactive: number;
-  totalApplications: number;
-  totalViews: number;
-}

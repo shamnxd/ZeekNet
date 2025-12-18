@@ -10,7 +10,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const token = useAppSelector((state) => state.auth.token);
+  const token = useAppSelector((state) => state.auth.token as string);
 
   const refreshNotifications = useCallback(async () => {
     if (!token) return;

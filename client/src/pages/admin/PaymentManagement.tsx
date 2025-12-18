@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Search, Filter, ChevronLeft, ChevronRight, Eye, Download } from 'lucide-react';
 import { adminApi } from '@/api/admin.api';
-import type { PaymentOrder } from '@/api/admin.api';
+import type { PaymentOrder } from '@/interfaces/admin/payment-order.interface';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 

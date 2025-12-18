@@ -18,7 +18,8 @@ import {
   UserX,
   Loader2
 } from 'lucide-react'
-import { adminApi, type User, type GetAllUsersParams } from '@/api/admin.api'
+import { adminApi } from '@/api/admin.api'
+import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface'
 import { toast } from 'sonner'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'

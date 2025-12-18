@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loading } from '@/components/ui/loading'
 import { ScoreBadge } from '@/components/ui/score-badge'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { 
@@ -64,7 +64,7 @@ const AllApplications = () => {
     totalPages: 0
   })
 
-  const fetchApplications = async (page: number = 1, limit: number = 10, search: string = '', stageFilter?: string) => {
+  const fetchApplications = useCallback(async (page: number = 1, limit: number = 10, search: string = '', stageFilter?: string) => {
     try {
       setLoading(true)
 
@@ -106,7 +106,7 @@ const AllApplications = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [minScore, maxScore, sortBy, sortOrder])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -120,7 +120,7 @@ const AllApplications = () => {
 
   useEffect(() => {
     fetchApplications(pagination.page, pagination.limit, debouncedSearchQuery, stage)
-  }, [pagination.page, pagination.limit, stage, debouncedSearchQuery, minScore, maxScore, sortBy, sortOrder])
+  }, [pagination.page, pagination.limit, stage, debouncedSearchQuery, fetchApplications])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
