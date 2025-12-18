@@ -2,6 +2,7 @@ import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { NotificationBell } from '../notifications/NotificationBell';
 import type { SeekerHeaderProps } from '@/interfaces/ui/seeker-header-props.interface';
+import { MessageCircle } from 'lucide-react';
 
 const pageTitles: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -23,6 +24,15 @@ function SeekerHeader({ currentPage }: SeekerHeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
+        <Button
+          variant="seekerOutline"
+          style={{ fontWeight: '700' }}
+          onClick={() => navigate('/seeker/messages')}
+        >
+          <MessageCircle className="w-4 h-4 mr-2" />
+          Chat
+        </Button>
+
         <Button
           variant="seekerOutline"
           style={{ fontWeight: '700' }}

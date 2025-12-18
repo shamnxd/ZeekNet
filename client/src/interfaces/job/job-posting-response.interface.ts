@@ -30,6 +30,8 @@ export interface JobPostingResponse {
   unpublishReason?: string
   view_count?: number
   viewCount?: number
+  application_count?: number
+  applicationCount?: number
   applications?: number
   createdAt?: string
   updatedAt?: string

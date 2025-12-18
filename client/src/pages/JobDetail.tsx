@@ -557,7 +557,7 @@ const JobDetail = () => {
                 
                 const companyLogo = jobData.companyLogo || jobData.company_logo || jobData.company?.logo;
                 const companyName = jobData.companyName || jobData.company_name || jobData.company?.companyName || 'Company';
-                const applicationCount = jobData.applicationCount ?? jobData.application_count ?? 0;
+                const applicationCount = jobData.applicationCount || 0;
                 const employmentTypes = jobData.employmentTypes || jobData.employment_types || [];
                 const salary = jobData.salary || { min: 0, max: 0 };
 
