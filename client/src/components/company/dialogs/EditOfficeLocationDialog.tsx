@@ -6,14 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus } from 'lucide-react';
-
-interface OfficeLocation {
-  id?: string;
-  location: string;
-  officeName: string;
-  address: string;
-  isHeadquarters: boolean;
-}
+import type { OfficeLocation } from '@/interfaces/company/office-location.interface';
 
 interface EditOfficeLocationDialogProps {
   isOpen: boolean;

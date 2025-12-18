@@ -39,20 +39,7 @@ import {
 import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
 import { ApplicationStage } from '@/constants/enums'
-
-interface Application {
-  _id: string
-  seeker_id: string
-  seeker_name: string
-  seeker_avatar?: string
-  job_id: string
-  job_title: string
-  score?: number
-  stage: ApplicationStage
-
-  applied_date: string
-  resume_url?: string
-}
+import type { Application } from '@/interfaces/application/application.interface'
 
 const AllApplications = () => {
   const navigate = useNavigate()

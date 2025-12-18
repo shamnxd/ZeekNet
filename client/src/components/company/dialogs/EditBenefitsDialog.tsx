@@ -5,12 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus } from 'lucide-react';
-
-interface Benefit {
-  id?: string;
-  perk: string;
-  description: string;
-}
+import type { Benefit } from '@/interfaces/company/benefit.interface';
 
 interface EditBenefitsDialogProps {
   isOpen: boolean;

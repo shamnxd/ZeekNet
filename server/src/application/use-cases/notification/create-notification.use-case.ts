@@ -1,9 +1,6 @@
 import { INotificationRepository, CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { Notification } from '../../../domain/entities/notification.entity';
-
-interface ICreateNotificationUseCase {
-  execute(data: CreateNotificationData): Promise<Notification>;
-}
+import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/notification/ICreateNotificationUseCase';
 
 export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   constructor(

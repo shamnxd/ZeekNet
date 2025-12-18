@@ -1,5 +1,7 @@
 import { api } from './index';
-import type { JobPostingResponse, JobPostingQuery, PaginatedJobPostings } from '@/types/job';
+import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
+import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
+import type { PaginatedJobPostings } from '@/interfaces/job/paginated-job-postings.interface';
 import { AdminRoutes } from '@/constants/api-routes';
 
 export const adminApi = {

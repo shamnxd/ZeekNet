@@ -5,13 +5,9 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { logoutThunk } from '@/store/slices/auth.slice';
 import { seekerApi } from '@/api/seeker.api';
 import { toast } from 'sonner';
+import type { SeekerSidebarProps } from '@/interfaces/layout/seeker-sidebar-props.interface';
 
 type Page = 'dashboard' | 'profile' | 'applications' | 'settings';
-
-interface SeekerSidebarProps {
-  currentPage: Page;
-  onNavigate: (page: Page) => void;
-}
 
 const menuItems = [
   { id: 'dashboard' as Page, label: 'Dashboard', icon: LayoutDashboard, count: null },

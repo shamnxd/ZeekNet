@@ -1,13 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
 import SeekerHeader from '../headers/SeekerHeader';
 import SeekerSidebar from '../sidebars/SeekerSidebar';
+import type { SeekerLayoutProps } from '@/interfaces/layout/seeker-layout-props.interface';
 
 type Page = 'dashboard' | 'profile' | 'applications' | 'settings';
-
-interface SeekerLayoutProps {
-  children: ReactNode;
-}
 
 const SeekerLayout = ({ children }: SeekerLayoutProps) => {
   const location = useLocation();

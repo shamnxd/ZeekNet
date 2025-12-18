@@ -1,8 +1,5 @@
 import React from 'react';
-
-interface ScoreBadgeProps {
-  score?: number;
-}
+import type { ScoreBadgeProps } from '@/interfaces/ui/score-badge-props.interface';
 
 export const ScoreBadge: React.FC<ScoreBadgeProps> = ({ score }) => {
   if (score === -1) {

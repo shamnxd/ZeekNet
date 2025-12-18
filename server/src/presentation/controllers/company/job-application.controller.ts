@@ -15,7 +15,7 @@ import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
 import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
 import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
-import { IBulkUpdateApplicationsUseCase } from '../../../application/use-cases/company/bulk-update-applications.use-case';
+import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';

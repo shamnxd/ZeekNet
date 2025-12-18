@@ -27,96 +27,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
-
-interface ApplicationDetails {
-  _id: string
-  seeker_id: string
-  seeker_name: string
-  seeker_avatar?: string
-  seeker_headline?: string
-  job_id: string
-  job_title: string
-  job_company?: string
-  job_location?: string
-  job_type?: string
-  score?: number
-  stage: ApplicationStage
-  applied_date: string
-  resume_url?: string
-  cover_letter?: string
-  full_name?: string
-  date_of_birth?: string
-  gender?: string
-  languages?: string[]
-  address?: string
-  about_me?: string
-  current_job?: string
-  highest_qualification?: string
-  experience_years?: number
-  skills?: string[]
-  email?: string
-  phone?: string
-  instagram?: string
-  twitter?: string
-  website?: string
-  resume_data?: {
-    experience?: Array<{
-      title: string
-      company: string
-      period: string
-      location?: string
-      description?: string
-    }>
-    education?: Array<{
-      degree: string
-      school: string
-      period: string
-      location?: string
-    }>
-    industry_knowledge?: string[]
-    tools_technologies?: string[]
-    other_skills?: string[]
-  }
-  hiring_progress?: {
-    interview_date?: string
-    interview_location?: string
-    interview_status?: string
-    assigned_to?: {
-      name: string
-      avatar?: string
-    }
-    notes?: Array<{
-      id: string
-      author: string
-      author_avatar?: string
-      date: string
-      time: string
-      content: string
-      replies?: number
-    }>
-  }
-  interview_schedule?: Array<{
-    id: string
-    date: string
-    interviewer_name: string
-    interviewer_avatar?: string
-    interview_type: string
-    time: string
-    location: string
-    status?: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled'
-    feedback?: {
-      reviewer_name: string
-      rating?: number
-      comment: string
-      reviewed_at: string
-    }
-  }>
-}
+import type { ApplicationDetails as ApplicationDetailsData } from '@/interfaces/application/application-details.interface'
 
 const ApplicationDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [application, setApplication] = useState<ApplicationDetails | null>(null)
+  const [application, setApplication] = useState<ApplicationDetailsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [scheduleInterviewOpen, setScheduleInterviewOpen] = useState(false)
   const [giveRatingOpen, setGiveRatingOpen] = useState(false)
@@ -147,7 +63,7 @@ const ApplicationDetails = () => {
         setLoading(true)
         const res = await jobApplicationApi.getCompanyApplicationById(id)
         const a = res?.data?.data || res?.data
-        const mapped: ApplicationDetails = {
+        const mapped: ApplicationDetailsData = {
           _id: a.id,
           seeker_id: a.seeker_id,
           seeker_name: a.seeker_name || 'Candidate',
@@ -195,7 +111,7 @@ const ApplicationDetails = () => {
     try {
       const res = await jobApplicationApi.getCompanyApplicationById(id)
       const a = res?.data?.data || res?.data
-      const mapped: ApplicationDetails = {
+      const mapped: ApplicationDetailsData = {
         _id: a.id, seeker_id: a.seeker_id, seeker_name: a.seeker_name || 'Candidate',
         seeker_avatar: a.seeker_avatar, seeker_headline: a.seeker_headline,
         job_id: a.job_id, job_title: a.job_title, job_company: a.job_company,

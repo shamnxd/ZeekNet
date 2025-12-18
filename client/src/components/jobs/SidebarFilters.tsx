@@ -6,7 +6,7 @@ import {
   Briefcase,
   X
 } from "lucide-react";
-import type { JobPostingQuery } from "@/types/job";
+import type { JobPostingQuery } from "@/interfaces/job/job-posting-query.interface";
 
 interface SidebarFiltersProps {
   onSearch: (query: JobPostingQuery) => void;

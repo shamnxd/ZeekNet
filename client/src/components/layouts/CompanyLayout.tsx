@@ -1,10 +1,6 @@
-import type { ReactNode } from 'react'
 import CompanyHeader from '../headers/CompanyHeader'
 import CompanySidebar from '../sidebars/CompanySidebar'
-
-interface CompanyLayoutProps {
-  children: ReactNode
-}
+import type { CompanyLayoutProps } from '@/interfaces/layout/company-layout-props.interface';
 
 const CompanyLayout = ({ children }: CompanyLayoutProps) => {
   return (

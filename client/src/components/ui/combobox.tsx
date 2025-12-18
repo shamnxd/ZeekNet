@@ -3,24 +3,9 @@ import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import type { ComboboxOption, ComboboxProps } from '@/interfaces/ui/combobox-props.interface';
 
-export interface ComboboxOption {
-  value: string;
-  label: string;
-}
-
-interface ComboboxProps {
-  options: ComboboxOption[];
-  value?: string[];
-  onChange: (values: string[]) => void;
-  placeholder?: string;
-  multiple?: boolean;
-  disabled?: boolean;
-  className?: string;
-  onSearch?: (searchTerm: string) => void;
-  loading?: boolean;
-  inputClassName?: string;
-}
+export type { ComboboxOption };
 
 export function Combobox({
   options,

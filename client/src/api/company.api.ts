@@ -1,7 +1,8 @@
 import { api } from './index';
 import { uploadFile } from '@/shared/utils/file-upload.util';
 import type { ApiEnvelope } from '@/interfaces/auth';
-import type { JobPostingResponse, JobPostingQuery } from '@/types/job';
+import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
+import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
 
 

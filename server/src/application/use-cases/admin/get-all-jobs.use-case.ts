@@ -1,28 +1,14 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
-
 import { JobStatus } from '../../../domain/enums/job-status.enum';
-
-interface GetAllJobsQuery {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: JobStatus;
-  category_ids?: string[];
-  employment_types?: string[];
-  salary_min?: number;
-  salary_max?: number;
-  location?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
+import { GetAllJobsQueryDtoType } from '../../dto/admin/get-all-jobs-query.dto';
 
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(query: GetAllJobsQuery) {
+  async execute(query: GetAllJobsQueryDtoType) {
     let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
 
     if (query.status !== undefined) {

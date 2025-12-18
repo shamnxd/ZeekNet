@@ -1,5 +1,5 @@
 import { Textarea } from "@/components/ui/textarea";
-import type { JobPostingData } from "../../types/job-posting";
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 
 interface TextFieldProps {
   field: keyof JobPostingData;

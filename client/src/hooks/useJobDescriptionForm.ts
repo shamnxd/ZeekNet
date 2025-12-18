@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { JobPostingData } from "../types/job-posting";
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 
 class RequiredRule {
   validate(value: string): { isValid: boolean; errorMessage?: string } {

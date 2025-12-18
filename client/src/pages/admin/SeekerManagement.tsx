@@ -22,15 +22,7 @@ import { adminApi, type User, type GetAllUsersParams } from '@/api/admin.api'
 import { toast } from 'sonner'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
-
-interface UserWithDisplayData extends User {
-  name: string
-  appliedJobs: number
-  accountStatus: 'Active' | 'Blocked'
-  emailVerification: 'Verified' | 'Unverified'
-  joinedDate: string
-  avatar: string
-}
+import type { UserWithDisplayData } from '@/interfaces/user.interface'
 
 const UserManagement = () => {
   const seekerBlockReasons = [

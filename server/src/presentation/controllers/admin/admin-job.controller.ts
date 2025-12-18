@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AdminGetAllJobsDtoType, AdminUpdateJobStatusDto } from '../../../application/dto/admin/admin-job.dto';
+import { GetAllJobsQueryDtoType } from '../../../application/dto/admin/get-all-jobs-query.dto';
+import { AdminUpdateJobStatusDto } from '../../../application/dto/admin/admin-job.dto';
 import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobStatsUseCase';
 import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminDeleteJobUseCase';
 import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUpdateJobStatusUseCase';
@@ -21,7 +22,7 @@ export class AdminJobController {
   getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       
-      const query = req.query as unknown as AdminGetAllJobsDtoType;
+      const query = req.query as unknown as GetAllJobsQueryDtoType;
       const result = await this._getAllJobsUseCase.execute(query);
       sendSuccessResponse(res, 'Jobs retrieved successfully', result);
     } catch (error) {

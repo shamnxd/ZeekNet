@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { JobPostingStepProps } from "../../types/job-posting";
+import type { JobPostingStepProps } from "@/interfaces/job/job-posting-step-props.interface";
 import { 
   Plus, 
   Heart, 

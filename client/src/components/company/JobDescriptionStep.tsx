@@ -1,4 +1,5 @@
-import type { JobPostingStepProps, JobPostingData } from "../../types/job-posting";
+import type { JobPostingStepProps } from "@/interfaces/job/job-posting-step-props.interface";
+import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { useJobDescriptionForm } from "../../hooks/useJobDescriptionForm";
 import { JobDescriptionTextField } from "./JobDescriptionTextField";
 import { ArrayInputField } from "./ArrayInputField";
