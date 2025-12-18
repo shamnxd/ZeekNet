@@ -2,23 +2,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button"
 import { Check, XCircle, Loader2, CreditCard, Calendar, Zap } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-// be - in
-interface PurchaseConfirmationDialogProps {
-  open: boolean
-  onClose: () => void
-  plan: {
-    id: string
-    name: string
-    price: number
-    yearlyDiscount: number
-    duration: number
-    features: string[]
-  } | null
-  billingCycle: 'monthly' | 'annual'
-  onConfirm: () => Promise<void>
-  loading: boolean
-  isUpgrade?: boolean
-}
+import type { PurchaseConfirmationDialogProps } from '@/interfaces/company/dialogs/purchase-confirmation-dialog-props.interface';
+import type { PurchaseResultDialogProps } from '@/interfaces/company/dialogs/purchase-result-dialog-props.interface';
 
 export function PurchaseConfirmationDialog({
   open,
@@ -138,14 +123,6 @@ export function PurchaseConfirmationDialog({
   )
 }
 
-interface PurchaseResultDialogProps {
-  open: boolean
-  onClose: () => void
-  success: boolean
-  message: string
-  invoiceId?: string
-  transactionId?: string
-}
 
 export function PurchaseResultDialog({
   open,

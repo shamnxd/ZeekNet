@@ -1,8 +1,16 @@
 export interface PurchaseConfirmationDialogProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  planName: string;
-  price: number;
-  duration: number;
+  plan: {
+    id: string;
+    name: string;
+    price: number;
+    yearlyDiscount: number;
+    duration: number;
+    features: string[];
+  } | null;
+  billingCycle: 'monthly' | 'annual';
+  onConfirm: () => Promise<void>;
+  loading: boolean;
+  isUpgrade?: boolean;
 }

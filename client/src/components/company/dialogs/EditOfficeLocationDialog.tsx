@@ -7,13 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus } from 'lucide-react';
 import type { OfficeLocation } from '@/interfaces/company/office-location.interface';
-// be - in
-interface EditOfficeLocationDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (locations: OfficeLocation[]) => void;
-  locations: OfficeLocation[];
-}
+import type { EditOfficeLocationDialogProps } from '@/interfaces/company/dialogs/edit-office-location-dialog-props.interface';
 
 const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
   isOpen,

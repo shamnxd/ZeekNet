@@ -1,4 +1,4 @@
-import type { OfficeLocation } from '../office-location.interface';
+import type { OfficeLocation } from '@/interfaces/company/office-location.interface';
 
 export interface EditOfficeLocationDialogProps {
   isOpen: boolean;

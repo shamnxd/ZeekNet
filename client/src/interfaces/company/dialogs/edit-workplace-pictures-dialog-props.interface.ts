@@ -1,4 +1,4 @@
-import type { WorkplacePicture } from '../workplace-picture.interface';
+import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface';
 
 export interface EditWorkplacePicturesDialogProps {
   isOpen: boolean;

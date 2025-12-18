@@ -7,13 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { publicApi } from '@/api/public.api';
 import { X } from 'lucide-react';
 import type { TechStackItem } from '@/interfaces/company/tech-stack-item.interface';
-// be - in
-interface EditTechStackDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (techStack: TechStackItem[]) => void;
-  techStack: TechStackItem[];
-}
+import type { EditTechStackDialogProps } from '@/interfaces/company/dialogs/edit-tech-stack-dialog-props.interface';
 
 const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   isOpen,

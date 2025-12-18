@@ -1,6 +1,8 @@
 export interface PurchaseResultDialogProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   success: boolean;
   message: string;
+  invoiceId?: string;
+  transactionId?: string;
 }

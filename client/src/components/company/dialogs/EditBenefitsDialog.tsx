@@ -6,13 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus } from 'lucide-react';
 import type { Benefit } from '@/interfaces/company/benefit.interface';
-// be - in
-interface EditBenefitsDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (benefits: Benefit[]) => void;
-  benefits: Benefit[];
-}
+import type { EditBenefitsDialogProps } from '@/interfaces/company/dialogs/edit-benefits-dialog-props.interface';
 
 const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
   isOpen,

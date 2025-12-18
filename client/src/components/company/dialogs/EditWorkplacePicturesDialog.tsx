@@ -7,13 +7,7 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { companyApi } from '@/api/company.api';
 import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface';
-// be - in
-interface EditWorkplacePicturesDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (pictures: WorkplacePicture[]) => void;
-  pictures: WorkplacePicture[];
-}
+import type { EditWorkplacePicturesDialogProps } from '@/interfaces/company/dialogs/edit-workplace-pictures-dialog-props.interface';
 
 const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = ({
   isOpen,
