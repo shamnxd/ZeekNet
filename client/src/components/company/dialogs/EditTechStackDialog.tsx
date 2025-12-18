@@ -6,7 +6,7 @@ import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import { publicApi } from '@/api/public.api';
 import { X } from 'lucide-react';
-import type { TechStackItem } from '@/interfaces/company/tech-stack-item.interface';
+import type { TechStackItem } from '@/interfaces/company/company-data.interface';
 import type { EditTechStackDialogProps } from '@/interfaces/company/dialogs/edit-tech-stack-dialog-props.interface';
 
 const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
@@ -42,7 +42,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const currentStacks = techStack.map(item => item.techStack).filter(Boolean);
+      const currentStacks = techStack.map(item => item.techStack || item.name || '').filter(Boolean) as string[];
       setSelectedStacks(currentStacks);
       fetchSkills();
     }
@@ -61,8 +61,8 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
 
   const handleSave = () => {
     const techStackItems: TechStackItem[] = selectedStacks.map(stack => {
-      const existingItem = techStack.find(item => item.techStack === stack);
-      return existingItem ? { ...existingItem } : { techStack: stack };
+      const existingItem = techStack.find(item => (item.techStack || item.name) === stack);
+      return existingItem ? { ...existingItem } : { techStack: stack, name: stack };
     });
     
     onSave(techStackItems);
@@ -70,7 +70,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   };
 
   const handleClose = () => {
-    const currentStacks = techStack.map(item => item.techStack).filter(Boolean);
+    const currentStacks = techStack.map(item => item.techStack || item.name || '').filter(Boolean) as string[];
     setSelectedStacks(currentStacks);
     onClose();
   };

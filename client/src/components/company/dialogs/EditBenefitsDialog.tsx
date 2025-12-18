@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus } from 'lucide-react';
-import type { Benefit } from '@/interfaces/company/benefit.interface';
+import type { Benefit } from '@/interfaces/company/company-data.interface';
 import type { EditBenefitsDialogProps } from '@/interfaces/company/dialogs/edit-benefits-dialog-props.interface';
 
 const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
@@ -28,7 +28,8 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validItems = items.filter(item => 
-      item.perk.trim() !== '' && item.description.trim() !== ''
+      typeof item.perk === 'string' && item.perk.trim() !== '' && 
+      typeof item.description === 'string' && item.description.trim() !== ''
     );
     onSave(validItems);
     onClose();

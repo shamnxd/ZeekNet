@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus } from 'lucide-react';
-import type { OfficeLocation } from '@/interfaces/company/office-location.interface';
+import type { OfficeLocation } from '@/interfaces/company/company-data.interface';
 import type { EditOfficeLocationDialogProps } from '@/interfaces/company/dialogs/edit-office-location-dialog-props.interface';
 
 const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
@@ -31,9 +31,9 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validItems = items.filter(item => 
-      item.location.trim() !== '' && 
-      item.officeName.trim() !== '' && 
-      item.address.trim() !== ''
+      typeof item.location === 'string' && item.location.trim() !== '' && 
+      typeof item.officeName === 'string' && item.officeName.trim() !== '' && 
+      typeof item.address === 'string' && item.address.trim() !== ''
     );
     onSave(validItems);
     onClose();

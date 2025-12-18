@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { companyApi } from '@/api/company.api';
-import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface';
+import type { WorkplacePicture } from '@/interfaces/company/company-data.interface';
 import type { EditWorkplacePicturesDialogProps } from '@/interfaces/company/dialogs/edit-workplace-pictures-dialog-props.interface';
 
 const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = ({
@@ -80,7 +80,7 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const validPictures = picturesList.filter(picture => picture.pictureUrl.trim() !== '');
+    const validPictures = picturesList.filter(picture => (picture.pictureUrl || picture.url || '').trim() !== '');
     
     if (validPictures.length === 0) {
       toast.error('Please add at least one picture');
