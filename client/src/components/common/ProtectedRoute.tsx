@@ -3,12 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/hooks/useRedux';
 import { UserRole } from '@/constants/enums';
 import { Loading } from '@/components/ui/loading';
-// be - in
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  allowedRoles?: UserRole[];
-  redirectTo?: string;
-}
+import type { ProtectedRouteProps } from '@/interfaces/ui/protected-route-props.interface';
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 

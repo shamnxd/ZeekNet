@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -12,61 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Loader2 } from 'lucide-react'
-// be - in
-interface ValidationRule {
-  required?: boolean | string
-  minLength?: { value: number; message: string }
-  maxLength?: { value: number; message: string }
-  pattern?: { value: RegExp; message: string }
-  validate?: (value: string) => boolean | string
-}
-
-interface FormField {
-  id: string
-  label: string
-  type?: 'text' | 'email' | 'tel' | 'date' | 'textarea'
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  rows?: number
-  validation?: ValidationRule
-  required?: boolean
-}
-
-interface FieldGroup {
-  fields: FormField[]
-  gridCols?: 1 | 2 | 3 | 4
-}
-
-interface BasicFormDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  description: string
-  confirmText?: string
-  cancelText?: string
-  confirmVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
-  isLoading?: boolean
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl'
-  children: ReactNode
-}
-
-interface AdvancedFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description?: string
-  fields?: FormField[]
-  fieldGroups?: FieldGroup[]
-  onSubmit: () => void
-  submitLabel?: string
-  cancelLabel?: string
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  children?: ReactNode
-}
-
-type FormDialogProps = BasicFormDialogProps | AdvancedFormDialogProps
+import type {
+  FormField,
+  BasicFormDialogProps,
+  AdvancedFormDialogProps,
+  FormDialogProps
+} from '@/interfaces/ui/form-dialog.types';
 
 const isAdvancedFormDialog = (props: FormDialogProps): props is AdvancedFormDialogProps => {
   return 'open' in props && 'onOpenChange' in props

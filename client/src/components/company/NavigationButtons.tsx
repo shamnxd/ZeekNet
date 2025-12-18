@@ -1,9 +1,5 @@
 import { Button } from "@/components/ui/button";
-// be - in
-interface NavigationButtonsProps {
-  onPrevious: () => void;
-  onNext: () => void;
-}
+import type { NavigationButtonsProps } from '@/interfaces/ui/navigation-buttons-props.interface';
 
 export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   onPrevious,

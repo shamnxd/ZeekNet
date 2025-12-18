@@ -1,18 +1,8 @@
 import { Textarea } from "@/components/ui/textarea";
-import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
-// be - in
-interface TextFieldProps {
-  field: keyof JobPostingData;
-  label: string;
-  placeholder: string;
-  helperText: string;
-  value: string;
-  required?: boolean;
-  error?: string;
-  onChange: (field: keyof JobPostingData, value: string) => void;
-}
 
-export const JobDescriptionTextField: React.FC<TextFieldProps> = ({
+import type { JobDescriptionTextFieldProps } from '@/interfaces/company/job-description-text-field-props.interface';
+
+export const JobDescriptionTextField: React.FC<JobDescriptionTextFieldProps> = ({
   field,
   label,
   placeholder,
