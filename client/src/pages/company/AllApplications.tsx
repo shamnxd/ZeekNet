@@ -40,6 +40,7 @@ import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
 import { ApplicationStage } from '@/constants/enums'
 import type { Application } from '@/interfaces/application/application.interface'
+import type { ApiError } from '@/types/api-error.type'
 
 const AllApplications = () => {
   const navigate = useNavigate()
@@ -67,7 +68,7 @@ const AllApplications = () => {
     try {
       setLoading(true)
 
-      const params: any = { page, limit, search }
+      const params: Record<string, unknown> = { page, limit, search }
       
       if (stageFilter && stageFilter !== 'all') {
         params.stage = stageFilter as ApplicationStage
@@ -80,7 +81,7 @@ const AllApplications = () => {
 
       const res = await jobApplicationApi.getCompanyApplications(params)
       const data = res?.data?.data || res?.data
-      const list = (data?.applications || []).map((a: any) => ({
+      const list = (data?.applications || []).map((a: { id: string; seeker_id: string; seeker_name?: string; seeker_full_name?: string; seeker_avatar?: string; job_id: string; job_title: string; score: number; stage: string; applied_date: string }) => ({
         _id: a.id,
         seeker_id: a.seeker_id,
         seeker_name: a.seeker_name || a.seeker_full_name || 'Candidate',
@@ -119,7 +120,7 @@ const AllApplications = () => {
 
   useEffect(() => {
     fetchApplications(pagination.page, pagination.limit, debouncedSearchQuery, stage)
-  }, [pagination.page, stage, debouncedSearchQuery, minScore, maxScore, sortBy, sortOrder])
+  }, [pagination.page, pagination.limit, stage, debouncedSearchQuery, minScore, maxScore, sortBy, sortOrder])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -184,8 +185,9 @@ const AllApplications = () => {
     try {
       const conversation = await chatApi.createConversation({ participantId: seekerId })
       navigate(`/company/messages?chat=${conversation.id}`)
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Unable to start chat')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Unable to start chat')
     }
   }
 
@@ -265,8 +267,9 @@ const AllApplications = () => {
       ))
       setSelectedApplications(new Set())
       setShowShortlistConfirm(false)
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to update applications')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update applications')
     } finally {
       setBulkActionLoading(false)
     }
@@ -315,8 +318,9 @@ const AllApplications = () => {
       ))
       setSelectedApplications(new Set())
       setShowRejectConfirm(false)
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to update applications')
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      toast.error(apiError?.response?.data?.message || 'Failed to update applications')
     } finally {
       setBulkActionLoading(false)
     }
