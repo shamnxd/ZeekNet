@@ -12,5 +12,5 @@ export type AppDispatch = typeof store.dispatch
 
 setAuthTokenGetter(() => store.getState().auth.token)
 setUpdateTokenCallback((data, token) => {
-  store.dispatch(setUser({ data, token }))
+  store.dispatch(setUser({ data: data as unknown as import('@/interfaces/auth').AuthResponseData, token }))
 })
