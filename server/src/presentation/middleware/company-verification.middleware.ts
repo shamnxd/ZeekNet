@@ -1,16 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { HttpStatus } from '../../domain/enums/http-status.enum';
 import { UserRole } from '../../domain/enums/user-role.enum';
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    userId: string;
-    email: string;
-    role: string;
-  };
-}
+import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
+import { sendUnauthorizedResponse, sendForbiddenResponse } from '../../shared/utils/controller.utils';
 
 export class CompanyVerificationMiddleware {
   constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
@@ -25,33 +17,21 @@ export class CompanyVerificationMiddleware {
       }
 
       if (!userId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: 'User not authenticated',
-          data: null,
-        });
+        sendUnauthorizedResponse(res, 'User not authenticated');
         return;
       }
 
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'Company profile not found. Please complete your profile setup.',
-          data: null,
-        });
+        sendForbiddenResponse(res, 'Company profile not found. Please complete your profile setup.');
         return;
       }
 
       if (companyProfile.isVerified !== 'verified') {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'Company profile is not verified. Please wait for admin approval.',
-          data: {
+        sendForbiddenResponse(res, 'Company profile is not verified. Please wait for admin approval.', {
             verificationStatus: companyProfile.isVerified,
             profileId: companyProfile.id,
-          },
         });
         return;
       }

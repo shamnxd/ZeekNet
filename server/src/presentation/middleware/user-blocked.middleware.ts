@@ -1,15 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
 import { HttpStatus } from '../../domain/enums/http-status.enum';
+import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
+import { sendForbiddenResponse } from '../../shared/utils/controller.utils';
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    userId: string;
-    email: string;
-    role: string;
-  };
-}
 
 export class UserBlockedMiddleware {
   constructor(
@@ -29,11 +23,7 @@ export class UserBlockedMiddleware {
       }
 
       if (user.isBlocked) {
-        res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'User account is blocked. Please contact support for assistance.',
-          data: null,
-        });
+        sendForbiddenResponse(res, 'User account is blocked. Please contact support for assistance.');
         return;
       }
 

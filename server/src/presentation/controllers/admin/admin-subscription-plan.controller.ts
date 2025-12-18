@@ -5,7 +5,7 @@ import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases
 import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
 import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse } from '../../../shared/utils/controller.utils';
 
 export class AdminSubscriptionPlanController {
   constructor(
@@ -27,8 +27,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const plan = await this._createSubscriptionPlanUseCase.execute(parsed.data);
-      res.status(201);
-      sendSuccessResponse(res, 'Subscription plan created successfully', plan);
+      sendCreatedResponse(res, 'Subscription plan created successfully', plan);
     } catch (error) {
       handleAsyncError(error, next);
     }

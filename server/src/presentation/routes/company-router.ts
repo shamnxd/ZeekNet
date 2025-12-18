@@ -12,7 +12,6 @@ import {
   companySubscriptionPlanController,
   companySubscriptionController,
   subscriptionMiddleware,
-
 } from '../../infrastructure/di/companyDi';
 
 import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';

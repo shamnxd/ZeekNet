@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodSchema } from 'zod';
-import { HttpStatus } from '../../domain/enums/http-status.enum';
+import { sendBadRequestResponse, sendInternalServerErrorResponse } from '../../shared/utils/controller.utils';
 
 export const validateBody = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -15,20 +15,11 @@ export const validateBody = (schema: ZodSchema) => {
           message: err.message,
         }));
 
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: 'Validation failed',
-          data: null,
-          errors: errorMessages,
-        });
+        sendBadRequestResponse(res, 'Validation failed', errorMessages);
         return;
       }
 
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error',
-        data: null,
-      });
+      sendInternalServerErrorResponse(res);
     }
   };
 };
@@ -46,20 +37,11 @@ export const validateQuery = (schema: ZodSchema) => {
           message: err.message,
         }));
 
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: 'Query validation failed',
-          data: null,
-          errors: errorMessages,
-        });
+        sendBadRequestResponse(res, 'Query validation failed', errorMessages);
         return;
       }
 
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: 'Internal server error',
-        data: null,
-      });
+      sendInternalServerErrorResponse(res);
     }
   };
 };

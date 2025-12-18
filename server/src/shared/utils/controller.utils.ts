@@ -59,3 +59,31 @@ export function handleError(res: Response, error: unknown): void {
     sendErrorResponse(res, 'Internal server error', null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
+
+export function sendCreatedResponse<T>(res: Response, message: string, data: T): void {
+  sendSuccessResponse(res, message, data, undefined, HttpStatus.CREATED);
+}
+
+export function sendBadRequestResponse<T>(res: Response, message: string, data?: T): void {
+  sendErrorResponse(res, message, data, HttpStatus.BAD_REQUEST);
+}
+
+export function sendUnauthorizedResponse<T>(res: Response, message: string = 'Unauthorized', data?: T): void {
+  sendErrorResponse(res, message, data, HttpStatus.UNAUTHORIZED);
+}
+
+export function sendForbiddenResponse<T>(res: Response, message: string = 'Forbidden', data?: T): void {
+  sendErrorResponse(res, message, data, HttpStatus.FORBIDDEN);
+}
+
+export function sendConflictResponse<T>(res: Response, message: string, data?: T): void {
+  sendErrorResponse(res, message, data, HttpStatus.CONFLICT);
+}
+
+export function sendInternalServerErrorResponse<T>(res: Response, message: string = 'Internal server error', data?: T): void {
+  sendErrorResponse(res, message, data, HttpStatus.INTERNAL_SERVER_ERROR);
+}
+
+export function sendNoContentResponse(res: Response): void {
+  res.status(HttpStatus.NO_CONTENT).send();
+}

@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticationError, AuthorizationError } from '../../domain/errors/errors';
 import { JwtTokenService } from '../../infrastructure/security/jwt-token-service';
 
-export interface AuthenticatedRequest extends Request {
-  user?: { id: string; userId: string; email: string; role: string };
-}
+import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
+
+export { AuthenticatedRequest };
+
 
 const tokenService = new JwtTokenService();
 

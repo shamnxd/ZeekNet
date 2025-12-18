@@ -12,6 +12,8 @@ import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-c
 import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
 import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyOfficeLocationUseCase';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
+
 
 export class CompanyOfficeLocationController {
   constructor(
@@ -45,7 +47,7 @@ export class CompanyOfficeLocationController {
       const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
       const location = await this._createCompanyOfficeLocationUseCase.execute({ companyId, ...parsed.data });
-      sendSuccessResponse(res, 'Office location created successfully', location, undefined, 201);
+      sendSuccessResponse(res, 'Office location created successfully', location, undefined, HttpStatus.CREATED);
     } catch (error) {
       handleAsyncError(error, next);
     }

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { HandleStripeWebhookUseCase } from '../../../application/use-cases/company/handle-stripe-webhook.use-case';
 import { logger } from '../../../infrastructure/config/logger';
+import { sendSuccessResponse, sendBadRequestResponse } from '../../../shared/utils/controller.utils';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class StripeWebhookController {
   constructor(
@@ -12,7 +14,7 @@ export class StripeWebhookController {
       const signature = req.headers['stripe-signature'] as string;
 
       if (!signature) {
-        res.status(400).json({ error: 'Missing stripe-signature header' });
+        sendBadRequestResponse(res, 'Missing stripe-signature header');
         return;
       }
 
@@ -21,16 +23,16 @@ export class StripeWebhookController {
         signature,
       });
 
-      res.status(200).json(result);
+      sendSuccessResponse(res, 'Webhook validated and processed', result);
     } catch (error) {
       logger.error('Stripe webhook error:', error);
       
       if (error instanceof Error && error.message.includes('signature')) {
-        res.status(400).json({ error: 'Webhook signature verification failed' });
+        sendBadRequestResponse(res, 'Webhook signature verification failed');
         return;
       }
 
-      res.status(200).json({ received: true, error: 'Internal processing error' });
+      sendSuccessResponse(res, 'Internal processing error', { received: true });
     }
   };
 }
