@@ -75,7 +75,7 @@ import { UploadWorkplacePictureUseCase } from '../../application/use-cases/compa
 import { DeleteImageUseCase } from '../../application/use-cases/company/delete-image.use-case';
 import { CompanySubscriptionPlanController } from '../../presentation/controllers/company/company-subscription-plan.controller';
 import { CompanySubscriptionController } from '../../presentation/controllers/company/company-subscription.controller';
-import { StripeWebhookController } from '../../presentation/controllers/company/stripe-webhook.controller';
+import { StripeWebhookController } from '../../presentation/controllers/payment/stripe-webhook.controller';
 import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
 import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
 import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
@@ -175,10 +175,10 @@ const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
-const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
+const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const updateApplicationScoreUseCase = new UpdateApplicationScoreUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
-const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationRepository);
+const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobApplicationRepository, companyProfileRepository);

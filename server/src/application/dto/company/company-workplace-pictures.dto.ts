@@ -6,7 +6,7 @@ const CreateCompanyWorkplacePicturesDtoSchema = z.object({
   caption: z.string().optional(),
 });
 
-const UpdateCompanyWorkplacePicturesDtoSchema = CreateCompanyWorkplacePicturesDtoSchema.partial();
+const UpdateCompanyWorkplacePicturesDtoSchema = CreateCompanyWorkplacePicturesDtoSchema;
 
 export { CreateCompanyWorkplacePicturesDtoSchema as CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDtoSchema as UpdateCompanyWorkplacePicturesDto };
 

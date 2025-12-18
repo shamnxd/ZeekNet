@@ -2,13 +2,15 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 import { GetAllJobsQueryDtoType } from '../../dto/admin/get-all-jobs-query.dto';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { AdminJobListResponseDto } from '../../dto/admin/admin-job-response.dto';
 
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
-  async execute(query: GetAllJobsQueryDtoType) {
+  async execute(query: GetAllJobsQueryDtoType): Promise<AdminJobListResponseDto> {
     let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
 
     if (query.status !== undefined) {
@@ -67,19 +69,7 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    const jobDtos = paginatedJobs.map(job => ({
-      id: job.id,
-      title: job.title,
-      companyName: job.companyName || 'Company',
-      location: job.location,
-      salary: job.salary,
-      status: job.status,
-      applications: job.applicationCount,
-      viewCount: job.viewCount,
-      createdAt: job.createdAt,
-      employmentTypes: job.employmentTypes,
-      categoryIds: job.categoryIds,
-    }));
+    const jobDtos = JobPostingMapper.toAdminListItemResponseList(paginatedJobs);
 
     return {
       jobs: jobDtos,

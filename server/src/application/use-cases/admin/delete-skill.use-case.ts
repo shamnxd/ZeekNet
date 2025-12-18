@@ -1,6 +1,7 @@
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
 import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/skills/IDeleteSkillUseCase';
 import { AppError } from '../../../domain/errors/errors';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class DeleteSkillUseCase implements IDeleteSkillUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) {}
@@ -9,13 +10,13 @@ export class DeleteSkillUseCase implements IDeleteSkillUseCase {
     const skill = await this._skillRepository.findById(skillId);
     
     if (!skill) {
-      throw new AppError('Skill not found', 404);
+      throw new AppError('Skill not found', HttpStatus.NOT_FOUND);
     }
 
     const deleted = await this._skillRepository.delete(skillId);
     
     if (!deleted) {
-      throw new AppError('Failed to delete skill', 500);
+      throw new AppError('Failed to delete skill', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     return true;

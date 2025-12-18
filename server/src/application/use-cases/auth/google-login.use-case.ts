@@ -25,16 +25,19 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
   async execute(idToken: string): Promise<LoginResponseDto> {
     const profile = await this._googleVerifier.verifyIdToken(idToken);
     let user = await this._userRepository.findOne({ email: profile.email });
+
     if (!user) {
-      user = await this._userRepository.create({
-        name: profile.name,
-        email: profile.email,
-        password: await this._passwordHasher.hash('oauth-google'),
-        role: UserRole.SEEKER,
-        isVerified: profile.emailVerified,
-        isBlocked: false,
-        refreshToken: null,
-      } as Omit<User, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+      user = await this._userRepository.create(
+        UserMapper.toEntity({
+          name: profile.name,
+          email: profile.email,
+          password: await this._passwordHasher.hash('oauth-google'),
+          role: UserRole.SEEKER,
+          isVerified: profile.emailVerified,
+          isBlocked: false,
+          refreshToken: undefined,
+        }),
+      );
     }
 
     if (user.isBlocked) {

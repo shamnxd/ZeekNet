@@ -27,13 +27,7 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
     return JobApplicationMapper.toDetailResponse(
       application,
       undefined,
-      {
-        title: job?.title,
-        companyName: job?.companyName,
-        companyLogo: job?.companyLogo,
-        location: job?.location,
-        employmentTypes: job?.employmentTypes,
-      },
+      job,
     );
   }
 }

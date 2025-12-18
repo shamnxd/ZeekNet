@@ -1,28 +1,7 @@
 import { ApplicationStage } from '../enums/application-stage.enum';
+import { InterviewStatus, InterviewFeedback, InterviewSchedule } from '../interfaces/interview.interfaces';
 
-export { ApplicationStage };
-
-export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
-
-export interface InterviewFeedback {
-  reviewerName: string;
-  rating?: number;
-  comment: string;
-  reviewedAt: Date;
-}
-
-export interface InterviewSchedule {
-  id?: string;
-  date: Date;
-  time: string;
-  interviewType: string;
-  location: string;
-  interviewerName?: string;
-  status: InterviewStatus;
-  feedback?: InterviewFeedback;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+export { ApplicationStage, InterviewFeedback, InterviewSchedule, InterviewStatus };
 
 export class JobApplication {
   constructor(

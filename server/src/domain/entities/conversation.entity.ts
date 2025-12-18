@@ -1,21 +1,6 @@
-import { UserRole } from '../enums/user-role.enum';
 import { ChatMessage } from './chat-message.entity';
+import { ConversationParticipant, LastMessageSummary } from '../interfaces/conversation.interfaces';
 
-export interface ConversationParticipant {
-  userId: string;
-  role: UserRole;
-  unreadCount: number;
-  lastReadAt?: Date | null;
-  name: string;
-  profileImage: string | null;
-}
-
-export interface LastMessageSummary {
-  messageId: string;
-  senderId: string;
-  content: string;
-  createdAt: Date;
-}
 
 export class Conversation {
   constructor(

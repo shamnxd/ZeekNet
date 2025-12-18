@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IGetJobPostingUseCase';
-import { AppError, NotFoundError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 
 export class GetJobPostingUseCase implements IGetJobPostingUseCase {
@@ -14,7 +14,7 @@ export class GetJobPostingUseCase implements IGetJobPostingUseCase {
     }
 
     if (jobPosting.status === 'blocked') {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     return jobPosting;

@@ -8,12 +8,12 @@ import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/ap
 import { CreateJobApplicationDto } from '../../dto/application/create-job-application.dto';
 import { z } from 'zod';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
-import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
-import { NotificationType } from '../../../domain/entities/notification.entity';
+import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { Types } from 'mongoose';
 import { groqService } from '../../../infrastructure/services/groq.service';
 import { ResumeParser } from '../../../shared/utils/resume-parser.utils';
+import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -50,8 +50,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       console.log(`✅ ATS Score updated for application ${applicationId}: ${atsResult.score}/100 - ${atsResult.reasoning}`);
     } catch (error) {
       console.error(`❌ Failed to calculate ATS score for application ${applicationId}:`, error);
-      
-      
       await this._jobApplicationRepository.update(applicationId, {
         score: undefined,
       });
@@ -84,19 +82,19 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('You have already applied for this job');
     }
 
-    
-    const application = await this._jobApplicationRepository.create({
-      seekerId: seekerId,
-      jobId: applicationData.job_id,
-      companyId: job.companyId,
-      coverLetter: applicationData.cover_letter,
-      resumeUrl: applicationData.resume_url,
-      resumeFilename: applicationData.resume_filename,
-      stage: ApplicationStage.APPLIED,
-      interviews: [],
-      appliedDate: new Date(),
-      score: -1, 
-    });
+    const application = await this._jobApplicationRepository.create(
+      JobApplicationMapper.toEntity({
+        seekerId: seekerId,
+        jobId: applicationData.job_id,
+        companyId: job.companyId,
+        coverLetter: applicationData.cover_letter,
+        resumeUrl: applicationData.resume_url,
+        resumeFilename: applicationData.resume_filename,
+        stage: ApplicationStage.APPLIED,
+        appliedDate: new Date(),
+        score: -1, 
+      }),
+    );
 
     let resumeText = '';
     if (resumeBuffer && mimeType) {

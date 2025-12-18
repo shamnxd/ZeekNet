@@ -4,7 +4,22 @@ import { PriceHistoryModel, PriceHistoryDocument as ModelDocument } from '../mod
 import { PriceHistoryMapper } from '../mappers/price-history.mapper';
 import { Types } from 'mongoose';
 
-export class PriceHistoryRepository implements IPriceHistoryRepository {
+import { RepositoryBase } from './base-repository';
+import { CreateInput } from '../../../../domain/types/common.types';
+
+export class PriceHistoryRepository extends RepositoryBase<PriceHistory, ModelDocument> implements IPriceHistoryRepository {
+  constructor() {
+    super(PriceHistoryModel);
+  }
+
+  protected mapToEntity(doc: ModelDocument): PriceHistory {
+    return PriceHistoryMapper.toEntity(doc);
+  }
+
+  protected mapToDocument(entity: Partial<PriceHistory>): Partial<ModelDocument> {
+    return PriceHistoryMapper.toDocument(entity);
+  }
+
   async create(data: {
     planId: string;
     stripePriceId: string;
@@ -13,16 +28,13 @@ export class PriceHistoryRepository implements IPriceHistoryRepository {
     isActive?: boolean;
   }): Promise<PriceHistory> {
     const doc = new PriceHistoryModel({
-      planId: new Types.ObjectId(data.planId),
-      stripePriceId: data.stripePriceId,
-      type: data.type,
-      amount: data.amount,
+      ...this.mapToDocument(data as unknown as Partial<PriceHistory>),
       isActive: data.isActive ?? true,
       archivedAt: null,
     });
 
     const savedDoc = await doc.save();
-    return PriceHistoryMapper.toEntity(savedDoc);
+    return this.mapToEntity(savedDoc);
   }
 
   async findByPlanId(planId: string): Promise<PriceHistory[]> {
@@ -34,7 +46,7 @@ export class PriceHistoryRepository implements IPriceHistoryRepository {
       planId: new Types.ObjectId(planId),
     }).sort({ createdAt: -1 }).exec();
 
-    return docs.map((doc) => PriceHistoryMapper.toEntity(doc));
+    return docs.map((doc) => this.mapToEntity(doc));
   }
 
   async findActiveByPlanIdAndType(planId: string, type: PriceType): Promise<PriceHistory | null> {
@@ -48,7 +60,7 @@ export class PriceHistoryRepository implements IPriceHistoryRepository {
       isActive: true,
     }).exec();
 
-    return doc ? PriceHistoryMapper.toEntity(doc) : null;
+    return doc ? this.mapToEntity(doc) : null;
   }
 
   async findLastArchivedByPlanIdAndType(planId: string, type: PriceType): Promise<PriceHistory | null> {
@@ -64,12 +76,12 @@ export class PriceHistoryRepository implements IPriceHistoryRepository {
       .sort({ archivedAt: -1 })
       .exec();
 
-    return doc ? PriceHistoryMapper.toEntity(doc) : null;
+    return doc ? this.mapToEntity(doc) : null;
   }
 
   async findByStripePriceId(stripePriceId: string): Promise<PriceHistory | null> {
     const doc = await PriceHistoryModel.findOne({ stripePriceId }).exec();
-    return doc ? PriceHistoryMapper.toEntity(doc) : null;
+    return doc ? this.mapToEntity(doc) : null;
   }
 
   async archivePrice(stripePriceId: string): Promise<PriceHistory | null> {
@@ -84,7 +96,7 @@ export class PriceHistoryRepository implements IPriceHistoryRepository {
       { new: true },
     ).exec();
 
-    return doc ? PriceHistoryMapper.toEntity(doc) : null;
+    return doc ? this.mapToEntity(doc) : null;
   }
 
   async archiveAllByPlanId(planId: string): Promise<void> {

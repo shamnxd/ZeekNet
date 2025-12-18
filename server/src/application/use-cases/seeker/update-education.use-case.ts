@@ -31,21 +31,10 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
       throw new NotFoundError('Education not found');
     }
 
-    const updateData: Partial<Education> = {};
-    if (dto.school !== undefined) updateData.school = dto.school;
-    if (dto.degree !== undefined) updateData.degree = dto.degree;
-    if (dto.fieldOfStudy !== undefined) updateData.fieldOfStudy = dto.fieldOfStudy;
-    if (dto.startDate !== undefined) updateData.startDate = new Date(dto.startDate);
-    if (dto.endDate !== undefined) updateData.endDate = dto.endDate ? new Date(dto.endDate) : undefined;
-    if (dto.grade !== undefined) updateData.grade = dto.grade;
+    const updateData = SeekerProfileMapper.toEducationUpdateEntity(dto);
 
-    const mergedData: Partial<Education> = {
-      ...existingEducation,
-      ...updateData,
-    };
-
-    const startDate = mergedData.startDate || existingEducation.startDate;
-    if (mergedData.endDate && mergedData.endDate < startDate) {
+    const startDate = updateData.startDate || existingEducation.startDate;
+    if (updateData.endDate && updateData.endDate < startDate) {
       throw new ValidationError('End date must be after start date');
     }
 

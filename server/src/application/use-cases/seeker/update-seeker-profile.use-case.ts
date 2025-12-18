@@ -30,20 +30,9 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
       }
     }
 
-    const updateData: Record<string, unknown> = {};
-    
-    if (dto.headline !== undefined) updateData.headline = dto.headline || null;
-    if (dto.summary !== undefined) updateData.summary = dto.summary || null;
-    if (dto.location !== undefined) updateData.location = dto.location || null;
-    if (dto.phone !== undefined) updateData.phone = dto.phone || null;
-    if (dto.email !== undefined) updateData.email = dto.email;
-    if (dto.dateOfBirth !== undefined) updateData.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
-    if (dto.gender !== undefined) updateData.gender = dto.gender || null;
-    if (dto.skills !== undefined) updateData.skills = dto.skills;
-    if (dto.languages !== undefined) updateData.languages = dto.languages || [];
-    if (dto.socialLinks !== undefined) updateData.socialLinks = dto.socialLinks || [];
+    const updateData = SeekerProfileMapper.toUpdateEntity(dto);
 
-    const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData as Partial<SeekerProfile>);
+    const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData);
     
     if (!updatedProfile) {
       throw new NotFoundError('Failed to update seeker profile');

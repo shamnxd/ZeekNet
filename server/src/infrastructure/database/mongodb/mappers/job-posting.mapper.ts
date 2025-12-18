@@ -1,21 +1,17 @@
-import { JobPosting } from '../../../../domain/entities/job-posting.entity';
+import { JobPosting, PopulatedCompany } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
 import { Types } from 'mongoose';
 import { JobStatus } from '../../../../domain/enums/job-status.enum';
 import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
 
-interface PopulatedCompany {
-  _id: Types.ObjectId;
-  companyName: string;
-  logo: string;
-}
+
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument & { company_id?: Types.ObjectId | PopulatedCompany }): JobPosting {
     const populatedCompany = doc.company_id;
     const companyName = populatedCompany && typeof populatedCompany === 'object' && 'companyName' in populatedCompany
       ? populatedCompany.companyName
-      : undefined;
+      : 'Company';
     const companyLogo = populatedCompany && typeof populatedCompany === 'object' && 'logo' in populatedCompany
       ? populatedCompany.logo
       : undefined;

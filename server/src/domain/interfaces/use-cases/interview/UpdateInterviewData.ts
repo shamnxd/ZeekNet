@@ -1,3 +1,5 @@
+import { InterviewStatus } from '../../interview.interfaces';
+
 export interface UpdateInterviewData {
   userId: string;
   applicationId: string;
@@ -7,7 +9,7 @@ export interface UpdateInterviewData {
   interview_type?: string;
   location?: string;
   interviewer_name?: string;
-  status?: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
+  status?: InterviewStatus;
 }
 
 

@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminDeleteJobUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 
 export class AdminDeleteJobUseCase implements IAdminDeleteJobUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
@@ -9,7 +9,7 @@ export class AdminDeleteJobUseCase implements IAdminDeleteJobUseCase {
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new AppError('Job not found', 404);
+      throw new NotFoundError('Job not found');
     }
 
     await this._jobPostingRepository.delete(jobId);

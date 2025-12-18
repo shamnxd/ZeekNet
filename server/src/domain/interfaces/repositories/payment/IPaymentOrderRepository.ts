@@ -1,8 +1,7 @@
 import { PaymentOrder } from '../../../entities/payment-order.entity';
+import { IBaseRepository } from '../IBaseRepository';
 
-export interface IPaymentOrderRepository {
-  create(order: PaymentOrder): Promise<PaymentOrder>;
-  findById(id: string): Promise<PaymentOrder | null>;
+export interface IPaymentOrderRepository extends IBaseRepository<PaymentOrder> {
   findByCompanyId(companyId: string): Promise<PaymentOrder[]>;
   findByStripeInvoiceId(stripeInvoiceId: string): Promise<PaymentOrder | null>;
   updateStatus(id: string, status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded'): Promise<void>;

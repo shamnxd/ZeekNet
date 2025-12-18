@@ -1,6 +1,6 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IDeleteJobRoleUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError, InternalServerError } from '../../../domain/errors/errors';
 
 export class DeleteJobRoleUseCase implements IDeleteJobRoleUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
@@ -9,13 +9,13 @@ export class DeleteJobRoleUseCase implements IDeleteJobRoleUseCase {
     const jobRole = await this._jobRoleRepository.findById(jobRoleId);
     
     if (!jobRole) {
-      throw new AppError('Job role not found', 404);
+      throw new NotFoundError('Job role not found');
     }
 
     const deleted = await this._jobRoleRepository.delete(jobRoleId);
     
     if (!deleted) {
-      throw new AppError('Failed to delete job role', 500);
+      throw new InternalServerError('Failed to delete job role');
     }
 
     return true;

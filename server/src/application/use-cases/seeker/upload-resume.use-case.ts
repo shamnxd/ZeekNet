@@ -24,11 +24,11 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
       throw new ValidationError('Resume must be a PDF, DOC, or DOCX file');
     }
 
-    const resume: ResumeMeta = {
+    const resume = SeekerProfileMapper.toResumeEntity({
       url: dto.url,
       fileName: dto.fileName,
       uploadedAt: new Date(),
-    };
+    });
 
     await this._seekerProfileRepository.update(profile.id, { resume });
     return SeekerProfileMapper.resumeMetaToResponse(resume);

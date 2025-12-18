@@ -39,19 +39,18 @@ export class PaymentOrderMapper {
     });
   }
 
-  static toDocument(entity: PaymentOrder): Partial<PaymentOrderDocument> {
-    const doc: Partial<PaymentOrderDocument> = {
-      companyId: new Types.ObjectId(entity.companyId),
-      planId: new Types.ObjectId(entity.planId),
-      amount: entity.amount,
-      currency: entity.currency,
-      status: entity.status,
-      paymentMethod: entity.paymentMethod,
-      invoiceId: entity.invoiceId,
-      transactionId: entity.transactionId,
-      metadata: entity.metadata,
-    };
+  static toDocument(entity: Partial<PaymentOrder>): Partial<PaymentOrderDocument> {
+    const doc: Partial<PaymentOrderDocument> = {};
     
+    if (entity.companyId) doc.companyId = new Types.ObjectId(entity.companyId);
+    if (entity.planId) doc.planId = new Types.ObjectId(entity.planId);
+    if (entity.amount !== undefined) doc.amount = entity.amount;
+    if (entity.currency) doc.currency = entity.currency;
+    if (entity.status) doc.status = entity.status;
+    if (entity.paymentMethod) doc.paymentMethod = entity.paymentMethod;
+    if (entity.invoiceId !== undefined) doc.invoiceId = entity.invoiceId;
+    if (entity.transactionId !== undefined) doc.transactionId = entity.transactionId;
+    if (entity.metadata !== undefined) doc.metadata = entity.metadata;
     if (entity.stripePaymentIntentId) doc.stripePaymentIntentId = entity.stripePaymentIntentId;
     if (entity.stripeInvoiceId) doc.stripeInvoiceId = entity.stripeInvoiceId;
     if (entity.stripeInvoiceUrl) doc.stripeInvoiceUrl = entity.stripeInvoiceUrl;

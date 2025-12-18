@@ -1,10 +1,14 @@
 import { EmploymentType } from '../enums/employment-type.enum';
 import { JobStatus } from '../enums/job-status.enum';
+import { Salary } from '../interfaces/salary.interface';
+import { Types } from 'mongoose';
 
-interface Salary {
-  min: number;
-  max: number;
+export interface PopulatedCompany {
+  _id: Types.ObjectId;
+  companyName: string;
+  logo: string;
 }
+
 
 export class JobPosting {
   constructor(

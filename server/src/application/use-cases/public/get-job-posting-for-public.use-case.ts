@@ -1,8 +1,11 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { Types } from 'mongoose';
 
@@ -15,21 +18,21 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
 
   async execute(jobId: string, userId?: string): Promise<JobPostingDetailResponseDto> {
     if (!jobId || jobId === 'undefined') {
-      throw new AppError('Job ID is required', 400);
+      throw new BadRequestError('Job ID is required');
     }
 
     const jobPosting = await this._jobPostingRepository.findById(jobId);
 
     if (!jobPosting) {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     if (jobPosting.status === 'blocked') {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     if (jobPosting.status !== 'active') {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     await this._jobPostingRepository.update(jobId, { 
@@ -47,29 +50,9 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       hasApplied = !!existingApplication;
     }
 
-    return {
-      id: jobPosting.id,
-      title: jobPosting.title,
-      description: jobPosting.description,
-      responsibilities: jobPosting.responsibilities,
-      qualifications: jobPosting.qualifications,
-      nice_to_haves: jobPosting.niceToHaves,
-      benefits: jobPosting.benefits,
-      salary: jobPosting.salary,
-      employment_types: jobPosting.employmentTypes,
-      location: jobPosting.location,
-      skills_required: jobPosting.skillsRequired,
-      category_ids: jobPosting.categoryIds,
-      status: jobPosting.status,
-      is_featured: jobPosting.isFeatured,
-      unpublish_reason: jobPosting.unpublishReason,
-      view_count: jobPosting.viewCount,
-      application_count: jobPosting.applicationCount,
-      createdAt: jobPosting.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: jobPosting.updatedAt?.toISOString() || new Date().toISOString(),
-      has_applied: hasApplied,
-      company,
-    };
+    const response = JobPostingMapper.toDetailedResponse(jobPosting, company);
+    response.has_applied = hasApplied;
+    return response;
   }
 
   private async getCompanyDetails(companyId: string): Promise<JobPostingDetailResponseDto['company']> {
@@ -83,6 +66,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
         workplacePictures: [],
       };
     }
+    
     const { CompanyProfileModel } = await import('../../../infrastructure/database/mongodb/models/company-profile.model');
     const { UserModel } = await import('../../../infrastructure/database/mongodb/models/user.model');
     const { CompanyWorkplacePicturesModel } = await import('../../../infrastructure/database/mongodb/models/company-workplace-pictures.model');
@@ -102,7 +86,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
 
     const user = await UserModel.findById(companyProfile.userId);
     if (user && user.isBlocked) {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     const workplacePictures = await CompanyWorkplacePicturesModel.find({
@@ -123,16 +107,13 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       }),
     );
 
-    return {
-      companyName: companyProfile.companyName || 'Unknown Company',
-      logo: logoUrl,
-      organisation: companyProfile.organisation || 'Unknown',
-      employeeCount: companyProfile.employeeCount || 0,
-      websiteLink: companyProfile.websiteLink || '',
-      workplacePictures: workplacePictures.map((pic, index) => ({
+    return CompanyProfileMapper.toPublicCompanyDetails(
+      companyProfile as unknown as CompanyProfile,
+      logoUrl,
+      workplacePictures.map((pic, index) => ({
         pictureUrl: workplacePictureUrls[index] || pic.pictureUrl,
         caption: pic.caption,
       })),
-    };
+    );
   }
 }

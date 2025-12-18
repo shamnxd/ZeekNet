@@ -2,22 +2,13 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { AppError } from '../../../domain/errors/errors';
 import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobStatsUseCase';
 import { AdminJobStatsResponseDto } from 'src/application/dto/admin/admin-job-response.dto';
-import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 
 export class AdminGetJobStatsUseCase implements IAdminGetJobStatsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
   async execute(): Promise<AdminJobStatsResponseDto> {
     const jobs = await this._jobPostingRepository.findMany({});
-
-    const stats = {
-      total: jobs.length,
-      active: jobs.filter((job) => job.status === JobStatus.ACTIVE).length,
-      inactive: jobs.filter((job) => job.status !== JobStatus.ACTIVE).length,
-      totalApplications: jobs.reduce((sum, job) => sum + job.applicationCount, 0),
-      totalViews: jobs.reduce((sum, job) => sum + job.viewCount, 0),
-    };
-
-    return stats;
+    return JobPostingMapper.toAdminStatsResponse(jobs);
   }
 }

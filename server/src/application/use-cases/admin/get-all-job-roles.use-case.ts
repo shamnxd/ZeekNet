@@ -1,6 +1,7 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
 import { PaginatedJobRolesResultDto } from '../../dto/job-roles/paginated-job-roles-result.dto';
+import { JobRoleMapper } from '../../mappers/job-role.mapper';
 
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
@@ -19,12 +20,7 @@ export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
     });
 
     return {
-      jobRoles: result.data.map((role) => ({
-        id: role.id,
-        name: role.name,
-        createdAt: role.createdAt,
-        updatedAt: role.updatedAt,
-      })),
+      jobRoles: JobRoleMapper.toResponseList(result.data),
       total: result.total,
       page: result.page,
       limit: result.limit,

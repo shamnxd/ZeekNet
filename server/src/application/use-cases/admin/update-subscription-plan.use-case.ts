@@ -3,9 +3,10 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
 import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
-import { AppError, NotFoundError } from '../../../domain/errors/errors';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { UpdateSubscriptionPlanDto } from '../../dto/subscriptions/update-subscription-plan.dto';
+import { PriceType } from '../../../domain/entities/price-history.entity';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
@@ -25,54 +26,54 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     if (data.name !== undefined) {
       const normalizedName = data.name.trim();
       if (!normalizedName) {
-        throw new AppError('Plan name cannot be empty', 400);
+        throw new BadRequestError('Plan name cannot be empty');
       }
 
       const planWithSameName = await this._subscriptionPlanRepository.findByName(normalizedName);
       if (planWithSameName && planWithSameName.id !== planId) {
-        throw new AppError('Subscription plan with this name already exists', 409);
+        throw new ConflictError('Subscription plan with this name already exists');
       }
       data.name = normalizedName;
     }
 
     if (data.description !== undefined && !data.description.trim()) {
-      throw new AppError('Plan description cannot be empty', 400);
+      throw new BadRequestError('Plan description cannot be empty');
     }
 
     if (data.price !== undefined) {
       if (data.price < 0) {
-        throw new AppError('Price must be a positive number', 400);
+        throw new BadRequestError('Price must be a positive number');
       }
     }
 
     if (data.duration !== undefined && data.duration < 1) {
-      throw new AppError('Duration must be at least 1 day', 400);
+      throw new BadRequestError('Duration must be at least 1 day');
     }
 
     if (data.yearlyDiscount !== undefined && (data.yearlyDiscount < 0 || data.yearlyDiscount > 100)) {
-      throw new AppError('Yearly discount must be between 0 and 100', 400);
+      throw new BadRequestError('Yearly discount must be between 0 and 100');
     }
 
     if (existingPlan.isDefault && data.isActive === false) {
-      throw new AppError('Cannot unlist the default plan', 400);
+      throw new BadRequestError('Cannot unlist the default plan');
     }
 
     if (existingPlan.isDefault) {
       if (data.price !== undefined && data.price !== 0) {
-        throw new AppError('Default plan cannot have a price. Price cannot be set or must be 0.', 400);
+        throw new BadRequestError('Default plan cannot have a price. Price cannot be set or must be 0.');
       }
       if (data.duration !== undefined && data.duration > 0) {
-        throw new AppError('Default plan cannot have a duration. Duration cannot be set.', 400);
+        throw new BadRequestError('Default plan cannot have a duration. Duration cannot be set.');
       }
       if (data.yearlyDiscount !== undefined && data.yearlyDiscount > 0) {
-        throw new AppError('Default plan cannot have a yearly discount. Yearly discount cannot be set.', 400);
+        throw new BadRequestError('Default plan cannot have a yearly discount. Yearly discount cannot be set.');
       }
     }
 
     if (data.isDefault === true && !existingPlan.isDefault) {
       const existingDefault = await this._subscriptionPlanRepository.findDefault();
       if (existingDefault && existingDefault.id !== planId) {
-        throw new AppError('A default plan already exists. Please unset the existing default plan first.', 409);
+        throw new ConflictError('A default plan already exists. Please unset the existing default plan first.');
       }
       await this._subscriptionPlanRepository.unmarkAllAsDefault();
     }
@@ -129,7 +130,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             await this._priceHistoryRepository.create({
               planId: existingPlan.id,
               stripePriceId: monthlyPrice.id,
-              type: 'monthly',
+              type: PriceType.MONTHLY,
               amount: finalPrice,
               isActive: true,
             });
@@ -157,7 +158,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
               await this._priceHistoryRepository.create({
                 planId: existingPlan.id,
                 stripePriceId: yearlyPrice.id,
-                type: 'yearly',
+                type: PriceType.YEARLY,
                 amount: yearlyAmount,
                 isActive: true,
               });
@@ -174,7 +175,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           logger.info(`Created new prices for plan ${existingPlan.name} - Monthly: ${newMonthlyPriceId}, Yearly: ${newYearlyPriceId ?? 'none'}`);
         } catch (error) {
           logger.error(`Failed to create new prices for plan ${existingPlan.name}`, error);
-          throw new AppError('Failed to update plan prices in Stripe', 500);
+          throw new InternalServerError('Failed to update plan prices in Stripe');
         }
       }
     }

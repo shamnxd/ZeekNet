@@ -3,6 +3,7 @@ import { IConversationRepository } from '../../../domain/interfaces/repositories
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { Conversation } from '../../../domain/entities/conversation.entity';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
@@ -28,7 +29,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       return existing;
     }
 
-    const payload: Omit<Conversation, 'id' | '_id' | 'createdAt' | 'updatedAt'> = {
+    const payload: CreateInput<Conversation> = {
       participants: [
         { userId: creator.id, role: creator.role, unreadCount: 0, lastReadAt: null, name: creator.name, profileImage: null },
         { userId: participant.id, role: participant.role, unreadCount: 0, lastReadAt: null, name: participant.name, profileImage: null },

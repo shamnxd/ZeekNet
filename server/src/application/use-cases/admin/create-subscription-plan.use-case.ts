@@ -3,8 +3,11 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
 import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { BadRequestError, ConflictError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
+import { PriceType } from '../../../domain/entities/price-history.entity';
+import { CreateSubscriptionPlanDto } from '../../dto/subscriptions/create-subscription-plan.dto';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
@@ -13,48 +16,36 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
 
-  async execute(data: {
-    name: string;
-    description: string;
-    price?: number;
-    duration?: number;
-    features: string[];
-    jobPostLimit: number;
-    featuredJobLimit: number;
-    applicantAccessLimit: number;
-    yearlyDiscount?: number;
-    isPopular?: boolean;
-    isDefault?: boolean;
-  }): Promise<SubscriptionPlan> {
+  async execute(data: CreateSubscriptionPlanDto): Promise<SubscriptionPlan> {
     if (!data.name || !data.name.trim()) {
-      throw new AppError('Plan name is required', 400);
+      throw new BadRequestError('Plan name is required');
     }
 
     if (!data.description || !data.description.trim()) {
-      throw new AppError('Plan description is required', 400);
+      throw new BadRequestError('Plan description is required');
     }
 
     if (data.isDefault) {
       if (data.price !== undefined && data.price !== 0) {
-        throw new AppError('Default plan cannot have a price. Price must be 0 or not set.', 400);
+        throw new BadRequestError('Default plan cannot have a price. Price must be 0 or not set.');
       }
       if (data.duration !== undefined && data.duration > 0) {
-        throw new AppError('Default plan cannot have a duration. Duration must not be set.', 400);
+        throw new BadRequestError('Default plan cannot have a duration. Duration must not be set.');
       }
       if (data.yearlyDiscount !== undefined && data.yearlyDiscount > 0) {
-        throw new AppError('Default plan cannot have a yearly discount. Yearly discount must not be set.', 400);
+        throw new BadRequestError('Default plan cannot have a yearly discount. Yearly discount must not be set.');
       }
       
       const existingDefault = await this._subscriptionPlanRepository.findDefault();
       if (existingDefault) {
-        throw new AppError('A default plan already exists. Please edit the existing default plan or unset it first.', 409);
+        throw new ConflictError('A default plan already exists. Please edit the existing default plan or unset it first.');
       }
     } else {
       if (data.price === undefined || data.price < 0) {
-        throw new AppError('Price is required and must be a positive number', 400);
+        throw new BadRequestError('Price is required and must be a positive number');
       }
       if (data.duration === undefined || data.duration < 1) {
-        throw new AppError('Duration is required and must be at least 1 day', 400);
+        throw new BadRequestError('Duration is required and must be at least 1 day');
       }
     }
 
@@ -62,7 +53,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
     const existingPlan = await this._subscriptionPlanRepository.findByName(normalizedName);
     
     if (existingPlan) {
-      throw new AppError('Subscription plan with this name already exists', 409);
+      throw new ConflictError('Subscription plan with this name already exists');
     }
 
     if (data.isPopular) {
@@ -86,7 +77,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
       isActive: true,
       isPopular: data.isPopular ?? false,
       isDefault: data.isDefault ?? false,
-    } as Omit<SubscriptionPlan, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+    } as CreateInput<SubscriptionPlan>);
 
     if (this._stripeService && data.price !== undefined && data.price > 0 && !data.isDefault) {
       try {
@@ -144,7 +135,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
           await this._priceHistoryRepository.create({
             planId: updatedPlan.id,
             stripePriceId: monthlyPrice.id,
-            type: 'monthly',
+            type: PriceType.MONTHLY,
             amount: data.price,
             isActive: true,
           });
@@ -153,7 +144,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
             await this._priceHistoryRepository.create({
               planId: updatedPlan.id,
               stripePriceId: yearlyPriceId,
-              type: 'yearly',
+              type: PriceType.YEARLY,
               amount: yearlyAmount,
               isActive: true,
             });

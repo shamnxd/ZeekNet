@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { AppError } from '../../../domain/errors/errors';
+import { AuthorizationError, InternalServerError, NotFoundError } from '../../../domain/errors/errors';
 import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IDeleteJobPostingUseCase';
 
 export class DeleteJobPostingUseCase implements IDeleteJobPostingUseCase {
@@ -13,27 +13,27 @@ export class DeleteJobPostingUseCase implements IDeleteJobPostingUseCase {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     const existingJob = await this._jobPostingRepository.findById(id);
 
     if (!existingJob) {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     if (!existingJob.companyId || existingJob.companyId === '') {
       await this._jobPostingRepository.update(id, { companyId: companyProfile.id });
     } else if (existingJob.companyId !== companyProfile.id) {
       if (existingJob.companyId !== userId) {
-        throw new AppError('Unauthorized to delete this job posting', 403);
+        throw new AuthorizationError('Unauthorized to delete this job posting');
       }
     }
 
     const deleted = await this._jobPostingRepository.delete(id);
 
     if (!deleted) {
-      throw new AppError('Failed to delete job posting', 500);
+      throw new InternalServerError('Failed to delete job posting');
     }
   }
 }

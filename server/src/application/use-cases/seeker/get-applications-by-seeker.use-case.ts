@@ -33,11 +33,7 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     for (const app of result.data) {
       const job = await this._jobPostingRepository.findById(app.jobId);
       applications.push(
-        JobApplicationMapper.toListResponse(app, {
-          jobTitle: job?.title,
-          companyName: job?.companyName,
-          companyLogo: job?.companyLogo,
-        }),
+        JobApplicationMapper.toListResponse(app, job),
       );
     }
 

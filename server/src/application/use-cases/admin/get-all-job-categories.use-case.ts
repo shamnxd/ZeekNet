@@ -1,6 +1,7 @@
 import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/job-categories/IGetAllJobCategoriesUseCase';
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
 import { PaginatedJobCategoriesResultDto } from '../../dto/job-categories/paginated-job-categories-result.dto';
+import { JobCategoryMapper } from '../../mappers/job-category.mapper';
 
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
@@ -19,12 +20,7 @@ export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
     });
 
     return {
-      categories: result.data.map((category) => ({
-        id: category.id,
-        name: category.name,
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
-      })),
+      categories: JobCategoryMapper.toResponseList(result.data),
       total: result.total,
       page: result.page,
       limit: result.limit,

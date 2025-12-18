@@ -1,9 +1,10 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { PriceType } from '../../../../domain/entities/price-history.entity';
 
 export interface PriceHistoryDocument extends Document {
   planId: Types.ObjectId;
   stripePriceId: string;
-  type: 'monthly' | 'yearly';
+  type: PriceType;
   amount: number;
   isActive: boolean;
   archivedAt: Date | null;

@@ -1,6 +1,6 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
-import { AppError } from '../../../domain/errors/errors';
+import { BadRequestError } from '../../../domain/errors/errors';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 
 export class GetCompanyProfileByUserIdUseCase implements IGetCompanyProfileByUserIdUseCase {
@@ -8,7 +8,7 @@ export class GetCompanyProfileByUserIdUseCase implements IGetCompanyProfileByUse
 
   async execute(userId: string): Promise<CompanyProfile | null> {
     if (!userId) {
-      throw new AppError('User ID is required', 400);
+      throw new BadRequestError('User ID is required');
     }
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });

@@ -9,9 +9,9 @@ import { RepositoryBase } from './base-repository';
 import { ConversationPersistenceMapper } from '../mappers/conversation.mapper';
 import { UserRole } from '../../../../domain/enums/user-role.enum';
 import { IS3Service } from '../../../../domain/interfaces/services/IS3Service';
+import { CreateInput } from '../../../../domain/types/common.types';
 
-export class ConversationRepository
-  extends RepositoryBase<Conversation, ConversationDocument>
+export class ConversationRepository extends RepositoryBase<Conversation, ConversationDocument>
   implements IConversationRepository
 {
   constructor(private readonly _s3Service?: IS3Service) {
@@ -26,7 +26,7 @@ export class ConversationRepository
     return ConversationPersistenceMapper.toDocument(entity);
   }
 
-  async create(data: Omit<Conversation, 'id' | '_id' | 'createdAt' | 'updatedAt'>): Promise<Conversation> {
+  async create(data: CreateInput<Conversation>): Promise<Conversation> {
     const participants = [...data.participants].map((participant) => ({
       ...participant,
       userObjectId: new Types.ObjectId(participant.userId),

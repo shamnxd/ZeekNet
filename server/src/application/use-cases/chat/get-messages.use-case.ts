@@ -9,7 +9,7 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
     private readonly _conversationRepository: IConversationRepository,
   ) {}
 
-  async execute(userId: string, conversationId: string, page = 1, limit = 50) {
+  async execute(userId: string, conversationId: string, page = 1, limit = 20) {
     const conversation = await this._conversationRepository.findById(conversationId);
     if (!conversation) {
       throw new NotFoundError('Conversation not found');

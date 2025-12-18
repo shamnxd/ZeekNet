@@ -1,11 +1,40 @@
-import { JobApplication, InterviewSchedule } from '../../domain/entities/job-application.entity';
+import { JobApplication } from '../../domain/entities/job-application.entity';
+import { JobPosting } from '../../domain/entities/job-posting.entity';
+import { ApplicationStage } from '../../domain/enums/application-stage.enum';
+import { InterviewSchedule } from '../../domain/interfaces/interview.interfaces';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
   InterviewScheduleResponseDto,
 } from '../dto/application/job-application-response.dto';
+import { CreateInput } from '../../domain/types/common.types';
 
 export class JobApplicationMapper {
+  static toEntity(data: {
+    seekerId: string;
+    jobId: string;
+    companyId: string;
+    coverLetter?: string;
+    resumeUrl?: string;
+    resumeFilename?: string;
+    stage?: ApplicationStage;
+    interviews?: InterviewSchedule[];
+    appliedDate?: Date;
+    score?: number;
+  }): CreateInput<JobApplication> {
+    return {
+      seekerId: data.seekerId,
+      jobId: data.jobId,
+      companyId: data.companyId,
+      coverLetter: data.coverLetter || '',
+      resumeUrl: data.resumeUrl || '',
+      resumeFilename: data.resumeFilename || '',
+      stage: data.stage || ApplicationStage.APPLIED,
+      interviews: data.interviews || [],
+      appliedDate: data.appliedDate || new Date(),
+      score: data.score ?? -1,
+    };
+  }
   static toListResponse(
     application: JobApplication,
     additionalData?: {
@@ -14,17 +43,18 @@ export class JobApplicationMapper {
       jobTitle?: string;
       companyName?: string;
       companyLogo?: string;
-    },
+    } | JobPosting | null,
   ): JobApplicationListResponseDto {
+    const data = (additionalData || {}) as { seekerName?: string; seekerAvatar?: string; jobTitle?: string; title?: string; companyName?: string; companyLogo?: string };
     return {
       id: application.id,
-      seeker_id: additionalData?.seekerName ? application.seekerId : undefined,
-      seeker_name: additionalData?.seekerName,
-      seeker_avatar: additionalData?.seekerAvatar,
+      seeker_id: data?.seekerName ? application.seekerId : undefined,
+      seeker_name: data?.seekerName,
+      seeker_avatar: data?.seekerAvatar,
       job_id: application.jobId,
-      job_title: additionalData?.jobTitle || '',
-      company_name: additionalData?.companyName,
-      company_logo: additionalData?.companyLogo,
+      job_title: data?.jobTitle || data?.title || '',
+      company_name: data?.companyName,
+      company_logo: data?.companyLogo,
       score: application.score,
       stage: application.stage,
       applied_date: application.appliedDate.toISOString(),
@@ -67,9 +97,10 @@ export class JobApplicationMapper {
       companyLogo?: string;
       location?: string;
       employmentTypes?: string[];
-    },
+    } | JobPosting | null,
     signedResumeUrl?: string,
   ): JobApplicationDetailResponseDto {
+    const job = (jobData || {}) as { title?: string; companyName?: string; companyLogo?: string; location?: string; employmentTypes?: string[] };
     return {
       id: application.id,
       seeker_id: application.seekerId,
@@ -77,12 +108,12 @@ export class JobApplicationMapper {
       seeker_avatar: seekerData?.avatar,
       seeker_headline: seekerData?.headline,
       job_id: application.jobId,
-      job_title: jobData?.title || '',
-      job_company: jobData?.companyName,
-      job_location: jobData?.location,
-      job_type: jobData?.employmentTypes?.[0],
-      company_name: jobData?.companyName,
-      company_logo: jobData?.companyLogo,
+      job_title: job?.title || '',
+      job_company: job?.companyName,
+      job_location: job?.location,
+      job_type: job?.employmentTypes?.[0],
+      company_name: job?.companyName,
+      company_logo: job?.companyLogo,
       cover_letter: application.coverLetter,
       resume_url: signedResumeUrl || application.resumeUrl,
       resume_filename: application.resumeFilename,

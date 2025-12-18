@@ -5,7 +5,8 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { NotificationType, Notification } from '../../../domain/entities/notification.entity';
+import { NotificationMapper } from '../../mappers/notification.mapper';
+import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { logger } from '../../../infrastructure/config/logger';
 import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
@@ -89,7 +90,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
       currentPeriodStart: undefined,
       currentPeriodEnd: undefined,
       billingCycle: undefined,
-    } as Partial<CompanySubscription>);
+    });
 
     if (!updatedSubscription) {
       throw new Error('Failed to update subscription to default plan');
@@ -97,15 +98,17 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
 
     const companyProfile = await this._companyProfileRepository.findById(companyId);
     if (companyProfile) {
-      await this._notificationRepository.create({
-        userId: companyProfile.userId,
-        title: 'Subscription Reverted to Default Plan',
-        message: unlistedCount > 0
-          ? `Your subscription has been reverted to the default plan. ${unlistedCount} job(s) have been unlisted to comply with the default plan limit.`
-          : 'Your subscription has been reverted to the default plan.',
-        type: NotificationType.SYSTEM,
-        isRead: false,
-      } as Omit<Notification, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+      await this._notificationRepository.create(
+        NotificationMapper.toEntity({
+          userId: companyProfile.userId,
+          title: 'Subscription Reverted to Default Plan',
+          message: unlistedCount > 0
+            ? `Your subscription has been reverted to the default plan. ${unlistedCount} job(s) have been unlisted to comply with the default plan limit.`
+            : 'Your subscription has been reverted to the default plan.',
+          type: NotificationType.SYSTEM,
+          isRead: false,
+        }),
+      );
     }
 
     logger.info(

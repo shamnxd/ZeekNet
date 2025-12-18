@@ -1,6 +1,7 @@
 import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/skills/IGetAllSkillsUseCase';
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
 import { PaginatedSkillsResultDto } from '../../dto/skills/paginated-skills-result.dto';
+import { SkillMapper } from '../../mappers/skill.mapper';
 
 export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) {}
@@ -17,14 +18,8 @@ export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
       sortBy: 'name',
       sortOrder: 'asc',
     });
-
     return {
-      skills: result.data.map((skill) => ({
-        id: skill.id,
-        name: skill.name,
-        createdAt: skill.createdAt,
-        updatedAt: skill.updatedAt,
-      })),
+      skills: SkillMapper.toResponseList(result.data),
       total: result.total,
       page: result.page,
       limit: result.limit,

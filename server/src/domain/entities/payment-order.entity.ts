@@ -67,15 +67,5 @@ export class PaymentOrder {
     );
   }
 
-  isCompleted(): boolean {
-    return this.status === PaymentStatus.COMPLETED;
-  }
 
-  isFailed(): boolean {
-    return this.status === PaymentStatus.FAILED;
-  }
-
-  isPending(): boolean {
-    return this.status === PaymentStatus.PENDING;
-  }
 }

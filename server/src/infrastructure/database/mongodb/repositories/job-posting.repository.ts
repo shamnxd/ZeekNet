@@ -4,7 +4,9 @@ import { JobPostingModel, JobPostingDocument } from '../models/job-posting.model
 import { Types } from 'mongoose';
 import { JobPostingMapper } from '../mappers/job-posting.mapper';
 import { RepositoryBase } from './base-repository';
-import { DailyLimitErorr } from 'src/domain/errors/errors';
+import { CreateInput } from '../../../../domain/types/common.types';
+
+
 
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
   constructor() {
@@ -30,21 +32,11 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return document ? this.mapToEntity(document) : null;
   }
 
-  async postJob(jobData: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'>): Promise<JobPosting> {
+  async postJob(jobData: CreateInput<JobPosting>): Promise<JobPosting> {
 
     const document = new JobPostingModel({
+      ...this.mapToDocument(jobData),
       company_id: new Types.ObjectId(jobData.companyId),
-      title: jobData.title,
-      description: jobData.description,
-      responsibilities: jobData.responsibilities,
-      qualifications: jobData.qualifications,
-      nice_to_haves: jobData.niceToHaves || [],
-      benefits: jobData.benefits || [],
-      salary: jobData.salary,
-      employment_types: jobData.employmentTypes,
-      location: jobData.location,
-      skills_required: jobData.skillsRequired || [],
-      category_ids: jobData.categoryIds || [],
       status: 'active',
       view_count: 0,
       application_count: 0,
@@ -157,24 +149,8 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     }
     
     return validJobs.map((doc) => {
-      const plainDoc = doc.toObject();
-      const companyData = plainDoc.company_id as { companyName?: string; logo?: string };
-      
-      return {
-        id: plainDoc._id.toString(),
-        title: plainDoc.title,
-        viewCount: plainDoc.view_count,
-        applicationCount: plainDoc.application_count,
-        salary: plainDoc.salary,
-        companyName: companyData?.companyName || 'Company',
-        companyLogo: companyData?.logo,
-        createdAt: plainDoc.createdAt,
-        location: plainDoc.location,
-        description: plainDoc.description,
-        skillsRequired: plainDoc.skills_required,
-        categoryIds: plainDoc.category_ids,
-        employmentTypes: plainDoc.employment_types,
-      };
+      const entity = this.mapToEntity(doc);
+      return entity;
     });
   }
 
@@ -193,20 +169,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       documents = await JobPostingModel.find(criteria);
     }
     
-    return documents.map((doc) => {
-      const plainDoc = doc.toObject();
-      return {
-        id: plainDoc._id.toString(),
-        title: plainDoc.title,
-        status: plainDoc.status,
-        isFeatured: plainDoc.is_featured,
-        employmentTypes: plainDoc.employment_types,
-        applicationCount: plainDoc.application_count,
-        viewCount: plainDoc.view_count,
-        unpublishReason: plainDoc.unpublish_reason,
-        createdAt: plainDoc.createdAt,
-      };
-    });
+    return documents.map((doc) => this.mapToEntity(doc));
   }
 
   async getAllJobsForAdmin(): Promise<JobPosting[]> {

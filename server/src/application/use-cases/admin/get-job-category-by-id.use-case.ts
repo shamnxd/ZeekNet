@@ -1,6 +1,6 @@
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
 import { JobCategory } from '../../../domain/entities/job-category.entity';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { IGetJobCategoryByIdUseCase } from 'src/domain/interfaces/use-cases/job-categories/IGetJobCategoryByIdUseCase';
 
 export class GetJobCategoryByIdUseCase implements IGetJobCategoryByIdUseCase {
@@ -10,7 +10,7 @@ export class GetJobCategoryByIdUseCase implements IGetJobCategoryByIdUseCase {
     const category = await this._jobCategoryRepository.findById(id);
     
     if (!category) {
-      throw new AppError('Category not found', 404);
+      throw new NotFoundError('Category not found');
     }
 
     return category;

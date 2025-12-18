@@ -1,5 +1,6 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import { ApplicationStage } from '../../../../domain/enums/application-stage.enum';
+import { InterviewStatus } from '../../../../domain/interfaces/interview.interfaces';
 
 interface InterviewFeedback {
   reviewer_name: string;
@@ -15,7 +16,7 @@ interface InterviewSchedule {
   interview_type: string;
   location: string;
   interviewer_name?: string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
+  status: InterviewStatus;
   feedback?: InterviewFeedback;
   created_at?: Date;
   updated_at?: Date;
@@ -57,8 +58,8 @@ const InterviewScheduleSchema = new Schema<InterviewSchedule>(
     interviewer_name: { type: String, trim: true },
     status: {
       type: String,
-      enum: ['scheduled', 'completed', 'cancelled', 'rescheduled', 'no-show'],
-      default: 'scheduled',
+      enum: Object.values(InterviewStatus),
+      default: InterviewStatus.SCHEDULED,
       required: true,
       index: true,
     },

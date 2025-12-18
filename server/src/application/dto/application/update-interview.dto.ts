@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { InterviewStatus } from '../../../domain/interfaces/interview.interfaces';
 
 export const UpdateInterviewParamsDto = z.object({
   applicationId: z.string().min(1, 'Application ID is required'),
@@ -14,6 +15,6 @@ export const UpdateInterviewDto = z.object({
   notes: z.string().optional(),
   interviewer_name: z.string().optional(),
   interviewer_email: z.string().email().optional(),
-  status: z.enum(['scheduled', 'completed', 'cancelled', 'no-show']).optional(),
+  status: z.nativeEnum(InterviewStatus).optional(),
 });
 
