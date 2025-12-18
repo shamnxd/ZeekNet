@@ -7,6 +7,7 @@ import { useAppSelector } from '@/hooks/useRedux';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfaces/chat';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import type { ChatMessagePayload, MessagesReadPayload, TypingPayload, MessageDeletedPayload } from '@/types/socket.types';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
@@ -147,16 +148,12 @@ const CompanyChat: React.FC = () => {
       socketService.connect(token);
       loadConversations().catch(() => {});
     }
-  }, [token, chatIdParam]);
+  }, [token, chatIdParam, navigate]);
 
   useEffect(() => {
-    const onMessage = (payload: any) => {
+    const onMessage = (payload: ChatMessagePayload) => {
       if (!payload) return;
-      const { conversationId, message, participants } = payload as {
-        conversationId: string;
-        message: UiMessage;
-        participants: string[];
-      };
+      const { conversationId, message, participants } = payload;
 
       if (!participants?.includes(userIdRef.current || '')) return;
 
@@ -195,7 +192,7 @@ const CompanyChat: React.FC = () => {
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
-          return [...prev, message];
+          return [...prev, { ...message, conversationId } as any];
         });
         
         // Automatically mark as read if we're viewing this conversation
@@ -206,7 +203,7 @@ const CompanyChat: React.FC = () => {
       }
     };
 
-    const onMessagesRead = (payload: any) => {
+    const onMessagesRead = (payload: MessagesReadPayload) => {
       const { conversationId } = payload || {};
       if (!conversationId) return;
       setConversations((prev) =>
@@ -221,7 +218,7 @@ const CompanyChat: React.FC = () => {
       }
     };
 
-    const onTyping = (payload: any) => {
+    const onTyping = (payload: TypingPayload) => {
       const { conversationId, senderId } = payload || {};
       if (!conversationId || !selectedConversationRef.current || conversationId !== selectedConversationRef.current.id) return;
       if (senderId === userIdRef.current) return; // Don't show typing for own messages
@@ -235,7 +232,7 @@ const CompanyChat: React.FC = () => {
       }, 1000);
     };
 
-    const onMessageDeleted = (payload: any) => {
+    const onMessageDeleted = (payload: MessageDeletedPayload) => {
       const { conversationId, messageId } = payload || {};
       if (!conversationId) return;
 

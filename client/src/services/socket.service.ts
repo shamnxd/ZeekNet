@@ -1,8 +1,9 @@
 import { io, Socket } from 'socket.io-client';
+import type { NotificationSocketData, UserBlockedData } from '@/types/socket.types';
 
 class SocketService {
   private socket: Socket | null = null;
-  private userBlockedCallback: ((data: unknown) => void) | null = null;
+  private userBlockedCallback: ((data: UserBlockedData) => void) | null = null;
 
   connect(token: string): void {
     if (this.socket?.connected) {
@@ -47,11 +48,11 @@ class SocketService {
   }
 
   /* Notifications */
-  onNotification(callback: (notification: any) => void): void {
+  onNotification(callback: (notification: NotificationSocketData) => void): void {
     this.socket?.on('notification', callback);
   }
 
-  offNotification(callback?: (notification: any) => void): void {
+  offNotification(callback?: (notification: NotificationSocketData) => void): void {
     this.socket?.off('notification', callback);
   }
 
@@ -72,39 +73,39 @@ class SocketService {
     this.socket?.emit('join_conversation', { conversationId }, cb);
   }
 
-  onMessageReceived(callback: (data: unknown) => void) {
+  onMessageReceived(callback: (data: import('@/types/socket.types').ChatMessagePayload) => void) {
     this.socket?.on('message_received', callback);
   }
 
-  offMessageReceived(callback?: (data: unknown) => void) {
+  offMessageReceived(callback?: (data: import('@/types/socket.types').ChatMessagePayload) => void) {
     this.socket?.off('message_received', callback);
   }
 
-  onMessagesRead(callback: (data: unknown) => void) {
+  onMessagesRead(callback: (data: import('@/types/socket.types').MessagesReadPayload) => void) {
     this.socket?.on('messages_read', callback);
   }
 
-  offMessagesRead(callback?: (data: unknown) => void) {
+  offMessagesRead(callback?: (data: import('@/types/socket.types').MessagesReadPayload) => void) {
     this.socket?.off('messages_read', callback);
   }
 
-  onTyping(callback: (data: unknown) => void) {
+  onTyping(callback: (data: import('@/types/socket.types').TypingPayload) => void) {
     this.socket?.on('typing_indicator', callback);
   }
 
-  offTyping(callback?: (data: unknown) => void) {
+  offTyping(callback?: (data: import('@/types/socket.types').TypingPayload) => void) {
     this.socket?.off('typing_indicator', callback);
   }
 
-  onMessageDeleted(callback: (data: unknown) => void) {
+  onMessageDeleted(callback: (data: import('@/types/socket.types').MessageDeletedPayload) => void) {
     this.socket?.on('message_deleted', callback);
   }
 
-  offMessageDeleted(callback?: (data: unknown) => void) {
+  offMessageDeleted(callback?: (data: import('@/types/socket.types').MessageDeletedPayload) => void) {
     this.socket?.off('message_deleted', callback);
   }
 
-  onUserBlocked(callback: (data: unknown) => void): void {
+  onUserBlocked(callback: (data: UserBlockedData) => void): void {
     this.userBlockedCallback = callback;
   }
 

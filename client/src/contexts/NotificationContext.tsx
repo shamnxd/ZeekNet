@@ -58,10 +58,26 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         });
       };
 
-      socketService.onNotification(handleNotification);
+      const handleSocketNotification = (data: import('@/types/socket.types').NotificationSocketData) => {
+        const notification: Notification = {
+          id: data.id,
+          user_id: data.userId,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          is_read: data.isRead,
+          created_at: data.createdAt,
+          // Map optional properties if they exist
+          read_at: undefined, // Socket data might not have this initially
+          data: {} // Default or map if available
+        };
+        handleNotification(notification);
+      };
+
+      socketService.onNotification(handleSocketNotification);
 
       return () => {
-        socketService.offNotification(handleNotification);
+        socketService.offNotification(handleSocketNotification);
       };
     } else {
       socketService.disconnect();
