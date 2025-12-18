@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { ScoreBadge } from '@/components/ui/score-badge';
 import type { ApiError } from '@/types/api-error.type';
-
+// be - in
 interface ResumeAnalyzerModalProps {
   isOpen: boolean;
   onClose: () => void;

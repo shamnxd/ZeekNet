@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus } from 'lucide-react';
 import type { Benefit } from '@/interfaces/company/benefit.interface';
-
+// be - in
 interface EditBenefitsDialogProps {
   isOpen: boolean;
   onClose: () => void;

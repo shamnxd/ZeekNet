@@ -3,7 +3,7 @@ import Cropper, { type Area, type Point } from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
-
+// be - in
 interface ImageCropperProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

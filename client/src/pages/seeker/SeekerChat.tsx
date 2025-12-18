@@ -4,7 +4,7 @@ import SeekerLayout from '../../components/layouts/SeekerLayout';
 import { chatApi } from '@/api/chat.api';
 import { socketService } from '@/services/socket.service';
 import { useAppSelector } from '@/hooks/useRedux';
-import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfaces/chat';
+import type { ConversationResponseDto } from '@/interfaces/chat';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import type { ChatMessagePayload, MessagesReadPayload, TypingPayload, MessageDeletedPayload } from '@/types/socket.types';
 
@@ -30,8 +30,7 @@ const getOtherParticipant = (conversation: ConversationResponseDto, selfId: stri
   return conversation.participants.find((p) => p.userId !== selfId)?.userId || '';
 };
 
-type UiConversation = ConversationResponseDto & { displayName: string; profileImage: string | null; subtitle?: string };
-type UiMessage = ChatMessageResponseDto;
+import type { UiConversation, UiMessage } from '@/interfaces/ui/chat-ui.interface';
 
 const SeekerChat: React.FC = () => {
   const { token, id: userId } = useAppSelector((s) => s.auth);

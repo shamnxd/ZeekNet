@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-
+// be - in
 interface NavigationButtonsProps {
   onPrevious: () => void;
   onNext: () => void;

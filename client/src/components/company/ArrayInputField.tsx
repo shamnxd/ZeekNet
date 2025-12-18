@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
-
+// be - in
 interface ArrayInputFieldProps {
   field: keyof JobPostingData;
   label: string;

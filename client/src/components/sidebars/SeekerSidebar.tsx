@@ -6,8 +6,7 @@ import { logoutThunk } from '@/store/slices/auth.slice';
 import { seekerApi } from '@/api/seeker.api';
 import { toast } from 'sonner';
 import type { SeekerSidebarProps } from '@/interfaces/layout/seeker-sidebar-props.interface';
-
-type Page = 'dashboard' | 'profile' | 'applications' | 'settings';
+import type { SeekerSidebarPage as Page } from '@/interfaces/ui/sidebar.types';
 
 const menuItems = [
   { id: 'dashboard' as Page, label: 'Dashboard', icon: LayoutDashboard, count: null },

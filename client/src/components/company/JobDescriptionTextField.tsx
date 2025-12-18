@@ -1,6 +1,6 @@
 import { Textarea } from "@/components/ui/textarea";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
-
+// be - in
 interface TextFieldProps {
   field: keyof JobPostingData;
   label: string;

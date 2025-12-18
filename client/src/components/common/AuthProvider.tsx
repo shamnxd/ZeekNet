@@ -4,6 +4,7 @@ import { initializeAuthThunk } from '@/store/slices/auth.slice';
 import { Loading } from '@/components/ui/loading';
 import { store } from '@/store/store';
 
+// be - in
 interface AuthProviderProps {
   children: React.ReactNode;
 }

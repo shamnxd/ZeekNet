@@ -8,6 +8,7 @@ import type { ApiError } from '@/types/api-error.type'
 
 import { ApplicationStage } from '@/constants/enums'
 
+// be - in
 type Stage = ApplicationStage
 
 const stageStyles: Record<Stage, string> = {

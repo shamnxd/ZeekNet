@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import SeekerHeader from '../headers/SeekerHeader';
 import SeekerSidebar from '../sidebars/SeekerSidebar';
 import type { SeekerLayoutProps } from '@/interfaces/layout/seeker-layout-props.interface';
-
+// be - in
 type Page = 'dashboard' | 'profile' | 'applications' | 'settings';
 
 const SeekerLayout = ({ children }: SeekerLayoutProps) => {

@@ -1,6 +1,7 @@
 import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { NotificationBell } from '../notifications/NotificationBell';
+// be - in
 interface SeekerHeaderProps {
   currentPage: string;
 }

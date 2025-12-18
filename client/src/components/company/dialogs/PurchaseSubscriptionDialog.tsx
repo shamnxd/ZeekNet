@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button"
 import { Check, XCircle, Loader2, CreditCard, Calendar, Zap } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-
+// be - in
 interface PurchaseConfirmationDialogProps {
   open: boolean
   onClose: () => void

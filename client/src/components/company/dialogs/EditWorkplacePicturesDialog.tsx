@@ -7,7 +7,7 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { companyApi } from '@/api/company.api';
 import type { WorkplacePicture } from '@/interfaces/company/workplace-picture.interface';
-
+// be - in
 interface EditWorkplacePicturesDialogProps {
   isOpen: boolean;
   onClose: () => void;
