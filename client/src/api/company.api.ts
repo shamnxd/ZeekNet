@@ -4,7 +4,7 @@ import type { ApiEnvelope } from '@/interfaces/auth';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
-import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, Application } from '@/interfaces/company/company-data.interface';
+import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, CompanySideApplication } from '@/interfaces/company/company-data.interface';
 
 import type { 
   CompanyProfileData, 
@@ -207,7 +207,7 @@ export const companyApi = {
     return uploadFile<{ url: string; filename: string }>(CompanyRoutes.WORKPLACE_PICTURES_UPLOAD, file, 'image');
   },
 
-  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: Application[], total: number, page: number, limit: number }>> {
+  async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>> {
     const params = new URLSearchParams();
     
     if (query) {
@@ -219,11 +219,11 @@ export const companyApi = {
     }
     
     const endpoint = params.toString() ? `${CompanyRoutes.APPLICATIONS}?${params.toString()}` : CompanyRoutes.APPLICATIONS;
-    return (await api.get<ApiEnvelope<{ applications: Application[], total: number, page: number, limit: number }>>(endpoint)).data;
+    return (await api.get<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>>(endpoint)).data;
   },
 
-  async getApplicationDetails(id: string): Promise<ApiEnvelope<Application>> {
-    return (await api.get<ApiEnvelope<Application>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
+  async getApplicationDetails(id: string): Promise<ApiEnvelope<CompanySideApplication>> {
+    return (await api.get<ApiEnvelope<CompanySideApplication>>(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))).data;
   },
 
   async getSubscriptionPlans(): Promise<ApiEnvelope<{ plans: SubscriptionPlan[] }>> {
@@ -272,98 +272,9 @@ export const companyApi = {
   }
 }
 
-export interface SubscriptionPlan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  yearlyDiscount: number;
-  features: string[];
-  jobPostLimit: number;
-  featuredJobLimit: number;
-  applicantAccessLimit: number;
-  isActive: boolean;
-  isPopular: boolean;
-  isDefault: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PurchaseSubscriptionResponse {
-  subscription: {
-    id: string;
-    companyId: string;
-    planId: string;
-    startDate: string;
-    expiryDate: string;
-    isActive: boolean;
-    jobPostsUsed: number;
-    featuredJobsUsed: number;
-    applicantAccessUsed: number;
-    planName?: string;
-    jobPostLimit?: number;
-    featuredJobLimit?: number;
-  };
-  paymentOrder: {
-    id: string;
-    amount: number;
-    currency: string;
-    status: string;
-    invoiceId?: string;
-    transactionId?: string;
-    paymentMethod: string;
-    createdAt: string;
-  };
-}
-
-interface ActiveSubscriptionResponse {
-  id: string;
-  companyId: string;
-  planId: string;
-  startDate: string | null;
-  expiryDate: string | null;
-  isActive: boolean;
-  jobPostsUsed: number;
-  featuredJobsUsed: number;
-  applicantAccessUsed: number;
-  activeJobCount: number;
-  planName?: string;
-  jobPostLimit?: number;
-  featuredJobLimit?: number;
-  plan?: {
-    id: string;
-    name: string;
-    jobPostLimit: number;
-    featuredJobLimit: number;
-    isDefault?: boolean;
-  };
-  stripeStatus?: string;
-  billingCycle?: 'monthly' | 'yearly';
-  cancelAtPeriodEnd?: boolean;
-  currentPeriodStart?: string;
-  currentPeriodEnd?: string;
-}
-
-interface PaymentHistoryItem {
-  id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  paymentMethod: string;
-  invoiceId?: string;
-  transactionId?: string;
-  stripeInvoiceUrl?: string;
-  stripeInvoicePdf?: string;
-  billingCycle?: 'monthly' | 'yearly';
-  createdAt: string;
-}
-
-interface CheckoutSessionResponse {
-  sessionId: string;
-  sessionUrl: string;
-}
-
-interface BillingPortalResponse {
-  url: string;
-}
+import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface';
+import type { PurchaseSubscriptionResponse } from '@/interfaces/company/subscription/purchase-subscription-response.interface';
+import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface';
+import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
+import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
+import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
