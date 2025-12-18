@@ -4,15 +4,7 @@ import type { Notification } from '../api/notification.api';
 import { socketService } from '../services/socket.service';
 import { useAppSelector } from '../hooks/useRedux';
 import { toast } from 'sonner';
-
-interface NotificationContextType {
-  notifications: Notification[];
-  unreadCount: number;
-  loading: boolean;
-  markAsRead: (id: string) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
-  refreshNotifications: () => Promise<void>;
-}
+import type { NotificationContextType } from '@/interfaces/notification/notification-context.interface';
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
@@ -124,7 +116,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {

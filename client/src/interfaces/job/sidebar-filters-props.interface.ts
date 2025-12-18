@@ -1,7 +1,6 @@
-import type { JobPostingQuery } from './job-posting-query.interface';
+import type { JobPostingQuery } from "@/interfaces/job/job-posting-query.interface";
 
 export interface SidebarFiltersProps {
-  filters: JobPostingQuery;
-  onFilterChange: (filters: JobPostingQuery) => void;
-  onClearFilters: () => void;
+  onSearch: (query: JobPostingQuery) => void;
+  loading?: boolean;
 }

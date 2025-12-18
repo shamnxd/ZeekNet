@@ -7,11 +7,7 @@ import {
   X
 } from "lucide-react";
 import type { JobPostingQuery } from "@/interfaces/job/job-posting-query.interface";
-// be - in
-interface SidebarFiltersProps {
-  onSearch: (query: JobPostingQuery) => void;
-  loading?: boolean;
-}
+import type { SidebarFiltersProps } from '@/interfaces/job/sidebar-filters-props.interface';
 
 const employmentTypes = [
   { value: 'full-time', label: 'Full-time' },

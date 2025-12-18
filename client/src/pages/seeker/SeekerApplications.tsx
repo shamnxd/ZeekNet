@@ -8,8 +8,7 @@ import type { ApiError } from '@/types/api-error.type'
 
 import { ApplicationStage } from '@/constants/enums'
 
-// be - in
-type Stage = ApplicationStage
+import type { Stage } from '@/interfaces/application/stage.type';
 
 const stageStyles: Record<Stage, string> = {
   [ApplicationStage.APPLIED]: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',

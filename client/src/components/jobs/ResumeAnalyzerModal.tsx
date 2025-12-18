@@ -16,13 +16,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { ScoreBadge } from '@/components/ui/score-badge';
 import type { ApiError } from '@/types/api-error.type';
-// be - in
-interface ResumeAnalyzerModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  jobId: string;
-  onResumeVerified?: (file: File) => void;
-}
+import type { ResumeAnalyzerModalProps } from '@/interfaces/job/resume-analyzer-modal-props.interface';
 
 export default function ResumeAnalyzerModal({ isOpen, onClose, jobId, onResumeVerified }: ResumeAnalyzerModalProps) {
   const [file, setFile] = useState<File | null>(null);
