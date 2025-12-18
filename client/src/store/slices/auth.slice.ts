@@ -188,14 +188,14 @@ export const initializeAuthThunk = createAsyncThunk<
         if (refreshResult.type.endsWith('/rejected')) {
           return rejectWithValue("Not authenticated");
         } else {
-          // After refresh, check if company user
+          
           const updatedState = getState() as { auth: AuthState };
           if (updatedState.auth.role === UserRole.COMPANY) {
             dispatch(fetchCompanyProfileThunk()).catch(() => {});
           }
         }
       } else {
-        // After getCurrentUser, check if company user
+        
         const updatedState = getState() as { auth: AuthState };
         if (updatedState.auth.role === UserRole.COMPANY) {
           dispatch(fetchCompanyProfileThunk()).catch(() => {});
@@ -206,7 +206,7 @@ export const initializeAuthThunk = createAsyncThunk<
       if (refreshResult.type.endsWith('/rejected')) {
         return rejectWithValue("Not authenticated");
       } else {
-        // After refresh, check if company user
+        
         const updatedState = getState() as { auth: AuthState };
         if (updatedState.auth.role === UserRole.COMPANY) {
           dispatch(fetchCompanyProfileThunk()).catch(() => {});
@@ -229,7 +229,7 @@ export const logoutThunk = createAsyncThunk<void, void, { rejectValue: string }>
   }
 );
 
-// Fetch company profile and verification status
+
 export const fetchCompanyProfileThunk = createAsyncThunk<
   'not_created' | 'pending' | 'verified' | 'rejected',
   void,
@@ -252,7 +252,7 @@ export const fetchCompanyProfileThunk = createAsyncThunk<
     }
     return 'not_created';
   } catch (error: unknown) {
-    // If profile not found, return 'not_created'
+    
     const errorMessage = extractErrorMessage(error, '');
     if (errorMessage.includes('Company profile not found') || 
         errorMessage.includes('Please complete your profile')) {
@@ -319,7 +319,7 @@ const authSlice = createSlice({
     addAuthHandlers(builder, forgotPasswordThunk, "Failed to send password reset email", false);
     addAuthHandlers(builder, googleLoginThunk, "Google login failed");
 
-    // Handle company profile fetch
+    
     builder
       .addCase(fetchCompanyProfileThunk.fulfilled, (state, action) => {
         state.companyVerificationStatus = action.payload;

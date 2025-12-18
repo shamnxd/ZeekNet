@@ -17,7 +17,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
   ): Promise<{ success: boolean; updated: number; failed: number; errors: Array<{ application_id: string; error: string }> }> {
     const { application_ids, stage, companyId: userId } = data;
 
-    // Get company profile from user ID
+    
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -31,10 +31,10 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
       errors: [] as Array<{ application_id: string; error: string }>,
     };
 
-    // Process each application
+    
     for (const applicationId of application_ids) {
       try {
-        // Find the application
+        
         const application = await this._jobApplicationRepository.findById(applicationId);
         
         if (!application) {
@@ -46,7 +46,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
           continue;
         }
 
-        // Verify application belongs to this company
+        
         if (application.companyId !== companyId) {
           results.failed++;
           results.errors.push({
@@ -56,7 +56,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
           continue;
         }
 
-        // Validate stage transition
+        
         const validationError = this.validateStageTransition(application.stage, stage);
         if (validationError) {
           results.failed++;
@@ -67,7 +67,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
           continue;
         }
 
-        // Update the application
+        
         await this._jobApplicationRepository.update(applicationId, { stage });
         results.updated++;
       } catch (error) {
@@ -79,7 +79,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
       }
     }
 
-    // If all failed, mark as not successful
+    
     if (results.updated === 0 && results.failed > 0) {
       results.success = false;
     }
@@ -88,19 +88,19 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
   }
 
   private validateStageTransition(currentStage: string, newStage: string): string | null {
-    // Cannot change hired or rejected applications
+    
     if (currentStage === ApplicationStage.HIRED || currentStage === ApplicationStage.REJECTED) {
       return `Cannot change application in '${currentStage}' stage`;
     }
 
-    // Validate shortlist transition
+    
     if (newStage === ApplicationStage.SHORTLISTED) {
       if (currentStage !== ApplicationStage.APPLIED) {
         return `Cannot shortlist application in '${currentStage}' stage. Only 'applied' applications can be shortlisted.`;
       }
     }
 
-    // Validate reject transition
+    
     if (newStage === ApplicationStage.REJECTED) {
       if (currentStage !== ApplicationStage.APPLIED && currentStage !== ApplicationStage.SHORTLISTED && currentStage !== ApplicationStage.INTERVIEW) {
         return `Cannot reject application in '${currentStage}' stage`;

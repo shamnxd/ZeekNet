@@ -10,7 +10,7 @@ export const GetAllSkillsQueryDtoSchema = z.object({
 
 export type GetAllSkillsQueryDto = z.infer<typeof GetAllSkillsQueryDtoSchema>;
 
-// Export for router validation
+
 export const GetAllSkillsDto = GetAllSkillsQueryDtoSchema;
 
 export type GetAllSkillsRequestDto = GetAllSkillsQueryDto;

@@ -31,7 +31,7 @@ export default function ResumeAnalyzerModal({ isOpen, onClose, jobId, onResumeVe
         return;
       }
       setFile(selectedFile);
-      setResult(null); // Reset previous result
+      setResult(null); 
     }
   };
 

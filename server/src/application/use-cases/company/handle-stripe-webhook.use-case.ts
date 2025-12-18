@@ -91,7 +91,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
       const existingActiveSubscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyId);
       if (existingActiveSubscription && existingActiveSubscription.stripeSubscriptionId !== stripeSubscriptionId) {
-        // Cancel old subscription in Stripe immediately (since we're replacing it)
+        
         if (existingActiveSubscription.stripeSubscriptionId) {
           try {
             await this._stripeService.cancelSubscription(existingActiveSubscription.stripeSubscriptionId, false);
@@ -101,7 +101,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
           }
         }
         
-        // Deactivate old subscription in our database
+        
         await this._companySubscriptionRepository.update(existingActiveSubscription.id, {
           isActive: false,
           stripeStatus: SubscriptionStatus.CANCELED,
@@ -146,7 +146,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         throw new Error('Invalid date conversion from Stripe subscription');
       }
 
-      // Check if this is a downgrade (plan change from higher to lower limit)
+      
       let unlistedCount = 0;
       let remainingRegularJobs = 0;
       let remainingFeaturedJobs = 0;
@@ -188,7 +188,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
           remainingFeaturedJobs = remainingActiveJobs.filter(job => job.isFeatured).length;
           remainingRegularJobs = remainingActiveJobs.length - remainingFeaturedJobs;
         } else {
-          // Upgrade or same limit - keep current job counts
+          
           remainingRegularJobs = existingActiveSubscription.jobPostsUsed;
           remainingFeaturedJobs = existingActiveSubscription.featuredJobsUsed;
         }
@@ -419,7 +419,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
       isActive: false,
     });
 
-    // Revert to default plan on payment failure
+    
     try {
       await this._revertToDefaultPlanUseCase.execute(subscription.companyId);
       logger.info(`Reverted company ${subscription.companyId} to default plan due to payment failure`);
@@ -534,7 +534,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
       stripeStatus: SubscriptionStatus.CANCELED,
     });
 
-    // Revert to default plan when subscription is deleted
+    
     try {
       await this._revertToDefaultPlanUseCase.execute(subscription.companyId);
       logger.info(`Reverted company ${subscription.companyId} to default plan after subscription deletion`);

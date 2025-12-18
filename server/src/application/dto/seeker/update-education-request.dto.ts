@@ -13,6 +13,6 @@ export const UpdateEducationRequestDtoSchema = z.object({
 
 export type UpdateEducationRequestDto = z.infer<typeof UpdateEducationRequestDtoSchema>;
 
-// Export for controller validation
+
 export const UpdateEducationDto = UpdateEducationRequestDtoSchema;
 

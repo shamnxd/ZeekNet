@@ -119,7 +119,7 @@ export class ChatService implements IChatService {
       senderId,
       timestamp: new Date().toISOString(),
     };
-    // Emit only to receiver's user room to avoid duplicates
+    
     this.io.to(this.getUserRoom(receiverId)).emit('typing_indicator', payload);
   }
 
@@ -131,8 +131,8 @@ export class ChatService implements IChatService {
       participants: conversation.participants.map((p) => p.userId),
     };
     
-    // Emit to each participant's user room
-    // This ensures all participants receive the message regardless of which page they're on
+    
+    
     const userRooms = conversation.participants.map((p) => this.getUserRoom(p.userId));
     this.io.to(userRooms).emit('message_received', payload);
   }
@@ -141,7 +141,7 @@ export class ChatService implements IChatService {
     if (!this.io) return;
     const room = this.getUserRoom(otherParticipantId);
     const payload = { conversationId, readerId };
-    // Emit only to other participant's user room to avoid duplicates
+    
     this.io.to(room).emit('messages_read', payload);
   }
 

@@ -242,7 +242,7 @@ export const companyApi = {
     return (await api.get<ApiEnvelope<PaymentHistoryItem[]>>(CompanyRoutes.SUBSCRIPTIONS_PAYMENT_HISTORY)).data;
   },
 
-  // Stripe Subscription Methods
+  
   async createCheckoutSession(planId: string, billingCycle: 'monthly' | 'yearly', successUrl: string, cancelUrl: string): Promise<ApiEnvelope<CheckoutSessionResponse>> {
     return (await api.post<ApiEnvelope<CheckoutSessionResponse>>(CompanyRoutes.SUBSCRIPTIONS_CREATE_CHECKOUT, {
       planId,

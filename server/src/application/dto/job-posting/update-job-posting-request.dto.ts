@@ -32,6 +32,6 @@ export const UpdateJobPostingRequestDtoSchema = z.object({
 
 export type UpdateJobPostingRequestDto = z.infer<typeof UpdateJobPostingRequestDtoSchema>;
 
-// Export for controller validation
+
 export const UpdateJobPostingDto = UpdateJobPostingRequestDtoSchema;
 

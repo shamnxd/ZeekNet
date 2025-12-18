@@ -77,14 +77,14 @@ export class ConversationRepository
             const SeekerProfileModel = this.model.db.model('SeekerProfile');
             const seekerProfile = await SeekerProfileModel.findOne({ userId: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
             const avatarKey = seekerProfile?.avatarFileName || null;
-            // Generate signed URL if S3Service is available and key exists
+            
             profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
             name = user.name || 'Unknown';
           } else if (user.role === 'company') {
             const CompanyProfileModel = this.model.db.model('CompanyProfile');
             const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
             const logoKey = companyProfile?.logo || null;
-            // Generate signed URL if S3Service is available and key exists
+            
             profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
             name = companyProfile?.companyName || 'Unknown';
           }
@@ -152,7 +152,7 @@ export class ConversationRepository
       ConversationModel.countDocuments(filter),
     ]);
 
-    // Populate profile images for each participant
+    
     const data = await Promise.all(
       documents.map(async (doc: { _id: unknown; participants: Array<{ user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }>; createdAt: Date; updatedAt: Date; last_message?: { message_id: unknown; sender_id: unknown; content: string; created_at: Date } | null }) => {
         const participantsWithProfiles = await Promise.all(
@@ -163,25 +163,25 @@ export class ConversationRepository
 
             if (user && user.role) {
               if (user.role === 'seeker') {
-                // Fetch seeker profile for avatar
+                
                 const SeekerProfileModel = this.model.db.model('SeekerProfile');
                 const seekerProfile = await SeekerProfileModel.findOne(
                   { userId: user._id },
                   'avatarFileName',
                 ).lean() as { avatarFileName?: string } | null;
                 const avatarKey = seekerProfile?.avatarFileName || null;
-                // Generate signed URL if S3Service is available and key exists
+                
                 profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
                 name = user.name || 'Unknown';
               } else if (user.role === 'company') {
-                // Fetch company profile for logo and name
+                
                 const CompanyProfileModel = this.model.db.model('CompanyProfile');
                 const companyProfile = await CompanyProfileModel.findOne(
                   { userId: String(user._id) },
                   'companyName logo',
                 ).lean() as { companyName?: string; logo?: string } | null;
                 const logoKey = companyProfile?.logo || null;
-                // Generate signed URL if S3Service is available and key exists
+                
                 profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
                 name = companyProfile?.companyName || 'Unknown';
               }

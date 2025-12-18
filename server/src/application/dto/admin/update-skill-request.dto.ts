@@ -7,6 +7,6 @@ export const UpdateSkillRequestDtoSchema = z.object({
 
 export type UpdateSkillRequestDto = z.infer<typeof UpdateSkillRequestDtoSchema>;
 
-// Export for router validation
+
 export const UpdateSkillDto = UpdateSkillRequestDtoSchema;
 

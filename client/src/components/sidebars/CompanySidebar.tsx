@@ -85,7 +85,7 @@ const CompanySidebar = () => {
   ]
 
   const handleNavigation = (path: string) => {
-    // Check if trying to access restricted pages
+    
     if (path === '/company/post-job' && !isVerified) {
       toast.error('Profile Verification Required', {
         description: 'Please complete and verify your company profile before posting jobs.',

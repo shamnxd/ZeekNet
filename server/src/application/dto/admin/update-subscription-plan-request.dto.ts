@@ -26,6 +26,6 @@ export const UpdateSubscriptionPlanRequestDtoSchema = z.object({
 
 export type UpdateSubscriptionPlanRequestDto = z.infer<typeof UpdateSubscriptionPlanRequestDtoSchema>;
 
-// Export for router validation
+
 export const UpdateSubscriptionPlanDto = UpdateSubscriptionPlanRequestDtoSchema;
 

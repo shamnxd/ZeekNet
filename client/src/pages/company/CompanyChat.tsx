@@ -93,7 +93,7 @@ const CompanyChat: React.FC = () => {
     }));
     setConversations(mapped);
     
-    // Auto-select conversation if chatId is provided
+    
     if (chatIdParam) {
       const targetConv = mapped.find((c) => c.id === chatIdParam);
       if (targetConv) {
@@ -172,10 +172,10 @@ const CompanyChat: React.FC = () => {
                     },
                     updatedAt: message.createdAt,
                     participants: c.participants.map((p) =>
-                      // Only increment unread count if:
-                      // 1. This is the receiver
-                      // 2. NOT currently viewing this conversation
-                      // 3. Message is from someone else
+                      
+                      
+                      
+                      
                       p.userId === message.receiverId && !isViewingConversation && message.senderId !== userIdRef.current
                         ? { ...p, unreadCount: p.unreadCount + 1 }
                         : p,
@@ -188,14 +188,14 @@ const CompanyChat: React.FC = () => {
       });
 
       if (selectedConversationRef.current?.id === conversationId) {
-        // Add message only if it doesn't already exist (prevent duplicates)
+        
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
           return [...prev, { ...message, conversationId } as UiMessage];
         });
         
-        // Automatically mark as read if we're viewing this conversation
+        
         if (message.senderId !== userIdRef.current) {
           chatApi.markAsRead(conversationId).catch(() => {});
           socketService.emitMarkAsRead({ conversationId });
@@ -221,7 +221,7 @@ const CompanyChat: React.FC = () => {
     const onTyping = (payload: TypingPayload) => {
       const { conversationId, senderId } = payload || {};
       if (!conversationId || !selectedConversationRef.current || conversationId !== selectedConversationRef.current.id) return;
-      if (senderId === userIdRef.current) return; // Don't show typing for own messages
+      if (senderId === userIdRef.current) return; 
       
       setIsTyping(true);
       if (typingTimeoutRef.current) {
@@ -280,7 +280,7 @@ const CompanyChat: React.FC = () => {
     if (!messageText.trim() || !selectedConversation || !userId) return;
     const content = messageText.trim();
     setMessageText('');
-    setReplyingTo(null); // Clear reply state
+    setReplyingTo(null); 
 
     chatApi
       .sendMessage({
@@ -290,7 +290,7 @@ const CompanyChat: React.FC = () => {
         replyToMessageId: replyingTo?.id,
       })
       .then(({ conversation }) => {
-        // Update conversation list with latest data
+        
         setConversations((prev) => {
           const merged = prev.some((c) => c.id === conversation.id)
             ? prev.map((c) =>
@@ -358,7 +358,7 @@ const CompanyChat: React.FC = () => {
 
     try {
       await chatApi.deleteMessage(messageToDelete);
-      // Optimistic update
+      
       setMessages((prev) =>
         prev.map((m) => (m.id === messageToDelete ? { ...m, isDeleted: true, content: 'This message was deleted' } : m))
       );
@@ -389,9 +389,9 @@ const CompanyChat: React.FC = () => {
   return (
     <CompanyLayout>
       <div className="fixed top-20 bottom-0 left-[235px] right-0 grid grid-cols-[380px_1fr] bg-gray-50">
-        {/* Conversations Sidebar */}
+        {}
         <div className={`bg-white border-r border-gray-200 flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
-          {/* Fixed Header */}
+          {}
           <div className="px-5 py-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
@@ -400,7 +400,7 @@ const CompanyChat: React.FC = () => {
               </button>
             </div>
 
-            {/* Fixed Search */}
+            {}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
@@ -413,7 +413,7 @@ const CompanyChat: React.FC = () => {
             </div>
           </div>
 
-          {/* Scrollable Conversations List */}
+          {}
           <div className="flex-1 overflow-y-auto">
             <div className="p-2">
               {filteredConversations.map((conversation) => (
@@ -469,11 +469,11 @@ const CompanyChat: React.FC = () => {
           </div>
         </div>
 
-        {/* Chat Area */}
+        {}
         <div className={`relative bg-white ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           {selectedConversation ? (
             <>
-              {/* Fixed Chat Header */}
+              {}
               <div className="absolute top-0 left-0 right-0 z-10 px-6 py-4 border-b border-gray-200 bg-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -528,7 +528,7 @@ const CompanyChat: React.FC = () => {
                 </div>
               </div>
 
-              {/* Scrollable Messages - with padding for fixed header and input */}
+              {}
               <div ref={messagesContainerRef} onScroll={handleScroll} className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white">
                 <div className="p-6 space-y-4">
                   {loadingMore && (
@@ -575,7 +575,7 @@ const CompanyChat: React.FC = () => {
                                 ? 'bg-gradient-to-r from-primary to-primary/90 text-white rounded-2xl rounded-br-sm'
                                 : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm'
                             }`}
-                          >                          {/* Quoted Message */}
+                          >                          {}
                             {message.replyToMessageId && !message.isDeleted && (
                               <div className="mb-2 pl-2 border-l-2 border-primary/30 bg-gray-50/50 p-2 rounded">
                                 <p className="text-xs text-gray-500 mb-0.5">Replying to</p>
@@ -589,7 +589,7 @@ const CompanyChat: React.FC = () => {
                               {message.content}
                             </p>
                           </div>
-                          {/* Message Actions */}
+                          {}
                           {!message.isDeleted && (
                             <div className={`absolute -top-2 ${
                               message.senderId === selfId ? '-left-16' : '-right-16'
@@ -631,7 +631,7 @@ const CompanyChat: React.FC = () => {
                     </div>
                   ))}
                   
-                  {/* Typing Indicator */}
+                  {}
                   {isTyping && (
                     <div className="flex gap-3 animate-in slide-in-from-bottom-2 duration-300">
                     <>
@@ -664,9 +664,9 @@ const CompanyChat: React.FC = () => {
                 </div>
               </div>
 
-              {/* Fixed Message Input */}
+              {}
               <div className="absolute bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white">
-                {/* Reply Preview */}
+                {}
                 {replyingTo && (
                   <div className="px-6 pt-3 pb-2 border-b border-gray-100 bg-gray-50">
                     <div className="flex items-start gap-2">

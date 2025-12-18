@@ -45,7 +45,7 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     const query: Record<string, unknown> = { job_id: new Types.ObjectId(jobId) };
     if (filters.stage) query.stage = filters.stage;
     
-    // Add ATS score filtering
+    
     if (filters.min_score !== undefined || filters.max_score !== undefined) {
       query.score = {};
       if (filters.min_score !== undefined) {

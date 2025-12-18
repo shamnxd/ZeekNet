@@ -59,7 +59,7 @@ const removeResumeUseCase = new RemoveResumeUseCase(seekerProfileRepository);
 const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3Service);
 const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
-// Job Application Use Cases
+
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);

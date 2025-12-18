@@ -1,4 +1,4 @@
-// Job-related interfaces based on server DTOs
+
 
 export type JobStatus = 'active' | 'unlisted' | 'expired' | 'blocked';
 export type EmploymentType = 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';

@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-lg w-full text-center space-y-6">
-        {/* 404 Illustration */}
+        {}
         <div className="relative">
           <div className="text-[135px] md:text-[180px] font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary leading-none select-none opacity-20 dark:opacity-40">
             404
@@ -20,7 +20,7 @@ export default function NotFound() {
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="space-y-3 px-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             Oops! Page Not Found
@@ -31,7 +31,7 @@ export default function NotFound() {
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4">
           <Button
             onClick={() => navigate(-1)}
@@ -52,7 +52,7 @@ export default function NotFound() {
           </Button>
         </div>
 
-        {/* Helpful Links */}
+        {}
         <div className="pt-6 border-t border-border mx-4">
           <p className="text-xs text-muted-foreground mb-3">You might be looking for:</p>
           <div className="flex flex-wrap gap-3 justify-center">

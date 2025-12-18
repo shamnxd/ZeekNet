@@ -36,7 +36,7 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     const query: Record<string, unknown> = { company_id: new Types.ObjectId(companyProfile.id) };
     if (filters.stage) query.stage = filters.stage;
     
-    // Add ATS score filtering
+    
     if (filters.min_score !== undefined || filters.max_score !== undefined) {
       query.score = {};
       if (filters.min_score !== undefined) {

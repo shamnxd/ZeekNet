@@ -23,6 +23,6 @@ export const UpdateSeekerProfileRequestDtoSchema = z.object({
 
 export type UpdateSeekerProfileRequestDto = z.infer<typeof UpdateSeekerProfileRequestDtoSchema>;
 
-// Export for controller validation
+
 export const UpdateSeekerProfileDto = UpdateSeekerProfileRequestDtoSchema;
 

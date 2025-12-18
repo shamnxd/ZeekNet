@@ -196,7 +196,7 @@ const SubscriptionPlanManagement = () => {
       return
     }
 
-    if (creatingPlan) return // Prevent double-click
+    if (creatingPlan) return 
 
     try {
       setCreatingPlan(true)
@@ -233,7 +233,7 @@ const SubscriptionPlanManagement = () => {
       return
     }
 
-    if (updatingPlanId === selectedPlan.id) return // Prevent double-click
+    if (updatingPlanId === selectedPlan.id) return 
 
     try {
       setUpdatingPlanId(selectedPlan.id)
@@ -266,7 +266,7 @@ const SubscriptionPlanManagement = () => {
   const renderForm = () => (
     <div className="max-h-[calc(90vh-200px)] overflow-y-auto pr-2">
       <div className="space-y-6">
-        {/* Basic Information Section */}
+        {}
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Basic Information</h3>
@@ -296,7 +296,7 @@ const SubscriptionPlanManagement = () => {
           </div>
         </div>
 
-        {/* Pricing Section */}
+        {}
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Pricing</h3>
@@ -320,11 +320,11 @@ const SubscriptionPlanManagement = () => {
                   setFormData(prev => ({ 
                     ...prev, 
                     price,
-                    isDefault: price === 0 ? (prev.isDefault || false) : false, // Unset default if price > 0
+                    isDefault: price === 0 ? (prev.isDefault || false) : false, 
                   }))
                 }}
                 className="mt-1"
-                disabled={Boolean(formData.isDefault)} // Disable price input if default
+                disabled={Boolean(formData.isDefault)} 
               />
               {formData.isDefault && (
                 <p className="text-xs text-amber-600 mt-1">Default plan must have price of ₹0</p>
@@ -358,7 +358,7 @@ const SubscriptionPlanManagement = () => {
           <p className="text-xs text-muted-foreground">Annual Price: (Monthly × 12) × (1 - Discount/100)</p>
         </div>
 
-        {/* Plan Limits Section */}
+        {}
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Plan Limits</h3>
@@ -400,7 +400,7 @@ const SubscriptionPlanManagement = () => {
           </div>
         </div>
 
-        {/* Features Section */}
+        {}
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Features</h3>
@@ -438,7 +438,7 @@ const SubscriptionPlanManagement = () => {
           </div>
         </div>
 
-        {/* Settings Section */}
+        {}
         <div className="space-y-4">
           <div className="pb-2 border-b">
             <h3 className="text-base font-semibold text-gray-900">Settings</h3>
@@ -468,11 +468,11 @@ const SubscriptionPlanManagement = () => {
                   setFormData(prev => ({ 
                     ...prev, 
                     isDefault,
-                    price: isDefault ? 0 : (prev.price || 0), // Set price to 0 if default
+                    price: isDefault ? 0 : (prev.price || 0), 
                   }))
                 }}
                 className="h-4 w-4"
-                disabled={editDialogOpen && selectedPlan?.isDefault} // Disable if editing existing default plan
+                disabled={editDialogOpen && selectedPlan?.isDefault} 
               />
               <label htmlFor="isDefault" className="text-sm font-medium cursor-pointer">
                 Set as Default Plan

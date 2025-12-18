@@ -57,9 +57,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           message: data.message,
           is_read: data.isRead,
           created_at: data.createdAt,
-          // Map optional properties if they exist
-          read_at: undefined, // Socket data might not have this initially
-          data: {} // Default or map if available
+          
+          read_at: undefined, 
+          data: {} 
         };
         handleNotification(notification);
       };

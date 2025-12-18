@@ -118,7 +118,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
         if (data.yearlyDiscount !== undefined && data.yearlyDiscount > 0 && data.price !== undefined) {
           const yearlyPricePerMonth = data.price * (1 - data.yearlyDiscount / 100);
           yearlyAmount = yearlyPricePerMonth * 12;
-          const yearlyPriceInCents = Math.round(yearlyAmount * 100); // Total yearly amount
+          const yearlyPriceInCents = Math.round(yearlyAmount * 100); 
           
           const yearlyPrice = await this._stripeService.createPrice({
             productId: product.id,

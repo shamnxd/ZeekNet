@@ -69,7 +69,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Employment Type Section */}
+      {}
       <div>
         <h3 className="text-[18px] font-medium text-[#141414] mb-4 flex items-center gap-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>
           <Briefcase className="w-4 h-4" />
@@ -93,7 +93,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       </div>
 
-      {/* Salary Range Section */}
+      {}
       <div>
         <h3 className="text-[18px] font-medium text-[#141414] mb-4 flex items-center gap-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>
           <IndianRupee className="w-4 h-4" />
@@ -120,7 +120,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       </div>
 
-      {/* Active Filters Display */}
+      {}
       {hasActiveFilters && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -161,7 +161,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       )}
 
-      {/* Apply Button */}
+      {}
       <Button
         onClick={handleApplyFilters}
         disabled={loading}

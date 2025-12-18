@@ -10,7 +10,7 @@ export const GetAllJobRolesQueryDtoSchema = z.object({
 
 export type GetAllJobRolesQueryDto = z.infer<typeof GetAllJobRolesQueryDtoSchema>;
 
-// Export for router validation
+
 export const GetAllJobRolesDto = GetAllJobRolesQueryDtoSchema;
 
 export type GetAllJobRolesRequestDto = GetAllJobRolesQueryDto;

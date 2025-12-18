@@ -401,7 +401,7 @@ const ApplicationDetails = () => {
   return (
     <CompanyLayout>
       <div className="min-h-screen bg-white">
-        {/* Top Navigation */}
+        {}
         <div className="border-b border-[#D6DDEB]">
           <div className="px-7 py-4">
             <div className="flex items-center justify-between">
@@ -415,10 +415,10 @@ const ApplicationDetails = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {}
         <div className="px-7 py-7">
           <div className="grid grid-cols-3 gap-7">
-            {/* Left Sidebar */}
+            {}
             <div className="space-y-5">
               <Card className="border border-[#D6DDEB] rounded-lg">
                 <CardContent className="p-5">
@@ -435,7 +435,7 @@ const ApplicationDetails = () => {
                       <h2 className="text-lg font-semibold text-[#25324B] mb-1">{application.seeker_name}</h2>
                       <p className="text-sm text-[#7C8493] mb-3">{application.seeker_headline || application.job_title}</p>
                       
-                      {/* ATS Score Badge */}
+                      {}
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-medium text-gray-600">ATS Match Score</span>
                           <ScoreBadge score={application.score} />
@@ -578,7 +578,7 @@ const ApplicationDetails = () => {
               </Card>
             </div>
 
-            {/* Right Content - Tabs */}
+            {}
             <div className="col-span-2">
               <Card className="border border-[#D6DDEB] rounded-lg">
                 <Tabs defaultValue="profile" className="w-full">
@@ -664,7 +664,7 @@ const ApplicationDetails = () => {
 
                   <TabsContent value="resume" className="p-7 m-0">
                     <div className="border border-[#D6DDEB] rounded-lg p-6">
-                      {/* Resume Header */}
+                      {}
                       <div className="flex items-start gap-4 mb-6 pb-6 border-b border-[#D6DDEB]">
                         <Avatar className="w-16 h-16">
                           {application.seeker_avatar ? (
@@ -703,7 +703,7 @@ const ApplicationDetails = () => {
                         )}
                       </div>
 
-                      {/* Cover Letter */}
+                      {}
                       {application.cover_letter && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Cover Letter</h4>
@@ -711,7 +711,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Industry Knowledge */}
+                      {}
                       {application.resume_data?.industry_knowledge && application.resume_data.industry_knowledge.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Industry Knowledge</h4>
@@ -729,7 +729,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Tools & Technologies */}
+                      {}
                       {application.resume_data?.tools_technologies && application.resume_data.tools_technologies.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Tools & Technologies</h4>
@@ -739,7 +739,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Other Skills */}
+                      {}
                       {application.resume_data?.other_skills && application.resume_data.other_skills.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Other Skills</h4>
@@ -749,7 +749,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Languages */}
+                      {}
                       {application.languages && application.languages.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Languages</h4>
@@ -761,7 +761,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Social Links */}
+                      {}
                       {(application.website || application.instagram || application.twitter) && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-3">Social</h4>
@@ -785,7 +785,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Experience */}
+                      {}
                       {application.resume_data?.experience && application.resume_data.experience.length > 0 && (
                         <div className="mb-6">
                           <h4 className="text-base font-semibold text-[#25324B] mb-4 uppercase">experience</h4>
@@ -807,7 +807,7 @@ const ApplicationDetails = () => {
                         </div>
                       )}
 
-                      {/* Education */}
+                      {}
                       {application.resume_data?.education && application.resume_data.education.length > 0 && (
                         <div>
                           <h4 className="text-base font-semibold text-[#25324B] mb-4 uppercase">education</h4>
@@ -830,7 +830,7 @@ const ApplicationDetails = () => {
 
                   <TabsContent value="progress" className="p-7 m-0">
                     <div className="space-y-6">
-                      {/* Current Stage */}
+                      {}
                       <div>
                         <div className="flex items-center justify-between mb-5">
                           <h3 className="text-lg font-semibold text-[#25324B]">Current Stage</h3>
@@ -846,7 +846,7 @@ const ApplicationDetails = () => {
                           )}
                         </div>
 
-                        {/* Pipeline (dynamic) */}
+                        {}
                         {(() => {
                           const stageOrder = ['in-review', 'shortlisted', 'interview', 'hired/declined'] as const
                           const mapStageToIndex: Record<string, number> = {
@@ -873,7 +873,7 @@ const ApplicationDetails = () => {
                           )
                         })()}
 
-                        {/* Stage Info - Only show if not hired or rejected */}
+                        {}
                         {application.stage !== 'hired' && application.stage !== 'rejected' && (
                           <div className="bg-white border border-[#D6DDEB] rounded-lg p-5">
                             <h4 className="text-base font-semibold text-[#25324B] mb-4">Stage Info</h4>
@@ -961,7 +961,7 @@ const ApplicationDetails = () => {
 
                       <div className="h-px bg-[#D6DDEB]"></div>
 
-                      {/* Notes */}
+                      {}
                       <div>
                         <div className="space-y-4">
                           {application.hiring_progress?.notes && application.hiring_progress.notes.length > 0 ? (
@@ -1007,7 +1007,7 @@ const ApplicationDetails = () => {
 
                   <TabsContent value="schedule" className="p-7 m-0">
                     <div className="space-y-6">
-                      {/* Header */}
+                      {}
                       <div className="flex items-center justify-between">
                         <h3 className="text-base font-semibold text-[#25324B]">Interview List</h3>
                         {application.interview_schedule && application.interview_schedule.length > 0 && (
@@ -1023,7 +1023,7 @@ const ApplicationDetails = () => {
                         )}
                       </div>
 
-                      {/* Interview Schedule List */}
+                      {}
                       <div className="space-y-6">
                         {application.interview_schedule && application.interview_schedule.length > 0 ? (
                           (() => {
@@ -1173,7 +1173,7 @@ const ApplicationDetails = () => {
         </div>
       </div>
 
-      {/* Schedule Interview Modal */}
+      {}
       <Dialog open={scheduleInterviewOpen} onOpenChange={setScheduleInterviewOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -1260,7 +1260,7 @@ const ApplicationDetails = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Give Rating Modal */}
+      {}
       <Dialog open={giveRatingOpen} onOpenChange={setGiveRatingOpen}>
         <DialogContent>
           <DialogHeader>

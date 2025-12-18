@@ -14,7 +14,7 @@ export class ChatMessageMapper {
       createdAt: message.createdAt,
       readAt: message.readAt,
       replyToMessageId: message.replyToMessageId,
-      replyToMessage: null, // Will be populated by repository if needed
+      replyToMessage: null, 
     };
   }
 

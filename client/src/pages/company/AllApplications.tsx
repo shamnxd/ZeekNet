@@ -191,7 +191,7 @@ const AllApplications = () => {
     }
   }
 
-  // Selection handlers
+  
   const handleSelectAll = () => {
     if (selectedApplications.size === applications.length) {
       setSelectedApplications(new Set())
@@ -212,7 +212,7 @@ const AllApplications = () => {
     })
   }
 
-  // Sorting
+  
   const toggleSort = () => {
     if (sortBy === 'date') {
       setSortBy('score')
@@ -225,11 +225,11 @@ const AllApplications = () => {
     }
   }
 
-  // Bulk actions
+  
   const executeBulkShortlist = async () => {
     const selectedApps = applications.filter(app => selectedApplications.has(app._id))
     
-    // Cannot change hired or rejected applications
+    
     const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
@@ -237,7 +237,7 @@ const AllApplications = () => {
       return
     }
     
-    // Only 'applied' applications can be shortlisted
+    
     const invalidApps = selectedApps.filter(app => app.stage !== ApplicationStage.APPLIED)
     if (invalidApps.length > 0) {
       toast.error(`Cannot shortlist ${invalidApps.length} application(s). Only 'applied' applications can be shortlisted.`)
@@ -259,7 +259,7 @@ const AllApplications = () => {
       })
       toast.success(`${selectedApps.length} application(s) moved to shortlisted`)
       
-      // Update local state instead of refetching
+      
       setApplications(prev => prev.map(app => 
         selectedApplications.has(app._id) 
           ? { ...app, stage: ApplicationStage.SHORTLISTED }
@@ -278,7 +278,7 @@ const AllApplications = () => {
   const executeBulkReject = async () => {
     const selectedApps = applications.filter(app => selectedApplications.has(app._id))
     
-    // Cannot change hired or rejected applications
+    
     const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
@@ -286,7 +286,7 @@ const AllApplications = () => {
       return
     }
     
-    // Can only reject applied, shortlisted, or interview stages
+    
     const invalidApps = selectedApps.filter(app => 
       app.stage !== ApplicationStage.APPLIED && app.stage !== ApplicationStage.SHORTLISTED && app.stage !== ApplicationStage.INTERVIEW
     )
@@ -310,7 +310,7 @@ const AllApplications = () => {
       })
       toast.success(`${selectedApps.length} application(s) rejected`)
       
-      // Update local state instead of refetching
+      
       setApplications(prev => prev.map(app => 
         selectedApplications.has(app._id) 
           ? { ...app, stage: ApplicationStage.REJECTED }
@@ -399,21 +399,21 @@ const AllApplications = () => {
             </div>
           </div>
 
-          {/* Bulk Actions */}
+          {}
           {selectedApplications.size > 0 && (() => {
             const selectedApps = applications.filter(app => selectedApplications.has(app._id))
             
-            // Disable both buttons if any selected app is rejected or hired
+            
             const hasRejectedOrHired = selectedApps.some(app => 
               app.stage === ApplicationStage.REJECTED || app.stage === ApplicationStage.HIRED
             )
             
-            // Disable shortlist if any selected app is shortlisted, interview, hired, or rejected
+            
             const cannotShortlist = hasRejectedOrHired || selectedApps.some(app => 
               app.stage === ApplicationStage.SHORTLISTED || app.stage === ApplicationStage.INTERVIEW
             )
             
-            // Disable reject if any selected app is hired or rejected
+            
             const cannotReject = hasRejectedOrHired
             
             return (
@@ -444,10 +444,10 @@ const AllApplications = () => {
           })()}
         </div>
 
-        {/* Applications Table */}
+        {}
         <div className="px-7 py-5">
           <div className="border border-[#D6DDEB] rounded-lg overflow-hidden">
-            {/* Table Header */}
+            {}
             <div className="bg-white border-b border-[#D6DDEB] px-5 py-4">
               <div className="grid gap-4 items-center" style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}>
                 <div>
@@ -481,7 +481,7 @@ const AllApplications = () => {
               </div>
             </div>
 
-            {/* Table Body */}
+            {}
             <div className="divide-y divide-[#D6DDEB]">
               {loading ? (
                 <div className="px-5 py-10 flex justify-center">
@@ -500,7 +500,7 @@ const AllApplications = () => {
                     }`}
                     style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}
                   >
-                    {/* Checkbox */}
+                    {}
                     <div>
                       <Checkbox
                         checked={selectedApplications.has(application._id)}
@@ -508,7 +508,7 @@ const AllApplications = () => {
                       />
                     </div>
 
-                    {/* Full Name */}
+                    {}
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
                         {application.seeker_avatar ? (
@@ -523,27 +523,27 @@ const AllApplications = () => {
                       </span>
                     </div>
 
-                    {/* Score */}
+                    {}
                     <div className="flex items-center">
                       <ScoreBadge score={application.score} />
                     </div>
 
-                    {/* Hiring Stage */}
+                    {}
                     <div>
                       {getStageBadge(application.stage)}
                     </div>
 
-                    {/* Applied Date */}
+                    {}
                     <span className="text-sm font-medium text-[#25324B]">
                       {formatDate(application.applied_date)}
                     </span>
 
-                    {/* Job Role */}
+                    {}
                     <span className="text-sm font-medium text-[#25324B]">
                       {application.job_title}
                     </span>
 
-                    {/* Action */}
+                    {}
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="outline"
@@ -570,7 +570,7 @@ const AllApplications = () => {
             </div>
           </div>
 
-          {/* Pagination */}
+          {}
           {!loading && applications.length > 0 && (
             <div className="mt-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -637,7 +637,7 @@ const AllApplications = () => {
         </div>
       </div>
 
-      {/* Confirmation Dialogs */}
+      {}
       <Dialog open={showShortlistConfirm} onOpenChange={setShowShortlistConfirm}>
         <DialogContent>
           <DialogHeader>

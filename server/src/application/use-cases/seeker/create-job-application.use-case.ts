@@ -42,7 +42,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     try {
       const atsResult = await groqService.calculateATSScore(jobDetails, candidateData);
       
-      // Update the application with the calculated score
+      
       await this._jobApplicationRepository.update(applicationId, {
         score: atsResult.score,
       });
@@ -51,7 +51,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     } catch (error) {
       console.error(`❌ Failed to calculate ATS score for application ${applicationId}:`, error);
       
-      // Set score to null if calculation fails (instead of leaving it at -1)
+      
       await this._jobApplicationRepository.update(applicationId, {
         score: undefined,
       });
@@ -84,7 +84,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('You have already applied for this job');
     }
 
-    // Create application with score = -1 (processing)
+    
     const application = await this._jobApplicationRepository.create({
       seekerId: seekerId,
       jobId: applicationData.job_id,
@@ -95,7 +95,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       stage: ApplicationStage.APPLIED,
       interviews: [],
       appliedDate: new Date(),
-      score: -1, // -1 indicates ATS score is being processed
+      score: -1, 
     });
 
     let resumeText = '';
@@ -104,11 +104,11 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
         resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
       } catch (error) {
         console.warn('Failed to parse resume for ATS scoring:', error);
-        // Continue without resume text, scoring will rely on cover letter
+        
       }
     }
 
-    // Calculate ATS score asynchronously (don't block the response)
+    
     this.calculateAndUpdateATSScore(
       application.id,
       {

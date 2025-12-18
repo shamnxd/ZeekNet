@@ -9,6 +9,6 @@ export const UpdateJobStatusRequestDtoSchema = z.object({
 
 export type UpdateJobStatusRequestDto = z.infer<typeof UpdateJobStatusRequestDtoSchema>;
 
-// Export for router validation
+
 export const AdminUpdateJobStatusDto = UpdateJobStatusRequestDtoSchema;
 

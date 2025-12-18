@@ -22,7 +22,7 @@ export const GetJobPostingsQueryDtoSchema = z.object({
 
 export type GetJobPostingsQueryDto = z.infer<typeof GetJobPostingsQueryDtoSchema>;
 
-// Export for controller validation
+
 export const JobPostingQueryDto = GetJobPostingsQueryDtoSchema;
 
 export type JobPostingQueryRequestDto = GetJobPostingsQueryDto;

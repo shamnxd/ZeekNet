@@ -12,6 +12,6 @@ export const AddEducationRequestDtoSchema = z.object({
 
 export type AddEducationRequestDto = z.infer<typeof AddEducationRequestDtoSchema>;
 
-// Export for controller validation
+
 export const AddEducationDto = AddEducationRequestDtoSchema;
 

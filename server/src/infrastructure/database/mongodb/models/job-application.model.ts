@@ -83,7 +83,7 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
       default: ApplicationStage.APPLIED,
       index: true,
     },
-    score: { type: Number, min: -1, max: 100 }, // -1 = processing, 0-100 = ATS score
+    score: { type: Number, min: -1, max: 100 }, 
     interviews: { type: [InterviewScheduleSchema], default: [] },
     rejection_reason: { type: String, trim: true },
     applied_date: { type: Date, default: Date.now, index: true },
