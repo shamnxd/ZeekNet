@@ -1,9 +1,13 @@
+﻿import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import PublicHeader from "@/components/layouts/PublicHeader";
 import PublicFooter from "@/components/layouts/PublicFooter";
+import { useAppSelector } from "@/hooks/useRedux";
+import { UserRole } from "@/constants/enums";
+import UserProfileDropdown from "@/components/common/UserProfileDropdown";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { Link } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -15,167 +19,292 @@ import {
   TrendingUp,
   Globe,
   Award,
+  MessageCircle,
 } from "lucide-react";
 
 const Landing = () => {
+  const { isAuthenticated, isInitialized, role } = useAppSelector(
+    (state) => state.auth
+  );
+  const [menuOpen, setMenuOpen] = useState(false);
+  const companiesLogo = [
+    {
+      name: "Framer",
+      logo: "https://saasly.prebuiltui.com/assets/companies-logo/framer.svg",
+    },
+    {
+      name: "Huawei",
+      logo: "https://saasly.prebuiltui.com/assets/companies-logo/huawei.svg",
+    },
+    {
+      name: "Instagram",
+      logo: "https://saasly.prebuiltui.com/assets/companies-logo/instagram.svg",
+    },
+    {
+      name: "Microsoft",
+      logo: "https://saasly.prebuiltui.com/assets/companies-logo/microsoft.svg",
+    },
+    {
+      name: "Walmart",
+      logo: "https://saasly.prebuiltui.com/assets/companies-logo/walmart.svg",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      <PublicHeader />
+    <div className="min-h-screen bg-background font-poppins">
+      <style>
+        {`
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+            .font-poppins {
+                font-family: 'Poppins', sans-serif;
+            }
+        `}
+      </style>
 
-      <section className="relative bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/abstract-geometric-pattern.png')] opacity-5"></div>
-        <div className="absolute top-10 right-10 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
-          <div className="text-primary text-2xl">✦</div>
+      <section className="flex flex-col items-center text-sm bg-[url('https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/hero/bg-with-grid.png')] bg-cover bg-center bg-no-repeat">
+        <div className="w-full py-2 font-medium text-sm text-primary-foreground text-center bg-gradient-to-r from-primary to-primary/0">
+          <p>
+            <span className="px-3 py-1 rounded-md text-primary bg-white mr-2">
+              New
+            </span>
+            Connect with top employers today
+          </p>
         </div>
-        <div className="absolute bottom-20 left-10 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
-          <div className="text-primary text-xl">✦</div>
-        </div>
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
-              Get The Most{" "}
-              <span className="text-primary bg-primary/10 px-2 rounded">
-                Reliable Job
-              </span>{" "}
-              in your city
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-              Find your dream job from thousands of opportunities. Connect with
-              top companies and build your career with confidence.
-            </p>
-
-            <div className="bg-card rounded-lg p-6 shadow-2xl shadow-primary/10 max-w-3xl mx-auto border border-border hover:shadow-3xl hover:shadow-primary/15 transition-all duration-300">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                  <Input
-                    placeholder="Job title, keywords, or company"
-                    className="pl-10 h-12 border-border"
-                  />
-                </div>
-                <div className="flex-1 relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                  <Input
-                    placeholder="City, state, or remote"
-                    className="pl-10 h-12 border-border"
-                  />
-                </div>
-                <Button 
-                  className="h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
-                  asChild
-                >
-                  <a href="/jobs">Find Jobs</a>
-                </Button>
-              </div>
+        <nav className="z-30 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-32 backdrop-blur text-slate-800 text-sm">
+          <Link to="/">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-7 h-7 bg-primary"
+                role="img"
+                aria-label="logo"
+                style={{
+                  maskImage: "url(./blue.png)",
+                  WebkitMaskImage: "url(./blue.png)",
+                  maskSize: "contain",
+                  WebkitMaskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  WebkitMaskPosition: "center",
+                }}
+              />
+              <span className="text-xl font-bold text-gray-900">ZeekNet</span>
             </div>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-8 transition duration-500">
+            <Link to="/" className="hover:text-primary transition">
+              Home
+            </Link>
+            <Link to="/jobs" className="hover:text-primary transition">
+              Find Jobs
+            </Link>
+            <Link to="/companies" className="hover:text-primary transition">
+              Companies
+            </Link>
+            <Link to="/articles" className="hover:text-primary transition">
+              Articles
+            </Link>
           </div>
-        </div>
-      </section>
 
-      <section className="py-8 bg-background border-y border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center space-x-8 md:space-x-12 opacity-60">
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="3"
-                  y="3"
-                  width="18"
-                  height="18"
-                  rx="3"
-                  fill="#18BFFF"
-                />
-                <rect x="6" y="6" width="12" height="2" fill="white" />
-                <rect x="6" y="10" width="8" height="2" fill="white" />
-                <rect x="6" y="14" width="10" height="2" fill="white" />
+          <div className="flex items-center gap-4">
+            {isInitialized && isAuthenticated ? (
+              <>
+                {role === UserRole.SEEKER && <NotificationBell />}
+                <UserProfileDropdown />
+              </>
+            ) : (
+              <div className="hidden md:flex items-center gap-3">
+                <Link
+                  to="/auth/register"
+                  className="px-6 py-2 bg-primary hover:bg-primary/90 transition text-white rounded-md"
+                >
+                  Get started
+                </Link>
+                <Link
+                  to="/auth/login"
+                  className="hover:bg-slate-100 transition px-6 py-2 border border-primary rounded-md"
+                >
+                  Login
+                </Link>
+              </div>
+            )}
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="md:hidden active:scale-90 transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-menu"
+              >
+                <path d="M4 5h16" />
+                <path d="M4 12h16" />
+                <path d="M4 19h16" />
               </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                AirTable
-              </span>
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile Menu */}
+        <div
+          className={`fixed inset-0 z-[100] bg-white/95 text-slate-800 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <Link to="/" onClick={() => setMenuOpen(false)}>
+            Home
+          </Link>
+          <Link to="/jobs" onClick={() => setMenuOpen(false)}>
+            Find Jobs
+          </Link>
+          <Link to="/companies" onClick={() => setMenuOpen(false)}>
+            Companies
+          </Link>
+          <Link to="/articles" onClick={() => setMenuOpen(false)}>
+            Articles
+          </Link>
+
+          {!isAuthenticated && (
+            <>
+              <Link to="/auth/login" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
+              <Link to="/auth/register" onClick={() => setMenuOpen(false)}>
+                Get started
+              </Link>
+            </>
+          )}
+
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-slate-100 hover:bg-slate-200 transition text-black rounded-md flex"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-x"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <main className="flex flex-col items-center max-md:px-2 pb-20">
+          <div className="flex flex-wrap items-center justify-center p-1 rounded-full bg-white border border-gray-300 text-sm mt-10">
+            <div className="flex items-center">
+              <img
+                className="w-[30px] rounded-full border-3 border-white"
+                src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=50"
+                alt="userImage1"
+              />
+              <img
+                className="w-[30px] rounded-full border-3 border-white -translate-x-2"
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=50"
+                alt="userImage2"
+              />
+              <img
+                className="w-[30px] rounded-full border-3 border-white -translate-x-4"
+                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=50&h=50&auto=format&fit=crop"
+                alt="userImage3"
+              />
             </div>
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" fill="#4285F4" />
+            <p className="-translate-x-2">Trusted by 10,000+ people</p>
+          </div>
+
+          <h1 className="text-center text-5xl leading-[60px] md:text-6xl md:leading-[80px] font-semibold max-w-4xl text-slate-900 mt-6">
+            Find your dream job faster with{" "}
+            <span className="text-primary">ZeekNet</span>
+          </h1>
+          <p className="text-center text-base text-slate-700 max-w-lg mt-4">
+            The most reliable job portal. Connect with top companies and build
+            your career with confidence.
+          </p>
+          <div className="flex items-center gap-4 mt-8">
+            <Link
+              to="/jobs"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white active:scale-95 rounded-lg px-7 h-11 transition-all"
+            >
+              Find Jobs
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
-                  d="M16.5 10.5l-3.5 3.5-1.5-1.5"
-                  stroke="white"
-                  strokeWidth="2"
+                  d="M4.166 10h11.667m0 0L9.999 4.165m5.834 5.833-5.834 5.834"
+                  stroke="#fff"
+                  strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                Search
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" fill="#EA4C89" />
-                <circle cx="12" cy="12" r="3" fill="white" />
-              </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                Dribbble
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="2"
-                  y="2"
-                  width="20"
-                  height="20"
-                  rx="4"
-                  fill="#4A154B"
-                />
-                <path d="M8 8h8v2H8V8zm0 4h6v2H8v-2z" fill="white" />
-              </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                Slack
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="2"
-                  y="2"
-                  width="20"
-                  height="20"
-                  rx="3"
-                  fill="#00D924"
-                />
-                <circle cx="8" cy="8" r="2" fill="white" />
-                <circle cx="16" cy="8" r="2" fill="white" />
-                <path
-                  d="M8 14h8"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                LiveChat
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 hover:opacity-100 transition-opacity duration-300">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <rect
-                  x="2"
-                  y="2"
-                  width="20"
-                  height="20"
-                  rx="3"
-                  fill="#FC6D26"
-                />
-                <path d="M12 6l-2 6h4l-2-6z" fill="white" />
-                <path d="M8 12l-2 6h4l-2-6z" fill="white" />
-                <path d="M16 12l-2 6h4l-2-6z" fill="white" />
-              </svg>
-              <span className="text-lg font-semibold text-muted-foreground">
-                GitLab
-              </span>
-            </div>
+            </Link>
+            <Link
+              to="/auth/register"
+              className="border border-slate-600 active:scale-95 hover:bg-white/10 transition text-slate-600 rounded-lg px-8 h-11 flex items-center"
+            >
+              Post a Job
+            </Link>
           </div>
-        </div>
+          <style>
+            {`
+                .marquee-inner {
+                    animation: marqueeScroll 15s linear infinite;
+                }
+
+                .marquee-inner-testimonials {
+                    animation: marqueeScroll 35s linear infinite;
+                }
+
+                @keyframes marqueeScroll {
+                    0% {
+                        transform: translateX(0%);
+                    }
+
+                    100% {
+                        transform: translateX(-50%);
+                    }
+                }
+            `}
+          </style>
+          <h3 className="text-base text-center text-slate-400 pb-14 pt-14 font-medium">
+            Trusting by leading brands, including ΓÇö
+          </h3>
+          <div className="overflow-hidden w-full relative max-w-5xl mx-auto select-none">
+            <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
+
+            <div className="flex marquee-inner will-change-transform max-w-5xl mx-auto">
+              {[...companiesLogo, ...companiesLogo].map((company, index) => (
+                <img
+                  key={index}
+                  className="mx-11 h-8 w-auto grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  src={company.logo}
+                  alt={company.name}
+                />
+              ))}
+            </div>
+
+            <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
+          </div>
+        </main>
       </section>
 
       <section className="py-20 bg-background">
@@ -185,7 +314,7 @@ const Landing = () => {
               How expert jobs work
             </h2>
             <div className="absolute right-20 mt-4 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
-              <div className="text-primary">✦</div>
+              <div className="text-primary">Γ£ª</div>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -607,7 +736,7 @@ const Landing = () => {
                 Discover thousands of job opportunities that match your skills
                 and experience.
               </p>
-              <Button 
+              <Button
                 className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                 asChild
               >
@@ -700,6 +829,31 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      <Link
+        to={
+          isAuthenticated && role === UserRole.SEEKER
+            ? "/seeker/messages"
+            : "/auth/login"
+        }
+        className="fixed bottom-8 right-8 z-50 group"
+      >
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping opacity-75 duration-[2s]" />
+          <div className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 hover:shadow-2xl hover:shadow-primary/50 hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-sm border border-white/20">
+            <MessageCircle className="w-7 h-7" />
+            <span className="absolute top-0 right-0 flex h-5 w-5 translate-x-1 -translate-y-1 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-sm ring-2 ring-white dark:ring-slate-900">
+              3
+            </span>
+          </div>
+          <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none whitespace-nowrap hidden sm:block">
+            <p className="text-sm font-medium text-slate-900 dark:text-white">
+              {isAuthenticated ? "3 New Messages" : "Chat with us"}
+            </p>
+            <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white/90 dark:bg-slate-800/90 border-r border-t border-slate-200 dark:border-slate-700 rotate-45 transform" />
+          </div>
+        </div>
+      </Link>
 
       <PublicFooter />
     </div>
