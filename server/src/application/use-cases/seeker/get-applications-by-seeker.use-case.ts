@@ -1,5 +1,8 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
 import { GetApplicationsBySeekerRequestDto } from '../../dto/application/get-applications-by-seeker.dto';
 import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
@@ -11,6 +14,9 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(data: GetApplicationsBySeekerRequestDto): Promise<PaginatedApplicationsResponseDto> {
@@ -32,8 +38,30 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     const applications: JobApplicationListResponseDto[] = [];
     for (const app of result.data) {
       const job = await this._jobPostingRepository.findById(app.jobId);
+      let companyLogo: string | undefined = undefined;
+      
+      if (job) {
+        const companyProfile = await this._companyProfileRepository.findById(job.companyId);
+        
+        if (companyProfile) {
+          const companyUser = await this._userRepository.findById(companyProfile.userId);
+          
+          if (companyUser?.isBlocked) {
+            continue;
+          }
+          
+          if (companyProfile.logo) {
+            companyLogo = await this._s3Service.getSignedUrl(companyProfile.logo);
+          }
+        }
+      }
+      
       applications.push(
-        JobApplicationMapper.toListResponse(app, job),
+        JobApplicationMapper.toListResponse(app, {
+          jobTitle: job?.title,
+          companyName: job?.companyName,
+          companyLogo,
+        }),
       );
     }
 
