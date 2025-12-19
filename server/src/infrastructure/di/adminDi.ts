@@ -74,7 +74,7 @@ const blockUserUseCase = new BlockUserUseCase(userRepository);
 
 const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 
-const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository);
+const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository, s3Service);
 
 const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
