@@ -1,40 +1,43 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { GetActiveSubscriptionUseCase } from '../../../application/use-cases/company/get-active-subscription.use-case';
-import { GetPaymentHistoryUseCase } from '../../../application/use-cases/company/get-payment-history.use-case';
-import { CreateCheckoutSessionUseCase } from '../../../application/use-cases/company/create-checkout-session.use-case';
-import { CancelSubscriptionUseCase } from '../../../application/use-cases/company/cancel-subscription.use-case';
-import { ResumeSubscriptionUseCase } from '../../../application/use-cases/company/resume-subscription.use-case';
-import { ChangeSubscriptionPlanUseCase } from '../../../application/use-cases/company/change-subscription-plan.use-case';
-import { GetBillingPortalUseCase } from '../../../application/use-cases/company/get-billing-portal.use-case';
+import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
+import { IGetPaymentHistoryUseCase } from '../../../domain/interfaces/use-cases/payments/IGetPaymentHistoryUseCase';
+import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
+import { ICancelSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
+import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
+import { IChangeSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
+import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
 import { CompanySubscriptionResponseMapper } from '../../../application/mappers/subscription/company-subscription-response.mapper';
-import { AppError } from '../../../domain/errors/errors';
+import { AuthenticationError, ValidationError } from '../../../domain/errors/errors';
+import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { PaymentMapper } from '../../../application/mappers/payment.mapper';
+import { sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class CompanySubscriptionController {
   constructor(
-    private readonly _getActiveSubscriptionUseCase: GetActiveSubscriptionUseCase,
-    private readonly _getPaymentHistoryUseCase: GetPaymentHistoryUseCase,
-    private readonly _createCheckoutSessionUseCase: CreateCheckoutSessionUseCase,
-    private readonly _cancelSubscriptionUseCase: CancelSubscriptionUseCase,
-    private readonly _resumeSubscriptionUseCase: ResumeSubscriptionUseCase,
-    private readonly _changeSubscriptionPlanUseCase: ChangeSubscriptionPlanUseCase,
-    private readonly _getBillingPortalUseCase: GetBillingPortalUseCase,
+    private readonly _getActiveSubscriptionUseCase: IGetActiveSubscriptionUseCase,
+    private readonly _getPaymentHistoryUseCase: IGetPaymentHistoryUseCase,
+    private readonly _createCheckoutSessionUseCase: ICreateCheckoutSessionUseCase,
+    private readonly _cancelSubscriptionUseCase: ICancelSubscriptionUseCase,
+    private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
+    private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
+    private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
   ) {}
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const subscription = await this._getActiveSubscriptionUseCase.execute(userId);
 
-      res.status(200).json({
-        success: true,
-        message: subscription ? 'Active subscription found' : 'No active subscription',
-        data: subscription ? CompanySubscriptionResponseMapper.toDto(subscription) : null,
-      });
+      sendSuccessResponse(
+        res,
+        subscription ? 'Active subscription found' : 'No active subscription',
+        subscription ? CompanySubscriptionResponseMapper.toDto(subscription) : null,
+      );
     } catch (error) {
       next(error);
     }
@@ -42,30 +45,14 @@ export class CompanySubscriptionController {
 
   getPaymentHistory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const paymentOrders = await this._getPaymentHistoryUseCase.execute(userId);
 
-      res.status(200).json({
-        success: true,
-        message: 'Payment history retrieved successfully',
-        data: paymentOrders.map(order => ({
-          id: order.id,
-          amount: order.amount,
-          currency: order.currency,
-          status: order.status,
-          paymentMethod: order.paymentMethod,
-          invoiceId: order.invoiceId,
-          transactionId: order.transactionId,
-          stripeInvoiceUrl: order.stripeInvoiceUrl,
-          stripeInvoicePdf: order.stripeInvoicePdf,
-          billingCycle: order.billingCycle,
-          createdAt: order.createdAt,
-        })),
-      });
+      sendSuccessResponse(res, 'Payment history retrieved successfully', PaymentMapper.toResponseList(paymentOrders));
     } catch (error) {
       next(error);
     }
@@ -73,19 +60,19 @@ export class CompanySubscriptionController {
 
   createCheckoutSession = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const { planId, billingCycle, successUrl, cancelUrl } = req.body;
       
       if (!planId) {
-        throw new AppError('Plan ID is required', 400);
+        throw new ValidationError('Plan ID is required');
       }
 
       if (!successUrl || !cancelUrl) {
-        throw new AppError('Success and cancel URLs are required', 400);
+        throw new ValidationError('Success and cancel URLs are required');
       }
 
       const result = await this._createCheckoutSessionUseCase.execute({
@@ -96,11 +83,7 @@ export class CompanySubscriptionController {
         cancelUrl,
       });
 
-      res.status(200).json({
-        success: true,
-        message: 'Checkout session created',
-        data: result,
-      });
+      sendSuccessResponse(res, 'Checkout session created', result);
     } catch (error) {
       next(error);
     }
@@ -108,18 +91,18 @@ export class CompanySubscriptionController {
 
   cancelSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const subscription = await this._cancelSubscriptionUseCase.execute(userId);
 
-      res.status(200).json({
-        success: true,
-        message: 'Subscription will be canceled at the end of the billing period',
-        data: CompanySubscriptionResponseMapper.toDto(subscription),
-      });
+      sendSuccessResponse(
+        res,
+        'Subscription will be canceled at the end of the billing period',
+        CompanySubscriptionResponseMapper.toDto(subscription),
+      );
     } catch (error) {
       next(error);
     }
@@ -127,18 +110,14 @@ export class CompanySubscriptionController {
 
   resumeSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const subscription = await this._resumeSubscriptionUseCase.execute(userId);
 
-      res.status(200).json({
-        success: true,
-        message: 'Subscription resumed successfully',
-        data: CompanySubscriptionResponseMapper.toDto(subscription),
-      });
+      sendSuccessResponse(res, 'Subscription resumed successfully', CompanySubscriptionResponseMapper.toDto(subscription));
     } catch (error) {
       next(error);
     }
@@ -146,15 +125,15 @@ export class CompanySubscriptionController {
 
   changeSubscriptionPlan = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const { planId, billingCycle } = req.body;
       
       if (!planId) {
-        throw new AppError('New plan ID is required', 400);
+        throw new ValidationError('New plan ID is required');
       }
 
       const result = await this._changeSubscriptionPlanUseCase.execute({
@@ -163,12 +142,8 @@ export class CompanySubscriptionController {
         billingCycle,
       });
 
-      res.status(200).json({
-        success: true,
-        message: 'Subscription plan changed successfully',
-        data: {
-          subscription: CompanySubscriptionResponseMapper.toDto(result.subscription),
-        },
+      sendSuccessResponse(res, 'Subscription plan changed successfully', {
+        subscription: CompanySubscriptionResponseMapper.toDto(result.subscription),
       });
     } catch (error) {
       next(error);
@@ -177,15 +152,15 @@ export class CompanySubscriptionController {
 
   getBillingPortal = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.userId;
+      const userId = req.user?.id;
       if (!userId) {
-        throw new AppError('User not authenticated', 401);
+        throw new AuthenticationError();
       }
 
       const { returnUrl } = req.body;
       
       if (!returnUrl) {
-        throw new AppError('Return URL is required', 400);
+        throw new ValidationError('Return URL is required');
       }
 
       const result = await this._getBillingPortalUseCase.execute({
@@ -193,14 +168,9 @@ export class CompanySubscriptionController {
         returnUrl,
       });
 
-      res.status(200).json({
-        success: true,
-        message: 'Billing portal session created',
-        data: result,
-      });
+      sendSuccessResponse(res, 'Billing portal session created', result);
     } catch (error) {
       next(error);
     }
   };
 }
-

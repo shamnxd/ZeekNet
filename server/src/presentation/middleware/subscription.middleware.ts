@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { ICompanySubscriptionRepository } from '../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { HttpStatus } from '../../domain/enums/http-status.enum';
 import { CompanySubscription } from '../../domain/entities/company-subscription.entity';
 import { AuthenticatedRequest } from './auth.middleware';
+import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from '../../shared/utils/controller.utils';
 
 export class SubscriptionMiddleware {
   constructor(
@@ -16,35 +16,23 @@ export class SubscriptionMiddleware {
       const userId = req.user?.userId;
       
       if (!userId) {
-        return res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: 'User not authenticated',
-        });
+        return sendUnauthorizedResponse(res, 'User not authenticated');
       }
 
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       
       if (!companyProfile) {
-        return res.status(HttpStatus.NOT_FOUND).json({
-          success: false,
-          message: 'Company profile not found',
-        });
+        return sendNotFoundResponse(res, 'Company profile not found');
       }
 
       const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
       
       if (!subscription) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'No active subscription found. Please subscribe to a plan to continue.',
-        });
+        return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
       }
 
       if (subscription.isExpired()) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'Your subscription has expired. Please renew to continue.',
-        });
+        return sendForbiddenResponse(res, 'Your subscription has expired. Please renew to continue.');
       }
 
       (req as AuthenticatedRequest & { subscription: typeof subscription }).subscription = subscription;
@@ -60,17 +48,11 @@ export class SubscriptionMiddleware {
       const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
       
       if (!subscription) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'No active subscription found',
-        });
+        return sendForbiddenResponse(res, 'No active subscription found');
       }
 
       if (!subscription.canPostJob()) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: `You have reached your job posting limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan.`,
-        });
+        return sendForbiddenResponse(res, `You have reached your job posting limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan.`);
       }
 
       next();
@@ -89,17 +71,11 @@ export class SubscriptionMiddleware {
       }
 
       if (!subscription) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: 'No active subscription found',
-        });
+        return sendForbiddenResponse(res, 'No active subscription found');
       }
 
       if (!subscription.canPostFeaturedJob()) {
-        return res.status(HttpStatus.FORBIDDEN).json({
-          success: false,
-          message: `You have reached your featured job limit of ${subscription.featuredJobLimit} featured jobs. Please upgrade your plan.`,
-        });
+        return sendForbiddenResponse(res, `You have reached your featured job limit of ${subscription.featuredJobLimit} featured jobs. Please upgrade your plan.`);
       }
 
       next();

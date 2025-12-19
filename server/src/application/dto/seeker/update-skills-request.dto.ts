@@ -6,6 +6,6 @@ export const UpdateSkillsRequestDtoSchema = z.object({
 
 export type UpdateSkillsRequestDto = z.infer<typeof UpdateSkillsRequestDtoSchema>;
 
-// Export for controller validation
+
 export const UpdateSkillsDto = UpdateSkillsRequestDtoSchema;
 

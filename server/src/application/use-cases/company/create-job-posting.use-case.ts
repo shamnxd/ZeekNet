@@ -1,11 +1,11 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CreateJobPostingRequestDto } from '../../dto/job-posting/create-job-posting-request.dto';
-import { AppError, ValidationError } from '../../../domain/errors/errors';
+import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
-import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
@@ -19,7 +19,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
@@ -40,24 +40,21 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       throw new ValidationError(`You have reached your active featured job limit of ${subscription.featuredJobLimit} jobs. Please upgrade your plan or unlist other featured jobs.`);
     }
     
-    const jobPosting: Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt'> = {
+    const jobPosting = JobPostingMapper.toPersistence({
       companyId: companyProfile.id,
       title: jobData.title,
       description: jobData.description,
       responsibilities: jobData.responsibilities,
       qualifications: jobData.qualifications,
-      niceToHaves: jobData.nice_to_haves || [],
-      benefits: jobData.benefits || [],
+      niceToHaves: jobData.nice_to_haves,
+      benefits: jobData.benefits,
       salary: jobData.salary,
       employmentTypes: jobData.employment_types,
       location: jobData.location,
-      skillsRequired: jobData.skills_required || [],
-      categoryIds: jobData.category_ids || [],
-      status: JobStatus.ACTIVE,
+      skillsRequired: jobData.skills_required,
+      categoryIds: jobData.category_ids,
       isFeatured,
-      viewCount: 0,
-      applicationCount: 0,
-    };
+    });
 
     const createdJob = await this._jobPostingRepository.postJob(jobPosting);
 

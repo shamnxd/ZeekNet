@@ -17,6 +17,6 @@ export const AddExperienceRequestDtoSchema = z.object({
 
 export type AddExperienceRequestDto = z.infer<typeof AddExperienceRequestDtoSchema>;
 
-// Export for controller validation
+
 export const AddExperienceDto = AddExperienceRequestDtoSchema;
 

@@ -3,13 +3,14 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { NotFoundError, AppError } from '../../../domain/errors/errors';
+import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { logger } from '../../../infrastructure/config/logger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
 import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
 import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
 import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
+import { PriceType } from '../../../domain/entities/price-history.entity';
 
 export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUseCase {
   constructor(
@@ -29,7 +30,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     }
 
     if (!plan.stripeProductId) {
-      throw new AppError('Plan does not have Stripe integration', 400);
+      throw new BadRequestError('Plan does not have Stripe integration');
     }
 
     const result: MigratePlanSubscribersResult = {
@@ -44,7 +45,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     };
 
     if (billingCycle === 'monthly' || billingCycle === 'both') {
-      const monthlyResult = await this.migrateByType(plan.id, plan.name, 'monthly', prorationBehavior);
+      const monthlyResult = await this.migrateByType(plan.id, plan.name, PriceType.MONTHLY, prorationBehavior);
       result.fromPriceId = monthlyResult.fromPriceId || result.fromPriceId;
       result.toPriceId = monthlyResult.toPriceId || result.toPriceId;
       result.migratedCount += monthlyResult.migratedCount;
@@ -53,7 +54,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     }
 
     if (billingCycle === 'yearly' || billingCycle === 'both') {
-      const yearlyResult = await this.migrateByType(plan.id, plan.name, 'yearly', prorationBehavior);
+      const yearlyResult = await this.migrateByType(plan.id, plan.name, PriceType.YEARLY, prorationBehavior);
       if (!result.fromPriceId) {
         result.fromPriceId = yearlyResult.fromPriceId || '';
       }
@@ -75,7 +76,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
   private async migrateByType(
     planId: string,
     planName: string,
-    type: 'monthly' | 'yearly',
+    type: PriceType,
     prorationBehavior: 'none' | 'create_prorations' | 'always_invoice',
   ): Promise<{
     fromPriceId: string;

@@ -11,8 +11,8 @@ export class ConversationPersistenceMapper {
         role: participant.role,
         unreadCount: participant.unread_count,
         lastReadAt: participant.last_read_at ?? null,
-        name: 'Unknown', // Will be populated by repository
-        profileImage: null, // Will be populated by repository
+        name: 'Unknown', 
+        profileImage: null, 
       })),
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

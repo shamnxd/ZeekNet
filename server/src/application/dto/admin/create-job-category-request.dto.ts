@@ -6,6 +6,6 @@ export const CreateJobCategoryRequestDtoSchema = z.object({
 
 export type CreateJobCategoryRequestDto = z.infer<typeof CreateJobCategoryRequestDtoSchema>;
 
-// Export for router validation
+
 export const CreateJobCategoryDto = CreateJobCategoryRequestDtoSchema;
 

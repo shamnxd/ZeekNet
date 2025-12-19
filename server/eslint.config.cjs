@@ -1,4 +1,4 @@
-// eslint.config.cjs
+
 const parser = require('@typescript-eslint/parser');
 const plugin = require('@typescript-eslint/eslint-plugin');
 

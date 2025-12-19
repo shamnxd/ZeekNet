@@ -6,6 +6,6 @@ export const UpdateLanguagesRequestDtoSchema = z.object({
 
 export type UpdateLanguagesRequestDto = z.infer<typeof UpdateLanguagesRequestDtoSchema>;
 
-// Export for controller validation
+
 export const UpdateLanguagesDto = UpdateLanguagesRequestDtoSchema;
 

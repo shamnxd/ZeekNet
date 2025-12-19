@@ -6,6 +6,6 @@ export const CreateSkillRequestDtoSchema = z.object({
 
 export type CreateSkillRequestDto = z.infer<typeof CreateSkillRequestDtoSchema>;
 
-// Export for router validation
+
 export const CreateSkillDto = CreateSkillRequestDtoSchema;
 

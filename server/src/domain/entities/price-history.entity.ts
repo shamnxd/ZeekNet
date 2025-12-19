@@ -1,5 +1,6 @@
-export type PriceType = 'monthly' | 'yearly';
+import { PriceType } from '../enums/price-type.enum';
 
+export { PriceType };
 export class PriceHistory {
   constructor(
     public readonly id: string,
@@ -32,19 +33,6 @@ export class PriceHistory {
       data.isActive ?? true,
       data.createdAt ?? now,
       data.archivedAt ?? null,
-    );
-  }
-
-  archive(): PriceHistory {
-    return new PriceHistory(
-      this.id,
-      this.planId,
-      this.stripePriceId,
-      this.type,
-      this.amount,
-      false,
-      this.createdAt,
-      new Date(),
     );
   }
 }

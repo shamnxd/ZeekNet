@@ -1,30 +1,28 @@
-import { ICompanySubscriptionRepository, CreateSubscriptionData } from '../../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { ICompanySubscriptionRepository } from '../../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from '../../../../domain/entities/company-subscription.entity';
 import { CompanySubscriptionModel } from '../models/company-subcription.model';
 import { CompanySubscriptionMapper } from '../mappers/company-subscription.mapper';
+import { RepositoryBase } from './base-repository';
+import { CompanySubscriptionDocument } from '../models/company-subcription.model';
 import { Types } from 'mongoose';
+import { CreateInput } from '../../../../domain/types/common.types';
 
-export class CompanySubscriptionRepository implements ICompanySubscriptionRepository {
-  async create(data: CreateSubscriptionData): Promise<CompanySubscription> {
-    const doc = await CompanySubscriptionModel.create({
-      companyId: new Types.ObjectId(data.companyId),
-      planId: new Types.ObjectId(data.planId),
-      startDate: data.startDate,
-      expiryDate: data.expiryDate,
-      isActive: data.isActive ?? true,
-      jobPostsUsed: data.jobPostsUsed ?? 0,
-      featuredJobsUsed: data.featuredJobsUsed ?? 0,
-      applicantAccessUsed: data.applicantAccessUsed ?? 0,
-      stripeCustomerId: data.stripeCustomerId,
-      stripeSubscriptionId: data.stripeSubscriptionId,
-      stripeStatus: data.stripeStatus,
-      billingCycle: data.billingCycle,
-      cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
-      currentPeriodStart: data.currentPeriodStart,
-      currentPeriodEnd: data.currentPeriodEnd,
-    });
+export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscription, CompanySubscriptionDocument> implements ICompanySubscriptionRepository {
+  constructor() {
+    super(CompanySubscriptionModel);
+  }
 
-    const populated = await CompanySubscriptionModel.findById(doc._id).populate('planId', 'name jobPostLimit featuredJobLimit');
+  protected mapToEntity(document: CompanySubscriptionDocument): CompanySubscription {
+    return CompanySubscriptionMapper.toEntity(document);
+  }
+
+  protected mapToDocument(entity: Partial<CompanySubscription>): Partial<CompanySubscriptionDocument> {
+    return CompanySubscriptionMapper.toDocument(entity);
+  }
+
+  async create(data: CreateInput<CompanySubscription>): Promise<CompanySubscription> {
+    const created = await super.create(data);
+    const populated = await CompanySubscriptionModel.findById(created.id).populate('planId', 'name jobPostLimit featuredJobLimit');
     return CompanySubscriptionMapper.toEntity(populated!);
   }
 

@@ -80,7 +80,7 @@ CRITICAL: If the provided candidate application text does not appear to be a res
 
       const result = JSON.parse(responseContent);
       
-      // Validate and normalize score
+      
       let score = Number(result.score);
       if (isNaN(score) || score < 0) score = 0;
       if (score > 100) score = 100;
@@ -92,7 +92,7 @@ CRITICAL: If the provided candidate application text does not appear to be a res
       };
     } catch (error) {
       console.error('Error calculating ATS score with Groq:', error);
-      // Return a default neutral score on error
+      
       return {
         score: 0,
         reasoning: 'Unable to process the resume. Please ensure it is a valid text-based file.',

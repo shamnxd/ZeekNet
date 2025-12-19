@@ -76,34 +76,34 @@ const CompanyProfile = () => {
         }
         const mappedLocations = locations.map((location: OfficeLocation) => ({
           ...location,
-          location: location.location || location.city, // fallback if needed
+          location: location.location || location.city, 
           officeName: location.officeName || 'Office',
           isHeadquarters: location.isPrimary
         }))
         setOfficeLocations(mappedLocations)
 
-        // Map Tech Stack (name -> techStack)
+        
         const mappedTechStack = techStack.map((item: TechStackItem) => ({
           ...item,
           techStack: item.name || item.techStack
         }))
         setTechStack(mappedTechStack)
 
-        // Map Benefits (title -> perk)
+        
         const mappedBenefits = benefits.map((item: Benefit) => ({
           ...item,
           perk: item.title || item.perk
         }))
         setBenefits(mappedBenefits)
 
-        // Map Workplace Pictures (url -> pictureUrl)
+        
         const mappedPictures = workplacePictures.map((item: WorkplacePicture) => ({
           ...item,
           pictureUrl: item.url || item.pictureUrl
         }))
         setWorkplacePictures(mappedPictures)
         
-        // Map Job Postings to include missing fields if needed
+        
         const mappedJobs: CompanyProfileJobPosting[] = (jobPostings || []).map((job: JobPostingResponse) => ({
           ...job,
           employmentType: job.employment_types?.[0] || 'Full-time',
@@ -119,7 +119,7 @@ const CompanyProfile = () => {
     } finally {
       setLoading(false)
     }
-  }, []) // No dependencies needed as companyApi is stable
+  }, []) 
 
   useEffect(() => {
     if (fetchedRef.current) return

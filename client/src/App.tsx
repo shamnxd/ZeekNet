@@ -150,7 +150,7 @@ function App() {
                 <PaymentManagement />
               </ProtectedRoute>
             } />
-            {/* Price Plans route removed; consolidated under Subscription Plans */}
+            {}
           
           <Route path="/company/dashboard" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>

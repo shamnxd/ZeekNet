@@ -1,3 +1,4 @@
+import { NotificationMapper } from '../../mappers/notification.mapper';
 import { INotificationRepository, CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { Notification } from '../../../domain/entities/notification.entity';
 import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/notification/ICreateNotificationUseCase';
@@ -8,13 +9,15 @@ export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   ) {}
 
   async execute(data: CreateNotificationData): Promise<Notification> {
-    return this._notificationRepository.create({
-      userId: data.user_id,
-      type: data.type,
-      title: data.title,
-      message: data.message,
-      data: data.data || {},
-      isRead: false,
-    } as Omit<Notification, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+    return this._notificationRepository.create(
+      NotificationMapper.toEntity({
+        userId: data.user_id,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        data: data.data || {},
+        isRead: false,
+      }),
+    );
   }
 }

@@ -2,7 +2,7 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
 
 export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCase {
@@ -16,7 +16,7 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);

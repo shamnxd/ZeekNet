@@ -137,18 +137,18 @@ const CompanyPlans = () => {
 
   const sessionId = searchParams.get('session_id')
   
-  // Handle Stripe redirect separately to avoid unnecessary re-renders
+  
   useEffect(() => {
     if (sessionId && !isPollingSubscription) {
-      // Payment was successful, show success message
+      
       toast.success('Payment successful! Your subscription is being activated.')
-      // Remove the session_id from URL immediately
+      
       window.history.replaceState({}, '', window.location.pathname)
       
-      // Poll for subscription (webhook processes asynchronously)
+      
       setIsPollingSubscription(true)
       let retries = 0
-      const maxRetries = 3 // Reduced retries - webhook should process quickly
+      const maxRetries = 3 
       let timeoutId: NodeJS.Timeout | null = null
       
       const checkSubscription = async () => {
@@ -156,7 +156,7 @@ const CompanyPlans = () => {
           const response = await companyApi.getActiveSubscription()
           
           if (response.success && response.data) {
-            // Subscription found, update state and stop polling
+            
             setActiveSubscription(response.data)
             await fetchBillingHistory()
             setIsPollingSubscription(false)
@@ -167,10 +167,10 @@ const CompanyPlans = () => {
           
           retries++
           if (retries < maxRetries) {
-            // Wait 2 seconds before next check
+            
             timeoutId = setTimeout(checkSubscription, 2000)
           } else {
-            // Max retries reached - webhook may still be processing
+            
             setIsPollingSubscription(false)
             toast.info('Subscription is being processed. Please refresh the page in a moment if it doesn\'t appear.')
           }
@@ -185,27 +185,27 @@ const CompanyPlans = () => {
         }
       }
       
-      // Start checking after 2 seconds (give webhook time to process)
+      
       timeoutId = setTimeout(checkSubscription, 2000)
       
-      // Cleanup on unmount
+      
       return () => {
         if (timeoutId) clearTimeout(timeoutId)
         setIsPollingSubscription(false)
       }
     }
-  }, [sessionId, isPollingSubscription, fetchBillingHistory]) // Only depend on session_id, not entire searchParams
+  }, [sessionId, isPollingSubscription, fetchBillingHistory]) 
 
 
 
   const handleSelectPlan = (plan: SubscriptionPlan) => {
-    // Default plans cannot be selected - they are automatically assigned
+    
     if (plan.isDefault || plan.price === 0) {
       toast.info('Default plan is automatically assigned to your account')
       return
     }
     
-    // For non-default plans, show confirmation dialog
+    
     setSelectedPlan(plan)
     setShowConfirmDialog(true)
   }
@@ -213,7 +213,7 @@ const CompanyPlans = () => {
   const handleConfirmPurchase = async () => {
     if (!selectedPlan) return
 
-    // Check if user has active subscription - if yes, change plan instead of creating new
+    
     if (activeSubscription && activeSubscription.stripeSubscriptionId) {
       try {
         setChangingPlan(true)
@@ -239,11 +239,11 @@ const CompanyPlans = () => {
       return
     }
 
-    // No active subscription - create new checkout session
+    
     try {
       setPurchaseLoading(true)
       
-      // Use Stripe Checkout
+      
       const successUrl = `${window.location.origin}/company/billing`
       const cancelUrl = `${window.location.origin}/company/billing`
       
@@ -255,7 +255,7 @@ const CompanyPlans = () => {
       )
 
       if (response.success && response.data?.sessionUrl) {
-        // Redirect to Stripe Checkout
+        
         window.location.href = response.data.sessionUrl
       } else {
         throw new Error(response.message || 'Failed to create checkout session')
@@ -419,7 +419,7 @@ const CompanyPlans = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        {/* Current Plan Card - Spans 2 columns on large screens */}
+        {}
         <Card className="lg:col-span-2 border border-gray-200 shadow-sm flex flex-col">
           <CardHeader className="pb-4">
             <div className="flex justify-between items-start">
@@ -488,7 +488,7 @@ const CompanyPlans = () => {
           </CardContent>
         </Card>
 
-        {/* Billing Summary / Upgrade Card */}
+        {}
         <Card className="border border-gray-200 shadow-sm flex flex-col h-full">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-bold text-gray-900">Billing Summary</CardTitle>
@@ -598,7 +598,7 @@ const CompanyPlans = () => {
         </Card>
       </div>
 
-      {/* Invoice History */}
+      {}
       <Card className="border border-gray-200 shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-gray-900">Billing History</CardTitle>
@@ -683,7 +683,7 @@ const CompanyPlans = () => {
           Choose the plan that fits your needs. All plans include essential features to get you started, with options to scale as you grow. No hidden fees and the flexibility to change anytime.
         </p>
 
-        {/* Monthly/Annual Toggle */}
+        {}
         <div className="flex justify-center pt-4">
           <div className="bg-gray-100 p-1 rounded-full flex items-center">
             <button
@@ -778,7 +778,7 @@ const CompanyPlans = () => {
                 )}
 
                 <div className="space-y-4 flex-1">
-                  {/* Plan Limits Section */}
+                  {}
                   <div className="space-y-3 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <div className="flex items-center gap-3 text-sm text-gray-700">
                       <Briefcase className="h-4 w-4 text-[#4640DE]" />
@@ -794,7 +794,7 @@ const CompanyPlans = () => {
                     </div>
                   </div>
 
-                  {/* Features List */}
+                  {}
                   <div className="space-y-3">
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-3">
@@ -846,7 +846,7 @@ const CompanyPlans = () => {
         {view === 'dashboard' ? renderDashboard() : renderPlans()}
       </div>
 
-      {/* Purchase Confirmation Dialog */}
+      {}
       <PurchaseConfirmationDialog
         open={showConfirmDialog}
         onClose={() => {
@@ -860,7 +860,7 @@ const CompanyPlans = () => {
         isUpgrade={!!(activeSubscription && activeSubscription.stripeSubscriptionId)}
       />
 
-      {/* Purchase Result Dialog */}
+      {}
       <PurchaseResultDialog
         open={showResultDialog}
         onClose={handleCloseResultDialog}

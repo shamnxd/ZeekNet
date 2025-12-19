@@ -1,7 +1,47 @@
 import { JobPosting } from '../../domain/entities/job-posting.entity';
-import { JobPostingResponseDto, JobPostingDetailResponseDto } from '../dto/job-posting/job-posting-response.dto';
+import { JobStatus } from '../../domain/enums/job-status.enum';
+import { EmploymentType } from '../../domain/enums/employment-type.enum';
+import { Salary } from '../../domain/interfaces/salary.interface';
+import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from '../dto/job-posting/job-posting-response.dto';
+import { AdminJobListItem, AdminJobStatsResponseDto } from '../dto/admin/admin-job-response.dto';
+import { CreateInput } from '../../domain/types/common.types';
 
 export class JobPostingMapper {
+  static toPersistence(data: {
+    companyId: string;
+    title: string;
+    description: string;
+    responsibilities: string[];
+    qualifications: string[];
+    niceToHaves?: string[];
+    benefits?: string[];
+    salary: Salary;
+    employmentTypes: EmploymentType[];
+    location: string;
+    skillsRequired: string[];
+    categoryIds: string[];
+    isFeatured?: boolean;
+    expiresAt?: Date;
+  }): Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt' | 'companyName' | 'companyLogo' | 'unpublishReason'> {
+    return {
+      companyId: data.companyId,
+      title: data.title,
+      description: data.description,
+      responsibilities: data.responsibilities,
+      qualifications: data.qualifications,
+      niceToHaves: data.niceToHaves || [],
+      benefits: data.benefits || [],
+      salary: data.salary,
+      employmentTypes: data.employmentTypes,
+      location: data.location,
+      skillsRequired: data.skillsRequired,
+      categoryIds: data.categoryIds,
+      isFeatured: data.isFeatured || false,
+      status: JobStatus.ACTIVE,
+      viewCount: 0,
+      applicationCount: 0,
+    };
+  }
   static toResponse(
     jobPosting: JobPosting,
     companyData?: { companyName: string; logo: string },
@@ -84,5 +124,94 @@ export class JobPostingMapper {
       const companyData = companyDataMap?.get(jobPosting.companyId);
       return this.toResponse(jobPosting, companyData);
     });
+  }
+
+  static toAdminListItemResponse(jobPosting: JobPosting): AdminJobListItem {
+    return {
+      id: jobPosting.id,
+      title: jobPosting.title,
+      companyName: jobPosting.companyName || 'Company',
+      location: jobPosting.location,
+      salary: jobPosting.salary,
+      status: jobPosting.status,
+      applications: jobPosting.applicationCount,
+      viewCount: jobPosting.viewCount,
+      createdAt: jobPosting.createdAt,
+      employmentTypes: jobPosting.employmentTypes,
+      categoryIds: jobPosting.categoryIds,
+    };
+  }
+
+  static toAdminListItemResponseList(jobPostings: JobPosting[]): AdminJobListItem[] {
+    return jobPostings.map((job) => this.toAdminListItemResponse(job));
+  }
+
+  static toSimpleResponse(job: JobPosting): Record<string, unknown> {
+    return {
+      id: job.id,
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      employmentType: job.employmentTypes?.[0] || '',
+      salaryMin: job.salary?.min,
+      salaryMax: job.salary?.max,
+      status: job.status,
+      createdAt: job.createdAt.toISOString(),
+      updatedAt: job.updatedAt.toISOString(),
+    };
+  }
+
+  static toSimpleResponseList(jobs: JobPosting[]): Record<string, unknown>[] {
+    return jobs.map((job) => this.toSimpleResponse(job));
+  }
+
+  static toAdminStatsResponse(jobs: JobPosting[]): AdminJobStatsResponseDto {
+    return {
+      total: jobs.length,
+      active: jobs.filter((job) => job.status === JobStatus.ACTIVE).length,
+      inactive: jobs.filter((job) => job.status !== JobStatus.ACTIVE).length,
+      totalApplications: jobs.reduce((sum, job) => sum + job.applicationCount, 0),
+      totalViews: jobs.reduce((sum, job) => sum + job.viewCount, 0),
+    };
+  }
+
+  static toCompanyListItemResponse(job: JobPosting): CompanyJobPostingListItemDto {
+    return {
+      id: job.id,
+      title: job.title,
+      status: job.status,
+      employmentTypes: job.employmentTypes,
+      applicationCount: job.applicationCount,
+      viewCount: job.viewCount,
+      isFeatured: job.isFeatured,
+      unpublishReason: job.unpublishReason,
+      createdAt: job.createdAt,
+    };
+  }
+
+  static toCompanyListItemResponseList(jobs: JobPosting[]): CompanyJobPostingListItemDto[] {
+    return jobs.map((job) => this.toCompanyListItemResponse(job));
+  }
+
+  static toPublicJobListItem(job: JobPosting): PublicJobListItemDto {
+    return {
+      id: job.id,
+      title: job.title,
+      viewCount: job.viewCount,
+      applicationCount: job.applicationCount,
+      salary: job.salary,
+      companyName: job.companyName || '',
+      companyLogo: job.companyLogo,
+      isFeatured: job.isFeatured,
+      createdAt: job.createdAt,
+      location: job.location,
+      description: job.description,
+      skillsRequired: job.skillsRequired,
+      employmentTypes: job.employmentTypes,
+    };
+  }
+
+  static toPublicJobListItemList(jobs: JobPosting[]): PublicJobListItemDto[] {
+    return jobs.map((job) => this.toPublicJobListItem(job));
   }
 }

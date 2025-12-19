@@ -1,7 +1,7 @@
 import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
 import { CompanyWithVerificationResult } from '../../dto/company/company-with-verification-result.dto';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
   constructor(private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
@@ -16,7 +16,7 @@ export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
     const company = result.companies.find(c => c.id === companyId) || null;
     
     if (!company) {
-      throw new AppError('Company not found', 404);
+      throw new NotFoundError('Company not found');
     }
 
     return company;

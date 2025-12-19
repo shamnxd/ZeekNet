@@ -24,11 +24,7 @@ export class ChatRouter {
 
     this.router.post('/conversations', validateBody(CreateConversationDto), controller.createConversation);
     this.router.get('/conversations', validateQuery(GetConversationsQueryDto), controller.getConversations);
-    this.router.get(
-      '/conversations/:conversationId/messages',
-      validateQuery(GetMessagesQueryDto),
-      controller.getMessages,
-    );
+    this.router.get('/conversations/:conversationId/messages', validateQuery(GetMessagesQueryDto), controller.getMessages );
     this.router.post('/messages', validateBody(SendMessageDto), controller.sendMessage);
     this.router.delete('/messages/:messageId', controller.deleteMessage);
     this.router.post('/conversations/:conversationId/read', controller.markAsRead);

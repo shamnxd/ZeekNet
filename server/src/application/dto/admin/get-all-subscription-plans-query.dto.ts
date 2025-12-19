@@ -11,6 +11,6 @@ export const GetAllSubscriptionPlansQueryDtoSchema = z.object({
 
 export type GetAllSubscriptionPlansQueryDto = z.infer<typeof GetAllSubscriptionPlansQueryDtoSchema>;
 
-// Export for router validation
+
 export const GetAllSubscriptionPlansDto = GetAllSubscriptionPlansQueryDtoSchema;
 

@@ -1,22 +1,22 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IUpdateUserVerificationStatusUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserVerificationStatusUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 
 export class UpdateUserVerificationStatusUseCase implements IUpdateUserVerificationStatusUseCase {
   constructor(private readonly _userRepository: IUserRepository) {}
 
   async execute(email: string, isVerified: boolean): Promise<void> {
     if (!email) {
-      throw new AppError('Email is required', 400);
+      throw new BadRequestError('Email is required');
     }
 
     if (typeof isVerified !== 'boolean') {
-      throw new AppError('isVerified must be a boolean value', 400);
+      throw new BadRequestError('isVerified must be a boolean value');
     }
 
     const user = await this._userRepository.findOne({ email });
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new NotFoundError('User not found');
     }
     await this._userRepository.update(user.id, { isVerified });
   }

@@ -1,7 +1,7 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { AppError, ValidationError } from '../../../domain/errors/errors';
+import { AuthorizationError, InternalServerError, NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
 import { UpdateJobStatusDto } from '../../dto/jobs/update-job-status.dto';
@@ -19,11 +19,11 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {
-      throw new AppError('Job not found', 404);
+      throw new NotFoundError('Job not found');
     }
 
     if (existingJob.status === JobStatus.BLOCKED) {
-      throw new AppError('This job has been blocked by admin and cannot be modified', 403);
+      throw new AuthorizationError('This job has been blocked by admin and cannot be modified');
     }
 
     const oldStatus = existingJob.status;
@@ -32,7 +32,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     if (userId && newStatus === JobStatus.ACTIVE && oldStatus !== JobStatus.ACTIVE) {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
-        throw new AppError('Company profile not found', 404);
+        throw new NotFoundError('Company profile not found');
       }
 
       const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
@@ -76,7 +76,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     const updatedJob = await this._jobPostingRepository.update(jobId, { status });
 
     if (!updatedJob) {
-      throw new AppError('Failed to update job status', 500);
+      throw new InternalServerError('Failed to update job status');
     }
 
     return updatedJob;

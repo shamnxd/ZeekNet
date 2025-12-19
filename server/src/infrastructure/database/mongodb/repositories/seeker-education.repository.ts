@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 import { RepositoryBase } from './base-repository';
 import { SeekerEducationMapper } from '../mappers/seeker-education.mapper';
 
+
 export class SeekerEducationRepository extends RepositoryBase<Education, SeekerEducationDocument> implements ISeekerEducationRepository {
   constructor() {
     super(SeekerEducationModel);

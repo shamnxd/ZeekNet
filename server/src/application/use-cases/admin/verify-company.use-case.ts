@@ -3,6 +3,7 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
 import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
+import { CompanySubscriptionMapper } from '../../mappers/company-subscription.mapper';
 
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
@@ -22,16 +23,18 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
           const startDate = new Date();
           const expiryDate = new Date('2099-12-31');
 
-          await this._companySubscriptionRepository.create({
-            companyId,
-            planId: defaultPlan.id,
-            startDate,
-            expiryDate,
-            isActive: true,
-            jobPostsUsed: 0,
-            featuredJobsUsed: 0,
-            applicantAccessUsed: 0,
-          });
+          await this._companySubscriptionRepository.create(
+            CompanySubscriptionMapper.toEntity({
+              companyId,
+              planId: defaultPlan.id,
+              startDate,
+              expiryDate,
+              isActive: true,
+              jobPostsUsed: 0,
+              featuredJobsUsed: 0,
+              applicantAccessUsed: 0,
+            }),
+          );
         }
       }
     }

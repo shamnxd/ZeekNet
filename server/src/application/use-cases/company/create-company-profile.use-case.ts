@@ -6,9 +6,11 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
 import { CreateCompanyProfileRequestDtoType } from '../../dto/company/create-company-profile-request.dto';
+import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
+import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { CompanySubscriptionResponseMapper } from '../../mappers/subscription/company-subscription-response.mapper';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
-import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
 
 export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase {
   constructor(
@@ -23,18 +25,20 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
   async execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfile> {
     const { userId, ...profileData } = data;
     if (!userId) throw new Error('User ID is required');
-    const profile = await this._companyProfileRepository.create({
-      userId,
-      companyName: profileData.companyName,
-      logo: profileData.logo,
-      banner: profileData.banner,
-      websiteLink: profileData.websiteLink,
-      employeeCount: profileData.employeeCount,
-      industry: profileData.industry,
-      organisation: profileData.organisation,
-      aboutUs: profileData.aboutUs,
-      isVerified: 'pending',
-    } as Omit<CompanyProfile, 'id' | '_id' | 'createdAt' | 'updatedAt'>);
+    const profile = await this._companyProfileRepository.create(
+      CompanyProfileMapper.toEntity({
+        userId,
+        companyName: profileData.companyName,
+        logo: profileData.logo,
+        banner: profileData.banner,
+        websiteLink: profileData.websiteLink,
+        employeeCount: profileData.employeeCount,
+        industry: profileData.industry,
+        organisation: profileData.organisation,
+        aboutUs: profileData.aboutUs,
+        email: profileData.email,
+      }),
+    );
 
     if (profileData.taxId || profileData.businessLicenseUrl) {
       await this._companyVerificationRepository.create({
@@ -63,16 +67,18 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
 
     const defaultPlan = await this._subscriptionPlanRepository.findDefault();
     if (defaultPlan) {
-      await this._companySubscriptionRepository.create({
-        companyId: profile.id,
-        planId: defaultPlan.id,
-        startDate: null,
-        expiryDate: null,
-        isActive: true,
-        jobPostsUsed: 0,
-        featuredJobsUsed: 0,
-        applicantAccessUsed: 0,
-      });
+      await this._companySubscriptionRepository.create(
+        CompanySubscriptionResponseMapper.toEntity({
+          companyId: profile.id,
+          planId: defaultPlan.id,
+          startDate: null,
+          expiryDate: null,
+          isActive: true,
+          jobPostsUsed: 0,
+          featuredJobsUsed: 0,
+          applicantAccessUsed: 0,
+        }),
+      );
     }
 
     return profile;

@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { UpdateJobPostingRequestDto } from '../../dto/job-posting/update-job-posting-request.dto';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError, InternalServerError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
 
@@ -13,13 +13,13 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     const updatedJob = await this._jobPostingRepository.update(jobId, updates);
 
     if (!updatedJob) {
-      throw new AppError('Failed to update job posting', 500);
+      throw new InternalServerError('Failed to update job posting');
     }
 
     return updatedJob;

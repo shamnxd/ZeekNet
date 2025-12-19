@@ -15,16 +15,16 @@ export class UploadLogoUseCase implements IUploadLogoUseCase {
     const { buffer, originalname, mimetype, userId } = data;
     this.validateFileType(mimetype, originalname);
     
-    // Upload to S3
+    
     const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
 
-    // Update company profile with new logo key
+    
     const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (existingProfile) {
       await this._companyProfileRepository.update(existingProfile.id, { logo: key });
     }
 
-    // Generate signed URL for immediate display
+    
     const signedUrl = await this._s3Service.getSignedUrl(key);
 
     return {

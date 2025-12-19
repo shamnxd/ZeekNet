@@ -151,10 +151,10 @@ const Register = () => {
     try {
       const res = await dispatch(googleLoginThunk({ idToken: credentialResponse.credential })).unwrap()
       if (res?.success) {
-        // Fetch company profile if company user
+        
         if (res.data?.role === UserRole.COMPANY) {
           dispatch(fetchCompanyProfileThunk()).catch(() => {
-            // Silently fail - will default to 'not_created'
+            
           })
         }
 

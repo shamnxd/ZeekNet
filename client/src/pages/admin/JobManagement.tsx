@@ -264,7 +264,7 @@ const JobManagement = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Building2 className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm">{job.company_name || 'Unknown'}</span>
+                            <span className="text-sm">{job.companyName || 'Unknown'}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -297,8 +297,8 @@ const JobManagement = () => {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            <div>{job.application_count ?? 0} applications</div>
-                            <div className="text-gray-500">{job.view_count ?? 0} views</div>
+                            <div>{job.applications ?? 0} applications</div>
+                            <div className="text-gray-500">{job.viewCount ?? 0} views</div>
                           </div>
                         </TableCell>
                         <TableCell>

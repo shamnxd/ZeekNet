@@ -3,6 +3,8 @@ import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/publi
 import { JobPostingFilters } from 'src/application/dto/jobs/job-posting-filters.dto';
 import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
 import { PaginatedPublicJobsDto } from '../../dto/public/paginated-public-jobs.dto';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { JobPosting } from '../../../domain/entities/job-posting.entity';
 
 export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
@@ -40,21 +42,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    const jobDtos: PublicJobListItemDto[] = paginatedJobs.map(job => ({
-      id: job.id!,
-      title: job.title!,
-      viewCount: job.viewCount!,
-      applicationCount: job.applicationCount!,
-      salary: job.salary!,
-      companyName: job.companyName || '',
-      companyLogo: job.companyLogo,
-      isFeatured: job.isFeatured!,
-      createdAt: job.createdAt!,
-      location: job.location!,
-      description: job.description!,
-      skillsRequired: job.skillsRequired!,
-      employmentTypes: job.employmentTypes!,
-    }));
+    const jobDtos = JobPostingMapper.toPublicJobListItemList(paginatedJobs as JobPosting[]);
 
     return {
       jobs: jobDtos,

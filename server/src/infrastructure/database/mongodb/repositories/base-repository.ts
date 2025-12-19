@@ -1,10 +1,11 @@
 import { Model, Document as MongooseDocument, FilterQuery } from 'mongoose';
 import { Types } from 'mongoose';
+import { CreateInput } from '../../../../domain/types/common.types';
 
 export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
   constructor(protected model: Model<TDocument>) {}
 
-  async create(data: Omit<T, '_id' | 'id' | 'createdAt' | 'updatedAt'>): Promise<T> {
+  async create(data: CreateInput<T>): Promise<T> {
     const documentData = this.mapToDocument(data as Partial<T>);
     
     const document = new this.model({

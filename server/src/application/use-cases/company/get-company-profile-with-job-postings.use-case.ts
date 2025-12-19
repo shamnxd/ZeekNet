@@ -6,7 +6,7 @@ import { IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interf
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { CompanyProfileWithDetailsResponseDto } from '../../dto/company/company-response.dto';
 import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 
 export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfileWithJobPostingsUseCase {
@@ -20,7 +20,7 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
     const companyProfile = await this._getCompanyProfileUseCase.execute(userId);
 
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     const jobPostingsQuery = {
@@ -37,28 +37,15 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
 
     const jobPostings = await this._getCompanyJobPostingsUseCase.execute({ userId, ...jobPostingsQuery });
 
-    const jobEntities: JobPosting[] = jobPostings.jobs.map(j => JobPosting.create({
+    const jobDtos = jobPostings.jobs.map((j) => ({
       id: j.id,
-      companyId: companyProfile.profile.id,
       title: j.title,
       description: '',
-      responsibilities: [],
-      qualifications: [],
-      niceToHaves: [],
-      benefits: [],
-      salary: { min: 0, max: 0 },
-      employmentTypes: j.employmentTypes as EmploymentType[],
       location: '',
-      skillsRequired: [],
-      categoryIds: [],
-      status: j.status as JobStatus,
-      viewCount: j.viewCount,
-      applicationCount: j.applicationCount,
-      createdAt: j.createdAt,
-      updatedAt: j.createdAt,
-      unpublishReason: j.unpublishReason,
-      companyName: companyProfile.profile.companyName,
-      companyLogo: companyProfile.profile.logo,
+      employmentType: j.employmentTypes?.[0] || '',
+      status: j.status,
+      createdAt: j.createdAt.toISOString(),
+      updatedAt: j.createdAt.toISOString(),
     }));
 
     const logoKey = companyProfile.profile.logo && !companyProfile.profile.logo.startsWith('http') ? companyProfile.profile.logo : null;
@@ -79,7 +66,7 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
 
     const responseData = CompanyProfileMapper.toDetailedResponse({
       ...companyProfile,
-      jobPostings: jobEntities,
+      jobPostings: jobDtos,
       signedUrls: {
         logo: logoUrl,
         banner: bannerUrl,

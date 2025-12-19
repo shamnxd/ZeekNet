@@ -185,7 +185,7 @@ const PostJob = () => {
 
   const CurrentStepComponent = steps[currentStep - 1].component;
 
-  // Show verification required message if not verified
+  
   if (!isVerified) {
     return (
       <CompanyLayout>

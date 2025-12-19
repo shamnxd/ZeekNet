@@ -28,22 +28,9 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     let profile = await this._seekerProfileRepository.findOne({ userId });
 
     if (!profile) {
-      profile = await this._seekerProfileRepository.create({
-        userId,
-        headline: null,
-        summary: null,
-        location: null,
-        phone: null,
-        email: null,
-        avatarFileName: null,
-        bannerFileName: null,
-        dateOfBirth: null,
-        gender: null,
-        skills: [],
-        languages: [],
-        socialLinks: [],
-        resume: null,
-      });
+      profile = await this._seekerProfileRepository.create(
+        SeekerProfileMapper.toEntity({ userId }),
+      );
     }
 
     const [experiences, education] = await Promise.all([

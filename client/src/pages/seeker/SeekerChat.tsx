@@ -45,7 +45,7 @@ const SeekerChat: React.FC = () => {
 
   const [conversations, setConversations] = useState<UiConversation[]>([]);
   const [messages, setMessages] = useState<UiMessage[]>([]);
-  // const [loading, setLoading] = useState(false);
+  
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers] = useState<Set<string>>(new Set());
   const [replyingTo, setReplyingTo] = useState<UiMessage | null>(null);
@@ -82,7 +82,7 @@ const SeekerChat: React.FC = () => {
   const loadConversations = useCallback(async () => {
     if (!token) return;
     try {
-      // setLoading(true);
+      
       const result = await chatApi.getConversations({ page: 1, limit: 50 });
       const mapped = result.data.map((c) => ({
         ...c,
@@ -92,7 +92,7 @@ const SeekerChat: React.FC = () => {
       }));
       setConversations(mapped);
     } finally {
-      // setLoading(false);
+      
     }
   }, [token, userId]);
 
@@ -160,10 +160,10 @@ const SeekerChat: React.FC = () => {
                 },
                 updatedAt: message.createdAt,
                 participants: c.participants.map((p) =>
-                  // Only increment unread count if:
-                  // 1. This is the receiver
-                  // 2. NOT currently viewing this conversation
-                  // 3. Message is from someone else
+                  
+                  
+                  
+                  
                   p.userId === message.receiverId && !isViewingConversation && message.senderId !== userIdRef.current
                     ? { ...p, unreadCount: p.unreadCount + 1 }
                     : p,
@@ -175,14 +175,14 @@ const SeekerChat: React.FC = () => {
       });
 
       if (selectedConversationRef.current?.id === conversationId) {
-        // Add message only if it doesn't already exist (prevent duplicates)
+        
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === message.id);
           if (exists) return prev;
           return [...prev, { ...message, conversationId } as UiMessage];
         });
         
-        // Automatically mark as read if we're viewing this conversation
+        
         if (message.senderId !== userIdRef.current) {
           chatApi.markAsRead(conversationId).catch(() => {});
           socketService.emitMarkAsRead({ conversationId });
@@ -269,7 +269,7 @@ const SeekerChat: React.FC = () => {
     if (!messageText.trim() || !selectedConversation || !userId) return;
     const content = messageText.trim();
     setMessageText('');
-    setReplyingTo(null); // Clear reply state
+    setReplyingTo(null); 
 
     chatApi
       .sendMessage({
@@ -279,7 +279,7 @@ const SeekerChat: React.FC = () => {
         replyToMessageId: replyingTo?.id,
       })
       .then(({ conversation }) => {
-        // Update conversation list with latest data
+        
         setConversations((prev) => {
           const merged = prev.some((c) => c.id === conversation.id)
             ? prev.map((c) =>
@@ -347,7 +347,7 @@ const SeekerChat: React.FC = () => {
 
     try {
       await chatApi.deleteMessage(messageToDelete);
-      // Optimistic update
+      
       setMessages((prev) =>
         prev.map((m) => (m.id === messageToDelete ? { ...m, isDeleted: true, content: 'This message was deleted' } : m))
       );
@@ -378,18 +378,18 @@ const SeekerChat: React.FC = () => {
   return (
     <SeekerLayout>
       <div className="fixed top-20 bottom-0 left-[235px] right-0 grid grid-cols-[380px_1fr] bg-gray-50">
-        {/* Conversations Sidebar */}
+        {}
         <div className={`bg-white border-r border-gray-200 flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
-          {/* Fixed Header */}
+          {}
           <div className="px-5 py-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-              <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors">
+              <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640de] transition-colors">
                 <MoreVertical size={20} />
               </button>
             </div>
 
-            {/* Fixed Search */}
+            {}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
@@ -397,12 +397,12 @@ const SeekerChat: React.FC = () => {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 outline-none transition-all text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 focus:border-[#4640de] focus:bg-white focus:ring-2 focus:ring-[#4640de]/10 outline-none transition-all text-sm"
               />
             </div>
           </div>
 
-          {/* Scrollable Conversations List */}
+          {}
           <div className="flex-1 overflow-y-auto">
             <div className="p-2">
               {filteredConversations.map((conversation) => (
@@ -410,7 +410,7 @@ const SeekerChat: React.FC = () => {
                   key={conversation.id}
                   className={`flex gap-3 p-3 cursor-pointer transition-all hover:bg-gray-50 ${
                     selectedConversation?.id === conversation.id
-                      ? 'bg-primary/5 border-l-4 border-primary'
+                      ? 'bg-[#4640de]/5 border-l-4 border-[#4640de]'
                       : ''
                   }`}
                   onClick={() => handleSelectConversation(conversation)}
@@ -427,7 +427,7 @@ const SeekerChat: React.FC = () => {
                         }}
                       />
                     ) : null}
-                    <div className={`w-12 h-12 rounded-full border-2 border-gray-100 bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary ${conversation.profileImage ? 'hidden' : ''}`}>
+                    <div className={`w-12 h-12 rounded-full border-2 border-gray-100 bg-[#4640de]/10 flex items-center justify-center text-sm font-semibold text-[#4640de] ${conversation.profileImage ? 'hidden' : ''}`}>
                       {conversation.displayName.charAt(0).toUpperCase()}
                     </div>
                   </div>
@@ -441,11 +441,11 @@ const SeekerChat: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs text-primary font-medium truncate">
+                      <p className="text-xs text-[#4640de] font-medium truncate">
                         {conversation.subtitle || 'Chat'}
                       </p>
                       {conversation.participants.some((p) => p.userId === selfId && p.unreadCount > 0) && (
-                        <span className="bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                        <span className="bg-[#4640de] text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                           {conversation.participants.find((p) => p.userId === selfId)?.unreadCount}
                         </span>
                       )}
@@ -458,11 +458,11 @@ const SeekerChat: React.FC = () => {
           </div>
         </div>
 
-        {/* Chat Area */}
+        {}
         <div className={`relative bg-white ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           {selectedConversation ? (
             <>
-              {/* Fixed Chat Header */}
+              {}
               <div className="absolute top-0 left-0 right-0 z-10 px-6 py-4 border-b border-gray-200 bg-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -484,7 +484,7 @@ const SeekerChat: React.FC = () => {
                           }}
                         />
                       ) : null}
-                      <div className={`w-10 h-10 rounded-full border-2 border-gray-100 bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary ${selectedConversation.profileImage ? 'hidden' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full border-2 border-gray-100 bg-[#4640de]/10 flex items-center justify-center text-sm font-semibold text-[#4640de] ${selectedConversation.profileImage ? 'hidden' : ''}`}>
                         {selectedConversation.displayName.charAt(0).toUpperCase()}
                       </div>
                     </div>
@@ -494,7 +494,7 @@ const SeekerChat: React.FC = () => {
                       </h2>
                       <p className="text-xs text-gray-500">
                         {isTyping ? (
-                          <span className="text-primary font-medium">typing...</span>
+                          <span className="text-[#4640de] font-medium">typing...</span>
                         ) : onlineUsers.has(getOtherParticipant(selectedConversation, userId || '')) ? (
                           <span className="text-green-500">● Online</span>
                         ) : (
@@ -504,26 +504,26 @@ const SeekerChat: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors" title="Voice Call">
+                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640de] transition-colors" title="Voice Call">
                       <Phone size={20} />
                     </button>
-                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors" title="Video Call">
+                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640de] transition-colors" title="Video Call">
                       <Video size={20} />
                     </button>
-                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors" title="Info">
+                    <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640de] transition-colors" title="Info">
                       <Info size={20} />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Scrollable Messages - with padding for fixed header and input */}
+              {}
               <div ref={messagesContainerRef} onScroll={handleScroll} className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white">
                 <div className="p-6 space-y-4">
                   {loadingMore && (
                     <div className="flex justify-center py-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 border-2 border-[#4640de] border-t-transparent rounded-full animate-spin"></div>
                         Loading messages...
                       </div>
                     </div>
@@ -550,7 +550,7 @@ const SeekerChat: React.FC = () => {
                                 }}
                               />
                             ) : null}
-                            <div className={`w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0 ${senderData.profileImage ? 'hidden' : ''}`}>
+                            <div className={`w-8 h-8 rounded-full bg-[#4640de]/10 flex items-center justify-center text-xs font-semibold text-[#4640de] flex-shrink-0 ${senderData.profileImage ? 'hidden' : ''}`}>
                               {senderData.name.charAt(0).toUpperCase()}
                             </div>
                           </>
@@ -561,12 +561,12 @@ const SeekerChat: React.FC = () => {
                           <div
                             className={`px-4 py-2.5 ${
                               message.senderId === selfId
-                                ? 'bg-gradient-to-r from-primary to-primary/90 text-white rounded-2xl rounded-br-sm'
+                                ? 'bg-[#4640de] text-white rounded-2xl rounded-br-sm'
                                 : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm'
                             }`}
-                          >                          {/* Quoted Message */}
+                          >                          {}
                             {message.replyToMessageId && !message.isDeleted && (
-                              <div className="mb-2 pl-2 border-l-2 border-primary/30 bg-gray-50/50 p-2 rounded">
+                              <div className="mb-2 pl-2 border-l-2 border-[#4640de]/30 bg-gray-50/50 p-2 rounded">
                                 <p className="text-xs text-gray-500 mb-0.5">Replying to</p>
                                 <p className="text-xs text-gray-700 truncate">
                                   {messages.find(m => m.id === message.replyToMessageId)?.content || 'Message'}
@@ -574,11 +574,11 @@ const SeekerChat: React.FC = () => {
                               </div>
                             )}
 
-                            <p className={`text-sm leading-relaxed ${message.isDeleted ? 'italic text-gray-500' : ''}`}>
+                            <p className={`text-sm leading-relaxed ${message.isDeleted ? 'italic text-gray-400' : ''}`}>
                               {message.content}
                             </p>
                           </div>
-                          {/* Message Actions */}
+                          {}
                           {!message.isDeleted && (
                             <div className={`absolute -top-2 ${
                               message.senderId === selfId ? '-left-16' : '-right-16'
@@ -609,7 +609,7 @@ const SeekerChat: React.FC = () => {
                           {message.senderId === selfId && (
                             <span className="flex items-center">
                               {message.status === 'read' ? (
-                                <CheckCheck size={14} className="text-primary" />
+                                <CheckCheck size={14} className="text-[#4640de]" />
                               ) : (
                                 <Check size={14} className="text-gray-400" />
                               )}
@@ -620,7 +620,7 @@ const SeekerChat: React.FC = () => {
                     </div>
                   ))}
                   
-                  {/* Typing Indicator */}
+                  {}
                   {isTyping && (
                     <div className="flex gap-3 animate-in slide-in-from-bottom-2 duration-300">
                     <>
@@ -635,7 +635,7 @@ const SeekerChat: React.FC = () => {
                           }}
                         />
                       ) : null}
-                      <div className={`w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0 ${selectedConversation.profileImage ? 'hidden' : ''}`}>
+                      <div className={`w-8 h-8 rounded-full bg-[#4640de]/10 flex items-center justify-center text-xs font-semibold text-[#4640de] flex-shrink-0 ${selectedConversation.profileImage ? 'hidden' : ''}`}>
                         {selectedConversation.displayName.charAt(0).toUpperCase()}
                       </div>
                     </>
@@ -653,13 +653,13 @@ const SeekerChat: React.FC = () => {
                 </div>
               </div>
 
-              {/* Fixed Message Input */}
+              {}
               <div className="absolute bottom-0 left-0 right-0 z-10 border-t border-gray-200 bg-white">
-                {/* Reply Preview */}
+                {}
                 {replyingTo && (
                   <div className="px-6 pt-3 pb-2 border-b border-gray-100 bg-gray-50">
                     <div className="flex items-start gap-2">
-                      <Reply size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                      <Reply size={14} className="text-[#4640de] mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-gray-500 font-medium">Replying to</p>
                         <p className="text-sm text-gray-700 truncate">{replyingTo.content}</p>
@@ -677,10 +677,10 @@ const SeekerChat: React.FC = () => {
                 
                 <div className="px-6 py-4">
                 <div className="flex items-center gap-3">
-                  <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors" title="Attach File">
+                  <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640de] transition-colors" title="Attach File">
                     <Paperclip size={20} />
                   </button>
-                  <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+                  <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-[#4640de] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#4640de]/10 transition-all">
                     <input
                       type="text"
                       placeholder="Type a message..."
@@ -692,12 +692,12 @@ const SeekerChat: React.FC = () => {
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                       className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 placeholder:text-gray-500"
                     />
-                    <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary transition-colors" title="Emoji">
+                    <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#4640de] transition-colors" title="Emoji">
                       <Smile size={20} />
                     </button>
                   </div>
                   <button
-                    className={`w-12 h-12 flex items-center justify-center bg-gradient-to-r from-primary to-primary/90 text-white transition-all ${
+                    className={`w-12 h-12 flex items-center justify-center bg-[#4640de] text-white transition-all ${
                       messageText.trim()
                         ? 'hover:scale-105 hover:rotate-12 active:scale-95'
                         : 'opacity-50 cursor-not-allowed'
@@ -715,11 +715,11 @@ const SeekerChat: React.FC = () => {
             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
               <div className="mb-6 animate-in fade-in duration-500">
                 <svg width="120" height="120" viewBox="0 0 120 120" fill="none" className="animate-float">
-                  <circle cx="60" cy="60" r="50" fill="currentColor" className="text-primary/10" />
+                  <circle cx="60" cy="60" r="50" fill="currentColor" className="text-[#4640de]/10" />
                   <path
                     d="M40 50C40 44.4772 44.4772 40 50 40H70C75.5228 40 80 44.4772 80 50V65C80 70.5228 75.5228 75 70 75H55L45 85V75H50C44.4772 75 40 70.5228 40 65V50Z"
                     fill="currentColor"
-                    className="text-primary"
+                    className="text-[#4640de]"
                   />
                 </svg>
               </div>

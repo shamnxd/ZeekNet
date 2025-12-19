@@ -22,7 +22,7 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
     const deletedMessage = await this._messageRepository.deleteMessage(messageId);
     
     if (deletedMessage) {
-      // Check if this was the last message of the conversation
+      
       const conversation = await this._conversationRepository.findById(deletedMessage.conversationId);
       if (conversation && conversation.lastMessage && conversation.lastMessage.messageId === messageId) {
         await this._conversationRepository.updateLastMessageContent(

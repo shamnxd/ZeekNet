@@ -129,8 +129,8 @@ const JobDetail = () => {
   const handleResumeVerified = (file: File) => {
     setResumeFile(file);
     setResumeFileName(file.name);
-    setIsApplyModalOpen(true); // Ensure apply modal is open
-    // Analyzer modal closes automatically via its onClose prop in integration
+    setIsApplyModalOpen(true); 
+    
   };
 
   const handleApply = async () => {
@@ -159,7 +159,7 @@ const JobDetail = () => {
 
       await jobApplicationApi.createApplication(formData);
 
-      // Update job state to reflect that user has applied
+      
       setJob((prevJob) => (prevJob ? { ...prevJob, has_applied: true } : null));
 
       setIsApplyModalOpen(false);
@@ -557,7 +557,7 @@ const JobDetail = () => {
                 
                 const companyLogo = jobData.companyLogo || jobData.company_logo || jobData.company?.logo;
                 const companyName = jobData.companyName || jobData.company_name || jobData.company?.companyName || 'Company';
-                const applicationCount = jobData.applicationCount ?? jobData.application_count ?? 0;
+                const applicationCount = jobData.applicationCount || 0;
                 const employmentTypes = jobData.employmentTypes || jobData.employment_types || [];
                 const salary = jobData.salary || { min: 0, max: 0 };
 
@@ -567,7 +567,7 @@ const JobDetail = () => {
                     className="bg-white border border-gray-200 rounded-lg p-5 cursor-pointer hover:shadow-lg hover:border-[#3570E2]/20 transition-all duration-200"
                     onClick={() => navigate(`/jobs/${similarJob.id || similarJob._id}`)}
                   >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
                         {companyLogo ? (
@@ -590,7 +590,7 @@ const JobDetail = () => {
                       </div>
                     </div>
 
-                    {/* Location & Type */}
+                    {}
                     <div className="flex items-center gap-2 mb-3 text-xs text-[#6B7280] flex-wrap">
                       <div className="flex items-center gap-1">
                         <span className="truncate">{similarJob.location}</span>
@@ -613,14 +613,14 @@ const JobDetail = () => {
                       )}
                     </div>
 
-                    {/* Description */}
+                    {}
                     {similarJob.description && (
                       <p className="text-sm text-[#6B7280] line-clamp-2 mb-3 leading-relaxed">
                         {similarJob.description}
                       </p>
                     )}
 
-                    {/* Footer */}
+                    {}
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
                       <div className="flex items-center gap-1.5 text-[#6B7280]">
                         <Users className="w-4 h-4" />
@@ -642,7 +642,7 @@ const JobDetail = () => {
 
       <PublicFooter />
 
-      {/* Apply Now Modal */}
+      {}
       <Dialog open={isApplyModalOpen} onOpenChange={handleCloseApplyModal}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -655,7 +655,7 @@ const JobDetail = () => {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Job Summary */}
+            {}
             <div className="bg-[#F8F8FD] rounded-lg p-4 border border-[#D6DDEB]">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -690,7 +690,7 @@ const JobDetail = () => {
               </div>
             </div>
 
-            {/* Cover Letter */}
+            {}
             <div className="space-y-2">
               <Label htmlFor="coverLetter" className="text-base font-semibold text-[#25324B]">
                 Cover Letter <span className="text-red-500">*</span>
@@ -708,7 +708,7 @@ const JobDetail = () => {
               </p>
             </div>
 
-            {/* Resume Upload */}
+            {}
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="resume" className="text-base font-semibold text-[#25324B]">
@@ -775,7 +775,7 @@ const JobDetail = () => {
               )}
             </div>
 
-            {/* Additional Info */}
+            {}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
                 <strong>Note:</strong> Make sure your resume is up-to-date and your cover letter highlights your relevant experience for this position.

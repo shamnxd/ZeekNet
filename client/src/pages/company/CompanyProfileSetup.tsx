@@ -172,7 +172,7 @@ const CompanyProfileSetup = () => {
         : await companyApi.createProfile(profileData)
       
       if (res.success) {
-        // Refresh verification status in Redux
+        
         dispatch(fetchCompanyProfileThunk()).catch(() => {})
 
         const successMessage = isReapplication 

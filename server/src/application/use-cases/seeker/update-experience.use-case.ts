@@ -31,28 +31,17 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
       throw new NotFoundError('Experience not found');
     }
 
-    const updateData: Partial<Experience> = {};
-    if (dto.title !== undefined) updateData.title = dto.title;
-    if (dto.company !== undefined) updateData.company = dto.company;
-    if (dto.startDate !== undefined) updateData.startDate = new Date(dto.startDate);
-    if (dto.endDate !== undefined) updateData.endDate = dto.endDate ? new Date(dto.endDate) : undefined;
-    if (dto.employmentType !== undefined) updateData.employmentType = dto.employmentType;
-    if (dto.location !== undefined) updateData.location = dto.location;
-    if (dto.description !== undefined) updateData.description = dto.description;
-    if (dto.technologies !== undefined) updateData.technologies = dto.technologies;
-    if (dto.isCurrent !== undefined) updateData.isCurrent = dto.isCurrent;
+    const updateData = SeekerProfileMapper.toExperienceUpdateEntity(dto);
 
-    const mergedData: Partial<Experience> = {
-      ...existingExperience,
-      ...updateData,
-    };
+    const startDate = updateData.startDate || existingExperience.startDate;
+    const endDate = updateData.endDate !== undefined ? updateData.endDate : existingExperience.endDate;
+    const isCurrent = updateData.isCurrent !== undefined ? updateData.isCurrent : existingExperience.isCurrent;
 
-    const startDate = mergedData.startDate || existingExperience.startDate;
-    if (mergedData.endDate && mergedData.endDate < startDate) {
+    if (endDate && endDate < startDate) {
       throw new ValidationError('End date must be after start date');
     }
 
-    if (mergedData.isCurrent && mergedData.endDate) {
+    if (isCurrent && endDate) {
       throw new ValidationError('Current experience cannot have an end date');
     }
 

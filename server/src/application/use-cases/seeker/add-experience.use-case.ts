@@ -34,17 +34,10 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
       throw new ValidationError('Current experience cannot have an end date');
     }
 
-    const experience = await this._seekerExperienceRepository.createForProfile(profile.id, {
-      title: dto.title,
-      company: dto.company,
-      startDate,
-      endDate,
-      employmentType: dto.employmentType,
-      location: dto.location,
-      description: dto.description,
-      technologies: dto.technologies || [],
-      isCurrent: dto.isCurrent || false,
-    });
+    const experience = await this._seekerExperienceRepository.createForProfile(
+      profile.id,
+      SeekerProfileMapper.toExperienceEntity(dto),
+    );
 
     return SeekerProfileMapper.experienceToResponse(experience);
   }

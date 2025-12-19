@@ -19,6 +19,6 @@ export const GetAllUsersQueryDtoSchema = z.object({
 
 export type GetAllUsersQueryDto = z.infer<typeof GetAllUsersQueryDtoSchema>;
 
-// Export as GetAllUsersDto for backward compatibility with router validation
+
 export const GetAllUsersDto = GetAllUsersQueryDtoSchema;
 

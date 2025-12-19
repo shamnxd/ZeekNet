@@ -45,7 +45,7 @@ const CompanyDashboard = () => {
   const [uploading, setUploading] = useState<{ logo: boolean; business_license: boolean }>({ logo: false, business_license: false })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  // Load form data only when reverify dialog opens
+  
   const loadProfileForReverify = async () => {
     if (reverifyOpen && !form.company_name) {
       try {
@@ -78,7 +78,7 @@ const CompanyDashboard = () => {
     }
   }
 
-  // Load rejection reason if status is rejected (only once)
+  
   useEffect(() => {
     if (companyVerificationStatus === 'rejected' && !rejectionReason) {
       companyApi.getProfile().then((res) => {
@@ -477,7 +477,7 @@ const CompanyDashboard = () => {
               tax_id: form.tax_id,
             })
             if (resp.success) {
-              // Refresh verification status in Redux
+              
               dispatch(fetchCompanyProfileThunk()).catch(() => {})
 
               toast.success('Reverification submitted. Status set to pending.')

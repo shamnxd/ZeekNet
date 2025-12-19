@@ -3,21 +3,19 @@ import { PaymentOrder } from '../../../../domain/entities/payment-order.entity';
 import { PaymentOrderModel, PaymentOrderDocument } from '../models/payment-order.model';
 import { PaymentOrderMapper } from '../mappers/payment-order.mapper';
 import { Types } from 'mongoose';
+import { RepositoryBase } from './base-repository';
 
-export class PaymentOrderRepository implements IPaymentOrderRepository {
-  async create(order: PaymentOrder): Promise<PaymentOrder> {
-    const doc = PaymentOrderMapper.toDocument(order);
-    const created = await PaymentOrderModel.create(doc);
-    return PaymentOrderMapper.toEntity(created);
+export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, PaymentOrderDocument> implements IPaymentOrderRepository {
+  constructor() {
+    super(PaymentOrderModel);
   }
 
-  async findById(id: string): Promise<PaymentOrder | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
+  protected mapToEntity(document: PaymentOrderDocument): PaymentOrder {
+    return PaymentOrderMapper.toEntity(document);
+  }
 
-    const doc = await PaymentOrderModel.findById(id);
-    return doc ? PaymentOrderMapper.toEntity(doc) : null;
+  protected mapToDocument(entity: Partial<PaymentOrder>): Partial<PaymentOrderDocument> {
+    return PaymentOrderMapper.toDocument(entity);
   }
 
   async findByCompanyId(companyId: string): Promise<PaymentOrder[]> {

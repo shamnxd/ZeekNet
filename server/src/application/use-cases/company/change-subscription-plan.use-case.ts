@@ -12,6 +12,7 @@ import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
+import { CompanySubscriptionMapper } from '../../mappers/company-subscription.mapper';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
@@ -119,18 +120,21 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
       ? new Date(rawPeriodEnd * 1000)
       : new Date(Date.now() + (effectiveBillingCycle === BillingCycle.YEARLY ? 365 : 30) * 24 * 60 * 60 * 1000);
 
-    const updatedSubscription = await this._companySubscriptionRepository.update(subscription.id, {
-      planId: newPlan.id,
-      billingCycle: effectiveBillingCycle,
-      stripeStatus: stripeSubscription.status as SubscriptionStatus,
-      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
-      currentPeriodStart,
-      currentPeriodEnd,
-      startDate: currentPeriodStart,
-      expiryDate: currentPeriodEnd,
-      jobPostsUsed: remainingRegularJobs,
-      featuredJobsUsed: remainingFeaturedJobs,
-    });
+    const updatedSubscription = await this._companySubscriptionRepository.update(
+      subscription.id,
+      CompanySubscriptionMapper.toUpdateEntity({
+        planId: newPlan.id,
+        billingCycle: effectiveBillingCycle,
+        stripeStatus: stripeSubscription.status as SubscriptionStatus,
+        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
+        currentPeriodStart,
+        currentPeriodEnd,
+        startDate: currentPeriodStart,
+        expiryDate: currentPeriodEnd,
+        jobPostsUsed: remainingRegularJobs,
+        featuredJobsUsed: remainingFeaturedJobs,
+      }),
+    );
 
     if (!updatedSubscription) {
       throw new Error('Failed to update subscription');

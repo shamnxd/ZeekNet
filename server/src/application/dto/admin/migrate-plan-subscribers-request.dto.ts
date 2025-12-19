@@ -8,6 +8,6 @@ export const MigratePlanSubscribersRequestDtoSchema = z.object({
 
 export type MigratePlanSubscribersRequestDto = z.infer<typeof MigratePlanSubscribersRequestDtoSchema>;
 
-// Export for router validation
+
 export const MigratePlanSubscribersDto = MigratePlanSubscribersRequestDtoSchema;
 

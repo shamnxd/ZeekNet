@@ -24,6 +24,6 @@ export const CreateSubscriptionPlanRequestDtoSchema = z.object({
 
 export type CreateSubscriptionPlanRequestDto = z.infer<typeof CreateSubscriptionPlanRequestDtoSchema>;
 
-// Export for router validation
+
 export const CreateSubscriptionPlanDto = CreateSubscriptionPlanRequestDtoSchema;
 

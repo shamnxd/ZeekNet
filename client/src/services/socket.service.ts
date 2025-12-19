@@ -47,7 +47,7 @@ class SocketService {
     }
   }
 
-  /* Notifications */
+  
   onNotification(callback: (notification: NotificationSocketData) => void): void {
     this.socket?.on('notification', callback);
   }
@@ -56,7 +56,7 @@ class SocketService {
     this.socket?.off('notification', callback);
   }
 
-  /* Chat */
+  
   emitSendMessage(payload: { receiverId: string; content: string; conversationId: string }, cb?: (resp: unknown) => void) {
     this.socket?.emit('send_message', payload, cb);
   }

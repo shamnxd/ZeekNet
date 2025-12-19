@@ -1,12 +1,12 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/interview/IUpdateInterviewUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplication, InterviewSchedule } from '../../../domain/entities/job-application.entity';
+import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { InterviewStatus, InterviewSchedule } from '../../../domain/interfaces/interview.interfaces';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
-import { NotificationType } from '../../../domain/entities/notification.entity';
+import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
 import { UpdateInterviewData } from '../../../domain/interfaces/use-cases/interview/UpdateInterviewData';
@@ -16,7 +16,6 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _notificationRepository: INotificationRepository,
   ) {}
 
   async execute(data: UpdateInterviewData): Promise<JobApplicationDetailResponseDto> {
@@ -30,7 +29,7 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
       interviewType: string;
       location: string;
       interviewerName: string;
-      status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
+      status: InterviewStatus;
     }> = {};
     if (dto.date !== undefined) {
       interviewData.date = dto.date instanceof Date ? dto.date : new Date(dto.date);

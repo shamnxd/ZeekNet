@@ -1,10 +1,11 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
+import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { JobPostingQueryRequestDto } from '../../dto/job-posting/get-job-postings-query.dto';
-import { AppError } from '../../../domain/errors/errors';
-import { CompanyJobPostingListItemDto } from '../../dto/job-posting/job-posting-response.dto';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
 import { PaginatedCompanyJobPostingsDto } from '../../dto/company/paginated-company-job-postings.dto';
+import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 
 export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
@@ -24,7 +25,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     }
 
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     const projection = {
@@ -67,17 +68,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    const jobDtos: CompanyJobPostingListItemDto[] = paginatedJobs.map(job => ({
-      id: job.id!,
-      title: job.title!,
-      status: job.status!,
-      employmentTypes: job.employmentTypes!,
-      applicationCount: job.applicationCount!,
-      viewCount: job.viewCount!,
-      isFeatured: job.isFeatured!,
-      unpublishReason: job.unpublishReason,
-      createdAt: job.createdAt!,
-    }));
+    const jobDtos = JobPostingMapper.toCompanyListItemResponseList(paginatedJobs as JobPosting[]);
 
     return {
       jobs: jobDtos,

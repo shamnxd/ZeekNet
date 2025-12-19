@@ -1,6 +1,6 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUpdateJobStatusUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError, InternalServerError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
@@ -11,7 +11,7 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new AppError('Job not found', 404);
+      throw new NotFoundError('Job not found');
     }
 
     const updateData: { status: JobStatus; unpublishReason?: string } = {
@@ -27,7 +27,7 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
     const updatedJob = await this._jobPostingRepository.update(jobId, updateData);
 
     if (!updatedJob) {
-      throw new AppError('Failed to update job status', 500);
+      throw new InternalServerError('Failed to update job status');
     }
 
     return updatedJob;

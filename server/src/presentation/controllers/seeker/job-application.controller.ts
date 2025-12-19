@@ -116,7 +116,7 @@ export class SeekerJobApplicationController {
 
   analyzeResume = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = validateUserId(req); // Ensure user is logged in
+      const userId = validateUserId(req); 
 
       if (!req.file) {
         return badRequest(res, 'Resume file is required');
@@ -127,9 +127,9 @@ export class SeekerJobApplicationController {
         return badRequest(res, 'Job ID is required');
       }
       
-      // Ensure file exists in memory (assuming memory storage)
+      
       if (!req.file.buffer) {
-        // Fallback if s3 storage was used by mistake
+        
         return badRequest(res, 'File processing error');
       }
 

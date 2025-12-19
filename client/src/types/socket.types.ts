@@ -1,4 +1,4 @@
-// Socket event data types
+
 
 export interface NotificationSocketData {
   id: string;

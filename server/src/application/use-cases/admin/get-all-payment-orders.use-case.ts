@@ -6,6 +6,8 @@ import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/pay
 import { GetAllPaymentOrdersRequestDto } from '../../dto/admin/payment-order.dto';
 import { GetAllPaymentOrdersResponseDto } from '../../dto/admin/get-all-payment-orders-response.dto';
 
+import { PaymentMapper } from '../../mappers/payment.mapper';
+
 export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
     private _paymentOrderRepository: IPaymentOrderRepository,
@@ -35,22 +37,7 @@ export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
       const company = companyMap.get(order.companyId);
       const plan = planMap.get(order.planId) as SubscriptionPlan | undefined;
 
-      return {
-        id: order.id,
-        orderNo: order.invoiceId || `#${order.id.slice(-9).toUpperCase()}`,
-        companyId: order.companyId,
-        companyName: company?.companyName || 'Unknown Company',
-        planId: order.planId,
-        planName: plan?.name || 'Unknown Plan',
-        amount: order.amount,
-        currency: order.currency,
-        status: order.status,
-        paymentMethod: order.paymentMethod,
-        invoiceId: order.invoiceId,
-        transactionId: order.transactionId,
-        createdAt: order.createdAt || new Date(),
-        updatedAt: order.updatedAt || new Date(),
-      };
+      return PaymentMapper.toAdminListItemResponse(order, company?.companyName, plan?.name);
     });
 
     if (query.search) {

@@ -1,7 +1,6 @@
 import { BillingCycle } from '../enums/billing-cycle.enum';
 import { SubscriptionStatus } from '../enums/subscription-status.enum';
 
-export { SubscriptionStatus };
 
 export class CompanySubscription {
   constructor(

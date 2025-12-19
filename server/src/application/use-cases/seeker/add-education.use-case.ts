@@ -29,17 +29,11 @@ export class AddEducationUseCase implements IAddEducationUseCase {
       throw new ValidationError('End date must be after start date');
     }
 
-    const education = await this._seekerEducationRepository.createForProfile(profile.id, {
-      school: dto.school,
-      degree: dto.degree,
-      fieldOfStudy: dto.fieldOfStudy,
-      startDate,
-      endDate,
-      grade: dto.grade,
-    });
+    const education = await this._seekerEducationRepository.createForProfile(
+      profile.id,
+      SeekerProfileMapper.toEducationEntity(dto),
+    );
 
     return SeekerProfileMapper.educationToResponse(education);
   }
 }
-
-

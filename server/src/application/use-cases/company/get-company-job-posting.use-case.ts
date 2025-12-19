@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
 
@@ -10,13 +10,13 @@ export class GetCompanyJobPostingUseCase implements IGetCompanyJobPostingUseCase
     const jobPosting = await this._jobPostingRepository.findById(jobId);
 
     if (!jobPosting) {
-      throw new AppError('Job posting not found', 404);
+      throw new NotFoundError('Job posting not found');
     }
 
     if (jobPosting.companyId !== companyId) {
       
       if (jobPosting.status === 'blocked') {
-        throw new AppError('Job posting not found', 404);
+        throw new NotFoundError('Job posting not found');
       }
     }
 

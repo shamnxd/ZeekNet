@@ -41,7 +41,7 @@ const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHash
 
 const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
 
-const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
+const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService);
 
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepository, passwordResetService);
 

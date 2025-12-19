@@ -9,7 +9,7 @@ export interface CompanyContact {
   facebook?: string;
   createdAt?: string;
   updatedAt?: string;
-  // UI compatibility fields
+  
   linkedin?: string;
   twitter_link?: string;
   facebook_link?: string;
@@ -22,7 +22,7 @@ export interface TechStackItem {
   category?: string;
   createdAt?: string;
   updatedAt?: string;
-  // UI compatibility fields
+  
   techStack?: string;
 }
 
@@ -37,7 +37,7 @@ export interface OfficeLocation {
   isPrimary?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  // UI compatibility fields
+  
   location?: string;
   officeName?: string;
   isHeadquarters?: boolean;
@@ -51,7 +51,7 @@ export interface Benefit {
   icon?: string;
   createdAt?: string;
   updatedAt?: string;
-  // UI compatibility fields
+  
   perk?: string;
 }
 
@@ -63,7 +63,7 @@ export interface WorkplacePicture {
   order?: number;
   createdAt?: string;
   updatedAt?: string;
-  // UI compatibility fields
+  
   pictureUrl?: string;
 }
 
@@ -79,7 +79,7 @@ export interface CompanySideApplication {
   coverLetter?: string;
   createdAt?: string;
   updatedAt?: string;
-  // Flattened/Legacy fields support
+  
   seeker_name?: string;
   name?: string;
   full_name?: string;

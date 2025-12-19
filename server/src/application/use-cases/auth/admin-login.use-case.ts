@@ -2,8 +2,6 @@ import { LoginResponseDto } from '../../dto/auth/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
-import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
-import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
 import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
 import { AuthenticationError, AuthorizationError } from '../../../domain/errors/errors';
 import { UserRole } from '../../../domain/enums/user-role.enum';
@@ -14,8 +12,6 @@ export class AdminLoginUseCase implements IAdminLoginUseCase {
     private readonly _userRepository: IUserRepository,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _tokenService: ITokenService,
-    private readonly _otpService: IOtpService,
-    private readonly _mailerService: IMailerService,
   ) {}
 
   async execute(email: string, password: string): Promise<LoginResponseDto> {

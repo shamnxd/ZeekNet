@@ -1,8 +1,6 @@
-export enum MessageStatus {
-  SENT = 'sent',
-  READ = 'read',
-}
+import { MessageStatus } from '../enums/message-status.enum';
 
+export { MessageStatus };
 export class ChatMessage {
   constructor(
     public readonly id: string,

@@ -12,6 +12,7 @@ import { CreateJobPostingRequestDtoSchema } from '../../../application/dto/job-p
 import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class CompanyJobPostingController {
   constructor(
@@ -35,7 +36,7 @@ export class CompanyJobPostingController {
     try {
       const userId = validateUserId(req);
       const jobPosting = await this._createJobPostingUseCase.execute({ userId, ...parsed.data });
-      sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, 201);
+      sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, HttpStatus.CREATED);
     } catch (error) {
       handleAsyncError(error, next);
     }

@@ -1,5 +1,6 @@
 import type { JobApplication, InterviewSchedule, InterviewFeedback, ApplicationStage } from '../../../entities/job-application.entity';
 import { IBaseRepository } from '../IBaseRepository';
+import { CreateInput } from '../../../types/common.types';
 
 export interface PaginatedApplications {
   applications: JobApplication[];

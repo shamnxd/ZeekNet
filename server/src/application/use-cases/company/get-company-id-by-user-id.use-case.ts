@@ -1,6 +1,6 @@
 import { IGetCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetCompanyIdByUserIdUseCase implements IGetCompanyIdByUserIdUseCase {
   constructor(private readonly _getCompanyProfileUseCase: IGetCompanyProfileUseCase) {}
@@ -9,7 +9,7 @@ export class GetCompanyIdByUserIdUseCase implements IGetCompanyIdByUserIdUseCase
     const companyProfile = await this._getCompanyProfileUseCase.execute(userId);
     
     if (!companyProfile) {
-      throw new AppError('Company profile not found', 404);
+      throw new NotFoundError('Company profile not found');
     }
 
     return companyProfile.profile.id;

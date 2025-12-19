@@ -13,4 +13,6 @@ export interface AuthState {
   isAuthenticated: boolean;
   isInitialized: boolean;
   companyVerificationStatus?: 'not_created' | 'pending' | 'verified' | 'rejected' | null;
+  companyLogo?: string | null;
+  companyName?: string | null;
 }

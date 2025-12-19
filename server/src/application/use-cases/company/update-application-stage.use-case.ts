@@ -2,12 +2,12 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
+
 import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
 import { notificationService } from '../../../infrastructure/di/notificationDi';
-import { NotificationType } from '../../../domain/entities/notification.entity';
+import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationListResponseDto } from '../../dto/application/job-application-response.dto';
 import { UpdateApplicationStageDto } from '../../dto/application/update-application-stage.dto';
@@ -17,7 +17,6 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _notificationRepository: INotificationRepository,
   ) {}
 
   async execute(dto: UpdateApplicationStageDto): Promise<JobApplicationListResponseDto> {

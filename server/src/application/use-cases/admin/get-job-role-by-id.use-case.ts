@@ -1,7 +1,7 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { JobRole } from '../../../domain/entities/job-role.entity';
 import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
-import { AppError } from '../../../domain/errors/errors';
+import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetJobRoleByIdUseCase implements IGetJobRoleByIdUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
@@ -10,7 +10,7 @@ export class GetJobRoleByIdUseCase implements IGetJobRoleByIdUseCase {
     const jobRole = await this._jobRoleRepository.findById(jobRoleId);
     
     if (!jobRole) {
-      throw new AppError('Job role not found', 404);
+      throw new NotFoundError('Job role not found');
     }
 
     return jobRole;

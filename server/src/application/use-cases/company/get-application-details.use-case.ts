@@ -81,7 +81,6 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
         ? this._s3Service.getSignedUrl(application.resumeUrl) 
         : Promise.resolve(application.resumeUrl),
     ]);
-
     return JobApplicationMapper.toDetailResponse(
       application,
       {

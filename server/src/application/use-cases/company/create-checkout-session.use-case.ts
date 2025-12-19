@@ -8,6 +8,7 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
 import { CreateCheckoutSessionRequestDto } from '../../dto/company/create-checkout-session.dto';
 import { CreateCheckoutSessionResponseDto } from '../../dto/company/checkout-session-response.dto';
+import { StripeCheckoutMapper } from '../../mappers/stripe/stripe-checkout.mapper';
 
 export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCase {
   constructor(
@@ -31,7 +32,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
       throw new NotFoundError('Company profile not found');
     }
 
-    // Allow checkout even with active subscription - will handle plan change via webhook
+    
 
     const plan = await this._subscriptionPlanRepository.findById(planId);
     if (!plan) {
@@ -79,23 +80,25 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
       stripeCustomerId = newCustomer.id;
     }
 
-    const session = await this._stripeService.createCheckoutSession({
-      customerId: stripeCustomerId,
-      priceId,
-      successUrl: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl,
-      metadata: {
-        companyId: companyProfile.id,
-        planId: plan.id,
-        userId: userId,
-        billingCycle,
-      },
-      subscriptionMetadata: {
-        companyId: companyProfile.id,
-        planId: plan.id,
-        billingCycle,
-      },
-    });
+    const session = await this._stripeService.createCheckoutSession(
+      StripeCheckoutMapper.toCheckoutSessionParams({
+        customerId: stripeCustomerId,
+        priceId,
+        successUrl: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl,
+        metadata: StripeCheckoutMapper.toSessionMetadata({
+          companyId: companyProfile.id,
+          planId: plan.id,
+          userId: userId,
+          billingCycle,
+        }),
+        subscriptionMetadata: StripeCheckoutMapper.toSubscriptionMetadata({
+          companyId: companyProfile.id,
+          planId: plan.id,
+          billingCycle,
+        }),
+      }),
+    );
 
     return {
       sessionId: session.id,

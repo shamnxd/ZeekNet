@@ -19,7 +19,7 @@ export const JobPostingFiltersDtoSchema = z.object({
 
 export type JobPostingFiltersDto = z.infer<typeof JobPostingFiltersDtoSchema>;
 
-// Legacy type for backward compatibility
+
 export interface JobPostingFilters {
   status?: JobStatus;
   categoryIds?: string[];

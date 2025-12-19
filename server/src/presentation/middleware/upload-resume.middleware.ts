@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { HttpStatus } from '../../domain/enums/http-status.enum';
+import { sendBadRequestResponse } from '../../shared/utils/controller.utils';
 
 const storage = multer.memoryStorage();
 
@@ -35,20 +35,11 @@ export const uploadResume = (fieldName: string = 'resume') => {
     resumeUpload.single(fieldName)(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(HttpStatus.BAD_REQUEST).json({
-            success: false,
-            message: 'Resume file too large. Maximum size is 5MB.',
-          });
+          return sendBadRequestResponse(res, 'Resume file too large. Maximum size is 5MB.');
         }
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: err.message,
-        });
+        return sendBadRequestResponse(res, err.message);
       } else if (err) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: err.message,
-        });
+        return sendBadRequestResponse(res, err.message);
       }
       next();
     });

@@ -1,4 +1,4 @@
-// Application-related interfaces based on server DTOs
+
 
 export interface InterviewSchedule {
   id: string;

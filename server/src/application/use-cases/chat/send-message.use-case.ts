@@ -5,6 +5,7 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { AuthorizationError, NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { Conversation } from '../../../domain/entities/conversation.entity';
 import { ChatMessage, MessageStatus } from '../../../domain/entities/chat-message.entity';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
@@ -40,7 +41,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       throw new AuthorizationError('Users are not part of this conversation');
     }
 
-    const messagePayload: Omit<ChatMessage, 'id' | '_id' | 'createdAt' | 'updatedAt'> = {
+    const messagePayload: CreateInput<ChatMessage> = {
       conversationId: conversation.id,
       senderId: data.senderId,
       receiverId: data.receiverId,

@@ -1,4 +1,4 @@
-// @ts-ignore
+
 import mammoth from 'mammoth';
 import pdf = require('pdf-parse');
 import { ValidationError } from '../../domain/errors/errors';

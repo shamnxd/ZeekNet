@@ -5,7 +5,7 @@ const CreateCompanyTechStackDtoSchema = z.object({
   techStack: z.string().min(1, 'Tech stack name cannot be empty'),
 });
 
-const UpdateCompanyTechStackDtoSchema = CreateCompanyTechStackDtoSchema.partial();
+const UpdateCompanyTechStackDtoSchema = CreateCompanyTechStackDtoSchema;
 
 export { CreateCompanyTechStackDtoSchema as CreateCompanyTechStackDto, UpdateCompanyTechStackDtoSchema as UpdateCompanyTechStackDto };
 

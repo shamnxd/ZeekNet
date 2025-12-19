@@ -20,11 +20,7 @@ export class SubscriptionPlan {
     public readonly stripePriceIdYearly?: string,
   ) {}
 
-  getYearlyPrice(): number {
-    const yearlyBasePrice = this.price * 12;
-    const discountAmount = yearlyBasePrice * (this.yearlyDiscount / 100);
-    return yearlyBasePrice - discountAmount;
-  }
+
 
   static create(data: {
     id: string;
@@ -69,7 +65,5 @@ export class SubscriptionPlan {
     );
   }
 
-  hasStripeIntegration(): boolean {
-    return !!(this.stripeProductId && (this.stripePriceIdMonthly || this.stripePriceIdYearly));
-  }
+
 }

@@ -18,7 +18,7 @@ export class AnalyzeResumeUseCase implements IAnalyzeResumeUseCase {
     try {
       resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
     } catch (error) {
-      throw error; // ResumeParser already throws specific ValidationErrors
+      throw error; 
     }
 
     if (!resumeText || !resumeText.trim()) {

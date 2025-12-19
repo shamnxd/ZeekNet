@@ -12,10 +12,10 @@ export const UpdateApplicationStageDtoSchema = z.object({
 
 export type UpdateApplicationStageDto = z.infer<typeof UpdateApplicationStageDtoSchema>;
 
-// Export for validation
+
 export const UpdateApplicationStageDto = UpdateApplicationStageDtoSchema;
 
-// Export schema for validation
+
 export const UpdateApplicationStageRequestDtoSchema = z.object({
   stage: ApplicationStageSchema,
   rejectionReason: z.string().optional(),
