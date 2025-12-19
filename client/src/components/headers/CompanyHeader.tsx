@@ -10,11 +10,11 @@ import { toast } from 'sonner'
 
 const CompanyHeader = () => {
   const navigate = useNavigate()
-  const { name, email, companyVerificationStatus } = useAppSelector((state) => state.auth)
+  const { name, email, companyVerificationStatus, companyLogo, companyName } = useAppSelector((state) => state.auth)
   
   const isVerified = companyVerificationStatus === 'verified'
-  const companyName = name || 'ZeekNet'
-  const companyEmail = email || null
+  const displayName = companyName || name || 'ZeekNet'
+  const displayEmail = email || null
 
   return (
     <header className="bg-white border-b border-gray-200" style={{ boxShadow: 'inset 0px -1px 0px 0px rgba(214, 221, 235, 1)' }}>
@@ -24,10 +24,18 @@ const CompanyHeader = () => {
           {}
           <div className="relative" style={{ width: '41px', height: '41px' }}>
             <div className="absolute inset-0 rounded-full bg-gray-200"></div>
-            <div className="absolute inset-0 flex items-center justify-center rounded-full" style={{ backgroundColor: '#1ED760' }}>
-              <span className="text-white text-base font-bold">
-                {(companyName || 'Z').charAt(0).toUpperCase()}
-              </span>
+            <div className="absolute inset-0 flex items-center justify-center rounded-full overflow-hidden" style={{ backgroundColor: '#1ED760' }}>
+              {companyLogo ? (
+                <img 
+                  src={companyLogo} 
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-white text-base font-bold">
+                  {(displayName || 'Z').charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
           </div>
 
@@ -36,13 +44,13 @@ const CompanyHeader = () => {
             <span className="text-xs font-normal" style={{ color: '#515B6F', fontSize: '14px', lineHeight: '1.6' }}>Company</span>
             <div className="flex items-center" style={{ gap: '7px' }}>
               <span className="font-bold" style={{ color: '#25324B', fontSize: '17px', lineHeight: '1.2' }}>
-                {companyName}
+                {displayName}
               </span>
               <ChevronDown className="h-5 w-5" style={{ color: '#25324B' }} />
             </div>
-            {companyEmail && (
+            {displayEmail && (
               <span className="text-xs font-normal" style={{ color: '#515B6F', fontSize: '12px', lineHeight: '1.4', marginTop: '2px' }}>
-                {companyEmail}
+                {displayEmail}
               </span>
             )}
           </div>

@@ -26,6 +26,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isInitialized: false,
   companyVerificationStatus: null,
+  companyLogo: null,
+  companyName: null,
 };
 
 const extractErrorMessage = (error: unknown, fallback: string): string => {
@@ -69,6 +71,8 @@ const clearAuthData = (state: AuthState) => {
   state.isBlocked = false;
   state.isAuthenticated = false;
   state.companyVerificationStatus = null;
+  state.companyLogo = null;
+  state.companyName = null;
 };
 
 const setLoading = (state: AuthState, loading: boolean) => {
@@ -231,32 +235,36 @@ export const logoutThunk = createAsyncThunk<void, void, { rejectValue: string }>
 
 
 export const fetchCompanyProfileThunk = createAsyncThunk<
-  'not_created' | 'pending' | 'verified' | 'rejected',
+  { status: 'not_created' | 'pending' | 'verified' | 'rejected'; logo?: string; companyName?: string },
   void,
   { rejectValue: string }
 >("auth/fetchCompanyProfile", async (_, { rejectWithValue }) => {
   try {
     const response = await companyApi.getProfile();
     if (response.success && response.data) {
-      const responseData = response.data as { profile?: { is_verified: string } } | { is_verified: string };
-      let profileData: { is_verified?: string } | undefined;
+      const responseData = response.data as { profile?: { is_verified: string; logo?: string; company_name?: string } } | { is_verified: string; logo?: string; company_name?: string };
+      let profileData: { is_verified?: string; logo?: string; company_name?: string } | undefined;
       
       if ('profile' in responseData && responseData.profile) {
         profileData = responseData.profile;
       } else if ('is_verified' in responseData) {
-        profileData = responseData as { is_verified: string };
+        profileData = responseData as { is_verified: string; logo?: string; company_name?: string };
       }
       
       const status = (profileData?.is_verified || 'not_created') as 'not_created' | 'pending' | 'verified' | 'rejected';
-      return status;
+      return {
+        status,
+        logo: profileData?.logo,
+        companyName: profileData?.company_name,
+      };
     }
-    return 'not_created';
+    return { status: 'not_created' };
   } catch (error: unknown) {
     
     const errorMessage = extractErrorMessage(error, '');
     if (errorMessage.includes('Company profile not found') || 
         errorMessage.includes('Please complete your profile')) {
-      return 'not_created';
+      return { status: 'not_created' };
     }
     return rejectWithValue(extractErrorMessage(error, 'Failed to fetch company profile'));
   }
@@ -322,10 +330,14 @@ const authSlice = createSlice({
     
     builder
       .addCase(fetchCompanyProfileThunk.fulfilled, (state, action) => {
-        state.companyVerificationStatus = action.payload;
+        state.companyVerificationStatus = action.payload.status;
+        state.companyLogo = action.payload.logo || null;
+        state.companyName = action.payload.companyName || null;
       })
       .addCase(fetchCompanyProfileThunk.rejected, (state) => {
         state.companyVerificationStatus = 'not_created';
+        state.companyLogo = null;
+        state.companyName = null;
       });
 
     builder

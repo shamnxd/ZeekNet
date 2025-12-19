@@ -21,11 +21,11 @@ const CompanySidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const { name, email, companyVerificationStatus } = useAppSelector((state) => state.auth)
+  const { name, email, companyVerificationStatus, companyLogo, companyName } = useAppSelector((state) => state.auth)
   
   const isVerified = companyVerificationStatus === 'verified'
-  const companyName = name || 'Company'
-  const companyEmail = email || 'company@email.com'
+  const displayName = companyName || name || 'Company'
+  const displayEmail = email || 'company@email.com'
 
   const navigationItems = [
     {
@@ -199,18 +199,26 @@ const CompanySidebar = () => {
       {}
       <div className="flex-shrink-0 px-7 py-4 border-t border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">
-              {companyName.charAt(0).toUpperCase()}
-            </span>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center overflow-hidden">
+            {companyLogo ? (
+              <img 
+                src={companyLogo} 
+                alt={displayName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-white font-semibold text-sm">
+                {displayName.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           
           <div className="flex flex-col">
             <p className="text-sm font-semibold text-[#25324B] leading-5">
-              {companyName}
+              {displayName}
             </p>
             <p className="text-xs text-[#515B6F] opacity-50 leading-5">
-              {companyEmail}
+              {displayEmail}
             </p>
           </div>
         </div>
