@@ -27,7 +27,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onCl
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Notifications</h3>
         <div className="flex gap-2">
-          {notifications.some((n) => !n.is_read) && (
+          {notifications.some((n) => !n.isRead) && (
             <button
               onClick={markAllAsRead}
               className="text-sm text-blue-600 hover:text-blue-700"
@@ -69,7 +69,7 @@ const NotificationItem: React.FC<{
   return (
     <div
       className={`p-4 hover:bg-gray-50 transition-colors ${
-        !notification.is_read ? 'bg-blue-50' : ''
+        !notification.isRead ? 'bg-blue-50' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -77,10 +77,10 @@ const NotificationItem: React.FC<{
           <h4 className="font-medium text-gray-900">{notification.title}</h4>
           <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
           <p className="text-xs text-gray-400 mt-2">
-            {formatTime(notification.created_at)}
+            {formatTime(notification.createdAt)}
           </p>
         </div>
-        {!notification.is_read && (
+        {!notification.isRead && (
           <button
             onClick={onMarkRead}
             className="p-1 text-gray-400 hover:text-green-600"
