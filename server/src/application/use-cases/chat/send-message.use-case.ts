@@ -31,6 +31,14 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     if (!sender) throw new NotFoundError('Sender not found');
     if (!receiver) throw new NotFoundError('Recipient not found');
 
+    if (sender.isBlocked) {
+      throw new AuthorizationError('Your account has been blocked. You cannot send messages.');
+    }
+
+    if (receiver.isBlocked) {
+      throw new ValidationError('Cannot send message to this user');
+    }
+
     const conversation = await this._conversationRepository.findById(data.conversationId);
     if (!conversation) {
       throw new NotFoundError('Conversation not found');
