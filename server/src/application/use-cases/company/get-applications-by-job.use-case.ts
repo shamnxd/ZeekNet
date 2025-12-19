@@ -69,6 +69,11 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
         this._userRepository.findById(app.seekerId),
         this._seekerProfileRepository.findOne({ userId: app.seekerId }),
       ]);
+      
+      if (user?.isBlocked) {
+        continue;
+      }
+      
       const avatarUrl = profile?.avatarFileName 
         ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
         : undefined;

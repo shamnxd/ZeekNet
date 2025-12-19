@@ -1,10 +1,14 @@
 import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllCompaniesUseCase';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { GetCompaniesQueryDto } from '../../dto/company/get-companies-query.dto';
 import { PaginatedCompaniesResultDto } from '../../dto/company/paginated-companies-result.dto';
 
 export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
-  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
+  constructor(
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _s3Service: IS3Service,
+  ) {}
 
   async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesResultDto> {
     const page = options.page || 1;
@@ -22,8 +26,18 @@ export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
 
     const result = await this._companyProfileRepository.getAllCompanies(convertedOptions);
 
+    const companiesWithSignedUrls = await Promise.all(
+      result.companies.map(async (company) => {
+        let logo = company.logo;
+        if (logo && !logo.startsWith('http')) {
+          logo = await this._s3Service.getSignedUrl(logo);
+        }
+        return { ...company, logo };
+      })
+    );
+
     return {
-      companies: result.companies,
+      companies: companiesWithSignedUrls,
       total: result.total,
       page,
       limit,

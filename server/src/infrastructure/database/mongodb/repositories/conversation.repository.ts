@@ -63,14 +63,25 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
       return null;
     }
 
-    const doc = await ConversationModel.findById(id).populate('participants.user_id', 'name role').exec();
+    const doc = await ConversationModel.findById(id).populate('participants.user_id', 'name role isBlocked').exec();
     if (!doc) return null;
 
     const participantsWithProfiles = await Promise.all(
-      (doc as { participants: Array<{ user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }> }).participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }) => {
+      (doc as { participants: Array<{ user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }> }).participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }) => {
         const user = participant.user_id;
         let profileImage: string | null = null;
         let name = 'Unknown';
+
+        if (user?.isBlocked) {
+          return {
+            userId: String(participant.user_id._id),
+            role: participant.role as UserRole,
+            unreadCount: participant.unread_count,
+            lastReadAt: participant.last_read_at ?? null,
+            name: 'User Not Found',
+            profileImage: null,
+          };
+        }
 
         if (user && user.role) {
           if (user.role === 'seeker') {
@@ -147,19 +158,30 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('participants.user_id', 'name role')
+        .populate('participants.user_id', 'name role isBlocked')
         .lean(),
       ConversationModel.countDocuments(filter),
     ]);
 
     
     const data = await Promise.all(
-      documents.map(async (doc: { _id: unknown; participants: Array<{ user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }>; createdAt: Date; updatedAt: Date; last_message?: { message_id: unknown; sender_id: unknown; content: string; created_at: Date } | null }) => {
+      documents.map(async (doc: { _id: unknown; participants: Array<{ user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }>; createdAt: Date; updatedAt: Date; last_message?: { message_id: unknown; sender_id: unknown; content: string; created_at: Date } | null }) => {
         const participantsWithProfiles = await Promise.all(
-          doc.participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string }; role: string; unread_count: number; last_read_at?: Date | null }) => {
+          doc.participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }) => {
             const user = participant.user_id;
             let profileImage: string | null = null;
             let name = 'Unknown';
+
+            if (user?.isBlocked) {
+              return {
+                userId: String(participant.user_id._id),
+                role: participant.role as UserRole,
+                unreadCount: participant.unread_count,
+                lastReadAt: participant.last_read_at ?? null,
+                name: 'User Not Found',
+                profileImage: null,
+              };
+            }
 
             if (user && user.role) {
               if (user.role === 'seeker') {

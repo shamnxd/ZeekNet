@@ -61,7 +61,7 @@ const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3S
 
 
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
-const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository);
+const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
 const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository);
 

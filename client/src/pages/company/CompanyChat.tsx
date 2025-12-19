@@ -8,6 +8,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfaces/chat';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import type { ChatMessagePayload, MessagesReadPayload, TypingPayload, MessageDeletedPayload } from '@/types/socket.types';
+import { toast } from 'sonner';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
@@ -317,8 +318,20 @@ const CompanyChat: React.FC = () => {
 
         setTimeout(() => scrollToBottom('smooth'), 100);
       })
-      .catch(() => {
+      .catch((error) => {
         setMessageText(content);
+        
+        const errorMessage = error?.response?.data?.message || error?.message || 'Failed to send message';
+        
+        if (error?.response?.status === 403) {
+          toast.error('Your account has been restricted. You cannot send messages.');
+        } else if (error?.response?.status === 400 && errorMessage.includes('Cannot send message')) {
+          toast.error('This user is not available for messaging.');
+        } else if (errorMessage.includes('blocked')) {
+          toast.error('Unable to send message at this time.');
+        } else {
+          toast.error('Failed to send message. Please try again.');
+        }
       });
   };
 
@@ -687,6 +700,11 @@ const CompanyChat: React.FC = () => {
                 )}
                 
                 <div className="px-6 py-4">
+                {selectedConversation.displayName === 'User Not Found' ? (
+                  <div className="bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-center">
+                    <p className="text-sm text-gray-600">This user is not available for messaging</p>
+                  </div>
+                ) : (
                   <div className="flex items-center gap-3">
                     <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640DE] transition-colors" title="Attach File">
                       <Paperclip size={20} />
@@ -719,6 +737,7 @@ const CompanyChat: React.FC = () => {
                       <Send size={20} />
                     </button>
                   </div>
+                )}
                 </div>
               </div>
             </>

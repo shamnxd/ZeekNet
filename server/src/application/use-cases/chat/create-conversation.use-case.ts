@@ -24,6 +24,14 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
     if (!creator) throw new NotFoundError('Creator not found');
     if (!participant) throw new NotFoundError('Participant not found');
 
+    if (creator.isBlocked) {
+      throw new ValidationError('Your account has been blocked. You cannot start conversations.');
+    }
+
+    if (participant.isBlocked) {
+      throw new ValidationError('Cannot start conversation with this user');
+    }
+
     const existing = await this._conversationRepository.findByParticipants(creatorId, participantId);
     if (existing) {
       return existing;
