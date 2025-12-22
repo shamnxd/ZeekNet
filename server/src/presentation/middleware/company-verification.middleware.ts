@@ -30,8 +30,8 @@ export class CompanyVerificationMiddleware {
 
       if (companyProfile.isVerified !== 'verified') {
         sendForbiddenResponse(res, 'Company profile is not verified. Please wait for admin approval.', {
-            verificationStatus: companyProfile.isVerified,
-            profileId: companyProfile.id,
+          verificationStatus: companyProfile.isVerified,
+          profileId: companyProfile.id,
         });
         return;
       }

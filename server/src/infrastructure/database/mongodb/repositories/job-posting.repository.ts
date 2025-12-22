@@ -192,4 +192,17 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
 
     return documents.map((doc) => this.mapToEntity(doc));
   }
+
+  async countActiveJobsByCompany(companyId: string): Promise<number> {
+    if (!Types.ObjectId.isValid(companyId)) {
+      return 0;
+    }
+
+    const count = await JobPostingModel.countDocuments({
+      company_id: new Types.ObjectId(companyId),
+      status: 'active',
+    });
+
+    return count;
+  }
 }

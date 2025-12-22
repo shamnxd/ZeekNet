@@ -20,5 +20,8 @@ export class PublicRouter {
     this.router.get('/skills', publicDataController.getAllSkills);
     this.router.get('/job-categories', publicDataController.getAllJobCategories);
     this.router.get('/job-roles', publicDataController.getAllJobRoles);
+    this.router.get('/companies', publicDataController.getAllCompanies);
+    this.router.get('/companies/:id', publicDataController.getCompanyProfile);
+    this.router.get('/companies/:id/jobs', publicDataController.getCompanyJobs);
   }
 }

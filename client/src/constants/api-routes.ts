@@ -97,7 +97,9 @@ export const PublicRoutes = {
   SKILLS: '/api/public/skills',
   JOB_CATEGORIES: '/api/public/job-categories',
   JOB_ROLES: '/api/public/job-roles',
+  COMPANIES: '/api/public/companies',
 } as const;
+
 
 export const SeekerRoutes = {
   PROFILE: '/api/seeker/profile',

@@ -47,6 +47,8 @@ import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
 import CompanyChat from './pages/company/CompanyChat'
 import SeekerChat from './pages/seeker/SeekerChat'
+import Companies from './pages/Companies'
+import CompanyProfilePublic from './pages/CompanyProfilePublic'
 
 function App() {
   return (
@@ -55,6 +57,8 @@ function App() {
         <UserBlockHandler />
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/companies" element={<Companies />} />
+          <Route path="/company/:id" element={<CompanyProfilePublic />} />
           <Route path="/jobs" element={<JobListing />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
           
