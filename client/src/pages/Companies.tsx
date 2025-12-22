@@ -148,17 +148,25 @@ export default function Companies() {
                       {/* Company Header */}
                       <div className="flex items-start gap-4 mb-4">
                         <div className="relative">
-                          <img
-                            src={company.logo || '/default-company-logo.png'}
-                            alt={company.companyName}
-                            className="w-16 h-16 rounded-xl object-cover border-2 border-gray-100 group-hover:border-primary/30 transition"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/default-company-logo.png';
-                            }}
-                          />
+                          {company.logo ? (
+                            <img
+                              src={company.logo}
+                              alt={company.companyName}
+                              className="w-16 h-16 rounded-xl object-cover border-2 border-gray-100 group-hover:border-primary/30 transition bg-white"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center border-2 border-gray-100 group-hover:border-primary/30 transition ${company.logo ? 'hidden' : ''}`}
+                          >
+                             <Building2 className="w-8 h-8 text-gray-300" />
+                          </div>
                           {company.hasActiveSubscription && (
-                            <div className="absolute -top-1 -right-1 bg-primary rounded-full p-1">
-                              <CheckCircle2 className="w-4 h-4 text-white" />
+                            <div className="absolute -top-1 -right-1 bg-primary rounded-full p-1 shadow-sm">
+                              <CheckCircle2 className="w-3 h-3 text-white" />
                             </div>
                           )}
                         </div>

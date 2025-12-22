@@ -268,14 +268,20 @@ export default function CompanyProfilePublic() {
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
               <div className="flex items-start gap-6">
                 <div className="relative">
-                  <img
-                    src={profile.logo || '/default-company-logo.png'}
-                    alt={profile.companyName}
-                    className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/default-company-logo.png';
-                    }}
-                  />
+                  {profile.logo ? (
+                    <img
+                      src={profile.logo}
+                      alt={profile.companyName}
+                      className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg bg-white"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-24 h-24 rounded-2xl bg-gray-50 flex items-center justify-center border-4 border-white shadow-lg ${profile.logo ? 'hidden' : ''}`}>
+                    <Building2 className="w-10 h-10 text-gray-300" />
+                  </div>
                   {profile.hasActiveSubscription && (
                     <div className="absolute -bottom-2 -right-2 bg-primary rounded-full p-1.5 shadow-lg">
                       <CheckCircle2 className="w-5 h-5 text-white" />
