@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/api';
 import { PublicRoutes } from '@/constants/api-routes';
-import { Building2, Briefcase, CheckCircle2, Search } from 'lucide-react';
+import { Building2, Briefcase, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/layouts/PublicHeader';
 import PublicFooter from '@/components/layouts/PublicFooter';
@@ -97,7 +97,7 @@ export default function Companies() {
               </p>
             </div>
 
-            {/* Search Bar */}
+
             <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -111,7 +111,7 @@ export default function Companies() {
               </div>
             </form>
 
-            {/* Companies Grid */}
+
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
@@ -145,7 +145,7 @@ export default function Companies() {
                       onClick={() => navigate(`/company/${company.id}`)}
                       className="bg-white rounded-2xl p-6 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer border border-gray-100 hover:border-primary/30 group"
                     >
-                      {/* Company Header */}
+
                       <div className="flex items-start gap-4 mb-4">
                         <div className="relative">
                           {company.logo ? (
@@ -172,7 +172,7 @@ export default function Companies() {
                               {company.companyName}
                             </h3>
                             {company.hasActiveSubscription && (
-                              <CheckCircle2 className="w-4 h-4 text-primary fill-blue-50 flex-shrink-0" />
+                              <i className="fi fi-ss-shield-trust text-primary text-base flex-shrink-0" />
                             )}
                           </div>
                           <p className="text-sm text-gray-600 mt-1">
@@ -181,12 +181,12 @@ export default function Companies() {
                         </div>
                       </div>
 
-                      {/* About Section */}
+
                       <p className="text-sm text-gray-700 mb-4 line-clamp-3">
                         {truncateText(company.aboutUs, 120)}
                       </p>
 
-                      {/* Footer */}
+
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div className="flex items-center gap-2 text-sm">
                           <Briefcase className="w-4 h-4 text-primary" />
@@ -195,7 +195,7 @@ export default function Companies() {
                         </div>
                         {company.hasActiveSubscription && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
-                            <CheckCircle2 className="w-3 h-3" />
+                            <i className="fi fi-br-shield-trust text-[10px]" />
                             Verified
                           </span>
                         )}
@@ -204,7 +204,7 @@ export default function Companies() {
                   ))}
                 </div>
 
-                {/* Pagination */}
+
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-2 mt-12">
                     <button

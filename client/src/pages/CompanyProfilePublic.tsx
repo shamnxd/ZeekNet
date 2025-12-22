@@ -9,7 +9,6 @@ import {
   Globe, 
   Calendar,
   Briefcase,
-  CheckCircle2,
   ArrowLeft,
   ExternalLink,
   Mail,
@@ -143,7 +142,7 @@ export default function CompanyProfilePublic() {
 
     if (id) {
       fetchCompanyProfile();
-      fetchCompanyJobs(1); // Load first 5 jobs
+      fetchCompanyJobs(1);
     }
   }, [id, fetchCompanyJobs]);
 
@@ -235,7 +234,7 @@ export default function CompanyProfilePublic() {
         <PublicHeader />
       </section>
 
-      {/* Banner */}
+
       <div className="relative h-64 bg-gradient-to-r from-primary to-primary/80">
         {profile.banner && (
           <img
@@ -250,9 +249,9 @@ export default function CompanyProfilePublic() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
       </div>
 
-      {/* Content */}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-32 relative z-10 pb-12">
-        {/* Back Button */}
+
         <button
           onClick={() => navigate('/companies')}
           className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-700 rounded-lg hover:bg-white transition shadow-sm"
@@ -262,9 +261,9 @@ export default function CompanyProfilePublic() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Info */}
+
           <div className="lg:col-span-2 space-y-6">
-            {/* Company Header Card */}
+
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
               <div className="flex items-start gap-6">
                 <div className="relative">
@@ -291,7 +290,7 @@ export default function CompanyProfilePublic() {
                       <div className="flex items-center gap-3 mb-2">
                         <h1 className="text-3xl font-bold text-gray-900">{profile.companyName}</h1>
                         {profile.hasActiveSubscription && (
-                          <CheckCircle2 className="w-6 h-6 text-primary fill-blue-50" />
+                          <i className="fi fi-ss-shield-trust text-primary text-2xl" />
                         )}
                       </div>
                       <p className="text-lg text-gray-600">{profile.organisation}</p>
@@ -346,13 +345,13 @@ export default function CompanyProfilePublic() {
               </div>
             </div>
 
-            {/* About Section */}
+
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">About {profile.companyName}</h2>
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{profile.aboutUs}</p>
             </div>
 
-            {/* Tech Stack */}
+
             {techStack.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                 <div className="flex items-center gap-2 mb-6">
@@ -372,7 +371,7 @@ export default function CompanyProfilePublic() {
               </div>
             )}
 
-            {/* Benefits */}
+
             {benefits.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                 <div className="flex items-center gap-2 mb-6">
@@ -397,7 +396,7 @@ export default function CompanyProfilePublic() {
               </div>
             )}
 
-            {/* Workplace Pictures */}
+
             {workplacePictures.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Life at {profile.companyName}</h2>
@@ -420,7 +419,7 @@ export default function CompanyProfilePublic() {
               </div>
             )}
 
-            {/* Open Positions */}
+
             {(jobs.length > 0 || companyData?.activeJobCount > 0) && (
               <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
                 <div className="flex items-center justify-between mb-6">
@@ -495,9 +494,9 @@ export default function CompanyProfilePublic() {
             )}
           </div>
 
-          {/* Right Column - Contact & Locations */}
+
           <div className="space-y-6">
-            {/* Contact Info */}
+
             {contact && (
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Contact Information</h3>
@@ -522,7 +521,7 @@ export default function CompanyProfilePublic() {
               </div>
             )}
 
-            {/* Office Locations */}
+
             {locations.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Office Locations</h3>

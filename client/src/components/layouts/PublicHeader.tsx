@@ -3,13 +3,19 @@ import { useAppSelector } from "@/hooks/useRedux";
 import { UserRole } from "@/constants/enums";
 import UserProfileDropdown from "@/components/common/UserProfileDropdown";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const PublicHeader = () => {
   const { isAuthenticated, isInitialized, role } = useAppSelector(
     (state) => state.auth
   );
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <>
@@ -44,16 +50,16 @@ const PublicHeader = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 transition duration-500">
-          <Link to="/" className="hover:text-primary transition">
+          <Link to="/" className={isActive('/') ? "text-primary font-medium" : "hover:text-primary transition"}>
             Home
           </Link>
-          <Link to="/jobs" className="hover:text-primary transition">
+          <Link to="/jobs" className={isActive('/jobs') ? "text-primary font-medium" : "hover:text-primary transition"}>
             Find Jobs
           </Link>
-          <Link to="/companies" className="hover:text-primary transition">
+          <Link to="/companies" className={isActive('/companies') ? "text-primary font-medium" : "hover:text-primary transition"}>
             Companies
           </Link>
-          <Link to="/articles" className="hover:text-primary transition">
+          <Link to="/articles" className={isActive('/articles') ? "text-primary font-medium" : "hover:text-primary transition"}>
             Articles
           </Link>
         </div>
@@ -104,22 +110,22 @@ const PublicHeader = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+
       <div
         className={`fixed inset-0 z-[100] bg-white/95 text-slate-800 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${
           menuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Link to="/" onClick={() => setMenuOpen(false)}>
+        <Link to="/" onClick={() => setMenuOpen(false)} className={isActive('/') ? "text-primary font-medium" : ""}>
           Home
         </Link>
-        <Link to="/jobs" onClick={() => setMenuOpen(false)}>
+        <Link to="/jobs" onClick={() => setMenuOpen(false)} className={isActive('/jobs') ? "text-primary font-medium" : ""}>
           Find Jobs
         </Link>
-        <Link to="/companies" onClick={() => setMenuOpen(false)}>
+        <Link to="/companies" onClick={() => setMenuOpen(false)} className={isActive('/companies') ? "text-primary font-medium" : ""}>
           Companies
         </Link>
-        <Link to="/articles" onClick={() => setMenuOpen(false)}>
+        <Link to="/articles" onClick={() => setMenuOpen(false)} className={isActive('/articles') ? "text-primary font-medium" : ""}>
           Articles
         </Link>
 
