@@ -33,7 +33,7 @@ export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
           logo = await this._s3Service.getSignedUrl(logo);
         }
         return { ...company, logo };
-      })
+      }),
     );
 
     return {
