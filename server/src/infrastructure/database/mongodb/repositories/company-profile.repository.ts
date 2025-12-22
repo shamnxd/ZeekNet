@@ -2,6 +2,7 @@ import { ICompanyProfileRepository } from '../../../../domain/interfaces/reposit
 import { CompanyProfile } from '../../../../domain/entities/company-profile.entity';
 import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from '../models/company-profile.model';
 import { CompanyProfileMapper } from '../mappers/company-profile.mapper';
+import { JobPostingModel } from '../models/job-posting.model';
 import { RepositoryBase } from './base-repository';
 
 interface CompanyQuery {
@@ -40,7 +41,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
     industry?: string;
     isVerified?: 'pending' | 'rejected' | 'verified';
     isBlocked?: boolean;
-    sortBy?: 'createdAt' | 'companyName' | 'employeeCount';
+    sortBy?: 'createdAt' | 'companyName' | 'employeeCount' | 'activeJobCount';
     sortOrder?: 'asc' | 'desc';
   }): Promise<{ companies: CompanyProfile[]; total: number }> {
     const { page, limit, search, industry, isVerified, isBlocked, sortBy = 'createdAt', sortOrder = 'desc' } = options;
@@ -61,19 +62,51 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
     if (industry) query.industry = industry;
     if (isVerified !== undefined) query.isVerified = isVerified;
 
-    if (isBlocked !== undefined) {
+    if (isBlocked !== undefined || sortBy === 'activeJobCount') {
       const allCompaniesDocs = await CompanyProfileModel.find(query)
-        .sort({ [sortBy]: sortDirection })
         .populate<{ userId: PopulatedUser | null }>({
           path: 'userId',
           select: 'email isBlocked',
         })
         .exec();
 
-      const allPopulatedDocs = allCompaniesDocs as PopulatedCompanyDocument[];
-      const filteredCompanies = allPopulatedDocs.filter((c) => c.userId && c.userId.isBlocked === isBlocked);
-      const total = filteredCompanies.length;
-      const paginatedCompanies = filteredCompanies.slice(skip, skip + limit);
+      let allPopulatedDocs = allCompaniesDocs as PopulatedCompanyDocument[];
+
+      if (isBlocked !== undefined) {
+        allPopulatedDocs = allPopulatedDocs.filter((c) => c.userId && c.userId.isBlocked === isBlocked);
+      }
+
+      if (sortBy === 'activeJobCount') {
+        const companyIds = allPopulatedDocs.map(d => d._id);
+        const jobCounts = await JobPostingModel.aggregate([
+          { $match: { 
+            status: 'active', 
+            company_id: { $in: companyIds }, 
+          }, 
+          },
+          { $group: { _id: '$company_id', count: { $sum: 1 } } },
+        ]);
+
+        const jobCountMap = new Map(jobCounts.map(j => [String(j._id), j.count]));
+
+        allPopulatedDocs.sort((a, b) => {
+          const countA = jobCountMap.get(String(a._id)) || 0;
+          const countB = jobCountMap.get(String(b._id)) || 0;
+          return (countA - countB) * sortDirection;
+        });
+      } else {
+        allPopulatedDocs.sort((a, b) => {
+           const valA = (a as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
+           const valB = (b as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
+           
+          if (valA < valB) return -1 * sortDirection;
+          if (valA > valB) return 1 * sortDirection;
+          return 0;
+        });
+      }
+
+      const total = allPopulatedDocs.length;
+      const paginatedCompanies = allPopulatedDocs.slice(skip, skip + limit);
 
       const companies = paginatedCompanies.map((doc) => {
         const populatedDoc = doc as PopulatedCompanyDocument;
@@ -90,7 +123,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
         const entity = this.mapToEntity(docWithStringUserId);
 
         const email = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.email || '' : '';
-        const isBlocked = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
+        const isBlockedVal = populatedDoc.userId && typeof populatedDoc.userId === 'object' ? populatedDoc.userId.isBlocked ?? false : false;
 
         return CompanyProfile.create({
           id: entity.id,
@@ -107,7 +140,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
           createdAt: entity.createdAt,
           updatedAt: entity.updatedAt,
           email,
-          isBlocked,
+          isBlocked: isBlockedVal,
           foundedDate: entity.foundedDate,
           phone: entity.phone,
           rejectionReason: entity.rejectionReason,

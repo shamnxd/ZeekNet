@@ -45,7 +45,7 @@ export class GetSeekerCompaniesUseCase implements IGetSeekerCompaniesUseCase {
       industry: options.industry,
       isVerified: CompanyVerificationStatus.VERIFIED,
       isBlocked: false,
-      sortBy: 'createdAt',
+      sortBy: 'activeJobCount',
       sortOrder: 'desc',
     });
 
