@@ -92,8 +92,8 @@ const SeekerChat: React.FC = () => {
         subtitle: c.lastMessage?.content,
       }));
       setConversations(mapped);
-    } finally {
-      
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
     }
   }, [token, userId]);
 

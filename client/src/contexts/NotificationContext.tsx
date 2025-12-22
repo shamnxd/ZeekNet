@@ -55,10 +55,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           type: data.type,
           title: data.title,
           message: data.message,
-          is_read: data.isRead,
-          created_at: data.createdAt,
+          isRead: data.isRead,
+          createdAt: data.createdAt,
           
-          read_at: undefined, 
+          readAt: undefined, 
           data: {} 
         };
         handleNotification(notification);
@@ -80,7 +80,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       await notificationApi.markAsRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true, read_at: new Date().toISOString() } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
@@ -91,7 +91,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const markAllAsRead = async () => {
     try {
       await notificationApi.markAllAsRead();
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Failed to mark all as read:', error);

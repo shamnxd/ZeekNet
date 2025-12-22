@@ -46,28 +46,27 @@ const JobView = () => {
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchJob()
-    
-  }, [jobId])
+    const fetchJob = async () => {
+      if (!jobId) return;
 
-  const fetchJob = async () => {
-    if (!jobId) return
-    
-    setLoading(true)
-    try {
-      const response = await adminApi.getJobById(jobId)
-      
-      if (response.success && response.data) {
-        setJob(response.data)
-      } else {
-        toast.error(response.message || 'Failed to fetch job details')
+      setLoading(true);
+      try {
+        const response = await adminApi.getJobById(jobId);
+
+        if (response.success && response.data) {
+          setJob(response.data);
+        } else {
+          toast.error(response.message || 'Failed to fetch job details');
+        }
+      } catch {
+        toast.error('Failed to fetch job details');
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      toast.error('Failed to fetch job details')
-    } finally {
-      setLoading(false)
-    }
-  }
+    };
+
+    fetchJob();
+  }, [jobId]);
 
   const handleToggleStatus = async () => {
     if (!job) return
