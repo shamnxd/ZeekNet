@@ -164,16 +164,17 @@ export default function Companies() {
                           >
                              <Building2 className="w-8 h-8 text-gray-300" />
                           </div>
-                          {company.hasActiveSubscription && (
-                            <div className="absolute -top-1 -right-1 bg-primary rounded-full p-1 shadow-sm">
-                              <CheckCircle2 className="w-3 h-3 text-white" />
-                            </div>
-                          )}
+
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition truncate">
-                            {company.companyName}
-                          </h3>
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition truncate">
+                              {company.companyName}
+                            </h3>
+                            {company.hasActiveSubscription && (
+                              <CheckCircle2 className="w-4 h-4 text-primary fill-blue-50 flex-shrink-0" />
+                            )}
+                          </div>
                           <p className="text-sm text-gray-600 mt-1">
                             {company.industry}
                           </p>

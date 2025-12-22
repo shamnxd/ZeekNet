@@ -282,17 +282,18 @@ export default function CompanyProfilePublic() {
                   <div className={`w-24 h-24 rounded-2xl bg-gray-50 flex items-center justify-center border-4 border-white shadow-lg ${profile.logo ? 'hidden' : ''}`}>
                     <Building2 className="w-10 h-10 text-gray-300" />
                   </div>
-                  {profile.hasActiveSubscription && (
-                    <div className="absolute -bottom-2 -right-2 bg-primary rounded-full p-1.5 shadow-lg">
-                      <CheckCircle2 className="w-5 h-5 text-white" />
-                    </div>
-                  )}
+
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h1 className="text-3xl font-bold text-gray-900 mb-2">{profile.companyName}</h1>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-3xl font-bold text-gray-900">{profile.companyName}</h1>
+                        {profile.hasActiveSubscription && (
+                          <CheckCircle2 className="w-6 h-6 text-primary fill-blue-50" />
+                        )}
+                      </div>
                       <p className="text-lg text-gray-600">{profile.organisation}</p>
                     </div>
                     {profile.websiteLink && (

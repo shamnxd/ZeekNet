@@ -50,7 +50,7 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
       this._workplacePicturesRepository.findMany({ companyId: company.id }),
     ]);
 
-    const hasActiveSubscription = !!subscription;
+    const hasActiveSubscription = !!subscription && !subscription.isDefault;
 
     // Generate signed URLs for images
     let logo = company.logo;

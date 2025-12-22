@@ -54,7 +54,7 @@ export class GetSeekerCompaniesUseCase implements IGetSeekerCompaniesUseCase {
         const activeJobs = await this._jobPostingRepository.countActiveJobsByCompany(company.id);
         
         const subscription = await this._subscriptionRepository.findActiveByCompanyId(company.id);
-        const hasActiveSubscription = !!subscription;
+        const hasActiveSubscription = !!subscription && !subscription.isDefault;
 
         let logo = company.logo;
         if (logo && !logo.startsWith('http')) {
