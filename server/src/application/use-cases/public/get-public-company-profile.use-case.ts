@@ -10,6 +10,10 @@ import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 import { NotFoundError } from '../../../domain/errors/errors';
+import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
+import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
+import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.entity';
+import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
 
 export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileUseCase {
   constructor(
@@ -31,7 +35,7 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
       throw new NotFoundError('Company not found');
     }
 
-    // Fetch all company data in parallel
+
     const [
       activeJobsCount,
       subscription,
@@ -52,7 +56,7 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
 
     const hasActiveSubscription = !!subscription && !subscription.isDefault;
 
-    // Generate signed URLs for images
+
     let logo = company.logo;
     if (logo && !logo.startsWith('http')) {
       logo = await this._s3Service.getSignedUrl(logo);
@@ -63,11 +67,10 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
       banner = await this._s3Service.getSignedUrl(banner);
     }
 
-    // Generate signed URLs for workplace pictures
+
     const workplacePicturesWithUrls = await Promise.all(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      workplacePictures.map(async (pic: any) => {
-        let imageUrl = pic.imageUrl;
+      workplacePictures.map(async (pic: CompanyWorkplacePictures) => {
+        let imageUrl = pic.pictureUrl;
         if (imageUrl && !imageUrl.startsWith('http')) {
           imageUrl = await this._s3Service.getSignedUrl(imageUrl);
         }
@@ -98,27 +101,24 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
         email: contact.email,
         phone: contact.phone,
       } : null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      locations: locations.map((loc: any) => ({
+      locations: locations.map((loc: CompanyOfficeLocation) => ({
         id: loc.id,
-        city: loc.city,
-        state: loc.state,
-        country: loc.country,
+        city: loc.location,
+        state: '',
+        country: '',
         address: loc.address,
-        isPrimary: loc.isPrimary,
+        isPrimary: loc.isHeadquarters,
       })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      techStack: techStack.map((tech: any) => ({
+      techStack: techStack.map((tech: CompanyTechStack) => ({
         id: tech.id,
-        name: tech.name,
-        category: tech.category,
+        name: tech.techStack,
+        category: 'Development',
       })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      benefits: benefits.map((benefit: any) => ({
+      benefits: benefits.map((benefit: CompanyBenefits) => ({
         id: benefit.id,
-        title: benefit.title,
+        title: benefit.perk,
         description: benefit.description,
-        icon: benefit.icon,
+        icon: 'star',
       })),
       workplacePictures: workplacePicturesWithUrls,
       activeJobCount: activeJobsCount,

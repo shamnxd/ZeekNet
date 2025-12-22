@@ -24,21 +24,14 @@ export class GetPublicCompanyJobsUseCase implements IGetPublicCompanyJobsUseCase
     limit: number;
     hasMore: boolean;
   }> {
-    // Verify company exists and is verified
     const company = await this._companyProfileRepository.findById(companyId);
     
     if (!company || company.isVerified !== CompanyVerificationStatus.VERIFIED || company.isBlocked) {
       throw new NotFoundError('Company not found');
     }
-
-    // Get total count of active jobs
     const total = await this._jobPostingRepository.countActiveJobsByCompany(companyId);
-
-    // Calculate pagination
     const skip = (page - 1) * limit;
     const hasMore = skip + limit < total;
-
-    // Fetch paginated jobs
     const allJobs = await this._jobPostingRepository.getJobsByCompany(companyId, {
       title: 1,
       location: 1,
@@ -48,11 +41,10 @@ export class GetPublicCompanyJobsUseCase implements IGetPublicCompanyJobsUseCase
       status: 1,
     });
 
-    // Filter active jobs and apply pagination
     const activeJobs = allJobs
       .filter((job: Partial<{ status: string }>) => job.status === 'active')
       .slice(skip, skip + limit);
-
+      
     return {
       jobs: activeJobs.map((job: Partial<{ 
         id: string; 
