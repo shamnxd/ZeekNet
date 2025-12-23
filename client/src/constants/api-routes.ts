@@ -46,6 +46,7 @@ export const ChatRoutes = {
 export const CompanyRoutes = {
   PROFILE: '/api/company/profile',
   PROFILE_BY_ID: '/api/company/profile/:profileId',
+  CANDIDATES: '/api/company/candidates',
   REAPPLY_VERIFICATION: '/api/company/reapply-verification',
   UPLOAD_LOGO: '/api/company/upload/logo',
   UPLOAD_BUSINESS_LICENSE: '/api/company/upload/business-license',

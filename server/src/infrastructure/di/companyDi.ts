@@ -89,6 +89,9 @@ import { ResumeSubscriptionUseCase } from '../../application/use-cases/company/r
 import { ChangeSubscriptionPlanUseCase } from '../../application/use-cases/company/change-subscription-plan.use-case';
 import { GetBillingPortalUseCase } from '../../application/use-cases/company/get-billing-portal.use-case';
 import { SubscriptionMiddleware } from '../../presentation/middleware/subscription.middleware';
+import { GetCandidatesUseCase } from '../../application/use-cases/company/get-candidates.use-case';
+import { GetCandidateDetailsUseCase } from '../../application/use-cases/company/get-candidate-details.use-case';
+import { CompanyCandidatesController } from '../../presentation/controllers/company/company-candidates.controller';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -200,6 +203,9 @@ const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, compa
 
 const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository);
 
+const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s3Service);
+const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
@@ -281,6 +287,8 @@ const companySubscriptionController = new CompanySubscriptionController(
   getBillingPortalUseCase,
 );
 
+const companyCandidatesController = new CompanyCandidatesController(getCandidatesUseCase, getCandidateDetailsUseCase);
+
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
 export {
@@ -296,6 +304,7 @@ export {
   companySubscriptionPlanController,
   companySubscriptionController,
   stripeWebhookController,
+  companyCandidatesController,
   companyProfileRepository,
   subscriptionMiddleware,
   stripeService,

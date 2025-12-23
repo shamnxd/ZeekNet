@@ -20,6 +20,31 @@ export type {
   CompanyDashboard 
 };
 
+import type { Experience, Education, SeekerProfile } from '@/interfaces/seeker/seeker.interface';
+
+export interface CandidateDetailsResponse {
+  profile: Partial<SeekerProfile> & { avatarFileName?: string; bannerFileName?: string };
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  experiences: Experience[];
+  educations: Education[];
+}
+
+export interface Candidate {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  headline: string | null;
+  summary: string | null;
+  location: string | null;
+  skills: string[];
+  avatar: string | null;
+}
+
 export const companyApi = {
   async createProfile(data: CompanyProfileData): Promise<ApiEnvelope<CompanyProfileResponse>> {
     return (await api.post<ApiEnvelope<CompanyProfileResponse>>(CompanyRoutes.PROFILE, data)).data;
@@ -269,6 +294,23 @@ export const companyApi = {
 
   async getBillingPortalUrl(returnUrl: string): Promise<ApiEnvelope<BillingPortalResponse>> {
     return (await api.post<ApiEnvelope<BillingPortalResponse>>(CompanyRoutes.SUBSCRIPTIONS_BILLING_PORTAL, { returnUrl })).data;
+  },
+
+  async getCandidates(query?: { page?: number; limit?: number; search?: string; skills?: string[]; location?: string }): Promise<ApiEnvelope<{ candidates: Candidate[]; total: number; page: number; limit: number; totalPages: number }>> {
+    const params = new URLSearchParams();
+    if (query) {
+      if (query.page) params.append('page', query.page.toString());
+      if (query.limit) params.append('limit', query.limit.toString());
+      if (query.search) params.append('search', query.search);
+      if (query.location) params.append('location', query.location);
+      if (query.skills?.length) params.append('skills', query.skills.join(','));
+    }
+    const endpoint = params.toString() ? `${CompanyRoutes.CANDIDATES}?${params.toString()}` : CompanyRoutes.CANDIDATES;
+    return (await api.get(endpoint)).data;
+  },
+
+  async getCandidateDetails(id: string): Promise<ApiEnvelope<CandidateDetailsResponse>> {
+    return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`)).data;
   }
 }
 
