@@ -1,4 +1,4 @@
-import { PriceHistory } from '../../../../domain/entities/price-history.entity';
+import { PriceHistory, PriceType } from '../../../../domain/entities/price-history.entity';
 import { PriceHistoryDocument } from '../models/price-history.model';
 import { Types } from 'mongoose';
 
@@ -22,7 +22,7 @@ export class PriceHistoryMapper {
 
     if (input.planId !== undefined) doc.planId = new Types.ObjectId(input.planId as string);
     if (input.stripePriceId !== undefined) doc.stripePriceId = input.stripePriceId as string;
-    if (input.type !== undefined) doc.type = input.type as any;
+    if (input.type !== undefined) doc.type = input.type as PriceType;
     if (input.amount !== undefined) doc.amount = input.amount as number;
     if (input.isActive !== undefined) doc.isActive = input.isActive as boolean;
     if (input.archivedAt !== undefined) doc.archivedAt = input.archivedAt as Date;

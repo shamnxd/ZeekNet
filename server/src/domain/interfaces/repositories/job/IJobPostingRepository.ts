@@ -17,4 +17,5 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
   ): Promise<Partial<JobPosting>[]>;
   getJobsByCompany(companyId: string, projection: Record<string, 1 | 0>): Promise<Partial<JobPosting>[]>;
   getAllJobsForAdmin(): Promise<JobPosting[]>;
+  countActiveJobsByCompany(companyId: string): Promise<number>;
 }

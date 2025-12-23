@@ -9,7 +9,7 @@ export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfil
     industry?: string;
     isVerified?: 'pending' | 'rejected' | 'verified';
     isBlocked?: boolean;
-    sortBy?: 'createdAt' | 'companyName' | 'employeeCount';
+    sortBy?: 'createdAt' | 'companyName' | 'employeeCount' | 'activeJobCount';
     sortOrder?: 'asc' | 'desc';
   }): Promise<{ companies: CompanyProfile[]; total: number }>;
   findByIds(ids: string[]): Promise<CompanyProfile[]>;
