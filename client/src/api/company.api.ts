@@ -161,6 +161,10 @@ export const companyApi = {
     return (await api.patch<ApiEnvelope<JobPostingResponse>>(CompanyRoutes.JOBS_ID_STATUS.replace(':id', id), { status })).data;
   },
 
+  async closeJob(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.post<ApiEnvelope<{ message: string }>>(CompanyRoutes.JOBS_ID_CLOSE.replace(':id', id))).data;
+  },
+
   async getContact(): Promise<ApiEnvelope<CompanyContact | null>> {
     return (await api.get<ApiEnvelope<CompanyContact | null>>(CompanyRoutes.CONTACT)).data;
   },

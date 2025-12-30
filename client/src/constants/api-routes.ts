@@ -74,6 +74,7 @@ export const CompanyRoutes = {
   JOBS: '/api/company/jobs',
   JOBS_ID: '/api/company/jobs/:id',
   JOBS_ID_STATUS: '/api/company/jobs/:id/status',
+  JOBS_ID_CLOSE: '/api/company/jobs/:id/close',
   APPLICATIONS: '/api/company/applications',
   APPLICATIONS_BULK_UPDATE: '/api/company/applications/bulk-update',
   APPLICATIONS_ID: '/api/company/applications/:id',
