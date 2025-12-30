@@ -70,8 +70,6 @@ export interface ApplicationDetails {
   interview_schedule?: Array<{
     id: string
     date: string
-    interviewer_name: string
-    interviewer_avatar?: string
     interview_type: string
     time: string
     location: string

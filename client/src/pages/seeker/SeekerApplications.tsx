@@ -1,10 +1,11 @@
-import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Search } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Search, Eye } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { jobApplicationApi } from '@/api'
 import { toast } from 'sonner'
 import type { ApiError } from '@/types/api-error.type'
+import { useNavigate } from 'react-router-dom'
 
 import { ApplicationStage } from '@/constants/enums'
 
@@ -20,6 +21,7 @@ const stageStyles: Record<Stage, string> = {
 }
 
 function SeekerApplications() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<Application[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -122,9 +124,11 @@ function SeekerApplications() {
               </tr>
             </thead>
             <tbody>
-              {(loading ? (Array.from({ length: 5 }) as (Application | undefined)[]) : items).map((application, index) => (
+              {(loading ? (Array.from({ length: 5 }) as (Application | undefined)[]) : items).map((application, index) => {
+                const appId = application?.id || application?._id
+                return (
                 <tr
-                  key={application?._id || index}
+                  key={appId || index}
                   className={cn(
                     'align-middle text-[14px] text-[#1f2937] transition-colors duration-200',
                     index % 2 === 1 ? 'bg-[#f9fafc]' : 'bg-white',
@@ -169,12 +173,23 @@ function SeekerApplications() {
                     )}
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#6b7280] transition-all hover:bg-[#eef2ff] hover:text-[#4640de]">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      {appId && (
+                        <button
+                          onClick={() => navigate(`/seeker/applications/${appId}`)}
+                          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-[13px] font-medium text-[#4640de] transition-all hover:bg-[#eef2ff] hover:border-[#4640de]"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View Details
+                        </button>
+                      )}
+                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#6b7280] transition-all hover:bg-[#eef2ff] hover:text-[#4640de]">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              )})}
               {!loading && items.length === 0 && (
                 <tr>
                   <td className="px-6 py-10 text-center text-[#6b7280]" colSpan={6}>
