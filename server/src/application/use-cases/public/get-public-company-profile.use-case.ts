@@ -85,6 +85,7 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
     return {
       profile: {
         id: company.id,
+        userId: company.userId,
         companyName: company.companyName,
         logo,
         banner,
@@ -100,6 +101,9 @@ export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileU
       contact: contact ? {
         email: contact.email,
         phone: contact.phone,
+        twitterLink: contact.twitterLink,
+        facebookLink: contact.facebookLink,
+        linkedin: contact.linkedin,
       } : null,
       locations: locations.map((loc: CompanyOfficeLocation) => ({
         id: loc.id,

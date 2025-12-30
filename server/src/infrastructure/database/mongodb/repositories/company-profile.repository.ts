@@ -96,8 +96,8 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
         });
       } else {
         allPopulatedDocs.sort((a, b) => {
-           const valA = (a as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
-           const valB = (b as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
+          const valA = (a as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
+          const valB = (b as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
            
           if (valA < valB) return -1 * sortDirection;
           if (valA > valB) return 1 * sortDirection;

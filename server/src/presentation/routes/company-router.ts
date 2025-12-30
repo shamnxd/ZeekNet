@@ -11,6 +11,7 @@ import {
   companyJobApplicationController,
   companySubscriptionPlanController,
   companySubscriptionController,
+  companyCandidatesController,
   subscriptionMiddleware,
 } from '../../infrastructure/di/companyDi';
 
@@ -114,5 +115,8 @@ export class CompanyRouter {
     this.router.patch('/applications/:id/interviews/:interviewId', validateBody(UpdateInterviewDto), companyJobApplicationController.updateInterview);
     this.router.delete('/applications/:id/interviews/:interviewId', companyJobApplicationController.deleteInterview);
     this.router.post('/applications/:id/interviews/:interviewId/feedback', validateBody(AddInterviewFeedbackDto), companyJobApplicationController.addInterviewFeedback);
+
+    this.router.get('/candidates', companyCandidatesController.getCandidates);
+    this.router.get('/candidates/:id', companyCandidatesController.getCandidateDetails);
   }
 }

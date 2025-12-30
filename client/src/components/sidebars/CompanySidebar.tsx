@@ -11,7 +11,8 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  Plus
+  Plus,
+  Search
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
@@ -37,6 +38,11 @@ const CompanySidebar = () => {
       title: 'Post a Job',
       href: '/company/post-job',
       icon: Plus
+    },
+    {
+      title: 'Find Candidates',
+      href: '/company/candidates',
+      icon: Search
     },
     {
       title: 'Messages',

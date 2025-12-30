@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { NotificationProvider } from './contexts/NotificationContext'
 import UserBlockHandler from './components/common/UserBlockHandler'
-import Landing from './pages/Landing'
+import Landing from './pages/public/Landing'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -17,9 +17,9 @@ import { SeekerProfile as SeekerProfileComponent } from './pages/seeker/SeekerPr
 import SeekerSettings from './pages/seeker/SeekerSettings'
 import SeekerApplications from './pages/seeker/SeekerApplications'
 import SeekerLayout from './components/layouts/SeekerLayout'
-import JobListing from './pages/JobListing'
-import JobDetail from './pages/JobDetail'
-import NotFound from './pages/NotFound'
+import JobListing from './pages/public/JobListing'
+import JobDetail from './pages/public/JobDetail'
+import NotFound from './pages/public/NotFound'
 import AdminLogin from './pages/admin/AdminLogin'
 import UserManagement from './pages/admin/SeekerManagement'
 import CompanyManagement from './pages/admin/CompanyManagement'
@@ -47,8 +47,10 @@ import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
 import CompanyChat from './pages/company/CompanyChat'
 import SeekerChat from './pages/seeker/SeekerChat'
-import Companies from './pages/Companies'
-import CompanyProfilePublic from './pages/CompanyProfilePublic'
+import Companies from './pages/public/Companies'
+import CompanyProfilePublic from './pages/public/CompanyProfilePublic'
+import FindCandidates from './pages/company/FindCandidates'
+import CandidateProfileView from './pages/company/CandidateProfileView'
 
 function App() {
   return (
@@ -220,6 +222,18 @@ function App() {
           <Route path="/company/messages" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <CompanyChat />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/company/candidates" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <FindCandidates />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/company/candidates/:id" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <CandidateProfileView />
             </ProtectedRoute>
           } />
           

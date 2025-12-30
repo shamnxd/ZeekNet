@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Send, Search, MoreVertical, Paperclip, Smile, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Reply, X, Trash2 } from 'lucide-react';
 import SeekerLayout from '../../components/layouts/SeekerLayout';
 import { chatApi } from '@/api/chat.api';
@@ -55,6 +56,8 @@ const SeekerChat: React.FC = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isInitialLoadRef = useRef(true);
+  const [searchParams] = useSearchParams();
+  const initialChatId = searchParams.get('chat');
 
   const filteredConversations = conversations.filter((conv) =>
     conv.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,19 +100,18 @@ const SeekerChat: React.FC = () => {
     }
   }, [token, userId]);
 
-  const loadMessages = async (conversationId: string, pageNum = 1) => {
+  const loadMessages = useCallback(async (conversationId: string, pageNum = 1) => {
     const result = await chatApi.getMessages(conversationId, { page: pageNum, limit: 20 });
     if (pageNum === 1) {
       setMessages(result.data.reverse());
       setPage(1);
       setHasMore(result.page < result.totalPages);
     } else {
-      
       setMessages(prev => [...result.data.reverse(), ...prev]);
       setPage(pageNum);
       setHasMore(result.page < result.totalPages);
     }
-  };
+  }, []);
 
   const loadMoreMessages = async () => {
     if (!selectedConversation || loadingMore || !hasMore) return;
@@ -371,7 +373,7 @@ const SeekerChat: React.FC = () => {
     }
   };
 
-  const handleSelectConversation = async (conversation: UiConversation) => {
+  const handleSelectConversation = useCallback(async (conversation: UiConversation) => {
     setSelectedConversation(conversation);
     socketService.joinConversation(conversation.id);
     await loadMessages(conversation.id);
@@ -384,7 +386,16 @@ const SeekerChat: React.FC = () => {
           : c,
       ),
     );
-  };
+  }, [loadMessages]);
+
+  useEffect(() => {
+    if (initialChatId && conversations.length > 0 && !selectedConversation) {
+      const target = conversations.find((c) => c.id === initialChatId);
+      if (target) {
+        handleSelectConversation(target);
+      }
+    }
+  }, [conversations, initialChatId, selectedConversation, handleSelectConversation]);
 
   const selfId = userId || '';
 
