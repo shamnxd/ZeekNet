@@ -29,6 +29,7 @@ export const UpdateJobPostingRequestDtoSchema = z.object({
   enabled_stages: z.array(z.string()).optional(),
   is_active: z.boolean().optional(),
   is_featured: z.boolean().optional(),
+  total_vacancies: z.number().int().min(1, 'Total vacancies must be at least 1').optional(),
 });
 
 export type UpdateJobPostingRequestDto = z.infer<typeof UpdateJobPostingRequestDtoSchema>;
