@@ -1,6 +1,16 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
 import { JobStatus } from '../../../../domain/enums/job-status.enum';
+import { ATSStage, ATSSubStage } from '../../../../domain/enums/ats-stage.enum';
+import { STAGE_TO_SUB_STAGES } from '../../../../domain/utils/ats-pipeline.util';
+
+/**
+ * ATS Pipeline Configuration
+ * Maps each enabled stage to its allowed sub-stages
+ */
+export interface ATSPipelineConfig {
+  [stage: string]: ATSSubStage[];
+}
 
 export interface JobPostingDocument extends Document {
   _id: Types.ObjectId;
@@ -22,6 +32,8 @@ export interface JobPostingDocument extends Document {
   location: string;
   skills_required: string[];
   category_ids: string[];
+  enabled_stages: ATSStage[];
+  ats_pipeline_config: ATSPipelineConfig;
   status: JobStatus;
   is_featured: boolean;
   unpublish_reason?: string;
@@ -132,6 +144,42 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
         },
       },
     ],
+    enabled_stages: [
+      {
+        type: String,
+        enum: Object.values(ATSStage),
+        default: [
+          ATSStage.IN_REVIEW,
+          ATSStage.SHORTLISTED,
+          ATSStage.INTERVIEW,
+          ATSStage.TECHNICAL_TASK,
+          ATSStage.COMPENSATION,
+          ATSStage.OFFER,
+        ],
+      },
+    ],
+    ats_pipeline_config: {
+      type: Schema.Types.Mixed,
+      default: function() {
+        // Initialize pipeline config with all sub-stages for default enabled stages
+        const config: ATSPipelineConfig = {};
+        const defaultStages = [
+          ATSStage.IN_REVIEW,
+          ATSStage.SHORTLISTED,
+          ATSStage.INTERVIEW,
+          ATSStage.TECHNICAL_TASK,
+          ATSStage.COMPENSATION,
+          ATSStage.OFFER,
+        ];
+        defaultStages.forEach((stage) => {
+          // Only add stage if it exists in STAGE_TO_SUB_STAGES (filter out invalid/old stages)
+          if (STAGE_TO_SUB_STAGES[stage as keyof typeof STAGE_TO_SUB_STAGES]) {
+            config[stage] = [...STAGE_TO_SUB_STAGES[stage as keyof typeof STAGE_TO_SUB_STAGES]];
+          }
+        });
+        return config;
+      },
+    },
     status: {
       type: String,
       enum: Object.values(JobStatus),

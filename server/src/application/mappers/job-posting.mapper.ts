@@ -1,7 +1,9 @@
-import { JobPosting } from '../../domain/entities/job-posting.entity';
+import { JobPosting, ATSPipelineConfig } from '../../domain/entities/job-posting.entity';
 import { JobStatus } from '../../domain/enums/job-status.enum';
 import { EmploymentType } from '../../domain/enums/employment-type.enum';
+import { ATSStage } from '../../domain/enums/ats-stage.enum';
 import { Salary } from '../../domain/interfaces/salary.interface';
+import { STAGE_TO_SUB_STAGES } from '../../domain/utils/ats-pipeline.util';
 import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from '../dto/job-posting/job-posting-response.dto';
 import { AdminJobListItem, AdminJobStatsResponseDto } from '../dto/admin/admin-job-response.dto';
 import { CreateInput } from '../../domain/types/common.types';
@@ -20,9 +22,29 @@ export class JobPostingMapper {
     location: string;
     skillsRequired: string[];
     categoryIds: string[];
+    enabledStages?: ATSStage[];
     isFeatured?: boolean;
     expiresAt?: Date;
   }): Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt' | 'companyName' | 'companyLogo' | 'unpublishReason'> {
+    const defaultEnabledStages = [
+      ATSStage.IN_REVIEW,
+      ATSStage.SHORTLISTED,
+      ATSStage.INTERVIEW,
+      ATSStage.TECHNICAL_TASK,
+      ATSStage.COMPENSATION,
+      ATSStage.OFFER,
+    ];
+    const enabledStages = data.enabledStages || defaultEnabledStages;
+    
+    // Initialize pipeline config
+    const atsPipelineConfig: ATSPipelineConfig = {};
+    enabledStages.forEach((stage) => {
+      // Only add stage if it exists in STAGE_TO_SUB_STAGES (filter out invalid/old stages)
+      if (STAGE_TO_SUB_STAGES[stage]) {
+        atsPipelineConfig[stage] = [...STAGE_TO_SUB_STAGES[stage]];
+      }
+    });
+    
     return {
       companyId: data.companyId,
       title: data.title,
@@ -36,6 +58,8 @@ export class JobPostingMapper {
       location: data.location,
       skillsRequired: data.skillsRequired,
       categoryIds: data.categoryIds,
+      enabledStages,
+      atsPipelineConfig,
       isFeatured: data.isFeatured || false,
       status: JobStatus.ACTIVE,
       viewCount: 0,
@@ -67,6 +91,7 @@ export class JobPostingMapper {
       unpublish_reason: jobPosting.unpublishReason,
       view_count: jobPosting.viewCount,
       application_count: jobPosting.applicationCount,
+      enabled_stages: jobPosting.enabledStages,
       createdAt: jobPosting.createdAt,
       updatedAt: jobPosting.updatedAt,
     };
@@ -103,6 +128,7 @@ export class JobPostingMapper {
       unpublish_reason: baseDto.unpublish_reason,
       view_count: baseDto.view_count,
       application_count: baseDto.application_count,
+      enabled_stages: baseDto.enabled_stages,
       createdAt: baseDto.createdAt instanceof Date ? baseDto.createdAt.toISOString() : baseDto.createdAt,
       updatedAt: baseDto.updatedAt instanceof Date ? baseDto.updatedAt.toISOString() : baseDto.updatedAt,
       company: {
@@ -186,6 +212,7 @@ export class JobPostingMapper {
       isFeatured: job.isFeatured,
       unpublishReason: job.unpublishReason,
       createdAt: job.createdAt,
+      enabled_stages: job.enabledStages,
     };
   }
 
