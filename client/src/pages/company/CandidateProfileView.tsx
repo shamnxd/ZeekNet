@@ -1014,6 +1014,7 @@ const CandidateProfileView = () => {
     const handleMarkAsHired = async () => {
         if (!currentId) return
         try {
+            await companyApi.markApplicationAsHired(currentId)
             toast({ title: "Success", description: "Candidate marked as hired." })
             await reloadData()
         } catch (error) {
