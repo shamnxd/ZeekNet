@@ -1,5 +1,5 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
+import { ATSStage, ATSSubStage } from '../../../domain/enums/ats-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 
@@ -20,7 +20,8 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
   ) {}
 
   async execute(dto: UpdateApplicationStageDto): Promise<JobApplicationListResponseDto> {
-    const { userId, applicationId, stage, rejectionReason } = dto;
+    const { userId, applicationId, stage, subStage, rejectionReason } = dto;
+    
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -39,10 +40,13 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
       throw new ValidationError('You can only update applications for your own job postings');
     }
 
-    const updateData: Partial<JobApplication> & { rejectionReason?: string } = { stage };
-    if (stage === ApplicationStage.REJECTED && rejectionReason) {
-      updateData.rejectionReason = rejectionReason;
+    const updateData: Partial<Omit<JobApplication, 'subStage'>> & { subStage?: ATSSubStage; rejectionReason?: string } = { stage };
+    // Add subStage to update data if provided
+    if (subStage) {
+      updateData.subStage = subStage as ATSSubStage;
     }
+    // Note: REJECTED stage removed - applications can be moved to any stage
+    // If rejection logic is needed, it should be handled differently (e.g., status field)
 
     const updatedApplication = await this._jobApplicationRepository.update(applicationId, updateData as Partial<JobApplication>);
 
@@ -51,21 +55,29 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     }
 
     const stageMessages: Record<string, { title: string; message: string }> = {
-      [ApplicationStage.SHORTLISTED]: {
+      [ATSStage.SHORTLISTED]: {
         title: 'Application Shortlisted',
         message: `Congratulations! Your application for ${job.title} has been shortlisted`,
       },
-      [ApplicationStage.INTERVIEW]: {
+      [ATSStage.IN_REVIEW]: {
+        title: 'Application Status Updated',
+        message: `Your application for ${job.title} is being reviewed`,
+      },
+      [ATSStage.INTERVIEW]: {
         title: 'Interview Stage',
         message: `Your application for ${job.title} has moved to the interview stage`,
       },
-      [ApplicationStage.REJECTED]: {
-        title: 'Application Status Updated',
-        message: `Your application status for ${job.title} has been updated`,
+      [ATSStage.TECHNICAL_TASK]: {
+        title: 'Technical Task',
+        message: `A technical task has been assigned for your application to ${job.title}`,
       },
-      [ApplicationStage.HIRED]: {
-        title: 'Congratulations! You\'re Hired',
-        message: `Congratulations! You have been hired for ${job.title}`,
+      [ATSStage.COMPENSATION]: {
+        title: 'Compensation Discussion',
+        message: `Compensation discussion has started for your application to ${job.title}`,
+      },
+      [ATSStage.OFFER]: {
+        title: 'Offer Received',
+        message: `Congratulations! You have received an offer for ${job.title}`,
       },
     };
 

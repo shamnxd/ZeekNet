@@ -6,7 +6,6 @@ export interface InterviewSchedule {
   time: string;
   interview_type: string;
   location: string;
-  interviewer_name?: string;
   status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
   feedback?: {
     reviewer_name: string;

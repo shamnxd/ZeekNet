@@ -46,7 +46,7 @@ const ApplicationDetails = () => {
   const [hireRejectDialogOpen, setHireRejectDialogOpen] = useState(false)
   const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null)
   const [scheduleForm, setScheduleForm] = useState({
-    date: '', time: '', location: '', interviewType: '', interviewer: '', notes: ''
+    date: '', time: '', location: '', interviewType: '', notes: ''
   })
   const [ratingForm, setRatingForm] = useState({ rating: 0 })
   const [feedbackForm, setFeedbackForm] = useState({ feedback: '' })
@@ -90,8 +90,8 @@ const ApplicationDetails = () => {
           languages: a.languages,
           skills: a.skills,
           resume_data: a.resume_data,
-          interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interviewer_name?: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
-            id: iv.id, date: iv.date, interviewer_name: iv.interviewer_name || '',
+          interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
+            id: iv.id, date: iv.date,
             interviewer_avatar: undefined, interview_type: iv.interview_type,
             time: iv.time, location: iv.location, status: iv.status, feedback: iv.feedback
           })),
@@ -122,8 +122,8 @@ const ApplicationDetails = () => {
         gender: a.gender, email: a.email, phone: a.phone, address: a.address,
         about_me: a.about_me, languages: a.languages, skills: a.skills,
         resume_data: a.resume_data,
-        interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interviewer_name?: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
-          id: iv.id, date: iv.date, interviewer_name: iv.interviewer_name || '',
+        interview_schedule: (a.interviews || []).map((iv: { id: string; date: string; interview_type: string; time: string; location: string; status: string; feedback?: unknown }) => ({
+          id: iv.id, date: iv.date,
           interviewer_avatar: undefined, interview_type: iv.interview_type,
           time: iv.time, location: iv.location, status: iv.status, feedback: iv.feedback
         })),
@@ -165,7 +165,7 @@ const ApplicationDetails = () => {
   const handleScheduleInterview = () => {
     toast.success('Interview scheduled successfully')
     setScheduleInterviewOpen(false)
-    setScheduleForm({ date: '', time: '', location: '', interviewType: '', interviewer: '', notes: '' })
+    setScheduleForm({ date: '', time: '', location: '', interviewType: '', notes: '' })
   }
 
   const handleGiveRating = async () => {
@@ -190,7 +190,7 @@ const ApplicationDetails = () => {
     try {
       await jobApplicationApi.addInterview(id, {
         date: scheduleForm.date, time: scheduleForm.time, location: scheduleForm.location,
-        interview_type: scheduleForm.interviewType, interviewer_name: scheduleForm.interviewer,
+        interview_type: scheduleForm.interviewType,
       })
       toast.success('Interview schedule added successfully')
 
@@ -210,15 +210,15 @@ const ApplicationDetails = () => {
       toast.error(apiError?.response?.data?.message || 'Failed to add interview')
     }
     setAddScheduleOpen(false)
-    setScheduleForm({ date: '', time: '', location: '', interviewType: '', interviewer: '', notes: '' })
+    setScheduleForm({ date: '', time: '', location: '', interviewType: '', notes: '' })
   }
 
-  const handleOpenEditSchedule = (iv: { id: string; date: string; time?: string; location?: string; interview_type?: string; interviewer_name?: string }) => {
+  const handleOpenEditSchedule = (iv: { id: string; date: string; time?: string; location?: string; interview_type?: string }) => {
     setSelectedInterviewId(iv.id)
     setScheduleForm({
       date: iv.date ? String(iv.date).slice(0, 10) : '',
       time: iv.time || '', location: iv.location || '',
-      interviewType: iv.interview_type || '', interviewer: iv.interviewer_name || '', notes: '',
+      interviewType: iv.interview_type || '', notes: '',
     })
     setEditScheduleOpen(true)
   }
@@ -228,7 +228,7 @@ const ApplicationDetails = () => {
     try {
       await jobApplicationApi.updateInterview(id, selectedInterviewId, {
         date: scheduleForm.date, time: scheduleForm.time, location: scheduleForm.location,
-        interview_type: scheduleForm.interviewType, interviewer_name: scheduleForm.interviewer,
+        interview_type: scheduleForm.interviewType,
       })
       toast.success('Interview updated successfully')
       await reload()
@@ -263,7 +263,6 @@ const ApplicationDetails = () => {
         time: interview.time,
         location: interview.location,
         interview_type: interview.interview_type,
-        interviewer_name: interview.interviewer_name,
         status: 'completed',
       })
       toast.success('Interview marked as completed')
@@ -889,7 +888,7 @@ const ApplicationDetails = () => {
                                               {interview.interview_type}
                                             </p>
                                             <p className="text-xs text-[#7C8493]">
-                                              {interview.interviewer_name} • {new Date(interview.date).toLocaleDateString()} • {interview.time}
+                                              {new Date(interview.date).toLocaleDateString()} • {interview.time}
                                             </p>
                                           </div>
                                           {interview.status && (
@@ -1066,20 +1065,12 @@ const ApplicationDetails = () => {
                                     className="bg-white border border-[#D6DDEB] rounded-lg p-4 flex items-center justify-between"
                                   >
                                     <div className="flex items-center gap-4 flex-1">
-                                      <Avatar className="w-12 h-12">
-                                        {interview.interviewer_avatar ? (
-                                          <AvatarImage src={interview.interviewer_avatar} />
-                                        ) : null}
-                                        <AvatarFallback className="bg-[#4640DE]/10 text-[#4640DE]">
-                                          {getInitials(interview.interviewer_name)}
-                                        </AvatarFallback>
-                                      </Avatar>
                                       <div className="flex-1">
                                         <h4 className="text-base font-semibold text-[#25324B] mb-1">
-                                          {interview.interviewer_name}
+                                          {interview.interview_type}
                                         </h4>
                                         <div className="flex items-center gap-2">
-                                          <p className="text-sm text-[#7C8493]">{interview.interview_type}</p>
+                                          <p className="text-sm text-[#7C8493]">{new Date(interview.date).toLocaleDateString()}</p>
                                           {interview.status && (
                                             <Badge className="bg-[#F8F8FD] text-[#4640DE] border-0 px-2 py-0.5 rounded-full text-xs">
                                               {interview.status}
@@ -1228,15 +1219,6 @@ const ApplicationDetails = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="interviewer">Interviewer</Label>
-                <Input
-                  id="interviewer"
-                  value={scheduleForm.interviewer}
-                  onChange={(e) => setScheduleForm({ ...scheduleForm, interviewer: e.target.value })}
-                  placeholder="Interviewer name"
-                />
-              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
@@ -1372,13 +1354,6 @@ const ApplicationDetails = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="scheduleInterviewer">Interviewer</Label>
-                <Input
-                  id="scheduleInterviewer"
-                  value={scheduleForm.interviewer}
-                  onChange={(e) => setScheduleForm({ ...scheduleForm, interviewer: e.target.value })}
-                  placeholder="Interviewer name"
-                />
               </div>
             </div>
             <div className="space-y-2">
@@ -1463,13 +1438,6 @@ const ApplicationDetails = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="editInterviewer">Interviewer</Label>
-                <Input
-                  id="editInterviewer"
-                  value={scheduleForm.interviewer}
-                  onChange={(e) => setScheduleForm({ ...scheduleForm, interviewer: e.target.value })}
-                  placeholder="Interviewer name"
-                />
               </div>
             </div>
           </div>

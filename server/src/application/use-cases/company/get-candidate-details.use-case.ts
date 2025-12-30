@@ -5,6 +5,7 @@ import { ISeekerExperienceRepository } from '../../../domain/interfaces/reposito
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { S3Service } from '../../../infrastructure/external-services/s3/s3.service';
+import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
   constructor(
@@ -16,15 +17,19 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
   ) {}
 
   async execute(candidateId: string): Promise<CandidateDetails> {
+    if (!candidateId) {
+      throw new NotFoundError('Candidate ID is required');
+    }
+
     const profile = await this.seekerProfileRepository.findById(candidateId);
     if (!profile) {
-      throw new Error('Candidate not found');
+      throw new NotFoundError('Candidate not found');
     }
 
     const userId = profile.userId;
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new Error('User data not found');
+      throw new NotFoundError('User data not found');
     }
 
     const experiences = await this.seekerExperienceRepository.findBySeekerProfileId(candidateId);
@@ -32,20 +37,35 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
 
     const profileData = { ...profile };
     
-    if (profile.avatarFileName && !profile.avatarFileName.startsWith('http')) {
-      profileData.avatarFileName = await this.s3Service.getSignedUrl(profile.avatarFileName);
+    try {
+      if (profile.avatarFileName && !profile.avatarFileName.startsWith('http')) {
+        profileData.avatarFileName = await this.s3Service.getSignedUrl(profile.avatarFileName);
+      }
+    } catch (error) {
+      console.error('Error getting avatar signed URL:', error);
+      // Keep original value if S3 call fails
     }
 
-    if (profile.bannerFileName && !profile.bannerFileName.startsWith('http')) {
-      profileData.bannerFileName = await this.s3Service.getSignedUrl(profile.bannerFileName);
+    try {
+      if (profile.bannerFileName && !profile.bannerFileName.startsWith('http')) {
+        profileData.bannerFileName = await this.s3Service.getSignedUrl(profile.bannerFileName);
+      }
+    } catch (error) {
+      console.error('Error getting banner signed URL:', error);
+      // Keep original value if S3 call fails
     }
     
-    if (profile.resume?.url && !profile.resume.url.startsWith('http')) {
-      const signedResumeUrl = await this.s3Service.getSignedUrl(profile.resume.url);
-      profileData.resume = {
-        ...profile.resume,
-        url: signedResumeUrl,
-      };
+    try {
+      if (profile.resume?.url && !profile.resume.url.startsWith('http')) {
+        const signedResumeUrl = await this.s3Service.getSignedUrl(profile.resume.url);
+        profileData.resume = {
+          ...profile.resume,
+          url: signedResumeUrl,
+        };
+      }
+    } catch (error) {
+      console.error('Error getting resume signed URL:', error);
+      // Keep original value if S3 call fails
     }
 
     return {

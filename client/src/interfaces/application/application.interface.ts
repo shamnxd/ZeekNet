@@ -1,9 +1,10 @@
 import { ApplicationStage } from '@/constants/enums'
 
 export interface Application {
-  _id: string
-  seeker_id: string
-  seeker_name: string
+  id?: string // Server returns 'id'
+  _id?: string // Legacy support
+  seeker_id?: string
+  seeker_name?: string
   seeker_avatar?: string
   job_id: string
   job_title: string
@@ -16,3 +17,5 @@ export interface Application {
   companyName?: string
   jobTitle?: string
 }
+
+

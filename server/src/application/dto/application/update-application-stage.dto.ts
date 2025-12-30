@@ -1,12 +1,13 @@
 import { z } from 'zod';
-import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
+import { ATSStage } from '../../../domain/enums/ats-stage.enum';
 
-const ApplicationStageSchema = z.nativeEnum(ApplicationStage);
+const ATSStageSchema = z.nativeEnum(ATSStage);
 
 export const UpdateApplicationStageDtoSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   applicationId: z.string().min(1, 'Application ID is required'),
-  stage: ApplicationStageSchema,
+  stage: ATSStageSchema,
+  subStage: z.string().optional(),
   rejectionReason: z.string().optional(),
 });
 
@@ -17,6 +18,7 @@ export const UpdateApplicationStageDto = UpdateApplicationStageDtoSchema;
 
 
 export const UpdateApplicationStageRequestDtoSchema = z.object({
-  stage: ApplicationStageSchema,
+  stage: ATSStageSchema,
+  subStage: z.string().optional(),
   rejectionReason: z.string().optional(),
 });

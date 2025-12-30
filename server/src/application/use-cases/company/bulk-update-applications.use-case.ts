@@ -3,7 +3,7 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { BulkUpdateApplicationsDto } from '../../dto/application/bulk-update-applications.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
+import { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
 
 export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUseCase {
@@ -88,25 +88,15 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
   }
 
   private validateStageTransition(currentStage: string, newStage: string): string | null {
+    // Basic validation - proper validation should be done by move-stage use case
+    // which checks against job pipeline config
+    const validStages = Object.values(ATSStage);
     
-    if (currentStage === ApplicationStage.HIRED || currentStage === ApplicationStage.REJECTED) {
-      return `Cannot change application in '${currentStage}' stage`;
+    if (!validStages.includes(newStage as ATSStage)) {
+      return `Invalid stage: '${newStage}'`;
     }
-
     
-    if (newStage === ApplicationStage.SHORTLISTED) {
-      if (currentStage !== ApplicationStage.APPLIED) {
-        return `Cannot shortlist application in '${currentStage}' stage. Only 'applied' applications can be shortlisted.`;
-      }
-    }
-
-    
-    if (newStage === ApplicationStage.REJECTED) {
-      if (currentStage !== ApplicationStage.APPLIED && currentStage !== ApplicationStage.SHORTLISTED && currentStage !== ApplicationStage.INTERVIEW) {
-        return `Cannot reject application in '${currentStage}' stage`;
-      }
-    }
-
+    // Allow any valid stage transition - detailed validation in move-stage use case
     return null;
   }
 }

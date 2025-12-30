@@ -196,7 +196,7 @@ const AllApplications = () => {
     if (selectedApplications.size === applications.length) {
       setSelectedApplications(new Set())
     } else {
-      setSelectedApplications(new Set(applications.map(app => app._id)))
+      setSelectedApplications(new Set(applications.map(app => app._id).filter((id): id is string => id !== undefined)))
     }
   }
 
@@ -227,7 +227,7 @@ const AllApplications = () => {
 
   
   const executeBulkShortlist = async () => {
-    const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+    const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
     
     
     const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
@@ -260,11 +260,12 @@ const AllApplications = () => {
       toast.success(`${selectedApps.length} application(s) moved to shortlisted`)
       
       
-      setApplications(prev => prev.map(app => 
-        selectedApplications.has(app._id) 
+      setApplications(prev => prev.map(app => {
+        const appId = app._id
+        return appId && selectedApplications.has(appId)
           ? { ...app, stage: ApplicationStage.SHORTLISTED }
           : app
-      ))
+      }))
       setSelectedApplications(new Set())
       setShowShortlistConfirm(false)
     } catch (error: unknown) {
@@ -276,7 +277,7 @@ const AllApplications = () => {
   }
 
   const executeBulkReject = async () => {
-    const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+    const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
     
     
     const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
@@ -311,11 +312,12 @@ const AllApplications = () => {
       toast.success(`${selectedApps.length} application(s) rejected`)
       
       
-      setApplications(prev => prev.map(app => 
-        selectedApplications.has(app._id) 
+      setApplications(prev => prev.map(app => {
+        const appId = app._id
+        return appId && selectedApplications.has(appId)
           ? { ...app, stage: ApplicationStage.REJECTED }
           : app
-      ))
+      }))
       setSelectedApplications(new Set())
       setShowRejectConfirm(false)
     } catch (error: unknown) {
@@ -401,7 +403,7 @@ const AllApplications = () => {
 
           {}
           {selectedApplications.size > 0 && (() => {
-            const selectedApps = applications.filter(app => selectedApplications.has(app._id))
+            const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
             
             
             const hasRejectedOrHired = selectedApps.some(app => 
@@ -503,8 +505,8 @@ const AllApplications = () => {
                     {}
                     <div>
                       <Checkbox
-                        checked={selectedApplications.has(application._id)}
-                        onCheckedChange={() => handleSelectApplication(application._id)}
+                        checked={application._id ? selectedApplications.has(application._id) : false}
+                        onCheckedChange={() => application._id && handleSelectApplication(application._id)}
                       />
                     </div>
 
@@ -515,7 +517,7 @@ const AllApplications = () => {
                           <AvatarImage src={application.seeker_avatar} alt={application.seeker_name} />
                         ) : null}
                         <AvatarFallback className="bg-[#4640DE]/10 text-[#4640DE] text-sm font-semibold">
-                          {getInitials(application.seeker_name)}
+                          {getInitials(application.seeker_name || '')}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium text-[#25324B]">
@@ -549,7 +551,7 @@ const AllApplications = () => {
                         variant="outline"
                         size="sm"
                         className="border-[#4640DE] text-[#4640DE] bg-white hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
-                        onClick={() => handleChatWithApplicant(application.seeker_id)}
+                        onClick={() => application.seeker_id && handleChatWithApplicant(application.seeker_id)}
                         title="Chat with applicant"
                       >
                         <MessageCircle className="w-4 h-4" />
@@ -558,7 +560,7 @@ const AllApplications = () => {
                         variant="outline"
                         size="sm"
                         className="border-[#4640DE] text-[#4640DE] bg-[#CCCCF5] hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
-                        onClick={() => handleSeeApplication(application._id)}
+                        onClick={() => application._id && handleSeeApplication(application._id)}
                       >
                         <Eye className="w-4 h-4 mr-1.5" />
                         See Application
