@@ -21,11 +21,11 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('Socket connected:', this.socket?.id);
+      // Socket connected
     });
 
     this.socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+      // Socket disconnected
     });
 
     this.socket.on('connect_error', (error) => {
@@ -33,7 +33,6 @@ class SocketService {
     });
 
     this.socket.on('user-blocked', (data) => {
-      console.log('User blocked event received:', data);
       if (this.userBlockedCallback) {
         this.userBlockedCallback(data);
       }

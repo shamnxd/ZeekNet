@@ -12,7 +12,6 @@ const UserBlockHandler: React.FC = () => {
 
   useEffect(() => {
     const handleUserBlocked = (data: UserBlockedData) => {
-      console.log('User blocked event received:', data);
       toast.error('Your account has been blocked', {
         description: data.reason || 'Your account has been blocked by the administrator. You will be logged out.',
         duration: 5000,
