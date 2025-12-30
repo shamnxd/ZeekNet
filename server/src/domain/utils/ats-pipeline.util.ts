@@ -19,6 +19,7 @@ export const STAGE_TO_SUB_STAGES: Record<ATSStage, readonly ATSSubStage[]> = {
   [ATSStage.TECHNICAL_TASK]: Object.values(TechnicalTaskSubStage),
   [ATSStage.COMPENSATION]: Object.values(CompensationSubStage),
   [ATSStage.OFFER]: Object.values(OfferSubStage),
+  [ATSStage.HIRED]: [],
 };
 
 /**
@@ -38,6 +39,8 @@ export function getDefaultSubStage(stage: ATSStage): ATSSubStage {
     return CompensationSubStage.NOT_INITIATED;
   case ATSStage.OFFER:
     return OfferSubStage.NOT_SENT;
+  case ATSStage.HIRED:
+    return InReviewSubStage.PROFILE_REVIEW; // HIRED has no sub-stages
   default:
     return InReviewSubStage.PROFILE_REVIEW;
   }
