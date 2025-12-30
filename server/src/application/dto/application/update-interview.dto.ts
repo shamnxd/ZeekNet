@@ -13,8 +13,6 @@ export const UpdateInterviewDto = z.object({
   interview_type: z.enum(['phone', 'video', 'in-person', 'other']).optional(),
   location: z.string().optional(),
   notes: z.string().optional(),
-  interviewer_name: z.string().optional(),
-  interviewer_email: z.string().email().optional(),
   status: z.nativeEnum(InterviewStatus).optional(),
 });
 
