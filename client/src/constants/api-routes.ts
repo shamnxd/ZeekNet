@@ -79,6 +79,7 @@ export const CompanyRoutes = {
   APPLICATIONS_ID: '/api/company/applications/:id',
   APPLICATIONS_ID_STAGE: '/api/company/applications/:id/stage',
   APPLICATIONS_ID_SCORE: '/api/company/applications/:id/score',
+  APPLICATIONS_ID_MARK_HIRED: '/api/company/applications/:id/mark-hired',
   APPLICATIONS_ID_INTERVIEWS: '/api/company/applications/:id/interviews',
   APPLICATIONS_ID_INTERVIEWS_INTERVIEW_ID: '/api/company/applications/:id/interviews/:interviewId',
   APPLICATIONS_ID_INTERVIEWS_INTERVIEW_DELETE: '/api/company/applications/:id/interviews/:interviewId',
