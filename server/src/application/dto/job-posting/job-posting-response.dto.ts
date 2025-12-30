@@ -22,6 +22,7 @@ export interface JobPostingResponseDto {
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
+  enabled_stages?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +37,7 @@ export interface CompanyJobPostingListItemDto {
   isFeatured: boolean;
   unpublishReason?: string;
   createdAt: Date;
+  enabled_stages?: string[];
 }
 
 export interface PublicJobListItemDto {
@@ -72,6 +74,7 @@ export interface JobPostingDetailResponseDto {
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
+  enabled_stages?: string[];
   createdAt: string;
   updatedAt: string;
   has_applied?: boolean;

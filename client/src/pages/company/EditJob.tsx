@@ -2,15 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, ClipboardList, Heart } from "lucide-react";
+import { ArrowLeft, Briefcase, ClipboardList, Heart, GitPullRequest } from "lucide-react";
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
+import HiringPipelineStep from "../../components/company/HiringPipelineStep";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
 import { toast } from "sonner";
 import { Loading } from "@/components/ui/loading";
+import { ATSStage } from "@/constants/ats-stages";
 
 const EditJob = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +34,7 @@ const EditJob = () => {
     qualifications: [],
     niceToHaves: [],
     benefits: [],
+    enabledStages: Object.values(ATSStage),
   });
 
   const steps = [
@@ -56,6 +59,13 @@ const EditJob = () => {
       icon: Heart,
       component: PerksBenefitsStep,
     },
+    {
+      id: 4,
+      title: "Hiring Pipeline",
+      description: "Customize hiring workflow",
+      icon: GitPullRequest,
+      component: HiringPipelineStep,
+    },
   ];
 
   useEffect(() => {
@@ -69,10 +79,10 @@ const EditJob = () => {
       try {
         setLoading(true);
         const response = await companyApi.getJobPosting(id);
-        
+
         if (response.success && response.data) {
           const job = response.data;
-          
+
           setJobData({
             title: job.title || "",
             employmentTypes: job.employmentTypes || job.employment_types || [],
@@ -85,6 +95,7 @@ const EditJob = () => {
             qualifications: job.qualifications || [],
             niceToHaves: job.niceToHaves || job.nice_to_haves || [],
             benefits: job.benefits || [],
+            enabledStages: (job.enabledStages || job.enabled_stages || Object.values(ATSStage)) as ATSStage[],
           });
         } else {
           toast.error("Failed to load job data");
@@ -102,7 +113,7 @@ const EditJob = () => {
   }, [id, navigate]);
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -177,16 +188,17 @@ const EditJob = () => {
         employment_types: jobData.employmentTypes as ("full-time" | "part-time" | "contract" | "internship" | "remote")[],
         location: jobData.location,
         skills_required: jobData.skillsRequired,
-        category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"]
+        category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
+        enabled_stages: jobData.enabledStages.length > 0 ? jobData.enabledStages : Object.values(ATSStage) as string[]
       };
 
       const response = await companyApi.updateJobPosting(id, jobPostingData);
-      
+
       if (response.success) {
         toast.success("Job updated successfully!", {
           description: "Your job posting has been updated.",
         });
-        
+
         navigate("/company/job-listing");
       } else {
         toast.error("Failed to update job", {
@@ -194,8 +206,8 @@ const EditJob = () => {
         });
       }
     } catch (error: unknown) {
-      const errorMessage = error && typeof error === 'object' && 'message' in error 
-        ? (error as { message: string }).message 
+      const errorMessage = error && typeof error === 'object' && 'message' in error
+        ? (error as { message: string }).message
         : "Please try again later.";
       toast.error("Failed to update job", {
         description: errorMessage,
@@ -218,7 +230,6 @@ const EditJob = () => {
   return (
     <CompanyLayout>
       <div className="flex flex-col items-center px-5">
-        {}
         <div className="flex items-center py-6 w-full">
           <Button variant="ghost" size="sm" onClick={() => navigate("/company/job-listing")}>
             <ArrowLeft className="h-4 w-4" />
@@ -226,61 +237,56 @@ const EditJob = () => {
           <h1 className="text-xl font-semibold text-[#25324B]">Edit Job</h1>
         </div>
 
-        {}
         <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
-            
+
             return (
               <div key={step.id} className="flex items-center">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                      isActive
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive
                         ? "bg-[#4640DE] text-white"
                         : isCompleted
-                        ? "bg-[#4640DE] text-white"
-                        : "bg-[#E9EBFD] text-[#7C8493]"
-                    }`}
+                          ? "bg-[#4640DE] text-white"
+                          : "bg-[#E9EBFD] text-[#7C8493]"
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
-                  <div>
+                  <div className="hidden md:block">
                     <p
-                      className={`text-sm font-normal ${
-                        isActive
+                      className={`text-sm font-normal ${isActive
                           ? "text-[#4640DE]"
                           : isCompleted
-                          ? "text-[#4640DE]"
-                          : "text-[#A8ADB7]"
-                      }`}
+                            ? "text-[#4640DE]"
+                            : "text-[#A8ADB7]"
+                        }`}
                     >
-                      Step {step.id}/3
+                      Step {step.id}/4
                     </p>
                     <p
-                      className={`text-base font-semibold ${
-                        isActive
+                      className={`text-base font-semibold ${isActive
                           ? "text-[#25324B]"
                           : isCompleted
-                          ? "text-[#25324B]"
-                          : "text-[#7C8493]"
-                      }`}
+                            ? "text-[#25324B]"
+                            : "text-[#7C8493]"
+                        }`}
                     >
                       {step.title}
                     </p>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="w-0 h-8 mx-5 border-l border-[#D6DDEB]" />
+                  <div className="hidden md:block w-0 h-8 mx-5 border-l border-[#D6DDEB]" />
                 )}
               </div>
             );
           })}
         </div>
 
-        {}
         <div className="w-full">
           <CurrentStepComponent
             data={jobData}
@@ -288,7 +294,7 @@ const EditJob = () => {
             onNext={handleNext}
             onPrevious={handlePrevious}
             isFirstStep={currentStep === 1}
-            isLastStep={currentStep === 3}
+            isLastStep={currentStep === 4}
             onSubmit={handleSubmit}
           />
         </div>

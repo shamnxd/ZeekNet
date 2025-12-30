@@ -1,7 +1,9 @@
 import { EmploymentType } from '../enums/employment-type.enum';
 import { JobStatus } from '../enums/job-status.enum';
+import { ATSStage, ATSSubStage } from '../enums/ats-stage.enum';
 import { Salary } from '../interfaces/salary.interface';
 import { Types } from 'mongoose';
+import { STAGE_TO_SUB_STAGES } from '../utils/ats-pipeline.util';
 
 export interface PopulatedCompany {
   _id: Types.ObjectId;
@@ -9,6 +11,13 @@ export interface PopulatedCompany {
   logo: string;
 }
 
+/**
+ * ATS Pipeline Configuration
+ * Maps each enabled stage to its allowed sub-stages
+ */
+export interface ATSPipelineConfig {
+  [stage: string]: ATSSubStage[];
+}
 
 export class JobPosting {
   constructor(
@@ -25,6 +34,8 @@ export class JobPosting {
     public readonly location: string,
     public readonly skillsRequired: string[],
     public readonly categoryIds: string[],
+    public readonly enabledStages: ATSStage[],
+    public readonly atsPipelineConfig: ATSPipelineConfig,
     public readonly status: JobStatus,
     public readonly isFeatured: boolean,
     public readonly viewCount: number,
@@ -50,6 +61,8 @@ export class JobPosting {
     location: string;
     skillsRequired: string[];
     categoryIds: string[];
+    enabledStages?: ATSStage[];
+    atsPipelineConfig?: ATSPipelineConfig;
     status?: JobStatus;
     isFeatured?: boolean;
     viewCount?: number;
@@ -61,6 +74,29 @@ export class JobPosting {
     unpublishReason?: string;
   }): JobPosting {
     const now = new Date();
+    const defaultEnabledStages = [
+      ATSStage.IN_REVIEW,
+      ATSStage.SHORTLISTED,
+      ATSStage.INTERVIEW,
+      ATSStage.TECHNICAL_TASK,
+      ATSStage.COMPENSATION,
+      ATSStage.OFFER,
+    ];
+    
+    const enabledStages = (data.enabledStages && data.enabledStages.length > 0) ? data.enabledStages : defaultEnabledStages;
+    
+    // Initialize pipeline config if not provided
+    let pipelineConfig = data.atsPipelineConfig;
+    if (!pipelineConfig) {
+      pipelineConfig = {};
+      enabledStages.forEach((stage) => {
+        // Only add stage if it exists in STAGE_TO_SUB_STAGES (filter out invalid/old stages)
+        if (STAGE_TO_SUB_STAGES[stage]) {
+          pipelineConfig![stage] = [...STAGE_TO_SUB_STAGES[stage]];
+        }
+      });
+    }
+    
     return new JobPosting(
       data.id,
       data.companyId,
@@ -75,6 +111,8 @@ export class JobPosting {
       data.location,
       data.skillsRequired,
       data.categoryIds,
+      enabledStages,
+      pipelineConfig,
       data.status ?? JobStatus.ACTIVE,
       data.isFeatured ?? false,
       data.viewCount ?? 0,

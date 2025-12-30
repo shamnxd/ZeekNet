@@ -26,6 +26,7 @@ export const UpdateJobPostingRequestDtoSchema = z.object({
   location: z.string().min(2, 'Location must be at least 2 characters').max(100, 'Location must not exceed 100 characters').optional(),
   skills_required: z.array(z.string()).optional(),
   category_ids: z.array(z.string().min(1, 'Category ID is required')).optional(),
+  enabled_stages: z.array(z.string()).optional(),
   is_active: z.boolean().optional(),
   is_featured: z.boolean().optional(),
 });

@@ -1,8 +1,10 @@
-import { JobPosting, PopulatedCompany } from '../../../../domain/entities/job-posting.entity';
+import { JobPosting, PopulatedCompany, ATSPipelineConfig } from '../../../../domain/entities/job-posting.entity';
 import { JobPostingDocument } from '../models/job-posting.model';
 import { Types } from 'mongoose';
 import { JobStatus } from '../../../../domain/enums/job-status.enum';
 import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
+import { ATSStage } from '../../../../domain/enums/ats-stage.enum';
+import { STAGE_TO_SUB_STAGES } from '../../../../domain/utils/ats-pipeline.util';
 
 
 
@@ -34,6 +36,8 @@ export class JobPostingMapper {
       location: doc.location || '',
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
+      enabledStages: doc.enabled_stages && doc.enabled_stages.length > 0 ? doc.enabled_stages : undefined,
+      atsPipelineConfig: doc.ats_pipeline_config || undefined,
       status: doc.status || JobStatus.ACTIVE,
       isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
@@ -86,6 +90,18 @@ export class JobPostingMapper {
       doc.category_ids = input.categoryIds as string[];
     } else if (input.category_ids !== undefined) {
       doc.category_ids = input.category_ids as string[];
+    }
+    
+    if (input.enabledStages !== undefined) {
+      doc.enabled_stages = input.enabledStages as ATSStage[];
+    } else if (input.enabled_stages !== undefined) {
+      doc.enabled_stages = input.enabled_stages as ATSStage[];
+    }
+    
+    if (input.atsPipelineConfig !== undefined) {
+      doc.ats_pipeline_config = input.atsPipelineConfig as ATSPipelineConfig;
+    } else if (input.ats_pipeline_config !== undefined) {
+      doc.ats_pipeline_config = input.ats_pipeline_config as ATSPipelineConfig;
     }
     
     if (input.status !== undefined) {
