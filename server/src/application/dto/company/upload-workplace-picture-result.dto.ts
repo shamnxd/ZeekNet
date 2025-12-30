@@ -7,3 +7,9 @@ export interface UploadWorkplacePictureResult {
 
 
 
+
+
+
+
+
+

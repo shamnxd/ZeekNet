@@ -228,7 +228,7 @@ export const logoutThunk = createAsyncThunk<void, void, { rejectValue: string }>
     try {
       await authApi.logout();
     } catch {
-      console.log("Logout failed on server, but clearing client auth data anyway.");
+      // Logout failed on server, but clearing client auth data anyway
     }
   }
 );

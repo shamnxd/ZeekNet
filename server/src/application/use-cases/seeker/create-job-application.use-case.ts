@@ -1,5 +1,5 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { ApplicationStage } from '../../../domain/enums/application-stage.enum';
+import { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -46,8 +46,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       await this._jobApplicationRepository.update(applicationId, {
         score: atsResult.score,
       });
-      
-      console.log(`✅ ATS Score updated for application ${applicationId}: ${atsResult.score}/100 - ${atsResult.reasoning}`);
     } catch (error) {
       console.error(`❌ Failed to calculate ATS score for application ${applicationId}:`, error);
       await this._jobApplicationRepository.update(applicationId, {
@@ -90,7 +88,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
         coverLetter: applicationData.cover_letter,
         resumeUrl: applicationData.resume_url,
         resumeFilename: applicationData.resume_filename,
-        stage: ApplicationStage.APPLIED,
+        stage: ATSStage.IN_REVIEW,
         appliedDate: new Date(),
         score: -1, 
       }),
@@ -101,8 +99,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       try {
         resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
       } catch (error) {
-        console.warn('Failed to parse resume for ATS scoring:', error);
-        
+        // Failed to parse resume for ATS scoring
       }
     }
 

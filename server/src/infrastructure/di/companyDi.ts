@@ -63,10 +63,6 @@ import { GetApplicationsByCompanyUseCase } from '../../application/use-cases/com
 import { GetApplicationDetailsUseCase } from '../../application/use-cases/company/get-application-details.use-case';
 import { UpdateApplicationStageUseCase } from '../../application/use-cases/company/update-application-stage.use-case';
 import { UpdateApplicationScoreUseCase } from '../../application/use-cases/company/update-application-score.use-case';
-import { AddInterviewUseCase } from '../../application/use-cases/company/add-interview.use-case';
-import { UpdateInterviewUseCase } from '../../application/use-cases/company/update-interview.use-case';
-import { DeleteInterviewUseCase } from '../../application/use-cases/company/delete-interview.use-case';
-import { AddInterviewFeedbackUseCase } from '../../application/use-cases/company/add-interview-feedback.use-case';
 import { BulkUpdateApplicationsUseCase } from '../../application/use-cases/company/bulk-update-applications.use-case';
 import { GetCompanyIdByUserIdUseCase } from '../../application/use-cases/company/get-company-id-by-user-id.use-case';
 import { UploadLogoUseCase } from '../../application/use-cases/company/upload-logo.use-case';
@@ -180,10 +176,6 @@ const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobA
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
 const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const updateApplicationScoreUseCase = new UpdateApplicationScoreUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const addInterviewUseCase = new AddInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const updateInterviewUseCase = new UpdateInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const deleteInterviewUseCase = new DeleteInterviewUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
-const addInterviewFeedbackUseCase = new AddInterviewFeedbackUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobApplicationRepository, companyProfileRepository);
 
 const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
@@ -267,10 +259,6 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   getApplicationDetailsUseCase,
   updateApplicationStageUseCase,
   updateApplicationScoreUseCase,
-  addInterviewUseCase,
-  updateInterviewUseCase,
-  deleteInterviewUseCase,
-  addInterviewFeedbackUseCase,
   bulkUpdateApplicationsUseCase,
 );
 
@@ -308,4 +296,5 @@ export {
   companyProfileRepository,
   subscriptionMiddleware,
   stripeService,
+  getCompanyIdByUserIdUseCase,
 };

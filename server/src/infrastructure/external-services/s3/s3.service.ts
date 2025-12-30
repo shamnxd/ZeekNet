@@ -114,4 +114,49 @@ export class S3Service implements IS3Service {
     await this._s3Client.send(command);
     return key;
   }
+
+  async uploadOfferLetter(file: Buffer, fileName: string, contentType: string): Promise<string> {
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `offer-letters/${Date.now()}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this._bucketName,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+    });
+
+    await this._s3Client.send(command);
+    return key;
+  }
+
+  async uploadTaskDocument(file: Buffer, fileName: string, contentType: string): Promise<string> {
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `task-documents/${Date.now()}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this._bucketName,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+    });
+
+    await this._s3Client.send(command);
+    return key;
+  }
+
+  async uploadTaskSubmission(file: Buffer, fileName: string, contentType: string): Promise<string> {
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `task-submissions/${Date.now()}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this._bucketName,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+    });
+
+    await this._s3Client.send(command);
+    return key;
+  }
 }

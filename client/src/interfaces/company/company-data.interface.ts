@@ -68,30 +68,76 @@ export interface WorkplacePicture {
 }
 
 export interface CompanySideApplication {
+  // IDs - support both naming conventions
   id?: string;
   _id?: string;
   jobId?: string;
+  job_id?: string;
   seekerId?: string;
+  seeker_id?: string;
   companyId?: string;
+  company_id?: string;
+  
   status?: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
   stage?: string;
-  resumeUrl?: string;
-  coverLetter?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  subStage?: string;
+  sub_stage?: string;
   
+  // Resume and cover letter - support both naming conventions
+  resumeUrl?: string;
+  resume_url?: string;
+  resume_filename?: string;
+  coverLetter?: string;
+  cover_letter?: string;
+  
+  // Dates - support both naming conventions
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
+  applied_date?: string;
+  appliedAt?: string;
+  
+  // Seeker info - support both naming conventions
   seeker_name?: string;
+  seeker_avatar?: string;
+  seeker_headline?: string;
   name?: string;
   full_name?: string;
   email?: string;
-  applied_date?: string;
-  appliedAt?: string;
-  created_at?: string;
+  phone?: string;
   score?: number;
-  seeker_avatar?: string;
   avatar?: string;
   experience?: string;
   match_percentage?: number;
+  
+  // Profile details from server
+  date_of_birth?: string | Date;
+  gender?: string;
+  languages?: string[];
+  address?: string;
+  about_me?: string;
+  skills?: string[];
+  resume_data?: {
+    experience?: Array<{
+      title: string;
+      company: string;
+      period: string;
+      location?: string;
+      description?: string;
+    }>;
+    education?: Array<{
+      degree: string;
+      school: string;
+      period: string;
+      location?: string;
+    }>;
+    industry_knowledge?: string[];
+    tools_technologies?: string[];
+    other_skills?: string[];
+  };
+  
+  // Nested objects
   seeker?: {
     id: string;
     name: string;
@@ -101,5 +147,9 @@ export interface CompanySideApplication {
   job?: {
     id: string;
     title: string;
+    job_title?: string;
+    job_company?: string;
+    job_location?: string;
+    job_type?: string;
   };
 }
