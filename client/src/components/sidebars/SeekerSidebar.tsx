@@ -33,8 +33,8 @@ function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
         if (response.data && response.data.avatarUrl) {
           setProfileImage(response.data.avatarUrl);
         }
-      } catch (error) {
-        console.log('Failed to fetch seeker profile:', error);
+      } catch {
+        // Failed to fetch seeker profile
       } finally {
         setLoading(false);
       }

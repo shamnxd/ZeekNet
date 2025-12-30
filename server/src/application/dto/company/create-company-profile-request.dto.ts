@@ -24,3 +24,9 @@ export type CreateCompanyProfileRequestDtoType = z.infer<typeof CreateCompanyPro
 
 
 
+
+
+
+
+
+

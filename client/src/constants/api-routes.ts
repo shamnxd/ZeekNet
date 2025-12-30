@@ -83,6 +83,10 @@ export const CompanyRoutes = {
   APPLICATIONS_ID_INTERVIEWS_INTERVIEW_ID: '/api/company/applications/:id/interviews/:interviewId',
   APPLICATIONS_ID_INTERVIEWS_INTERVIEW_DELETE: '/api/company/applications/:id/interviews/:interviewId',
   APPLICATIONS_ID_INTERVIEWS_FEEDBACK: '/api/company/applications/:id/interviews/:interviewId/feedback',
+  JOBS_ID_ATS_PIPELINE: '/api/company/jobs/:jobId/ats-pipeline',
+  JOBS_ID_APPLICATIONS: '/api/company/jobs/:jobId/applications',
+  APPLICATIONS_ID_MOVE_STAGE: '/api/company/applications/:id/move-stage',
+  APPLICATIONS_ID_UPDATE_SUB_STAGE: '/api/company/applications/:id/update-sub-stage',
 } as const;
 
 export const NotificationRoutes = {
@@ -116,4 +120,6 @@ export const SeekerRoutes = {
   APPLICATIONS: '/api/seeker/applications',
   APPLICATIONS_ANALYZE_RESUME: '/api/seeker/applications/analyze-resume',
   APPLICATIONS_ID: '/api/seeker/applications/:id',
+  APPLICATIONS_ID_INTERVIEWS: '/api/seeker/applications/:id/interviews',
+  APPLICATIONS_ID_TASKS: '/api/seeker/applications/:id/tasks',
 } as const;

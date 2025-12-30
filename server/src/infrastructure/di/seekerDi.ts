@@ -31,6 +31,14 @@ import { RemoveResumeUseCase } from '../../application/use-cases/seeker/remove-r
 import { UploadAvatarUseCase } from '../../application/use-cases/seeker/upload-avatar.use-case';
 import { UploadBannerUseCase } from '../../application/use-cases/seeker/upload-banner.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
+import { ATSInterviewRepository } from '../database/mongodb/repositories/ats-interview.repository';
+import { ATSTechnicalTaskRepository } from '../database/mongodb/repositories/ats-technical-task.repository';
+import { ATSOfferRepository } from '../database/mongodb/repositories/ats-offer.repository';
+import { ATSCompensationRepository } from '../database/mongodb/repositories/ats-compensation.repository';
+import { ATSCompensationMeetingRepository } from '../database/mongodb/repositories/ats-compensation-meeting.repository';
+import { ATSActivityRepository } from '../database/mongodb/repositories/ats-activity.repository';
+import { UpdateApplicationSubStageUseCase } from '../../application/use-cases/ats/update-application-sub-stage.use-case';
+import { ActivityLoggerService } from '../../application/services/activity-logger.service';
 
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
@@ -40,6 +48,13 @@ const seekerEducationRepository = new SeekerEducationRepository();
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
 const s3Service = new S3Service();
+const interviewRepository = new ATSInterviewRepository();
+const technicalTaskRepository = new ATSTechnicalTaskRepository();
+const offerRepository = new ATSOfferRepository();
+const compensationRepository = new ATSCompensationRepository();
+const compensationMeetingRepository = new ATSCompensationMeetingRepository();
+const activityRepository = new ATSActivityRepository();
+const activityLoggerService = new ActivityLoggerService(activityRepository);
 
 const createSeekerProfileUseCase = new CreateSeekerProfileUseCase(seekerProfileRepository, s3Service);
 const getSeekerProfileUseCase = new GetSeekerProfileUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
@@ -64,6 +79,11 @@ const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicati
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
 const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository);
+const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
+  jobApplicationRepository,
+  jobPostingRepository,
+  activityLoggerService,
+);
 
 const seekerProfileController = new SeekerProfileController(
   createSeekerProfileUseCase,
@@ -92,6 +112,13 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   analyzeResumeUseCase,
   s3Service,
   jobPostingRepository,
+  interviewRepository,
+  technicalTaskRepository,
+  offerRepository,
+  compensationRepository,
+  compensationMeetingRepository,
+  jobApplicationRepository,
+  updateApplicationSubStageUseCase,
 );
 
 export { seekerJobApplicationController, seekerProfileController };

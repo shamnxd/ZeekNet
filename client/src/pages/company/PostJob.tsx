@@ -2,16 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle } from "lucide-react";
+import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle, GitPullRequest } from "lucide-react";
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
+import HiringPipelineStep from "../../components/company/HiringPipelineStep";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ATSStage } from "@/constants/ats-stages";
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ const PostJob = () => {
     qualifications: [],
     niceToHaves: [],
     benefits: [],
+    enabledStages: Object.values(ATSStage),
   });
 
   const steps = [
@@ -57,10 +60,17 @@ const PostJob = () => {
       icon: Heart,
       component: PerksBenefitsStep,
     },
+    {
+      id: 4,
+      title: "Hiring Pipeline",
+      description: "Customize hiring workflow",
+      icon: GitPullRequest,
+      component: HiringPipelineStep,
+    },
   ];
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -72,7 +82,7 @@ const PostJob = () => {
   };
 
   const handleDataChange = (stepData: Partial<JobPostingData>) => {
-    setJobData(prev => ({ ...prev, ...stepData }));
+    setJobData((prev) => ({ ...prev, ...stepData }));
   };
 
   const handleSubmit = async () => {
@@ -80,41 +90,6 @@ const PostJob = () => {
       if (!jobData.title || jobData.title.length < 5) {
         toast.error("Validation failed", {
           description: "Title must be at least 5 characters",
-        });
-        return;
-      }
-
-      if (!jobData.description || jobData.description.length < 10) {
-        toast.error("Validation failed", {
-          description: "Description must be at least 10 characters",
-        });
-        return;
-      }
-
-      if (!jobData.responsibilities || jobData.responsibilities.length === 0) {
-        toast.error("Validation failed", {
-          description: "At least one responsibility is required",
-        });
-        return;
-      }
-
-      if (!jobData.qualifications || jobData.qualifications.length === 0) {
-        toast.error("Validation failed", {
-          description: "At least one qualification is required",
-        });
-        return;
-      }
-
-      if (!jobData.location || jobData.location.length < 2) {
-        toast.error("Validation failed", {
-          description: "Location must be at least 2 characters",
-        });
-        return;
-      }
-
-      if (!jobData.employmentTypes || jobData.employmentTypes.length === 0) {
-        toast.error("Validation failed", {
-          description: "At least one employment type is required",
         });
         return;
       }
@@ -130,16 +105,17 @@ const PostJob = () => {
         employment_types: jobData.employmentTypes as ("full-time" | "part-time" | "contract" | "internship" | "remote")[],
         location: jobData.location,
         skills_required: jobData.skillsRequired,
-        category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"]
+        category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
+        enabled_stages: jobData.enabledStages.length > 0 ? jobData.enabledStages : Object.values(ATSStage) as string[]
       };
 
       const response = await companyApi.createJobPosting(jobPostingData);
-      
+
       if (response.success) {
         toast.success("Job posted successfully!", {
           description: "Your job posting has been submitted and is now live.",
         });
-        
+
         setJobData({
           title: "",
           employmentTypes: [],
@@ -155,8 +131,9 @@ const PostJob = () => {
           qualifications: [],
           niceToHaves: [],
           benefits: [],
+          enabledStages: Object.values(ATSStage),
         });
-        
+
         setCurrentStep(1);
       } else {
         toast.error("Failed to post job", {
@@ -165,18 +142,17 @@ const PostJob = () => {
       }
     } catch (error: unknown) {
       let errorMessage = "Please try again later.";
-      
+
       if (error && typeof error === 'object') {
         if ('response' in error && error.response && typeof error.response === 'object') {
           const response = error.response as { data?: { message?: string } };
           errorMessage = response.data?.message || errorMessage;
-        } 
-
+        }
         else if ('message' in error && typeof error.message === 'string') {
           errorMessage = error.message;
         }
       }
-      
+
       toast.error("Failed to post job", {
         description: errorMessage,
       });
@@ -185,7 +161,6 @@ const PostJob = () => {
 
   const CurrentStepComponent = steps[currentStep - 1].component;
 
-  
   if (!isVerified) {
     return (
       <CompanyLayout>
@@ -237,7 +212,6 @@ const PostJob = () => {
   return (
     <CompanyLayout>
       <div className="flex flex-col items-center px-5">
-        {}
         <div className="flex items-center py-6 w-full">
           <Button variant="ghost" size="sm" onClick={handlePrevious}>
             <ArrowLeft className="h-4 w-4" />
@@ -245,71 +219,66 @@ const PostJob = () => {
           <h1 className="text-xl font-semibold text-[#25324B]">Post a Job</h1>
         </div>
 
-        {}
-        <div className="flex items-center justify-center gap-20 px-5 py-3  w-full">
+        <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
-            
+
             return (
               <div key={step.id} className="flex items-center">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                      isActive
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive
                         ? "bg-[#4640DE] text-white"
                         : isCompleted
-                        ? "bg-[#4640DE] text-white"
-                        : "bg-[#E9EBFD] text-[#7C8493]"
-                    }`}
+                          ? "bg-[#4640DE] text-white"
+                          : "bg-[#E9EBFD] text-[#7C8493]"
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
-                  <div>
+                  <div className="hidden md:block">
                     <p
-                      className={`text-sm font-normal ${
-                        isActive
+                      className={`text-sm font-normal ${isActive
                           ? "text-[#4640DE]"
                           : isCompleted
-                          ? "text-[#4640DE]"
-                          : "text-[#A8ADB7]"
-                      }`}
+                            ? "text-[#4640DE]"
+                            : "text-[#A8ADB7]"
+                        }`}
                     >
-                      Step {step.id}/3
+                      Step {step.id}/4
                     </p>
                     <p
-                      className={`text-base font-semibold ${
-                        isActive
+                      className={`text-base font-semibold ${isActive
                           ? "text-[#25324B]"
                           : isCompleted
-                          ? "text-[#25324B]"
-                          : "text-[#7C8493]"
-                      }`}
+                            ? "text-[#25324B]"
+                            : "text-[#7C8493]"
+                        }`}
                     >
                       {step.title}
                     </p>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="w-0 h-8 mx-5 border-l border-[#D6DDEB]" />
+                  <div className="hidden md:block w-0 h-8 mx-5 border-l border-[#D6DDEB]" />
                 )}
               </div>
             );
           })}
         </div>
 
-        {}
         <div className="w-full">
-        <CurrentStepComponent
-          data={jobData}
-          onDataChange={handleDataChange}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          isFirstStep={currentStep === 1}
-          isLastStep={currentStep === 3}
-          onSubmit={handleSubmit}
-        />
+          <CurrentStepComponent
+            data={jobData}
+            onDataChange={handleDataChange}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            isFirstStep={currentStep === 1}
+            isLastStep={currentStep === 4}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </CompanyLayout>

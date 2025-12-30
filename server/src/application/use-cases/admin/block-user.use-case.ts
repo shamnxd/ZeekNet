@@ -6,7 +6,6 @@ export class BlockUserUseCase {
 
   async execute(userId: string, isBlocked: boolean): Promise<void> {
     await this._userRepository.update(userId, { isBlocked });
-    console.log(`User ${userId} block status updated to ${isBlocked}`);
     
     if (isBlocked) {
       notificationService.sendUserBlockedEvent(userId);

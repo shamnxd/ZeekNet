@@ -27,9 +27,6 @@ import { SimpleCompanyProfileDto } from '../../application/dto/company/create-co
 import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
 import { UpdateApplicationStageRequestDtoSchema } from '../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../application/dto/application/update-score.dto';
-import { AddInterviewDto } from '../../application/dto/application/add-interview.dto';
-import { UpdateInterviewDto } from '../../application/dto/application/update-interview.dto';
-import { AddInterviewFeedbackDto } from '../../application/dto/application/add-interview-feedback.dto';
 
 
 export class CompanyRouter {
@@ -108,13 +105,35 @@ export class CompanyRouter {
 
     this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
+    
+    const { 
+      atsInterviewController, 
+      atsTechnicalTaskController, 
+      atsOfferController, 
+      atsCommentController, 
+      atsCompensationController, 
+      atsActivityController, 
+      atsPipelineController,
+    } = require('../../infrastructure/di/atsDi');
+    const { createATSRoutes } = require('./ats.routes');
+    this.router.use('/applications', createATSRoutes(
+      atsInterviewController,
+      atsTechnicalTaskController,
+      atsOfferController,
+      atsCommentController,
+      atsCompensationController,
+      atsActivityController,
+    ));
+    
+    this.router.post('/applications/:id/move-stage', atsPipelineController.moveApplicationStage);
+    this.router.post('/applications/:id/update-sub-stage', atsPipelineController.updateApplicationSubStage);
+    
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
     this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageRequestDtoSchema), companyJobApplicationController.updateStage);
     this.router.patch('/applications/:id/score', validateBody(UpdateScoreDto), companyJobApplicationController.updateScore);
-    this.router.post('/applications/:id/interviews', validateBody(AddInterviewDto), companyJobApplicationController.addInterview);
-    this.router.patch('/applications/:id/interviews/:interviewId', validateBody(UpdateInterviewDto), companyJobApplicationController.updateInterview);
-    this.router.delete('/applications/:id/interviews/:interviewId', companyJobApplicationController.deleteInterview);
-    this.router.post('/applications/:id/interviews/:interviewId/feedback', validateBody(AddInterviewFeedbackDto), companyJobApplicationController.addInterviewFeedback);
+
+    this.router.get('/jobs/:jobId/ats-pipeline', atsPipelineController.getJobPipeline);
+    this.router.get('/jobs/:jobId/applications', atsPipelineController.getJobApplicationsForKanban);
 
     this.router.get('/candidates', companyCandidatesController.getCandidates);
     this.router.get('/candidates/:id', companyCandidatesController.getCandidateDetails);

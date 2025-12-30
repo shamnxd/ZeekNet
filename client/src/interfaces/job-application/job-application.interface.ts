@@ -33,7 +33,6 @@ export interface AddInterviewRequest {
   time: string;
   interview_type: string;
   location: string;
-  interviewer_name?: string;
 }
 
 export interface UpdateInterviewRequest extends Partial<AddInterviewRequest> {

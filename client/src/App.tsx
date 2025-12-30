@@ -16,6 +16,7 @@ import SeekerDashboard from './pages/seeker/SeekerDashboard'
 import { SeekerProfile as SeekerProfileComponent } from './pages/seeker/SeekerProfile'
 import SeekerSettings from './pages/seeker/SeekerSettings'
 import SeekerApplications from './pages/seeker/SeekerApplications'
+import SeekerApplicationDetails from './pages/seeker/SeekerApplicationDetails'
 import SeekerLayout from './components/layouts/SeekerLayout'
 import JobListing from './pages/public/JobListing'
 import JobDetail from './pages/public/JobDetail'
@@ -43,7 +44,6 @@ import CompanySettings from './pages/company/CompanySettings'
 import JobDetails from './pages/company/JobDetails'
 import EditJob from './pages/company/EditJob'
 import AllApplications from './pages/company/AllApplications'
-import ApplicationDetails from './pages/company/ApplicationDetails'
 import CompanyPlans from './pages/company/CompanyPlans'
 import CompanyChat from './pages/company/CompanyChat'
 import SeekerChat from './pages/seeker/SeekerChat'
@@ -51,6 +51,9 @@ import Companies from './pages/public/Companies'
 import CompanyProfilePublic from './pages/public/CompanyProfilePublic'
 import FindCandidates from './pages/company/FindCandidates'
 import CandidateProfileView from './pages/company/CandidateProfileView'
+import ATSPanel from './pages/company/ATSPanel'
+import ATSStageDetail from './pages/company/ATSStageDetail'
+
 
 function App() {
   return (
@@ -63,7 +66,7 @@ function App() {
           <Route path="/company/:id" element={<CompanyProfilePublic />} />
           <Route path="/jobs" element={<JobListing />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
-          
+
           <Route path="/auth/login" element={
             <AuthRedirect>
               <Login />
@@ -85,7 +88,7 @@ function App() {
             </AuthRedirect>
           } />
           <Route path="/verify-email" element={<Verification />} />
-          
+
           <Route path="/admin/login" element={
             <AuthRedirect>
               <AdminLogin />
@@ -126,38 +129,38 @@ function App() {
               <CategoryManagement />
             </ProtectedRoute>
           } />
-            <Route path="/admin/skills" element={
+          <Route path="/admin/skills" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <SkillManagement />
             </ProtectedRoute>
           } />
-            <Route path="/admin/job-roles" element={
+          <Route path="/admin/job-roles" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <JobRoleManagement />
             </ProtectedRoute>
           } />
-            <Route path="/admin/subscription-plans" element={
+          <Route path="/admin/subscription-plans" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <SubscriptionPlanManagement />
             </ProtectedRoute>
           } />
-            <Route path="/admin/company-profile-view" element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <CompanyProfileView />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/seeker-profile-view" element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <SeekerProfileView />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/payments" element={
-              <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
-                <PaymentManagement />
-              </ProtectedRoute>
-            } />
-            {}
-          
+          <Route path="/admin/company-profile-view" element={
+            <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <CompanyProfileView />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/seeker-profile-view" element={
+            <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <SeekerProfileView />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/payments" element={
+            <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <PaymentManagement />
+            </ProtectedRoute>
+          } />
+          { }
+
           <Route path="/company/dashboard" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <CompanyDashboard />
@@ -211,7 +214,7 @@ function App() {
           } />
           <Route path="/company/applicants/:id" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
-              <ApplicationDetails />
+              <CandidateProfileView />
             </ProtectedRoute>
           } />
           <Route path="/company/billing" element={
@@ -230,13 +233,31 @@ function App() {
               <FindCandidates />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/company/candidates/:id" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <CandidateProfileView />
             </ProtectedRoute>
           } />
-          
+
+          <Route path="/company/ats" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <ATSPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/company/ats/stage/:stage" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <ATSStageDetail />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/company/ats/candidate/:id" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
+              <CandidateProfileView />
+            </ProtectedRoute>
+          } />
+
           <Route path="/seeker/dashboard" element={
             <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
               <SeekerLayout>
@@ -258,6 +279,11 @@ function App() {
               </SeekerLayout>
             </ProtectedRoute>
           } />
+          <Route path="/seeker/applications/:id" element={
+            <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
+              <SeekerApplicationDetails />
+            </ProtectedRoute>
+          } />
           <Route path="/seeker/settings" element={
             <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
               <SeekerLayout>
@@ -270,11 +296,11 @@ function App() {
               <SeekerChat />
             </ProtectedRoute>
           } />
-          
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </NotificationProvider>
-      <Toaster 
+      <Toaster
         position="top-right"
         expand={true}
         richColors

@@ -23,3 +23,9 @@ export interface CompanyWithVerificationResult {
 
 
 
+
+
+
+
+
+

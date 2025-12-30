@@ -5,8 +5,11 @@ export interface AddInterviewData {
   time: string;
   interview_type: string;
   location: string;
-  interviewer_name: string;
 }
+
+
+
+
 
 
 

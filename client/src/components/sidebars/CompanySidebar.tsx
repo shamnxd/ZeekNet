@@ -12,7 +12,8 @@ import {
   HelpCircle,
   LogOut,
   Plus,
-  Search
+  Search,
+  KanbanSquare
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
@@ -22,11 +23,9 @@ const CompanySidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const { name, email, companyVerificationStatus, companyLogo, companyName } = useAppSelector((state) => state.auth)
+  const { companyVerificationStatus } = useAppSelector((state) => state.auth)
   
   const isVerified = companyVerificationStatus === 'verified'
-  const displayName = companyName || name || 'Company'
-  const displayEmail = email || 'company@email.com'
 
   const navigationItems = [
     {
@@ -59,6 +58,11 @@ const CompanySidebar = () => {
       title: 'All Applicants',
       href: '/company/applicants',
       icon: Users
+    },
+    {
+      title: 'ATS Pipeline',
+      href: '/company/ats',
+      icon: KanbanSquare
     },
     {
       title: 'Job Listing',
@@ -204,42 +208,14 @@ const CompanySidebar = () => {
 
       {}
       <div className="flex-shrink-0 px-7 py-4 border-t border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center overflow-hidden">
-            {companyLogo ? (
-              <img 
-                src={companyLogo} 
-                alt={displayName}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white font-semibold text-sm">
-                {displayName.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-          
-          <div className="flex flex-col">
-            <p className="text-sm font-semibold text-[#25324B] leading-5">
-              {displayName}
-            </p>
-            <p className="text-xs text-[#515B6F] opacity-50 leading-5">
-              {displayEmail}
-            </p>
-          </div>
-        </div>
-        
-        {}
-        <div className="mt-3">
-          <Button
-            variant="ghost"
-            className="w-full justify-start h-7 text-[#7C8493] hover:bg-red-50 hover:text-red-600 px-0"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-3 w-3 mr-2" />
-            <span className="text-xs">Log out</span>
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          className="w-full justify-start h-9 text-[#7C8493] hover:bg-red-50 hover:text-red-600 px-3"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          <span className="text-sm">Log out</span>
+        </Button>
       </div>
     </div>
   )
