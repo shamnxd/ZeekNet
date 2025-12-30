@@ -16,6 +16,7 @@ import { ApplicationFiltersDto } from '../../../application/dto/application/appl
 import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
 import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';
 import { BulkUpdateApplicationsDto } from '../../../application/dto/application/bulk-update-applications.dto';
+import { MarkCandidateHiredUseCase } from '../../../application/use-cases/company/mark-candidate-hired.use-case';
 import { z } from 'zod';
 
 export class CompanyJobApplicationController {
@@ -26,6 +27,7 @@ export class CompanyJobApplicationController {
     private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
     private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
     private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
+    private readonly _markCandidateHiredUseCase: MarkCandidateHiredUseCase,
   ) {}
 
   getApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -129,6 +131,22 @@ export class CompanyJobApplicationController {
       });
 
       sendSuccessResponse(res, 'Applications updated successfully', result);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  markAsHired = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = validateUserId(req);
+      const { id } = req.params;
+
+      await this._markCandidateHiredUseCase.execute({
+        userId,
+        applicationId: id,
+      });
+
+      sendSuccessResponse(res, 'Candidate marked as hired successfully', null);
     } catch (error) {
       handleAsyncError(error, next);
     }

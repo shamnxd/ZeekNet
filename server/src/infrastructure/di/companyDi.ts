@@ -88,6 +88,8 @@ import { SubscriptionMiddleware } from '../../presentation/middleware/subscripti
 import { GetCandidatesUseCase } from '../../application/use-cases/company/get-candidates.use-case';
 import { GetCandidateDetailsUseCase } from '../../application/use-cases/company/get-candidate-details.use-case';
 import { CompanyCandidatesController } from '../../presentation/controllers/company/company-candidates.controller';
+import { MarkCandidateHiredUseCase } from '../../application/use-cases/company/mark-candidate-hired.use-case';
+import { NodemailerService } from '../messaging/mailer';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -198,6 +200,15 @@ const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRep
 const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s3Service);
 const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
 
+const mailerService = new NodemailerService();
+const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
+  jobApplicationRepository,
+  jobPostingRepository,
+  companyProfileRepository,
+  userRepository,
+  mailerService,
+);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
@@ -260,6 +271,7 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   updateApplicationStageUseCase,
   updateApplicationScoreUseCase,
   bulkUpdateApplicationsUseCase,
+  markCandidateHiredUseCase,
 );
 
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);

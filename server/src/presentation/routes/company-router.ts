@@ -105,6 +105,7 @@ export class CompanyRouter {
 
     this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
+    this.router.post('/applications/:id/mark-hired', companyJobApplicationController.markAsHired);
     
     const { 
       atsInterviewController, 
