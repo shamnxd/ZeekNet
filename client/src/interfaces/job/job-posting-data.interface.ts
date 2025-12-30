@@ -16,4 +16,7 @@ export interface JobPostingData {
   
   benefits: string[]
   enabledStages: string[]
+  totalVacancies?: number
+  filledVacancies?: number
+  status?: string
 }
