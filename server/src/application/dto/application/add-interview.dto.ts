@@ -6,9 +6,11 @@ export const AddInterviewDto = z.object({
   interview_type: z.enum(['phone', 'video', 'in-person', 'other']),
   location: z.string().optional(),
   notes: z.string().optional(),
-  interviewer_name: z.string().optional(),
-  interviewer_email: z.string().email().optional(),
 });
+
+
+
+
 
 
 

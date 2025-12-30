@@ -19,7 +19,6 @@ export interface InterviewSchedule {
   time: string;
   interviewType: string;
   location: string;
-  interviewerName?: string;
   status: InterviewStatus;
   feedback?: InterviewFeedback;
   createdAt?: Date;
