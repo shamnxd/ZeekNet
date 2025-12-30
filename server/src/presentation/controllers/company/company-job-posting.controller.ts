@@ -13,6 +13,7 @@ import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cas
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
 import { CloseJobManuallyUseCase } from '../../../application/use-cases/company/close-job-manually.use-case';
+import { ReopenJobUseCase } from '../../../application/use-cases/company/reopen-job.use-case';
 import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class CompanyJobPostingController {
@@ -27,6 +28,7 @@ export class CompanyJobPostingController {
     private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
     private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
     private readonly _closeJobManuallyUseCase: CloseJobManuallyUseCase,
+    private readonly _reopenJobUseCase: ReopenJobUseCase,
   ) {}
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -148,6 +150,24 @@ export class CompanyJobPostingController {
       await this._closeJobManuallyUseCase.execute({ userId, jobId: id });
 
       sendSuccessResponse(res, 'Job closed successfully. All remaining candidates have been notified.', null);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  reopenJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const { additionalVacancies } = req.body;
+
+      if (!additionalVacancies || typeof additionalVacancies !== 'number' || additionalVacancies < 1) {
+        return handleValidationError('additionalVacancies must be a number and at least 1', next);
+      }
+
+      await this._reopenJobUseCase.execute({ userId, jobId: id, additionalVacancies });
+
+      sendSuccessResponse(res, `Job reopened successfully with ${additionalVacancies} additional ${additionalVacancies === 1 ? 'vacancy' : 'vacancies'}.`, null);
     } catch (error) {
       handleAsyncError(error, next);
     }

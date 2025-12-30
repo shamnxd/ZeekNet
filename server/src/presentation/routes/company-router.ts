@@ -103,6 +103,7 @@ export class CompanyRouter {
     this.router.delete('/jobs/:id', companyJobPostingController.deleteJobPosting);
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
     this.router.post('/jobs/:id/close', companyJobPostingController.closeJob);
+    this.router.post('/jobs/:id/reopen', companyJobPostingController.reopenJob);
 
     this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
