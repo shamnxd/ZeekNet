@@ -25,6 +25,8 @@ export interface JobPostingResponse {
   skillsRequired?: string[]
   category_ids?: string[]
   categoryIds?: string[]
+  enabled_stages?: string[]
+  enabledStages?: string[]
   status?: 'active' | 'unlisted' | 'expired' | 'blocked'
   unpublish_reason?: string
   unpublishReason?: string

@@ -15,4 +15,5 @@ export interface JobPostingData {
   niceToHaves: string[]
   
   benefits: string[]
+  enabledStages: string[]
 }

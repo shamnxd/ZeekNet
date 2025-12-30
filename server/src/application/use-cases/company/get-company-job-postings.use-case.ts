@@ -37,6 +37,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
       view_count: 1 as const,
       unpublish_reason: 1 as const,
       createdAt: 1 as const,
+      enabled_stages: 1 as const,
     };
 
     let jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, projection);
