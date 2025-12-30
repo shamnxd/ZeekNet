@@ -18,7 +18,8 @@ import {
   Eye,
   Edit,
   EyeOff,
-  List
+  List,
+  XCircle
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -36,7 +37,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed') => {
   switch (status) {
     case 'active':
       return 'Live';
@@ -46,6 +47,8 @@ const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') =
       return 'Expired';
     case 'blocked':
       return 'Blocked';
+    case 'closed':
+      return 'Closed';
     default:
       return 'Unknown';
   }
@@ -123,7 +126,33 @@ const CompanyJobListing = () => {
     navigate(`/company/edit-job/${jobId}`)
   }
 
-  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+  const handleCloseJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to close this job? This action cannot be undone. All remaining candidates will be notified.')) {
+      return;
+    }
+
+    try {
+      const response = await companyApi.closeJob(jobId);
+      
+      if (response.success) {
+        toast.success('Job closed successfully', {
+          description: 'All remaining candidates have been notified.'
+        });
+        await fetchJobs(pagination.page, pagination.limit);
+      } else {
+        toast.error('Failed to close job', {
+          description: response.message || 'Please try again later.'
+        });
+      }
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      toast.error('Failed to close job', {
+        description: apiError?.response?.data?.message || 'Please try again later.'
+      });
+    }
+  };
+
+  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed') => {
     const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
     const statusText = newStatus === 'active' ? 'listed' : 'unlisted'
     
@@ -259,6 +288,8 @@ const CompanyJobListing = () => {
                         return 'border-[#7C8493] text-[#7C8493] bg-transparent';
                       case 'blocked':
                         return 'border-red-500 text-red-500 bg-transparent';
+                      case 'closed':
+                        return 'border-gray-600 text-gray-600 bg-transparent';
                       default:
                         return 'border-[#D6DDEB] text-[#7C8493] bg-transparent';
                     }
@@ -333,13 +364,25 @@ const CompanyJobListing = () => {
                             <Eye className="w-4 h-4 mr-2" />
                             View
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditJob(jobId)}>
+                          <DropdownMenuItem 
+                            onClick={() => handleEditJob(jobId)}
+                            disabled={status === 'closed' || status === 'blocked'}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
+                          {status !== 'closed' && (
+                            <DropdownMenuItem 
+                              onClick={() => handleCloseJob(jobId)}
+                              className="text-red-600"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Close Job
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             onClick={() => handleToggleJobStatus(jobId, status)}
-                            disabled={status === 'blocked' || status === 'expired'}
+                            disabled={status === 'blocked' || status === 'expired' || status === 'closed'}
                             className={status === 'active' ? 'text-orange-600' : 'text-green-600'}
                           >
                             {status === 'active' ? (
