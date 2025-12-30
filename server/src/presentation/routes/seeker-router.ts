@@ -5,6 +5,7 @@ import { authenticateToken } from '../middleware/auth.middleware';
 import { validateQuery, validateBody } from '../middleware/validation.middleware';
 import { uploadSingle } from '../middleware/upload.middleware';
 import { uploadResume } from '../middleware/upload-resume.middleware';
+import { uploadDocument } from '../middleware/upload-document.middleware';
 import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
 import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
 import { CreateSeekerProfileDto } from '../../application/dto/seeker/create-seeker-profile-request.dto';
@@ -57,5 +58,13 @@ export class SeekerRouter {
     this.router.post('/applications/analyze-resume', uploadResume('resume'), seekerJobApplicationController.analyzeResume);
     this.router.get('/applications', validateQuery(ApplicationFiltersDto), seekerJobApplicationController.getApplications);
     this.router.get('/applications/:id', seekerJobApplicationController.getApplicationDetails);
+    this.router.get('/applications/:id/interviews', seekerJobApplicationController.getInterviewsByApplication);
+    this.router.get('/applications/:id/tasks', seekerJobApplicationController.getTechnicalTasksByApplication);
+    this.router.put('/applications/:applicationId/tasks/:taskId/submit', uploadDocument('document'), seekerJobApplicationController.submitTechnicalTask);
+    this.router.get('/applications/:id/offers', seekerJobApplicationController.getOffersByApplication);
+    this.router.put('/applications/:applicationId/offers/:offerId/status', seekerJobApplicationController.updateOfferStatus);
+    this.router.post('/applications/:applicationId/offers/:offerId/signed-document', uploadDocument('document'), seekerJobApplicationController.uploadSignedOfferDocument);
+    this.router.get('/applications/:id/compensation', seekerJobApplicationController.getCompensation);
+    this.router.get('/applications/:id/compensation/meetings', seekerJobApplicationController.getCompensationMeetings);
   }
 }

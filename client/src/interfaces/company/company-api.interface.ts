@@ -59,6 +59,7 @@ export interface JobPostingRequest {
   location: string
   skills_required?: string[]
   category_ids: string[]
+  enabled_stages?: string[]
 }
 
 export interface CompanyDashboard {

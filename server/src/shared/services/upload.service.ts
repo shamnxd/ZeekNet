@@ -168,4 +168,105 @@ export class UploadService {
       filename: originalname,
     };
   }
+
+  private static validateDocumentFileType(mimetype: string, filename: string): void {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/zip',
+      'application/x-zip-compressed',
+    ];
+
+    const allowedExtensions = ['.pdf', '.doc', '.docx', '.zip'];
+    const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+
+    if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
+      throw new ValidationError('Only PDF, DOC, DOCX, and ZIP files are allowed');
+    }
+  }
+
+  static async handleOfferLetterUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    const file = req.file;
+
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
+    }
+
+    const { buffer, originalname, mimetype } = file;
+
+    this.validateDocumentFileType(mimetype, originalname);
+    this.validateFileSize(file.size, 10);
+
+    let offerKey: string;
+    interface ExtendedS3Service extends IS3Service {
+      uploadOfferLetter?: (file: Buffer, fileName: string, contentType: string) => Promise<string>;
+    }
+    if (typeof (s3Service as ExtendedS3Service).uploadOfferLetter === 'function') {
+      offerKey = await (s3Service as ExtendedS3Service).uploadOfferLetter!(buffer, originalname, mimetype);
+    } else {
+      offerKey = await s3Service.uploadImageToFolder(buffer, originalname, mimetype, 'offer-letters');
+    }
+
+    return {
+      url: offerKey,
+      filename: originalname,
+    };
+  }
+
+  static async handleTaskDocumentUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    const file = req.file;
+
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
+    }
+
+    const { buffer, originalname, mimetype } = file;
+
+    this.validateDocumentFileType(mimetype, originalname);
+    this.validateFileSize(file.size, 10);
+
+    let taskKey: string;
+    interface ExtendedS3Service extends IS3Service {
+      uploadTaskDocument?: (file: Buffer, fileName: string, contentType: string) => Promise<string>;
+    }
+    if (typeof (s3Service as ExtendedS3Service).uploadTaskDocument === 'function') {
+      taskKey = await (s3Service as ExtendedS3Service).uploadTaskDocument!(buffer, originalname, mimetype);
+    } else {
+      taskKey = await s3Service.uploadImageToFolder(buffer, originalname, mimetype, 'task-documents');
+    }
+
+    return {
+      url: taskKey,
+      filename: originalname,
+    };
+  }
+
+  static async handleTaskSubmissionUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    const file = req.file;
+
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
+    }
+
+    const { buffer, originalname, mimetype } = file;
+
+    this.validateDocumentFileType(mimetype, originalname);
+    this.validateFileSize(file.size, 10);
+
+    let submissionKey: string;
+    interface ExtendedS3Service extends IS3Service {
+      uploadTaskSubmission?: (file: Buffer, fileName: string, contentType: string) => Promise<string>;
+    }
+    if (typeof (s3Service as ExtendedS3Service).uploadTaskSubmission === 'function') {
+      submissionKey = await (s3Service as ExtendedS3Service).uploadTaskSubmission!(buffer, originalname, mimetype);
+    } else {
+      submissionKey = await s3Service.uploadImageToFolder(buffer, originalname, mimetype, 'task-submissions');
+    }
+
+    return {
+      url: submissionKey,
+      filename: originalname,
+    };
+  }
 }

@@ -5,13 +5,20 @@ import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.i
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
 import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, CompanySideApplication } from '@/interfaces/company/company-data.interface';
-
 import type { 
   CompanyProfileData, 
   CompanyProfileResponse, 
   JobPostingRequest, 
   CompanyDashboard 
 } from '@/interfaces/company/company-api.interface';
+import type { Experience, Education, SeekerProfile } from '@/interfaces/seeker/seeker.interface';
+import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface';
+import type { PurchaseSubscriptionResponse } from '@/interfaces/company/subscription/purchase-subscription-response.interface';
+import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface';
+import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
+import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
+import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
+import type { ATSPipelineConfig, ApplicationsKanbanResponse, MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
 
 export type { 
   CompanyProfileData, 
@@ -19,8 +26,6 @@ export type {
   JobPostingRequest, 
   CompanyDashboard 
 };
-
-import type { Experience, Education, SeekerProfile } from '@/interfaces/seeker/seeker.interface';
 
 export interface CandidateDetailsResponse {
   profile: Partial<SeekerProfile> & { avatarFileName?: string; bannerFileName?: string };
@@ -311,12 +316,26 @@ export const companyApi = {
 
   async getCandidateDetails(id: string): Promise<ApiEnvelope<CandidateDetailsResponse>> {
     return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`)).data;
-  }
-}
+  },
 
-import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface';
-import type { PurchaseSubscriptionResponse } from '@/interfaces/company/subscription/purchase-subscription-response.interface';
-import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface';
-import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
-import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
-import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
+  // ATS Pipeline APIs
+  async getJobATSPipeline(jobId: string): Promise<ApiEnvelope<ATSPipelineConfig>> {
+    const endpoint = CompanyRoutes.JOBS_ID_ATS_PIPELINE.replace(':jobId', jobId);
+    return (await api.get(endpoint)).data;
+  },
+
+  async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<ApplicationsKanbanResponse>> {
+    const endpoint = CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':jobId', jobId);
+    return (await api.get(endpoint)).data;
+  },
+
+  async moveApplicationStage(applicationId: string, payload: MoveApplicationStageRequest): Promise<ApiEnvelope<CompanySideApplication>> {
+    const endpoint = CompanyRoutes.APPLICATIONS_ID_MOVE_STAGE.replace(':id', applicationId);
+    return (await api.post(endpoint, payload)).data;
+  },
+
+  async updateApplicationSubStage(applicationId: string, payload: UpdateSubStageRequest): Promise<ApiEnvelope<CompanySideApplication>> {
+    const endpoint = CompanyRoutes.APPLICATIONS_ID_UPDATE_SUB_STAGE.replace(':id', applicationId);
+    return (await api.post(endpoint, payload)).data;
+  },
+}

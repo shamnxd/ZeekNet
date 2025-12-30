@@ -8,9 +8,12 @@ export interface UpdateInterviewData {
   time?: string;
   interview_type?: string;
   location?: string;
-  interviewer_name?: string;
   status?: InterviewStatus;
 }
+
+
+
+
 
 
 
