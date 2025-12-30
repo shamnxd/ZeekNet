@@ -30,6 +30,9 @@ export const jobApplicationApi = {
   },
 
   async getSeekerApplicationById(id: string) {
+    if (!id || id === 'undefined' || id === 'null') {
+      throw new Error('Application ID is required')
+    }
     return api.get(SeekerRoutes.APPLICATIONS_ID.replace(':id', id))
   },
 
@@ -70,5 +73,11 @@ export const jobApplicationApi = {
     return api.post(CompanyRoutes.APPLICATIONS_ID_INTERVIEWS_FEEDBACK.replace(':id', id).replace(':interviewId', interviewId), body)
   },
 }
+
+
+
+
+
+
 
 
