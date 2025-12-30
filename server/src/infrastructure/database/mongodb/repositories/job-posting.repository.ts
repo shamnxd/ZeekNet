@@ -76,7 +76,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     const expiredCompanyIds = expiredSubscriptions.map(s => s.companyId);
 
     const andConditions: Record<string, unknown>[] = [
-      { status: 'active' },
+      { status: { $in: ['active'] } }, // Only show active jobs, exclude closed
     ];
 
     if (blockedCompanyIds.length > 0) {
