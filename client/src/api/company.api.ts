@@ -338,4 +338,9 @@ export const companyApi = {
     const endpoint = CompanyRoutes.APPLICATIONS_ID_UPDATE_SUB_STAGE.replace(':id', applicationId);
     return (await api.post(endpoint, payload)).data;
   },
+
+  async markApplicationAsHired(applicationId: string): Promise<ApiEnvelope<{ message: string }>> {
+    const endpoint = CompanyRoutes.APPLICATIONS_ID_MARK_HIRED.replace(':id', applicationId);
+    return (await api.post(endpoint)).data;
+  },
 }
