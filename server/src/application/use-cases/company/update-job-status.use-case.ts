@@ -26,6 +26,11 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new AuthorizationError('This job has been blocked by admin and cannot be modified');
     }
 
+    // Prevent reopening closed jobs
+    if (existingJob.status === JobStatus.CLOSED) {
+      throw new ValidationError('Closed jobs cannot be reopened. They remain permanently closed for consistency and audit safety.');
+    }
+
     const oldStatus = existingJob.status;
     const newStatus = status;
 

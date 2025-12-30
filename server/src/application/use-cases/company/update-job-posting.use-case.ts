@@ -17,6 +17,11 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
       throw new NotFoundError('Job posting not found');
     }
 
+    // Prevent editing closed jobs
+    if (existingJob.status === JobStatus.CLOSED) {
+      throw new ValidationError('Closed jobs cannot be edited. They remain permanently closed for consistency and audit safety.');
+    }
+
     // Validate totalVacancies update
     if (updates.total_vacancies !== undefined) {
       // Only allow updating totalVacancies when job is ACTIVE (OPEN)
