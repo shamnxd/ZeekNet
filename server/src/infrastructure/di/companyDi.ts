@@ -89,6 +89,7 @@ import { GetCandidatesUseCase } from '../../application/use-cases/company/get-ca
 import { GetCandidateDetailsUseCase } from '../../application/use-cases/company/get-candidate-details.use-case';
 import { CompanyCandidatesController } from '../../presentation/controllers/company/company-candidates.controller';
 import { MarkCandidateHiredUseCase } from '../../application/use-cases/company/mark-candidate-hired.use-case';
+import { CloseJobManuallyUseCase } from '../../application/use-cases/company/close-job-manually.use-case';
 import { NodemailerService } from '../messaging/mailer';
 
 const companyProfileRepository = new CompanyProfileRepository();
@@ -209,6 +210,14 @@ const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
   mailerService,
 );
 
+const closeJobManuallyUseCase = new CloseJobManuallyUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  companyProfileRepository,
+  userRepository,
+  mailerService,
+);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
@@ -262,7 +271,7 @@ const companyUploadController = new CompanyUploadController(
   deleteImageUseCase,
 );
 
-const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase);
+const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase, closeJobManuallyUseCase);
 
 const companyJobApplicationController = new CompanyJobApplicationController(
   getApplicationsByJobUseCase,

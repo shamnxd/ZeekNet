@@ -12,6 +12,7 @@ import { CreateJobPostingRequestDtoSchema } from '../../../application/dto/job-p
 import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
+import { CloseJobManuallyUseCase } from '../../../application/use-cases/company/close-job-manually.use-case';
 import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class CompanyJobPostingController {
@@ -25,6 +26,7 @@ export class CompanyJobPostingController {
     private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
     private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
     private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
+    private readonly _closeJobManuallyUseCase: CloseJobManuallyUseCase,
   ) {}
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -133,6 +135,19 @@ export class CompanyJobPostingController {
       const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
 
       sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  closeJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+
+      await this._closeJobManuallyUseCase.execute({ userId, jobId: id });
+
+      sendSuccessResponse(res, 'Job closed successfully. All remaining candidates have been notified.', null);
     } catch (error) {
       handleAsyncError(error, next);
     }
