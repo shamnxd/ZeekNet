@@ -4,7 +4,6 @@ export interface InterviewScheduleResponseDto {
   time: string;
   interview_type: string;
   location: string;
-  interviewer_name?: string;
   status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
   feedback?: {
     reviewer_name: string;
@@ -27,6 +26,7 @@ export interface JobApplicationListResponseDto {
   company_logo?: string;
   score?: number;
   stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+  sub_stage?: string;
   applied_date: string;
 }
 
@@ -48,6 +48,7 @@ export interface JobApplicationDetailResponseDto {
   resume_filename: string;
   score?: number;
   stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+  sub_stage?: string;
   applied_date: string;
   rejection_reason?: string;
   interviews: InterviewScheduleResponseDto[];

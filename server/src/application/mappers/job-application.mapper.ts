@@ -1,11 +1,9 @@
 import { JobApplication } from '../../domain/entities/job-application.entity';
 import { JobPosting } from '../../domain/entities/job-posting.entity';
-import { ApplicationStage } from '../../domain/enums/application-stage.enum';
-import { InterviewSchedule } from '../../domain/interfaces/interview.interfaces';
+import { ATSStage, ATSSubStage, InReviewSubStage } from '../../domain/enums/ats-stage.enum';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
-  InterviewScheduleResponseDto,
 } from '../dto/application/job-application-response.dto';
 import { CreateInput } from '../../domain/types/common.types';
 
@@ -17,8 +15,7 @@ export class JobApplicationMapper {
     coverLetter?: string;
     resumeUrl?: string;
     resumeFilename?: string;
-    stage?: ApplicationStage;
-    interviews?: InterviewSchedule[];
+    stage?: ATSStage;
     appliedDate?: Date;
     score?: number;
   }): CreateInput<JobApplication> {
@@ -29,8 +26,8 @@ export class JobApplicationMapper {
       coverLetter: data.coverLetter || '',
       resumeUrl: data.resumeUrl || '',
       resumeFilename: data.resumeFilename || '',
-      stage: data.stage || ApplicationStage.APPLIED,
-      interviews: data.interviews || [],
+      stage: data.stage || ATSStage.IN_REVIEW,
+      subStage: InReviewSubStage.PROFILE_REVIEW, // Default sub-stage for new applications
       appliedDate: data.appliedDate || new Date(),
       score: data.score ?? -1,
     };
@@ -56,7 +53,8 @@ export class JobApplicationMapper {
       company_name: data?.companyName,
       company_logo: data?.companyLogo,
       score: application.score,
-      stage: application.stage,
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', // Legacy compatibility - will be updated to use ATSStage values
+      sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
     };
   }
@@ -118,10 +116,11 @@ export class JobApplicationMapper {
       resume_url: signedResumeUrl || application.resumeUrl,
       resume_filename: application.resumeFilename,
       score: application.score,
-      stage: application.stage,
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', // Legacy compatibility - will be updated to use ATSStage values
+      sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
       rejection_reason: application.rejectionReason,
-      interviews: application.interviews.map((interview) => this.interviewToResponse(interview)),
+      interviews: [], // Old interview array removed - now handled by new ATS system
       full_name: seekerData?.name,
       date_of_birth: seekerData?.date_of_birth,
       gender: seekerData?.gender,
@@ -148,28 +147,6 @@ export class JobApplicationMapper {
           })),
         }
         : undefined,
-    };
-  }
-
-  static interviewToResponse(interview: InterviewSchedule): InterviewScheduleResponseDto {
-    return {
-      id: interview.id || '',
-      date: interview.date.toISOString(),
-      time: interview.time,
-      interview_type: interview.interviewType,
-      location: interview.location,
-      interviewer_name: interview.interviewerName,
-      status: interview.status || 'scheduled',
-      feedback: interview.feedback
-        ? {
-          reviewer_name: interview.feedback.reviewerName,
-          rating: interview.feedback.rating,
-          comment: interview.feedback.comment,
-          reviewed_at: interview.feedback.reviewedAt.toISOString(),
-        }
-        : undefined,
-      created_at: interview.createdAt?.toISOString(),
-      updated_at: interview.updatedAt?.toISOString(),
     };
   }
 }

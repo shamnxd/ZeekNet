@@ -7,7 +7,7 @@ import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
 import { GetApplicationsByJobRequestDto } from '../../dto/application/get-applications-by-job.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import type { ApplicationStage } from '../../../domain/entities/job-application.entity';
+import type { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
 import { Types } from 'mongoose';

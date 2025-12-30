@@ -1,7 +1,4 @@
-import { ApplicationStage } from '../enums/application-stage.enum';
-import { InterviewStatus, InterviewFeedback, InterviewSchedule } from '../interfaces/interview.interfaces';
-
-export { ApplicationStage, InterviewFeedback, InterviewSchedule, InterviewStatus };
+import { ATSStage, ATSSubStage, InReviewSubStage } from '../enums/ats-stage.enum';
 
 export class JobApplication {
   constructor(
@@ -12,11 +9,12 @@ export class JobApplication {
     public readonly coverLetter: string,
     public readonly resumeUrl: string,
     public readonly resumeFilename: string,
-    public readonly stage: ApplicationStage,
-    public readonly interviews: InterviewSchedule[],
-    public readonly appliedDate: Date,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
+    public readonly stage: ATSStage,
+    public readonly subStage: ATSSubStage,
+    public readonly atsScore?: number,
+    public readonly appliedDate: Date = new Date(),
+    public readonly createdAt: Date = new Date(),
+    public readonly updatedAt: Date = new Date(),
     public readonly score?: number,
     public readonly rejectionReason?: string,
   ) {}
@@ -29,8 +27,9 @@ export class JobApplication {
     coverLetter: string;
     resumeUrl: string;
     resumeFilename: string;
-    stage?: ApplicationStage;
-    interviews?: InterviewSchedule[];
+    stage?: ATSStage;
+    subStage?: ATSSubStage;
+    atsScore?: number;
     appliedDate?: Date;
     createdAt?: Date;
     updatedAt?: Date;
@@ -46,8 +45,9 @@ export class JobApplication {
       data.coverLetter,
       data.resumeUrl,
       data.resumeFilename,
-      data.stage ?? ApplicationStage.APPLIED,
-      data.interviews ?? [],
+      data.stage ?? ATSStage.IN_REVIEW,
+      data.subStage ?? InReviewSubStage.PROFILE_REVIEW,
+      data.atsScore,
       data.appliedDate ?? now,
       data.createdAt ?? now,
       data.updatedAt ?? now,
@@ -56,5 +56,3 @@ export class JobApplication {
     );
   }
 }
-
-

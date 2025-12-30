@@ -1,26 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { ApplicationStage } from '../../../../domain/enums/application-stage.enum';
-import { InterviewStatus } from '../../../../domain/interfaces/interview.interfaces';
-
-interface InterviewFeedback {
-  reviewer_name: string;
-  rating?: number;
-  comment: string;
-  reviewed_at: Date;
-}
-
-interface InterviewSchedule {
-  _id?: Types.ObjectId;
-  date: Date;
-  time: string;
-  interview_type: string;
-  location: string;
-  interviewer_name?: string;
-  status: InterviewStatus;
-  feedback?: InterviewFeedback;
-  created_at?: Date;
-  updated_at?: Date;
-}
+import { ATSStage, ATSSubStage, InReviewSubStage } from '../../../../domain/enums/ats-stage.enum';
 
 export interface JobApplicationDocument extends Document {
   _id: Types.ObjectId;
@@ -30,45 +9,15 @@ export interface JobApplicationDocument extends Document {
   cover_letter: string;
   resume_url: string;
   resume_filename: string;
-  stage: ApplicationStage;
+  stage: ATSStage;
+  sub_stage: ATSSubStage;
+  ats_score?: number;
   score?: number;
-  interviews: InterviewSchedule[];
   rejection_reason?: string;
   applied_date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
-
-const InterviewFeedbackSchema = new Schema<InterviewFeedback>(
-  {
-    reviewer_name: { type: String, required: true, trim: true },
-    rating: { type: Number, min: 0, max: 5 },
-    comment: { type: String, required: true, trim: true },
-    reviewed_at: { type: Date, default: Date.now },
-  },
-  { _id: false },
-);
-
-const InterviewScheduleSchema = new Schema<InterviewSchedule>(
-  {
-    date: { type: Date, required: true },
-    time: { type: String, required: true },
-    interview_type: { type: String, required: true, trim: true },
-    location: { type: String, required: true, trim: true },
-    interviewer_name: { type: String, trim: true },
-    status: {
-      type: String,
-      enum: Object.values(InterviewStatus),
-      default: InterviewStatus.SCHEDULED,
-      required: true,
-      index: true,
-    },
-    feedback: { type: InterviewFeedbackSchema },
-    created_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now },
-  },
-  { _id: true },
-);
 
 const JobApplicationSchema = new Schema<JobApplicationDocument>(
   {
@@ -80,12 +29,19 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
     resume_filename: { type: String, required: true, trim: true },
     stage: {
       type: String,
-      enum: Object.values(ApplicationStage),
-      default: ApplicationStage.APPLIED,
+      enum: Object.values(ATSStage),
+      default: ATSStage.IN_REVIEW,
+      required: true,
       index: true,
     },
-    score: { type: Number, min: -1, max: 100 }, 
-    interviews: { type: [InterviewScheduleSchema], default: [] },
+    sub_stage: {
+      type: String,
+      default: InReviewSubStage.PROFILE_REVIEW,
+      required: true,
+      index: true,
+    },
+    ats_score: { type: Number, min: 0, max: 100 },
+    score: { type: Number, min: -1, max: 100 },
     rejection_reason: { type: String, trim: true },
     applied_date: { type: Date, default: Date.now, index: true },
   },
@@ -95,13 +51,11 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
   },
 );
 
+// Indexes for efficient querying
 JobApplicationSchema.index({ seeker_id: 1, job_id: 1 }, { unique: true });
-JobApplicationSchema.index({ job_id: 1, stage: 1 });
+JobApplicationSchema.index({ job_id: 1, stage: 1, sub_stage: 1 });
 JobApplicationSchema.index({ company_id: 1, stage: 1 });
 JobApplicationSchema.index({ seeker_id: 1, stage: 1 });
 JobApplicationSchema.index({ applied_date: -1 });
-JobApplicationSchema.index({ 'interviews.date': 1, 'interviews.status': 1 });
 
 export const JobApplicationModel = model<JobApplicationDocument>('JobApplication', JobApplicationSchema);
-
-
