@@ -53,6 +53,7 @@ import FindCandidates from './pages/company/FindCandidates'
 import CandidateProfileView from './pages/company/CandidateProfileView'
 import ATSPanel from './pages/company/ATSPanel'
 import ATSStageDetail from './pages/company/ATSStageDetail'
+import VideoCall from './pages/video/VideoCall'
 
 
 function App() {
@@ -294,6 +295,12 @@ function App() {
           <Route path="/seeker/messages" element={
             <ProtectedRoute allowedRoles={[UserRole.SEEKER]}>
               <SeekerChat />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/video-call/:roomId" element={
+            <ProtectedRoute allowedRoles={[UserRole.COMPANY, UserRole.SEEKER]}>
+              <VideoCall />
             </ProtectedRoute>
           } />
 
