@@ -142,7 +142,7 @@ const EditJob = () => {
     try {
       if (!jobData.title || jobData.title.length < 5) {
         toast.error("Validation failed", {
-          description: "Title must be at least 5 characters",
+          description: "Title must be at least 2 characters",
         });
         return;
       }

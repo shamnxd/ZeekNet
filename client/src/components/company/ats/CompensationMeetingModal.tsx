@@ -30,6 +30,7 @@ interface CompensationMeetingModalProps {
 
 interface CompensationMeetingData {
     type: 'call' | 'online' | 'in-person';
+    videoType?: 'in-app' | 'external';
     date: string;
     time: string;
     location?: string;
@@ -46,6 +47,7 @@ export const CompensationMeetingModal = ({
 }: CompensationMeetingModalProps) => {
     const [formData, setFormData] = useState<CompensationMeetingData>({
         type: 'call',
+        videoType: 'in-app',
         date: '',
         time: '',
         location: '',
@@ -72,6 +74,7 @@ export const CompensationMeetingModal = ({
                     
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
+                        videoType: (meetingToEdit as any).videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
                         date: dateStr,
                         time: timeStr,
                         location: meetingToEdit.location || '',
@@ -83,6 +86,7 @@ export const CompensationMeetingModal = ({
                     const today = new Date().toISOString().split('T')[0]
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
+                        videoType: (meetingToEdit as any).videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
                         date: today,
                         time: '',
                         location: meetingToEdit.location || '',
@@ -95,6 +99,7 @@ export const CompensationMeetingModal = ({
                 const today = new Date().toISOString().split('T')[0];
                 setFormData({
                     type: 'call',
+                    videoType: 'in-app',
                     date: today,
                     time: '',
                     location: '',
@@ -117,6 +122,7 @@ export const CompensationMeetingModal = ({
     const handleClose = () => {
         setFormData({
             type: 'call',
+            videoType: 'in-app',
             date: '',
             time: '',
             location: '',
@@ -239,18 +245,56 @@ export const CompensationMeetingModal = ({
                         </div>
 
                         {formData.type === 'online' && (
-                            <div className="space-y-2">
-                                <Label htmlFor="meetingLink" className="text-foreground">
-                                    Meeting Link
-                                </Label>
-                                <Input
-                                    id="meetingLink"
-                                    type="url"
-                                    placeholder="https://meet.google.com/..."
-                                    value={formData.meetingLink}
-                                    onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
-                                    className="w-full"
-                                />
+                            <div className="space-y-3">
+                                <Label className="text-foreground">Video Meeting Type</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, videoType: 'in-app', meetingLink: '' })}
+                                        className={cn(
+                                            "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
+                                            formData.videoType === 'in-app'
+                                                ? "border-amber-600 bg-amber-50 text-amber-700"
+                                                : "border-border hover:border-amber-200"
+                                        )}
+                                    >
+                                        <Video className="w-4 h-4" />
+                                        <span className="text-sm font-medium">In-App Video (Recommended)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, videoType: 'external' })}
+                                        className={cn(
+                                            "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
+                                            formData.videoType === 'external'
+                                                ? "border-amber-600 bg-amber-50 text-amber-700"
+                                                : "border-border hover:border-amber-200"
+                                        )}
+                                    >
+                                        <Video className="w-4 h-4" />
+                                        <span className="text-sm font-medium">External Link</span>
+                                    </button>
+                                </div>
+                                {formData.videoType === 'in-app' && (
+                                    <p className="text-sm text-muted-foreground">
+                                        The meeting will be conducted using our in-app video calling feature. A unique room will be created automatically.
+                                    </p>
+                                )}
+                                {formData.videoType === 'external' && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="meetingLink" className="text-foreground">
+                                            Meeting Link (Google Meet / Zoom)
+                                        </Label>
+                                        <Input
+                                            id="meetingLink"
+                                            type="url"
+                                            placeholder="https://meet.google.com/... or https://zoom.us/j/..."
+                                            value={formData.meetingLink}
+                                            onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         )}
 

@@ -19,17 +19,26 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     readOnly = false,
 }) => {
     const allStages = Object.values(ATSStage);
+    type NonHiredStage = Exclude<ATSStage, typeof ATSStage.HIRED>;
+    const availableStages: NonHiredStage[] = allStages.filter(
+        (stage): stage is NonHiredStage => stage !== ATSStage.HIRED
+    );
+    const requiredStages: NonHiredStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
 
     // Initialize with all stages if empty (first load behavior default)
     const selectedStages = data.enabledStages && data.enabledStages.length > 0
-        ? data.enabledStages
-        : allStages;
+        ? data.enabledStages.filter((stage): stage is NonHiredStage => stage !== ATSStage.HIRED)
+        : availableStages;
 
-    const handleStageToggle = (stage: string) => {
+    const handleStageToggle = (stage: NonHiredStage) => {
+        if (requiredStages.includes(stage)) {
+            return;
+        }
+
         // Prevent deselecting mandatory stages if we want to enforce some like IN_REVIEW or OFFER
         // For now, let's assume at least one stage is required
 
-        let newStages: string[];
+        let newStages: NonHiredStage[];
 
         if (selectedStages.includes(stage)) {
             newStages = selectedStages.filter(s => s !== stage);
@@ -39,7 +48,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
 
         // Sort stages based on the original order
         newStages.sort((a, b) => {
-            return allStages.indexOf(a as ATSStage) - allStages.indexOf(b as ATSStage);
+            return availableStages.indexOf(a) - availableStages.indexOf(b);
         });
 
         onDataChange({ enabledStages: newStages });
@@ -53,6 +62,12 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
         // ensure the updated state is saved if it was empty initially
         if (!data.enabledStages || data.enabledStages.length === 0) {
             onDataChange({ enabledStages: selectedStages });
+        }
+
+        const hasRequired = requiredStages.every(stage => selectedStages.includes(stage));
+        if (!hasRequired) {
+            onDataChange({ enabledStages: Array.from(new Set([...selectedStages, ...requiredStages])) });
+            return;
         }
 
         if (isLastStep) {
@@ -76,9 +91,10 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             <div className="w-full h-px bg-[#D6DDEB]"></div>
 
             <div className="w-full grid gap-4">
-                {allStages.map((stage) => {
+                {availableStages.map((stage) => {
                     const isSelected = selectedStages.includes(stage);
-                    const description = STAGE_DESCRIPTIONS[stage as ATSStage];
+                    const description = STAGE_DESCRIPTIONS[stage];
+                    const isRequired = requiredStages.includes(stage);
 
                     return (
                         <div
@@ -100,7 +116,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
                                     "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
                                     isSelected
                                         ? "border-[#4640DE] bg-[#4640DE] text-white"
-                                        : readOnly
+                                        : readOnly || isRequired
                                             ? "border-[#D6DDEB] bg-transparent"
                                             : "border-[#D6DDEB] bg-transparent group-hover:border-[#4640DE]/50"
                                 )}
@@ -115,6 +131,9 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
                                 )}>
                                     {stage}
                                 </span>
+                                {isRequired && (
+                                    <span className="text-xs font-medium text-[#4640DE]">Required</span>
+                                )}
                                 <span className="text-sm text-[#7C8493]">
                                     {description}
                                 </span>

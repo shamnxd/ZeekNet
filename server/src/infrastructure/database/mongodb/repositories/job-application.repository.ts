@@ -19,6 +19,11 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
     return JobApplicationMapper.toDocument(entity as JobApplication);
   }
 
+  async findByJobId(jobId: string): Promise<JobApplication[]> {
+    const docs = await JobApplicationModel.find({ jobId }).sort({ createdAt: -1 });
+    return docs.map(JobApplicationMapper.toEntity);
+  }
+
   // All interview-related operations are now handled by the new ATS system
   // See ATSInterviewRepository for interview management
 }

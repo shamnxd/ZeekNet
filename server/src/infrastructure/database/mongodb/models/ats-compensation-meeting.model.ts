@@ -4,6 +4,8 @@ export interface IATSCompensationMeetingDocument extends Document {
   applicationId: mongoose.Types.ObjectId;
   type: 'call' | 'online' | 'in-person';
   scheduledDate: Date;
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   location?: string;
   meetingLink?: string;
   notes?: string;
@@ -29,6 +31,13 @@ const ATSCompensationMeetingSchema = new Schema<IATSCompensationMeetingDocument>
     scheduledDate: {
       type: Date,
       required: true,
+    },
+    videoType: {
+      type: String,
+      enum: ['in-app', 'external'],
+    },
+    webrtcRoomId: {
+      type: String,
     },
     location: {
       type: String,

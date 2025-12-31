@@ -6,6 +6,8 @@ export interface IScheduleInterviewUseCase {
     title: string;
     scheduledDate: Date;
     type: 'online' | 'offline';
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     meetingLink?: string;
     location?: string;
     performedBy: string;

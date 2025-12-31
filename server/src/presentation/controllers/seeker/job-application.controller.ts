@@ -181,6 +181,8 @@ export class SeekerJobApplicationController {
           title: interview.title,
           scheduledDate: interview.scheduledDate,
           type: interview.type,
+          videoType: interview.videoType,
+          webrtcRoomId: interview.webrtcRoomId,
           meetingLink: interview.meetingLink,
           location: interview.location,
           status: interview.status,

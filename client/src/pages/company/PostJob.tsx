@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle } from "lucide-react";
+import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle, GitPullRequest } from "lucide-react";
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
+import HiringPipelineStep from "../../components/company/HiringPipelineStep";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
@@ -13,6 +14,12 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ATSStage } from "@/constants/ats-stages";
+
+type SelectableStage = Exclude<ATSStage, typeof ATSStage.HIRED>;
+const REQUIRED_STAGES: SelectableStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
+const SELECTABLE_STAGES_DEFAULT: SelectableStage[] = Object.values(ATSStage).filter(
+  (stage): stage is SelectableStage => stage !== ATSStage.HIRED
+);
 
 const PostJob = () => {
   const navigate = useNavigate();
@@ -23,8 +30,8 @@ const PostJob = () => {
     title: "",
     employmentTypes: [],
     salary: {
-      min: 5000,
-      max: 22000,
+      min: 0,
+      max: 0,
     },
     categoryIds: [],
     skillsRequired: [],
@@ -34,7 +41,7 @@ const PostJob = () => {
     qualifications: [],
     niceToHaves: [],
     benefits: [],
-    enabledStages: Object.values(ATSStage),
+    enabledStages: Array.from(new Set([...SELECTABLE_STAGES_DEFAULT, ...REQUIRED_STAGES])),
     totalVacancies: 1,
   });
 
@@ -60,10 +67,17 @@ const PostJob = () => {
       icon: Heart,
       component: PerksBenefitsStep,
     },
+    {
+      id: 4,
+      title: "Hiring Pipeline",
+      description: "Customize your hiring workflow stages",
+      icon: GitPullRequest,
+      component: HiringPipelineStep,
+    },
   ];
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -82,16 +96,33 @@ const PostJob = () => {
     try {
       if (!jobData.title || jobData.title.length < 5) {
         toast.error("Validation failed", {
-          description: "Title must be at least 5 characters",
+          description: "Title must be at least 2 characters",
         });
         return;
       }
 
-      // Automatically include all stages with OFFER stage always included
-      const allStages = Object.values(ATSStage);
-      const enabledStages = allStages.includes(ATSStage.OFFER) 
-        ? allStages 
-        : [...allStages, ATSStage.OFFER];
+      const selectedStages = (jobData.enabledStages && jobData.enabledStages.length > 0)
+        ? jobData.enabledStages.filter((stage): stage is SelectableStage => stage !== ATSStage.HIRED)
+        : SELECTABLE_STAGES_DEFAULT;
+
+      const withMandatory = Array.from(new Set<SelectableStage>([
+        ...selectedStages,
+        ...REQUIRED_STAGES
+      ]));
+
+      const uniqueEnabledStages = withMandatory.sort(
+        (a, b) => SELECTABLE_STAGES_DEFAULT.indexOf(a) - SELECTABLE_STAGES_DEFAULT.indexOf(b)
+      );
+
+      if (
+        uniqueEnabledStages.length === 0 ||
+        !REQUIRED_STAGES.every(stage => uniqueEnabledStages.includes(stage))
+      ) {
+        toast.error("Validation failed", {
+          description: "Select required hiring stages (Shortlisted & Offer)",
+        });
+        return;
+      }
 
       const jobPostingData: JobPostingRequest = {
         title: jobData.title,
@@ -105,7 +136,7 @@ const PostJob = () => {
         location: jobData.location,
         skills_required: jobData.skillsRequired,
         category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
-        enabled_stages: enabledStages as string[],
+        enabled_stages: uniqueEnabledStages as string[],
         total_vacancies: jobData.totalVacancies ?? 1
       };
 
@@ -120,8 +151,8 @@ const PostJob = () => {
           title: "",
           employmentTypes: [],
           salary: {
-            min: 5000,
-            max: 22000,
+            min: 0,
+            max: 0,
           },
           categoryIds: [],
           skillsRequired: [],
@@ -131,7 +162,7 @@ const PostJob = () => {
           qualifications: [],
           niceToHaves: [],
           benefits: [],
-          enabledStages: Object.values(ATSStage),
+        enabledStages: Array.from(new Set([...SELECTABLE_STAGES_DEFAULT, ...REQUIRED_STAGES])),
           totalVacancies: 1,
         });
 
@@ -220,7 +251,7 @@ const PostJob = () => {
           <h1 className="text-xl font-semibold text-[#25324B]">Post a Job</h1>
         </div>
 
-        <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
+          <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
@@ -248,7 +279,7 @@ const PostJob = () => {
                             : "text-[#A8ADB7]"
                         }`}
                     >
-                      Step {step.id}/3
+                      Step {step.id}/{steps.length}
                     </p>
                     <p
                       className={`text-base font-semibold ${isActive
@@ -277,7 +308,7 @@ const PostJob = () => {
             onNext={handleNext}
             onPrevious={handlePrevious}
             isFirstStep={currentStep === 1}
-            isLastStep={currentStep === 3}
+            isLastStep={currentStep === steps.length}
             onSubmit={handleSubmit}
           />
         </div>

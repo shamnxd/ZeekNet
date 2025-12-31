@@ -173,8 +173,8 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     
     if (!data.title.trim()) {
       newErrors.title = "Job title is required";
-    } else if (data.title.trim().length < 5) {
-      newErrors.title = "Title must be at least 5 characters";
+    } else if (data.title.trim().length < 2) {
+      newErrors.title = "Title must be at least 2 characters";
     } else if (data.title.trim().length > 100) {
       newErrors.title = "Title must not exceed 100 characters";
     }
@@ -264,7 +264,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
             }}
             className={`w-[387px] h-11 px-4 py-3 border rounded-[10px] ${errors.title ? 'border-red-500' : 'border-[#D6DDEB]'}`}
           />
-          <p className="text-xs text-[#7C8493]">At least 5 characters</p>
+          <p className="text-xs text-[#7C8493]">At least 2 characters</p>
           {errors.title && (
             <p className="text-xs text-red-500 mt-1">{errors.title}</p>
           )}
@@ -477,7 +477,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
                 fetchSkills(searchTerm);
               }
             }}
-            className="w-full"
+            className="max-w-[387px] w-full"
           />
         </div>
       </div>

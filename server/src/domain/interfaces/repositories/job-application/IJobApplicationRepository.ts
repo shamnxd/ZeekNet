@@ -13,9 +13,6 @@ export interface PaginatedApplications {
 }
 
 export interface IJobApplicationRepository extends IBaseRepository<JobApplication> {
-  // All interview-related operations are now handled by the new ATS system
-  // See IATSInterviewRepository for interview management
+  findByJobId(jobId: string): Promise<JobApplication[]>;
 }
-
-
 

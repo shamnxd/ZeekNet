@@ -5,6 +5,8 @@ export interface ScheduleInterviewRequest {
   title: string;
   scheduledDate: string;
   type: 'online' | 'offline';
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   meetingLink?: string;
   location?: string;
 }
@@ -309,7 +311,7 @@ class ATSService {
     return response.data?.data || response.data || null;
   }
 
-  async scheduleCompensationMeeting(applicationId: string, data: { type: string; date: string; time: string; location?: string; meetingLink?: string; notes?: string }) {
+  async scheduleCompensationMeeting(applicationId: string, data: { type: string; videoType?: 'in-app' | 'external'; date: string; time: string; location?: string; meetingLink?: string; notes?: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/meetings`, data);
     // API returns { success, message, data } - extract data field
     return response.data?.data || response.data;

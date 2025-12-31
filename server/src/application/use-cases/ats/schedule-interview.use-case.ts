@@ -18,11 +18,19 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     title: string;
     scheduledDate: Date;
     type: 'online' | 'offline';
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     meetingLink?: string;
     location?: string;
     performedBy: string;
     performedByName: string;
   }): Promise<ATSInterview> {
+    // Generate webrtcRoomId if videoType is 'in-app' and not provided
+    let webrtcRoomId = data.webrtcRoomId;
+    if (data.type === 'online' && data.videoType === 'in-app' && !webrtcRoomId) {
+      webrtcRoomId = uuidv4();
+    }
+
     // Create interview
     const interview = ATSInterview.create({
       id: uuidv4(),
@@ -30,6 +38,8 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       title: data.title,
       scheduledDate: data.scheduledDate,
       type: data.type,
+      videoType: data.videoType,
+      webrtcRoomId,
       meetingLink: data.meetingLink,
       location: data.location,
       status: 'scheduled',

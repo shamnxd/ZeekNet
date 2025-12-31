@@ -4,6 +4,8 @@ export class ATSCompensationMeeting {
     public readonly applicationId: string,
     public readonly type: 'call' | 'online' | 'in-person',
     public readonly scheduledDate: Date,
+    public readonly videoType?: 'in-app' | 'external',
+    public readonly webrtcRoomId?: string,
     public readonly location?: string,
     public readonly meetingLink?: string,
     public readonly notes?: string,
@@ -18,6 +20,8 @@ export class ATSCompensationMeeting {
     applicationId: string;
     type: 'call' | 'online' | 'in-person';
     scheduledDate: Date;
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     location?: string;
     meetingLink?: string;
     notes?: string;
@@ -31,6 +35,8 @@ export class ATSCompensationMeeting {
       data.applicationId,
       data.type,
       data.scheduledDate,
+      data.videoType,
+      data.webrtcRoomId,
       data.location,
       data.meetingLink,
       data.notes,

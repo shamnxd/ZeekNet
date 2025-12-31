@@ -50,6 +50,8 @@ export interface ATSInterview {
   type: 'online' | 'offline';
   scheduledDate: string;
   status: 'scheduled' | 'completed' | 'cancelled';
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   meetingLink?: string;
   location?: string;
   rating?: number;
