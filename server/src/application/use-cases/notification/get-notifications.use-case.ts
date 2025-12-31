@@ -2,7 +2,6 @@ import { INotificationRepository } from '../../../domain/interfaces/repositories
 import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { NotificationResponseDto } from '../../dto/notification/notification-response.dto';
 import { NotificationMapper } from '../../mappers/notification.mapper';
-import { Types } from 'mongoose';
 
 export class GetNotificationsUseCase implements IGetNotificationsUseCase {
   constructor(
@@ -12,7 +11,7 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
   async execute(userId: string, limit: number, skip: number): Promise<NotificationResponseDto[]> {
     const page = Math.floor(skip / limit) + 1;
     const result = await this._notificationRepository.paginate(
-      { user_id: new Types.ObjectId(userId) },
+      { user_id: userId },
       {
         page,
         limit,

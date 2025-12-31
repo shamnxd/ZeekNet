@@ -3,11 +3,10 @@ import { JobStatus } from '../enums/job-status.enum';
 import { JobClosureType } from '../enums/job-closure-type.enum';
 import { ATSStage, ATSSubStage } from '../enums/ats-stage.enum';
 import { Salary } from '../interfaces/salary.interface';
-import { Types } from 'mongoose';
 import { STAGE_TO_SUB_STAGES } from '../utils/ats-pipeline.util';
 
 export interface PopulatedCompany {
-  _id: Types.ObjectId;
+  id: string;
   companyName: string;
   logo: string;
 }

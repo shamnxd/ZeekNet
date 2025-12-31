@@ -8,7 +8,7 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { AuthorizationError } from '../../../domain/errors/errors';
-import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
+import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 import { UserMapper } from '../../mappers/user.mapper';
 import { User } from '../../../domain/entities/user.entity';
 
@@ -20,6 +20,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     private readonly _googleVerifier: IGoogleTokenVerifier,
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(idToken: string): Promise<LoginResponseDto> {
@@ -46,8 +47,9 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
 
     if (!user.isVerified) {
       const code = await this._otpService.generateAndStoreOtp(user.email);
-      const htmlContent = otpVerificationTemplate.html(code);
-      await this._mailerService.sendMail(user.email, otpVerificationTemplate.subject, htmlContent);
+      const template = this._emailTemplateService.getOtpVerificationTemplate();
+      const htmlContent = template.html(code);
+      await this._mailerService.sendMail(user.email, template.subject, htmlContent);
       return { user: UserMapper.toResponse(user) };
     }
 

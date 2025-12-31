@@ -6,7 +6,7 @@ import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
 import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/IRegisterUserUseCase';
 import { ValidationError } from '../../../domain/errors/errors';
-import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
+import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 import { UserMapper } from '../../mappers/user.mapper';
 import { User } from '../../../domain/entities/user.entity';
 
@@ -16,6 +16,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResponseDto> {
@@ -44,7 +45,8 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
 
   private async sendOtpEmail(email: string): Promise<void> {
     const code = await this._otpService.generateAndStoreOtp(email);
-    const htmlContent = otpVerificationTemplate.html(code);
-    await this._mailerService.sendMail(email, otpVerificationTemplate.subject, htmlContent);
+    const template = this._emailTemplateService.getOtpVerificationTemplate();
+    const htmlContent = template.html(code);
+    await this._mailerService.sendMail(email, template.subject, htmlContent);
   }
 }

@@ -1,11 +1,16 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAnalyzeResumeUseCase } from '../../../domain/interfaces/use-cases/applications/IAnalyzeResumeUseCase';
-import { groqService, ATSScoreResult } from '../../../infrastructure/services/groq.service';
+import { ATSScoreResult } from '../../../domain/types/ats.types';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { ResumeParser } from '../../../shared/utils/resume-parser.utils';
+import { IAtsService } from '../../../domain/interfaces/services/IAtsService';
+import { IResumeParserService } from '../../../domain/interfaces/services/IResumeParserService';
 
 export class AnalyzeResumeUseCase implements IAnalyzeResumeUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
+  constructor(
+    private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _atsService: IAtsService,
+    private readonly _resumeParserService: IResumeParserService,
+  ) {}
 
   async execute(jobId: string, resumeBuffer: Buffer, mimeType: string): Promise<ATSScoreResult> {
     const job = await this._jobPostingRepository.findById(jobId);
@@ -16,7 +21,7 @@ export class AnalyzeResumeUseCase implements IAnalyzeResumeUseCase {
     let resumeText = '';
 
     try {
-      resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
+      resumeText = await this._resumeParserService.parse(resumeBuffer, mimeType);
     } catch (error) {
       throw error; 
     }
@@ -25,7 +30,7 @@ export class AnalyzeResumeUseCase implements IAnalyzeResumeUseCase {
       throw new ValidationError('Could not extract text from the resume. The file might be empty or scanned image.');
     }
 
-    return groqService.calculateATSScore(
+    return this._atsService.calculateATSScore(
       {
         title: job.title,
         description: job.description,

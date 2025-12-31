@@ -8,11 +8,10 @@ import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/ap
 import { CreateJobApplicationDto } from '../../dto/application/create-job-application.dto';
 import { z } from 'zod';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
-import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { INotificationService } from '../../../domain/interfaces/services/INotificationService';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
-import { Types } from 'mongoose';
-import { groqService } from '../../../infrastructure/services/groq.service';
-import { ResumeParser } from '../../../shared/utils/resume-parser.utils';
+import { IAtsService } from '../../../domain/interfaces/services/IAtsService';
+import { IResumeParserService } from '../../../domain/interfaces/services/IResumeParserService';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
@@ -22,6 +21,9 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _userRepository: IUserRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _notificationRepository: INotificationRepository,
+    private readonly _notificationService: INotificationService,
+    private readonly _atsService: IAtsService,
+    private readonly _resumeParserService: IResumeParserService,
   ) {}
 
   private async calculateAndUpdateATSScore(
@@ -40,7 +42,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     },
   ): Promise<void> {
     try {
-      const atsResult = await groqService.calculateATSScore(jobDetails, candidateData);
+      const atsResult = await this._atsService.calculateATSScore(jobDetails, candidateData);
       
       
       await this._jobApplicationRepository.update(applicationId, {
@@ -76,8 +78,8 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       throw new ValidationError('This job posting is not available for applications');
     }
     const existingApplication = await this._jobApplicationRepository.findOne({ 
-      seeker_id: new Types.ObjectId(seekerId), 
-      job_id: new Types.ObjectId(applicationData.job_id),
+      seeker_id: seekerId, 
+      job_id: applicationData.job_id,
     });
     if (existingApplication) {
       throw new ValidationError('You have already applied for this job');
@@ -100,7 +102,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     let resumeText = '';
     if (resumeBuffer && mimeType) {
       try {
-        resumeText = await ResumeParser.parse(resumeBuffer, mimeType);
+        resumeText = await this._resumeParserService.parse(resumeBuffer, mimeType);
       } catch (error) {
         // Failed to parse resume for ATS scoring
       }
@@ -131,7 +133,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     const companyProfile = await this._companyProfileRepository.findById(job.companyId);
     if (companyProfile) {
 
-      await notificationService.sendNotification({
+      await this._notificationService.sendNotification({
         user_id: companyProfile.userId,
         type: NotificationType.JOB_APPLICATION,
         title: 'New Job Application',

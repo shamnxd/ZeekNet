@@ -1,34 +1,14 @@
 import Groq from 'groq-sdk';
-import { env } from '../config/env';
-
-export interface ATSScoreResult {
-  score: number;
-  reasoning?: string;
-  missingKeywords?: string[];
-}
+import { ATSScoreResult, JobDetails, CandidateData } from '../../domain/types/ats.types';
 
 export class GroqService {
   private client: Groq;
 
-  constructor() {
-    const apiKey = env.GROQ_API_KEY;
+  constructor(apiKey: string) {
     this.client = new Groq({ apiKey });
   }
 
-  async calculateATSScore(
-    jobDetails: {
-      title: string;
-      description: string;
-      qualifications?: string[];
-      responsibilities?: string[];
-      skillsRequired: string[];
-      experienceLevel?: string;
-    },
-    candidateData: {
-      coverLetter: string;
-      resumeText?: string;
-    },
-  ): Promise<ATSScoreResult> {
+  async calculateATSScore(jobDetails: JobDetails, candidateData: CandidateData): Promise<ATSScoreResult> {
     try {
       const prompt = this.buildATSPrompt(jobDetails, candidateData);
 
@@ -101,20 +81,7 @@ CRITICAL: If the provided candidate application text does not appear to be a res
     }
   }
 
-  private buildATSPrompt(
-    jobDetails: {
-      title: string;
-      description: string;
-      qualifications?: string[];
-      responsibilities?: string[];
-      skillsRequired: string[];
-      experienceLevel?: string;
-    },
-    candidateData: {
-      coverLetter: string;
-      resumeText?: string;
-    },
-  ): string {
+  private buildATSPrompt(jobDetails: JobDetails, candidateData: CandidateData): string {
     return `
 JOB POSTING:
 Title: ${jobDetails.title}
@@ -142,5 +109,3 @@ Analyze this application and provide an ATS score (0-100) with reasoning and mis
 `.trim();
   }
 }
-
-export const groqService = new GroqService();

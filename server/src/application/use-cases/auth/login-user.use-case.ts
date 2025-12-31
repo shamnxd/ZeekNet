@@ -8,7 +8,7 @@ import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUs
 import { AuthenticationError, AuthorizationError } from '../../../domain/errors/errors';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { UserMapper } from '../../mappers/user.mapper';
-import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
+import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 
 export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
@@ -17,6 +17,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     private readonly _tokenService: ITokenService,
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(email: string, password: string): Promise<LoginResponseDto> {
@@ -31,8 +32,9 @@ export class LoginUserUseCase implements ILoginUserUseCase {
 
     if (!user.isVerified) {
       const code = await this._otpService.generateAndStoreOtp(user.email);
-      const htmlContent = otpVerificationTemplate.html(code);
-      await this._mailerService.sendMail(user.email, otpVerificationTemplate.subject, htmlContent);
+      const template = this._emailTemplateService.getOtpVerificationTemplate();
+      const htmlContent = template.html(code);
+      await this._mailerService.sendMail(user.email, template.subject, htmlContent);
       return { user: UserMapper.toResponse(user) };
     }
 
