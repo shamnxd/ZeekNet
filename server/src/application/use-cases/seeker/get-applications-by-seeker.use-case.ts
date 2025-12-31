@@ -8,7 +8,6 @@ import { GetApplicationsBySeekerRequestDto } from '../../dto/application/get-app
 import type { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
-import { Types } from 'mongoose';
 
 export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerUseCase {
   constructor(
@@ -25,7 +24,7 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const query: Record<string, unknown> = { seeker_id: new Types.ObjectId(seekerId) };
+    const query: Record<string, unknown> = { seeker_id: seekerId };
     if (filters.stage) query.stage = filters.stage;
 
     const result = await this._jobApplicationRepository.paginate(query, {

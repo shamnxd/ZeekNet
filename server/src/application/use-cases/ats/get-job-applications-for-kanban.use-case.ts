@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import { IGetJobApplicationsForKanbanUseCase } from '../../../domain/interfaces/use-cases/ats/IGetJobApplicationsForKanbanUseCase';
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
@@ -38,8 +37,8 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
     // Get all applications for this job
     // Note: findMany expects document field names (snake_case) and ObjectIds
     const applications = await this.jobApplicationRepository.findMany({
-      job_id: new Types.ObjectId(jobId),
-      company_id: new Types.ObjectId(companyId),
+      job_id: jobId,
+      company_id: companyId,
     });
 
     // Group by stage

@@ -26,6 +26,7 @@ import { TokenController } from '../../presentation/controllers/auth/token.contr
 import { PasswordController } from '../../presentation/controllers/auth/password.controller';
 import { OtpController } from '../../presentation/controllers/auth/otp.controller';
 import { CookieService } from '../services/cookie.service';
+import { EmailTemplateService } from '../services/email-template.service';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -36,10 +37,11 @@ const otpService = new RedisOtpService();
 const mailerService = new NodemailerService();
 const passwordResetService = new PasswordResetServiceImpl(mailerService);
 const cookieService = new CookieService();
+const emailTemplateService = new EmailTemplateService();
 
-const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService);
+const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService, emailTemplateService);
 
-const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
+const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService, emailTemplateService);
 
 const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService);
 
@@ -49,7 +51,7 @@ const resetPasswordUseCase = new ResetPasswordUseCase(passwordHasher, passwordRe
 
 const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository);
 
-const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
+const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService, emailTemplateService);
 
 const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, tokenService, passwordHasher);
 

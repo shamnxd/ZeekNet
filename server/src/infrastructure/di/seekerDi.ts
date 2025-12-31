@@ -39,6 +39,9 @@ import { ATSCompensationMeetingRepository } from '../database/mongodb/repositori
 import { ATSActivityRepository } from '../database/mongodb/repositories/ats-activity.repository';
 import { UpdateApplicationSubStageUseCase } from '../../application/use-cases/ats/update-application-sub-stage.use-case';
 import { ActivityLoggerService } from '../../application/services/activity-logger.service';
+import { AtsService } from '../services/ats.service';
+import { ResumeParserService } from '../services/resume-parser.service';
+import { env } from '../config/env';
 
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
@@ -55,6 +58,8 @@ const compensationRepository = new ATSCompensationRepository();
 const compensationMeetingRepository = new ATSCompensationMeetingRepository();
 const activityRepository = new ATSActivityRepository();
 const activityLoggerService = new ActivityLoggerService(activityRepository);
+const atsService = new AtsService(env.GROQ_API_KEY);
+const resumeParserService = new ResumeParserService();
 
 const createSeekerProfileUseCase = new CreateSeekerProfileUseCase(seekerProfileRepository, s3Service);
 const getSeekerProfileUseCase = new GetSeekerProfileUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
@@ -75,10 +80,10 @@ const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3S
 const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
 
-const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository);
+const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository, notificationService, atsService, resumeParserService);
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
-const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository);
+const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository, atsService, resumeParserService);
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,

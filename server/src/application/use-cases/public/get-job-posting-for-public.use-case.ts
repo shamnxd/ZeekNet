@@ -7,7 +7,6 @@ import { JobPostingMapper } from '../../mappers/job-posting.mapper';
 import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { Types } from 'mongoose';
 
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
   constructor(
@@ -56,7 +55,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
   }
 
   private async getCompanyDetails(companyId: string): Promise<JobPostingDetailResponseDto['company']> {
-    if (!companyId || !Types.ObjectId.isValid(companyId)) {
+    if (!companyId || companyId.length !== 24) {
       return {
         companyName: 'ZeekNet Company',
         logo: '/white.png',

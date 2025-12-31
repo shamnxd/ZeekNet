@@ -10,7 +10,6 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import type { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
-import { Types } from 'mongoose';
 
 export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase {
   constructor(
@@ -42,7 +41,7 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const query: Record<string, unknown> = { job_id: new Types.ObjectId(jobId) };
+    const query: Record<string, unknown> = { job_id: jobId };
     if (filters.stage) query.stage = filters.stage;
     
     
