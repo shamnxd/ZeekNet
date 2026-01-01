@@ -1,5 +1,5 @@
-import { IAtsService } from '../../../domain/interfaces/services/IAtsService';
-import { ATSScoreResult, JobDetails, CandidateData } from '../../../domain/types/ats.types';
+import { IAtsService } from '../../domain/interfaces/services/IAtsService';
+import { ATSScoreResult, JobDetails, CandidateData } from '../../domain/types/ats.types';
 import { GroqService } from './groq.service';
 
 /**

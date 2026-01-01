@@ -7,7 +7,7 @@ import { SeekerExperienceRepository } from '../database/mongodb/repositories/see
 import { SeekerEducationRepository } from '../database/mongodb/repositories/seeker-education.repository';
 import { UserRepository } from '../database/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { notificationRepository } from './notificationDi';
+import { notificationRepository, notificationService } from './notificationDi';
 import { SeekerProfileController } from '../../presentation/controllers/seeker/seeker-profile.controller';
 import { SeekerJobApplicationController } from '../../presentation/controllers/seeker/job-application.controller';
 import { CreateJobApplicationUseCase } from '../../application/use-cases/seeker/create-job-application.use-case';

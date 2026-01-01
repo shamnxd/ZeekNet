@@ -1,4 +1,4 @@
-import { IEmailTemplateService, EmailTemplate } from '../../../domain/interfaces/services/IEmailTemplateService';
+import { IEmailTemplateService, EmailTemplate } from '../../domain/interfaces/services/IEmailTemplateService';
 import { otpVerificationTemplate } from '../messaging/templates/otp-verification.template';
 
 /**
