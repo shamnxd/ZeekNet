@@ -1,6 +1,6 @@
 import { CompanyJobPostingListItemDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 
-export interface GetCompanyJobPostingsResponseDto {
+export interface PaginatedCompanyJobPostingsDto {
   jobs: CompanyJobPostingListItemDto[];
   pagination: {
     page: number;

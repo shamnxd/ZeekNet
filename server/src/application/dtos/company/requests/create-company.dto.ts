@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { commonValidations, fieldValidations } from '../../../../shared/validation/common';
+import { commonValidations, fieldValidations } from 'src/shared/validation/common';
 
 const CompanyContactDto = z.object({
   email: commonValidations.email,
@@ -73,3 +73,5 @@ const UpdateCompanyProfileDto = z.object({
 });
 
 
+
+export type SimpleCompanyProfileRequestDto = z.infer<typeof SimpleCompanyProfileDto>;
