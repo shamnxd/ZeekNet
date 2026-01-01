@@ -1,9 +1,9 @@
-import { ISeekerExperienceRepository } from '../../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
-import { Experience } from '../../../../domain/entities/seeker-profile.entity';
-import { SeekerExperienceModel, SeekerExperienceDocument } from '../models/seeker-experience.model';
+import { ISeekerExperienceRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
+import { Experience } from 'src/domain/entities/seeker-profile.entity';
+import { SeekerExperienceModel, SeekerExperienceDocument } from 'src/infrastructure/persistence/mongodb/models/seeker-experience.model';
 import { Types } from 'mongoose';
-import { RepositoryBase } from './base-repository';
-import { SeekerExperienceMapper } from '../mappers/seeker/seeker-experience.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { SeekerExperienceMapper } from 'src/infrastructure/mappers/persistence/mongodb/seeker/seeker-experience.mapper';
 
 
 export class SeekerExperienceRepository extends RepositoryBase<Experience, SeekerExperienceDocument> implements ISeekerExperienceRepository {

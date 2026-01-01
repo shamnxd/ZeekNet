@@ -1,9 +1,9 @@
-import { ICompanyContactRepository } from '../../../../domain/interfaces/repositories/company/ICompanyContactRepository';
-import { CompanyContact } from '../../../../domain/entities/company-contact.entity';
-import { CompanyContactModel, CompanyContactDocument } from '../models/company-contact.model';
+import { ICompanyContactRepository } from 'src/domain/interfaces/repositories/company/ICompanyContactRepository';
+import { CompanyContact } from 'src/domain/entities/company-contact.entity';
+import { CompanyContactModel, CompanyContactDocument } from 'src/infrastructure/persistence/mongodb/models/company-contact.model';
 import { Types } from 'mongoose';
-import { CompanyContactMapper } from '../mappers/company/company-contact.mapper';
-import { RepositoryBase } from './base-repository';
+import { CompanyContactMapper } from 'src/infrastructure/mappers/persistence/mongodb/company/company-contact.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class CompanyContactRepository extends RepositoryBase<CompanyContact, CompanyContactDocument> implements ICompanyContactRepository {
   constructor() {

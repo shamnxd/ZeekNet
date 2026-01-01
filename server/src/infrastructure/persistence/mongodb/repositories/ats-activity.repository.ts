@@ -1,8 +1,8 @@
 import { Types, Document } from 'mongoose';
-import { IATSActivityRepository, PaginationCursor, PaginatedActivitiesResult } from '../../../../domain/interfaces/repositories/ats/IATSActivityRepository';
-import { ATSActivity } from '../../../../domain/entities/ats-activity.entity';
-import { ATSActivityModel, IATSActivityDocument } from '../models/ats-activity.model';
-import { ATSActivityMapper } from '../mappers/ats/ats-activity.mapper';
+import { IATSActivityRepository, PaginationCursor, PaginatedActivitiesResult } from 'src/domain/interfaces/repositories/ats/IATSActivityRepository';
+import { ATSActivity } from 'src/domain/entities/ats-activity.entity';
+import { ATSActivityModel, IATSActivityDocument } from 'src/infrastructure/persistence/mongodb/models/ats-activity.model';
+import { ATSActivityMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-activity.mapper';
 
 export class ATSActivityRepository implements IATSActivityRepository {
   async create(activity: ATSActivity): Promise<ATSActivity> {
@@ -44,9 +44,9 @@ export class ATSActivityRepository implements IATSActivityRepository {
       applicationId: new Types.ObjectId(applicationId),
     };
 
-    // Build cursor-based pagination query
-    // We want newest first (descending) so current stage activities appear first
-    // Cursor points to the last item we've seen, so we want items BEFORE it (older)
+    
+    
+    
     if (cursor) {
       const cursorCreatedAt = new Date(cursor.createdAt);
       const cursorId = new Types.ObjectId(cursor._id);
@@ -60,10 +60,10 @@ export class ATSActivityRepository implements IATSActivityRepository {
       ];
     }
 
-    // Fetch limit + 1 to determine if there are more records
-    // Sort by newest first (descending) so current stage activities load first
+    
+    
     const docs = await ATSActivityModel.find(query)
-      .sort({ createdAt: -1, _id: -1 }) // Newest first
+      .sort({ createdAt: -1, _id: -1 }) 
       .limit(limit + 1)
       .lean();
 
@@ -74,7 +74,7 @@ export class ATSActivityRepository implements IATSActivityRepository {
 
     let nextCursor: PaginationCursor | null = null;
     if (hasMore && activities.length > 0) {
-      // For descending order, cursor is the last (oldest) item in the batch
+      
       const lastActivity = activities[activities.length - 1];
       nextCursor = {
         createdAt: lastActivity.createdAt,

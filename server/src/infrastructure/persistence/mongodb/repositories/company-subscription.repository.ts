@@ -1,11 +1,11 @@
-import { ICompanySubscriptionRepository } from '../../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { CompanySubscription } from '../../../../domain/entities/company-subscription.entity';
-import { CompanySubscriptionModel } from '../models/company-subcription.model';
-import { CompanySubscriptionMapper } from '../mappers/company/company-subscription.mapper';
-import { RepositoryBase } from './base-repository';
-import { CompanySubscriptionDocument } from '../models/company-subcription.model';
+import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
+import { CompanySubscriptionModel } from 'src/infrastructure/persistence/mongodb/models/company-subcription.model';
+import { CompanySubscriptionMapper } from 'src/infrastructure/mappers/persistence/mongodb/company/company-subscription.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { CompanySubscriptionDocument } from 'src/infrastructure/persistence/mongodb/models/company-subcription.model';
 import { Types } from 'mongoose';
-import { CreateInput } from '../../../../domain/types/common.types';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscription, CompanySubscriptionDocument> implements ICompanySubscriptionRepository {
   constructor() {

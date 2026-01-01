@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSOfferRepository } from '../../../../domain/interfaces/repositories/ats/IATSOfferRepository';
-import { ATSOffer } from '../../../../domain/entities/ats-offer.entity';
-import { ATSOfferModel } from '../models/ats-offer.model';
-import { ATSOfferMapper } from '../mappers/ats/ats-offer.mapper';
+import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
+import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
+import { ATSOfferModel } from 'src/infrastructure/persistence/mongodb/models/ats-offer.model';
+import { ATSOfferMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-offer.mapper';
 
 export class ATSOfferRepository implements IATSOfferRepository {
   async create(offer: ATSOffer): Promise<ATSOffer> {

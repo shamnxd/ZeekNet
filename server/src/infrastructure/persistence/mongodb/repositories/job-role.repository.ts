@@ -1,8 +1,8 @@
-import { IJobRoleRepository, JobRoleQueryFilters, PaginatedJobRoles } from '../../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
-import { JobRole } from '../../../../domain/entities/job-role.entity';
-import { JobRoleModel, JobRoleDocument as ModelDocument } from '../models/job-role.model';
-import { JobRoleMapper } from '../mappers/job/job-role.mapper';
-import { RepositoryBase } from './base-repository';
+import { IJobRoleRepository, JobRoleQueryFilters, PaginatedJobRoles } from 'src/domain/interfaces/repositories/job-role/IJobRoleRepository';
+import { JobRole } from 'src/domain/entities/job-role.entity';
+import { JobRoleModel, JobRoleDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/job-role.model';
+import { JobRoleMapper } from 'src/infrastructure/mappers/persistence/mongodb/job/job-role.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class JobRoleRepository extends RepositoryBase<JobRole, ModelDocument> implements IJobRoleRepository {
   constructor() {

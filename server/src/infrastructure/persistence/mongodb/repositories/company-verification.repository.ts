@@ -1,9 +1,9 @@
-import { ICompanyVerificationRepository } from '../../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
-import { CompanyVerification } from '../../../../domain/entities/company-verification.entity';
-import { CompanyVerificationModel, CompanyVerificationDocument } from '../models/company-verification.model';
-import { CompanyProfileModel } from '../models/company-profile.model';
-import { CompanyVerificationMapper } from '../mappers/company/company-verification.mapper';
-import { RepositoryBase } from './base-repository';
+import { ICompanyVerificationRepository } from 'src/domain/interfaces/repositories/company/ICompanyVerificationRepository';
+import { CompanyVerification } from 'src/domain/entities/company-verification.entity';
+import { CompanyVerificationModel, CompanyVerificationDocument } from 'src/infrastructure/persistence/mongodb/models/company-verification.model';
+import { CompanyProfileModel } from 'src/infrastructure/persistence/mongodb/models/company-profile.model';
+import { CompanyVerificationMapper } from 'src/infrastructure/mappers/persistence/mongodb/company/company-verification.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class CompanyVerificationRepository extends RepositoryBase<CompanyVerification, CompanyVerificationDocument> implements ICompanyVerificationRepository {
   constructor() {

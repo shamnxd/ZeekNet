@@ -21,7 +21,7 @@ const ATSCompensationSchema = new Schema<IATSCompensationDocument>(
       ref: 'JobApplication',
       required: true,
       index: true,
-      unique: true, // One compensation record per application
+      unique: true, 
     },
     candidateExpected: {
       type: String,
@@ -56,7 +56,7 @@ const ATSCompensationSchema = new Schema<IATSCompensationDocument>(
   },
 );
 
-// Indexes
+
 ATSCompensationSchema.index({ applicationId: 1 });
 ATSCompensationSchema.index({ approvedAt: -1 });
 

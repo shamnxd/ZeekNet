@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSCompensationMeetingRepository } from '../../../../domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
-import { ATSCompensationMeeting } from '../../../../domain/entities/ats-compensation-meeting.entity';
-import { ATSCompensationMeetingModel, IATSCompensationMeetingDocument } from '../models/ats-compensation-meeting.model';
-import { ATSCompensationMeetingMapper } from '../mappers/ats/ats-compensation-meeting.mapper';
+import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
+import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
+import { ATSCompensationMeetingModel, IATSCompensationMeetingDocument } from 'src/infrastructure/persistence/mongodb/models/ats-compensation-meeting.model';
+import { ATSCompensationMeetingMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-compensation-meeting.mapper';
 
 export class ATSCompensationMeetingRepository implements IATSCompensationMeetingRepository {
   async create(meeting: ATSCompensationMeeting): Promise<ATSCompensationMeeting> {

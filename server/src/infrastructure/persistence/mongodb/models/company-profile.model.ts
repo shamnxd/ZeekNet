@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-import { CompanyVerificationStatus } from '../../../../domain/enums/verification-status.enum';
+import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
 
 export interface CompanyProfileDocument extends Document {
   userId: string;

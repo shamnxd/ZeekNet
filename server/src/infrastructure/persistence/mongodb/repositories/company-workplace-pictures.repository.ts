@@ -1,9 +1,9 @@
-import { ICompanyWorkplacePicturesRepository } from '../../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
-import { CompanyWorkplacePictures } from '../../../../domain/entities/company-workplace-pictures.entity';
-import { CompanyWorkplacePicturesModel, CompanyWorkplacePicturesDocument } from '../models/company-workplace-pictures.model';
+import { ICompanyWorkplacePicturesRepository } from 'src/domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
+import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
+import { CompanyWorkplacePicturesModel, CompanyWorkplacePicturesDocument } from 'src/infrastructure/persistence/mongodb/models/company-workplace-pictures.model';
 import { Types } from 'mongoose';
-import { CompanyWorkplacePicturesMapper } from '../mappers/company/company-workplace-pictures.mapper';
-import { RepositoryBase } from './base-repository';
+import { CompanyWorkplacePicturesMapper } from 'src/infrastructure/mappers/persistence/mongodb/company/company-workplace-pictures.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class CompanyWorkplacePicturesRepository extends RepositoryBase<CompanyWorkplacePictures, CompanyWorkplacePicturesDocument> implements ICompanyWorkplacePicturesRepository {
   constructor() {

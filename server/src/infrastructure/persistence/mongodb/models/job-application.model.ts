@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { ATSStage, ATSSubStage, InReviewSubStage } from '../../../../domain/enums/ats-stage.enum';
+import { ATSStage, ATSSubStage, InReviewSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export interface JobApplicationDocument extends Document {
   _id: Types.ObjectId;
@@ -51,7 +51,7 @@ const JobApplicationSchema = new Schema<JobApplicationDocument>(
   },
 );
 
-// Indexes for efficient querying
+
 JobApplicationSchema.index({ seeker_id: 1, job_id: 1 }, { unique: true });
 JobApplicationSchema.index({ job_id: 1, stage: 1, sub_stage: 1 });
 JobApplicationSchema.index({ company_id: 1, stage: 1 });

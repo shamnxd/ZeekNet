@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSCommentRepository } from '../../../../domain/interfaces/repositories/ats/IATSCommentRepository';
-import { ATSComment } from '../../../../domain/entities/ats-comment.entity';
-import { ATSCommentModel } from '../models/ats-comment.model';
-import { ATSCommentMapper } from '../mappers/ats/ats-comment.mapper';
+import { IATSCommentRepository } from 'src/domain/interfaces/repositories/ats/IATSCommentRepository';
+import { ATSComment } from 'src/domain/entities/ats-comment.entity';
+import { ATSCommentModel } from 'src/infrastructure/persistence/mongodb/models/ats-comment.model';
+import { ATSCommentMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-comment.mapper';
 
 export class ATSCommentRepository implements IATSCommentRepository {
   async create(comment: ATSComment): Promise<ATSComment> {

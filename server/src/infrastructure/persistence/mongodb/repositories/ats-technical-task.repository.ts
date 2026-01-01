@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSTechnicalTaskRepository } from '../../../../domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
-import { ATSTechnicalTask } from '../../../../domain/entities/ats-technical-task.entity';
-import { ATSTechnicalTaskModel } from '../models/ats-technical-task.model';
-import { ATSTechnicalTaskMapper } from '../mappers/ats/ats-technical-task.mapper';
+import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
+import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
+import { ATSTechnicalTaskModel } from 'src/infrastructure/persistence/mongodb/models/ats-technical-task.model';
+import { ATSTechnicalTaskMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-technical-task.mapper';
 
 export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
   async create(task: ATSTechnicalTask): Promise<ATSTechnicalTask> {

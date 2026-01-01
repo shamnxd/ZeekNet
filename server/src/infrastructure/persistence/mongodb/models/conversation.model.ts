@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { UserRole } from '../../../../domain/enums/user-role.enum';
+import { UserRole } from 'src/domain/enums/user-role.enum';
 
 export interface ConversationParticipantDocument {
   user_id: Types.ObjectId;
@@ -43,7 +43,7 @@ const LastMessageSchema = new Schema(
 
 const ConversationSchema = new Schema<ConversationDocument>(
   {
-    participant_ids: { type: [Schema.Types.ObjectId], required: true, index: true },
+    participant_ids: { type: [Schema.Types.ObjectId], required: true },
     participants: { type: [ParticipantSchema], required: true },
     last_message: { type: LastMessageSchema, default: null },
   },

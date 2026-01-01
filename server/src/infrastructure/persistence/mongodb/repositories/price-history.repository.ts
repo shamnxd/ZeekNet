@@ -1,11 +1,11 @@
-import { IPriceHistoryRepository } from '../../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
-import { PriceHistory, PriceType } from '../../../../domain/entities/price-history.entity';
-import { PriceHistoryModel, PriceHistoryDocument as ModelDocument } from '../models/price-history.model';
-import { PriceHistoryMapper } from '../mappers/payment/price-history.mapper';
+import { IPriceHistoryRepository } from 'src/domain/interfaces/repositories/price-history/IPriceHistoryRepository';
+import { PriceHistory, PriceType } from 'src/domain/entities/price-history.entity';
+import { PriceHistoryModel, PriceHistoryDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/price-history.model';
+import { PriceHistoryMapper } from 'src/infrastructure/mappers/persistence/mongodb/payment/price-history.mapper';
 import { Types } from 'mongoose';
 
-import { RepositoryBase } from './base-repository';
-import { CreateInput } from '../../../../domain/types/common.types';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class PriceHistoryRepository extends RepositoryBase<PriceHistory, ModelDocument> implements IPriceHistoryRepository {
   constructor() {

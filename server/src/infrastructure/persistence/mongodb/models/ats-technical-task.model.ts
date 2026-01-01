@@ -79,7 +79,7 @@ const ATSTechnicalTaskSchema = new Schema<IATSTechnicalTaskDocument>(
   },
 );
 
-// Indexes
+
 ATSTechnicalTaskSchema.index({ applicationId: 1, createdAt: -1 });
 ATSTechnicalTaskSchema.index({ status: 1 });
 

@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSCompensationRepository } from '../../../../domain/interfaces/repositories/ats/IATSCompensationRepository';
-import { ATSCompensation } from '../../../../domain/entities/ats-compensation.entity';
-import { ATSCompensationModel } from '../models/ats-compensation.model';
-import { ATSCompensationMapper } from '../mappers/ats/ats-compensation.mapper';
+import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
+import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { ATSCompensationModel } from 'src/infrastructure/persistence/mongodb/models/ats-compensation.model';
+import { ATSCompensationMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-compensation.mapper';
 
 export class ATSCompensationRepository implements IATSCompensationRepository {
   async create(compensation: ATSCompensation): Promise<ATSCompensation> {

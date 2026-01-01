@@ -1,6 +1,6 @@
-import { IOtpService } from '../../../../domain/interfaces/services/IOtpService';
-import { redisClient } from '../connection/redis';
-import { env } from '../../../config/env';
+import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
+import { redisClient } from 'src/infrastructure/persistence/redis/connection/redis';
+import { env } from 'src/infrastructure/config/env';
 
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { ATSStage, ATSSubStage } from '../../../../domain/enums/ats-stage.enum';
+import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export interface IATSCommentDocument extends Document {
   applicationId: mongoose.Types.ObjectId;
@@ -46,7 +46,7 @@ const ATSCommentSchema = new Schema<IATSCommentDocument>(
   },
 );
 
-// Indexes
+
 ATSCommentSchema.index({ applicationId: 1, createdAt: -1 });
 
 export const ATSCommentModel = mongoose.model<IATSCommentDocument>('ATSComment', ATSCommentSchema);

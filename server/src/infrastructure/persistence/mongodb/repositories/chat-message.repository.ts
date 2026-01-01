@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
-import { ChatMessage, MessageStatus } from '../../../../domain/entities/chat-message.entity';
-import { IMessageRepository, MessageQueryOptions } from '../../../../domain/interfaces/repositories/chat/IMessageRepository';
-import { ChatMessageModel, ChatMessageDocument } from '../models/chat-message.model';
-import { RepositoryBase } from './base-repository';
-import { ChatMessagePersistenceMapper } from '../mappers/chat/chat-message.mapper';
+import { ChatMessage, MessageStatus } from 'src/domain/entities/chat-message.entity';
+import { IMessageRepository, MessageQueryOptions } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
+import { ChatMessageModel, ChatMessageDocument } from 'src/infrastructure/persistence/mongodb/models/chat-message.model';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { ChatMessagePersistenceMapper } from 'src/infrastructure/mappers/persistence/mongodb/chat/chat-message.mapper';
 
 export class ChatMessageRepository
   extends RepositoryBase<ChatMessage, ChatMessageDocument>

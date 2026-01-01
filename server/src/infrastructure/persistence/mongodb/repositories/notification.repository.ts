@@ -1,9 +1,9 @@
-import { NotificationModel, NotificationDocument } from '../models/notification.model';
-import { INotificationRepository, CreateNotificationData } from '../../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { Notification } from '../../../../domain/entities/notification.entity';
-import { RepositoryBase } from './base-repository';
+import { NotificationModel, NotificationDocument } from 'src/infrastructure/persistence/mongodb/models/notification.model';
+import { INotificationRepository, CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
+import { Notification } from 'src/domain/entities/notification.entity';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { Types } from 'mongoose';
-import { NotificationMapper } from '../mappers/notification/notification.mapper';
+import { NotificationMapper } from 'src/infrastructure/mappers/persistence/mongodb/notification/notification.mapper';
 
 export class NotificationRepository extends RepositoryBase<Notification, NotificationDocument> implements INotificationRepository {
   constructor() {

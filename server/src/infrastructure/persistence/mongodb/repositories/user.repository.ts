@@ -1,9 +1,9 @@
-import { IUserRepository } from '../../../../domain/interfaces/repositories/user/IUserRepository';
-import { User } from '../../../../domain/entities/user.entity';
-import { UserModel, UserDocument } from '../models/user.model';
-import { UserMapper } from '../mappers/auth/user.mapper';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { User } from 'src/domain/entities/user.entity';
+import { UserModel, UserDocument } from 'src/infrastructure/persistence/mongodb/models/user.model';
+import { UserMapper } from 'src/infrastructure/mappers/persistence/mongodb/auth/user.mapper';
 import { Types } from 'mongoose';
-import { RepositoryBase } from './base-repository';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class UserRepository extends RepositoryBase<User, UserDocument> implements IUserRepository {
   constructor() {
@@ -26,7 +26,7 @@ export class UserRepository extends RepositoryBase<User, UserDocument> implement
     }
 
     const documents = await UserModel.find({
-      _id: { $in: validIds.map(id => new Types.ObjectId(id)) }
+      _id: { $in: validIds.map(id => new Types.ObjectId(id)) },
     });
 
     return documents.map(doc => this.mapToEntity(doc));

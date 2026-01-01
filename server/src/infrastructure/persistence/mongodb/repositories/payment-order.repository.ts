@@ -1,9 +1,9 @@
-import { IPaymentOrderRepository } from '../../../../domain/interfaces/repositories/payment/IPaymentOrderRepository';
-import { PaymentOrder } from '../../../../domain/entities/payment-order.entity';
-import { PaymentOrderModel, PaymentOrderDocument } from '../models/payment-order.model';
-import { PaymentOrderMapper } from '../mappers/payment/payment-order.mapper';
+import { IPaymentOrderRepository } from 'src/domain/interfaces/repositories/payment/IPaymentOrderRepository';
+import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
+import { PaymentOrderModel, PaymentOrderDocument } from 'src/infrastructure/persistence/mongodb/models/payment-order.model';
+import { PaymentOrderMapper } from 'src/infrastructure/mappers/persistence/mongodb/payment/payment-order.mapper';
 import { Types } from 'mongoose';
-import { RepositoryBase } from './base-repository';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, PaymentOrderDocument> implements IPaymentOrderRepository {
   constructor() {

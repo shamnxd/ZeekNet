@@ -1,6 +1,6 @@
 import { Model, Document as MongooseDocument, FilterQuery } from 'mongoose';
 import { Types } from 'mongoose';
-import { CreateInput } from '../../../../domain/types/common.types';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
   constructor(protected model: Model<TDocument>) {}

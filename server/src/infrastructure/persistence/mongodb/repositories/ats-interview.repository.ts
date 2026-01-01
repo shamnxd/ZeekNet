@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { IATSInterviewRepository } from '../../../../domain/interfaces/repositories/ats/IATSInterviewRepository';
-import { ATSInterview } from '../../../../domain/entities/ats-interview.entity';
-import { ATSInterviewModel } from '../models/ats-interview.model';
-import { ATSInterviewMapper } from '../mappers/ats/ats-interview.mapper';
+import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
+import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
+import { ATSInterviewModel } from 'src/infrastructure/persistence/mongodb/models/ats-interview.model';
+import { ATSInterviewMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-interview.mapper';
 
 export class ATSInterviewRepository implements IATSInterviewRepository {
   async create(interview: ATSInterview): Promise<ATSInterview> {

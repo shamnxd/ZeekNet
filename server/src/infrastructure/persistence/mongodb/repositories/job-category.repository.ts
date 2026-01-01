@@ -1,8 +1,8 @@
-import { IJobCategoryRepository, JobCategoryQueryFilters, PaginatedJobCategories } from '../../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { JobCategory } from '../../../../domain/entities/job-category.entity';
-import { JobCategoryModel, JobCategoryDocument as ModelDocument } from '../models/job-category.model';
-import { JobCategoryMapper } from '../mappers/job/job-category.mapper';
-import { RepositoryBase } from './base-repository';
+import { IJobCategoryRepository, JobCategoryQueryFilters, PaginatedJobCategories } from 'src/domain/interfaces/repositories/job-category/IJobCategoryRepository';
+import { JobCategory } from 'src/domain/entities/job-category.entity';
+import { JobCategoryModel, JobCategoryDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/job-category.model';
+import { JobCategoryMapper } from 'src/infrastructure/mappers/persistence/mongodb/job/job-category.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 export class JobCategoryRepository extends RepositoryBase<JobCategory, ModelDocument> implements IJobCategoryRepository {
   constructor() {

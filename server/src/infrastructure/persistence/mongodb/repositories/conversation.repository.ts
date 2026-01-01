@@ -1,15 +1,15 @@
 import { Types } from 'mongoose';
-import { Conversation } from '../../../../domain/entities/conversation.entity';
+import { Conversation } from 'src/domain/entities/conversation.entity';
 import {
   ConversationQueryOptions,
   IConversationRepository,
-} from '../../../../domain/interfaces/repositories/chat/IConversationRepository';
-import { ConversationModel, ConversationDocument } from '../models/conversation.model';
-import { RepositoryBase } from './base-repository';
-import { ConversationPersistenceMapper } from '../mappers/chat/conversation.mapper';
-import { UserRole } from '../../../../domain/enums/user-role.enum';
-import { IS3Service } from '../../../../domain/interfaces/services/IS3Service';
-import { CreateInput } from '../../../../domain/types/common.types';
+} from 'src/domain/interfaces/repositories/chat/IConversationRepository';
+import { ConversationModel, ConversationDocument } from 'src/infrastructure/persistence/mongodb/models/conversation.model';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { ConversationPersistenceMapper } from 'src/infrastructure/mappers/persistence/mongodb/chat/conversation.mapper';
+import { UserRole } from 'src/domain/enums/user-role.enum';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class ConversationRepository extends RepositoryBase<Conversation, ConversationDocument>
   implements IConversationRepository
@@ -71,7 +71,7 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
   }
 
   async findByParticipants(userAId: string, userBId: string): Promise<Conversation | null> {
-    // ... existing implementation ...
+    
     if (!Types.ObjectId.isValid(userAId) || !Types.ObjectId.isValid(userBId)) {
       return null;
     }
@@ -131,38 +131,47 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
   private async _getEnrichedParticipants(doc: ConversationDocument): Promise<Map<string, { name: string; profileImage: string | null }>> {
     const detailsMap = new Map<string, { name: string; profileImage: string | null }>();
 
+    
+    const isPopulatedUser = (u: unknown): u is { _id: Types.ObjectId; isBlocked?: boolean; role?: string; name?: string } => {
+      return typeof u === 'object' && u !== null && '_id' in u;
+    };
+
     await Promise.all(
-      doc.participants.map(async (participant: any) => {
+      doc.participants.map(async (participant: ConversationDocument['participants'][0]) => {
         const user = participant.user_id;
-        // Handle populated user object or direct access
-        const userId = user._id ? String(user._id) : String(participant.user_id);
+        
+        
+        const userId = isPopulatedUser(user) ? String(user._id) : String(participant.user_id);
         
         let profileImage: string | null = null;
         let name = 'Unknown';
 
-        // Check if user is blocked or deleted (if populated)
-        if (user && user.isBlocked) {
-           name = 'User Not Found';
-        } else if (user && user.role) {
-          if (user.role === 'seeker') {
-            const SeekerProfileModel = this.model.db.model('SeekerProfile');
-            const seekerProfile = await SeekerProfileModel.findOne({ userId: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
-            const avatarKey = seekerProfile?.avatarFileName || null;
-            
-            profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
-            name = user.name || 'Unknown';
-          } else if (user.role === 'company') {
-            const CompanyProfileModel = this.model.db.model('CompanyProfile');
-            const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
-            const logoKey = companyProfile?.logo || null;
-            
-            profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
-            name = companyProfile?.companyName || 'Unknown';
+        
+        if (isPopulatedUser(user)) {
+          const populatedUser = user as { _id: Types.ObjectId; isBlocked?: boolean; role?: string; name?: string }; 
+          if (populatedUser.isBlocked) {
+            name = 'User Not Found';
+          } else if (populatedUser.role) {
+            if (populatedUser.role === 'seeker') {
+              const SeekerProfileModel = this.model.db.model('SeekerProfile');
+              const seekerProfile = await SeekerProfileModel.findOne({ userId: populatedUser._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
+              const avatarKey = seekerProfile?.avatarFileName || null;
+              
+              profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
+              name = populatedUser.name || 'Unknown';
+            } else if (populatedUser.role === 'company') {
+              const CompanyProfileModel = this.model.db.model('CompanyProfile');
+              const companyProfile = await CompanyProfileModel.findOne({ userId: String(populatedUser._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
+              const logoKey = companyProfile?.logo || null;
+              
+              profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
+              name = companyProfile?.companyName || 'Unknown';
+            }
           }
         }
         
         detailsMap.set(userId, { name, profileImage });
-      })
+      }),
     );
 
     return detailsMap;

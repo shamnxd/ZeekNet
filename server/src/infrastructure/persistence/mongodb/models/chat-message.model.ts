@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { MessageStatus } from '../../../../domain/entities/chat-message.entity';
+import { MessageStatus } from 'src/domain/entities/chat-message.entity';
 
 export interface ChatMessageDocument extends Document {
   conversation_id: Types.ObjectId;

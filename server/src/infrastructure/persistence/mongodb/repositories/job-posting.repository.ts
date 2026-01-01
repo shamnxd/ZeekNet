@@ -1,10 +1,10 @@
-import { IJobPostingRepository } from '../../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { JobPosting } from '../../../../domain/entities/job-posting.entity';
-import { JobPostingModel, JobPostingDocument } from '../models/job-posting.model';
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { JobPostingModel, JobPostingDocument } from 'src/infrastructure/persistence/mongodb/models/job-posting.model';
 import { Types } from 'mongoose';
-import { JobPostingMapper } from '../mappers/job/job-posting.mapper';
-import { RepositoryBase } from './base-repository';
-import { CreateInput } from '../../../../domain/types/common.types';
+import { JobPostingMapper } from 'src/infrastructure/mappers/persistence/mongodb/job/job-posting.mapper';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { CreateInput } from 'src/domain/types/common.types';
 
 
 
@@ -40,7 +40,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     }
 
     const documents = await JobPostingModel.find({
-      _id: { $in: validIds.map(id => new Types.ObjectId(id)) }
+      _id: { $in: validIds.map(id => new Types.ObjectId(id)) },
     }).populate('company_id', 'companyName logo');
 
     return documents.map(doc => this.mapToEntity(doc));
@@ -49,7 +49,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   async postJob(job: JobPosting): Promise<JobPosting> {
     const document = new JobPostingModel({
       ...this.mapToDocument(job),
-      _id: new Types.ObjectId(job.id), // Ensure ID is passed
+      _id: new Types.ObjectId(job.id), 
     });
 
     const savedDoc = await document.save();
@@ -86,7 +86,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     const expiredCompanyIds = expiredSubscriptions.map(s => s.companyId);
 
     const andConditions: Record<string, unknown>[] = [
-      { status: { $in: ['active'] } }, // Only show active jobs, exclude closed
+      { status: { $in: ['active'] } }, 
     ];
 
     if (blockedCompanyIds.length > 0) {

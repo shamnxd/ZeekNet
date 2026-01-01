@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { ActivityType, ATSStage, ATSSubStage } from '../../../../domain/enums/ats-stage.enum';
+import { ActivityType, ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export interface IATSActivityDocument extends Document {
   applicationId: mongoose.Types.ObjectId;
@@ -60,7 +60,7 @@ const ATSActivitySchema = new Schema<IATSActivityDocument>(
   },
 );
 
-// Indexes for efficient querying
+
 ATSActivitySchema.index({ applicationId: 1, createdAt: -1 });
 
 export const ATSActivityModel = mongoose.model<IATSActivityDocument>('ATSActivity', ATSActivitySchema);

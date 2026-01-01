@@ -62,7 +62,7 @@ const ATSCompensationMeetingSchema = new Schema<IATSCompensationMeetingDocument>
   },
 );
 
-// Indexes
+
 ATSCompensationMeetingSchema.index({ applicationId: 1, createdAt: -1 });
 ATSCompensationMeetingSchema.index({ scheduledDate: 1 });
 

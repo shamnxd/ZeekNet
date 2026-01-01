@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
-import { PaymentStatus } from '../../../../domain/enums/payment-status.enum';
-import { PaymentMethod } from '../../../../domain/enums/payment-method.enum';
-import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
+import { PaymentStatus } from 'src/domain/enums/payment-status.enum';
+import { PaymentMethod } from 'src/domain/enums/payment-method.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 
 export interface PaymentOrderDocument extends Document {
   companyId: Types.ObjectId;

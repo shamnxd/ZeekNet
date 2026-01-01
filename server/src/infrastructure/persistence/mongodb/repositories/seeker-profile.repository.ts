@@ -1,9 +1,9 @@
 import { PipelineStage } from 'mongoose';
-import { ISeekerProfileRepository } from '../../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { SeekerProfile } from '../../../../domain/entities/seeker-profile.entity';
-import { SeekerProfileModel, SeekerProfileDocument as ModelDocument } from '../models/seeker-profile.model';
-import { RepositoryBase } from './base-repository';
-import { SeekerProfileMapper } from '../mappers/seeker/seeker-profile.mapper';
+import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { SeekerProfile } from 'src/domain/entities/seeker-profile.entity';
+import { SeekerProfileModel, SeekerProfileDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/seeker-profile.model';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { SeekerProfileMapper } from 'src/infrastructure/mappers/persistence/mongodb/seeker/seeker-profile.mapper';
 
 export class SeekerProfileRepository extends RepositoryBase<SeekerProfile, ModelDocument> implements ISeekerProfileRepository {
   constructor() {

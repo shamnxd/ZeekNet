@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
-import { SubscriptionStatus } from '../../../../domain/enums/subscription-status.enum';
-import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
+import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 
 export type SubscriptionStatusType = SubscriptionStatus;
 

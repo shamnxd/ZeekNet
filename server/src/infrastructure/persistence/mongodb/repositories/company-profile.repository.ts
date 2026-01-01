@@ -1,9 +1,9 @@
-import { ICompanyProfileRepository } from '../../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { CompanyProfile } from '../../../../domain/entities/company-profile.entity';
-import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from '../models/company-profile.model';
-import { CompanyProfileMapper } from '../mappers/company/company-profile.mapper';
-import { JobPostingModel } from '../models/job-posting.model';
-import { RepositoryBase } from './base-repository';
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
+import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/company-profile.model';
+import { CompanyProfileMapper } from 'src/infrastructure/mappers/persistence/mongodb/company/company-profile.mapper';
+import { JobPostingModel } from 'src/infrastructure/persistence/mongodb/models/job-posting.model';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 interface CompanyQuery {
   $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
