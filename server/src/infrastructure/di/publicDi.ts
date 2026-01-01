@@ -10,6 +10,7 @@ import { CompanyOfficeLocationRepository } from '../database/mongodb/repositorie
 import { CompanyTechStackRepository } from '../database/mongodb/repositories/company-tech-stack.repository';
 import { CompanyBenefitsRepository } from '../database/mongodb/repositories/company-benefits.repository';
 import { CompanyWorkplacePicturesRepository } from '../database/mongodb/repositories/company-workplace-pictures.repository';
+import { UserRepository } from '../database/mongodb/repositories/user.repository';
 import { S3Service } from '../external-services/s3/s3.service';
 import { GetAllJobPostingsUseCase } from '../../application/use-cases/public/get-all-job-postings.use-case';
 import { GetJobPostingForPublicUseCase } from '../../application/use-cases/public/get-job-posting-for-public.use-case';
@@ -34,11 +35,19 @@ const companyOfficeLocationRepository = new CompanyOfficeLocationRepository();
 const companyTechStackRepository = new CompanyTechStackRepository();
 const companyBenefitsRepository = new CompanyBenefitsRepository();
 const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
+const userRepository = new UserRepository();
 const s3Service = new S3Service();
 
 const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
 
-const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository, jobApplicationRepository, s3Service);
+const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  companyProfileRepository,
+  userRepository,
+  companyWorkplacePicturesRepository,
+  s3Service,
+);
 
 const getPublicSkillsUseCase = new GetPublicSkillsUseCase(skillRepository);
 const getPublicJobCategoriesUseCase = new GetPublicJobCategoriesUseCase(jobCategoryRepository);

@@ -1,6 +1,9 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
+import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
+import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
+import { IGetJobPostingForPublicUseCase } from '../../../domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
 import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
 import { JobPostingMapper } from '../../mappers/job-posting.mapper';
@@ -12,6 +15,9 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
     private readonly _s3Service: IS3Service,
   ) {}
 
@@ -66,11 +72,8 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       };
     }
     
-    const { CompanyProfileModel } = await import('../../../infrastructure/database/mongodb/models/company-profile.model');
-    const { UserModel } = await import('../../../infrastructure/database/mongodb/models/user.model');
-    const { CompanyWorkplacePicturesModel } = await import('../../../infrastructure/database/mongodb/models/company-workplace-pictures.model');
-
-    const companyProfile = await CompanyProfileModel.findById(companyId).populate('userId', 'isBlocked');
+    // Use repository instead of direct model access
+    const companyProfile = await this._companyProfileRepository.findById(companyId);
 
     if (!companyProfile) {
       return {
@@ -83,16 +86,20 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
       };
     }
 
-    const user = await UserModel.findById(companyProfile.userId);
+    // Check if user is blocked
+    const user = await this._userRepository.findById(companyProfile.userId);
     if (user && user.isBlocked) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError('Job posting not found'); // Hide blocked company jobs
     }
 
-    const workplacePictures = await CompanyWorkplacePicturesModel.find({
-      companyId: companyProfile._id,
-    })
-      .select('pictureUrl caption')
-      .limit(4);
+    // Fetch workplace pictures via repository
+    // Note: In a real optimized scenario, we'd add a specific method to repository to select specific fields and limit
+    // For now, we fetch them and slice.
+    const allWorkplacePictures = await this._companyWorkplacePicturesRepository.findMany({
+      companyId: companyProfile.id,
+    });
+    
+    const workplacePictures = allWorkplacePictures.slice(0, 4);
 
     const logoKey = companyProfile.logo && !companyProfile.logo.startsWith('http') && companyProfile.logo !== '/white.png' 
       ? companyProfile.logo 
@@ -107,7 +114,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
     );
 
     return CompanyProfileMapper.toPublicCompanyDetails(
-      companyProfile as unknown as CompanyProfile,
+      companyProfile,
       logoUrl,
       workplacePictures.map((pic, index) => ({
         pictureUrl: workplacePictureUrls[index] || pic.pictureUrl,
