@@ -8,7 +8,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { RevertToDefaultPlanUseCase } from './revert-to-default-plan.use-case';
 import { HandleStripeWebhookRequestDto } from '../../dto/company/handle-stripe-webhook.dto';
 import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/payments/IHandleStripeWebhookUseCase';
@@ -32,6 +32,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     private readonly _notificationRepository: INotificationRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _logger: ILogger,
   ) {
     this._revertToDefaultPlanUseCase = new RevertToDefaultPlanUseCase(
       this._companySubscriptionRepository,
@@ -39,6 +40,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
       this._jobPostingRepository,
       this._companyProfileRepository,
       this._notificationRepository,
+      this._logger,
     );
   }
 
@@ -68,7 +70,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
       return { received: true };
     } catch (error) {
-      logger.error(`Error processing Stripe webhook: ${(error as Error).message}`, { error });
+      this._logger.error(`Error processing Stripe webhook: ${(error as Error).message}`, { error });
       return { received: true };
     }
   }
@@ -78,7 +80,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
       const { companyId, planId, billingCycle } = session.metadata || {};
       
       if (!companyId || !planId || !session.subscription) {
-        logger.error('Missing required metadata in checkout session', { sessionId: session.id });
+        this._logger.error('Missing required metadata in checkout session', { sessionId: session.id });
         return;
       }
 
@@ -88,7 +90,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
       const existingSubscriptionByStripeId = await this._companySubscriptionRepository.findByStripeSubscriptionId(stripeSubscriptionId);
       if (existingSubscriptionByStripeId) {
-        logger.info(`Subscription ${stripeSubscriptionId} already exists, skipping creation`);
+        this._logger.info(`Subscription ${stripeSubscriptionId} already exists, skipping creation`);
         return;
       }
 
@@ -97,9 +99,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         if (existingActiveSubscription.stripeSubscriptionId) {
           try {
             await this._stripeService.cancelSubscription(existingActiveSubscription.stripeSubscriptionId, false);
-            logger.info(`Canceled old Stripe subscription ${existingActiveSubscription.stripeSubscriptionId} for company ${companyId}`);
+            this._logger.info(`Canceled old Stripe subscription ${existingActiveSubscription.stripeSubscriptionId} for company ${companyId}`);
           } catch (error) {
-            logger.error(`Failed to cancel old Stripe subscription ${existingActiveSubscription.stripeSubscriptionId}`, error);
+            this._logger.error(`Failed to cancel old Stripe subscription ${existingActiveSubscription.stripeSubscriptionId}`, error);
           }
         }
         
@@ -107,18 +109,18 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
           isActive: false,
           stripeStatus: SubscriptionStatus.CANCELED,
         });
-        logger.info(`Deactivated old subscription ${existingActiveSubscription.id} for company ${companyId}`);
+        this._logger.info(`Deactivated old subscription ${existingActiveSubscription.id} for company ${companyId}`);
       }
 
       const stripeSubscription = await this._stripeService.getSubscription(stripeSubscriptionId);
       if (!stripeSubscription) {
-        logger.error('Failed to get Stripe subscription', { stripeSubscriptionId });
+        this._logger.error('Failed to get Stripe subscription', { stripeSubscriptionId });
         return;
       }
 
       const plan = await this._subscriptionPlanRepository.findById(planId);
       if (!plan) {
-        logger.error('Plan not found', { planId });
+        this._logger.error('Plan not found', { planId });
         return;
       }
 
@@ -159,9 +161,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
             try {
               await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
               unlistedCount++;
-              logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
+              this._logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
             } catch (error) {
-              logger.error(`Failed to unlist job ${job.id} for company ${companyId}`, error);
+              this._logger.error(`Failed to unlist job ${job.id} for company ${companyId}`, error);
             }
           }
 
@@ -245,7 +247,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         await this._notificationRepository.create(notification);
       }
     } catch (error) {
-      logger.error('Error handling checkout.session.completed webhook', { error, sessionId: session.id });
+      this._logger.error('Error handling checkout.session.completed webhook', { error, sessionId: session.id });
       throw error;
     }
   }
@@ -357,9 +359,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
     try {
       await this._revertToDefaultPlanUseCase.execute(subscription.companyId);
-      logger.info(`Reverted company ${subscription.companyId} to default plan due to payment failure`);
+      this._logger.info(`Reverted company ${subscription.companyId} to default plan due to payment failure`);
     } catch (error) {
-      logger.error(`Failed to revert company ${subscription.companyId} to default plan after payment failure`, error);
+      this._logger.error(`Failed to revert company ${subscription.companyId} to default plan after payment failure`, error);
     }
 
     const companyProfile = await this._companyProfileRepository.findById(subscription.companyId);
@@ -404,9 +406,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     if (isCanceled && periodHasEnded) {
       try {
         await this._revertToDefaultPlanUseCase.execute(subscription.companyId);
-        logger.info(`Reverted company ${subscription.companyId} to default plan after canceled subscription period ended`);
+        this._logger.info(`Reverted company ${subscription.companyId} to default plan after canceled subscription period ended`);
       } catch (error) {
-        logger.error(`Failed to revert company ${subscription.companyId} to default plan after subscription period ended`, error);
+        this._logger.error(`Failed to revert company ${subscription.companyId} to default plan after subscription period ended`, error);
       }
     }
 
@@ -453,9 +455,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
     try {
       await this._revertToDefaultPlanUseCase.execute(subscription.companyId);
-      logger.info(`Reverted company ${subscription.companyId} to default plan after subscription deletion`);
+      this._logger.info(`Reverted company ${subscription.companyId} to default plan after subscription deletion`);
     } catch (error) {
-      logger.error(`Failed to revert company ${subscription.companyId} to default plan after subscription deletion`, error);
+      this._logger.error(`Failed to revert company ${subscription.companyId} to default plan after subscription deletion`, error);
     }
 
     const companyProfile = await this._companyProfileRepository.findById(subscription.companyId);

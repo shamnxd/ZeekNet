@@ -4,7 +4,7 @@ import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
 import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
 import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
@@ -66,7 +66,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
       result.errors.push(...yearlyResult.errors);
     }
 
-    logger.info(
+    this._logger.info(
       `Migration completed for plan ${plan.name}: ${result.migratedCount} migrated, ${result.failedCount} failed`,
     );
 
@@ -88,7 +88,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     const oldPriceHistory = await this._priceHistoryRepository.findLastArchivedByPlanIdAndType(planId, type);
     
     if (!oldPriceHistory) {
-      logger.info(`No archived ${type} price found for plan ${planId}`);
+      this._logger.info(`No archived ${type} price found for plan ${planId}`);
       return {
         fromPriceId: '',
         toPriceId: '',
@@ -101,7 +101,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     const currentPriceHistory = await this._priceHistoryRepository.findActiveByPlanIdAndType(planId, type);
     
     if (!currentPriceHistory) {
-      logger.warn(`No active ${type} price found for plan ${planId}`);
+      this._logger.warn(`No active ${type} price found for plan ${planId}`);
       return {
         fromPriceId: oldPriceHistory.stripePriceId,
         toPriceId: '',
@@ -114,7 +114,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     const fromPriceId = oldPriceHistory.stripePriceId;
     const toPriceId = currentPriceHistory.stripePriceId;
 
-    logger.info(`Migrating ${type} subscriptions from ${fromPriceId} to ${toPriceId}`);
+    this._logger.info(`Migrating ${type} subscriptions from ${fromPriceId} to ${toPriceId}`);
 
     let migratedCount = 0;
     let failedCount = 0;
@@ -153,12 +153,12 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
             await this.sendMigrationEmail(subscription, planName, oldPrice, newPrice, type);
 
             migratedCount++;
-            logger.info(`Migrated subscription ${subscription.id} from ${fromPriceId} to ${toPriceId}`);
+            this._logger.info(`Migrated subscription ${subscription.id} from ${fromPriceId} to ${toPriceId}`);
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             errors.push(`Failed to migrate subscription ${subscription.id}: ${errorMessage}`);
             failedCount++;
-            logger.error(`Failed to migrate subscription ${subscription.id}`, error);
+            this._logger.error(`Failed to migrate subscription ${subscription.id}`, error);
           }
         }
 
@@ -166,7 +166,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         errors.push(`Failed to list subscriptions: ${errorMessage}`);
-        logger.error(`Failed to list subscriptions for price ${fromPriceId}`, error);
+        this._logger.error(`Failed to list subscriptions for price ${fromPriceId}`, error);
         break;
       }
     } while (startingAfter);
@@ -209,7 +209,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
       }
 
       if (!customerEmail) {
-        logger.warn(`Cannot send migration email: No email found for subscription ${subscription.id}`);
+        this._logger.warn(`Cannot send migration email: No email found for subscription ${subscription.id}`);
         return;
       }
 
@@ -217,9 +217,9 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
       const html = subscriptionMigrationTemplate.html(planName, oldPrice, newPrice, billingCycle, companyName);
       
       await this._mailerService.sendMail(customerEmail, subject, html);
-      logger.info(`Sent migration email to ${customerEmail} for subscription ${subscription.id}`);
+      this._logger.info(`Sent migration email to ${customerEmail} for subscription ${subscription.id}`);
     } catch (error) {
-      logger.error(`Failed to send migration email for subscription ${subscription.id}`, error);
+      this._logger.error(`Failed to send migration email for subscription ${subscription.id}`, error);
     }
   }
 }

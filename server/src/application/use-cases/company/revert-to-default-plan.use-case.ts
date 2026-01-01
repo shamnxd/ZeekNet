@@ -7,7 +7,7 @@ import { CompanySubscription } from '../../../domain/entities/company-subscripti
 import { NotFoundError } from '../../../domain/errors/errors';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
@@ -18,6 +18,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _notificationRepository: INotificationRepository,
+    private readonly _logger: ILogger,
   ) {}
 
   async execute(companyId: string): Promise<CompanySubscription> {
@@ -39,7 +40,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     }
 
     if (currentSubscription.planId === defaultPlan.id) {
-      logger.info(`Company ${companyId} is already on default plan`);
+      this._logger.info(`Company ${companyId} is already on default plan`);
       return currentSubscription;
     }
 
@@ -66,9 +67,9 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
       try {
         await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
         unlistedCount++;
-        logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
+        this._logger.info(`Unlisted job ${job.id} for company ${companyId} due to plan downgrade`);
       } catch (error) {
-        logger.error(`Failed to unlist job ${job.id} for company ${companyId}`, error);
+        this._logger.error(`Failed to unlist job ${job.id} for company ${companyId}`, error);
       }
     }
 
@@ -111,7 +112,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
       );
     }
 
-    logger.info(
+    this._logger.info(
       `Reverted company ${companyId} to default plan. Unlisted ${unlistedCount} job(s). ` +
       `Remaining active jobs: ${remainingRegularJobs} regular, ${remainingFeaturedJobs} featured`,
     );

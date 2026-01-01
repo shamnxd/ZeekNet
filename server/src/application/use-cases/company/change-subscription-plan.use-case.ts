@@ -5,7 +5,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
 import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
@@ -99,9 +99,9 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
         try {
           await this._jobPostingRepository.update(job.id!, { status: JobStatus.UNLISTED });
           unlistedCount++;
-          logger.info(`Unlisted job ${job.id} for company ${companyProfile.id} due to plan downgrade`);
+          this._logger.info(`Unlisted job ${job.id} for company ${companyProfile.id} due to plan downgrade`);
         } catch (error) {
-          logger.error(`Failed to unlist job ${job.id} for company ${companyProfile.id}`, error);
+          this._logger.error(`Failed to unlist job ${job.id} for company ${companyProfile.id}`, error);
         }
       }
 
@@ -141,7 +141,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     }
 
     if (unlistedCount > 0) {
-      logger.info(
+      this._logger.info(
         `Plan changed for company ${companyProfile.id}. Unlisted ${unlistedCount} job(s). ` +
         `Remaining active jobs: ${remainingRegularJobs} regular, ${remainingFeaturedJobs} featured`,
       );
