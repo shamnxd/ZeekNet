@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { createSuccessResponse, createErrorResponse } from './response.utils';
-import { ErrorHandler } from './error.utils';
-import { AuthenticatedRequest } from '../../types/authenticated-request';
-import { HttpStatus } from '../../../domain/enums/http-status.enum';
+import { createSuccessResponse, createErrorResponse } from 'src/shared/utils/presentation/response.utils';
+import { ErrorHandler } from 'src/shared/utils/presentation/error.utils';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 export function extractUserId(req: AuthenticatedRequest): string | null {
   return req.user?.id || null;

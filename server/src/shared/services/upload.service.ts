@@ -1,5 +1,5 @@
-import { ValidationError } from '../../domain/errors/errors';
-import { IS3Service } from '../../domain/interfaces/services/IS3Service';
+import { ValidationError } from 'src/domain/errors/errors';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
 export interface UploadedFile {
   buffer: Buffer;

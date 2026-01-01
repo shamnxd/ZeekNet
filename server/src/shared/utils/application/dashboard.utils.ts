@@ -1,4 +1,4 @@
-import { env } from '../../../infrastructure/config/env';
+import { env } from 'src/infrastructure/config/env';
 
 export function getDashboardLink(role: string): string {
   const baseUrl = env.FRONTEND_URL || 'http://localhost:3000';
