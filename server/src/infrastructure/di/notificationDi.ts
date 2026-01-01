@@ -1,12 +1,12 @@
-import { NotificationRepository } from '../persistence/mongodb/repositories/notification.repository';
-import { NotificationController } from '../../presentation/controllers/notification/notification.controller';
-import { NotificationRouter } from '../../presentation/routes/notification-router';
-import { NotificationService } from '../external-services/socket/notification.service';
-import { CreateNotificationUseCase } from '../../application/use-cases/notification/create-notification.use-case';
-import { GetNotificationsUseCase } from '../../application/use-cases/notification/get-notifications.use-case';
-import { MarkNotificationAsReadUseCase } from '../../application/use-cases/notification/mark-notification-as-read.use-case';
-import { MarkAllNotificationsAsReadUseCase } from '../../application/use-cases/notification/mark-all-notifications-as-read.use-case';
-import { GetUnreadNotificationCountUseCase } from '../../application/use-cases/notification/get-unread-notification-count.use-case';
+import { NotificationRepository } from 'src/infrastructure/persistence/mongodb/repositories/notification.repository';
+import { NotificationController } from 'src/presentation/controllers/notification/notification.controller';
+import { NotificationRouter } from 'src/presentation/routes/notification-router';
+import { NotificationService } from 'src/infrastructure/external-services/socket/notification.service';
+import { CreateNotificationUseCase } from 'src/application/use-cases/notification/management/create-notification.use-case';
+import { GetNotificationsUseCase } from 'src/application/use-cases/notification/management/get-notifications.use-case';
+import { MarkNotificationAsReadUseCase } from 'src/application/use-cases/notification/management/mark-notification-as-read.use-case';
+import { MarkAllNotificationsAsReadUseCase } from 'src/application/use-cases/notification/management/mark-all-notifications-as-read.use-case';
+import { GetUnreadNotificationCountUseCase } from 'src/application/use-cases/notification/management/get-unread-notification-count.use-case';
 
 const notificationRepository = new NotificationRepository();
 

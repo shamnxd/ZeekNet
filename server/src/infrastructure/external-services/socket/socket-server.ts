@@ -1,15 +1,15 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { JwtTokenService } from '../../security/jwt-token-service';
-import { notificationService } from '../../di/notificationDi';
-import { chatService } from '../../di/chatDi';
-import { logger } from '../../config/logger';
-import { env } from '../../config/env';
+import { JwtTokenService } from 'src/infrastructure/security/jwt-token-service';
+import { notificationService } from 'src/infrastructure/di/notificationDi';
+import { chatService } from 'src/infrastructure/di/chatDi';
+import { logger } from 'src/infrastructure/config/logger';
+import { env } from 'src/infrastructure/config/env';
 import { ISocketServer } from 'src/domain/interfaces/services/ISocketServer';
 
 export class SocketServer implements ISocketServer {
   private io: SocketIOServer;
-  private webrtcRooms: Map<string, Set<string>> = new Map(); // roomId -> Set of socketIds
+  private webrtcRooms: Map<string, Set<string>> = new Map(); 
 
   constructor(httpServer: HTTPServer) {
     this.io = new SocketIOServer(httpServer, {
@@ -134,7 +134,7 @@ export class SocketServer implements ISocketServer {
         },
       );
 
-      // WebRTC signaling events
+      
       socket.on('webrtc:join-room', (payload: { roomId: string }, callback?: (response: unknown) => void) => {
         try {
           const { roomId } = payload || {};
@@ -145,13 +145,13 @@ export class SocketServer implements ISocketServer {
 
           socket.join(`webrtc:${roomId}`);
           
-          // Track participant
+          
           if (!this.webrtcRooms.has(roomId)) {
             this.webrtcRooms.set(roomId, new Set());
           }
           this.webrtcRooms.get(roomId)!.add(socket.id);
 
-          // Notify other participants
+          
           const otherParticipants = Array.from(this.webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
           socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', { socketId: socket.id, userId });
 
@@ -171,10 +171,10 @@ export class SocketServer implements ISocketServer {
           }
 
           if (targetSocketId) {
-            // Send to specific target
+            
             socket.to(targetSocketId).emit('webrtc:offer', { offer, socketId: socket.id });
           } else {
-            // Broadcast to all others in room
+            
             socket.to(`webrtc:${roomId}`).emit('webrtc:offer', { offer, socketId: socket.id });
           }
         } catch (error) {
@@ -190,10 +190,10 @@ export class SocketServer implements ISocketServer {
           }
 
           if (targetSocketId) {
-            // Send to specific target
+            
             socket.to(targetSocketId).emit('webrtc:answer', { answer, socketId: socket.id });
           } else {
-            // Broadcast to all others in room
+            
             socket.to(`webrtc:${roomId}`).emit('webrtc:answer', { answer, socketId: socket.id });
           }
         } catch (error) {
@@ -209,10 +209,10 @@ export class SocketServer implements ISocketServer {
           }
 
           if (targetSocketId) {
-            // Send to specific target
+            
             socket.to(targetSocketId).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           } else {
-            // Broadcast to all others in room
+            
             socket.to(`webrtc:${roomId}`).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           }
         } catch (error) {
@@ -229,14 +229,14 @@ export class SocketServer implements ISocketServer {
 
           socket.leave(`webrtc:${roomId}`);
           
-          // Remove participant
+          
           const roomParticipants = this.webrtcRooms.get(roomId);
           if (roomParticipants) {
             roomParticipants.delete(socket.id);
             if (roomParticipants.size === 0) {
               this.webrtcRooms.delete(roomId);
             } else {
-              // Notify others
+              
               socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
             }
           }
@@ -252,7 +252,7 @@ export class SocketServer implements ISocketServer {
         chatService.unregisterConnection(userId, socket.id);
         notificationService.unregisterUser(userId);
 
-        // Clean up WebRTC rooms
+        
         this.webrtcRooms.forEach((participants, roomId) => {
           if (participants.has(socket.id)) {
             participants.delete(socket.id);

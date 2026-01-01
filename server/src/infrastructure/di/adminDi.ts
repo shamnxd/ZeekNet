@@ -1,58 +1,58 @@
-import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
-import { CompanyVerificationRepository } from '../persistence/mongodb/repositories/company-verification.repository';
-import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
-import { JobCategoryRepository } from '../persistence/mongodb/repositories/job-category.repository';
-import { SkillRepository } from '../persistence/mongodb/repositories/skill.repository';
-import { JobRoleRepository } from '../persistence/mongodb/repositories/job-role.repository';
-import { SubscriptionPlanRepository } from '../persistence/mongodb/repositories/subscription-plan.repository';
-import { CompanySubscriptionRepository } from '../persistence/mongodb/repositories/company-subscription.repository';
-import { PaymentOrderRepository } from '../persistence/mongodb/repositories/payment-order.repository';
-import { PriceHistoryRepository } from '../persistence/mongodb/repositories/price-history.repository';
-import { stripeService } from './companyDi';
-import { GetAllUsersUseCase } from '../../application/use-cases/admin/get-all-users.use-case';
-import { BlockUserUseCase } from '../../application/use-cases/admin/block-user.use-case';
-import { GetUserByIdUseCase } from '../../application/use-cases/admin/get-user-by-id.use-case';
-import { GetCompaniesWithVerificationUseCase } from '../../application/use-cases/admin/get-companies-with-verification.use-case';
-import { S3Service } from '../external-services/s3/s3.service';
-import { VerifyCompanyUseCase } from '../../application/use-cases/admin/verify-company.use-case';
-import { GetAllJobsUseCase } from '../../application/use-cases/admin/get-all-jobs.use-case';
-import { AdminGetJobByIdUseCase } from '../../application/use-cases/admin/get-job-by-id.use-case';
-import { AdminUpdateJobStatusUseCase } from '../../application/use-cases/admin/update-job-status.use-case';
-import { AdminDeleteJobUseCase } from '../../application/use-cases/admin/delete-job.use-case';
-import { AdminGetJobStatsUseCase } from '../../application/use-cases/admin/get-job-stats.use-case';
-import { CreateJobCategoryUseCase } from '../../application/use-cases/admin/create-job-category.use-case';
-import { GetAllJobCategoriesUseCase } from '../../application/use-cases/admin/get-all-job-categories.use-case';
-import { GetJobCategoryByIdUseCase } from '../../application/use-cases/admin/get-job-category-by-id.use-case';
-import { UpdateJobCategoryUseCase } from '../../application/use-cases/admin/update-job-category.use-case';
-import { DeleteJobCategoryUseCase } from '../../application/use-cases/admin/delete-job-category.use-case';
-import { CreateSkillUseCase } from '../../application/use-cases/admin/create-skill.use-case';
-import { GetAllSkillsUseCase } from '../../application/use-cases/admin/get-all-skills.use-case';
-import { GetSkillByIdUseCase } from '../../application/use-cases/admin/get-skill-by-id.use-case';
-import { UpdateSkillUseCase } from '../../application/use-cases/admin/update-skill.use-case';
-import { DeleteSkillUseCase } from '../../application/use-cases/admin/delete-skill.use-case';
-import { CreateJobRoleUseCase } from '../../application/use-cases/admin/create-job-role.use-case';
-import { GetAllJobRolesUseCase } from '../../application/use-cases/admin/get-all-job-roles.use-case';
-import { GetJobRoleByIdUseCase } from '../../application/use-cases/admin/get-job-role-by-id.use-case';
-import { UpdateJobRoleUseCase } from '../../application/use-cases/admin/update-job-role.use-case';
-import { DeleteJobRoleUseCase } from '../../application/use-cases/admin/delete-job-role.use-case';
-import { CreateSubscriptionPlanUseCase } from '../../application/use-cases/admin/create-subscription-plan.use-case';
-import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
-import { GetSubscriptionPlanByIdUseCase } from '../../application/use-cases/admin/get-subscription-plan-by-id.use-case';
-import { UpdateSubscriptionPlanUseCase } from '../../application/use-cases/admin/update-subscription-plan.use-case';
-import { MigratePlanSubscribersUseCase } from '../../application/use-cases/admin/migrate-plan-subscribers.use-case';
-import { GetAllPaymentOrdersUseCase } from '../../application/use-cases/admin/get-all-payment-orders.use-case';
-import { NodemailerService } from '../messaging/mailer';
-import { AdminController } from '../../presentation/controllers/admin/admin.controller';
-import { AdminJobController } from '../../presentation/controllers/admin/admin-job.controller';
-import { AdminJobCategoryController } from '../../presentation/controllers/admin/admin-job-category.controller';
-import { AdminSkillController } from '../../presentation/controllers/admin/admin-skill.controller';
-import { AdminJobRoleController } from '../../presentation/controllers/admin/admin-job-role.controller';
-import { AdminSubscriptionPlanController } from '../../presentation/controllers/admin/admin-subscription-plan.controller';
-import { AdminPaymentOrderController } from '../../presentation/controllers/admin/admin-payment-order.controller';
-import { GetAllCompaniesUseCase } from '../../application/use-cases/admin/get-all-companies.use-case';
-import { GetPendingCompaniesUseCase } from '../../application/use-cases/admin/get-pending-companies.use-case';
-import { GetCompanyByIdUseCase } from '../../application/use-cases/admin/get-company-by-id.use-case';
+import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
+import { CompanyVerificationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-verification.repository';
+import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
+import { JobCategoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-category.repository';
+import { SkillRepository } from 'src/infrastructure/persistence/mongodb/repositories/skill.repository';
+import { JobRoleRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-role.repository';
+import { SubscriptionPlanRepository } from 'src/infrastructure/persistence/mongodb/repositories/subscription-plan.repository';
+import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from 'src/infrastructure/persistence/mongodb/repositories/payment-order.repository';
+import { PriceHistoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/price-history.repository';
+import { stripeService } from 'src/infrastructure/di/companyDi';
+import { GetAllUsersUseCase } from 'src/application/use-cases/admin/user/get-all-users.use-case';
+import { BlockUserUseCase } from 'src/application/use-cases/admin/user/block-user.use-case';
+import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
+import { GetCompaniesWithVerificationUseCase } from 'src/application/use-cases/admin/companies/get-companies-with-verification.use-case';
+import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { VerifyCompanyUseCase } from 'src/application/use-cases/admin/companies/verify-company.use-case';
+import { GetAllJobsUseCase } from 'src/application/use-cases/admin/job/get-all-jobs.use-case';
+import { AdminGetJobByIdUseCase } from 'src/application/use-cases/admin/job/get-job-by-id.use-case';
+import { AdminUpdateJobStatusUseCase } from 'src/application/use-cases/admin/job/update-job-status.use-case';
+import { AdminDeleteJobUseCase } from 'src/application/use-cases/admin/job/delete-job.use-case';
+import { AdminGetJobStatsUseCase } from 'src/application/use-cases/admin/analytics/get-job-stats.use-case';
+import { CreateJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/create-job-category.use-case';
+import { GetAllJobCategoriesUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/get-all-job-categories.use-case';
+import { GetJobCategoryByIdUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/get-job-category-by-id.use-case';
+import { UpdateJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/update-job-category.use-case';
+import { DeleteJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/delete-job-category.use-case';
+import { CreateSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/create-skill.use-case';
+import { GetAllSkillsUseCase } from 'src/application/use-cases/admin/attributes/skills/get-all-skills.use-case';
+import { GetSkillByIdUseCase } from 'src/application/use-cases/admin/attributes/skills/get-skill-by-id.use-case';
+import { UpdateSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/update-skill.use-case';
+import { DeleteSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/delete-skill.use-case';
+import { CreateJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/create-job-role.use-case';
+import { GetAllJobRolesUseCase } from 'src/application/use-cases/admin/attributes/job-roles/get-all-job-roles.use-case';
+import { GetJobRoleByIdUseCase } from 'src/application/use-cases/admin/attributes/job-roles/get-job-role-by-id.use-case';
+import { UpdateJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/update-job-role.use-case';
+import { DeleteJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/delete-job-role.use-case';
+import { CreateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/subscription/create-subscription-plan.use-case';
+import { GetAllSubscriptionPlansUseCase } from 'src/application/use-cases/admin/subscription/get-all-subscription-plans.use-case';
+import { GetSubscriptionPlanByIdUseCase } from 'src/application/use-cases/admin/subscription/get-subscription-plan-by-id.use-case';
+import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/subscription/update-subscription-plan.use-case';
+import { MigratePlanSubscribersUseCase } from 'src/application/use-cases/admin/subscription/migrate-plan-subscribers.use-case';
+import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
+import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { AdminController } from 'src/presentation/controllers/admin/admin.controller';
+import { AdminJobController } from 'src/presentation/controllers/admin/admin-job.controller';
+import { AdminJobCategoryController } from 'src/presentation/controllers/admin/admin-job-category.controller';
+import { AdminSkillController } from 'src/presentation/controllers/admin/admin-skill.controller';
+import { AdminJobRoleController } from 'src/presentation/controllers/admin/admin-job-role.controller';
+import { AdminSubscriptionPlanController } from 'src/presentation/controllers/admin/admin-subscription-plan.controller';
+import { AdminPaymentOrderController } from 'src/presentation/controllers/admin/admin-payment-order.controller';
+import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-all-companies.use-case';
+import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
+import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -70,11 +70,11 @@ const s3Service = new S3Service();
 
 const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
 
-import { notificationService } from './notificationDi';
+import { notificationService } from 'src/infrastructure/di/notificationDi';
 
-// ... (requires precise target or multiple edits. I will just do imports at top separately? No, I can't easily add top imports. I will rely on TS resolution or put it together).
-// Actually, adminDi.ts already imports from other DI files.
-// Let's replace the line defining blockUserUseCase.
+
+
+
 
 const blockUserUseCase = new BlockUserUseCase(userRepository, notificationService);
 
@@ -133,12 +133,12 @@ const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscr
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
 const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const mailerService = new NodemailerService();
-import { logger } from '../config/logger';
-import { EmailTemplateService } from '../services/email-template.service';
+import { logger } from 'src/infrastructure/config/logger';
+import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
 
 const emailTemplateService = new EmailTemplateService();
 
-// Step 2: Inject logger
+
 const migratePlanSubscribersUseCase = new MigratePlanSubscribersUseCase(
   subscriptionPlanRepository,
   stripeService,

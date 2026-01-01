@@ -1,51 +1,51 @@
 
-import { ATSPipelineController } from '../../presentation/controllers/company/ats-pipeline.controller';
-import { ATSInterviewController } from '../../presentation/controllers/company/ats-interview.controller';
-import { ATSTechnicalTaskController } from '../../presentation/controllers/company/ats-technical-task.controller';
-import { ATSOfferController } from '../../presentation/controllers/company/ats-offer.controller';
-import { ATSCommentController } from '../../presentation/controllers/company/ats-comment.controller';
-import { ATSCompensationController } from '../../presentation/controllers/company/ats-compensation.controller';
-import { ATSActivityController } from '../../presentation/controllers/company/ats-activity.controller';
+import { ATSPipelineController } from 'src/presentation/controllers/ats/pipeline/ats-pipeline.controller';
+import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
+import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
+import { ATSOfferController } from 'src/presentation/controllers/ats/offer/ats-offer.controller';
+import { ATSCommentController } from 'src/presentation/controllers/ats/activity/ats-comment.controller';
+import { ATSCompensationController } from 'src/presentation/controllers/ats/offer/ats-compensation.controller';
+import { ATSActivityController } from 'src/presentation/controllers/ats/activity/ats-activity.controller';
 
-import { ScheduleInterviewUseCase } from '../../application/use-cases/ats/schedule-interview.use-case';
-import { UpdateInterviewUseCase } from '../../application/use-cases/ats/update-interview.use-case';
-import { AssignTechnicalTaskUseCase } from '../../application/use-cases/ats/assign-technical-task.use-case';
-import { UpdateTechnicalTaskUseCase } from '../../application/use-cases/ats/update-technical-task.use-case';
-import { DeleteTechnicalTaskUseCase } from '../../application/use-cases/ats/delete-technical-task.use-case';
-import { UploadOfferUseCase } from '../../application/use-cases/ats/upload-offer.use-case';
-import { UpdateOfferStatusUseCase } from '../../application/use-cases/ats/update-offer-status.use-case';
-import { AddCommentUseCase } from '../../application/use-cases/ats/add-comment.use-case';
-import { GetApplicationActivitiesPaginatedUseCase } from '../../application/use-cases/ats/get-application-activities-paginated.use-case';
-import { GetInterviewsByApplicationUseCase } from '../../application/use-cases/ats/get-interviews-by-application.use-case';
-import { GetTechnicalTasksByApplicationUseCase } from '../../application/use-cases/ats/get-technical-tasks-by-application.use-case';
-import { GetOffersByApplicationUseCase } from '../../application/use-cases/ats/get-offers-by-application.use-case';
-import { MoveApplicationStageUseCase } from '../../application/use-cases/ats/move-application-stage.use-case';
-import { UpdateApplicationSubStageUseCase } from '../../application/use-cases/ats/update-application-sub-stage.use-case';
-import { GetJobATSPipelineUseCase } from '../../application/use-cases/ats/get-job-ats-pipeline.use-case';
-import { GetJobApplicationsForKanbanUseCase } from '../../application/use-cases/ats/get-job-applications-for-kanban.use-case';
-import { InitiateCompensationUseCase } from '../../application/use-cases/ats/initiate-compensation.use-case';
-import { UpdateCompensationUseCase } from '../../application/use-cases/ats/update-compensation.use-case';
-import { GetCompensationUseCase } from '../../application/use-cases/ats/get-compensation.use-case';
-import { ScheduleCompensationMeetingUseCase } from '../../application/use-cases/ats/schedule-compensation-meeting.use-case';
-import { GetCompensationMeetingsUseCase } from '../../application/use-cases/ats/get-compensation-meetings.use-case';
-import { UpdateCompensationMeetingStatusUseCase } from '../../application/use-cases/ats/update-compensation-meeting-status.use-case';
-import { GetCommentsByApplicationUseCase } from '../../application/use-cases/ats/get-comments-by-application.use-case';
+import { ScheduleInterviewUseCase } from 'src/application/use-cases/application/interview/schedule-interview.use-case';
+import { UpdateInterviewUseCase } from 'src/application/use-cases/application/interview/update-interview.use-case';
+import { AssignTechnicalTaskUseCase } from 'src/application/use-cases/application/task/assign-technical-task.use-case';
+import { UpdateTechnicalTaskUseCase } from 'src/application/use-cases/application/task/update-technical-task.use-case';
+import { DeleteTechnicalTaskUseCase } from 'src/application/use-cases/application/task/delete-technical-task.use-case';
+import { UploadOfferUseCase } from 'src/application/use-cases/application/offer/upload-offer.use-case';
+import { UpdateOfferStatusUseCase } from 'src/application/use-cases/application/offer/update-offer-status.use-case';
+import { AddCommentUseCase } from 'src/application/use-cases/application/activity/add-comment.use-case';
+import { GetApplicationActivitiesPaginatedUseCase } from 'src/application/use-cases/application/activity/get-application-activities-paginated.use-case';
+import { GetInterviewsByApplicationUseCase } from 'src/application/use-cases/application/interview/get-interviews-by-application.use-case';
+import { GetTechnicalTasksByApplicationUseCase } from 'src/application/use-cases/application/task/get-technical-tasks-by-application.use-case';
+import { GetOffersByApplicationUseCase } from 'src/application/use-cases/application/offer/get-offers-by-application.use-case';
+import { MoveApplicationStageUseCase } from 'src/application/use-cases/application/pipeline/move-application-stage.use-case';
+import { UpdateApplicationSubStageUseCase } from 'src/application/use-cases/application/pipeline/update-application-sub-stage.use-case';
+import { GetJobATSPipelineUseCase } from 'src/application/use-cases/application/pipeline/get-job-ats-pipeline.use-case';
+import { GetJobApplicationsForKanbanUseCase } from 'src/application/use-cases/application/pipeline/get-job-applications-for-kanban.use-case';
+import { InitiateCompensationUseCase } from 'src/application/use-cases/application/compensation/initiate-compensation.use-case';
+import { UpdateCompensationUseCase } from 'src/application/use-cases/application/compensation/update-compensation.use-case';
+import { GetCompensationUseCase } from 'src/application/use-cases/application/compensation/get-compensation.use-case';
+import { ScheduleCompensationMeetingUseCase } from 'src/application/use-cases/application/compensation/schedule-compensation-meeting.use-case';
+import { GetCompensationMeetingsUseCase } from 'src/application/use-cases/application/compensation/get-compensation-meetings.use-case';
+import { UpdateCompensationMeetingStatusUseCase } from 'src/application/use-cases/application/compensation/update-compensation-meeting-status.use-case';
+import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/activity/get-comments-by-application.use-case';
 
-import { ActivityLoggerService } from '../../application/services/activity-logger.service';
-import { FileUrlService } from '../../application/services/file-url.service';
+import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
+import { FileUrlService } from 'src/application/services/file-url.service';
 
-import { ATSInterviewRepository } from '../persistence/mongodb/repositories/ats-interview.repository';
-import { ATSTechnicalTaskRepository } from '../persistence/mongodb/repositories/ats-technical-task.repository';
-import { ATSOfferRepository } from '../persistence/mongodb/repositories/ats-offer.repository';
-import { ATSCommentRepository } from '../persistence/mongodb/repositories/ats-comment.repository';
-import { ATSActivityRepository } from '../persistence/mongodb/repositories/ats-activity.repository';
-import { ATSCompensationRepository } from '../persistence/mongodb/repositories/ats-compensation.repository';
-import { ATSCompensationMeetingRepository } from '../persistence/mongodb/repositories/ats-compensation-meeting.repository';
-import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
-import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
-import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
-import { S3Service } from '../external-services/s3/s3.service';
-import { getCompanyIdByUserIdUseCase } from './companyDi';
+import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
+import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-technical-task.repository';
+import { ATSOfferRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-offer.repository';
+import { ATSCommentRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-comment.repository';
+import { ATSActivityRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-activity.repository';
+import { ATSCompensationRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation.repository';
+import { ATSCompensationMeetingRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation-meeting.repository';
+import { JobApplicationRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-application.repository';
+import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
+import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
+import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { getCompanyIdByUserIdUseCase } from 'src/infrastructure/di/companyDi';
 
 const interviewRepository = new ATSInterviewRepository();
 const technicalTaskRepository = new ATSTechnicalTaskRepository();
@@ -71,7 +71,7 @@ const deleteTechnicalTaskUseCase = new DeleteTechnicalTaskUseCase(technicalTaskR
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository);
 const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, activityLoggerService);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRepository);
-// Note: updateApplicationSubStageUseCase must be initialized before updateOfferStatusUseCase due to dependency
+
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,

@@ -1,56 +1,56 @@
-import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
-import { AnalyzeResumeUseCase } from '../../application/use-cases/seeker/analyze-resume.use-case';
+import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
+import { AnalyzeResumeUseCase } from 'src/application/use-cases/seeker/score-checker/analyze-resume.use-case';
 
-import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
-import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
-import { SeekerExperienceRepository } from '../persistence/mongodb/repositories/seeker-experience.repository';
-import { SeekerEducationRepository } from '../persistence/mongodb/repositories/seeker-education.repository';
-import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
-import { notificationRepository, notificationService } from './notificationDi';
-import { SeekerProfileController } from '../../presentation/controllers/seeker/seeker-profile.controller';
-import { SeekerJobApplicationController } from '../../presentation/controllers/seeker/job-application.controller';
-import { CreateJobApplicationUseCase } from '../../application/use-cases/seeker/create-job-application.use-case';
-import { CalculateATSScoreUseCase } from '../../application/use-cases/seeker/calculate-ats-score.use-case';
-import { GetApplicationsBySeekerUseCase } from '../../application/use-cases/seeker/get-applications-by-seeker.use-case';
-import { GetSeekerApplicationDetailsUseCase } from '../../application/use-cases/seeker/get-seeker-application-details.use-case';
-import { CreateSeekerProfileUseCase } from '../../application/use-cases/seeker/create-seeker-profile.use-case';
-import { GetSeekerProfileUseCase } from '../../application/use-cases/seeker/get-seeker-profile.use-case';
-import { UpdateSeekerProfileUseCase } from '../../application/use-cases/seeker/update-seeker-profile.use-case';
-import { AddExperienceUseCase } from '../../application/use-cases/seeker/add-experience.use-case';
-import { GetExperiencesUseCase } from '../../application/use-cases/seeker/get-experiences.use-case';
-import { UpdateExperienceUseCase } from '../../application/use-cases/seeker/update-experience.use-case';
-import { RemoveExperienceUseCase } from '../../application/use-cases/seeker/remove-experience.use-case';
-import { AddEducationUseCase } from '../../application/use-cases/seeker/add-education.use-case';
-import { GetEducationUseCase } from '../../application/use-cases/seeker/get-education.use-case';
-import { UpdateEducationUseCase } from '../../application/use-cases/seeker/update-education.use-case';
-import { RemoveEducationUseCase } from '../../application/use-cases/seeker/remove-education.use-case';
-import { UpdateSkillsUseCase } from '../../application/use-cases/seeker/update-skills.use-case';
-import { UpdateLanguagesUseCase } from '../../application/use-cases/seeker/update-languages.use-case';
-import { UploadResumeUseCase } from '../../application/use-cases/seeker/upload-resume.use-case';
-import { RemoveResumeUseCase } from '../../application/use-cases/seeker/remove-resume.use-case';
-import { UploadAvatarUseCase } from '../../application/use-cases/seeker/upload-avatar.use-case';
-import { UploadBannerUseCase } from '../../application/use-cases/seeker/upload-banner.use-case';
-import { S3Service } from '../external-services/s3/s3.service';
-import { ATSInterviewRepository } from '../persistence/mongodb/repositories/ats-interview.repository';
-import { ATSTechnicalTaskRepository } from '../persistence/mongodb/repositories/ats-technical-task.repository';
-import { ATSOfferRepository } from '../persistence/mongodb/repositories/ats-offer.repository';
-import { ATSCompensationRepository } from '../persistence/mongodb/repositories/ats-compensation.repository';
-import { ATSCompensationMeetingRepository } from '../persistence/mongodb/repositories/ats-compensation-meeting.repository';
-import { ATSActivityRepository } from '../persistence/mongodb/repositories/ats-activity.repository';
-import { UpdateApplicationSubStageUseCase } from '../../application/use-cases/ats/update-application-sub-stage.use-case';
-import { ActivityLoggerService } from '../../application/services/activity-logger.service';
-import { AtsService } from '../services/ats.service';
-import { ResumeParserService } from '../services/resume-parser.service';
-import { env } from '../config/env';
-import { GetInterviewsByApplicationUseCase } from '../../application/use-cases/seeker/get-interviews-by-application.use-case';
-import { GetTechnicalTasksByApplicationUseCase } from '../../application/use-cases/seeker/get-technical-tasks-by-application.use-case';
-import { SubmitTechnicalTaskUseCase } from '../../application/use-cases/seeker/submit-technical-task.use-case';
-import { GetOffersByApplicationUseCase } from '../../application/use-cases/seeker/get-offers-by-application.use-case';
-import { GetCompensationByApplicationUseCase } from '../../application/use-cases/seeker/get-compensation-by-application.use-case';
-import { GetCompensationMeetingsByApplicationUseCase } from '../../application/use-cases/seeker/get-compensation-meetings-by-application.use-case';
-import { UpdateOfferStatusUseCase } from '../../application/use-cases/seeker/update-offer-status.use-case';
-import { UploadSignedOfferDocumentUseCase } from '../../application/use-cases/seeker/upload-signed-offer-document.use-case';
+import { JobApplicationRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-application.repository';
+import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
+import { SeekerExperienceRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-experience.repository';
+import { SeekerEducationRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-education.repository';
+import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
+import { notificationRepository, notificationService } from 'src/infrastructure/di/notificationDi';
+import { SeekerProfileController } from 'src/presentation/controllers/seeker/profile/seeker-profile.controller';
+import { SeekerJobApplicationController } from 'src/presentation/controllers/seeker/applications/job-application.controller';
+import { CreateJobApplicationUseCase } from 'src/application/use-cases/seeker/applications/create-job-application.use-case';
+import { CalculateATSScoreUseCase } from 'src/application/use-cases/seeker/applications/calculate-ats-score.use-case';
+import { GetApplicationsBySeekerUseCase } from 'src/application/use-cases/seeker/applications/get-applications-by-seeker.use-case';
+import { GetSeekerApplicationDetailsUseCase } from 'src/application/use-cases/seeker/applications/get-seeker-application-details.use-case';
+import { CreateSeekerProfileUseCase } from 'src/application/use-cases/seeker/profile/info/create-seeker-profile.use-case';
+import { GetSeekerProfileUseCase } from 'src/application/use-cases/seeker/profile/info/get-seeker-profile.use-case';
+import { UpdateSeekerProfileUseCase } from 'src/application/use-cases/seeker/profile/info/update-seeker-profile.use-case';
+import { AddExperienceUseCase } from 'src/application/use-cases/seeker/profile/experience/add-experience.use-case';
+import { GetExperiencesUseCase } from 'src/application/use-cases/seeker/profile/experience/get-experiences.use-case';
+import { UpdateExperienceUseCase } from 'src/application/use-cases/seeker/profile/experience/update-experience.use-case';
+import { RemoveExperienceUseCase } from 'src/application/use-cases/seeker/profile/experience/remove-experience.use-case';
+import { AddEducationUseCase } from 'src/application/use-cases/seeker/profile/education/add-education.use-case';
+import { GetEducationUseCase } from 'src/application/use-cases/seeker/profile/education/get-education.use-case';
+import { UpdateEducationUseCase } from 'src/application/use-cases/seeker/profile/education/update-education.use-case';
+import { RemoveEducationUseCase } from 'src/application/use-cases/seeker/profile/education/remove-education.use-case';
+import { UpdateSkillsUseCase } from 'src/application/use-cases/seeker/profile/skills/update-skills.use-case';
+import { UpdateLanguagesUseCase } from 'src/application/use-cases/seeker/profile/languages/update-languages.use-case';
+import { UploadResumeUseCase } from 'src/application/use-cases/seeker/media/upload-resume.use-case';
+import { RemoveResumeUseCase } from 'src/application/use-cases/seeker/media/remove-resume.use-case';
+import { UploadAvatarUseCase } from 'src/application/use-cases/seeker/media/upload-avatar.use-case';
+import { UploadBannerUseCase } from 'src/application/use-cases/seeker/media/upload-banner.use-case';
+import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
+import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-technical-task.repository';
+import { ATSOfferRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-offer.repository';
+import { ATSCompensationRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation.repository';
+import { ATSCompensationMeetingRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation-meeting.repository';
+import { ATSActivityRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-activity.repository';
+import { UpdateApplicationSubStageUseCase } from 'src/application/use-cases/application/pipeline/update-application-sub-stage.use-case';
+import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
+import { AtsService } from 'src/infrastructure/services/ats.service';
+import { ResumeParserService } from 'src/infrastructure/services/resume-parser.service';
+import { env } from 'src/infrastructure/config/env';
+import { GetInterviewsByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-interviews-by-application.use-case';
+import { GetTechnicalTasksByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-technical-tasks-by-application.use-case';
+import { SubmitTechnicalTaskUseCase } from 'src/application/use-cases/seeker/applications/submit-technical-task.use-case';
+import { GetOffersByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-offers-by-application.use-case';
+import { GetCompensationByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-compensation-by-application.use-case';
+import { GetCompensationMeetingsByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-compensation-meetings-by-application.use-case';
+import { UpdateOfferStatusUseCase } from 'src/application/use-cases/seeker/applications/update-offer-status.use-case';
+import { UploadSignedOfferDocumentUseCase } from 'src/application/use-cases/seeker/applications/upload-signed-offer-document.use-case';
 
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
@@ -89,7 +89,7 @@ const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3S
 const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
 
-// ATS Score Calculation Use Case (extracted from CreateJobApplicationUseCase)
+
 const calculateATSScoreUseCase = new CalculateATSScoreUseCase(jobApplicationRepository, atsService);
 
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(
@@ -110,7 +110,7 @@ const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   activityLoggerService,
 );
 
-// New Use Cases for seeker job application operations
+
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(jobApplicationRepository, interviewRepository);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(jobApplicationRepository, technicalTaskRepository, s3Service);
 const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository);

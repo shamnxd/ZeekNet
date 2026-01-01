@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
+import { CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
+import { ICreateNotificationUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { INotificationService } from 'src/domain/interfaces/services/INotificationService';
 
 export class NotificationService implements INotificationService {

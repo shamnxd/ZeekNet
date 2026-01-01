@@ -10,7 +10,7 @@ import {
   PaymentInvoice,
   PaymentSubscriptionItem,
   PaymentInvoiceLineItem,
-} from '../../../../domain/types/payment/payment-types';
+} from 'src/domain/types/payment/payment-types';
 
 export class StripeWebApiMapper {
   static mapCustomer(customer: Stripe.Customer | Stripe.DeletedCustomer): PaymentCustomer {
@@ -65,11 +65,11 @@ export class StripeWebApiMapper {
   static mapInvoice(invoice: Stripe.Invoice): PaymentInvoice {
     const lines = invoice.lines?.data?.map(l => ({
       id: l.id,
-      subscription: typeof l.subscription === 'string' ? l.subscription : (l.subscription as Stripe.Subscription)?.id
+      subscription: typeof l.subscription === 'string' ? l.subscription : (l.subscription as Stripe.Subscription)?.id,
     } as PaymentInvoiceLineItem)) || [];
 
-    // Cast to any to access fields that might be missing in strict types but exist in API
-    const invoiceAny = invoice as any;
+    
+    const invoiceAny = invoice as Stripe.Invoice & { payment_intent?: string | { id: string }; subscription?: string | Stripe.Subscription };
 
     return {
       id: invoice.id,
@@ -88,7 +88,7 @@ export class StripeWebApiMapper {
   }
 
   static mapSubscription(subscription: Stripe.Subscription): PaymentSubscription {
-    const subscriptionAny = subscription as any;
+    const subscriptionAny = subscription as Stripe.Subscription & { current_period_start: number; current_period_end: number; latest_invoice?: string | Stripe.Invoice };
     const items = subscription.items.data.map(i => this.mapSubscriptionItem(i));
     return {
       id: subscription.id,
@@ -119,9 +119,9 @@ export class StripeWebApiMapper {
   }
 
   static mapEvent(event: Stripe.Event): PaymentEvent {
-    let objectData: any = event.data.object;
+    let objectData: PaymentSession | PaymentInvoice | PaymentSubscription | Record<string, unknown> = event.data.object as unknown as Record<string, unknown>;
 
-    // We only map specific types we care about to avoid mapping everything
+    
     if (event.type.startsWith('customer.subscription.')) {
       objectData = this.mapSubscription(event.data.object as Stripe.Subscription);
     } else if (event.type.startsWith('invoice.')) {

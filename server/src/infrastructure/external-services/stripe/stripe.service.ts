@@ -6,7 +6,7 @@ import {
   CreateCheckoutSessionParams,
   CreateCustomerParams,
   UpdateSubscriptionParams,
-} from '../../../domain/interfaces/services/IStripeService';
+} from 'src/domain/interfaces/services/IStripeService';
 import {
   PaymentCustomer,
   PaymentProduct,
@@ -16,10 +16,10 @@ import {
   PaymentBillingPortalSession,
   PaymentEvent,
   PaymentInvoice,
-} from '../../../domain/types/payment/payment-types';
-import { logger } from '../../config/logger';
-import { env } from '../../config/env';
-import { StripeWebApiMapper } from './mappers/stripe-web-api.mapper';
+} from 'src/domain/types/payment/payment-types';
+import { logger } from 'src/infrastructure/config/logger';
+import { env } from 'src/infrastructure/config/env';
+import { StripeWebApiMapper } from 'src/infrastructure/external-services/stripe/mappers/stripe-web-api.mapper';
 
 export class StripeService implements IStripeService {
   private stripe: Stripe;
@@ -27,14 +27,14 @@ export class StripeService implements IStripeService {
 
   constructor() {
     this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-11-17.clover' as any, // Cast if typing is outdated
+      apiVersion: '2025-11-17.clover' as Stripe.LatestApiVersion,
       typescript: true,
     });
 
     this.webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   }
 
-  // --- Implementation ---
+  
 
   async createCustomer(params: CreateCustomerParams): Promise<PaymentCustomer> {
     try {
