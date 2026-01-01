@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IChatService } from '../../../domain/interfaces/services/IChatService';
-import { handleAsyncError, sendSuccessResponse, validateUserId } from '../../../shared/utils/presentation/controller.utils';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IChatService } from 'src/domain/interfaces/services/IChatService';
+import { handleAsyncError, sendSuccessResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 export class ChatController {
   constructor(private readonly _chatService: IChatService) {}

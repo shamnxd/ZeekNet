@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IScheduleInterviewUseCase } from '../../../domain/interfaces/use-cases/ats/IScheduleInterviewUseCase';
-import { IUpdateInterviewUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateInterviewUseCase';
-import { IGetInterviewsByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetInterviewsByApplicationUseCase';
-import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { ScheduleInterviewDto } from '../../../application/dtos/ats/common/schedule-interview.dto';
-import { UpdateInterviewDto } from '../../../application/dtos/ats/requests/update-interview.dto';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
+import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
+import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/interview/IGetInterviewsByApplicationUseCase';
+import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { ScheduleInterviewDto } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
+import { UpdateInterviewDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 
 export class ATSInterviewController {
   constructor(
@@ -27,7 +27,7 @@ export class ATSInterviewController {
         return;
       }
 
-      // Parse date string to Date object
+      
       const scheduledDate = typeof dto.scheduledDate === 'string' 
         ? new Date(dto.scheduledDate) 
         : dto.scheduledDate;

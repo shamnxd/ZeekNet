@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { ILogoutUseCase } from 'src/domain/interfaces/use-cases/auth/ILogoutUseCase';
-import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IResetPasswordUseCase';
-import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IForgotPasswordUseCase';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/presentation/controller.utils';
-import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
+import { ILogoutUseCase } from 'src/domain/interfaces/use-cases/auth/session/ILogoutUseCase';
+import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IResetPasswordUseCase';
+import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IForgotPasswordUseCase';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
+import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
 
 export class PasswordController {
   constructor(

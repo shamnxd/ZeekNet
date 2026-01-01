@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
   handleAsyncError,
@@ -8,24 +8,24 @@ import {
   sendBadRequestResponse,
   validateUserId,
   badRequest,
-} from '../../../shared/utils/presentation/controller.utils';
-import { IGetSeekerApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
-import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
-import { ICreateJobApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
-import { IAnalyzeResumeUseCase } from '../../../domain/interfaces/use-cases/applications/IAnalyzeResumeUseCase';
-import { IGetInterviewsByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetInterviewsByApplicationUseCase';
-import { IGetTechnicalTasksByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetTechnicalTasksByApplicationUseCase';
-import { ISubmitTechnicalTaskUseCase } from '../../../domain/interfaces/use-cases/applications/ISubmitTechnicalTaskUseCase';
-import { IGetOffersByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetOffersByApplicationUseCase';
-import { IGetCompensationByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetCompensationByApplicationUseCase';
-import { IGetCompensationMeetingsByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetCompensationMeetingsByApplicationUseCase';
-import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/applications/IUpdateOfferStatusUseCase';
-import { IUploadSignedOfferDocumentUseCase } from '../../../domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { CreateJobApplicationDto } from '../../../application/dtos/job-application/requests/create-job-application.dto';
-import { ApplicationFiltersDto } from '../../../application/dtos/job-application/requests/application-filters.dto';
-import { ValidationError } from '../../../domain/errors/errors';
+} from 'src/shared/utils/presentation/controller.utils';
+import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetSeekerApplicationDetailsUseCase';
+import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetApplicationsBySeekerUseCase';
+import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/ICreateJobApplicationUseCase';
+import { IAnalyzeResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/score-checker/IAnalyzeResumeUseCase';
+import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetInterviewsByApplicationUseCase';
+import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetTechnicalTasksByApplicationUseCase';
+import { ISubmitTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/ISubmitTechnicalTaskUseCase';
+import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetOffersByApplicationUseCase';
+import { IGetCompensationByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetCompensationByApplicationUseCase';
+import { IGetCompensationMeetingsByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetCompensationMeetingsByApplicationUseCase';
+import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUpdateOfferStatusUseCase';
+import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUploadSignedOfferDocumentUseCase';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { CreateJobApplicationDto } from 'src/application/dtos/seeker/applications/requests/create-job-application.dto';
+import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { ValidationError } from 'src/domain/errors/errors';
 
 export class SeekerJobApplicationController {
   constructor(

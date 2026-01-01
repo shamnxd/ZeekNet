@@ -1,22 +1,22 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-} from '../../../shared/utils/presentation/controller.utils';
-import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationScoreUseCase';
-import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
-import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
-import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
-import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
-import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
-import { ApplicationFiltersDto } from '../../../application/dtos/job-application/requests/application-filters.dto';
-import { UpdateApplicationStageDto } from '../../../application/dtos/job-application/requests/update-application-stage.dto';
-import { UpdateScoreDto } from '../../../application/dtos/job-application/requests/update-score.dto';
-import { BulkUpdateApplicationsDto } from '../../../application/dtos/job-application/requests/bulk-update-applications.dto';
-import { MarkCandidateHiredUseCase } from '../../../application/use-cases/company/mark-candidate-hired.use-case';
+} from 'src/shared/utils/presentation/controller.utils';
+import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationScoreUseCase';
+import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationStageUseCase';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationDetailsUseCase';
+import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByCompanyUseCase';
+import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByJobUseCase';
+import { IBulkUpdateApplicationsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IBulkUpdateApplicationsUseCase';
+import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { UpdateApplicationStageDto } from 'src/application/dtos/application/requests/update-application-stage.dto';
+import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
+import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
+import { MarkCandidateHiredUseCase } from 'src/application/use-cases/company/hiring/mark-candidate-hired.use-case';
 import { z } from 'zod';
 
 export class CompanyJobApplicationController {

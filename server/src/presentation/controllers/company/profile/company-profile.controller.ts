@@ -1,21 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/presentation/controller.utils';
-import { SimpleCompanyProfileDto } from '../../../application/dtos/company/requests/create-company.dto';
-import { SimpleUpdateCompanyProfileDto } from '../../../application/dtos/company/common/company-profile.dto';
-import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
-import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
-import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
-import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
-import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
-import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
-import { CompanyProfileMapper } from '../../../application/mappers/company/company-profile.mapper';
+} from 'src/shared/utils/presentation/controller.utils';
+import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
+import { SimpleUpdateCompanyProfileDto } from 'src/application/dtos/company/profile/info/requests/company-profile.dto';
+import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IUpdateCompanyProfileUseCase';
+import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/ICreateCompanyProfileFromDtoUseCase';
+import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyProfileWithJobPostingsUseCase';
+import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/profile/verification/IReapplyCompanyVerificationUseCase';
+import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/analytics/IGetCompanyDashboardUseCase';
+import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
+import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 
 export class CompanyProfileController {
   constructor(

@@ -1,18 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
-import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
-import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
-import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
-import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
-import { IUpdateUserRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserRefreshTokenUseCase';
-import { IUpdateUserVerificationStatusUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserVerificationStatusUseCase';
-import { IGetUserByEmailUseCase } from 'src/domain/interfaces/use-cases/auth/IGetUserByEmailUseCase';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
+import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
+import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { IUpdateUserRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/session/IUpdateUserRefreshTokenUseCase';
+import { IUpdateUserVerificationStatusUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IUpdateUserVerificationStatusUseCase';
+import { IGetUserByEmailUseCase } from 'src/domain/interfaces/use-cases/auth/user/IGetUserByEmailUseCase';
 import { z } from 'zod';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { welcomeTemplate } from '../../../infrastructure/messaging/templates/welcome.template';
-import { getDashboardLink } from '../../../shared/utils/application/dashboard.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { welcomeTemplate } from 'src/infrastructure/messaging/templates/welcome.template';
+import { getDashboardLink } from 'src/shared/utils/application/dashboard.utils';
 import { UserRole } from 'src/domain/enums/user-role.enum';
-import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
+import { otpVerificationTemplate } from 'src/infrastructure/messaging/templates/otp-verification.template';
 
 const RequestOtpDto = z.object({ email: z.string().email() });
 

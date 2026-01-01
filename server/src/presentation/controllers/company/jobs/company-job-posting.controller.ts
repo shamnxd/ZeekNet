@@ -1,20 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from '../../../shared/utils/presentation/controller.utils';
-import { ICreateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
-import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IGetJobPostingUseCase';
-import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
-import { IUpdateJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
-import { IDeleteJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IDeleteJobPostingUseCase';
-import { IIncrementJobViewCountUseCase } from '../../../domain/interfaces/use-cases/jobs/IIncrementJobViewCountUseCase';
-import { CreateJobPostingRequestDto, JobPostingQueryRequestDto, UpdateJobPostingDto } from '../../../application/dtos/job-posting/common/job-posting.dto';
-import { CreateJobPostingRequestDtoSchema } from '../../../application/dtos/job-posting/common/create-job-posting-request.dto';
-import { IGetCompanyJobPostingUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingUseCase';
-import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
-import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
-import { CloseJobManuallyUseCase } from '../../../application/use-cases/company/close-job-manually.use-case';
-import { ReopenJobUseCase } from '../../../application/use-cases/company/reopen-job.use-case';
-import { HttpStatus } from '../../../domain/enums/http-status.enum';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
+import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/ICreateJobPostingUseCase';
+import { IGetJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IGetJobPostingUseCase';
+import { IGetCompanyJobPostingsUseCase } from 'src/domain/interfaces/use-cases/job/IGetCompanyJobPostingsUseCase';
+import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobPostingUseCase';
+import { IDeleteJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IDeleteJobPostingUseCase';
+import { IIncrementJobViewCountUseCase } from 'src/domain/interfaces/use-cases/job/IIncrementJobViewCountUseCase';
+import { CreateJobPostingRequestDto } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
+import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
+import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
+import { IGetCompanyJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IGetCompanyJobPostingUseCase';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobStatusUseCase';
+import { CloseJobManuallyUseCase } from 'src/application/use-cases/job/close-job-manually.use-case';
+import { ReopenJobUseCase } from 'src/application/use-cases/job/reopen-job.use-case';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 export class CompanyJobPostingController {
   constructor(

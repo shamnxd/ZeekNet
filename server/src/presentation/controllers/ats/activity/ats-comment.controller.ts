@@ -1,10 +1,10 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IAddCommentUseCase } from '../../../domain/interfaces/use-cases/ats/IAddCommentUseCase';
-import { IGetCommentsByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetCommentsByApplicationUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { AddCommentDto } from '../../../application/dtos/ats/requests/add-comment.dto';
-import { ATSStage } from '../../../domain/enums/ats-stage.enum';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/activity/IAddCommentUseCase';
+import { IGetCommentsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/activity/IGetCommentsByApplicationUseCase';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { AddCommentDto } from 'src/application/dtos/application/requests/add-comment.dto';
+import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 
 export class ATSCommentController {
   constructor(

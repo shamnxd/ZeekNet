@@ -1,17 +1,17 @@
 import { Response, NextFunction } from 'express';
-import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
-import { IGetPaymentHistoryUseCase } from '../../../domain/interfaces/use-cases/payments/IGetPaymentHistoryUseCase';
-import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
-import { ICancelSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
-import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
-import { IChangeSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
-import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
-import { CompanySubscriptionResponseMapper } from '../../../application/mappers/subscription/company-subscription-response.mapper';
-import { AuthenticationError, ValidationError } from '../../../domain/errors/errors';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { PaymentMapper } from '../../../application/mappers/payment/payment.mapper';
-import { sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
-import { HttpStatus } from '../../../domain/enums/http-status.enum';
+import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetActiveSubscriptionUseCase';
+import { IGetPaymentHistoryUseCase } from 'src/domain/interfaces/use-cases/payment/history/IGetPaymentHistoryUseCase';
+import { ICreateCheckoutSessionUseCase } from 'src/domain/interfaces/use-cases/subscription/ICreateCheckoutSessionUseCase';
+import { ICancelSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/ICancelSubscriptionUseCase';
+import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IResumeSubscriptionUseCase';
+import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscription/IChangeSubscriptionPlanUseCase';
+import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetBillingPortalUseCase';
+import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
+import { AuthenticationError, ValidationError } from 'src/domain/errors/errors';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { PaymentMapper } from 'src/application/mappers/payment/payment.mapper';
+import { sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 export class CompanySubscriptionController {
   constructor(
@@ -36,7 +36,7 @@ export class CompanySubscriptionController {
       sendSuccessResponse(
         res,
         subscription ? 'Active subscription found' : 'No active subscription',
-        subscription ? CompanySubscriptionResponseMapper.toDto(subscription) : null,
+        subscription,
       );
     } catch (error) {
       next(error);
@@ -142,9 +142,7 @@ export class CompanySubscriptionController {
         billingCycle,
       });
 
-      sendSuccessResponse(res, 'Subscription plan changed successfully', {
-        subscription: CompanySubscriptionResponseMapper.toDto(result.subscription),
-      });
+      sendSuccessResponse(res, 'Subscription plan changed successfully', result);
     } catch (error) {
       next(error);
     }

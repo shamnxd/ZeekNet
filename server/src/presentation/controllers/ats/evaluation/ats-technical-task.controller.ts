@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IAssignTechnicalTaskUseCase } from '../../../domain/interfaces/use-cases/ats/IAssignTechnicalTaskUseCase';
-import { IUpdateTechnicalTaskUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateTechnicalTaskUseCase';
-import { IDeleteTechnicalTaskUseCase } from '../../../domain/interfaces/use-cases/ats/IDeleteTechnicalTaskUseCase';
-import { IGetTechnicalTasksByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetTechnicalTasksByApplicationUseCase';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { AssignTechnicalTaskDto } from '../../../application/dtos/ats/common/assign-technical-task.dto';
-import { UpdateTechnicalTaskDto } from '../../../application/dtos/ats/requests/update-technical-task.dto';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IAssignTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IAssignTechnicalTaskUseCase';
+import { IUpdateTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IUpdateTechnicalTaskUseCase';
+import { IDeleteTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IDeleteTechnicalTaskUseCase';
+import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/task/IGetTechnicalTasksByApplicationUseCase';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { AssignTechnicalTaskDto } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
+import { UpdateTechnicalTaskDto } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
 
 export class ATSTechnicalTaskController {
   constructor(
@@ -32,21 +32,21 @@ export class ATSTechnicalTaskController {
         return;
       }
 
-      // Upload document to S3 if file is provided
+      
       let documentUrl: string | undefined;
       let documentFilename: string | undefined;
 
       if (req.file) {
         const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
-        documentUrl = uploadResult.url; // This is the S3 key
+        documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
-        // Fallback to provided URL if no file uploaded (for backward compatibility)
+        
         documentUrl = dto.documentUrl;
         documentFilename = dto.documentFilename;
       }
 
-      // Parse deadline string to Date object
+      
       const deadline = typeof dto.deadline === 'string' 
         ? new Date(dto.deadline) 
         : dto.deadline;
@@ -62,7 +62,7 @@ export class ATSTechnicalTaskController {
         performedByName: userName,
       });
 
-      // Generate signed URL for document if it exists
+      
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
         const signedUrl = await this.fileUrlService.getSignedUrl(task.documentUrl);
@@ -91,16 +91,16 @@ export class ATSTechnicalTaskController {
         return;
       }
 
-      // Convert deadline string to Date if provided
+      
       const deadline = dto.deadline ? new Date(dto.deadline) : undefined;
 
-      // Upload document to S3 if file is provided
+      
       let documentUrl: string | undefined;
       let documentFilename: string | undefined;
 
       if (req.file) {
         const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
-        documentUrl = uploadResult.url; // This is the S3 key
+        documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       }
 
@@ -118,7 +118,7 @@ export class ATSTechnicalTaskController {
         performedByName: userName,
       });
 
-      // Generate signed URLs for documents
+      
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
         const signedUrl = await this.fileUrlService.getSignedUrl(task.documentUrl);
@@ -152,7 +152,7 @@ export class ATSTechnicalTaskController {
 
       const tasks = await this.getTechnicalTasksByApplicationUseCase.execute(applicationId);
 
-      // Generate signed URLs for all tasks
+      
       const tasksWithSignedUrls = await Promise.all(
         tasks.map(async (task) => {
           const taskObj: typeof task & { documentUrl?: string; submissionUrl?: string } = { ...task };

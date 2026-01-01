@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IInitiateCompensationUseCase } from '../../../domain/interfaces/use-cases/ats/IInitiateCompensationUseCase';
-import { IUpdateCompensationUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateCompensationUseCase';
-import { IGetCompensationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetCompensationUseCase';
-import { IScheduleCompensationMeetingUseCase } from '../../../domain/interfaces/use-cases/ats/IScheduleCompensationMeetingUseCase';
-import { IGetCompensationMeetingsUseCase } from '../../../domain/interfaces/use-cases/ats/IGetCompensationMeetingsUseCase';
-import { IUpdateCompensationMeetingStatusUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateCompensationMeetingStatusUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { InitiateCompensationDto } from '../../../application/dtos/ats/common/initiate-compensation.dto';
-import { UpdateCompensationDto } from '../../../application/dtos/ats/requests/update-compensation.dto';
-import { ScheduleCompensationMeetingDto } from '../../../application/dtos/ats/common/schedule-compensation-meeting.dto';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
+import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
+import { IGetCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationUseCase';
+import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
+import { IGetCompensationMeetingsUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationMeetingsUseCase';
+import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { InitiateCompensationDto } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
+import { UpdateCompensationDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
+import { ScheduleCompensationMeetingDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
 
 export class ATSCompensationController {
   constructor(
@@ -129,7 +129,7 @@ export class ATSCompensationController {
         return;
       }
 
-      // Combine date and time
+      
       const scheduledDate = new Date(`${dto.date}T${dto.time}`);
 
       const created = await this.scheduleCompensationMeetingUseCase.execute({

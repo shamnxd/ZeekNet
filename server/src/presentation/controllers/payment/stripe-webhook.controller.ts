@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { HandleStripeWebhookUseCase } from '../../../application/use-cases/company/handle-stripe-webhook.use-case';
-import { logger } from '../../../infrastructure/config/logger';
-import { sendSuccessResponse, sendBadRequestResponse } from '../../../shared/utils/presentation/controller.utils';
-import { HttpStatus } from '../../../domain/enums/http-status.enum';
+import { HandleStripeWebhookUseCase } from 'src/application/use-cases/payment/stripe/handle-stripe-webhook.use-case';
+import { logger } from 'src/infrastructure/config/logger';
+import { sendSuccessResponse, sendBadRequestResponse } from 'src/shared/utils/presentation/controller.utils';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 export class StripeWebhookController {
   constructor(

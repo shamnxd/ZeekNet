@@ -1,18 +1,18 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-} from '../../../shared/utils/presentation/controller.utils';
-import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dtos/company/common/company-office-location.dto';
-import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyOfficeLocationUseCase';
-import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyOfficeLocationUseCase';
-import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
-import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyOfficeLocationUseCase';
-import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
-import { HttpStatus } from '../../../domain/enums/http-status.enum';
+} from 'src/shared/utils/presentation/controller.utils';
+import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from 'src/application/dtos/company/profile/location/requests/company-office-location.dto';
+import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/ICreateCompanyOfficeLocationUseCase';
+import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IUpdateCompanyOfficeLocationUseCase';
+import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IDeleteCompanyOfficeLocationUseCase';
+import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IGetCompanyOfficeLocationUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 
 export class CompanyOfficeLocationController {

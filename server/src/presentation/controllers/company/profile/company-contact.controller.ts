@@ -1,16 +1,16 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/presentation/controller.utils';
-import { UpdateCompanyContactDto } from '../../../application/dtos/company/common/company-contact.dto';
-import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyContactUseCase';
-import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IUpsertCompanyContactUseCase';
-import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
+} from 'src/shared/utils/presentation/controller.utils';
+import { UpdateCompanyContactDto } from 'src/application/dtos/company/profile/contacts/requests/company-contact.dto';
+import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/profile/contacts/IGetCompanyContactUseCase';
+import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/profile/contacts/IUpsertCompanyContactUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyContactController {
   constructor(

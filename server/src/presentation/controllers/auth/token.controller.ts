@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/IAuthGetUserByIdUseCase';
-import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IRefreshTokenUseCase';
-import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
-import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { UserRole } from '../../../domain/enums/user-role.enum';
-import { env } from '../../../infrastructure/config/env';
+import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/user/IAuthGetUserByIdUseCase';
+import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/session/IRefreshTokenUseCase';
+import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
+import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { UserRole } from 'src/domain/enums/user-role.enum';
+import { env } from 'src/infrastructure/config/env';
 
 export class TokenController {
   constructor(

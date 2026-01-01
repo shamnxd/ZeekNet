@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IUploadOfferUseCase } from '../../../domain/interfaces/use-cases/ats/IUploadOfferUseCase';
-import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateOfferStatusUseCase';
-import { IGetOffersByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetOffersByApplicationUseCase';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { UploadOfferDto } from '../../../application/dtos/ats/common/upload-offer.dto';
-import { UpdateOfferStatusDto } from '../../../application/dtos/ats/requests/update-offer-status.dto';
-import { ATSOffer } from '../../../domain/entities/ats-offer.entity';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUploadOfferUseCase';
+import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUpdateOfferStatusUseCase';
+import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/offer/IGetOffersByApplicationUseCase';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { UploadOfferDto } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
+import { UpdateOfferStatusDto } from 'src/application/dtos/application/offer/requests/update-offer-status.dto';
+import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 
 export class ATSOfferController {
   constructor(
@@ -31,16 +31,16 @@ export class ATSOfferController {
         return;
       }
 
-      // Upload document to S3 if file is provided
+      
       let documentUrl: string;
       let documentFilename: string;
 
       if (req.file) {
         const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
-        documentUrl = uploadResult.url; // This is the S3 key
+        documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
-        // Fallback to provided URL if no file uploaded (for backward compatibility)
+        
         documentUrl = dto.documentUrl;
         documentFilename = dto.documentFilename;
       } else {
@@ -50,14 +50,14 @@ export class ATSOfferController {
 
       const offer = await this.uploadOfferUseCase.execute({
         applicationId: dto.applicationId,
-        documentUrl: documentUrl, // Store S3 key
+        documentUrl: documentUrl, 
         documentFilename: documentFilename,
         offerAmount: dto.offerAmount,
         uploadedBy: userId,
         uploadedByName: userName,
       });
 
-      // Generate signed URL for response
+      
       const signedUrl = await this.fileUrlService.getSignedUrl(offer.documentUrl);
       const offerWithSignedUrl = {
         ...offer,
@@ -108,7 +108,7 @@ export class ATSOfferController {
 
       const offers = await this.getOffersByApplicationUseCase.execute(applicationId);
 
-      // Generate signed URLs for all offers
+      
       const offersWithSignedUrls = await Promise.all(
         offers.map(async (offer) => {
           try {
@@ -118,7 +118,7 @@ export class ATSOfferController {
               documentUrl: signedUrl,
             };
             
-            // Generate signed URL for signed document if it exists
+            
             if (offer.signedDocumentUrl) {
               const signedDocUrl = await this.fileUrlService.getSignedUrl(offer.signedDocumentUrl);
               offerObj.signedDocumentUrl = signedDocUrl;
@@ -127,7 +127,7 @@ export class ATSOfferController {
             return offerObj;
           } catch (error: unknown) {
             console.error(`Error generating signed URL for offer ${offer.id}:`, error);
-            // Return offer without signed URL if generation fails
+            
             return offer;
           }
         }),

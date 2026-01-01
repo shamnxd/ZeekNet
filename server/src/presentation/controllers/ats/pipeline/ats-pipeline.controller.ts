@@ -1,15 +1,15 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IMoveApplicationStageUseCase } from '../../../domain/interfaces/use-cases/ats/IMoveApplicationStageUseCase';
-import { IUpdateApplicationSubStageUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateApplicationSubStageUseCase';
-import { IGetJobATSPipelineUseCase } from '../../../domain/interfaces/use-cases/ats/IGetJobATSPipelineUseCase';
-import { IGetJobApplicationsForKanbanUseCase } from '../../../domain/interfaces/use-cases/ats/IGetJobApplicationsForKanbanUseCase';
-import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
-import { MoveApplicationStageDto, MoveApplicationStageDtoSchema } from '../../../application/dtos/ats/common/move-application-stage.dto';
-import { UpdateSubStageDto, UpdateSubStageDtoSchema } from '../../../application/dtos/ats/requests/update-sub-stage.dto';
-import { ATSStage, ATSSubStage } from '../../../domain/enums/ats-stage.enum';
-import { validateUserId } from '../../../shared/utils/presentation/controller.utils';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IMoveApplicationStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IMoveApplicationStageUseCase';
+import { IUpdateApplicationSubStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IUpdateApplicationSubStageUseCase';
+import { IGetJobATSPipelineUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobATSPipelineUseCase';
+import { IGetJobApplicationsForKanbanUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobApplicationsForKanbanUseCase';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { MoveApplicationStageDto, MoveApplicationStageDtoSchema } from 'src/application/dtos/application/requests/move-application-stage.dto';
+import { UpdateSubStageDto, UpdateSubStageDtoSchema } from 'src/application/dtos/application/requests/update-sub-stage.dto';
+import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
+import { validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 export class ATSPipelineController {
   constructor(
@@ -59,7 +59,7 @@ export class ATSPipelineController {
         return;
       }
 
-      // Validate DTO
+      
       const validationResult = MoveApplicationStageDtoSchema.safeParse(req.body);
       if (!validationResult.success) {
         sendBadRequestResponse(res, `Validation error: ${validationResult.error.message}`);
@@ -94,7 +94,7 @@ export class ATSPipelineController {
         return;
       }
 
-      // Validate DTO
+      
       const validationResult = UpdateSubStageDtoSchema.safeParse(req.body);
       if (!validationResult.success) {
         sendBadRequestResponse(res, `Validation error: ${validationResult.error.message}`);

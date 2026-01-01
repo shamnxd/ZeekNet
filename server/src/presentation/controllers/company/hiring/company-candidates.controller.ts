@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
-import { IGetCandidatesUseCase } from '../../../domain/interfaces/use-cases/company/IGetCandidatesUseCase';
-import { IGetCandidateDetailsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCandidateDetailsUseCase';
+import { handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { IGetCandidatesUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidatesUseCase';
+import { IGetCandidateDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidateDetailsUseCase';
 
 export class CompanyCandidatesController {
   constructor(
