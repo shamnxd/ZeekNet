@@ -7,7 +7,7 @@ import { ATSInterviewMapper } from '../mappers/ats-interview.mapper';
 export class ATSInterviewRepository implements IATSInterviewRepository {
   async create(interview: ATSInterview): Promise<ATSInterview> {
     const doc = await ATSInterviewModel.create(ATSInterviewMapper.toDocument(interview));
-    return ATSInterviewMapper.toDomain(doc);
+    return ATSInterviewMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSInterview | null> {
@@ -15,7 +15,7 @@ export class ATSInterviewRepository implements IATSInterviewRepository {
       return null;
     }
     const doc = await ATSInterviewModel.findById(id);
-    return doc ? ATSInterviewMapper.toDomain(doc) : null;
+    return doc ? ATSInterviewMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSInterview[]> {
@@ -24,7 +24,7 @@ export class ATSInterviewRepository implements IATSInterviewRepository {
     }
     const docs = await ATSInterviewModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ scheduledDate: -1 });
-    return docs.map(doc => ATSInterviewMapper.toDomain(doc));
+    return docs.map(doc => ATSInterviewMapper.toEntity(doc));
   }
 
   async update(id: string, data: Partial<ATSInterview>): Promise<ATSInterview | null> {
@@ -36,7 +36,7 @@ export class ATSInterviewRepository implements IATSInterviewRepository {
       { $set: data },
       { new: true },
     );
-    return doc ? ATSInterviewMapper.toDomain(doc) : null;
+    return doc ? ATSInterviewMapper.toEntity(doc) : null;
   }
 
   async delete(id: string): Promise<boolean> {

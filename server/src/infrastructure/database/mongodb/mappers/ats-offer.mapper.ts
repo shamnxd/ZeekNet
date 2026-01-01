@@ -3,7 +3,7 @@ import { ATSOffer } from '../../../../domain/entities/ats-offer.entity';
 import { IATSOfferDocument } from '../models/ats-offer.model';
 
 export class ATSOfferMapper {
-  static toDomain(doc: IATSOfferDocument): ATSOffer {
+  static toEntity(doc: IATSOfferDocument): ATSOffer {
     return new ATSOffer(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

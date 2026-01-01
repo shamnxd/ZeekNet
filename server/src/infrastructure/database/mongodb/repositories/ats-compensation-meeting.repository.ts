@@ -7,7 +7,7 @@ import { ATSCompensationMeetingMapper } from '../mappers/ats-compensation-meetin
 export class ATSCompensationMeetingRepository implements IATSCompensationMeetingRepository {
   async create(meeting: ATSCompensationMeeting): Promise<ATSCompensationMeeting> {
     const doc = await ATSCompensationMeetingModel.create(ATSCompensationMeetingMapper.toDocument(meeting));
-    return ATSCompensationMeetingMapper.toDomain(doc);
+    return ATSCompensationMeetingMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSCompensationMeeting | null> {
@@ -15,7 +15,7 @@ export class ATSCompensationMeetingRepository implements IATSCompensationMeeting
       return null;
     }
     const doc = await ATSCompensationMeetingModel.findById(id);
-    return doc ? ATSCompensationMeetingMapper.toDomain(doc) : null;
+    return doc ? ATSCompensationMeetingMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSCompensationMeeting[]> {
@@ -24,7 +24,7 @@ export class ATSCompensationMeetingRepository implements IATSCompensationMeeting
     }
     const docs = await ATSCompensationMeetingModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ scheduledDate: -1 });
-    return docs.map(doc => ATSCompensationMeetingMapper.toDomain(doc));
+    return docs.map(doc => ATSCompensationMeetingMapper.toEntity(doc));
   }
 
   async update(id: string, updateData: Partial<ATSCompensationMeeting>): Promise<ATSCompensationMeeting | null> {
@@ -45,7 +45,7 @@ export class ATSCompensationMeetingRepository implements IATSCompensationMeeting
       { $set: updateDoc },
       { new: true },
     );
-    return doc ? ATSCompensationMeetingMapper.toDomain(doc) : null;
+    return doc ? ATSCompensationMeetingMapper.toEntity(doc) : null;
   }
 
   async delete(id: string): Promise<boolean> {

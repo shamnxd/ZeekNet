@@ -7,7 +7,7 @@ import { ATSOfferMapper } from '../mappers/ats-offer.mapper';
 export class ATSOfferRepository implements IATSOfferRepository {
   async create(offer: ATSOffer): Promise<ATSOffer> {
     const doc = await ATSOfferModel.create(ATSOfferMapper.toDocument(offer));
-    return ATSOfferMapper.toDomain(doc);
+    return ATSOfferMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSOffer | null> {
@@ -15,7 +15,7 @@ export class ATSOfferRepository implements IATSOfferRepository {
       return null;
     }
     const doc = await ATSOfferModel.findById(id);
-    return doc ? ATSOfferMapper.toDomain(doc) : null;
+    return doc ? ATSOfferMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSOffer[]> {
@@ -24,7 +24,7 @@ export class ATSOfferRepository implements IATSOfferRepository {
     }
     const docs = await ATSOfferModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ createdAt: -1 });
-    return docs.map(doc => ATSOfferMapper.toDomain(doc));
+    return docs.map(doc => ATSOfferMapper.toEntity(doc));
   }
 
   async update(id: string, data: Partial<ATSOffer>): Promise<ATSOffer | null> {
@@ -36,7 +36,7 @@ export class ATSOfferRepository implements IATSOfferRepository {
       { $set: data },
       { new: true },
     );
-    return doc ? ATSOfferMapper.toDomain(doc) : null;
+    return doc ? ATSOfferMapper.toEntity(doc) : null;
   }
 
   async delete(id: string): Promise<boolean> {

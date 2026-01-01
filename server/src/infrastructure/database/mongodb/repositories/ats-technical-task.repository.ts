@@ -7,7 +7,7 @@ import { ATSTechnicalTaskMapper } from '../mappers/ats-technical-task.mapper';
 export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
   async create(task: ATSTechnicalTask): Promise<ATSTechnicalTask> {
     const doc = await ATSTechnicalTaskModel.create(ATSTechnicalTaskMapper.toDocument(task));
-    return ATSTechnicalTaskMapper.toDomain(doc);
+    return ATSTechnicalTaskMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSTechnicalTask | null> {
@@ -15,7 +15,7 @@ export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
       return null;
     }
     const doc = await ATSTechnicalTaskModel.findById(id);
-    return doc ? ATSTechnicalTaskMapper.toDomain(doc) : null;
+    return doc ? ATSTechnicalTaskMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSTechnicalTask[]> {
@@ -24,7 +24,7 @@ export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
     }
     const docs = await ATSTechnicalTaskModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ createdAt: -1 });
-    return docs.map(doc => ATSTechnicalTaskMapper.toDomain(doc));
+    return docs.map(doc => ATSTechnicalTaskMapper.toEntity(doc));
   }
 
   async update(id: string, data: Partial<ATSTechnicalTask>): Promise<ATSTechnicalTask | null> {
@@ -36,7 +36,7 @@ export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
       { $set: data },
       { new: true },
     );
-    return doc ? ATSTechnicalTaskMapper.toDomain(doc) : null;
+    return doc ? ATSTechnicalTaskMapper.toEntity(doc) : null;
   }
 
   async delete(id: string): Promise<boolean> {

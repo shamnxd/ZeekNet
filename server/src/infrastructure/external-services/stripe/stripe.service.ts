@@ -7,8 +7,19 @@ import {
   CreateCustomerParams,
   UpdateSubscriptionParams,
 } from '../../../domain/interfaces/services/IStripeService';
+import {
+  PaymentCustomer,
+  PaymentProduct,
+  PaymentPrice,
+  PaymentSession,
+  PaymentSubscription,
+  PaymentBillingPortalSession,
+  PaymentEvent,
+  PaymentInvoice,
+} from '../../../domain/types/payment/payment-types';
 import { logger } from '../../config/logger';
 import { env } from '../../config/env';
+import { StripeWebApiMapper } from './mappers/stripe-web-api.mapper';
 
 export class StripeService implements IStripeService {
   private stripe: Stripe;
@@ -16,14 +27,16 @@ export class StripeService implements IStripeService {
 
   constructor() {
     this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-11-17.clover',
+      apiVersion: '2025-11-17.clover' as any, // Cast if typing is outdated
       typescript: true,
     });
 
     this.webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   }
 
-  async createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer> {
+  // --- Implementation ---
+
+  async createCustomer(params: CreateCustomerParams): Promise<PaymentCustomer> {
     try {
       const customer = await this.stripe.customers.create({
         email: params.email,
@@ -31,27 +44,27 @@ export class StripeService implements IStripeService {
         metadata: params.metadata,
       });
       logger.info(`Stripe customer created: ${customer.id}`);
-      return customer;
+      return StripeWebApiMapper.mapCustomer(customer);
     } catch (error) {
       logger.error('Failed to create Stripe customer', error);
       throw error;
     }
   }
 
-  async getCustomer(customerId: string): Promise<Stripe.Customer | null> {
+  async getCustomer(customerId: string): Promise<PaymentCustomer | null> {
     try {
       const customer = await this.stripe.customers.retrieve(customerId);
       if (customer.deleted) {
         return null;
       }
-      return customer as Stripe.Customer;
+      return StripeWebApiMapper.mapCustomer(customer as Stripe.Customer);
     } catch (error) {
       logger.error(`Failed to get Stripe customer: ${customerId}`, error);
       return null;
     }
   }
 
-  async createProduct(params: CreateProductParams): Promise<Stripe.Product> {
+  async createProduct(params: CreateProductParams): Promise<PaymentProduct> {
     try {
       const product = await this.stripe.products.create({
         name: params.name,
@@ -59,7 +72,7 @@ export class StripeService implements IStripeService {
         metadata: params.metadata,
       });
       logger.info(`Stripe product created: ${product.id}`);
-      return product;
+      return StripeWebApiMapper.mapProduct(product);
     } catch (error) {
       logger.error('Failed to create Stripe product', error);
       throw error;
@@ -69,7 +82,7 @@ export class StripeService implements IStripeService {
   async updateProduct(
     productId: string,
     params: Partial<CreateProductParams>,
-  ): Promise<Stripe.Product> {
+  ): Promise<PaymentProduct> {
     try {
       const product = await this.stripe.products.update(productId, {
         name: params.name,
@@ -77,27 +90,27 @@ export class StripeService implements IStripeService {
         metadata: params.metadata,
       });
       logger.info(`Stripe product updated: ${product.id}`);
-      return product;
+      return StripeWebApiMapper.mapProduct(product);
     } catch (error) {
       logger.error(`Failed to update Stripe product: ${productId}`, error);
       throw error;
     }
   }
 
-  async archiveProduct(productId: string): Promise<Stripe.Product> {
+  async archiveProduct(productId: string): Promise<PaymentProduct> {
     try {
       const product = await this.stripe.products.update(productId, {
         active: false,
       });
       logger.info(`Stripe product archived: ${product.id}`);
-      return product;
+      return StripeWebApiMapper.mapProduct(product);
     } catch (error) {
       logger.error(`Failed to archive Stripe product: ${productId}`, error);
       throw error;
     }
   }
 
-  async createPrice(params: CreatePriceParams): Promise<Stripe.Price> {
+  async createPrice(params: CreatePriceParams): Promise<PaymentPrice> {
     try {
       const price = await this.stripe.prices.create({
         product: params.productId,
@@ -109,29 +122,27 @@ export class StripeService implements IStripeService {
         metadata: params.metadata,
       });
       logger.info(`Stripe price created: ${price.id}`);
-      return price;
+      return StripeWebApiMapper.mapPrice(price);
     } catch (error) {
       logger.error('Failed to create Stripe price', error);
       throw error;
     }
   }
 
-  async archivePrice(priceId: string): Promise<Stripe.Price> {
+  async archivePrice(priceId: string): Promise<PaymentPrice> {
     try {
       const price = await this.stripe.prices.update(priceId, {
         active: false,
       });
       logger.info(`Stripe price archived: ${price.id}`);
-      return price;
+      return StripeWebApiMapper.mapPrice(price);
     } catch (error) {
       logger.error(`Failed to archive Stripe price: ${priceId}`, error);
       throw error;
     }
   }
 
-  async createCheckoutSession(
-    params: CreateCheckoutSessionParams,
-  ): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PaymentSession> {
     try {
       const session = await this.stripe.checkout.sessions.create({
         customer: params.customerId,
@@ -156,7 +167,7 @@ export class StripeService implements IStripeService {
         },
       });
       logger.info(`Stripe checkout session created: ${session.id}`);
-      return session;
+      return StripeWebApiMapper.mapSession(session);
     } catch (error) {
       logger.error('Failed to create Stripe checkout session', error);
       throw error;
@@ -166,24 +177,28 @@ export class StripeService implements IStripeService {
   async createBillingPortalSession(
     customerId: string,
     returnUrl: string,
-  ): Promise<Stripe.BillingPortal.Session> {
+  ): Promise<PaymentBillingPortalSession> {
     try {
       const session = await this.stripe.billingPortal.sessions.create({
         customer: customerId,
         return_url: returnUrl,
       });
       logger.info(`Stripe billing portal session created for customer: ${customerId}`);
-      return session;
+      return {
+        id: session.id,
+        url: session.url,
+        returnUrl: session.return_url || undefined,
+      };
     } catch (error) {
       logger.error(`Failed to create billing portal session for customer: ${customerId}`, error);
       throw error;
     }
   }
 
-  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null> {
+  async getSubscription(subscriptionId: string): Promise<PaymentSubscription | null> {
     try {
       const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
-      return subscription;
+      return StripeWebApiMapper.mapSubscription(subscription);
     } catch (error) {
       logger.error(`Failed to get Stripe subscription: ${subscriptionId}`, error);
       return null;
@@ -195,7 +210,7 @@ export class StripeService implements IStripeService {
     limit: number = 100,
     startingAfter?: string,
   ): Promise<{
-    data: Stripe.Subscription[];
+    data: PaymentSubscription[];
     hasMore: boolean;
     lastId?: string;
   }> {
@@ -213,7 +228,7 @@ export class StripeService implements IStripeService {
       const subscriptions = await this.stripe.subscriptions.list(params);
       
       return {
-        data: subscriptions.data,
+        data: subscriptions.data.map(s => StripeWebApiMapper.mapSubscription(s)),
         hasMore: subscriptions.has_more,
         lastId: subscriptions.data[subscriptions.data.length - 1]?.id,
       };
@@ -223,7 +238,7 @@ export class StripeService implements IStripeService {
     }
   }
 
-  async updateSubscription(params: UpdateSubscriptionParams): Promise<Stripe.Subscription> {
+  async updateSubscription(params: UpdateSubscriptionParams): Promise<PaymentSubscription> {
     try {
       const subscription = await this.stripe.subscriptions.retrieve(params.subscriptionId);
       
@@ -238,7 +253,7 @@ export class StripeService implements IStripeService {
       });
       
       logger.info(`Stripe subscription updated: ${updatedSubscription.id}`);
-      return updatedSubscription;
+      return StripeWebApiMapper.mapSubscription(updatedSubscription);
     } catch (error) {
       logger.error(`Failed to update Stripe subscription: ${params.subscriptionId}`, error);
       throw error;
@@ -248,7 +263,7 @@ export class StripeService implements IStripeService {
   async cancelSubscription(
     subscriptionId: string,
     cancelAtPeriodEnd: boolean = true,
-  ): Promise<Stripe.Subscription> {
+  ): Promise<PaymentSubscription> {
     try {
       const subscription = cancelAtPeriodEnd
         ? await this.stripe.subscriptions.update(subscriptionId, {
@@ -259,36 +274,38 @@ export class StripeService implements IStripeService {
       logger.info(
         `Stripe subscription ${cancelAtPeriodEnd ? 'set to cancel at period end' : 'canceled immediately'}: ${subscriptionId}`,
       );
-      return subscription;
+      return StripeWebApiMapper.mapSubscription(subscription);
     } catch (error) {
       logger.error(`Failed to cancel Stripe subscription: ${subscriptionId}`, error);
       throw error;
     }
   }
 
-  async resumeSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
+  async resumeSubscription(subscriptionId: string): Promise<PaymentSubscription> {
     try {
       const subscription = await this.stripe.subscriptions.update(subscriptionId, {
         cancel_at_period_end: false,
       });
       logger.info(`Stripe subscription resumed: ${subscriptionId}`);
-      return subscription;
+      return StripeWebApiMapper.mapSubscription(subscription);
     } catch (error) {
       logger.error(`Failed to resume Stripe subscription: ${subscriptionId}`, error);
       throw error;
     }
   }
 
-  async getInvoice(invoiceId: string): Promise<Stripe.Invoice | null> {
+  async getInvoice(invoiceId: string): Promise<PaymentInvoice | null> {
     try {
-      return await this.stripe.invoices.retrieve(invoiceId);
+      const invoice = await this.stripe.invoices.retrieve(invoiceId);
+      return StripeWebApiMapper.mapInvoice(invoice);
     } catch (error) {
       logger.error(`Failed to get Stripe invoice: ${invoiceId}`, error);
       return null;
     }
   }
 
-  constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event {
-    return this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
+  constructWebhookEvent(payload: string | Buffer, signature: string): PaymentEvent {
+    const event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
+    return StripeWebApiMapper.mapEvent(event);
   }
 }

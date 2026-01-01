@@ -7,7 +7,7 @@ import { ATSCommentMapper } from '../mappers/ats-comment.mapper';
 export class ATSCommentRepository implements IATSCommentRepository {
   async create(comment: ATSComment): Promise<ATSComment> {
     const doc = await ATSCommentModel.create(ATSCommentMapper.toDocument(comment));
-    return ATSCommentMapper.toDomain(doc);
+    return ATSCommentMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSComment | null> {
@@ -15,7 +15,7 @@ export class ATSCommentRepository implements IATSCommentRepository {
       return null;
     }
     const doc = await ATSCommentModel.findById(id);
-    return doc ? ATSCommentMapper.toDomain(doc) : null;
+    return doc ? ATSCommentMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSComment[]> {
@@ -24,7 +24,7 @@ export class ATSCommentRepository implements IATSCommentRepository {
     }
     const docs = await ATSCommentModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ createdAt: -1 });
-    return docs.map(doc => ATSCommentMapper.toDomain(doc));
+    return docs.map(doc => ATSCommentMapper.toEntity(doc));
   }
 
   async delete(id: string): Promise<boolean> {

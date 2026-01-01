@@ -66,62 +66,12 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
     const doc = await ConversationModel.findById(id).populate('participants.user_id', 'name role isBlocked').exec();
     if (!doc) return null;
 
-    const participantsWithProfiles = await Promise.all(
-      (doc as { participants: Array<{ user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }> }).participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }) => {
-        const user = participant.user_id;
-        let profileImage: string | null = null;
-        let name = 'Unknown';
-
-        if (user?.isBlocked) {
-          return {
-            userId: String(participant.user_id._id),
-            role: participant.role as UserRole,
-            unreadCount: participant.unread_count,
-            lastReadAt: participant.last_read_at ?? null,
-            name: 'User Not Found',
-            profileImage: null,
-          };
-        }
-
-        if (user && user.role) {
-          if (user.role === 'seeker') {
-            const SeekerProfileModel = this.model.db.model('SeekerProfile');
-            const seekerProfile = await SeekerProfileModel.findOne({ userId: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
-            const avatarKey = seekerProfile?.avatarFileName || null;
-            
-            profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
-            name = user.name || 'Unknown';
-          } else if (user.role === 'company') {
-            const CompanyProfileModel = this.model.db.model('CompanyProfile');
-            const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
-            const logoKey = companyProfile?.logo || null;
-            
-            profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
-            name = companyProfile?.companyName || 'Unknown';
-          }
-        }
-
-        return {
-          userId: String(participant.user_id._id),
-          role: participant.role as UserRole,
-          unreadCount: participant.unread_count,
-          lastReadAt: participant.last_read_at ?? null,
-          name,
-          profileImage,
-        };
-      }),
-    );
-
-    return Conversation.create({
-      id: String(doc._id),
-      participants: participantsWithProfiles,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-      lastMessage: doc.last_message ? { messageId: String(doc.last_message.message_id), senderId: String(doc.last_message.sender_id), content: doc.last_message.content, createdAt: doc.last_message.created_at } : null,
-    });
+    const participantDetails = await this._getEnrichedParticipants(doc);
+    return ConversationPersistenceMapper.toEnrichedEntity(doc, participantDetails);
   }
 
   async findByParticipants(userAId: string, userBId: string): Promise<Conversation | null> {
+    // ... existing implementation ...
     if (!Types.ObjectId.isValid(userAId) || !Types.ObjectId.isValid(userBId)) {
       return null;
     }
@@ -158,82 +108,14 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
         .sort({ updatedAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('participants.user_id', 'name role isBlocked')
-        .lean(),
+        .populate('participants.user_id', 'name role isBlocked'),
       ConversationModel.countDocuments(filter),
     ]);
 
-    
     const data = await Promise.all(
-      documents.map(async (doc: { _id: unknown; participants: Array<{ user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }>; createdAt: Date; updatedAt: Date; last_message?: { message_id: unknown; sender_id: unknown; content: string; created_at: Date } | null }) => {
-        const participantsWithProfiles = await Promise.all(
-          doc.participants.map(async (participant: { user_id: { _id: unknown; name?: string; role?: string; isBlocked?: boolean }; role: string; unread_count: number; last_read_at?: Date | null }) => {
-            const user = participant.user_id;
-            let profileImage: string | null = null;
-            let name = 'Unknown';
-
-            if (user?.isBlocked) {
-              return {
-                userId: String(participant.user_id._id),
-                role: participant.role as UserRole,
-                unreadCount: participant.unread_count,
-                lastReadAt: participant.last_read_at ?? null,
-                name: 'User Not Found',
-                profileImage: null,
-              };
-            }
-
-            if (user && user.role) {
-              if (user.role === 'seeker') {
-                
-                const SeekerProfileModel = this.model.db.model('SeekerProfile');
-                const seekerProfile = await SeekerProfileModel.findOne(
-                  { userId: user._id },
-                  'avatarFileName',
-                ).lean() as { avatarFileName?: string } | null;
-                const avatarKey = seekerProfile?.avatarFileName || null;
-                
-                profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
-                name = user.name || 'Unknown';
-              } else if (user.role === 'company') {
-                
-                const CompanyProfileModel = this.model.db.model('CompanyProfile');
-                const companyProfile = await CompanyProfileModel.findOne(
-                  { userId: String(user._id) },
-                  'companyName logo',
-                ).lean() as { companyName?: string; logo?: string } | null;
-                const logoKey = companyProfile?.logo || null;
-                
-                profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
-                name = companyProfile?.companyName || 'Unknown';
-              }
-            }
-
-            return {
-              userId: String(participant.user_id._id),
-              role: participant.role as UserRole,
-              unreadCount: participant.unread_count,
-              lastReadAt: participant.last_read_at ?? null,
-              name,
-              profileImage,
-            };
-          }),
-        );
-
-        return Conversation.create({
-          id: String(doc._id),
-          participants: participantsWithProfiles,
-          createdAt: doc.createdAt,
-          updatedAt: doc.updatedAt,
-          lastMessage: doc.last_message
-            ? {
-              messageId: String(doc.last_message.message_id),
-              senderId: String(doc.last_message.sender_id),
-              content: doc.last_message.content,
-              createdAt: doc.last_message.created_at,
-            }
-            : null,
-        });
+      documents.map(async (doc) => {
+        const participantDetails = await this._getEnrichedParticipants(doc);
+        return ConversationPersistenceMapper.toEnrichedEntity(doc, participantDetails);
       }),
     );
 
@@ -244,6 +126,46 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  private async _getEnrichedParticipants(doc: ConversationDocument): Promise<Map<string, { name: string; profileImage: string | null }>> {
+    const detailsMap = new Map<string, { name: string; profileImage: string | null }>();
+
+    await Promise.all(
+      doc.participants.map(async (participant: any) => {
+        const user = participant.user_id;
+        // Handle populated user object or direct access
+        const userId = user._id ? String(user._id) : String(participant.user_id);
+        
+        let profileImage: string | null = null;
+        let name = 'Unknown';
+
+        // Check if user is blocked or deleted (if populated)
+        if (user && user.isBlocked) {
+           name = 'User Not Found';
+        } else if (user && user.role) {
+          if (user.role === 'seeker') {
+            const SeekerProfileModel = this.model.db.model('SeekerProfile');
+            const seekerProfile = await SeekerProfileModel.findOne({ userId: user._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
+            const avatarKey = seekerProfile?.avatarFileName || null;
+            
+            profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
+            name = user.name || 'Unknown';
+          } else if (user.role === 'company') {
+            const CompanyProfileModel = this.model.db.model('CompanyProfile');
+            const companyProfile = await CompanyProfileModel.findOne({ userId: String(user._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
+            const logoKey = companyProfile?.logo || null;
+            
+            profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
+            name = companyProfile?.companyName || 'Unknown';
+          }
+        }
+        
+        detailsMap.set(userId, { name, profileImage });
+      })
+    );
+
+    return detailsMap;
   }
 
   async updateLastMessage(

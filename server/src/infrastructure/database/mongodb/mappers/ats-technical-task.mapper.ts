@@ -3,7 +3,7 @@ import { ATSTechnicalTask } from '../../../../domain/entities/ats-technical-task
 import { IATSTechnicalTaskDocument } from '../models/ats-technical-task.model';
 
 export class ATSTechnicalTaskMapper {
-  static toDomain(doc: IATSTechnicalTaskDocument): ATSTechnicalTask {
+  static toEntity(doc: IATSTechnicalTaskDocument): ATSTechnicalTask {
     return new ATSTechnicalTask(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

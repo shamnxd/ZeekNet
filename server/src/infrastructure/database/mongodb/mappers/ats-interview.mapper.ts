@@ -3,7 +3,7 @@ import { ATSInterview } from '../../../../domain/entities/ats-interview.entity';
 import { IATSInterviewDocument } from '../models/ats-interview.model';
 
 export class ATSInterviewMapper {
-  static toDomain(doc: IATSInterviewDocument): ATSInterview {
+  static toEntity(doc: IATSInterviewDocument): ATSInterview {
     return new ATSInterview(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

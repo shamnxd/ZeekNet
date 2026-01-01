@@ -1,12 +1,23 @@
-import { IEmailTemplateService, EmailTemplate } from '../../domain/interfaces/services/IEmailTemplateService';
+import { IEmailTemplateService } from '../../domain/interfaces/services/IEmailTemplateService';
+import { subscriptionMigrationTemplate } from '../messaging/templates/subscription-migration.template';
 import { otpVerificationTemplate } from '../messaging/templates/otp-verification.template';
 
-/**
- * Email Template Service Implementation
- * Provides access to email templates
- */
 export class EmailTemplateService implements IEmailTemplateService {
-  getOtpVerificationTemplate(): EmailTemplate {
-    return otpVerificationTemplate;
+  getSubscriptionMigrationEmail(
+    planName: string,
+    oldPrice: number,
+    newPrice: number,
+    billingCycle: 'monthly' | 'yearly',
+    companyName?: string,
+  ): { subject: string; html: string } {
+    const subject = subscriptionMigrationTemplate.subject(planName);
+    const html = subscriptionMigrationTemplate.html(planName, oldPrice, newPrice, billingCycle, companyName);
+    return { subject, html };
+  }
+
+  getOtpVerificationEmail(code: string): { subject: string; html: string } {
+    const subject = otpVerificationTemplate.subject;
+    const html = otpVerificationTemplate.html(code);
+    return { subject, html };
   }
 }

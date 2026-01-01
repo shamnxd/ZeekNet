@@ -3,7 +3,7 @@ import { ATSCompensationMeeting } from '../../../../domain/entities/ats-compensa
 import { IATSCompensationMeetingDocument } from '../models/ats-compensation-meeting.model';
 
 export class ATSCompensationMeetingMapper {
-  static toDomain(doc: IATSCompensationMeetingDocument): ATSCompensationMeeting {
+  static toEntity(doc: IATSCompensationMeetingDocument): ATSCompensationMeeting {
     return new ATSCompensationMeeting(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

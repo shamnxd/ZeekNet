@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { env } from '../config/env';
-import { ICookieService } from 'src/domain/interfaces/services/ICookieService';
+import { ICookieService } from '../../presentation/interfaces/services/ICookieService';
 
 export class CookieService implements ICookieService {
   private readonly _cookieName: string = env.COOKIE_NAME_REFRESH;

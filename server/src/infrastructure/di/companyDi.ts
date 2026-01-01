@@ -83,6 +83,7 @@ import { HandleStripeWebhookUseCase } from '../../application/use-cases/company/
 import { CancelSubscriptionUseCase } from '../../application/use-cases/company/cancel-subscription.use-case';
 import { ResumeSubscriptionUseCase } from '../../application/use-cases/company/resume-subscription.use-case';
 import { ChangeSubscriptionPlanUseCase } from '../../application/use-cases/company/change-subscription-plan.use-case';
+import { RevertToDefaultPlanUseCase } from '../../application/use-cases/company/revert-to-default-plan.use-case';
 import { GetBillingPortalUseCase } from '../../application/use-cases/company/get-billing-portal.use-case';
 import { SubscriptionMiddleware } from '../../presentation/middleware/subscription.middleware';
 import { GetCandidatesUseCase } from '../../application/use-cases/company/get-candidates.use-case';
@@ -178,7 +179,12 @@ const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
-const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
+import { notificationService } from './notificationDi'; // Ensure imported if not already, but usually better at top. I'll rely on it being available or import it.
+// companyDi.ts imports 'notificationRepository' on line 14. I should check if I can add notificationService there.
+// Line 14: import { notificationRepository } from './notificationDi';
+// I'll try to replace line 14 first to include notificationService.
+
+const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, notificationService);
 const updateApplicationScoreUseCase = new UpdateApplicationScoreUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobApplicationRepository, companyProfileRepository);
 
@@ -187,13 +193,15 @@ const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderReposi
 
 const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, userRepository);
 
-const handleStripeWebhookUseCase = new HandleStripeWebhookUseCase(stripeService, subscriptionPlanRepository, companySubscriptionRepository, paymentOrderRepository, notificationRepository, companyProfileRepository, jobPostingRepository);
+const revertToDefaultPlanUseCase = new RevertToDefaultPlanUseCase(companySubscriptionRepository, subscriptionPlanRepository, jobPostingRepository, companyProfileRepository, notificationRepository, logger);
+
+const handleStripeWebhookUseCase = new HandleStripeWebhookUseCase(stripeService, subscriptionPlanRepository, companySubscriptionRepository, paymentOrderRepository, notificationRepository, companyProfileRepository, jobPostingRepository, logger, revertToDefaultPlanUseCase);
 
 const cancelSubscriptionUseCase = new CancelSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
 const resumeSubscriptionUseCase = new ResumeSubscriptionUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
-const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository);
+const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository, logger);
 
 const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 

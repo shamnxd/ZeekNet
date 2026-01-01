@@ -3,7 +3,7 @@ import { ATSActivity } from '../../../../domain/entities/ats-activity.entity';
 import { IATSActivityDocument } from '../models/ats-activity.model';
 
 export class ATSActivityMapper {
-  static toDomain(doc: IATSActivityDocument & Document): ATSActivity {
+  static toEntity(doc: IATSActivityDocument & Document): ATSActivity {
     return new ATSActivity(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

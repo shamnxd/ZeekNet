@@ -7,7 +7,7 @@ import { ATSCompensationMapper } from '../mappers/ats-compensation.mapper';
 export class ATSCompensationRepository implements IATSCompensationRepository {
   async create(compensation: ATSCompensation): Promise<ATSCompensation> {
     const doc = await ATSCompensationModel.create(ATSCompensationMapper.toDocument(compensation));
-    return ATSCompensationMapper.toDomain(doc);
+    return ATSCompensationMapper.toEntity(doc);
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSCompensation | null> {
@@ -15,7 +15,7 @@ export class ATSCompensationRepository implements IATSCompensationRepository {
       return null;
     }
     const doc = await ATSCompensationModel.findOne({ applicationId: new Types.ObjectId(applicationId) });
-    return doc ? ATSCompensationMapper.toDomain(doc) : null;
+    return doc ? ATSCompensationMapper.toEntity(doc) : null;
   }
 
   async update(applicationId: string, data: Partial<ATSCompensation>): Promise<ATSCompensation | null> {
@@ -46,7 +46,7 @@ export class ATSCompensationRepository implements IATSCompensationRepository {
       { $set: updateData },
       { new: true },
     );
-    return doc ? ATSCompensationMapper.toDomain(doc) : null;
+    return doc ? ATSCompensationMapper.toEntity(doc) : null;
   }
 
   async delete(applicationId: string): Promise<boolean> {

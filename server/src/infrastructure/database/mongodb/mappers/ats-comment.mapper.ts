@@ -3,7 +3,7 @@ import { ATSComment } from '../../../../domain/entities/ats-comment.entity';
 import { IATSCommentDocument } from '../models/ats-comment.model';
 
 export class ATSCommentMapper {
-  static toDomain(doc: IATSCommentDocument): ATSComment {
+  static toEntity(doc: IATSCommentDocument): ATSComment {
     return new ATSComment(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

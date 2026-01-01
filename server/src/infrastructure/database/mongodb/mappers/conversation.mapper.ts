@@ -27,6 +27,38 @@ export class ConversationPersistenceMapper {
     });
   }
 
+  static toEnrichedEntity(
+    doc: ConversationDocument,
+    participantDetails: Map<string, { name: string; profileImage: string | null }>,
+  ): Conversation {
+    return Conversation.create({
+      id: String(doc._id),
+      participants: doc.participants.map((participant) => {
+        const userId = String(participant.user_id instanceof Types.ObjectId ? participant.user_id : (participant.user_id as any)._id);
+        const details = participantDetails.get(userId) || { name: 'Unknown', profileImage: null };
+        
+        return {
+          userId,
+          role: participant.role,
+          unreadCount: participant.unread_count,
+          lastReadAt: participant.last_read_at ?? null,
+          name: details.name,
+          profileImage: details.profileImage,
+        };
+      }),
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      lastMessage: doc.last_message
+        ? {
+          messageId: String(doc.last_message.message_id),
+          senderId: String(doc.last_message.sender_id),
+          content: doc.last_message.content,
+          createdAt: doc.last_message.created_at,
+        }
+        : null,
+    });
+  }
+
   static toDocument(entity: Partial<Conversation>): Partial<ConversationDocument> {
     const doc: Partial<ConversationDocument> = {};
 

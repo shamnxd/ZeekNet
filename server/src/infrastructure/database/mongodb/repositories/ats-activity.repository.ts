@@ -7,7 +7,7 @@ import { ATSActivityMapper } from '../mappers/ats-activity.mapper';
 export class ATSActivityRepository implements IATSActivityRepository {
   async create(activity: ATSActivity): Promise<ATSActivity> {
     const doc = await ATSActivityModel.create(ATSActivityMapper.toDocument(activity));
-    return ATSActivityMapper.toDomain(doc);
+    return ATSActivityMapper.toEntity(doc);
   }
 
   async findById(id: string): Promise<ATSActivity | null> {
@@ -15,7 +15,7 @@ export class ATSActivityRepository implements IATSActivityRepository {
       return null;
     }
     const doc = await ATSActivityModel.findById(id);
-    return doc ? ATSActivityMapper.toDomain(doc) : null;
+    return doc ? ATSActivityMapper.toEntity(doc) : null;
   }
 
   async findByApplicationId(applicationId: string): Promise<ATSActivity[]> {
@@ -24,7 +24,7 @@ export class ATSActivityRepository implements IATSActivityRepository {
     }
     const docs = await ATSActivityModel.find({ applicationId: new Types.ObjectId(applicationId) })
       .sort({ createdAt: -1 });
-    return docs.map(doc => ATSActivityMapper.toDomain(doc));
+    return docs.map(doc => ATSActivityMapper.toEntity(doc));
   }
 
   async findByApplicationIdPaginated(
@@ -70,7 +70,7 @@ export class ATSActivityRepository implements IATSActivityRepository {
     const hasMore = docs.length > limit;
     const activitiesToReturn = hasMore ? docs.slice(0, limit) : docs;
 
-    const activities = activitiesToReturn.map(doc => ATSActivityMapper.toDomain(doc as unknown as IATSActivityDocument & Document));
+    const activities = activitiesToReturn.map(doc => ATSActivityMapper.toEntity(doc as unknown as IATSActivityDocument & Document));
 
     let nextCursor: PaginationCursor | null = null;
     if (hasMore && activities.length > 0) {
@@ -91,7 +91,7 @@ export class ATSActivityRepository implements IATSActivityRepository {
 
   async findAll(): Promise<ATSActivity[]> {
     const docs = await ATSActivityModel.find().sort({ createdAt: -1 });
-    return docs.map(doc => ATSActivityMapper.toDomain(doc));
+    return docs.map(doc => ATSActivityMapper.toEntity(doc));
   }
 
   async delete(id: string): Promise<boolean> {

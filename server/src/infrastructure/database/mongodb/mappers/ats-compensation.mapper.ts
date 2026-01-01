@@ -3,7 +3,7 @@ import { ATSCompensation } from '../../../../domain/entities/ats-compensation.en
 import { IATSCompensationDocument } from '../models/ats-compensation.model';
 
 export class ATSCompensationMapper {
-  static toDomain(doc: IATSCompensationDocument): ATSCompensation {
+  static toEntity(doc: IATSCompensationDocument): ATSCompensation {
     return new ATSCompensation(
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),

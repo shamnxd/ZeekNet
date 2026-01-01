@@ -70,7 +70,13 @@ const s3Service = new S3Service();
 
 const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
 
-const blockUserUseCase = new BlockUserUseCase(userRepository);
+import { notificationService } from './notificationDi';
+
+// ... (requires precise target or multiple edits. I will just do imports at top separately? No, I can't easily add top imports. I will rely on TS resolution or put it together).
+// Actually, adminDi.ts already imports from other DI files.
+// Let's replace the line defining blockUserUseCase.
+
+const blockUserUseCase = new BlockUserUseCase(userRepository, notificationService);
 
 const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
 
@@ -122,17 +128,25 @@ const deleteJobRoleUseCase = new DeleteJobRoleUseCase(jobRoleRepository);
 
 const adminJobRoleController = new AdminJobRoleController(createJobRoleUseCase, getAllJobRolesUseCase, getJobRoleByIdUseCase, updateJobRoleUseCase, deleteJobRoleUseCase);
 
-const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository, stripeService, priceHistoryRepository);
+const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
-const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, stripeService, priceHistoryRepository);
+const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const mailerService = new NodemailerService();
+import { logger } from '../config/logger';
+import { EmailTemplateService } from '../services/email-template.service';
+
+const emailTemplateService = new EmailTemplateService();
+
+// Step 2: Inject logger
 const migratePlanSubscribersUseCase = new MigratePlanSubscribersUseCase(
   subscriptionPlanRepository,
   stripeService,
   priceHistoryRepository,
   companySubscriptionRepository,
   mailerService,
+  logger,
+  emailTemplateService,
 );
 
 const adminSubscriptionPlanController = new AdminSubscriptionPlanController(

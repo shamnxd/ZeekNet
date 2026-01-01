@@ -46,14 +46,10 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return documents.map(doc => this.mapToEntity(doc));
   }
 
-  async postJob(jobData: CreateInput<JobPosting>): Promise<JobPosting> {
-
+  async postJob(job: JobPosting): Promise<JobPosting> {
     const document = new JobPostingModel({
-      ...this.mapToDocument(jobData),
-      company_id: new Types.ObjectId(jobData.companyId),
-      status: 'active',
-      view_count: 0,
-      application_count: 0,
+      ...this.mapToDocument(job),
+      _id: new Types.ObjectId(job.id), // Ensure ID is passed
     });
 
     const savedDoc = await document.save();
