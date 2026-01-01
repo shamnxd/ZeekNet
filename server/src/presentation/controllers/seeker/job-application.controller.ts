@@ -59,11 +59,6 @@ export class SeekerJobApplicationController {
       if (!job_id) {
         return badRequest(res, 'Job ID is required');
       }
-      const job = await this._jobPostingRepository.findById(job_id);
-      if (!job) {
-        return sendNotFoundResponse(res, 'Job posting not found');
-      }
-
 
       const dto = CreateJobApplicationDto.safeParse({
         job_id,
@@ -193,73 +188,21 @@ export class SeekerJobApplicationController {
 
       if (req.file) {
         const uploadResult = await UploadService.handleTaskSubmissionUpload(req, this._s3Service, 'document');
-        submissionUrl = uploadResult.url; 
+        submissionUrl = uploadResult.url;
         submissionFilename = uploadResult.filename;
       } else if (req.body.submissionUrl && req.body.submissionFilename) {
         submissionUrl = req.body.submissionUrl;
         submissionFilename = req.body.submissionFilename;
       }
 
-      if (!submissionUrl && !submissionLink) {
-        return sendBadRequestResponse(res, 'Please provide either a file upload or a submission link');
-      }
-
-      const application = await this._jobApplicationRepository.findById(applicationId);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
-
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only submit tasks for your own applications'), next);
-      }
-
-      const task = await this._technicalTaskRepository.findById(taskId);
-      if (!task) {
-        return sendNotFoundResponse(res, 'Technical task not found');
-      }
-
-      if (task.applicationId !== applicationId) {
-        return handleAsyncError(new ValidationError('Task does not belong to this application'), next);
-      }
-
-      const updatedTask = await this._technicalTaskRepository.update(taskId, {
+      const result = await this._submitTechnicalTaskUseCase.execute(userId, applicationId, taskId, {
         submissionUrl,
         submissionFilename,
         submissionLink,
         submissionNote,
-        status: 'submitted',
-        submittedAt: new Date(),
       });
 
-      if (!updatedTask) {
-        return sendNotFoundResponse(res, 'Failed to update task');
-      }
-
-      let taskObj: Pick<ATSTechnicalTask, 'id' | 'applicationId' | 'title' | 'description' | 'deadline' | 'submissionLink' | 'submissionNote' | 'submittedAt' | 'status' | 'createdAt' | 'updatedAt'> & { documentUrl?: string; documentFilename?: string; submissionUrl?: string; submissionFilename?: string } = {
-        id: updatedTask.id,
-        applicationId: updatedTask.applicationId,
-        title: updatedTask.title,
-        description: updatedTask.description,
-        deadline: updatedTask.deadline,
-        submissionLink: updatedTask.submissionLink,
-        submissionNote: updatedTask.submissionNote,
-        submittedAt: updatedTask.submittedAt,
-        status: updatedTask.status,
-        createdAt: updatedTask.createdAt,
-        updatedAt: updatedTask.updatedAt,
-      };
-
-      if (updatedTask.documentUrl) {
-        taskObj.documentUrl = await this._s3Service.getSignedUrl(updatedTask.documentUrl);
-        taskObj.documentFilename = updatedTask.documentFilename;
-      }
-
-      if (updatedTask.submissionUrl) {
-        taskObj.submissionUrl = await this._s3Service.getSignedUrl(updatedTask.submissionUrl);
-        taskObj.submissionFilename = updatedTask.submissionFilename;
-      }
-
-      sendSuccessResponse(res, 'Task submitted successfully', taskObj);
+      sendSuccessResponse(res, 'Task submitted successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -270,40 +213,9 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._jobApplicationRepository.findById(id);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
+      const offers = await this._getOffersByApplicationUseCase.execute(userId, id);
 
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only view your own applications'), next);
-      }
-
-      const offers = await this._offerRepository.findByApplicationId(id);
-      
-      const offersWithSignedUrls = await Promise.all(
-        offers.map(async (offer) => {
-          try {
-            const signedUrl = await this._s3Service.getSignedUrl(offer.documentUrl);
-            const offerObj: ATSOffer & { documentUrl: string; signedDocumentUrl?: string } = {
-              ...offer,
-              documentUrl: signedUrl,
-            };
-            
-            if (offer.signedDocumentUrl) {
-              const signedDocUrl = await this._s3Service.getSignedUrl(offer.signedDocumentUrl);
-              offerObj.signedDocumentUrl = signedDocUrl;
-            }
-            
-            return offerObj;
-          } catch (error) {
-            console.error(`Error generating signed URL for offer ${offer.id}:`, error);
-            return offer;
-          }
-        }),
-      );
-      
-      sendSuccessResponse(res, 'Offers retrieved successfully', offersWithSignedUrls);
+      sendSuccessResponse(res, 'Offers retrieved successfully', offers);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -314,16 +226,8 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._jobApplicationRepository.findById(id);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
+      const compensation = await this._getCompensationByApplicationUseCase.execute(userId, id);
 
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only view your own applications'), next);
-      }
-
-      const compensation = await this._compensationRepository.findByApplicationId(id);
       sendSuccessResponse(res, 'Compensation retrieved successfully', compensation);
     } catch (error) {
       handleAsyncError(error, next);
@@ -335,32 +239,9 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._jobApplicationRepository.findById(id);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
+      const meetings = await this._getCompensationMeetingsByApplicationUseCase.execute(userId, id);
 
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only view your own applications'), next);
-      }
-
-      const meetings = await this._compensationMeetingRepository.findByApplicationId(id);
-      const meetingsForSeeker = meetings.map(meeting => {
-        const meetingObj = {
-          id: meeting.id,
-          applicationId: meeting.applicationId,
-          type: meeting.type,
-          scheduledDate: meeting.scheduledDate,
-          location: meeting.location,
-          meetingLink: meeting.meetingLink,
-          status: meeting.status,
-          completedAt: meeting.completedAt,
-          createdAt: meeting.createdAt,
-          updatedAt: meeting.updatedAt,
-        };
-        return meetingObj;
-      });
-      sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetingsForSeeker);
+      sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -372,52 +253,9 @@ export class SeekerJobApplicationController {
       const { offerId } = req.params;
       const { status } = req.body;
 
-      if (!status || !['signed', 'declined'].includes(status)) {
-        return sendBadRequestResponse(res, 'Invalid status. Must be "signed" or "declined"');
-      }
+      const updatedOffer = await this._updateOfferStatusUseCase.execute(userId, offerId, status);
 
-      const offer = await this._offerRepository.findById(offerId);
-      if (!offer) {
-        return sendNotFoundResponse(res, 'Offer not found');
-      }
-
-      const application = await this._jobApplicationRepository.findById(offer.applicationId);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
-
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only update offers for your own applications'), next);
-      }
-
-      const updateData: Partial<ATSOffer> & { status: 'signed' | 'declined'; signedAt?: Date; declinedAt?: Date } = {
-        status,
-      };
-
-      if (status === 'signed') {
-        updateData.signedAt = new Date();
-      } else if (status === 'declined') {
-        updateData.declinedAt = new Date();
-      }
-
-      const updatedOffer = await this._offerRepository.update(offerId, updateData);
-
-      if (!updatedOffer) {
-        return sendNotFoundResponse(res, 'Failed to update offer');
-      }
-
-      const documentSignedUrl = await this._s3Service.getSignedUrl(updatedOffer.documentUrl);
-      let offerWithSignedUrl: ATSOffer & { documentUrl: string; signedDocumentUrl?: string } = {
-        ...updatedOffer,
-        documentUrl: documentSignedUrl,
-      };
-
-      if (updatedOffer.signedDocumentUrl) {
-        const signedDocUrl = await this._s3Service.getSignedUrl(updatedOffer.signedDocumentUrl);
-        offerWithSignedUrl.signedDocumentUrl = signedDocUrl;
-      }
-
-      sendSuccessResponse(res, `Offer ${status === 'signed' ? 'accepted' : 'declined'} successfully`, offerWithSignedUrl);
+      sendSuccessResponse(res, `Offer ${status === 'signed' ? 'accepted' : 'declined'} successfully`, updatedOffer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -433,58 +271,16 @@ export class SeekerJobApplicationController {
         return sendBadRequestResponse(res, 'Signed document file is required');
       }
 
-      const offer = await this._offerRepository.findById(offerId);
-      if (!offer) {
-        return sendNotFoundResponse(res, 'Offer not found');
-      }
-
-      const application = await this._jobApplicationRepository.findById(offer.applicationId);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
-
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only upload signed documents for your own applications'), next);
-      }
-
       const uploadResult = await UploadService.handleOfferLetterUpload(req, this._s3Service, 'document');
 
-      const updatedOffer = await this._offerRepository.update(offerId, {
-        signedDocumentUrl: uploadResult.url, 
+      const updatedOffer = await this._uploadSignedOfferDocumentUseCase.execute(userId, userName, offerId, {
+        signedDocumentUrl: uploadResult.url,
         signedDocumentFilename: uploadResult.filename,
-        status: 'signed',
-        signedAt: new Date(),
       });
 
-      if (!updatedOffer) {
-        return sendNotFoundResponse(res, 'Failed to update offer');
-      }
-
-      if (application.stage === ATSStage.OFFER) {
-        try {
-          await this._updateApplicationSubStageUseCase.execute({
-            applicationId: offer.applicationId,
-            subStage: OfferSubStage.OFFER_ACCEPTED,
-            performedBy: userId,
-            performedByName: userName,
-          });
-        } catch (subStageError) {
-          console.error('Error updating application substage:', subStageError);
-        }
-      }
-
-      const documentSignedUrl = await this._s3Service.getSignedUrl(updatedOffer.documentUrl);
-      const signedDocSignedUrl = await this._s3Service.getSignedUrl(updatedOffer.signedDocumentUrl!);
-
-      const offerWithSignedUrl = {
-        ...updatedOffer,
-        documentUrl: documentSignedUrl,
-        signedDocumentUrl: signedDocSignedUrl,
-      };
-
-      sendSuccessResponse(res, 'Signed document uploaded successfully', offerWithSignedUrl);
+      sendSuccessResponse(res, 'Signed document uploaded successfully', updatedOffer);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
-};
+}
