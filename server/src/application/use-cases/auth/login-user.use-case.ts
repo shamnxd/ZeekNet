@@ -32,9 +32,8 @@ export class LoginUserUseCase implements ILoginUserUseCase {
 
     if (!user.isVerified) {
       const code = await this._otpService.generateAndStoreOtp(user.email);
-      const template = this._emailTemplateService.getOtpVerificationTemplate();
-      const htmlContent = template.html(code);
-      await this._mailerService.sendMail(user.email, template.subject, htmlContent);
+      const { subject, html } = this._emailTemplateService.getOtpVerificationEmail(code);
+      await this._mailerService.sendMail(user.email, subject, html);
       return { user: UserMapper.toResponse(user) };
     }
 

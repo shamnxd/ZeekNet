@@ -9,7 +9,8 @@ import { AdminJobListItem, AdminJobStatsResponseDto } from '../dto/admin/admin-j
 import { CreateInput } from '../../domain/types/common.types';
 
 export class JobPostingMapper {
-  static toPersistence(data: {
+  static toDomain(data: {
+    id: string;
     companyId: string;
     title: string;
     description: string;
@@ -26,7 +27,7 @@ export class JobPostingMapper {
     isFeatured?: boolean;
     expiresAt?: Date;
     totalVacancies?: number;
-  }): Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt' | 'companyName' | 'companyLogo' | 'unpublishReason'> {
+  }): JobPosting {
     const defaultEnabledStages = [
       ATSStage.IN_REVIEW,
       ATSStage.SHORTLISTED,
@@ -50,8 +51,9 @@ export class JobPostingMapper {
         atsPipelineConfig[stage] = [...STAGE_TO_SUB_STAGES[stage]];
       }
     });
-    
-    return {
+
+    return JobPosting.create({
+      id: data.id,
       companyId: data.companyId,
       title: data.title,
       description: data.description,
@@ -72,7 +74,7 @@ export class JobPostingMapper {
       applicationCount: 0,
       totalVacancies: data.totalVacancies ?? 1,
       filledVacancies: 0,
-    };
+    });
   }
   static toResponse(
     jobPosting: JobPosting,

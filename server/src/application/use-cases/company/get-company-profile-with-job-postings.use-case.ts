@@ -50,8 +50,8 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
 
     const logoKey = companyProfile.profile.logo && !companyProfile.profile.logo.startsWith('http') ? companyProfile.profile.logo : null;
     const bannerKey = companyProfile.profile.banner && !companyProfile.profile.banner.startsWith('http') ? companyProfile.profile.banner : null;
-    const businessLicenseKey = companyProfile.verification?.businessLicenseUrl && !companyProfile.verification.businessLicenseUrl.startsWith('http') 
-      ? companyProfile.verification.businessLicenseUrl 
+    const businessLicenseKey = companyProfile.profile.business_license && !companyProfile.profile.business_license.startsWith('http') 
+      ? companyProfile.profile.business_license 
       : null;
 
     const [logoUrl, bannerUrl, businessLicenseUrl, workplacePictureUrls] = await Promise.all([
@@ -64,19 +64,20 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
       })),
     ]);
 
-    const responseData = CompanyProfileMapper.toDetailedResponse({
+    const responseData: CompanyProfileWithDetailsResponseDto = {
       ...companyProfile,
-      jobPostings: jobDtos,
-      signedUrls: {
-        logo: logoUrl,
-        banner: bannerUrl,
-        businessLicense: businessLicenseUrl,
-        workplacePictures: companyProfile.workplacePictures.map((pic, index) => ({
-          id: pic.id,
-          pictureUrl: workplacePictureUrls[index] || pic.pictureUrl,
-        })),
+      profile: {
+        ...companyProfile.profile,
+        logo: logoUrl || companyProfile.profile.logo,
+        banner: bannerUrl || companyProfile.profile.banner,
+        business_license: businessLicenseUrl || companyProfile.profile.business_license,
       },
-    });
+      workplacePictures: companyProfile.workplacePictures.map((pic, index) => ({
+        ...pic,
+        pictureUrl: workplacePictureUrls[index] || pic.pictureUrl,
+      })),
+      jobPostings: jobDtos,
+    };
 
     return responseData;
   }

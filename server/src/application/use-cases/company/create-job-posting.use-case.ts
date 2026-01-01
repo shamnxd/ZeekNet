@@ -3,9 +3,10 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { CreateJobPostingRequestDto } from '../../dto/job-posting/create-job-posting-request.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
+import { ICreateJobPostingUseCase } from 'src/application/interfaces/use-cases/jobs/ICreateJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileByUserIdUseCase';
 import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { generateId } from '../../../shared/utils/id.utils';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
@@ -40,7 +41,10 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       throw new ValidationError(`You have reached your active featured job limit of ${subscription.featuredJobLimit} jobs. Please upgrade your plan or unlist other featured jobs.`);
     }
     
-    const jobPosting = JobPostingMapper.toPersistence({
+    const id = generateId();
+    
+    const jobPosting = JobPostingMapper.toDomain({
+      id,
       companyId: companyProfile.id,
       title: jobData.title,
       description: jobData.description,

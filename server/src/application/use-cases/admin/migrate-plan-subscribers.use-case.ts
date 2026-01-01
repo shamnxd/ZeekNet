@@ -3,14 +3,14 @@ import { IStripeService } from '../../../domain/interfaces/services/IStripeServi
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IMailerService } from '../../../domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
-import Stripe from 'stripe';
-import { IMigratePlanSubscribersUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
+import { IMigratePlanSubscribersUseCase } from '../../interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
 import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
 import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
 import { PriceType } from '../../../domain/entities/price-history.entity';
+import { PaymentSubscription } from '../../../domain/types/payment/payment-types';
 
 export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUseCase {
   constructor(
@@ -20,6 +20,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _mailerService: IMailerService,
     private readonly _logger: ILogger,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(data: MigratePlanSubscribersRequestDto): Promise<MigratePlanSubscribersResult> {
@@ -139,7 +140,11 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
               continue;
             }
 
-            const oldPrice = subscriptionItem.price.unit_amount ? subscriptionItem.price.unit_amount / 100 : 0;
+            // subscriptionItem.price now refers to PaymentPrice which has unitAmount
+            const priceAmount = typeof subscriptionItem.price.unitAmount === 'number' 
+                ? subscriptionItem.price.unitAmount 
+                : 0;
+            const oldPrice = priceAmount / 100;
             
             await this._stripeService.updateSubscription({
               subscriptionId: subscription.id,
@@ -149,7 +154,12 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
 
             const updatedSubscription = await this._stripeService.getSubscription(subscription.id);
             const newPriceItem = updatedSubscription?.items.data[0];
-            const newPrice = newPriceItem?.price.unit_amount ? newPriceItem.price.unit_amount / 100 : oldPrice;
+            
+            const newPriceAmount = newPriceItem?.price.unitAmount && typeof newPriceItem.price.unitAmount === 'number' 
+                ? newPriceItem.price.unitAmount 
+                : (priceAmount || 0);
+            
+            const newPrice = newPriceAmount / 100;
 
             await this.sendMigrationEmail(subscription, planName, oldPrice, newPrice, type);
 
@@ -182,7 +192,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
   }
 
   private async sendMigrationEmail(
-    subscription: Stripe.Subscription,
+    subscription: PaymentSubscription,
     planName: string,
     oldPrice: number,
     newPrice: number,
@@ -192,16 +202,17 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
       let customerEmail: string | undefined;
       let companyName: string | undefined;
 
-      if (typeof subscription.customer === 'string') {
-        const customer = await this._stripeService.getCustomer(subscription.customer);
+      if (typeof subscription.customerId === 'string') {
+        const customer = await this._stripeService.getCustomer(subscription.customerId);
         if (customer && !customer.deleted) {
           customerEmail = customer.email || undefined;
           companyName = customer.name || undefined;
         }
-      } else {
-        if (!subscription.customer.deleted && 'email' in subscription.customer) {
-          customerEmail = subscription.customer.email || undefined;
-          companyName = subscription.customer.name || undefined;
+      } else if (subscription.customerId && typeof subscription.customerId === 'object') {
+        const customer = subscription.customerId;
+        if (!customer.deleted) {
+          customerEmail = customer.email || undefined;
+          companyName = customer.name || undefined;
         }
       }
 
@@ -214,8 +225,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
         return;
       }
 
-      const subject = subscriptionMigrationTemplate.subject(planName);
-      const html = subscriptionMigrationTemplate.html(planName, oldPrice, newPrice, billingCycle, companyName);
+      const { subject, html } = this._emailTemplateService.getSubscriptionMigrationEmail(planName, oldPrice, newPrice, billingCycle, companyName);
       
       await this._mailerService.sendMail(customerEmail, subject, html);
       this._logger.info(`Sent migration email to ${customerEmail} for subscription ${subscription.id}`);

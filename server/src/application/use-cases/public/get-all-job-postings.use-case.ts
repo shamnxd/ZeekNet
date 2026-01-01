@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/IGetAllJobPostingsUseCase';
+import { IGetAllJobPostingsUseCase } from '../../interfaces/use-cases/public/IGetAllJobPostingsUseCase';
 import { JobPostingFilters } from 'src/application/dto/jobs/job-posting-filters.dto';
 import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
 import { PaginatedPublicJobsDto } from '../../dto/public/paginated-public-jobs.dto';

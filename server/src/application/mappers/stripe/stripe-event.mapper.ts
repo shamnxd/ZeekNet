@@ -1,24 +1,26 @@
-import Stripe from 'stripe';
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import {
+  PaymentSubscription,
+  PaymentInvoice,
+} from '../../../domain/types/payment/payment-types';
 
 export class StripeEventMapper {
-  static parseSubscriptionDates(subscription: Stripe.Subscription, billingCycle?: string): { 
+  static parseSubscriptionDates(subscription: PaymentSubscription, billingCycle?: string): { 
     currentPeriodStart: Date; 
     currentPeriodEnd: Date; 
   } {
-    const rawPeriodStart = (subscription as Stripe.Subscription & { current_period_start?: number }).current_period_start;
-    const rawPeriodEnd = (subscription as Stripe.Subscription & { current_period_end?: number }).current_period_end;
+    const rawPeriodStart = subscription.currentPeriodStart;
+    const rawPeriodEnd = subscription.currentPeriodEnd;
     
     let periodStartTimestamp: number;
     let periodEndTimestamp: number;
     
     if (rawPeriodStart && rawPeriodEnd && 
-        typeof rawPeriodStart === 'number' && typeof rawPeriodEnd === 'number' &&
         rawPeriodStart > 0 && rawPeriodEnd > 0) {
       periodStartTimestamp = rawPeriodStart;
       periodEndTimestamp = rawPeriodEnd;
     } else {
-      const baseTimestamp = subscription.start_date || subscription.created || Math.floor(Date.now() / 1000);
+      const baseTimestamp = subscription.startDate || subscription.created || Math.floor(Date.now() / 1000);
       periodStartTimestamp = baseTimestamp;
       const periodDurationSeconds = billingCycle === BillingCycle.YEARLY ? 31536000 : 2592000;
       periodEndTimestamp = baseTimestamp + periodDurationSeconds;
@@ -30,34 +32,18 @@ export class StripeEventMapper {
     };
   }
 
-  static getPaymentIntentId(invoice: Stripe.Invoice): string | undefined {
-    const paymentIntent = (invoice as Stripe.Invoice & { payment_intent?: string | { id?: string } }).payment_intent;
+  static getPaymentIntentId(invoice: PaymentInvoice): string | undefined {
+    // In our Domain Model, paymentIntent is already resolved to string or {id} or null
+    // But our mapper logic in StripeService already resolves it to string or id.
+    // Let's safe check our domain type.
+    const paymentIntent = invoice.paymentIntent;
     if (!paymentIntent) {
       return undefined;
     }
     return typeof paymentIntent === 'string' ? paymentIntent : paymentIntent.id;
   }
 
-  static getSubscriptionId(invoice: Stripe.Invoice): string | undefined {
-    let invoiceSubscription: string | Stripe.Subscription | null = (invoice as Stripe.Invoice & { subscription?: string | Stripe.Subscription | null }).subscription || null;
-    
-    if (!invoiceSubscription) {
-      const isSubscriptionInvoice = invoice.billing_reason?.includes('subscription');
-      if (!isSubscriptionInvoice) {
-        return undefined;
-      }
-      
-      if (invoice.lines?.data?.[0]?.subscription) {
-        invoiceSubscription = typeof invoice.lines.data[0].subscription === 'string' 
-          ? invoice.lines.data[0].subscription 
-          : invoice.lines.data[0].subscription.id;
-      }
-      
-      if (!invoiceSubscription) {
-        return undefined;
-      }
-    }
-
-    return typeof invoiceSubscription === 'string' ? invoiceSubscription : invoiceSubscription.id;
+  static getSubscriptionId(invoice: PaymentInvoice): string | undefined {
+    return invoice.subscription || undefined;
   }
 }

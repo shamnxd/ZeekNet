@@ -8,7 +8,7 @@ export class GetCompanyDashboardUseCase implements IGetCompanyDashboardUseCase {
     const companyProfile = await this._getCompanyProfileUseCase.execute(userId);
 
     const profileStatus: 'not_created' | 'pending' | 'verified' | 'rejected' = companyProfile
-      ? (companyProfile.profile.isVerified || 'not_created')
+      ? (companyProfile.profile.is_verified || 'not_created')
       : 'not_created';
 
     return {

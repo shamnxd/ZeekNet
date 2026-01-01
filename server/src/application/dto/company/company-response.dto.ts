@@ -60,7 +60,7 @@ export interface CompanyProfileWithDetailsResponseDto {
     employmentType: string;
     salaryMin?: number;
     salaryMax?: number;
-    status: 'active' | 'unlisted' | 'expired' | 'blocked';
+    status: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed';
     createdAt: string;
     updatedAt: string;
   }[];

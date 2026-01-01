@@ -1,4 +1,3 @@
-import Stripe from 'stripe';
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -8,11 +7,12 @@ import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
 import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
-import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
+import { IChangeSubscriptionPlanUseCase } from '../../interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { CompanySubscriptionMapper } from '../../mappers/company-subscription.mapper';
+import { PaymentSubscription } from '../../../domain/types/payment/payment-types';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
@@ -64,7 +64,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
       throw new ValidationError(`This plan does not have ${effectiveBillingCycle} pricing configured`);
     }
 
-    const stripeSubscription = await this._stripeService.updateSubscription({
+    const stripeSubscription: PaymentSubscription = await this._stripeService.updateSubscription({
       subscriptionId: subscription.stripeSubscriptionId,
       priceId,
       prorationBehavior: 'create_prorations',
@@ -111,8 +111,8 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
       remainingRegularJobs = remainingActiveJobs.length - remainingFeaturedJobs;
     }
 
-    const rawPeriodStart = (stripeSubscription as Stripe.Subscription & { current_period_start?: number }).current_period_start;
-    const rawPeriodEnd = (stripeSubscription as Stripe.Subscription & { current_period_end?: number }).current_period_end;
+    const rawPeriodStart = stripeSubscription.currentPeriodStart;
+    const rawPeriodEnd = stripeSubscription.currentPeriodEnd;
     
     const currentPeriodStart = rawPeriodStart 
       ? new Date(rawPeriodStart * 1000)
@@ -127,7 +127,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
         planId: newPlan.id,
         billingCycle: effectiveBillingCycle,
         stripeStatus: stripeSubscription.status as SubscriptionStatus,
-        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
+        cancelAtPeriodEnd: stripeSubscription.cancelAtPeriodEnd || false,
         currentPeriodStart,
         currentPeriodEnd,
         startDate: currentPeriodStart,
@@ -153,3 +153,4 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     };
   }
 }
+

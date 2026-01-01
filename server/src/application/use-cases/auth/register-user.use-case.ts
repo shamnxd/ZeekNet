@@ -45,8 +45,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
 
   private async sendOtpEmail(email: string): Promise<void> {
     const code = await this._otpService.generateAndStoreOtp(email);
-    const template = this._emailTemplateService.getOtpVerificationTemplate();
-    const htmlContent = template.html(code);
-    await this._mailerService.sendMail(email, template.subject, htmlContent);
+    const { subject, html } = this._emailTemplateService.getOtpVerificationEmail(code);
+    await this._mailerService.sendMail(email, subject, html);
   }
 }

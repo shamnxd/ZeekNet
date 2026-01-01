@@ -2,7 +2,7 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { IUpdateSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
+import { IUpdateSubscriptionPlanUseCase } from '../../interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { UpdateSubscriptionPlanDto } from '../../dto/subscriptions/update-subscription-plan.dto';

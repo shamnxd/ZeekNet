@@ -8,7 +8,7 @@ import { NotFoundError } from '../../../domain/errors/errors';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
+import { IRevertToDefaultPlanUseCase } from '../../interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {

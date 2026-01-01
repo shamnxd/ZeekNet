@@ -6,7 +6,8 @@ import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositor
 import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
-import { CompanyProfileWithDetailsDto } from '../../dto/company/company-profile-with-details.dto';
+import { GetCompanyProfileResponseDto } from '../../dto/company/company-profile-response.dto';
+import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
 
 export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
@@ -19,7 +20,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
   ) {}
 
-  async execute(userId: string): Promise<CompanyProfileWithDetailsDto | null> {
+  async execute(userId: string): Promise<GetCompanyProfileResponseDto | null> {
     const profile = await this._companyProfileRepository.findOne({ userId });
     if (!profile) return null;
 
@@ -32,7 +33,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
       this._companyVerificationRepository.findOne({ companyId: profile.id }),
     ]);
 
-    return {
+    return CompanyProfileMapper.toDetailedResponse({
       profile,
       contact,
       locations,
@@ -40,7 +41,7 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
       benefits,
       workplacePictures,
       verification,
-    };
+    });
   }
 }
 

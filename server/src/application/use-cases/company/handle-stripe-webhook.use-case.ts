@@ -1,4 +1,3 @@
-import Stripe from 'stripe';
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
@@ -9,9 +8,9 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { RevertToDefaultPlanUseCase } from './revert-to-default-plan.use-case';
+import { IRevertToDefaultPlanUseCase } from '../../interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 import { HandleStripeWebhookRequestDto } from '../../dto/company/handle-stripe-webhook.dto';
-import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/payments/IHandleStripeWebhookUseCase';
+import { IHandleStripeWebhookUseCase } from '../../../domain/interfaces/use-cases/payments/IHandleStripeWebhookUseCase';
 import { PaymentStatus } from '../../../domain/enums/payment-status.enum';
 import { PaymentMethod } from '../../../domain/enums/payment-method.enum';
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
@@ -20,10 +19,14 @@ import { CompanySubscriptionResponseMapper } from '../../mappers/subscription/co
 import { PaymentMapper } from '../../mappers/payment.mapper';
 import { NotificationMapper } from '../../mappers/notification.mapper';
 import { StripeEventMapper } from '../../mappers/stripe/stripe-event.mapper';
+import {
+  PaymentEvent,
+  PaymentSession,
+  PaymentInvoice,
+  PaymentSubscription,
+} from '../../../domain/types/payment/payment-types';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
-  private readonly _revertToDefaultPlanUseCase: RevertToDefaultPlanUseCase;
-
   constructor(
     private readonly _stripeService: IStripeService,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
@@ -33,39 +36,31 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _logger: ILogger,
-  ) {
-    this._revertToDefaultPlanUseCase = new RevertToDefaultPlanUseCase(
-      this._companySubscriptionRepository,
-      this._subscriptionPlanRepository,
-      this._jobPostingRepository,
-      this._companyProfileRepository,
-      this._notificationRepository,
-      this._logger,
-    );
-  }
+    private readonly _revertToDefaultPlanUseCase: IRevertToDefaultPlanUseCase,
+  ) {}
 
   async execute(data: HandleStripeWebhookRequestDto): Promise<{ received: boolean }> {
     const { payload, signature } = data;
     try {
-      const event = this._stripeService.constructWebhookEvent(payload, signature);
+      const event: PaymentEvent = this._stripeService.constructWebhookEvent(payload, signature);
 
       switch (event.type) {
-      case 'checkout.session.completed':
-        await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
-        break;
-      case 'invoice.paid':
-      case 'invoice.payment_succeeded':
-        await this.handleInvoicePaid(event.data.object as Stripe.Invoice);
-        break;
-      case 'invoice.payment_failed':
-        await this.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
-        break;
-      case 'customer.subscription.updated':
-        await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
-        break;
-      case 'customer.subscription.deleted':
-        await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
-        break;
+        case 'checkout.session.completed':
+          await this.handleCheckoutSessionCompleted(event.data.object as PaymentSession);
+          break;
+        case 'invoice.paid':
+        case 'invoice.payment_succeeded':
+          await this.handleInvoicePaid(event.data.object as PaymentInvoice);
+          break;
+        case 'invoice.payment_failed':
+          await this.handleInvoicePaymentFailed(event.data.object as PaymentInvoice);
+          break;
+        case 'customer.subscription.updated':
+          await this.handleSubscriptionUpdated(event.data.object as PaymentSubscription);
+          break;
+        case 'customer.subscription.deleted':
+          await this.handleSubscriptionDeleted(event.data.object as PaymentSubscription);
+          break;
       }
 
       return { received: true };
@@ -75,7 +70,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     }
   }
 
-  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void> {
+  private async handleCheckoutSessionCompleted(session: PaymentSession): Promise<void> {
     try {
       const { companyId, planId, billingCycle } = session.metadata || {};
       
@@ -184,38 +179,38 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
         jobPostsUsed: remainingRegularJobs,
         featuredJobsUsed: remainingFeaturedJobs,
         applicantAccessUsed: existingActiveSubscription?.applicantAccessUsed || 0,
-        stripeCustomerId: session.customer as string,
+        stripeCustomerId: session.customerId as string,
         stripeSubscriptionId,
         stripeStatus: stripeSubscription.status as SubscriptionStatus,
         billingCycle: billingCycle as BillingCycle,
-        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end || false,
+        cancelAtPeriodEnd: stripeSubscription.cancelAtPeriodEnd || false,
         currentPeriodStart,
         currentPeriodEnd,
       });
 
       const subscription = await this._companySubscriptionRepository.create(subscriptionData);
 
-      if (stripeSubscription.latest_invoice) {
-        const invoiceId = typeof stripeSubscription.latest_invoice === 'string'
-          ? stripeSubscription.latest_invoice
-          : stripeSubscription.latest_invoice.id;
+      if (stripeSubscription.latestInvoice) {
+        const invoiceId = typeof stripeSubscription.latestInvoice === 'string'
+          ? stripeSubscription.latestInvoice
+          : stripeSubscription.latestInvoice.id;
         const invoice = await this._stripeService.getInvoice(invoiceId);
 
-        if (invoice && invoice.status === 'paid' && invoice.amount_paid) {
+        if (invoice && invoice.status === 'paid' && invoice.amountPaid) {
           const existingPaymentOrder = await this._paymentOrderRepository.findByStripeInvoiceId(invoice.id);
           if (!existingPaymentOrder) {
             const paymentOrder = PaymentMapper.toEntity({
               companyId,
               planId,
-              amount: invoice.amount_paid / 100,
+              amount: invoice.amountPaid / 100,
               currency: invoice.currency.toUpperCase(),
               status: PaymentStatus.COMPLETED,
               paymentMethod: PaymentMethod.STRIPE,
               invoiceId: invoice.number || undefined,
               transactionId: StripeEventMapper.getPaymentIntentId(invoice),
               stripeInvoiceId: invoice.id,
-              stripeInvoiceUrl: invoice.hosted_invoice_url || undefined,
-              stripeInvoicePdf: invoice.invoice_pdf || undefined,
+              stripeInvoiceUrl: invoice.hostedInvoiceUrl || undefined,
+              stripeInvoicePdf: invoice.invoicePdf || undefined,
               stripePaymentIntentId: StripeEventMapper.getPaymentIntentId(invoice),
               subscriptionId: subscription.id,
               billingCycle: billingCycle as BillingCycle,
@@ -252,7 +247,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     }
   }
 
-  private async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+  private async handleInvoicePaid(invoice: PaymentInvoice): Promise<void> {
     const stripeSubscriptionId = StripeEventMapper.getSubscriptionId(invoice);
     if (!stripeSubscriptionId) return;
 
@@ -286,15 +281,15 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
           const paymentOrder = PaymentMapper.toEntity({
             companyId: stripeSubscription.metadata.companyId,
             planId: stripeSubscription.metadata.planId,
-            amount: (invoice.amount_paid || 0) / 100,
+            amount: (invoice.amountPaid || 0) / 100,
             currency: invoice.currency.toUpperCase(),
             status: PaymentStatus.COMPLETED,
             paymentMethod: PaymentMethod.STRIPE,
             invoiceId: invoice.number || undefined,
             transactionId: StripeEventMapper.getPaymentIntentId(invoice),
             stripeInvoiceId: invoice.id,
-            stripeInvoiceUrl: invoice.hosted_invoice_url || undefined,
-            stripeInvoicePdf: invoice.invoice_pdf || undefined,
+            stripeInvoiceUrl: invoice.hostedInvoiceUrl || undefined,
+            stripeInvoicePdf: invoice.invoicePdf || undefined,
             stripePaymentIntentId: StripeEventMapper.getPaymentIntentId(invoice),
             billingCycle: stripeSubscription.metadata.billingCycle as BillingCycle | undefined,
             metadata: {
@@ -325,15 +320,15 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     const paymentOrder = PaymentMapper.toEntity({
       companyId: subscription.companyId,
       planId: subscription.planId,
-      amount: (invoice.amount_paid || 0) / 100,
+      amount: (invoice.amountPaid || 0) / 100,
       currency: invoice.currency.toUpperCase(),
       status: PaymentStatus.COMPLETED,
       paymentMethod: PaymentMethod.STRIPE,
       invoiceId: invoice.number || undefined,
       transactionId: StripeEventMapper.getPaymentIntentId(invoice),
       stripeInvoiceId: invoice.id,
-      stripeInvoiceUrl: invoice.hosted_invoice_url || undefined,
-      stripeInvoicePdf: invoice.invoice_pdf || undefined,
+      stripeInvoiceUrl: invoice.hostedInvoiceUrl || undefined,
+      stripeInvoicePdf: invoice.invoicePdf || undefined,
       stripePaymentIntentId: StripeEventMapper.getPaymentIntentId(invoice),
       subscriptionId: subscription.id,
       billingCycle: subscription.billingCycle,
@@ -345,7 +340,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     await this._paymentOrderRepository.create(paymentOrder);
   }
 
-  private async handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
+  private async handleInvoicePaymentFailed(invoice: PaymentInvoice): Promise<void> {
     const stripeSubscriptionId = StripeEventMapper.getSubscriptionId(invoice);
     if (!stripeSubscriptionId) return;
 
@@ -379,7 +374,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     const paymentOrder = PaymentMapper.toEntity({
       companyId: subscription.companyId,
       planId: subscription.planId,
-      amount: (invoice.amount_due || 0) / 100,
+      amount: (invoice.amountDue || 0) / 100,
       currency: invoice.currency.toUpperCase(),
       status: PaymentStatus.FAILED,
       paymentMethod: PaymentMethod.STRIPE,
@@ -394,7 +389,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     await this._paymentOrderRepository.create(paymentOrder);
   }
 
-  private async handleSubscriptionUpdated(stripeSubscription: Stripe.Subscription): Promise<void> {
+  private async handleSubscriptionUpdated(stripeSubscription: PaymentSubscription): Promise<void> {
     const subscription = await this._companySubscriptionRepository.findByStripeSubscriptionId(stripeSubscription.id);
     if (!subscription) return;
 
@@ -436,7 +431,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     await this._companySubscriptionRepository.update(subscription.id, {
       planId: newPlanId,
       stripeStatus: stripeSubscription.status as SubscriptionStatus,
-      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      cancelAtPeriodEnd: stripeSubscription.cancelAtPeriodEnd,
       currentPeriodStart,
       currentPeriodEnd,
       expiryDate: currentPeriodEnd || subscription.expiryDate,
@@ -444,7 +439,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     });
   }
 
-  private async handleSubscriptionDeleted(stripeSubscription: Stripe.Subscription): Promise<void> {
+  private async handleSubscriptionDeleted(stripeSubscription: PaymentSubscription): Promise<void> {
     const subscription = await this._companySubscriptionRepository.findByStripeSubscriptionId(stripeSubscription.id);
     if (!subscription) return;
 
