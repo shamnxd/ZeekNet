@@ -81,7 +81,7 @@ export interface PaymentSession {
 export interface PaymentEvent {
   type: string;
   data: {
-    object: PaymentSession | PaymentInvoice | PaymentSubscription | Record<string, any>;
+    object: PaymentSession | PaymentInvoice | PaymentSubscription | Record<string, unknown>;
   };
 }
 

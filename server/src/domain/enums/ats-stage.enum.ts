@@ -1,4 +1,4 @@
-// Main ATS Stages (Kanban Columns)
+
 export enum ATSStage {
   IN_REVIEW = 'IN_REVIEW',
   SHORTLISTED = 'SHORTLISTED',
@@ -9,20 +9,20 @@ export enum ATSStage {
   HIRED = 'HIRED',
 }
 
-// Sub-Stages for IN_REVIEW
+
 export enum InReviewSubStage {
-  PROFILE_REVIEW = 'PROFILE_REVIEW', // default
+  PROFILE_REVIEW = 'PROFILE_REVIEW', 
   PENDING_DECISION = 'PENDING_DECISION',
 }
 
-// Sub-Stages for SHORTLISTED
+
 export enum ShortlistedSubStage {
-  READY_FOR_INTERVIEW = 'READY_FOR_INTERVIEW', // default
-  CONTACTED = 'CONTACTED', // optional
-  AWAITING_RESPONSE = 'AWAITING_RESPONSE', // optional
+  READY_FOR_INTERVIEW = 'READY_FOR_INTERVIEW', 
+  CONTACTED = 'CONTACTED', 
+  AWAITING_RESPONSE = 'AWAITING_RESPONSE', 
 }
 
-// Sub-Stages for INTERVIEW
+
 export enum InterviewSubStage {
   NOT_SCHEDULED = 'NOT_SCHEDULED',
   SCHEDULED = 'SCHEDULED',
@@ -30,7 +30,7 @@ export enum InterviewSubStage {
   EVALUATION_PENDING = 'EVALUATION_PENDING',
 }
 
-// Sub-Stages for TECHNICAL_TASK
+
 export enum TechnicalTaskSubStage {
   NOT_ASSIGNED = 'NOT_ASSIGNED',
   ASSIGNED = 'ASSIGNED',
@@ -39,7 +39,7 @@ export enum TechnicalTaskSubStage {
   COMPLETED = 'COMPLETED',
 }
 
-// Sub-Stages for COMPENSATION
+
 export enum CompensationSubStage {
   NOT_INITIATED = 'NOT_INITIATED',
   INITIATED = 'INITIATED',
@@ -47,7 +47,7 @@ export enum CompensationSubStage {
   APPROVED = 'APPROVED',
 }
 
-// Sub-Stages for OFFER
+
 export enum OfferSubStage {
   NOT_SENT = 'NOT_SENT',
   OFFER_SENT = 'OFFER_SENT',

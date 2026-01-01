@@ -7,11 +7,9 @@ import {
   TechnicalTaskSubStage,
   CompensationSubStage,
   OfferSubStage,
-} from '../enums/ats-stage.enum';
+} from 'src/domain/enums/ats-stage.enum';
 
-/**
- * Maps each stage to its possible sub-stages
- */
+
 export const STAGE_TO_SUB_STAGES: Record<ATSStage, readonly ATSSubStage[]> = {
   [ATSStage.IN_REVIEW]: Object.values(InReviewSubStage),
   [ATSStage.SHORTLISTED]: Object.values(ShortlistedSubStage),
@@ -22,9 +20,7 @@ export const STAGE_TO_SUB_STAGES: Record<ATSStage, readonly ATSSubStage[]> = {
   [ATSStage.HIRED]: [],
 };
 
-/**
- * Gets the default sub-stage for a given stage
- */
+
 export function getDefaultSubStage(stage: ATSStage): ATSSubStage {
   switch (stage) {
   case ATSStage.IN_REVIEW:
@@ -40,23 +36,19 @@ export function getDefaultSubStage(stage: ATSStage): ATSSubStage {
   case ATSStage.OFFER:
     return OfferSubStage.NOT_SENT;
   case ATSStage.HIRED:
-    return InReviewSubStage.PROFILE_REVIEW; // HIRED has no sub-stages
+    return InReviewSubStage.PROFILE_REVIEW; 
   default:
     return InReviewSubStage.PROFILE_REVIEW;
   }
 }
 
-/**
- * Validates if a sub-stage belongs to a given stage
- */
+
 export function isValidSubStageForStage(stage: ATSStage, subStage: ATSSubStage): boolean {
   const validSubStages = STAGE_TO_SUB_STAGES[stage];
   return validSubStages.includes(subStage);
 }
 
-/**
- * Gets all valid sub-stages for a given stage
- */
+
 export function getValidSubStagesForStage(stage: ATSStage): readonly ATSSubStage[] {
   return STAGE_TO_SUB_STAGES[stage];
 }
