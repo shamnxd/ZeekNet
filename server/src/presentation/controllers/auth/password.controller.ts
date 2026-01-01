@@ -3,7 +3,7 @@ import { ILogoutUseCase } from 'src/domain/interfaces/use-cases/auth/ILogoutUseC
 import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IResetPasswordUseCase';
 import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IForgotPasswordUseCase';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
+import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/presentation/controller.utils';
 import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 
 export class PasswordController {
@@ -62,3 +62,4 @@ export class PasswordController {
     }
   };
 }
+

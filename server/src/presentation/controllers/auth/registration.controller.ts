@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { RegisterDto } from '../../../application/dto/auth/register.dto';
+import { RegisterDto } from '../../../application/dtos/auth/requests/register.dto';
 import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/IRegisterUserUseCase';
 import { validateBody } from '../../middleware/validation.middleware';
-import { handleAsyncError } from '../../../shared/utils/controller.utils';
-import { sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleAsyncError } from '../../../shared/utils/presentation/controller.utils';
+import { sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class RegistrationController {
   constructor(private readonly _registerUserUseCase: IRegisterUserUseCase) {}
@@ -26,3 +26,4 @@ export class RegistrationController {
     },
   ];
 }
+

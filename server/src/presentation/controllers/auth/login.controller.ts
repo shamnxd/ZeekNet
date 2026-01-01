@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { LoginDto } from '../../../application/dto/auth/login.dto';
+import { LoginDto } from '../../../application/dtos/auth/requests/login.dto';
 import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogleLoginUseCase';
 import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
 import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUserUseCase';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 
 export class LoginController {
@@ -74,3 +74,4 @@ export class LoginController {
     }
   };
 }
+

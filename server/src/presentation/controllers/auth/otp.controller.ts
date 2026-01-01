@@ -8,9 +8,9 @@ import { IUpdateUserRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/
 import { IUpdateUserVerificationStatusUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserVerificationStatusUseCase';
 import { IGetUserByEmailUseCase } from 'src/domain/interfaces/use-cases/auth/IGetUserByEmailUseCase';
 import { z } from 'zod';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/presentation/controller.utils';
 import { welcomeTemplate } from '../../../infrastructure/messaging/templates/welcome.template';
-import { getDashboardLink } from '../../../shared/utils/dashboard.utils';
+import { getDashboardLink } from '../../../shared/utils/application/dashboard.utils';
 import { UserRole } from 'src/domain/enums/user-role.enum';
 import { otpVerificationTemplate } from '../../../infrastructure/messaging/templates/otp-verification.template';
 
@@ -98,3 +98,4 @@ export class OtpController {
     }
   };
 }
+

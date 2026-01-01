@@ -4,7 +4,7 @@ import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IRefr
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/presentation/controller.utils';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { env } from '../../../infrastructure/config/env';
 
@@ -60,3 +60,4 @@ export class TokenController {
     }
   };
 }
+
