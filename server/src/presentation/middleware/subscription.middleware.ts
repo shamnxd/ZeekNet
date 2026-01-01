@@ -3,7 +3,7 @@ import { ICompanySubscriptionRepository } from '../../domain/interfaces/reposito
 import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanySubscription } from '../../domain/entities/company-subscription.entity';
 import { AuthenticatedRequest } from './auth.middleware';
-import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from '../../shared/utils/controller.utils';
+import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from '../../shared/utils/presentation/controller.utils';
 
 export class SubscriptionMiddleware {
   constructor(
@@ -84,3 +84,4 @@ export class SubscriptionMiddleware {
     }
   };
 }
+

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
 import { HttpStatus } from '../../domain/enums/http-status.enum';
 import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
-import { sendForbiddenResponse } from '../../shared/utils/controller.utils';
+import { sendForbiddenResponse } from '../../shared/utils/presentation/controller.utils';
 
 
 export class UserBlockedMiddleware {
@@ -35,3 +35,4 @@ export class UserBlockedMiddleware {
     }
   };
 }
+

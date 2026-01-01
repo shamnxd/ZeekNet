@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { sendBadRequestResponse } from '../../shared/utils/controller.utils';
+import { sendBadRequestResponse } from '../../shared/utils/presentation/controller.utils';
 
 const storage = multer.memoryStorage();
 
@@ -43,4 +43,5 @@ export const uploadDocument = (fieldName: string) => {
     });
   };
 };
+
 
