@@ -6,17 +6,17 @@ import { validateQuery, validateBody } from '../middleware/validation.middleware
 import { uploadSingle } from '../middleware/upload.middleware';
 import { uploadResume } from '../middleware/upload-resume.middleware';
 import { uploadDocument } from '../middleware/upload-document.middleware';
-import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
-import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
-import { CreateSeekerProfileDto } from '../../application/dto/seeker/create-seeker-profile-request.dto';
-import { UpdateSeekerProfileDto } from '../../application/dto/seeker/update-seeker-profile-request.dto';
-import { AddExperienceDto } from '../../application/dto/seeker/add-experience-request.dto';
-import { UpdateExperienceDto } from '../../application/dto/seeker/update-experience-request.dto';
-import { AddEducationDto } from '../../application/dto/seeker/add-education-request.dto';
-import { UpdateEducationDto } from '../../application/dto/seeker/update-education-request.dto';
-import { UpdateSkillsDto } from '../../application/dto/seeker/update-skills-request.dto';
-import { UpdateLanguagesDto } from '../../application/dto/seeker/update-languages-request.dto';
-import { UploadResumeDto } from '../../application/dto/seeker/seeker-profile.dto';
+import { JobPostingQueryDto } from '../../application/dtos/job-posting/common/get-job-postings-query.dto';
+import { ApplicationFiltersDto } from '../../application/dtos/job-application/requests/application-filters.dto';
+import { CreateSeekerProfileDto } from '../../application/dtos/seeker/requests/create-seeker-profile-request.dto';
+import { UpdateSeekerProfileDto } from '../../application/dtos/seeker/requests/update-seeker-profile-request.dto';
+import { AddExperienceDto } from '../../application/dtos/seeker/common/add-experience-request.dto';
+import { UpdateExperienceDto } from '../../application/dtos/seeker/requests/update-experience-request.dto';
+import { AddEducationDto } from '../../application/dtos/seeker/common/add-education-request.dto';
+import { UpdateEducationDto } from '../../application/dtos/seeker/requests/update-education-request.dto';
+import { UpdateSkillsDto } from '../../application/dtos/seeker/requests/update-skills-request.dto';
+import { UpdateLanguagesDto } from '../../application/dtos/seeker/requests/update-languages-request.dto';
+import { UploadResumeDto } from '../../application/dtos/seeker/common/seeker-profile.dto';
 
 export class SeekerRouter {
   public router: Router;

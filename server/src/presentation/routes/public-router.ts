@@ -3,7 +3,7 @@ import { publicJobController, publicDataController } from '../../infrastructure/
 
 import { validateQuery } from '../middleware/validation.middleware';
 import { optionalAuthentication } from '../middleware/auth.middleware';
-import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
+import { JobPostingQueryDto } from '../../application/dtos/job-posting/common/get-job-postings-query.dto';
 
 export class PublicRouter {
   public router: Router;
@@ -25,3 +25,4 @@ export class PublicRouter {
     this.router.get('/companies/:id/jobs', publicDataController.getCompanyJobs);
   }
 }
+

@@ -3,10 +3,10 @@ import { ChatController } from '../controllers/chat/chat.controller';
 
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
-import { SendMessageDto } from '../../application/dto/chat/send-message.dto';
-import { CreateConversationDto } from '../../application/dto/chat/create-conversation.dto';
-import { GetConversationsQueryDto } from '../../application/dto/chat/get-conversations-query.dto';
-import { GetMessagesQueryDto } from '../../application/dto/chat/get-messages-query.dto';
+import { SendMessageDto } from '../../application/dtos/chat/requests/send-message.dto';
+import { CreateConversationDto } from '../../application/dtos/chat/requests/create-conversation.dto';
+import { GetConversationsQueryDto } from '../../application/dtos/chat/common/get-conversations-query.dto';
+import { GetMessagesQueryDto } from '../../application/dtos/chat/common/get-messages-query.dto';
 import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
 
@@ -30,3 +30,4 @@ export class ChatRouter {
     this.router.post('/conversations/:conversationId/read', controller.markAsRead);
   }
 }
+

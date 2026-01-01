@@ -5,8 +5,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
-import { connectToDatabase } from '../../infrastructure/database/mongodb/connection/mongoose';
-import { connectRedis } from '../../infrastructure/database/redis/connection/redis';
+import { connectToDatabase } from '../../infrastructure/persistence/mongodb/connection/mongoose';
+import { connectRedis } from '../../infrastructure/persistence/redis/connection/redis';
 import { env } from '../../infrastructure/config/env';
 import { logger } from '../../infrastructure/config/logger';
 import { SocketServer } from '../../infrastructure/external-services/socket/socket-server';
@@ -22,7 +22,7 @@ import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { userRepository } from '../../infrastructure/di/authDi';
 import { notificationRouter } from '../../infrastructure/di/notificationDi';
 import { chatRouter } from '../../infrastructure/di/chatDi';
-import { DateTimeUtil } from '../../shared/utils/datetime.utils';
+import { DateTimeUtil } from '../../shared/utils/core/datetime.utils';
 import { stripeWebhookController } from '../../infrastructure/di/companyDi';
 
 export class AppServer {
@@ -139,3 +139,5 @@ export class AppServer {
     }
   }
 }
+
+

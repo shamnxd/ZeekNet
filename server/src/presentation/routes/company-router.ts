@@ -20,13 +20,13 @@ import { uploadSingle } from '../middleware/upload.middleware';
 import { validateBody, validateQuery } from '../middleware/validation.middleware';
 import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
 import { CompanyVerificationMiddleware } from '../middleware/company-verification.middleware';
-import { CreateJobPostingRequestDtoSchema } from '../../application/dto/job-posting/create-job-posting-request.dto';
-import { UpdateJobPostingDto } from '../../application/dto/job-posting/update-job-posting-request.dto';
-import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
-import { SimpleCompanyProfileDto } from '../../application/dto/company/create-company.dto';
-import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
-import { UpdateApplicationStageRequestDtoSchema } from '../../application/dto/application/update-application-stage.dto';
-import { UpdateScoreDto } from '../../application/dto/application/update-score.dto';
+import { CreateJobPostingRequestDtoSchema } from '../../application/dtos/job-posting/common/create-job-posting-request.dto';
+import { UpdateJobPostingDto } from '../../application/dtos/job-posting/common/update-job-posting-request.dto';
+import { JobPostingQueryDto } from '../../application/dtos/job-posting/common/get-job-postings-query.dto';
+import { SimpleCompanyProfileDto } from '../../application/dtos/company/requests/create-company.dto';
+import { ApplicationFiltersDto } from '../../application/dtos/job-application/requests/application-filters.dto';
+import { UpdateApplicationStageRequestDtoSchema } from '../../application/dtos/job-application/requests/update-application-stage.dto';
+import { UpdateScoreDto } from '../../application/dtos/job-application/requests/update-score.dto';
 
 
 export class CompanyRouter {

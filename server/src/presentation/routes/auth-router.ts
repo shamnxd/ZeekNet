@@ -3,8 +3,8 @@ import { registrationController, loginController, tokenController, passwordContr
 
 import { authenticateToken } from '../middleware/auth.middleware';
 import { validateBody } from '../middleware/validation.middleware';
-import { RegisterDto } from '../../application/dto/auth/register.dto';
-import { LoginDto } from '../../application/dto/auth/login.dto';
+import { RegisterDto } from '../../application/dtos/auth/requests/register.dto';
+import { LoginDto } from '../../application/dtos/auth/requests/login.dto';
 
 export class AuthRouter {
   public router: Router;
