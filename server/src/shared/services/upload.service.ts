@@ -1,6 +1,12 @@
-import { Request } from 'express';
 import { ValidationError } from '../../domain/errors/errors';
 import { IS3Service } from '../../domain/interfaces/services/IS3Service';
+
+export interface UploadedFile {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}
 
 export class UploadService {
   
@@ -33,55 +39,7 @@ export class UploadService {
     }
   }
 
-  static extractFileInfo(
-    req: Request,
-    fieldName: string = 'file',
-  ): {
-    buffer: Buffer;
-    originalname: string;
-    mimetype: string;
-    size: number;
-  } | null {
-    const file = req.file;
-
-    if (!file) {
-      return null;
-    }
-
-    return {
-      buffer: file.buffer,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    };
-  }
-
-  static extractMultipleFileInfo(
-    req: Request,
-    fieldName: string = 'files',
-  ): Array<{
-    buffer: Buffer;
-    originalname: string;
-    mimetype: string;
-    size: number;
-  }> {
-    const files = req.files as Express.Multer.File[];
-
-    if (!files || files.length === 0) {
-      return [];
-    }
-
-    return files.map((file) => ({
-      buffer: file.buffer,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    }));
-  }
-
-  static async handleFileUpload(req: Request, s3Service: IS3Service, fieldName: string = 'file'): Promise<{ url: string; filename: string }> {
-    const file = req.file;
-
+  static async handleFileUpload(file: UploadedFile | undefined, s3Service: IS3Service, fieldName: string = 'file'): Promise<{ url: string; filename: string }> {
     if (!file) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
@@ -98,9 +56,7 @@ export class UploadService {
     };
   }
 
-  static async handleMultipleFileUpload(req: Request, s3Service: IS3Service, fieldName: string = 'files'): Promise<Array<{ url: string; filename: string }>> {
-    const files = req.files as Express.Multer.File[];
-
+  static async handleMultipleFileUpload(files: UploadedFile[] | undefined, s3Service: IS3Service, fieldName: string = 'files'): Promise<Array<{ url: string; filename: string }>> {
     if (!files || files.length === 0) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
@@ -144,9 +100,7 @@ export class UploadService {
     }
   }
 
-  static async handleResumeUpload(req: Request, s3Service: IS3Service, fieldName: string = 'resume'): Promise<{ url: string; filename: string }> {
-    const file = req.file;
-
+  static async handleResumeUpload(file: UploadedFile | undefined, s3Service: IS3Service, fieldName: string = 'resume'): Promise<{ url: string; filename: string }> {
     if (!file) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
@@ -186,9 +140,7 @@ export class UploadService {
     }
   }
 
-  static async handleOfferLetterUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-    const file = req.file;
-
+  static async handleOfferLetterUpload(file: UploadedFile | undefined, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
     if (!file) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
@@ -214,9 +166,7 @@ export class UploadService {
     };
   }
 
-  static async handleTaskDocumentUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-    const file = req.file;
-
+  static async handleTaskDocumentUpload(file: UploadedFile | undefined, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
     if (!file) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
@@ -242,9 +192,7 @@ export class UploadService {
     };
   }
 
-  static async handleTaskSubmissionUpload(req: Request, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-    const file = req.file;
-
+  static async handleTaskSubmissionUpload(file: UploadedFile | undefined, s3Service: IS3Service, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
     if (!file) {
       throw new ValidationError(`No ${fieldName} uploaded`);
     }
