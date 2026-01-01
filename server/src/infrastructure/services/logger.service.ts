@@ -1,12 +1,7 @@
-import { ILogger } from '../../domain/interfaces/services/ILogger';
-import { logger as winstonLogger } from '../config/logger';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
+import { logger as winstonLogger } from 'src/infrastructure/config/logger';
 
-/**
- * Logger Service
- * 
- * Implements ILogger domain interface
- * Wraps Winston logger to decouple infrastructure from domain/application layers
- */
+
 export class LoggerService implements ILogger {
   info(message: string, meta?: Record<string, unknown>): void {
     winstonLogger.info(message, meta);

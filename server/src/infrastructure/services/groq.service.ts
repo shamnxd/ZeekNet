@@ -1,5 +1,5 @@
 import Groq from 'groq-sdk';
-import { ATSScoreResult, JobDetails, CandidateData } from '../../domain/types/ats.types';
+import { ATSScoreResult, JobDetails, CandidateData } from 'src/domain/types/ats.types';
 
 export class GroqService {
   private client: Groq;

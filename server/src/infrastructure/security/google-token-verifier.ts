@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
-import { IGoogleProfile, IGoogleTokenVerifier } from '../../domain/interfaces/services/IGoogleTokenVerifier';
-import { env } from '../config/env';
+import { IGoogleProfile, IGoogleTokenVerifier } from 'src/domain/interfaces/services/IGoogleTokenVerifier';
+import { env } from 'src/infrastructure/config/env';
 
 export class GoogleAuthTokenVerifier implements IGoogleTokenVerifier {
   private _client = new OAuth2Client(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);

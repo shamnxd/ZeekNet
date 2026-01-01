@@ -1,9 +1,9 @@
 import { randomBytes } from 'crypto';
-import { redisClient } from '../persistence/redis/connection/redis';
-import { IMailerService } from '../../domain/interfaces/services/IMailerService';
-import { IPasswordResetService } from '../../domain/interfaces/services/IPasswordResetService';
-import { env } from '../config/env';
-import { passwordResetTemplate } from '../messaging/templates/password-reset.template';
+import { redisClient } from 'src/infrastructure/persistence/redis/connection/redis';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IPasswordResetService } from 'src/domain/interfaces/services/IPasswordResetService';
+import { env } from 'src/infrastructure/config/env';
+import { passwordResetTemplate } from 'src/infrastructure/messaging/templates/password-reset.template';
 
 interface PasswordResetToken {
   userId: string;

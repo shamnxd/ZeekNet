@@ -1,10 +1,7 @@
-import { IResumeParserService } from '../../domain/interfaces/services/IResumeParserService';
-import { ResumeParser } from '../../shared/utils/application/resume-parser.utils';
+import { IResumeParserService } from 'src/domain/interfaces/services/IResumeParserService';
+import { ResumeParser } from 'src/shared/utils/application/resume-parser.utils';
 
-/**
- * Resume Parser Service Implementation
- * Wraps the ResumeParser utility to implement the domain interface
- */
+
 export class ResumeParserService implements IResumeParserService {
   async parse(buffer: Buffer, mimeType: string): Promise<string> {
     return ResumeParser.parse(buffer, mimeType);

@@ -1,6 +1,6 @@
-import { IEmailTemplateService } from '../../domain/interfaces/services/IEmailTemplateService';
-import { subscriptionMigrationTemplate } from '../messaging/templates/subscription-migration.template';
-import { otpVerificationTemplate } from '../messaging/templates/otp-verification.template';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { subscriptionMigrationTemplate } from 'src/infrastructure/messaging/templates/subscription-migration.template';
+import { otpVerificationTemplate } from 'src/infrastructure/messaging/templates/otp-verification.template';
 
 export class EmailTemplateService implements IEmailTemplateService {
   getSubscriptionMigrationEmail(

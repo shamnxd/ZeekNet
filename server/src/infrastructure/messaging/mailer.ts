@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
-import { IMailerService } from '../../domain/interfaces/services/IMailerService';
-import { env } from '../config/env';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { env } from 'src/infrastructure/config/env';
 
 export class NodemailerService implements IMailerService {
   private _transporter = nodemailer.createTransport({
