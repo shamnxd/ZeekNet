@@ -4,8 +4,8 @@ import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles
 import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
 import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
 import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/ICreateJobRoleUseCase';
-import { GetAllJobRolesRequestDto } from '../../../application/dto/admin/job-role-management.dto';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
+import { GetAllJobRolesRequestDto } from '../../../application/dtos/admin/common/job-role-management.dto';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/presentation/controller.utils';
 
 export class AdminJobRoleController {
   constructor(
@@ -77,4 +77,6 @@ export class AdminJobRoleController {
     }
   };
 }
+
+
 

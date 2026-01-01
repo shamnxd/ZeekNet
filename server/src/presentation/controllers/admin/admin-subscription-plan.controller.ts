@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dto/admin/subscription-plan-management.dto';
-import { IUpdateSubscriptionPlanUseCase } from 'src/application/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
-import { IGetSubscriptionPlanByIdUseCase } from 'src/application/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
-import { IGetAllSubscriptionPlansUseCase } from 'src/application/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
-import { ICreateSubscriptionPlanUseCase } from 'src/application/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
+import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dtos/admin/common/subscription-plan-management.dto';
+import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
+import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
+import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
+import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class AdminSubscriptionPlanController {
   constructor(
@@ -113,3 +113,6 @@ export class AdminSubscriptionPlanController {
     }
   };
 }
+
+
+

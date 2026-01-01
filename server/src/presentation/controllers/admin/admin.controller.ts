@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { GetAllUsersQueryDto } from '../../../application/dto/admin/get-all-users-query.dto';
-import { GetCompaniesQueryDto } from '../../../application/dto/company/get-companies-query.dto';
+import { GetAllUsersQueryDto } from '../../../application/dtos/admin/requests/get-all-users-query.dto';
+import { GetCompaniesQueryDto } from '../../../application/dtos/company/requests/get-companies-query.dto';
 import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
@@ -9,7 +9,7 @@ import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/I
 import { IAdminGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetUserByIdUseCase';
 import { IBlockUserUseCase } from 'src/domain/interfaces/use-cases/admin/IBlockUserUseCase';
 import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllUsersUseCase';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class AdminController {
   constructor(
@@ -120,3 +120,4 @@ export class AdminController {
     }
   };
 }
+
