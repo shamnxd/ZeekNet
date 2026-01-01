@@ -1,16 +1,16 @@
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanyContactRepository } from '../database/mongodb/repositories/company-contact.repository';
-import { CompanyVerificationRepository } from '../database/mongodb/repositories/company-verification.repository';
-import { CompanyTechStackRepository } from '../database/mongodb/repositories/company-tech-stack.repository';
-import { CompanyOfficeLocationRepository } from '../database/mongodb/repositories/company-office-location.repository';
-import { CompanyBenefitsRepository } from '../database/mongodb/repositories/company-benefits.repository';
-import { CompanyWorkplacePicturesRepository } from '../database/mongodb/repositories/company-workplace-pictures.repository';
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
-import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
-import { SeekerProfileRepository } from '../database/mongodb/repositories/seeker-profile.repository';
-import { SeekerExperienceRepository } from '../database/mongodb/repositories/seeker-experience.repository';
-import { SeekerEducationRepository } from '../database/mongodb/repositories/seeker-education.repository';
+import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
+import { CompanyContactRepository } from '../persistence/mongodb/repositories/company-contact.repository';
+import { CompanyVerificationRepository } from '../persistence/mongodb/repositories/company-verification.repository';
+import { CompanyTechStackRepository } from '../persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyOfficeLocationRepository } from '../persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyBenefitsRepository } from '../persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from '../persistence/mongodb/repositories/company-workplace-pictures.repository';
+import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
+import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
+import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
+import { SeekerExperienceRepository } from '../persistence/mongodb/repositories/seeker-experience.repository';
+import { SeekerEducationRepository } from '../persistence/mongodb/repositories/seeker-education.repository';
 import { notificationRepository } from './notificationDi';
 import { S3Service } from '../external-services/s3/s3.service';
 import { StripeService } from '../external-services/stripe/stripe.service';
@@ -72,10 +72,10 @@ import { DeleteImageUseCase } from '../../application/use-cases/company/delete-i
 import { CompanySubscriptionPlanController } from '../../presentation/controllers/company/company-subscription-plan.controller';
 import { CompanySubscriptionController } from '../../presentation/controllers/company/company-subscription.controller';
 import { StripeWebhookController } from '../../presentation/controllers/payment/stripe-webhook.controller';
-import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
+import { SubscriptionPlanRepository } from '../persistence/mongodb/repositories/subscription-plan.repository';
 import { GetAllSubscriptionPlansUseCase } from '../../application/use-cases/admin/get-all-subscription-plans.use-case';
-import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
-import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
+import { CompanySubscriptionRepository } from '../persistence/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from '../persistence/mongodb/repositories/payment-order.repository';
 import { GetActiveSubscriptionUseCase } from '../../application/use-cases/company/get-active-subscription.use-case';
 import { GetPaymentHistoryUseCase } from '../../application/use-cases/company/get-payment-history.use-case';
 import { CreateCheckoutSessionUseCase } from '../../application/use-cases/company/create-checkout-session.use-case';
@@ -333,3 +333,4 @@ export {
   stripeService,
   getCompanyIdByUserIdUseCase,
 };
+

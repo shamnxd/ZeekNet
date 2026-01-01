@@ -1,6 +1,6 @@
-import { ConversationRepository } from '../database/mongodb/repositories/conversation.repository';
-import { ChatMessageRepository } from '../database/mongodb/repositories/chat-message.repository';
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
+import { ConversationRepository } from '../persistence/mongodb/repositories/conversation.repository';
+import { ChatMessageRepository } from '../persistence/mongodb/repositories/chat-message.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
 import { SendMessageUseCase } from '../../application/use-cases/chat/send-message.use-case';
 import { GetConversationsUseCase } from '../../application/use-cases/chat/get-conversations.use-case';
 import { GetMessagesUseCase } from '../../application/use-cases/chat/get-messages.use-case';
@@ -38,6 +38,7 @@ const chatController = new ChatController(chatService);
 export const chatRouter = new ChatRouter(chatController, userRepository);
 
 export { conversationRepository as chatConversationRepository, messageRepository as chatMessageRepository, userRepository as chatUserRepository };
+
 
 
 

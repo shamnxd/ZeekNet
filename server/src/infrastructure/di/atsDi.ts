@@ -34,16 +34,16 @@ import { GetCommentsByApplicationUseCase } from '../../application/use-cases/ats
 import { ActivityLoggerService } from '../../application/services/activity-logger.service';
 import { FileUrlService } from '../../application/services/file-url.service';
 
-import { ATSInterviewRepository } from '../database/mongodb/repositories/ats-interview.repository';
-import { ATSTechnicalTaskRepository } from '../database/mongodb/repositories/ats-technical-task.repository';
-import { ATSOfferRepository } from '../database/mongodb/repositories/ats-offer.repository';
-import { ATSCommentRepository } from '../database/mongodb/repositories/ats-comment.repository';
-import { ATSActivityRepository } from '../database/mongodb/repositories/ats-activity.repository';
-import { ATSCompensationRepository } from '../database/mongodb/repositories/ats-compensation.repository';
-import { ATSCompensationMeetingRepository } from '../database/mongodb/repositories/ats-compensation-meeting.repository';
-import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
+import { ATSInterviewRepository } from '../persistence/mongodb/repositories/ats-interview.repository';
+import { ATSTechnicalTaskRepository } from '../persistence/mongodb/repositories/ats-technical-task.repository';
+import { ATSOfferRepository } from '../persistence/mongodb/repositories/ats-offer.repository';
+import { ATSCommentRepository } from '../persistence/mongodb/repositories/ats-comment.repository';
+import { ATSActivityRepository } from '../persistence/mongodb/repositories/ats-activity.repository';
+import { ATSCompensationRepository } from '../persistence/mongodb/repositories/ats-compensation.repository';
+import { ATSCompensationMeetingRepository } from '../persistence/mongodb/repositories/ats-compensation-meeting.repository';
+import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
+import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
 import { S3Service } from '../external-services/s3/s3.service';
 import { getCompanyIdByUserIdUseCase } from './companyDi';
 
@@ -148,3 +148,4 @@ export const atsPipelineController = new ATSPipelineController(
   updateApplicationSubStageUseCase,
   getCompanyIdByUserIdUseCase,
 );
+

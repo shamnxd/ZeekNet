@@ -1,16 +1,16 @@
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
-import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
-import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
-import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
-import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
-import { CompanyContactRepository } from '../database/mongodb/repositories/company-contact.repository';
-import { CompanyOfficeLocationRepository } from '../database/mongodb/repositories/company-office-location.repository';
-import { CompanyTechStackRepository } from '../database/mongodb/repositories/company-tech-stack.repository';
-import { CompanyBenefitsRepository } from '../database/mongodb/repositories/company-benefits.repository';
-import { CompanyWorkplacePicturesRepository } from '../database/mongodb/repositories/company-workplace-pictures.repository';
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
+import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
+import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
+import { SkillRepository } from '../persistence/mongodb/repositories/skill.repository';
+import { JobCategoryRepository } from '../persistence/mongodb/repositories/job-category.repository';
+import { JobRoleRepository } from '../persistence/mongodb/repositories/job-role.repository';
+import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
+import { CompanySubscriptionRepository } from '../persistence/mongodb/repositories/company-subscription.repository';
+import { CompanyContactRepository } from '../persistence/mongodb/repositories/company-contact.repository';
+import { CompanyOfficeLocationRepository } from '../persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyTechStackRepository } from '../persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyBenefitsRepository } from '../persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from '../persistence/mongodb/repositories/company-workplace-pictures.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
 import { S3Service } from '../external-services/s3/s3.service';
 import { GetAllJobPostingsUseCase } from '../../application/use-cases/public/get-all-job-postings.use-case';
 import { GetJobPostingForPublicUseCase } from '../../application/use-cases/public/get-job-posting-for-public.use-case';
@@ -86,3 +86,4 @@ const publicDataController = new PublicDataController(
 );
 
 export { publicJobController, publicDataController };
+

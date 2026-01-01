@@ -1,10 +1,10 @@
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
 import { BcryptPasswordHasher } from '../security/bcrypt-password-hasher';
 import { JwtTokenService } from '../security/jwt-token-service';
 import { GoogleAuthTokenVerifier } from '../security/google-token-verifier';
 import { PasswordResetServiceImpl } from '../security/password-reset-service';
-import { RedisOtpService } from '../database/redis/services/redis-otp-service';
+import { RedisOtpService } from '../persistence/redis/services/redis-otp-service';
 import { NodemailerService } from '../messaging/mailer';
 import { RegisterUserUseCase } from '../../application/use-cases/auth/register-user.use-case';
 import { LoginUserUseCase } from '../../application/use-cases/auth/login-user.use-case';
@@ -78,3 +78,4 @@ export const passwordController = new PasswordController(forgotPasswordUseCase, 
 export const otpController = new OtpController(otpService, mailerService, getUserByEmailUseCase, updateUserVerificationStatusUseCase, updateUserRefreshTokenUseCase, tokenService, passwordHasher, cookieService);
 
 export { userRepository };
+

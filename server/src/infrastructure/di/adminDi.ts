@@ -1,14 +1,14 @@
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanyVerificationRepository } from '../database/mongodb/repositories/company-verification.repository';
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
-import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
-import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
-import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
-import { SubscriptionPlanRepository } from '../database/mongodb/repositories/subscription-plan.repository';
-import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
-import { PaymentOrderRepository } from '../database/mongodb/repositories/payment-order.repository';
-import { PriceHistoryRepository } from '../database/mongodb/repositories/price-history.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
+import { CompanyVerificationRepository } from '../persistence/mongodb/repositories/company-verification.repository';
+import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
+import { JobCategoryRepository } from '../persistence/mongodb/repositories/job-category.repository';
+import { SkillRepository } from '../persistence/mongodb/repositories/skill.repository';
+import { JobRoleRepository } from '../persistence/mongodb/repositories/job-role.repository';
+import { SubscriptionPlanRepository } from '../persistence/mongodb/repositories/subscription-plan.repository';
+import { CompanySubscriptionRepository } from '../persistence/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from '../persistence/mongodb/repositories/payment-order.repository';
+import { PriceHistoryRepository } from '../persistence/mongodb/repositories/price-history.repository';
 import { stripeService } from './companyDi';
 import { GetAllUsersUseCase } from '../../application/use-cases/admin/get-all-users.use-case';
 import { BlockUserUseCase } from '../../application/use-cases/admin/block-user.use-case';
@@ -170,3 +170,4 @@ export {
   adminSubscriptionPlanController,
   adminPaymentOrderController,
 };
+

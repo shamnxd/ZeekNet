@@ -1,4 +1,4 @@
-import { NotificationRepository } from '../database/mongodb/repositories/notification.repository';
+import { NotificationRepository } from '../persistence/mongodb/repositories/notification.repository';
 import { NotificationController } from '../../presentation/controllers/notification/notification.controller';
 import { NotificationRouter } from '../../presentation/routes/notification-router';
 import { NotificationService } from '../external-services/socket/notification.service';
@@ -27,3 +27,4 @@ const notificationController = new NotificationController(
 
 export const notificationRouter = new NotificationRouter(notificationController);
 export { notificationRepository };
+

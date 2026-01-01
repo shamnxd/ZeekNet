@@ -1,12 +1,12 @@
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
+import { JobPostingRepository } from '../persistence/mongodb/repositories/job-posting.repository';
 import { AnalyzeResumeUseCase } from '../../application/use-cases/seeker/analyze-resume.use-case';
 
-import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
-import { SeekerProfileRepository } from '../database/mongodb/repositories/seeker-profile.repository';
-import { SeekerExperienceRepository } from '../database/mongodb/repositories/seeker-experience.repository';
-import { SeekerEducationRepository } from '../database/mongodb/repositories/seeker-education.repository';
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
+import { JobApplicationRepository } from '../persistence/mongodb/repositories/job-application.repository';
+import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
+import { SeekerExperienceRepository } from '../persistence/mongodb/repositories/seeker-experience.repository';
+import { SeekerEducationRepository } from '../persistence/mongodb/repositories/seeker-education.repository';
+import { UserRepository } from '../persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from '../persistence/mongodb/repositories/company-profile.repository';
 import { notificationRepository, notificationService } from './notificationDi';
 import { SeekerProfileController } from '../../presentation/controllers/seeker/seeker-profile.controller';
 import { SeekerJobApplicationController } from '../../presentation/controllers/seeker/job-application.controller';
@@ -32,12 +32,12 @@ import { RemoveResumeUseCase } from '../../application/use-cases/seeker/remove-r
 import { UploadAvatarUseCase } from '../../application/use-cases/seeker/upload-avatar.use-case';
 import { UploadBannerUseCase } from '../../application/use-cases/seeker/upload-banner.use-case';
 import { S3Service } from '../external-services/s3/s3.service';
-import { ATSInterviewRepository } from '../database/mongodb/repositories/ats-interview.repository';
-import { ATSTechnicalTaskRepository } from '../database/mongodb/repositories/ats-technical-task.repository';
-import { ATSOfferRepository } from '../database/mongodb/repositories/ats-offer.repository';
-import { ATSCompensationRepository } from '../database/mongodb/repositories/ats-compensation.repository';
-import { ATSCompensationMeetingRepository } from '../database/mongodb/repositories/ats-compensation-meeting.repository';
-import { ATSActivityRepository } from '../database/mongodb/repositories/ats-activity.repository';
+import { ATSInterviewRepository } from '../persistence/mongodb/repositories/ats-interview.repository';
+import { ATSTechnicalTaskRepository } from '../persistence/mongodb/repositories/ats-technical-task.repository';
+import { ATSOfferRepository } from '../persistence/mongodb/repositories/ats-offer.repository';
+import { ATSCompensationRepository } from '../persistence/mongodb/repositories/ats-compensation.repository';
+import { ATSCompensationMeetingRepository } from '../persistence/mongodb/repositories/ats-compensation-meeting.repository';
+import { ATSActivityRepository } from '../persistence/mongodb/repositories/ats-activity.repository';
 import { UpdateApplicationSubStageUseCase } from '../../application/use-cases/ats/update-application-sub-stage.use-case';
 import { ActivityLoggerService } from '../../application/services/activity-logger.service';
 import { AtsService } from '../services/ats.service';
@@ -157,3 +157,4 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
 );
 
 export { seekerJobApplicationController, seekerProfileController };
+
