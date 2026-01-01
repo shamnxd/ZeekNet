@@ -42,6 +42,14 @@ import { ActivityLoggerService } from '../../application/services/activity-logge
 import { AtsService } from '../services/ats.service';
 import { ResumeParserService } from '../services/resume-parser.service';
 import { env } from '../config/env';
+import { GetInterviewsByApplicationUseCase } from '../../application/use-cases/seeker/get-interviews-by-application.use-case';
+import { GetTechnicalTasksByApplicationUseCase } from '../../application/use-cases/seeker/get-technical-tasks-by-application.use-case';
+import { SubmitTechnicalTaskUseCase } from '../../application/use-cases/seeker/submit-technical-task.use-case';
+import { GetOffersByApplicationUseCase } from '../../application/use-cases/seeker/get-offers-by-application.use-case';
+import { GetCompensationByApplicationUseCase } from '../../application/use-cases/seeker/get-compensation-by-application.use-case';
+import { GetCompensationMeetingsByApplicationUseCase } from '../../application/use-cases/seeker/get-compensation-meetings-by-application.use-case';
+import { UpdateOfferStatusUseCase } from '../../application/use-cases/seeker/update-offer-status.use-case';
+import { UploadSignedOfferDocumentUseCase } from '../../application/use-cases/seeker/upload-signed-offer-document.use-case';
 
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
@@ -90,6 +98,16 @@ const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   activityLoggerService,
 );
 
+// New Use Cases for seeker job application operations
+const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(jobApplicationRepository, interviewRepository);
+const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(jobApplicationRepository, technicalTaskRepository, s3Service);
+const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository);
+const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(jobApplicationRepository, offerRepository, s3Service);
+const getCompensationByApplicationUseCase = new GetCompensationByApplicationUseCase(jobApplicationRepository, compensationRepository);
+const getCompensationMeetingsByApplicationUseCase = new GetCompensationMeetingsByApplicationUseCase(jobApplicationRepository, compensationMeetingRepository);
+const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(jobApplicationRepository, offerRepository);
+const uploadSignedOfferDocumentUseCase = new UploadSignedOfferDocumentUseCase(jobApplicationRepository, offerRepository, updateApplicationSubStageUseCase);
+
 const seekerProfileController = new SeekerProfileController(
   createSeekerProfileUseCase,
   getSeekerProfileUseCase,
@@ -115,15 +133,15 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   getApplicationsBySeekerUseCase,
   getSeekerApplicationDetailsUseCase,
   analyzeResumeUseCase,
+  getInterviewsByApplicationUseCase,
+  getTechnicalTasksByApplicationUseCase,
+  submitTechnicalTaskUseCase,
+  getOffersByApplicationUseCase,
+  getCompensationByApplicationUseCase,
+  getCompensationMeetingsByApplicationUseCase,
+  updateOfferStatusUseCase,
+  uploadSignedOfferDocumentUseCase,
   s3Service,
-  jobPostingRepository,
-  interviewRepository,
-  technicalTaskRepository,
-  offerRepository,
-  compensationRepository,
-  compensationMeetingRepository,
-  jobApplicationRepository,
-  updateApplicationSubStageUseCase,
 );
 
 export { seekerJobApplicationController, seekerProfileController };

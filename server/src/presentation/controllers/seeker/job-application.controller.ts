@@ -13,22 +13,19 @@ import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-c
 import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
 import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
 import { IAnalyzeResumeUseCase } from 'src/domain/interfaces/use-cases/applications/IAnalyzeResumeUseCase';
+import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetInterviewsByApplicationUseCase';
+import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetTechnicalTasksByApplicationUseCase';
+import { ISubmitTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/applications/ISubmitTechnicalTaskUseCase';
+import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetOffersByApplicationUseCase';
+import { IGetCompensationByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetCompensationByApplicationUseCase';
+import { IGetCompensationMeetingsByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetCompensationMeetingsByApplicationUseCase';
+import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateOfferStatusUseCase';
+import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IATSInterviewRepository } from '../../../domain/interfaces/repositories/ats/IATSInterviewRepository';
-import { IATSTechnicalTaskRepository } from '../../../domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
-import { IATSOfferRepository } from '../../../domain/interfaces/repositories/ats/IATSOfferRepository';
-import { IATSCompensationRepository } from '../../../domain/interfaces/repositories/ats/IATSCompensationRepository';
-import { IATSCompensationMeetingRepository } from '../../../domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
-import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { UploadService } from '../../../shared/services/upload.service';
 import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { ValidationError } from '../../../domain/errors/errors';
-import { IUpdateApplicationSubStageUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateApplicationSubStageUseCase';
-import { OfferSubStage, ATSStage } from '../../../domain/enums/ats-stage.enum';
-import { ATSTechnicalTask } from '../../../domain/entities/ats-technical-task.entity';
-import { ATSOffer } from '../../../domain/entities/ats-offer.entity';
 
 export class SeekerJobApplicationController {
   constructor(
@@ -36,15 +33,15 @@ export class SeekerJobApplicationController {
     private readonly _getApplicationsBySeekerUseCase: IGetApplicationsBySeekerUseCase,
     private readonly _getApplicationDetailsUseCase: IGetSeekerApplicationDetailsUseCase,
     private readonly _analyzeResumeUseCase: IAnalyzeResumeUseCase,
+    private readonly _getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
+    private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
+    private readonly _submitTechnicalTaskUseCase: ISubmitTechnicalTaskUseCase,
+    private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
+    private readonly _getCompensationByApplicationUseCase: IGetCompensationByApplicationUseCase,
+    private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
+    private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
+    private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
     private readonly _s3Service: IS3Service,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _interviewRepository: IATSInterviewRepository,
-    private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
-    private readonly _offerRepository: IATSOfferRepository,
-    private readonly _compensationRepository: IATSCompensationRepository,
-    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
   ) {}
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
