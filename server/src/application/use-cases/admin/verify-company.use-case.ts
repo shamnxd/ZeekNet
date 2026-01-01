@@ -3,7 +3,7 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/IVerifyCompanyUseCase';
 import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
-import { CompanySubscriptionMapper } from '../../mappers/company-subscription.mapper';
+import { CompanySubscriptionMapper } from '../../mappers/company/company-subscription.mapper';
 
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
@@ -40,3 +40,4 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
     }
   }
 }
+

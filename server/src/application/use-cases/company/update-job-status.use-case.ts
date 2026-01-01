@@ -3,8 +3,8 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { AuthorizationError, InternalServerError, NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { IUpdateJobStatusUseCase } from 'src/application/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
-import { UpdateJobStatusDto } from '../../dto/jobs/update-job-status.dto';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobStatusUseCase';
+import { UpdateJobStatusDto } from '../../dtos/jobs/common/update-job-status.dto';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
@@ -87,4 +87,6 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     return updatedJob;
   }
 }
+
+
 

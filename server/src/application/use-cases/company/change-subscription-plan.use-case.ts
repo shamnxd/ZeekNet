@@ -5,13 +5,13 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { ChangeSubscriptionPlanRequestDto } from '../../dto/company/change-subscription-plan.dto';
-import { ChangeSubscriptionResult } from '../../dto/subscriptions/change-subscription-result.dto';
-import { IChangeSubscriptionPlanUseCase } from '../../interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
+import { ChangeSubscriptionPlanRequestDto } from '../../dtos/company/common/change-subscription-plan.dto';
+import { ChangeSubscriptionResult } from '../../dtos/subscriptions/common/change-subscription-result.dto';
+import { IChangeSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
-import { CompanySubscriptionMapper } from '../../mappers/company-subscription.mapper';
+import { CompanySubscriptionMapper } from '../../mappers/company/company-subscription.mapper';
 import { PaymentSubscription } from '../../../domain/types/payment/payment-types';
 
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
@@ -153,4 +153,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     };
   }
 }
+
+
+
 

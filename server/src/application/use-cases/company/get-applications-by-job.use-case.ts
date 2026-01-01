@@ -5,11 +5,11 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
-import { GetApplicationsByJobRequestDto } from '../../dto/application/get-applications-by-job.dto';
+import { GetApplicationsByJobRequestDto } from '../../dtos/job-application/requests/get-applications-by-job.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import type { ATSStage } from '../../../domain/enums/ats-stage.enum';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dtos/job-application/responses/job-application-response.dto';
 
 export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase {
   constructor(
@@ -96,5 +96,8 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     };
   }
 }
+
+
+
 
 

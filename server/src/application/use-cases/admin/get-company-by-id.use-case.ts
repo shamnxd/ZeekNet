@@ -1,6 +1,6 @@
 import { IGetCompanyByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompanyByIdUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
-import { CompanyWithVerificationResult } from '../../dto/company/company-with-verification-result.dto';
+import { CompanyWithVerificationResult } from '../../dtos/company/common/company-with-verification-result.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
@@ -22,4 +22,5 @@ export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
     return company;
   }
 }
+
 

@@ -1,6 +1,6 @@
 import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
-import { UpdateCompanyBenefitsRequestDto } from '../../dto/company/company-benefits.dto';
+import { UpdateCompanyBenefitsRequestDto } from '../../dtos/company/common/company-benefits.dto';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
 import { IUpdateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyBenefitUseCase';
 
@@ -23,4 +23,5 @@ export class UpdateCompanyBenefitUseCase implements IUpdateCompanyBenefitUseCase
     return updatedBenefit;
   }
 }
+
 

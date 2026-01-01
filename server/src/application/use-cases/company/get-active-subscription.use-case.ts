@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { IGetActiveSubscriptionUseCase } from '../../interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
+import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
 
 export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCase {
   constructor(
@@ -31,3 +31,4 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
     return Object.assign(subscription, { activeJobCount }) as CompanySubscription & { activeJobCount?: number };
   }
 }
+

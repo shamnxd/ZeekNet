@@ -1,10 +1,10 @@
-import { LoginResponseDto } from '../../dto/auth/login-response.dto';
+import { LoginResponseDto } from '../../dtos/auth/responses/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IRefreshTokenUseCase';
 import { AuthenticationError, NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../mappers/auth/user.mapper';
 
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
@@ -43,3 +43,5 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     };
   }
 }
+
+

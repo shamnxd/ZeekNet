@@ -8,17 +8,17 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { IRevertToDefaultPlanUseCase } from '../../interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
-import { HandleStripeWebhookRequestDto } from '../../dto/company/handle-stripe-webhook.dto';
+import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
+import { HandleStripeWebhookRequestDto } from '../../dtos/company/common/handle-stripe-webhook.dto';
 import { IHandleStripeWebhookUseCase } from '../../../domain/interfaces/use-cases/payments/IHandleStripeWebhookUseCase';
 import { PaymentStatus } from '../../../domain/enums/payment-status.enum';
 import { PaymentMethod } from '../../../domain/enums/payment-method.enum';
 import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 import { CompanySubscriptionResponseMapper } from '../../mappers/subscription/company-subscription-response.mapper';
-import { PaymentMapper } from '../../mappers/payment.mapper';
-import { NotificationMapper } from '../../mappers/notification.mapper';
-import { StripeEventMapper } from '../../mappers/stripe/stripe-event.mapper';
+import { PaymentMapper } from '../../mappers/payment/payment.mapper';
+import { NotificationMapper } from '../../mappers/notification/notification.mapper';
+import { StripeEventMapper } from '../../mappers/payment/stripe/stripe-event.mapper';
 import {
   PaymentEvent,
   PaymentSession,
@@ -468,3 +468,6 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     }
   }
 }
+
+
+

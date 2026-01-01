@@ -1,8 +1,8 @@
 import { IGetAllCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllCompaniesUseCase';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { GetCompaniesQueryDto } from '../../dto/company/get-companies-query.dto';
-import { PaginatedCompaniesResultDto } from '../../dto/company/paginated-companies-result.dto';
+import { GetCompaniesQueryDto } from '../../dtos/company/requests/get-companies-query.dto';
+import { PaginatedCompaniesResultDto } from '../../dtos/company/common/paginated-companies-result.dto';
 
 export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
   constructor(
@@ -45,3 +45,4 @@ export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
     };
   }
 }
+

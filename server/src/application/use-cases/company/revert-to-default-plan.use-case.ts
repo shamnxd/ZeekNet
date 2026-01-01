@@ -5,10 +5,10 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { NotificationMapper } from '../../mappers/notification.mapper';
+import { NotificationMapper } from '../../mappers/notification/notification.mapper';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { IRevertToDefaultPlanUseCase } from '../../interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
+import { IRevertToDefaultPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IRevertToDefaultPlanUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
@@ -120,3 +120,5 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     return updatedSubscription;
   }
 }
+
+

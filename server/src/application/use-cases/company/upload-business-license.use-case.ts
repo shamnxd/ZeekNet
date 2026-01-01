@@ -1,8 +1,8 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
 import { IUploadBusinessLicenseUseCase } from '../../../domain/interfaces/use-cases/company/IUploadBusinessLicenseUseCase';
-import { UploadBusinessLicenseResult } from '../../dto/company/upload-business-license-result.dto';
-import { UploadBusinessLicenseDto } from '../../dto/company/upload-business-license.dto';
+import { UploadBusinessLicenseResult } from '../../dtos/company/common/upload-business-license-result.dto';
+import { UploadBusinessLicenseDto } from '../../dtos/company/common/upload-business-license.dto';
 
 export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
@@ -36,3 +36,4 @@ export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCa
     }
   }
 }
+

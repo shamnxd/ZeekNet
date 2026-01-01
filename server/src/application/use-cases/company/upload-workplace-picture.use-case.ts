@@ -1,8 +1,8 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { UploadWorkplacePictureResult } from '../../dto/company/upload-workplace-picture-result.dto';
+import { UploadWorkplacePictureResult } from '../../dtos/company/common/upload-workplace-picture-result.dto';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/IUploadWorkplacePictureUseCase';
-import { UploadWorkplacePictureDto } from '../../dto/company/upload-workplace-picture.dto';
+import { UploadWorkplacePictureDto } from '../../dtos/company/common/upload-workplace-picture.dto';
 
 export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
   constructor(private readonly _s3Service: IS3Service) {}
@@ -38,3 +38,4 @@ export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUse
     }
   }
 }
+

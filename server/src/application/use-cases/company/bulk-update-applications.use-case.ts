@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { BulkUpdateApplicationsDto } from '../../dto/application/bulk-update-applications.dto';
+import { BulkUpdateApplicationsDto } from '../../dtos/job-application/requests/bulk-update-applications.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ATSStage } from '../../../domain/enums/ats-stage.enum';
 import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
@@ -100,3 +100,5 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
     return null;
   }
 }
+
+

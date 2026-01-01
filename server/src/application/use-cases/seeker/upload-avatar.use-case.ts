@@ -1,10 +1,10 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { SeekerProfileResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
 import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
-import { UploadAvatarDto } from '../../dto/seeker/upload-avatar.dto';
+import { UploadAvatarDto } from '../../dtos/seeker/common/upload-avatar.dto';
 
 export class UploadAvatarUseCase implements IUploadAvatarUseCase {
   constructor(
@@ -45,3 +45,5 @@ export class UploadAvatarUseCase implements IUploadAvatarUseCase {
     return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
   }
 }
+
+

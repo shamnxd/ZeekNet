@@ -1,7 +1,7 @@
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { UploadLogoResult } from '../../dto/public/upload-logo-result.dto';
-import { UploadLogoRequestDto } from '../../dto/company/upload-logo.dto';
+import { UploadLogoResult } from '../../dtos/public/common/upload-logo-result.dto';
+import { UploadLogoRequestDto } from '../../dtos/company/common/upload-logo.dto';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 
@@ -43,3 +43,4 @@ export class UploadLogoUseCase implements IUploadLogoUseCase {
     }
   }
 }
+

@@ -6,9 +6,9 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
-import { IMigratePlanSubscribersUseCase } from '../../interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
-import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
-import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
+import { IMigratePlanSubscribersUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
+import { MigratePlanSubscribersRequestDto } from '../../dtos/admin/common/subscription-plan-management.dto';
+import { MigratePlanSubscribersResult } from '../../dtos/subscriptions/common/migrate-plan-subscribers-result.dto';
 import { PriceType } from '../../../domain/entities/price-history.entity';
 import { PaymentSubscription } from '../../../domain/types/payment/payment-types';
 
@@ -234,3 +234,5 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     }
   }
 }
+
+

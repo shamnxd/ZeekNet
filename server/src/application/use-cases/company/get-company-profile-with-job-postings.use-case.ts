@@ -4,8 +4,8 @@ import { EmploymentType } from '../../../domain/enums/employment-type.enum';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
 import { IGetCompanyProfileWithJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { CompanyProfileWithDetailsResponseDto } from '../../dto/company/company-response.dto';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { CompanyProfileWithDetailsResponseDto } from '../../dtos/company/responses/company-response.dto';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 
@@ -82,4 +82,6 @@ export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfi
     return responseData;
   }
 }
+
+
 

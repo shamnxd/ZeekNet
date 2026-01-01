@@ -4,9 +4,9 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
-import { GetApplicationsBySeekerRequestDto } from '../../dto/application/get-applications-by-seeker.dto';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dto/application/job-application-response.dto';
+import { GetApplicationsBySeekerRequestDto } from '../../dtos/job-application/requests/get-applications-by-seeker.dto';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
+import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from '../../dtos/job-application/responses/job-application-response.dto';
 
 /**
  * Optimized Use Case - Fixed N+1 Query Problem
@@ -167,3 +167,7 @@ export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerU
     return companyLogosMap;
   }
 }
+
+
+
+

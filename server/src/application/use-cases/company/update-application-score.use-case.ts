@@ -4,9 +4,9 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationScoreUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationListResponseDto } from '../../dto/application/job-application-response.dto';
-import { UpdateApplicationScoreDto } from '../../dto/application/update-application-score.dto';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
+import { JobApplicationListResponseDto } from '../../dtos/job-application/responses/job-application-response.dto';
+import { UpdateApplicationScoreDto } from '../../dtos/job-application/requests/update-application-score.dto';
 
 export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUseCase {
   constructor(
@@ -50,5 +50,9 @@ export class UpdateApplicationScoreUseCase implements IUpdateApplicationScoreUse
     });
   }
 }
+
+
+
+
 
 

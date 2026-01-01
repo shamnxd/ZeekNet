@@ -1,4 +1,4 @@
-import { RegisterResponseDto } from '../../dto/auth/register-response.dto';
+import { RegisterResponseDto } from '../../dtos/auth/responses/register-response.dto';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
@@ -7,7 +7,7 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/IRegisterUserUseCase';
 import { ValidationError } from '../../../domain/errors/errors';
 import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../mappers/auth/user.mapper';
 import { User } from '../../../domain/entities/user.entity';
 
 export class RegisterUserUseCase implements IRegisterUserUseCase {
@@ -49,3 +49,5 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     await this._mailerService.sendMail(email, subject, html);
   }
 }
+
+

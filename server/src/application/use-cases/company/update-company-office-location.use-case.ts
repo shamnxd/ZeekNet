@@ -1,6 +1,6 @@
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
-import { UpdateCompanyOfficeLocationRequestDto } from '../../dto/company/company-office-location.dto';
+import { UpdateCompanyOfficeLocationRequestDto } from '../../dtos/company/common/company-office-location.dto';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
 import { IUpdateCompanyOfficeLocationUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyOfficeLocationUseCase';
 
@@ -24,4 +24,5 @@ export class UpdateCompanyOfficeLocationUseCase implements IUpdateCompanyOfficeL
     return updatedLocation;
   }
 }
+
 

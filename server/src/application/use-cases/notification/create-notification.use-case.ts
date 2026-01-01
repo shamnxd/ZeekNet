@@ -1,4 +1,4 @@
-import { NotificationMapper } from '../../mappers/notification.mapper';
+import { NotificationMapper } from '../../mappers/notification/notification.mapper';
 import { INotificationRepository, CreateNotificationData } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { Notification } from '../../../domain/entities/notification.entity';
 import { ICreateNotificationUseCase } from '../../../domain/interfaces/use-cases/notification/ICreateNotificationUseCase';
@@ -21,3 +21,4 @@ export class CreateNotificationUseCase implements ICreateNotificationUseCase {
     );
   }
 }
+

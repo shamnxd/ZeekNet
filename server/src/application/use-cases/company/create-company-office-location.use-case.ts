@@ -1,6 +1,6 @@
 import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
-import { CreateCompanyOfficeLocationRequestDto } from '../../dto/company/company-office-location.dto';
+import { CreateCompanyOfficeLocationRequestDto } from '../../dtos/company/common/company-office-location.dto';
 import { ICreateCompanyOfficeLocationUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyOfficeLocationUseCase';
 
 export class CreateCompanyOfficeLocationUseCase implements ICreateCompanyOfficeLocationUseCase {
@@ -13,4 +13,5 @@ export class CreateCompanyOfficeLocationUseCase implements ICreateCompanyOfficeL
     return this._companyOfficeLocationRepository.create(officeLocation);
   }
 }
+
 

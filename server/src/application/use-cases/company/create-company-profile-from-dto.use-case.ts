@@ -1,8 +1,8 @@
 import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
 import { ICreateCompanyProfileFromDtoUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
-import { CreateCompanyProfileFromDtoRequestDto } from '../../dto/company/create-company-profile-from-dto.dto';
+import { CreateCompanyProfileFromDtoRequestDto } from '../../dtos/company/requests/create-company-profile-from-dto.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
 
 export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfileFromDtoUseCase {
   constructor(private readonly _createCompanyProfileUseCase: ICreateCompanyProfileUseCase) {}
@@ -15,4 +15,6 @@ export class CreateCompanyProfileFromDtoUseCase implements ICreateCompanyProfile
     return await this._createCompanyProfileUseCase.execute({ ...profileData, userId });
   }
 }
+
+
 

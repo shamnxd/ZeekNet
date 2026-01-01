@@ -5,9 +5,9 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { IGetJobPostingForPublicUseCase } from '../../../domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
 import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
-import { JobPostingDetailResponseDto } from '../../dto/job-posting/job-posting-response.dto';
-import { JobPostingMapper } from '../../mappers/job-posting.mapper';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { JobPostingDetailResponseDto } from '../../dtos/job-posting/common/job-posting-response.dto';
+import { JobPostingMapper } from '../../mappers/job/job-posting.mapper';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 
@@ -123,3 +123,5 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
     );
   }
 }
+
+

@@ -6,9 +6,9 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
-import { CreateCheckoutSessionRequestDto } from '../../dto/company/create-checkout-session.dto';
-import { CreateCheckoutSessionResponseDto } from '../../dto/company/checkout-session-response.dto';
-import { StripeCheckoutMapper } from '../../mappers/stripe/stripe-checkout.mapper';
+import { CreateCheckoutSessionRequestDto } from '../../dtos/company/requests/create-checkout-session.dto';
+import { CreateCheckoutSessionResponseDto } from '../../dtos/company/responses/checkout-session-response.dto';
+import { StripeCheckoutMapper } from '../../mappers/payment/stripe/stripe-checkout.mapper';
 
 export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCase {
   constructor(
@@ -106,3 +106,4 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
     } as CreateCheckoutSessionResponseDto;
   }
 }
+

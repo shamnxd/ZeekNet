@@ -4,7 +4,7 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { IResumeSubscriptionUseCase } from '../../interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
+import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
 
 export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
   constructor(
@@ -46,3 +46,4 @@ export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
     return updatedSubscription;
   }
 }
+

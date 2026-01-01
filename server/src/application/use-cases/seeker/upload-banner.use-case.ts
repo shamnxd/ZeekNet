@@ -1,10 +1,10 @@
 import { IUploadBannerUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadBannerUseCase';
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { SeekerProfileResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { UploadBannerDto } from '../../dto/seeker/upload-banner.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { UploadBannerDto } from '../../dtos/seeker/common/upload-banner.dto';
 
 export class UploadBannerUseCase implements IUploadBannerUseCase {
   constructor(
@@ -45,3 +45,5 @@ export class UploadBannerUseCase implements IUploadBannerUseCase {
     return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service, { avatarUrl, bannerUrl, resumeUrl });
   }
 }
+
+

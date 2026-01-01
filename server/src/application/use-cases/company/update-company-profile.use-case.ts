@@ -1,8 +1,8 @@
-import { SimpleUpdateCompanyProfileRequestDto } from '../../dto/company/company-profile.dto';
+import { SimpleUpdateCompanyProfileRequestDto } from '../../dtos/company/common/company-profile.dto';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
-import { CompanyProfileResponseDto } from '../../dto/company/company-response.dto';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
+import { CompanyProfileResponseDto } from '../../dtos/company/responses/company-response.dto';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IUpdateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
 
@@ -48,4 +48,6 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
     return CompanyProfileMapper.toResponse(updatedProfile, verification, { logo: logoUrl, banner: bannerUrl, businessLicense: businessLicenseUrl });
   }
 }
+
+
 

@@ -1,9 +1,9 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetAllJobPostingsUseCase } from '../../interfaces/use-cases/public/IGetAllJobPostingsUseCase';
-import { JobPostingFilters } from 'src/application/dto/jobs/job-posting-filters.dto';
-import { PublicJobListItemDto } from '../../dto/job-posting/job-posting-response.dto';
-import { PaginatedPublicJobsDto } from '../../dto/public/paginated-public-jobs.dto';
-import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { IGetAllJobPostingsUseCase } from '../../../domain/interfaces/use-cases/public/IGetAllJobPostingsUseCase';
+import { JobPostingFilters } from 'src/application/dtos/jobs/common/job-posting-filters.dto';
+import { PublicJobListItemDto } from '../../dtos/job-posting/common/job-posting-response.dto';
+import { PaginatedPublicJobsDto } from '../../dtos/public/common/paginated-public-jobs.dto';
+import { JobPostingMapper } from '../../mappers/job/job-posting.mapper';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 
 export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
@@ -55,3 +55,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
     };
   }
 }
+
+
+
+

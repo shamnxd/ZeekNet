@@ -1,8 +1,8 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { UpdateJobPostingRequestDto } from '../../dto/job-posting/update-job-posting-request.dto';
+import { UpdateJobPostingRequestDto } from '../../dtos/job-posting/common/update-job-posting-request.dto';
 import { NotFoundError, InternalServerError, ValidationError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { IUpdateJobPostingUseCase } from 'src/application/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
+import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/jobs/IUpdateJobPostingUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
 
 export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
@@ -45,4 +45,6 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
     return updatedJob;
   }
 }
+
+
 

@@ -1,7 +1,7 @@
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { IReapplyCompanyVerificationUseCase } from '../../../domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
-import { CompanyVerificationRequestDtoType } from '../../dto/company/company-verification-request.dto';
+import { CompanyVerificationRequestDtoType } from '../../dtos/company/common/company-verification-request.dto';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 
@@ -43,4 +43,5 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
     return updatedProfile;
   }
 }
+
 

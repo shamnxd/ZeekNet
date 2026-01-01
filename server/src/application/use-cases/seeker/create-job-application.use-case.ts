@@ -4,13 +4,13 @@ import { IJobPostingRepository } from '../../../domain/interfaces/repositories/j
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICreateJobApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
-import { CreateJobApplicationDto } from '../../dto/application/create-job-application.dto';
+import { CreateJobApplicationDto } from '../../dtos/job-application/requests/create-job-application.dto';
 import { z } from 'zod';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
 import { INotificationService } from '../../../domain/interfaces/services/INotificationService';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { IResumeParserService } from '../../../domain/interfaces/services/IResumeParserService';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
 import { ICalculateATSScoreUseCase } from './calculate-ats-score.use-case';
 
 /**
@@ -228,3 +228,6 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
   }
 }
+
+
+

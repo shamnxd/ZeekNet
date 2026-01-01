@@ -1,6 +1,6 @@
 import { ICompanyTechStackRepository } from '../../../domain/interfaces/repositories/company/ICompanyTechStackRepository';
 import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.entity';
-import { UpdateCompanyTechStackRequestDto } from '../../dto/company/company-tech-stack.dto';
+import { UpdateCompanyTechStackRequestDto } from '../../dtos/company/common/company-tech-stack.dto';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
 import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyTechStackUseCase';
 
@@ -22,4 +22,5 @@ export class UpdateCompanyTechStackUseCase implements IUpdateCompanyTechStackUse
     return updatedTechStack;
   }
 }
+
 

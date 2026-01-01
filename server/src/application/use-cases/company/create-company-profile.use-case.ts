@@ -5,9 +5,9 @@ import { ICompanyOfficeLocationRepository } from '../../../domain/interfaces/rep
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICreateCompanyProfileUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyProfileUseCase';
-import { CreateCompanyProfileRequestDtoType } from '../../dto/company/create-company-profile-request.dto';
+import { CreateCompanyProfileRequestDtoType } from '../../dtos/company/requests/create-company-profile-request.dto';
 import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
 import { CompanySubscriptionResponseMapper } from '../../mappers/subscription/company-subscription-response.mapper';
 import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
@@ -84,4 +84,6 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     return profile;
   }
 }
+
+
 

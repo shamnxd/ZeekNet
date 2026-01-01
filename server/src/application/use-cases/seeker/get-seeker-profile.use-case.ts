@@ -5,8 +5,8 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/IU
 import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { SeekerProfileResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
 
 export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
   constructor(
@@ -56,5 +56,7 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     };
   }
 }
+
+
 
 

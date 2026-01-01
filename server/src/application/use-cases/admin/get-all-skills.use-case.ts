@@ -1,7 +1,7 @@
 import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/skills/IGetAllSkillsUseCase';
 import { ISkillRepository } from '../../../domain/interfaces/repositories/skill/ISkillRepository';
-import { PaginatedSkillsResultDto } from '../../dto/skills/paginated-skills-result.dto';
-import { SkillMapper } from '../../mappers/skill.mapper';
+import { PaginatedSkillsResultDto } from '../../dtos/skills/common/paginated-skills-result.dto';
+import { SkillMapper } from '../../mappers/skill/skill.mapper';
 
 export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) {}
@@ -27,3 +27,5 @@ export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
     };
   }
 }
+
+

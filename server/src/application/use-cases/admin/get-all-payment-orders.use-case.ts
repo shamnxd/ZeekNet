@@ -3,10 +3,10 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ISubscriptionPlanRepository } from '../../../domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
 import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/payments/IGetAllPaymentOrdersUseCase';
-import { GetAllPaymentOrdersRequestDto } from '../../dto/admin/payment-order.dto';
-import { GetAllPaymentOrdersResponseDto } from '../../dto/admin/get-all-payment-orders-response.dto';
+import { GetAllPaymentOrdersRequestDto } from '../../dtos/admin/common/payment-order.dto';
+import { GetAllPaymentOrdersResponseDto } from '../../dtos/admin/responses/get-all-payment-orders-response.dto';
 
-import { PaymentMapper } from '../../mappers/payment.mapper';
+import { PaymentMapper } from '../../mappers/payment/payment.mapper';
 
 export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
@@ -65,3 +65,5 @@ export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
     };
   }
 }
+
+

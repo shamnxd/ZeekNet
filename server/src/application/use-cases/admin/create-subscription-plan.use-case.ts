@@ -2,11 +2,11 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { ICreateSubscriptionPlanUseCase } from '../../interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
+import { ICreateSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { BadRequestError, ConflictError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { PriceType } from '../../../domain/entities/price-history.entity';
-import { CreateSubscriptionPlanDto } from '../../dto/subscriptions/create-subscription-plan.dto';
+import { CreateSubscriptionPlanDto } from '../../dtos/subscriptions/common/create-subscription-plan.dto';
 import { CreateInput } from '../../../domain/types/common.types';
 
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
@@ -164,3 +164,5 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
     return plan;
   }
 }
+
+

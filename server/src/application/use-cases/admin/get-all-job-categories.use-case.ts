@@ -1,7 +1,7 @@
 import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/job-categories/IGetAllJobCategoriesUseCase';
 import { IJobCategoryRepository } from '../../../domain/interfaces/repositories/IJobCategoryRepository';
-import { PaginatedJobCategoriesResultDto } from '../../dto/job-categories/paginated-job-categories-result.dto';
-import { JobCategoryMapper } from '../../mappers/job-category.mapper';
+import { PaginatedJobCategoriesResultDto } from '../../dtos/job-categories/common/paginated-job-categories-result.dto';
+import { JobCategoryMapper } from '../../mappers/job/job-category.mapper';
 
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
@@ -28,3 +28,5 @@ export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
     };
   }
 }
+
+

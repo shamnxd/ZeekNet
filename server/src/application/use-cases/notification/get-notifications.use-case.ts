@@ -1,7 +1,7 @@
 import { INotificationRepository } from '../../../domain/interfaces/repositories/notification/INotificationRepository';
 import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { NotificationResponseDto } from '../../dto/notification/notification-response.dto';
-import { NotificationMapper } from '../../mappers/notification.mapper';
+import { NotificationResponseDto } from '../../dtos/notification/responses/notification-response.dto';
+import { NotificationMapper } from '../../mappers/notification/notification.mapper';
 
 export class GetNotificationsUseCase implements IGetNotificationsUseCase {
   constructor(
@@ -22,3 +22,5 @@ export class GetNotificationsUseCase implements IGetNotificationsUseCase {
     return NotificationMapper.toResponseList(result.data);
   }
 }
+
+

@@ -1,6 +1,6 @@
 import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
-import { UpdateCompanyWorkplacePicturesRequestDto } from '../../dto/company/company-workplace-pictures.dto';
+import { UpdateCompanyWorkplacePicturesRequestDto } from '../../dtos/company/common/company-workplace-pictures.dto';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
 import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyWorkplacePictureUseCase';
 
@@ -22,4 +22,5 @@ export class UpdateCompanyWorkplacePictureUseCase implements IUpdateCompanyWorkp
     return updatedPicture;
   }
 }
+
 

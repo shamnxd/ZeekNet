@@ -2,9 +2,9 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { Education } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { EducationResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { UpdateEducationRequestDto } from '../../dto/seeker/update-education-request.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { EducationResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
+import { UpdateEducationRequestDto } from '../../dtos/seeker/requests/update-education-request.dto';
 import { IUpdateEducationUseCase } from 'src/domain/interfaces/use-cases/seeker/IUpdateEducationUseCase';
 
 export class UpdateEducationUseCase implements IUpdateEducationUseCase {
@@ -47,5 +47,7 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
     return SeekerProfileMapper.educationToResponse(updatedEducation);
   }
 }
+
+
 
 

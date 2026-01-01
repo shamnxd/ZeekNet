@@ -1,5 +1,5 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
-import { IGetJobPostingUseCase } from '../../interfaces/use-cases/jobs/IGetJobPostingUseCase';
+import { IGetJobPostingUseCase } from '../../../domain/interfaces/use-cases/jobs/IGetJobPostingUseCase';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 
@@ -20,4 +20,5 @@ export class GetJobPostingUseCase implements IGetJobPostingUseCase {
     return jobPosting;
   }
 }
+
 

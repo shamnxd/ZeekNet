@@ -1,6 +1,6 @@
 import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
-import { CreateCompanyBenefitsRequestDto } from '../../dto/company/company-benefits.dto';
+import { CreateCompanyBenefitsRequestDto } from '../../dtos/company/common/company-benefits.dto';
 import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyBenefitUseCase';
 
 export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase {
@@ -15,4 +15,5 @@ export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase
     return this._companyBenefitsRepository.create(benefit);
   }
 }
+
 

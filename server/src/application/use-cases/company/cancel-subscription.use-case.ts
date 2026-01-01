@@ -4,7 +4,7 @@ import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repos
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
 import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { ICancelSubscriptionUseCase } from '../../interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
+import { ICancelSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
 
 export class CancelSubscriptionUseCase implements ICancelSubscriptionUseCase {
   constructor(
@@ -49,3 +49,4 @@ export class CancelSubscriptionUseCase implements ICancelSubscriptionUseCase {
     return updatedSubscription;
   }
 }
+

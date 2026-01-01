@@ -7,10 +7,10 @@ import { ISeekerExperienceRepository } from '../../../domain/interfaces/reposito
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
-import { GetApplicationDetailsRequestDto } from '../../dto/application/get-application-details.dto';
+import { GetApplicationDetailsRequestDto } from '../../dtos/job-application/requests/get-application-details.dto';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dtos/job-application/responses/job-application-response.dto';
 
 export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCase {
   constructor(
@@ -113,5 +113,9 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
     );
   }
 }
+
+
+
+
 
 

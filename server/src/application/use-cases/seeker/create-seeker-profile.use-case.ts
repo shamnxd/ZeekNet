@@ -2,9 +2,9 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/ICreateSeekerProfileUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { ValidationError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { CreateSeekerProfileRequestDto } from '../../dto/seeker/create-seeker-profile-request.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { SeekerProfileResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
+import { CreateSeekerProfileRequestDto } from '../../dtos/seeker/requests/create-seeker-profile-request.dto';
 
 export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
   constructor(
@@ -38,3 +38,5 @@ export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
     return SeekerProfileMapper.toResponse(profile, this._s3Service);
   }
 }
+
+

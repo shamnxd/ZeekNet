@@ -1,7 +1,7 @@
 import { IJobRoleRepository } from '../../../domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
-import { PaginatedJobRolesResultDto } from '../../dto/job-roles/paginated-job-roles-result.dto';
-import { JobRoleMapper } from '../../mappers/job-role.mapper';
+import { PaginatedJobRolesResultDto } from '../../dtos/job-roles/common/paginated-job-roles-result.dto';
+import { JobRoleMapper } from '../../mappers/job/job-role.mapper';
 
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
@@ -28,4 +28,6 @@ export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
     };
   }
 }
+
+
 

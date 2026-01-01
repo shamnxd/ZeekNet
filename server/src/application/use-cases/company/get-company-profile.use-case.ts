@@ -6,8 +6,8 @@ import { ICompanyBenefitsRepository } from '../../../domain/interfaces/repositor
 import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { ICompanyVerificationRepository } from '../../../domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileUseCase';
-import { GetCompanyProfileResponseDto } from '../../dto/company/company-profile-response.dto';
-import { CompanyProfileMapper } from '../../mappers/company-profile.mapper';
+import { GetCompanyProfileResponseDto } from '../../dtos/company/responses/company-profile-response.dto';
+import { CompanyProfileMapper } from '../../mappers/company/company-profile.mapper';
 
 export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
@@ -44,4 +44,6 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     });
   }
 }
+
+
 

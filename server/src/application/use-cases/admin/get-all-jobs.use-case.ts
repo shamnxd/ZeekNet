@@ -1,9 +1,9 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
 import { JobStatus } from '../../../domain/enums/job-status.enum';
-import { GetAllJobsQueryDtoType } from '../../dto/admin/get-all-jobs-query.dto';
-import { JobPostingMapper } from '../../mappers/job-posting.mapper';
-import { AdminJobListResponseDto } from '../../dto/admin/admin-job-response.dto';
+import { GetAllJobsQueryDtoType } from '../../dtos/admin/requests/get-all-jobs-query.dto';
+import { JobPostingMapper } from '../../mappers/job/job-posting.mapper';
+import { AdminJobListResponseDto } from '../../dtos/admin/responses/admin-job-response.dto';
 
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
@@ -82,3 +82,5 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     };
   }
 }
+
+

@@ -1,9 +1,9 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ResumeMeta } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { ResumeMetaResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { UploadResumeRequestDto } from '../../dto/seeker/seeker-profile.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { ResumeMetaResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
+import { UploadResumeRequestDto } from '../../dtos/seeker/common/seeker-profile.dto';
 import { IUploadResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/IUploadResumeUseCase';
 
 export class UploadResumeUseCase implements IUploadResumeUseCase {
@@ -34,5 +34,7 @@ export class UploadResumeUseCase implements IUploadResumeUseCase {
     return SeekerProfileMapper.resumeMetaToResponse(resume);
   }
 }
+
+
 
 

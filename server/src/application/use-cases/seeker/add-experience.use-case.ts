@@ -2,9 +2,9 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { IAddExperienceUseCase } from '../../../domain/interfaces/use-cases/seeker/IAddExperienceUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { ExperienceResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { AddExperienceRequestDto } from '../../dto/seeker/add-experience-request.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { ExperienceResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
+import { AddExperienceRequestDto } from '../../dtos/seeker/common/add-experience-request.dto';
 
 export class AddExperienceUseCase implements IAddExperienceUseCase {
   constructor(
@@ -42,5 +42,7 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
     return SeekerProfileMapper.experienceToResponse(experience);
   }
 }
+
+
 
 

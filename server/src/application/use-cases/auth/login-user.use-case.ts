@@ -1,4 +1,4 @@
-import { LoginResponseDto } from '../../dto/auth/login-response.dto';
+import { LoginResponseDto } from '../../dtos/auth/responses/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
@@ -7,7 +7,7 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUserUseCase';
 import { AuthenticationError, AuthorizationError } from '../../../domain/errors/errors';
 import { UserRole } from '../../../domain/enums/user-role.enum';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../mappers/auth/user.mapper';
 import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
 
 export class LoginUserUseCase implements ILoginUserUseCase {
@@ -58,3 +58,5 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     };
   }
 }
+
+

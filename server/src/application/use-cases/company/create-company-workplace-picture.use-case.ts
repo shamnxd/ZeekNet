@@ -1,6 +1,6 @@
 import { ICompanyWorkplacePicturesRepository } from '../../../domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
-import { CreateCompanyWorkplacePicturesRequestDto } from '../../dto/company/company-workplace-pictures.dto';
+import { CreateCompanyWorkplacePicturesRequestDto } from '../../dtos/company/common/company-workplace-pictures.dto';
 import { ICreateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyWorkplacePictureUseCase';
 
 export class CreateCompanyWorkplacePictureUseCase implements ICreateCompanyWorkplacePictureUseCase {
@@ -15,4 +15,5 @@ export class CreateCompanyWorkplacePictureUseCase implements ICreateCompanyWorkp
     return this._companyWorkplacePicturesRepository.create(picture);
   }
 }
+
 

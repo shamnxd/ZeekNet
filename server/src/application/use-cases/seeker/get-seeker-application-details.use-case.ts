@@ -2,8 +2,8 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { JobApplicationMapper } from '../../mappers/job-application.mapper';
-import { JobApplicationDetailResponseDto } from '../../dto/application/job-application-response.dto';
+import { JobApplicationMapper } from '../../mappers/job-application/job-application.mapper';
+import { JobApplicationDetailResponseDto } from '../../dtos/job-application/responses/job-application-response.dto';
 
 export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplicationDetailsUseCase {
   constructor(
@@ -31,6 +31,10 @@ export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplication
     );
   }
 }
+
+
+
+
 
 
 

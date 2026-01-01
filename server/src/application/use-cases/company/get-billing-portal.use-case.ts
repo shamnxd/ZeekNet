@@ -3,7 +3,7 @@ import { ICompanyProfileRepository } from '../../../domain/interfaces/repositori
 import { ICompanySubscriptionRepository } from '../../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
-import { GetBillingPortalRequestDto } from '../../dto/company/get-billing-portal.dto';
+import { GetBillingPortalRequestDto } from '../../dtos/company/requests/get-billing-portal.dto';
 
 export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
   constructor(
@@ -37,3 +37,4 @@ export class GetBillingPortalUseCase implements IGetBillingPortalUseCase {
     };
   }
 }
+

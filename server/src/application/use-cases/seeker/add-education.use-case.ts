@@ -2,9 +2,9 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IAddEducationUseCase } from '../../../domain/interfaces/use-cases/seeker/IAddEducationUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { EducationResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
-import { AddEducationRequestDto } from '../../dto/seeker/add-education-request.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { EducationResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
+import { AddEducationRequestDto } from '../../dtos/seeker/common/add-education-request.dto';
 
 export class AddEducationUseCase implements IAddEducationUseCase {
   constructor(
@@ -37,3 +37,5 @@ export class AddEducationUseCase implements IAddEducationUseCase {
     return SeekerProfileMapper.educationToResponse(education);
   }
 }
+
+

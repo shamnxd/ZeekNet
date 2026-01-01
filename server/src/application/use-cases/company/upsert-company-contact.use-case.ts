@@ -1,6 +1,6 @@
 import { ICompanyContactRepository } from '../../../domain/interfaces/repositories/company/ICompanyContactRepository';
 import { CompanyContact } from '../../../domain/entities/company-contact.entity';
-import { UpdateCompanyContactDto } from '../../dto/company/company-contact.dto';
+import { UpdateCompanyContactDto } from '../../dtos/company/common/company-contact.dto';
 import { IUpsertCompanyContactUseCase } from '../../../domain/interfaces/use-cases/company/IUpsertCompanyContactUseCase';
 
 export class UpsertCompanyContactUseCase implements IUpsertCompanyContactUseCase {
@@ -22,4 +22,5 @@ export class UpsertCompanyContactUseCase implements IUpsertCompanyContactUseCase
     return this._companyContactRepository.create(contact);
   }
 }
+
 

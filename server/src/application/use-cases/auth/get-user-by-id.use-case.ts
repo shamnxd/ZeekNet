@@ -1,8 +1,8 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/IAuthGetUserByIdUseCase';
 import { User } from '../../../domain/entities/user.entity';
-import { UserMapper } from '../../mappers/user.mapper';
-import { UserResponseDto } from '../../dto/auth/user-response.dto';
+import { UserMapper } from '../../mappers/auth/user.mapper';
+import { UserResponseDto } from '../../dtos/auth/responses/user-response.dto';
 
 export class GetUserByIdUseCase implements IAuthGetUserByIdUseCase {
   constructor(private readonly _userRepository: IUserRepository) {}
@@ -12,3 +12,5 @@ export class GetUserByIdUseCase implements IAuthGetUserByIdUseCase {
     return user ? UserMapper.toResponse(user) : null;
   }
 }
+
+

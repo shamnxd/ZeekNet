@@ -1,4 +1,4 @@
-import { LoginResponseDto } from '../../dto/auth/login-response.dto';
+import { LoginResponseDto } from '../../dtos/auth/responses/login-response.dto';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
@@ -9,7 +9,7 @@ import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogl
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { AuthorizationError } from '../../../domain/errors/errors';
 import { IEmailTemplateService } from '../../../domain/interfaces/services/IEmailTemplateService';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../mappers/auth/user.mapper';
 import { User } from '../../../domain/entities/user.entity';
 
 export class GoogleLoginUseCase implements IGoogleLoginUseCase {
@@ -59,3 +59,5 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     return { tokens: { accessToken, refreshToken }, user: UserMapper.toResponse(user) };
   }
 }
+
+

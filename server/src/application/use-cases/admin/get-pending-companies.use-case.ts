@@ -1,7 +1,7 @@
 import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/IGetPendingCompaniesUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/IGetCompaniesWithVerificationUseCase';
-import { PaginatedCompaniesWithVerificationResultDto } from '../../dto/company/paginated-companies-with-verification-result.dto';
+import { PaginatedCompaniesWithVerificationResultDto } from '../../dtos/company/common/paginated-companies-with-verification-result.dto';
 
 export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {
   constructor(private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
@@ -15,4 +15,5 @@ export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {
     });
   }
 }
+
 

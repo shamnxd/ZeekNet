@@ -3,10 +3,10 @@ import { IUpdateSeekerProfileUseCase } from '../../../domain/interfaces/use-case
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { SeekerProfile } from '../../../domain/entities/seeker-profile.entity';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { SeekerProfileResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { SeekerProfileResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { UpdateSeekerProfileRequestDto } from '../../dto/seeker/update-seeker-profile-request.dto';
+import { UpdateSeekerProfileRequestDto } from '../../dtos/seeker/requests/update-seeker-profile-request.dto';
 
 export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
   constructor(
@@ -41,5 +41,7 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service);
   }
 }
+
+
 
 

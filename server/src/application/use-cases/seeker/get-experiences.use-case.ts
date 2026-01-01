@@ -1,8 +1,8 @@
 import { ISeekerProfileRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { NotFoundError } from '../../../domain/errors/errors';
-import { SeekerProfileMapper } from '../../mappers/seeker-profile.mapper';
-import { ExperienceResponseDto } from '../../dto/seeker/seeker-profile-response.dto';
+import { SeekerProfileMapper } from '../../mappers/seeker/seeker-profile.mapper';
+import { ExperienceResponseDto } from '../../dtos/seeker/responses/seeker-profile-response.dto';
 import { IGetExperiencesUseCase } from 'src/domain/interfaces/use-cases/seeker/IGetExperiencesUseCase';
 
 export class GetExperiencesUseCase implements IGetExperiencesUseCase {
@@ -22,5 +22,7 @@ export class GetExperiencesUseCase implements IGetExperiencesUseCase {
     return experiences.map(exp => SeekerProfileMapper.experienceToResponse(exp));
   }
 }
+
+
 
 

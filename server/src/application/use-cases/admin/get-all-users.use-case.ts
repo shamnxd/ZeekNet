@@ -1,7 +1,7 @@
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/IGetAllUsersUseCase';
-import { GetUsersQueryDto } from '../../dto/seeker/get-users-query.dto';
-import { PaginatedUsersResultDto } from '../../dto/seeker/paginated-users-result.dto';
+import { GetUsersQueryDto } from '../../dtos/seeker/requests/get-users-query.dto';
+import { PaginatedUsersResultDto } from '../../dtos/seeker/common/paginated-users-result.dto';
 import { UserRole } from '../../../domain/enums/user-role.enum';
 import { User } from '../../../domain/entities/user.entity';
 
@@ -43,3 +43,4 @@ export class GetAllUsersUseCase implements IGetAllUsersUseCase {
     };
   }
 }
+

@@ -1,11 +1,11 @@
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { JobPosting } from '../../../domain/entities/job-posting.entity';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { JobPostingQueryRequestDto } from '../../dto/job-posting/get-job-postings-query.dto';
+import { JobPostingQueryRequestDto } from '../../dtos/job-posting/common/get-job-postings-query.dto';
 import { NotFoundError } from '../../../domain/errors/errors';
 import { IGetCompanyJobPostingsUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyJobPostingsUseCase';
-import { PaginatedCompanyJobPostingsDto } from '../../dto/company/paginated-company-job-postings.dto';
-import { JobPostingMapper } from '../../mappers/job-posting.mapper';
+import { PaginatedCompanyJobPostingsDto } from '../../dtos/company/common/paginated-company-job-postings.dto';
+import { JobPostingMapper } from '../../mappers/job/job-posting.mapper';
 
 export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
@@ -82,4 +82,6 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     };
   }
 }
+
+
 

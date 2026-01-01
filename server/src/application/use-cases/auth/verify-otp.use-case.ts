@@ -2,8 +2,8 @@ import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/IVerifyOtpUseCase';
 import { ValidationError, NotFoundError } from '../../../domain/errors/errors';
-import { UserMapper } from '../../mappers/user.mapper';
-import { UserResponseDto } from '../../dto/auth/user-response.dto';
+import { UserMapper } from '../../mappers/auth/user.mapper';
+import { UserResponseDto } from '../../dtos/auth/responses/user-response.dto';
 
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   constructor(
@@ -30,3 +30,5 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     return UserMapper.toResponse(updatedUser);
   }
 }
+
+
