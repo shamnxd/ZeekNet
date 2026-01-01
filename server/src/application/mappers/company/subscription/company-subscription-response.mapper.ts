@@ -1,11 +1,11 @@
-import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
-import { CompanySubscriptionResponseDto } from '../../dtos/subscription/common/subscription-response.dto';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
 
 type CompanySubscriptionWithActiveJobCount = CompanySubscription & { activeJobCount?: number };
 
-import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
-import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
-import { CreateInput } from '../../../domain/types/common.types';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
+import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class CompanySubscriptionResponseMapper {
   static toDto(entity: CompanySubscription | CompanySubscriptionWithActiveJobCount): CompanySubscriptionResponseDto {

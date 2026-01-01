@@ -1,24 +1,24 @@
-import { CompanyProfile } from '../../../domain/entities/company-profile.entity';
-import { CompanyVerification } from '../../../domain/entities/company-verification.entity';
-import { CompanyContact } from '../../../domain/entities/company-contact.entity';
-import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
-import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.entity';
-import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
-import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
-import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { CompanyProfileResponseDto, CompanyProfileWithDetailsResponseDto } from '../../dtos/company/responses/company-response.dto';
-import { CompanyContactMapper } from './company-contact.mapper';
-import { CompanyOfficeLocationMapper } from './company-office-location.mapper';
-import { CompanyTechStackMapper } from './company-tech-stack.mapper';
-import { CompanyBenefitMapper } from './company-benefit.mapper';
-import { CompanyWorkplacePictureMapper } from './company-workplace-picture.mapper';
-import { JobPostingMapper } from '../job/job-posting.mapper';
-import { CreateCompanyProfileFromDtoRequestDto } from '../../dtos/company/requests/create-company-profile-from-dto.dto';
-import { CreateCompanyProfileRequestDtoType } from '../../dtos/company/requests/create-company-profile-request.dto';
-import { CompanyVerificationStatus } from '../../../domain/enums/verification-status.enum';
-import { SimpleUpdateCompanyProfileRequestDto } from '../../dtos/company/common/company-profile.dto';
-import { CompanyWithVerificationResult } from '../../dtos/company/common/company-with-verification-result.dto';
-import { CreateInput } from '../../../domain/types/common.types';
+import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
+import { CompanyVerification } from 'src/domain/entities/company-verification.entity';
+import { CompanyContact } from 'src/domain/entities/company-contact.entity';
+import { CompanyOfficeLocation } from 'src/domain/entities/company-office-location.entity';
+import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
+import { CompanyBenefits } from 'src/domain/entities/company-benefits.entity';
+import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
+import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { CompanyProfileResponseDto, CompanyProfileWithDetailsResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
+import { CompanyContactMapper } from 'src/application/mappers/company/profile/company-contact.mapper';
+import { CompanyOfficeLocationMapper } from 'src/application/mappers/company/profile/company-office-location.mapper';
+import { CompanyTechStackMapper } from 'src/application/mappers/company/profile/company-tech-stack.mapper';
+import { CompanyBenefitMapper } from 'src/application/mappers/company/profile/company-benefit.mapper';
+import { CompanyWorkplacePictureMapper } from 'src/application/mappers/company/media/company-workplace-picture.mapper';
+import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
+import { CreateCompanyProfileFromDtoRequestDto } from 'src/application/dtos/company/profile/info/requests/create-company-profile-from-dto.dto';
+import { CreateCompanyProfileRequestDtoType } from 'src/application/dtos/company/profile/info/requests/create-company-profile-request.dto';
+import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
+import { SimpleUpdateCompanyProfileRequestDto } from 'src/application/dtos/company/profile/info/requests/company-profile.dto';
+import { CompanyWithVerificationResult } from 'src/application/dtos/admin/companies/responses/company-with-verification-result.dto';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class CompanyProfileMapper {
   static fromDto(dto: Omit<CreateCompanyProfileFromDtoRequestDto, 'userId'>): CreateCompanyProfileRequestDtoType {

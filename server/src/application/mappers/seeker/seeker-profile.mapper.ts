@@ -1,21 +1,21 @@
 import {
   SeekerProfile,
-} from '../../../domain/entities/seeker-profile.entity';
+} from 'src/domain/entities/seeker-profile.entity';
 import {
   Experience,
   Education,
   ResumeMeta,
   SocialLink,
-} from '../../../domain/interfaces/seeker-profile.interfaces';
+} from 'src/domain/interfaces/seeker-profile.interfaces';
 import {
   SeekerProfileResponseDto,
   ExperienceResponseDto,
   EducationResponseDto,
   ResumeMetaResponseDto,
   SocialLinkResponseDto,
-} from '../../dtos/seeker/responses/seeker-profile-response.dto';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { CreateInput } from '../../../domain/types/common.types';
+} from 'src/application/dtos/seeker/profile/info/responses/seeker-profile-response.dto';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class SeekerProfileMapper {
   static toEntity(data: {

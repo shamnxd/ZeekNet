@@ -1,4 +1,4 @@
-import { JobRole } from '../../../domain/entities/job-role.entity';
+import { JobRole } from 'src/domain/entities/job-role.entity';
 
 export interface JobRoleResponseDto {
   id: string;

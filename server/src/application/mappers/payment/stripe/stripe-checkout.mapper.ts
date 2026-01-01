@@ -1,4 +1,4 @@
-import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 
 export class StripeCheckoutMapper {
   static toSessionMetadata(data: {

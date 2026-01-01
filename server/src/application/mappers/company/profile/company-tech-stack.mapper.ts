@@ -1,4 +1,4 @@
-import { CompanyTechStack } from '../../../domain/entities/company-tech-stack.entity';
+import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
 
 export class CompanyTechStackMapper {
   static toResponse(techStack: CompanyTechStack): { id: string; techStack: string } {

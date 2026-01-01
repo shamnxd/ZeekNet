@@ -1,12 +1,12 @@
-import { JobPosting, ATSPipelineConfig } from '../../../domain/entities/job-posting.entity';
-import { JobStatus } from '../../../domain/enums/job-status.enum';
-import { EmploymentType } from '../../../domain/enums/employment-type.enum';
-import { ATSStage } from '../../../domain/enums/ats-stage.enum';
-import { Salary } from '../../../domain/interfaces/salary.interface';
-import { STAGE_TO_SUB_STAGES } from '../../../domain/utils/ats-pipeline.util';
-import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from '../../dtos/job-posting/common/job-posting-response.dto';
-import { AdminJobListItem, AdminJobStatsResponseDto } from '../../dtos/admin/responses/admin-job-response.dto';
-import { CreateInput } from '../../../domain/types/common.types';
+import { JobPosting, ATSPipelineConfig } from 'src/domain/entities/job-posting.entity';
+import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { EmploymentType } from 'src/domain/enums/employment-type.enum';
+import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { Salary } from 'src/domain/interfaces/salary.interface';
+import { STAGE_TO_SUB_STAGES } from 'src/domain/utils/ats-pipeline.util';
+import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
+import { AdminJobListItem, AdminJobStatsResponseDto } from 'src/application/dtos/admin/job/responses/admin-job-response.dto';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class JobPostingMapper {
   static toDomain(data: {
@@ -38,15 +38,15 @@ export class JobPostingMapper {
     ];
     let enabledStages = data.enabledStages || defaultEnabledStages;
     
-    // Ensure OFFER stage is always included
+    
     if (!enabledStages.includes(ATSStage.OFFER)) {
       enabledStages = [...enabledStages, ATSStage.OFFER];
     }
     
-    // Initialize pipeline config
+    
     const atsPipelineConfig: ATSPipelineConfig = {};
     enabledStages.forEach((stage) => {
-      // Only add stage if it exists in STAGE_TO_SUB_STAGES (filter out invalid/old stages)
+      
       if (STAGE_TO_SUB_STAGES[stage]) {
         atsPipelineConfig[stage] = [...STAGE_TO_SUB_STAGES[stage]];
       }

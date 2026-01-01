@@ -1,4 +1,4 @@
-import { CompanyWorkplacePictures } from '../../../domain/entities/company-workplace-pictures.entity';
+import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
 
 export class CompanyWorkplacePictureMapper {
   static toResponse(picture: CompanyWorkplacePictures, signedUrl?: string): { id: string; pictureUrl: string; caption?: string } {

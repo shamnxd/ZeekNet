@@ -1,10 +1,10 @@
-import { PaymentOrder } from '../../../domain/entities/payment-order.entity';
-import { PaymentResponseDto } from '../../dtos/payments/responses/payment-response.dto';
-import { PaymentStatus } from '../../../domain/enums/payment-status.enum';
-import { PaymentMethod } from '../../../domain/enums/payment-method.enum';
-import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
-import { PaymentOrderWithDetailsResponseDto } from '../../dtos/payments/responses/payment-order-with-details-response.dto';
-import { CreateInput } from '../../../domain/types/common.types';
+import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
+import { PaymentResponseDto } from 'src/application/dtos/payment/responses/payment-response.dto';
+import { PaymentStatus } from 'src/domain/enums/payment-status.enum';
+import { PaymentMethod } from 'src/domain/enums/payment-method.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
+import { PaymentOrderWithDetailsResponseDto } from 'src/application/dtos/payment/responses/payment-order-with-details-response.dto';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class PaymentMapper {
   static toEntity(data: {

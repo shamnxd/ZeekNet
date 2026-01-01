@@ -1,11 +1,11 @@
-import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { JobPosting } from '../../../domain/entities/job-posting.entity';
-import { ATSStage, ATSSubStage, InReviewSubStage } from '../../../domain/enums/ats-stage.enum';
+import { JobApplication } from 'src/domain/entities/job-application.entity';
+import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { ATSStage, ATSSubStage, InReviewSubStage } from 'src/domain/enums/ats-stage.enum';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
-} from '../../dtos/job-application/responses/job-application-response.dto';
-import { CreateInput } from '../../../domain/types/common.types';
+} from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class JobApplicationMapper {
   static toEntity(data: {
@@ -27,7 +27,7 @@ export class JobApplicationMapper {
       resumeUrl: data.resumeUrl || '',
       resumeFilename: data.resumeFilename || '',
       stage: data.stage || ATSStage.IN_REVIEW,
-      subStage: InReviewSubStage.PROFILE_REVIEW, // Default sub-stage for new applications
+      subStage: InReviewSubStage.PROFILE_REVIEW, 
       appliedDate: data.appliedDate || new Date(),
       score: data.score ?? -1,
     };
@@ -53,7 +53,7 @@ export class JobApplicationMapper {
       company_name: data?.companyName,
       company_logo: data?.companyLogo,
       score: application.score,
-      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', // Legacy compatibility - will be updated to use ATSStage values
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', 
       sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
     };
@@ -116,11 +116,11 @@ export class JobApplicationMapper {
       resume_url: signedResumeUrl || application.resumeUrl,
       resume_filename: application.resumeFilename,
       score: application.score,
-      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', // Legacy compatibility - will be updated to use ATSStage values
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', 
       sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
       rejection_reason: application.rejectionReason,
-      interviews: [], // Old interview array removed - now handled by new ATS system
+      interviews: [], 
       full_name: seekerData?.name,
       date_of_birth: seekerData?.date_of_birth,
       gender: seekerData?.gender,

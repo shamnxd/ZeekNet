@@ -1,8 +1,8 @@
-import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 import {
   PaymentSubscription,
   PaymentInvoice,
-} from '../../../../domain/types/payment/payment-types';
+} from 'src/domain/types/payment/payment-types';
 
 export class StripeEventMapper {
   static parseSubscriptionDates(subscription: PaymentSubscription, billingCycle?: string): { 
@@ -33,9 +33,9 @@ export class StripeEventMapper {
   }
 
   static getPaymentIntentId(invoice: PaymentInvoice): string | undefined {
-    // In our Domain Model, paymentIntent is already resolved to string or {id} or null
-    // But our mapper logic in StripeService already resolves it to string or id.
-    // Let's safe check our domain type.
+    
+    
+    
     const paymentIntent = invoice.paymentIntent;
     if (!paymentIntent) {
       return undefined;

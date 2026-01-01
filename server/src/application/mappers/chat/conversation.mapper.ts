@@ -1,5 +1,5 @@
-import { Conversation } from '../../../domain/entities/conversation.entity';
-import { ConversationResponseDto } from '../../dtos/chat/responses/conversation-response.dto';
+import { Conversation } from 'src/domain/entities/conversation.entity';
+import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
 
 export class ConversationMapper {
   static toResponse(conversation: Conversation): ConversationResponseDto {

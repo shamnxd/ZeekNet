@@ -1,4 +1,4 @@
-import { CompanyBenefits } from '../../../domain/entities/company-benefits.entity';
+import { CompanyBenefits } from 'src/domain/entities/company-benefits.entity';
 
 export class CompanyBenefitMapper {
   static toResponse(benefit: CompanyBenefits): { id: string; perk: string; description: string } {
