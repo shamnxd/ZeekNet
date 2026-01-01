@@ -11,6 +11,7 @@ import { notificationRepository, notificationService } from './notificationDi';
 import { SeekerProfileController } from '../../presentation/controllers/seeker/seeker-profile.controller';
 import { SeekerJobApplicationController } from '../../presentation/controllers/seeker/job-application.controller';
 import { CreateJobApplicationUseCase } from '../../application/use-cases/seeker/create-job-application.use-case';
+import { CalculateATSScoreUseCase } from '../../application/use-cases/seeker/calculate-ats-score.use-case';
 import { GetApplicationsBySeekerUseCase } from '../../application/use-cases/seeker/get-applications-by-seeker.use-case';
 import { GetSeekerApplicationDetailsUseCase } from '../../application/use-cases/seeker/get-seeker-application-details.use-case';
 import { CreateSeekerProfileUseCase } from '../../application/use-cases/seeker/create-seeker-profile.use-case';
@@ -88,7 +89,18 @@ const uploadAvatarUseCase = new UploadAvatarUseCase(seekerProfileRepository, s3S
 const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3Service);
 
 
-const createJobApplicationUseCase = new CreateJobApplicationUseCase(jobApplicationRepository, jobPostingRepository, userRepository, companyProfileRepository, notificationRepository, notificationService, atsService, resumeParserService);
+// ATS Score Calculation Use Case (extracted from CreateJobApplicationUseCase)
+const calculateATSScoreUseCase = new CalculateATSScoreUseCase(jobApplicationRepository, atsService);
+
+const createJobApplicationUseCase = new CreateJobApplicationUseCase(
+  jobApplicationRepository,
+  jobPostingRepository,
+  userRepository,
+  companyProfileRepository,
+  notificationService,
+  resumeParserService,
+  calculateATSScoreUseCase,
+);
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
 const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository, atsService, resumeParserService);
