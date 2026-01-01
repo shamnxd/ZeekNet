@@ -1,5 +1,5 @@
-import { IFileUrlService } from '../../domain/interfaces/services/IFileUrlService';
-import { IS3Service } from '../../domain/interfaces/services/IS3Service';
+import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
 export class FileUrlService implements IFileUrlService {
   constructor(private s3Service: IS3Service) {}

@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { IChatService } from '../../domain/interfaces/services/IChatService';
+import { IChatService } from 'src/domain/interfaces/services/IChatService';
 import {
   ISendMessageUseCase,
   IGetConversationsUseCase,
@@ -8,12 +8,12 @@ import {
   ICreateConversationUseCase,
   IDeleteMessageUseCase,
   SendMessageInput,
-} from '../../domain/interfaces/use-cases/chat/IChatUseCases';
-import { ConversationMapper } from '../mappers/chat/conversation.mapper';
-import { ChatMessageMapper } from '../mappers/chat/chat-message.mapper';
-import { ChatMessage } from '../../domain/entities/chat-message.entity';
-import { Conversation } from '../../domain/entities/conversation.entity';
-import { IConversationRepository } from '../../domain/interfaces/repositories/chat/IConversationRepository';
+} from 'src/domain/interfaces/use-cases/chat/messaging/IChatUseCases';
+import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
+import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.mapper';
+import { ChatMessage } from 'src/domain/entities/chat-message.entity';
+import { Conversation } from 'src/domain/entities/conversation.entity';
+import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
 
 export class ChatService implements IChatService {
   private io: SocketIOServer | null = null;
