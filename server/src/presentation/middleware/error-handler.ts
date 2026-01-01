@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError, ValidationError } from '../../domain/errors/errors';
+import { AppError, ValidationError } from 'src/domain/errors/errors';
 import { ZodError } from 'zod';
-import { sendErrorResponse, sendInternalServerErrorResponse } from '../../shared/utils/presentation/controller.utils';
+import { sendErrorResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export function errorHandler(error: unknown, _req: Request, res: Response, _next: NextFunction): void {
   if (error instanceof ZodError) {

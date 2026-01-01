@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { UserRole } from '../../domain/enums/user-role.enum';
-import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
-import { sendUnauthorizedResponse, sendForbiddenResponse } from '../../shared/utils/presentation/controller.utils';
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { UserRole } from 'src/domain/enums/user-role.enum';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { sendUnauthorizedResponse, sendForbiddenResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class CompanyVerificationMiddleware {
   constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}

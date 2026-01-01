@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticationError, AuthorizationError } from '../../domain/errors/errors';
-import { UserRole } from '../../domain/enums/user-role.enum';
+import { AuthenticationError, AuthorizationError } from 'src/domain/errors/errors';
+import { UserRole } from 'src/domain/enums/user-role.enum';
 
 interface AuthenticatedRequest extends Request {
   user?: {

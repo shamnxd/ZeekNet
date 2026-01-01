@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { registrationController, loginController, tokenController, passwordController, otpController } from '../../infrastructure/di/authDi';
+import { registrationController, loginController, tokenController, passwordController, otpController } from 'src/infrastructure/di/authDi';
 
-import { authenticateToken } from '../middleware/auth.middleware';
-import { validateBody } from '../middleware/validation.middleware';
-import { RegisterDto } from '../../application/dtos/auth/requests/register.dto';
-import { LoginDto } from '../../application/dtos/auth/requests/login.dto';
+import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+import { validateBody } from 'src/presentation/middleware/validation.middleware';
+import { RegisterDto } from 'src/application/dtos/auth/registration/requests/register.dto';
+import { LoginDto } from 'src/application/dtos/auth/session/requests/login.dto';
 
 export class AuthRouter {
   public router: Router;

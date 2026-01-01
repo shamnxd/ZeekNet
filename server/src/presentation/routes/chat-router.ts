@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { ChatController } from '../controllers/chat/chat.controller';
+import { ChatController } from 'src/presentation/controllers/chat/chat.controller';
 
-import { authenticateToken } from '../middleware/auth.middleware';
-import { validateBody, validateQuery } from '../middleware/validation.middleware';
-import { SendMessageDto } from '../../application/dtos/chat/requests/send-message.dto';
-import { CreateConversationDto } from '../../application/dtos/chat/requests/create-conversation.dto';
-import { GetConversationsQueryDto } from '../../application/dtos/chat/common/get-conversations-query.dto';
-import { GetMessagesQueryDto } from '../../application/dtos/chat/common/get-messages-query.dto';
-import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
-import { IUserRepository } from '../../domain/interfaces/repositories/user/IUserRepository';
+import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+import { validateBody, validateQuery } from 'src/presentation/middleware/validation.middleware';
+import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
+import { CreateConversationDto } from 'src/application/dtos/chat/requests/create-conversation.dto';
+import { GetConversationsQueryDto } from 'src/application/dtos/chat/requests/get-conversations-query.dto';
+import { GetMessagesQueryDto } from 'src/application/dtos/chat/requests/get-messages-query.dto';
+import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
 export class ChatRouter {  
   public router: Router;

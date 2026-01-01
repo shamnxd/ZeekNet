@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { publicJobController, publicDataController } from '../../infrastructure/di/publicDi';
+import { publicJobController, publicDataController } from 'src/infrastructure/di/publicDi';
 
-import { validateQuery } from '../middleware/validation.middleware';
-import { optionalAuthentication } from '../middleware/auth.middleware';
-import { JobPostingQueryDto } from '../../application/dtos/job-posting/common/get-job-postings-query.dto';
+import { validateQuery } from 'src/presentation/middleware/validation.middleware';
+import { optionalAuthentication } from 'src/presentation/middleware/auth.middleware';
+import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
 
 export class PublicRouter {
   public router: Router;

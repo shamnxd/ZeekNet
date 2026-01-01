@@ -13,20 +13,20 @@ import {
   companySubscriptionController,
   companyCandidatesController,
   subscriptionMiddleware,
-} from '../../infrastructure/di/companyDi';
+} from 'src/infrastructure/di/companyDi';
 
-import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
-import { uploadSingle } from '../middleware/upload.middleware';
-import { validateBody, validateQuery } from '../middleware/validation.middleware';
-import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
-import { CompanyVerificationMiddleware } from '../middleware/company-verification.middleware';
-import { CreateJobPostingRequestDtoSchema } from '../../application/dtos/job-posting/common/create-job-posting-request.dto';
-import { UpdateJobPostingDto } from '../../application/dtos/job-posting/common/update-job-posting-request.dto';
-import { JobPostingQueryDto } from '../../application/dtos/job-posting/common/get-job-postings-query.dto';
-import { SimpleCompanyProfileDto } from '../../application/dtos/company/requests/create-company.dto';
-import { ApplicationFiltersDto } from '../../application/dtos/job-application/requests/application-filters.dto';
-import { UpdateApplicationStageRequestDtoSchema } from '../../application/dtos/job-application/requests/update-application-stage.dto';
-import { UpdateScoreDto } from '../../application/dtos/job-application/requests/update-score.dto';
+import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
+import { uploadSingle } from 'src/presentation/middleware/upload.middleware';
+import { validateBody, validateQuery } from 'src/presentation/middleware/validation.middleware';
+import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
+import { CompanyVerificationMiddleware } from 'src/presentation/middleware/company-verification.middleware';
+import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
+import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
+import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
+import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { UpdateApplicationStageRequestDtoSchema } from 'src/application/dtos/application/requests/update-application-stage.dto';
+import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
 
 
 export class CompanyRouter {

@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { sendBadRequestResponse } from '../../shared/utils/presentation/controller.utils';
+import { sendBadRequestResponse } from 'src/shared/utils/presentation/controller.utils';
 
 const storage = multer.memoryStorage();
 
@@ -24,7 +24,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: 10 * 1024 * 1024, 
   },
 });
 
