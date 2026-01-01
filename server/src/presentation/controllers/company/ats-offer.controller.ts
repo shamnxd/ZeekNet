@@ -6,7 +6,7 @@ import { IGetOffersByApplicationUseCase } from '../../../domain/interfaces/use-c
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
 import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { UploadService } from '../../../shared/services/upload.service';
+import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
 import { UploadOfferDto } from '../../../application/dto/ats/upload-offer.dto';
 import { UpdateOfferStatusDto } from '../../../application/dto/ats/update-offer-status.dto';
 import { ATSOffer } from '../../../domain/entities/ats-offer.entity';
@@ -36,7 +36,7 @@ export class ATSOfferController {
       let documentFilename: string;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleOfferLetterUpload(req, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
         documentUrl = uploadResult.url; // This is the S3 key
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {

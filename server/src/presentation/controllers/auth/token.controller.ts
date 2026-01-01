@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/IAuthGetUserByIdUseCase';
 import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IRefreshTokenUseCase';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
-import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
+import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from '../../../shared/utils/controller.utils';
 import { UserRole } from '../../../domain/enums/user-role.enum';

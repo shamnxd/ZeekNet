@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { IGetActiveSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
+import { IGetActiveSubscriptionUseCase } from '../../../application/interfaces/use-cases/subscriptions/IGetActiveSubscriptionUseCase';
 import { IGetPaymentHistoryUseCase } from '../../../domain/interfaces/use-cases/payments/IGetPaymentHistoryUseCase';
 import { ICreateCheckoutSessionUseCase } from '../../../domain/interfaces/use-cases/payments/ICreateCheckoutSessionUseCase';
-import { ICancelSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
-import { IResumeSubscriptionUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
-import { IChangeSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
+import { ICancelSubscriptionUseCase } from '../../../application/interfaces/use-cases/subscriptions/ICancelSubscriptionUseCase';
+import { IResumeSubscriptionUseCase } from '../../../application/interfaces/use-cases/subscriptions/IResumeSubscriptionUseCase';
+import { IChangeSubscriptionPlanUseCase } from '../../../application/interfaces/use-cases/subscriptions/IChangeSubscriptionPlanUseCase';
 import { IGetBillingPortalUseCase } from '../../../domain/interfaces/use-cases/payments/IGetBillingPortalUseCase';
 import { CompanySubscriptionResponseMapper } from '../../../application/mappers/subscription/company-subscription-response.mapper';
 import { AuthenticationError, ValidationError } from '../../../domain/errors/errors';

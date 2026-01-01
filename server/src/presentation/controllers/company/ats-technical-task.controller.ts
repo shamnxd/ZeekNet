@@ -7,7 +7,7 @@ import { IGetTechnicalTasksByApplicationUseCase } from '../../../domain/interfac
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
 import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { UploadService } from '../../../shared/services/upload.service';
+import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
 import { AssignTechnicalTaskDto } from '../../../application/dto/ats/assign-technical-task.dto';
 import { UpdateTechnicalTaskDto } from '../../../application/dto/ats/update-technical-task.dto';
 
@@ -37,7 +37,7 @@ export class ATSTechnicalTaskController {
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
         documentUrl = uploadResult.url; // This is the S3 key
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
@@ -99,7 +99,7 @@ export class ATSTechnicalTaskController {
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
         documentUrl = uploadResult.url; // This is the S3 key
         documentFilename = uploadResult.filename;
       }

@@ -22,7 +22,7 @@ import { IGetCompensationMeetingsByApplicationUseCase } from '../../../domain/in
 import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/applications/IUpdateOfferStatusUseCase';
 import { IUploadSignedOfferDocumentUseCase } from '../../../domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
-import { UploadService } from '../../../shared/services/upload.service';
+import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
 import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';
 import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
 import { ValidationError } from '../../../domain/errors/errors';
@@ -52,7 +52,7 @@ export class SeekerJobApplicationController {
         return badRequest(res, 'Resume file is required');
       }
 
-      const resumeUploadResult = await UploadService.handleResumeUpload(req, this._s3Service, 'resume');
+      const resumeUploadResult = await UploadService.handleResumeUpload(req.file as unknown as UploadedFile, this._s3Service, 'resume');
 
       const { job_id, cover_letter } = req.body;
 
@@ -187,7 +187,7 @@ export class SeekerJobApplicationController {
       let submissionFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskSubmissionUpload(req, this._s3Service, 'document');
+        const uploadResult = await UploadService.handleTaskSubmissionUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
         submissionUrl = uploadResult.url;
         submissionFilename = uploadResult.filename;
       } else if (req.body.submissionUrl && req.body.submissionFilename) {
@@ -271,7 +271,7 @@ export class SeekerJobApplicationController {
         return sendBadRequestResponse(res, 'Signed document file is required');
       }
 
-      const uploadResult = await UploadService.handleOfferLetterUpload(req, this._s3Service, 'document');
+      const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
 
       const updatedOffer = await this._uploadSignedOfferDocumentUseCase.execute(userId, userName, offerId, {
         signedDocumentUrl: uploadResult.url,

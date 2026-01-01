@@ -3,7 +3,7 @@ import { IMailerService } from '../../../domain/interfaces/services/IMailerServi
 import { IOtpService } from '../../../domain/interfaces/services/IOtpService';
 import { IPasswordHasher } from '../../../domain/interfaces/services/IPasswordHasher';
 import { ITokenService } from '../../../domain/interfaces/services/ITokenService';
-import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
+import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 import { IUpdateUserRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserRefreshTokenUseCase';
 import { IUpdateUserVerificationStatusUseCase } from 'src/domain/interfaces/use-cases/auth/IUpdateUserVerificationStatusUseCase';
 import { IGetUserByEmailUseCase } from 'src/domain/interfaces/use-cases/auth/IGetUserByEmailUseCase';

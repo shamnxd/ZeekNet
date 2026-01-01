@@ -4,7 +4,7 @@ import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IRes
 import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/IForgotPasswordUseCase';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { extractUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from '../../../shared/utils/controller.utils';
-import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
+import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 
 export class PasswordController {
   constructor(

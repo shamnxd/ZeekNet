@@ -15,6 +15,7 @@ import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
 import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
+import { CompanyProfileMapper } from '../../../application/mappers/company-profile.mapper';
 
 export class CompanyProfileController {
   constructor(
@@ -36,7 +37,7 @@ export class CompanyProfileController {
       const userId = validateUserId(req);
       const profile = await this._createCompanyProfileFromDtoUseCase.execute({ userId, ...parsed.data });
 
-      sendSuccessResponse(res, 'Company profile created successfully', profile, undefined, 201);
+      sendSuccessResponse(res, 'Company profile created successfully', CompanyProfileMapper.toResponse(profile), undefined, 201);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -106,7 +107,7 @@ export class CompanyProfileController {
       };
       const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(verificationData);
 
-      sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', updatedProfile);
+      sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', CompanyProfileMapper.toResponse(updatedProfile));
     } catch (error) {
       handleAsyncError(error, next);
     }

@@ -4,7 +4,7 @@ import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IGoogl
 import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/IAdminLoginUseCase';
 import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/ILoginUserUseCase';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
-import { ICookieService } from '../../../domain/interfaces/services/ICookieService';
+import { ICookieService } from '../../../presentation/interfaces/services/ICookieService';
 
 export class LoginController {
   constructor(
