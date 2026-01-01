@@ -4,7 +4,7 @@ import { ISeekerProfileRepository } from '../../../domain/interfaces/repositorie
 import { ISeekerExperienceRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerExperienceRepository';
 import { ISeekerEducationRepository } from '../../../domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/IUserRepository';
-import { S3Service } from '../../../infrastructure/external-services/s3/s3.service';
+import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError } from '../../../domain/errors/errors';
 
 export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
@@ -13,7 +13,7 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
     private readonly seekerExperienceRepository: ISeekerExperienceRepository,
     private readonly seekerEducationRepository: ISeekerEducationRepository,
     private readonly userRepository: IUserRepository,
-    private readonly s3Service: S3Service,
+    private readonly s3Service: IS3Service,
   ) {}
 
   async execute(candidateId: string): Promise<CandidateDetails> {

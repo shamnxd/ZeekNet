@@ -2,11 +2,10 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { ATSStage, ATSSubStage } from '../../../domain/enums/ats-stage.enum';
 import { IJobPostingRepository } from '../../../domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from '../../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-
-import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
+import { IUpdateApplicationStageUseCase } from '../../../domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
 import { NotFoundError, ValidationError } from '../../../domain/errors/errors';
 import { JobApplication } from '../../../domain/entities/job-application.entity';
-import { notificationService } from '../../../infrastructure/di/notificationDi';
+import { INotificationService } from '../../../domain/interfaces/services/INotificationService';
 import { NotificationType } from '../../../domain/enums/notification-type.enum';
 import { JobApplicationMapper } from '../../mappers/job-application.mapper';
 import { JobApplicationListResponseDto } from '../../dto/application/job-application-response.dto';
@@ -17,6 +16,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _notificationService: INotificationService,
   ) {}
 
   async execute(dto: UpdateApplicationStageDto): Promise<JobApplicationListResponseDto> {
@@ -83,7 +83,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
 
     const notification = stageMessages[stage];
     if (notification) {
-      await notificationService.sendNotification({
+      await this._notificationService.sendNotification({
         user_id: application.seekerId,
         type: NotificationType.APPLICATION_STATUS,
         title: notification.title,
