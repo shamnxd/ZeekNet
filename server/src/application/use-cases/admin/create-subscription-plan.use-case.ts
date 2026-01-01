@@ -2,9 +2,9 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
+import { ICreateSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
 import { BadRequestError, ConflictError } from '../../../domain/errors/errors';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { PriceType } from '../../../domain/entities/price-history.entity';
 import { CreateSubscriptionPlanDto } from '../../dto/subscriptions/create-subscription-plan.dto';
 import { CreateInput } from '../../../domain/types/common.types';
@@ -12,6 +12,7 @@ import { CreateInput } from '../../../domain/types/common.types';
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    private readonly _logger: ILogger,
     private readonly _stripeService?: IStripeService,
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
@@ -152,11 +153,11 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
         }
 
         if (updatedPlan) {
-          logger.info(`Subscription plan ${normalizedName} synced with Stripe: ${product.id}`);
+          this._logger.info(`Subscription plan ${normalizedName} synced with Stripe: ${product.id}`);
           return updatedPlan;
         }
       } catch (error) {
-        logger.error(`Failed to sync plan ${normalizedName} with Stripe`, error);
+        this._logger.error(`Failed to sync plan ${normalizedName} with Stripe`, error);
       }
     }
 
