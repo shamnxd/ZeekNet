@@ -1,5 +1,5 @@
 import { IResumeParserService } from '../../domain/interfaces/services/IResumeParserService';
-import { ResumeParser } from '../../shared/utils/resume-parser.utils';
+import { ResumeParser } from '../../shared/utils/application/resume-parser.utils';
 
 /**
  * Resume Parser Service Implementation
@@ -10,3 +10,4 @@ export class ResumeParserService implements IResumeParserService {
     return ResumeParser.parse(buffer, mimeType);
   }
 }
+

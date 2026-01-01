@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto';
-import { redisClient } from '../database/redis/connection/redis';
+import { redisClient } from '../persistence/redis/connection/redis';
 import { IMailerService } from '../../domain/interfaces/services/IMailerService';
 import { IPasswordResetService } from '../../domain/interfaces/services/IPasswordResetService';
 import { env } from '../config/env';
@@ -69,3 +69,4 @@ export class PasswordResetServiceImpl implements IPasswordResetService {
     await this._mailerService.sendMail(email, passwordResetTemplate.subject, htmlContent);
   }
 }
+
