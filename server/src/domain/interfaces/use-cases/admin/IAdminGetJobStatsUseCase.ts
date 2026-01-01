@@ -1,5 +1,6 @@
-import { AdminJobStatsResponseDto } from 'src/application/dto/admin/admin-job-response.dto';
+import { AdminJobStatsResponseDto } from 'src/application/dtos/admin/responses/admin-job-response.dto';
 
 export interface IAdminGetJobStatsUseCase {
   execute(): Promise<AdminJobStatsResponseDto>;
 }
+

@@ -1,7 +1,8 @@
-import { UpdateCompanyOfficeLocationRequestDto } from 'src/application/dto/company/company-office-location.dto';
+import { UpdateCompanyOfficeLocationRequestDto } from 'src/application/dtos/company/common/company-office-location.dto';
 import { CompanyOfficeLocation } from 'src/domain/entities/company-office-location.entity';
 
 
 export interface IUpdateCompanyOfficeLocationUseCase {
   execute(data: UpdateCompanyOfficeLocationRequestDto): Promise<CompanyOfficeLocation>;
 }
+

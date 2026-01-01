@@ -1,7 +1,7 @@
 
-import { GetNotificationsRequestDto } from 'src/application/dto/notification/get-notifications.dto';
+import { GetNotificationsRequestDto } from 'src/application/dtos/notification/common/get-notifications.dto';
 import { CreateNotificationData } from '../../repositories/notification/INotificationRepository';
-import { NotificationResponseDto } from 'src/application/dto/notification/notification-response.dto';
+import { NotificationResponseDto } from 'src/application/dtos/notification/responses/notification-response.dto';
 import { Notification } from '../../../entities/notification.entity';
 
 export interface ICreateNotificationUseCase {
@@ -23,3 +23,4 @@ export interface IMarkAllNotificationsAsReadUseCase {
 export interface IGetUnreadNotificationCountUseCase {
   execute(userId: string): Promise<number>;
 }
+

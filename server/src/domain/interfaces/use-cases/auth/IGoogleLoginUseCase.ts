@@ -1,6 +1,7 @@
-import { LoginResponseDto } from 'src/application/dto/auth/login-response.dto';
+import { LoginResponseDto } from 'src/application/dtos/auth/responses/login-response.dto';
 
 
 export interface IGoogleLoginUseCase {
   execute(idToken: string): Promise<LoginResponseDto>;
 }
+
