@@ -2,15 +2,16 @@ import { ISubscriptionPlanRepository } from '../../../domain/interfaces/reposito
 import { IStripeService } from '../../../domain/interfaces/services/IStripeService';
 import { IPriceHistoryRepository } from '../../../domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { SubscriptionPlan } from '../../../domain/entities/subscription-plan.entity';
-import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
+import { IUpdateSubscriptionPlanUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../../domain/errors/errors';
-import { logger } from '../../../infrastructure/config/logger';
+import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { UpdateSubscriptionPlanDto } from '../../dto/subscriptions/update-subscription-plan.dto';
 import { PriceType } from '../../../domain/entities/price-history.entity';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    private readonly _logger: ILogger,
     private readonly _stripeService?: IStripeService,
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
@@ -102,7 +103,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(existingPlan.stripePriceIdMonthly);
             }
-            logger.info(`Archived old monthly price: ${existingPlan.stripePriceIdMonthly}`);
+            this._logger.info(`Archived old monthly price: ${existingPlan.stripePriceIdMonthly}`);
           }
 
           if (existingPlan.stripePriceIdYearly) {
@@ -110,7 +111,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(existingPlan.stripePriceIdYearly);
             }
-            logger.info(`Archived old yearly price: ${existingPlan.stripePriceIdYearly}`);
+            this._logger.info(`Archived old yearly price: ${existingPlan.stripePriceIdYearly}`);
           }
 
           const monthlyPriceInCents = Math.round(finalPrice * 100);
@@ -172,9 +173,9 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             });
           }
 
-          logger.info(`Created new prices for plan ${existingPlan.name} - Monthly: ${newMonthlyPriceId}, Yearly: ${newYearlyPriceId ?? 'none'}`);
+          this._logger.info(`Created new prices for plan ${existingPlan.name} - Monthly: ${newMonthlyPriceId}, Yearly: ${newYearlyPriceId ?? 'none'}`);
         } catch (error) {
-          logger.error(`Failed to create new prices for plan ${existingPlan.name}`, error);
+          this._logger.error(`Failed to create new prices for plan ${existingPlan.name}`, error);
           throw new InternalServerError('Failed to update plan prices in Stripe');
         }
       }
@@ -201,17 +202,17 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(updatedPlan.stripePriceIdMonthly);
             }
-            logger.info(`Archived Stripe monthly price: ${updatedPlan.stripePriceIdMonthly}`);
+            this._logger.info(`Archived Stripe monthly price: ${updatedPlan.stripePriceIdMonthly}`);
           }
           if (updatedPlan.stripePriceIdYearly) {
             await this._stripeService.archivePrice(updatedPlan.stripePriceIdYearly);
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(updatedPlan.stripePriceIdYearly);
             }
-            logger.info(`Archived Stripe yearly price: ${updatedPlan.stripePriceIdYearly}`);
+            this._logger.info(`Archived Stripe yearly price: ${updatedPlan.stripePriceIdYearly}`);
           }
           await this._stripeService.archiveProduct(updatedPlan.stripeProductId);
-          logger.info(`Archived Stripe product: ${updatedPlan.stripeProductId}`);
+          this._logger.info(`Archived Stripe product: ${updatedPlan.stripeProductId}`);
           
           await this._subscriptionPlanRepository.update(planId, {
             stripeProductId: undefined,
@@ -219,7 +220,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             stripePriceIdYearly: undefined,
           } as Partial<SubscriptionPlan>);
           
-          logger.info(`Subscription plan ${updatedPlan.name} unlisted and archived in Stripe`);
+          this._logger.info(`Subscription plan ${updatedPlan.name} unlisted and archived in Stripe`);
         } else if (!priceChanged && !yearlyDiscountChanged) {
           await this._stripeService.updateProduct(updatedPlan.stripeProductId, {
             name: updatedPlan.name,
@@ -232,10 +233,10 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
             },
           });
 
-          logger.info(`Subscription plan ${updatedPlan.name} synced with Stripe: ${updatedPlan.stripeProductId}`);
+          this._logger.info(`Subscription plan ${updatedPlan.name} synced with Stripe: ${updatedPlan.stripeProductId}`);
         }
       } catch (error) {
-        logger.error(`Failed to sync plan ${updatedPlan.name} with Stripe`, error);
+        this._logger.error(`Failed to sync plan ${updatedPlan.name} with Stripe`, error);
       }
     }
 
