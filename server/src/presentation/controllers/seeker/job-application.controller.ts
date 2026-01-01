@@ -9,18 +9,18 @@ import {
   validateUserId,
   badRequest,
 } from '../../../shared/utils/controller.utils';
-import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
-import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
-import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
-import { IAnalyzeResumeUseCase } from 'src/domain/interfaces/use-cases/applications/IAnalyzeResumeUseCase';
-import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetInterviewsByApplicationUseCase';
-import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetTechnicalTasksByApplicationUseCase';
-import { ISubmitTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/applications/ISubmitTechnicalTaskUseCase';
-import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetOffersByApplicationUseCase';
-import { IGetCompensationByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetCompensationByApplicationUseCase';
-import { IGetCompensationMeetingsByApplicationUseCase } from 'src/domain/interfaces/use-cases/applications/IGetCompensationMeetingsByApplicationUseCase';
-import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateOfferStatusUseCase';
-import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
+import { IGetSeekerApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
+import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
+import { ICreateJobApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
+import { IAnalyzeResumeUseCase } from '../../../domain/interfaces/use-cases/applications/IAnalyzeResumeUseCase';
+import { IGetInterviewsByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetInterviewsByApplicationUseCase';
+import { IGetTechnicalTasksByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetTechnicalTasksByApplicationUseCase';
+import { ISubmitTechnicalTaskUseCase } from '../../../domain/interfaces/use-cases/applications/ISubmitTechnicalTaskUseCase';
+import { IGetOffersByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetOffersByApplicationUseCase';
+import { IGetCompensationByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetCompensationByApplicationUseCase';
+import { IGetCompensationMeetingsByApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/IGetCompensationMeetingsByApplicationUseCase';
+import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/applications/IUpdateOfferStatusUseCase';
+import { IUploadSignedOfferDocumentUseCase } from '../../../domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { UploadService } from '../../../shared/services/upload.service';
 import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';

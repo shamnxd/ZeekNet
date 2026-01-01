@@ -1,23 +1,10 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IATSCompensationMeetingRepository } from '../../../domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-
-export interface CompensationMeetingForSeekerDto {
-  id: string;
-  applicationId: string;
-  type: string;
-  scheduledDate: Date;
-  location?: string;
-  meetingLink?: string;
-  status: string;
-  completedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IGetCompensationMeetingsByApplicationUseCase {
-  execute(userId: string, applicationId: string): Promise<CompensationMeetingForSeekerDto[]>;
-}
+import { 
+  CompensationMeetingForSeekerDto, 
+  IGetCompensationMeetingsByApplicationUseCase 
+} from '../../../domain/interfaces/use-cases/applications/IGetCompensationMeetingsByApplicationUseCase';
 
 export class GetCompensationMeetingsByApplicationUseCase implements IGetCompensationMeetingsByApplicationUseCase {
   constructor(

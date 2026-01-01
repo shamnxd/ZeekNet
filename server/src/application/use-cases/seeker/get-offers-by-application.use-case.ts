@@ -2,32 +2,10 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IATSOfferRepository } from '../../../domain/interfaces/repositories/ats/IATSOfferRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-
-export interface OfferForSeekerDto {
-  id: string;
-  applicationId: string;
-  documentUrl: string;
-  documentFilename: string;
-  offerAmount?: string;
-  status: 'draft' | 'sent' | 'signed' | 'declined';
-  uploadedBy: string;
-  uploadedByName: string;
-  sentAt?: Date;
-  signedAt?: Date;
-  declinedAt?: Date;
-  signedDocumentUrl?: string;
-  signedDocumentFilename?: string;
-  withdrawalReason?: string;
-  withdrawnBy?: string;
-  withdrawnByName?: string;
-  withdrawnAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IGetOffersByApplicationUseCase {
-  execute(userId: string, applicationId: string): Promise<OfferForSeekerDto[]>;
-}
+import { 
+  OfferForSeekerDto, 
+  IGetOffersByApplicationUseCase 
+} from '../../../domain/interfaces/use-cases/applications/IGetOffersByApplicationUseCase';
 
 export class GetOffersByApplicationUseCase implements IGetOffersByApplicationUseCase {
   constructor(

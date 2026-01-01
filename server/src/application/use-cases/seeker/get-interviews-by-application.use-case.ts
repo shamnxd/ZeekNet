@@ -1,25 +1,10 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IATSInterviewRepository } from '../../../domain/interfaces/repositories/ats/IATSInterviewRepository';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-
-export interface InterviewForSeekerDto {
-  id: string;
-  applicationId: string;
-  title: string;
-  scheduledDate: Date;
-  type: string;
-  videoType?: string;
-  webrtcRoomId?: string;
-  meetingLink?: string;
-  location?: string;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IGetInterviewsByApplicationUseCase {
-  execute(userId: string, applicationId: string): Promise<InterviewForSeekerDto[]>;
-}
+import { 
+  InterviewForSeekerDto, 
+  IGetInterviewsByApplicationUseCase 
+} from '../../../domain/interfaces/use-cases/applications/IGetInterviewsByApplicationUseCase';
 
 export class GetInterviewsByApplicationUseCase implements IGetInterviewsByApplicationUseCase {
   constructor(

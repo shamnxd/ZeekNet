@@ -1,5 +1,9 @@
-import { UploadSignedOfferDocumentDto } from '../../../../application/use-cases/seeker/upload-signed-offer-document.use-case';
 import { ATSOffer } from '../../../entities/ats-offer.entity';
+
+export interface UploadSignedOfferDocumentDto {
+  signedDocumentUrl: string;
+  signedDocumentFilename: string;
+}
 
 export interface IUploadSignedOfferDocumentUseCase {
   execute(

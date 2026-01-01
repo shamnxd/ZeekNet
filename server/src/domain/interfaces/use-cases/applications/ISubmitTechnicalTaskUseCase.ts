@@ -1,4 +1,9 @@
-import { SubmitTechnicalTaskDto } from '../../../../application/use-cases/seeker/submit-technical-task.use-case';
+export interface SubmitTechnicalTaskDto {
+  submissionUrl?: string;
+  submissionFilename?: string;
+  submissionLink?: string;
+  submissionNote?: string;
+}
 
 export interface ISubmitTechnicalTaskUseCase {
   execute(

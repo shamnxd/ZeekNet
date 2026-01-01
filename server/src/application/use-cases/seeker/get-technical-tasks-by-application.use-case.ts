@@ -2,28 +2,10 @@ import { IJobApplicationRepository } from '../../../domain/interfaces/repositori
 import { IATSTechnicalTaskRepository } from '../../../domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
-
-export interface TechnicalTaskForSeekerDto {
-  id: string;
-  applicationId: string;
-  title: string;
-  description: string;
-  deadline: Date;
-  documentFilename?: string;
-  documentUrl?: string;
-  submissionFilename?: string;
-  submissionUrl?: string;
-  submissionLink?: string;
-  submissionNote?: string;
-  submittedAt?: Date;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IGetTechnicalTasksByApplicationUseCase {
-  execute(userId: string, applicationId: string): Promise<TechnicalTaskForSeekerDto[]>;
-}
+import { 
+  TechnicalTaskForSeekerDto, 
+  IGetTechnicalTasksByApplicationUseCase 
+} from '../../../domain/interfaces/use-cases/applications/IGetTechnicalTasksByApplicationUseCase';
 
 export class GetTechnicalTasksByApplicationUseCase implements IGetTechnicalTasksByApplicationUseCase {
   constructor(

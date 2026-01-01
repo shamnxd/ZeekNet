@@ -1,38 +1,10 @@
 import { IJobApplicationRepository } from '../../../domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IATSTechnicalTaskRepository } from '../../../domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { NotFoundError, AuthorizationError, ValidationError } from '../../../domain/errors/errors';
-
-export interface SubmitTechnicalTaskDto {
-  submissionUrl?: string;
-  submissionFilename?: string;
-  submissionLink?: string;
-  submissionNote?: string;
-}
-
-export interface ISubmitTechnicalTaskUseCase {
-  execute(
-    userId: string,
-    applicationId: string,
-    taskId: string,
-    data: SubmitTechnicalTaskDto,
-  ): Promise<{
-    id: string;
-    applicationId: string;
-    title: string;
-    description: string;
-    deadline: Date;
-    documentUrl?: string;
-    documentFilename?: string;
-    submissionUrl?: string;
-    submissionFilename?: string;
-    submissionLink?: string;
-    submissionNote?: string;
-    submittedAt?: Date;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }>;
-}
+import { 
+  SubmitTechnicalTaskDto, 
+  ISubmitTechnicalTaskUseCase 
+} from '../../../domain/interfaces/use-cases/applications/ISubmitTechnicalTaskUseCase';
 
 export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
   constructor(

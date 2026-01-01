@@ -4,20 +4,10 @@ import { IUpdateApplicationSubStageUseCase } from '../../../domain/interfaces/us
 import { NotFoundError, AuthorizationError } from '../../../domain/errors/errors';
 import { ATSOffer } from '../../../domain/entities/ats-offer.entity';
 import { ATSStage, OfferSubStage } from '../../../domain/enums/ats-stage.enum';
-
-export interface UploadSignedOfferDocumentDto {
-  signedDocumentUrl: string;
-  signedDocumentFilename: string;
-}
-
-export interface IUploadSignedOfferDocumentUseCase {
-  execute(
-    userId: string,
-    userName: string,
-    offerId: string,
-    data: UploadSignedOfferDocumentDto,
-  ): Promise<ATSOffer>;
-}
+import { 
+  UploadSignedOfferDocumentDto, 
+  IUploadSignedOfferDocumentUseCase 
+} from '../../../domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
 
 export class UploadSignedOfferDocumentUseCase implements IUploadSignedOfferDocumentUseCase {
   constructor(
