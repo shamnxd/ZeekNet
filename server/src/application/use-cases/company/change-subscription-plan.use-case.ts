@@ -21,6 +21,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _logger: ILogger,
   ) {}
 
   async execute(data: ChangeSubscriptionPlanRequestDto): Promise<ChangeSubscriptionResult> {

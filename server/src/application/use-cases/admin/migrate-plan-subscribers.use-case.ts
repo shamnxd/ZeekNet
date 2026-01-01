@@ -7,7 +7,7 @@ import { BadRequestError, NotFoundError } from '../../../domain/errors/errors';
 import { ILogger } from '../../../domain/interfaces/services/ILogger';
 import { subscriptionMigrationTemplate } from '../../../infrastructure/messaging/templates/subscription-migration.template';
 import Stripe from 'stripe';
-import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
+import { IMigratePlanSubscribersUseCase } from '../../../domain/interfaces/use-cases/subscriptions/IMigratePlanSubscribersUseCase';
 import { MigratePlanSubscribersRequestDto } from '../../dto/admin/subscription-plan-management.dto';
 import { MigratePlanSubscribersResult } from '../../dto/subscriptions/migrate-plan-subscribers-result.dto';
 import { PriceType } from '../../../domain/entities/price-history.entity';
@@ -19,6 +19,7 @@ export class MigratePlanSubscribersUseCase implements IMigratePlanSubscribersUse
     private readonly _priceHistoryRepository: IPriceHistoryRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _mailerService: IMailerService,
+    private readonly _logger: ILogger,
   ) {}
 
   async execute(data: MigratePlanSubscribersRequestDto): Promise<MigratePlanSubscribersResult> {
