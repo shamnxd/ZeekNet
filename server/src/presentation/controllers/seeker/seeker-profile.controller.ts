@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse, validateUserId, badRequest } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse, validateUserId, badRequest } from '../../../shared/utils/presentation/controller.utils';
 import { ICreateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/ICreateSeekerProfileUseCase';
 import { IGetSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IGetSeekerProfileUseCase';
 import { IUpdateSeekerProfileUseCase } from '../../../domain/interfaces/use-cases/seeker/IUpdateSeekerProfileUseCase';
@@ -18,13 +18,13 @@ import { IUploadResumeUseCase } from '../../../domain/interfaces/use-cases/seeke
 import { IRemoveResumeUseCase } from '../../../domain/interfaces/use-cases/seeker/IRemoveResumeUseCase';
 import { IUploadAvatarUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadAvatarUseCase';
 import { IUploadBannerUseCase } from '../../../domain/interfaces/use-cases/seeker/IUploadBannerUseCase';
-import { CreateSeekerProfileRequestDto } from '../../../application/dto/seeker/create-seeker-profile-request.dto';
-import { UpdateSeekerProfileRequestDto } from '../../../application/dto/seeker/update-seeker-profile-request.dto';
-import { AddExperienceRequestDto } from '../../../application/dto/seeker/add-experience-request.dto';
-import { UpdateExperienceRequestDto } from '../../../application/dto/seeker/update-experience-request.dto';
-import { AddEducationRequestDto } from '../../../application/dto/seeker/add-education-request.dto';
-import { UpdateEducationRequestDto } from '../../../application/dto/seeker/update-education-request.dto';
-import { UploadResumeRequestDto } from '../../../application/dto/seeker/seeker-profile.dto';
+import { CreateSeekerProfileRequestDto } from '../../../application/dtos/seeker/requests/create-seeker-profile-request.dto';
+import { UpdateSeekerProfileRequestDto } from '../../../application/dtos/seeker/requests/update-seeker-profile-request.dto';
+import { AddExperienceRequestDto } from '../../../application/dtos/seeker/common/add-experience-request.dto';
+import { UpdateExperienceRequestDto } from '../../../application/dtos/seeker/requests/update-experience-request.dto';
+import { AddEducationRequestDto } from '../../../application/dtos/seeker/common/add-education-request.dto';
+import { UpdateEducationRequestDto } from '../../../application/dtos/seeker/requests/update-education-request.dto';
+import { UploadResumeRequestDto } from '../../../application/dtos/seeker/common/seeker-profile.dto';
 
 export class SeekerProfileController {
   constructor(
@@ -271,3 +271,4 @@ export class SeekerProfileController {
     }
   };
 }
+

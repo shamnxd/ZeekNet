@@ -4,7 +4,7 @@ import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/n
 import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { IMarkAllNotificationsAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
 import { IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { sendSuccessResponse, handleAsyncError, validateUserId } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, handleAsyncError, validateUserId } from '../../../shared/utils/presentation/controller.utils';
 
 export class NotificationController {
   constructor(
@@ -61,4 +61,5 @@ export class NotificationController {
     }
   };
 }
+
 

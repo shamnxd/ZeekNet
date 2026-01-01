@@ -8,7 +8,7 @@ import {
   sendBadRequestResponse,
   validateUserId,
   badRequest,
-} from '../../../shared/utils/controller.utils';
+} from '../../../shared/utils/presentation/controller.utils';
 import { IGetSeekerApplicationDetailsUseCase } from '../../../domain/interfaces/use-cases/applications/IGetSeekerApplicationDetailsUseCase';
 import { IGetApplicationsBySeekerUseCase } from '../../../domain/interfaces/use-cases/applications/IGetApplicationsBySeekerUseCase';
 import { ICreateJobApplicationUseCase } from '../../../domain/interfaces/use-cases/applications/ICreateJobApplicationUseCase';
@@ -23,8 +23,8 @@ import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/
 import { IUploadSignedOfferDocumentUseCase } from '../../../domain/interfaces/use-cases/applications/IUploadSignedOfferDocumentUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { CreateJobApplicationDto } from '../../../application/dto/application/create-job-application.dto';
-import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
+import { CreateJobApplicationDto } from '../../../application/dtos/job-application/requests/create-job-application.dto';
+import { ApplicationFiltersDto } from '../../../application/dtos/job-application/requests/application-filters.dto';
 import { ValidationError } from '../../../domain/errors/errors';
 
 export class SeekerJobApplicationController {
@@ -284,3 +284,5 @@ export class SeekerJobApplicationController {
     }
   };
 }
+
+

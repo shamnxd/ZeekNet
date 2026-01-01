@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { HandleStripeWebhookUseCase } from '../../../application/use-cases/company/handle-stripe-webhook.use-case';
 import { logger } from '../../../infrastructure/config/logger';
-import { sendSuccessResponse, sendBadRequestResponse } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, sendBadRequestResponse } from '../../../shared/utils/presentation/controller.utils';
 import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export class StripeWebhookController {
@@ -36,3 +36,4 @@ export class StripeWebhookController {
     }
   };
 }
+

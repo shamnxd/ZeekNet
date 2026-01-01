@@ -5,7 +5,7 @@ import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/
 import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/IGetSeekerCompaniesUseCase';
 import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicCompanyProfileUseCase';
 import { IGetPublicCompanyJobsUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicCompanyJobsUseCase';
-import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class PublicDataController {
   constructor(
@@ -90,4 +90,5 @@ export class PublicDataController {
     }
   };
 }
+
 
