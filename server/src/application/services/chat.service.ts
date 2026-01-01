@@ -9,8 +9,8 @@ import {
   IDeleteMessageUseCase,
   SendMessageInput,
 } from '../../domain/interfaces/use-cases/chat/IChatUseCases';
-import { ConversationMapper } from '../mappers/conversation.mapper';
-import { ChatMessageMapper } from '../mappers/chat-message.mapper';
+import { ConversationMapper } from '../mappers/chat/conversation.mapper';
+import { ChatMessageMapper } from '../mappers/chat/chat-message.mapper';
 import { ChatMessage } from '../../domain/entities/chat-message.entity';
 import { Conversation } from '../../domain/entities/conversation.entity';
 import { IConversationRepository } from '../../domain/interfaces/repositories/chat/IConversationRepository';
@@ -158,4 +158,5 @@ export class ChatService implements IChatService {
     return !!conversation?.participants.some((p) => p.userId === userId);
   }
 }
+
 
