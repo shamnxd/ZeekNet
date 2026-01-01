@@ -161,34 +161,9 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._jobApplicationRepository.findById(id);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
+      const interviews = await this._getInterviewsByApplicationUseCase.execute(userId, id);
 
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only view your own applications'), next);
-      }
-
-      const interviews = await this._interviewRepository.findByApplicationId(id);
-      const interviewsForSeeker = interviews.map(interview => {
-        const interviewObj = {
-          id: interview.id,
-          applicationId: interview.applicationId,
-          title: interview.title,
-          scheduledDate: interview.scheduledDate,
-          type: interview.type,
-          videoType: interview.videoType,
-          webrtcRoomId: interview.webrtcRoomId,
-          meetingLink: interview.meetingLink,
-          location: interview.location,
-          status: interview.status,
-          createdAt: interview.createdAt,
-          updatedAt: interview.updatedAt,
-        };
-        return interviewObj;
-      });
-      sendSuccessResponse(res, 'Interviews retrieved successfully', interviewsForSeeker);
+      sendSuccessResponse(res, 'Interviews retrieved successfully', interviews);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -199,46 +174,9 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
       const { id } = req.params;
 
-      const application = await this._jobApplicationRepository.findById(id);
-      if (!application) {
-        return sendNotFoundResponse(res, 'Application not found');
-      }
+      const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(userId, id);
 
-      if (application.seekerId !== userId) {
-        return handleAsyncError(new ValidationError('You can only view your own applications'), next);
-      }
-
-      const tasks = await this._technicalTaskRepository.findByApplicationId(id);
-      const tasksForSeeker = await Promise.all(
-        tasks.map(async (task) => {
-          const taskObj: Pick<ATSTechnicalTask, 'id' | 'applicationId' | 'title' | 'description' | 'deadline' | 'documentFilename' | 'submissionFilename' | 'submissionLink' | 'submissionNote' | 'submittedAt' | 'status' | 'createdAt' | 'updatedAt'> & { documentUrl?: string; submissionUrl?: string } = {
-            id: task.id,
-            applicationId: task.applicationId,
-            title: task.title,
-            description: task.description,
-            deadline: task.deadline,
-            documentFilename: task.documentFilename,
-            submissionFilename: task.submissionFilename,
-            submissionLink: task.submissionLink,
-            submissionNote: task.submissionNote,
-            submittedAt: task.submittedAt,
-            status: task.status,
-            createdAt: task.createdAt,
-            updatedAt: task.updatedAt,
-          };
-          
-          if (task.documentUrl) {
-            taskObj.documentUrl = await this._s3Service.getSignedUrl(task.documentUrl);
-          }
-          
-          if (task.submissionUrl) {
-            taskObj.submissionUrl = await this._s3Service.getSignedUrl(task.submissionUrl);
-          }
-          
-          return taskObj;
-        }),
-      );
-      sendSuccessResponse(res, 'Technical tasks retrieved successfully', tasksForSeeker);
+      sendSuccessResponse(res, 'Technical tasks retrieved successfully', tasks);
     } catch (error) {
       handleAsyncError(error, next);
     }
