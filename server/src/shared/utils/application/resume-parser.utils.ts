@@ -1,7 +1,7 @@
 
 import mammoth from 'mammoth';
 import pdf = require('pdf-parse');
-import { ValidationError } from '../../domain/errors/errors';
+import { ValidationError } from '../../../domain/errors/errors';
 
 export class ResumeParser {
   static async parse(buffer: Buffer, mimeType: string): Promise<string> {
@@ -24,3 +24,4 @@ export class ResumeParser {
     }
   }
 }
+

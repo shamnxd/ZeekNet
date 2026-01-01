@@ -1,4 +1,4 @@
-import { ValidationError } from '../../domain/errors/errors';
+import { ValidationError } from '../../../domain/errors/errors';
 
 export class ErrorHandler {
   static createValidationError(message: string): ValidationError {
@@ -13,3 +13,4 @@ export class ErrorHandler {
   }
 
 }
+

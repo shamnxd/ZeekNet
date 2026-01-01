@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
 import { createSuccessResponse, createErrorResponse } from './response.utils';
 import { ErrorHandler } from './error.utils';
-import { AuthenticatedRequest } from '../types/authenticated-request';
-import { HttpStatus } from '../../domain/enums/http-status.enum';
+import { AuthenticatedRequest } from '../../types/authenticated-request';
+import { HttpStatus } from '../../../domain/enums/http-status.enum';
 
 export function extractUserId(req: AuthenticatedRequest): string | null {
   return req.user?.id || null;
@@ -87,3 +87,4 @@ export function sendInternalServerErrorResponse<T>(res: Response, message: strin
 export function sendNoContentResponse(res: Response): void {
   res.status(HttpStatus.NO_CONTENT).send();
 }
+
