@@ -1,5 +1,5 @@
-import { ChatMessageResponseDto } from '../../../application/dto/chat/chat-message-response.dto';
-import { ConversationResponseDto } from '../../../application/dto/chat/conversation-response.dto';
+import { ChatMessageResponseDto } from '../../../application/dtos/chat/responses/chat-message-response.dto';
+import { ConversationResponseDto } from '../../../application/dtos/chat/responses/conversation-response.dto';
 import { ChatMessage } from '../../entities/chat-message.entity';
 import { Conversation } from '../../entities/conversation.entity';
 import { SendMessageInput } from '../use-cases/chat/IChatUseCases';
@@ -34,3 +34,4 @@ export interface IChatService {
   emitMessagesRead(conversationId: string, readerId: string, otherParticipantId: string): void;
   ensureParticipant(conversationId: string, userId: string): Promise<boolean>;
 }
+
