@@ -1,4 +1,4 @@
-import { ATSCompensation } from '../../../entities/ats-compensation.entity';
+import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 
 export interface IATSCompensationRepository {
   create(compensation: ATSCompensation): Promise<ATSCompensation>;

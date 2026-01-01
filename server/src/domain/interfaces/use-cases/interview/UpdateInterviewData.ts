@@ -1,4 +1,4 @@
-import { InterviewStatus } from '../../interview.interfaces';
+import { InterviewStatus } from 'src/domain/interfaces/interview.interfaces';
 
 export interface UpdateInterviewData {
   userId: string;

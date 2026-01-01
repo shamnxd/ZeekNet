@@ -7,7 +7,7 @@ import {
   PaymentBillingPortalSession,
   PaymentEvent,
   PaymentInvoice,
-} from '../../types/payment/payment-types';
+} from 'src/domain/types/payment/payment-types';
 
 export interface CreateProductParams {
   name: string;

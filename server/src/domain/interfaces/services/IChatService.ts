@@ -1,8 +1,8 @@
-import { ChatMessageResponseDto } from '../../../application/dtos/chat/responses/chat-message-response.dto';
-import { ConversationResponseDto } from '../../../application/dtos/chat/responses/conversation-response.dto';
-import { ChatMessage } from '../../entities/chat-message.entity';
-import { Conversation } from '../../entities/conversation.entity';
-import { SendMessageInput } from '../use-cases/chat/IChatUseCases';
+import { ChatMessageResponseDto } from 'src/application/dtos/chat/responses/chat-message-response.dto';
+import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
+import { ChatMessage } from 'src/domain/entities/chat-message.entity';
+import { Conversation } from 'src/domain/entities/conversation.entity';
+import { SendMessageInput } from 'src/domain/interfaces/use-cases/chat/messaging/IChatUseCases';
 
 export interface IChatService {
   setIO(io: import('socket.io').Server): void;

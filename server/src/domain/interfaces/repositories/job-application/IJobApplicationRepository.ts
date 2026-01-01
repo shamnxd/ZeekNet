@@ -1,6 +1,6 @@
-import type { JobApplication } from '../../../entities/job-application.entity';
-import { IBaseRepository } from '../IBaseRepository';
-import { CreateInput } from '../../../types/common.types';
+import type { JobApplication } from 'src/domain/entities/job-application.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export interface PaginatedApplications {
   applications: JobApplication[];

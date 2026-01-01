@@ -1,5 +1,6 @@
-import { IBaseRepository } from '../IBaseRepository';
-import { SubscriptionPlan } from '../../../entities/subscription-plan.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
+import { SubscriptionPlan } from 'src/domain/entities/subscription-plan.entity';
+
 
 export interface SubscriptionPlanQueryOptions {
   page?: number;

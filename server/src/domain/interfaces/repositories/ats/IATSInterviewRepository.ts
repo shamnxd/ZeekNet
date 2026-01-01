@@ -1,4 +1,4 @@
-import { ATSInterview } from '../../../entities/ats-interview.entity';
+import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
 
 export interface IATSInterviewRepository {
   create(interview: ATSInterview): Promise<ATSInterview>;

@@ -1,5 +1,5 @@
-import { CompanyVerification } from '../../../entities/company-verification.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { CompanyVerification } from 'src/domain/entities/company-verification.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface ICompanyVerificationRepository extends IBaseRepository<CompanyVerification> {
   getPendingVerifications(): Promise<CompanyVerification[]>;

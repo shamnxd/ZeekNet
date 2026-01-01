@@ -1,4 +1,4 @@
-import { PriceHistory, PriceType } from '../../../entities/price-history.entity';
+import { PriceHistory, PriceType } from 'src/domain/entities/price-history.entity';
 
 export interface IPriceHistoryRepository {
   create(data: {

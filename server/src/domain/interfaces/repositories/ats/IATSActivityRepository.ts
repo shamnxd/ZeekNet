@@ -1,4 +1,4 @@
-import { ATSActivity } from '../../../entities/ats-activity.entity';
+import { ATSActivity } from 'src/domain/entities/ats-activity.entity';
 
 export interface PaginationCursor {
   createdAt: Date;

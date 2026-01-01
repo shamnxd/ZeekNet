@@ -1,4 +1,4 @@
-import { ATSComment } from '../../../entities/ats-comment.entity';
+import { ATSComment } from 'src/domain/entities/ats-comment.entity';
 
 export interface IATSCommentRepository {
   create(comment: ATSComment): Promise<ATSComment>;
