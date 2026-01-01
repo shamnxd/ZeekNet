@@ -1,5 +1,5 @@
-import { ChatMessage } from './chat-message.entity';
-import { ConversationParticipant, LastMessageSummary } from '../interfaces/conversation.interfaces';
+import { ChatMessage } from 'src/domain/entities/chat-message.entity';
+import { ConversationParticipant, LastMessageSummary } from 'src/domain/interfaces/conversation.interfaces';
 
 
 export class Conversation {

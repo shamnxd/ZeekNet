@@ -1,6 +1,6 @@
-import { PaymentStatus } from '../enums/payment-status.enum';
-import { PaymentMethod } from '../enums/payment-method.enum';
-import { BillingCycle } from '../enums/billing-cycle.enum';
+import { PaymentStatus } from 'src/domain/enums/payment-status.enum';
+import { PaymentMethod } from 'src/domain/enums/payment-method.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 
 export class PaymentOrder {
   constructor(

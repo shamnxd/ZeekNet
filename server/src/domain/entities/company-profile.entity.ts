@@ -1,4 +1,4 @@
-import { CompanyVerificationStatus } from '../enums/verification-status.enum';
+import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
 
 export class CompanyProfile {
   constructor(

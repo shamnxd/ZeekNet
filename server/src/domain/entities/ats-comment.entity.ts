@@ -1,4 +1,4 @@
-import { ATSStage, ATSSubStage } from '../enums/ats-stage.enum';
+import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export class ATSComment {
   constructor(

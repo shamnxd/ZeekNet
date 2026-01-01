@@ -1,9 +1,9 @@
-import { EmploymentType } from '../enums/employment-type.enum';
-import { JobStatus } from '../enums/job-status.enum';
-import { JobClosureType } from '../enums/job-closure-type.enum';
-import { ATSStage, ATSSubStage } from '../enums/ats-stage.enum';
-import { Salary } from '../interfaces/salary.interface';
-import { STAGE_TO_SUB_STAGES } from '../utils/ats-pipeline.util';
+import { EmploymentType } from 'src/domain/enums/employment-type.enum';
+import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
+import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
+import { Salary } from 'src/domain/interfaces/salary.interface';
+import { STAGE_TO_SUB_STAGES } from 'src/domain/utils/ats-pipeline.util';
 
 export interface PopulatedCompany {
   id: string;
@@ -11,10 +11,7 @@ export interface PopulatedCompany {
   logo: string;
 }
 
-/**
- * ATS Pipeline Configuration
- * Maps each enabled stage to its allowed sub-stages
- */
+
 export interface ATSPipelineConfig {
   [stage: string]: ATSSubStage[];
 }
@@ -93,17 +90,17 @@ export class JobPosting {
     
     let enabledStages = (data.enabledStages && data.enabledStages.length > 0) ? data.enabledStages : defaultEnabledStages;
     
-    // Ensure OFFER stage is always included
+    
     if (!enabledStages.includes(ATSStage.OFFER)) {
       enabledStages = [...enabledStages, ATSStage.OFFER];
     }
     
-    // Initialize pipeline config if not provided
+    
     let pipelineConfig = data.atsPipelineConfig;
     if (!pipelineConfig) {
       pipelineConfig = {};
       enabledStages.forEach((stage) => {
-        // Only add stage if it exists in STAGE_TO_SUB_STAGES (filter out invalid/old stages)
+        
         if (STAGE_TO_SUB_STAGES[stage]) {
           pipelineConfig![stage] = [...STAGE_TO_SUB_STAGES[stage]];
         }

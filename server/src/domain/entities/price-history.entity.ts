@@ -1,4 +1,4 @@
-import { PriceType } from '../enums/price-type.enum';
+import { PriceType } from 'src/domain/enums/price-type.enum';
 
 export { PriceType };
 export class PriceHistory {
