@@ -5,11 +5,11 @@ import { IUpdateApplicationSubStageUseCase } from '../../../domain/interfaces/us
 import { IGetJobATSPipelineUseCase } from '../../../domain/interfaces/use-cases/ats/IGetJobATSPipelineUseCase';
 import { IGetJobApplicationsForKanbanUseCase } from '../../../domain/interfaces/use-cases/ats/IGetJobApplicationsForKanbanUseCase';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { MoveApplicationStageDto, MoveApplicationStageDtoSchema } from '../../../application/dto/ats/move-application-stage.dto';
-import { UpdateSubStageDto, UpdateSubStageDtoSchema } from '../../../application/dto/ats/update-sub-stage.dto';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
+import { MoveApplicationStageDto, MoveApplicationStageDtoSchema } from '../../../application/dtos/ats/common/move-application-stage.dto';
+import { UpdateSubStageDto, UpdateSubStageDtoSchema } from '../../../application/dtos/ats/requests/update-sub-stage.dto';
 import { ATSStage, ATSSubStage } from '../../../domain/enums/ats-stage.enum';
-import { validateUserId } from '../../../shared/utils/controller.utils';
+import { validateUserId } from '../../../shared/utils/presentation/controller.utils';
 
 export class ATSPipelineController {
   constructor(
@@ -117,4 +117,6 @@ export class ATSPipelineController {
     }
   };
 }
+
+
 

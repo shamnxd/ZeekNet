@@ -6,12 +6,12 @@ import {
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/controller.utils';
+} from '../../../shared/utils/presentation/controller.utils';
 import { ICreateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyTechStackUseCase';
 import { IUpdateCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyTechStackUseCase';
 import { IDeleteCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyTechStackUseCase';
 import { IGetCompanyTechStackUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyTechStackUseCase';
-import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dto/company/company-tech-stack.dto';
+import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from '../../../application/dtos/company/common/company-tech-stack.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyTechStackController {
@@ -83,3 +83,5 @@ export class CompanyTechStackController {
     }
   };
 }
+
+

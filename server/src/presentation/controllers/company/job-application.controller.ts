@@ -5,17 +5,17 @@ import {
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-} from '../../../shared/utils/controller.utils';
+} from '../../../shared/utils/presentation/controller.utils';
 import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationScoreUseCase';
 import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/applications/IUpdateApplicationStageUseCase';
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationDetailsUseCase';
 import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByCompanyUseCase';
 import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/applications/IGetApplicationsByJobUseCase';
 import { IBulkUpdateApplicationsUseCase } from '../../../domain/interfaces/use-cases/company/IBulkUpdateApplicationsUseCase';
-import { ApplicationFiltersDto } from '../../../application/dto/application/application-filters.dto';
-import { UpdateApplicationStageDto } from '../../../application/dto/application/update-application-stage.dto';
-import { UpdateScoreDto } from '../../../application/dto/application/update-score.dto';
-import { BulkUpdateApplicationsDto } from '../../../application/dto/application/bulk-update-applications.dto';
+import { ApplicationFiltersDto } from '../../../application/dtos/job-application/requests/application-filters.dto';
+import { UpdateApplicationStageDto } from '../../../application/dtos/job-application/requests/update-application-stage.dto';
+import { UpdateScoreDto } from '../../../application/dtos/job-application/requests/update-score.dto';
+import { BulkUpdateApplicationsDto } from '../../../application/dtos/job-application/requests/bulk-update-applications.dto';
 import { MarkCandidateHiredUseCase } from '../../../application/use-cases/company/mark-candidate-hired.use-case';
 import { z } from 'zod';
 
@@ -152,6 +152,8 @@ export class CompanyJobApplicationController {
     }
   };
 }
+
+
 
 
 

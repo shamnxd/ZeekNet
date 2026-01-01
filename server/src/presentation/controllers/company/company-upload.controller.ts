@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 import { IUploadBusinessLicenseUseCase } from '../../../domain/interfaces/use-cases/company/IUploadBusinessLicenseUseCase';
 import { IUploadWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUploadWorkplacePictureUseCase';
 import { IDeleteImageUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteImageUseCase';
@@ -55,3 +55,4 @@ export class CompanyUploadController {
     }
   };
 }
+

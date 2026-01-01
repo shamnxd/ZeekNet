@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { IGetAllSubscriptionPlansUseCase } from 'src/application/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
-import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
+import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class CompanySubscriptionPlanController {
   constructor(
@@ -16,3 +16,5 @@ export class CompanySubscriptionPlanController {
     }
   };
 }
+
+

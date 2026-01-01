@@ -4,9 +4,9 @@ import { IScheduleInterviewUseCase } from '../../../domain/interfaces/use-cases/
 import { IUpdateInterviewUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateInterviewUseCase';
 import { IGetInterviewsByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetInterviewsByApplicationUseCase';
 import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { ScheduleInterviewDto } from '../../../application/dto/ats/schedule-interview.dto';
-import { UpdateInterviewDto } from '../../../application/dto/ats/update-interview.dto';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
+import { ScheduleInterviewDto } from '../../../application/dtos/ats/common/schedule-interview.dto';
+import { UpdateInterviewDto } from '../../../application/dtos/ats/requests/update-interview.dto';
 
 export class ATSInterviewController {
   constructor(
@@ -97,4 +97,6 @@ export class ATSInterviewController {
     }
   };
 }
+
+
 

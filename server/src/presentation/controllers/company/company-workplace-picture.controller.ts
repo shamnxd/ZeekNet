@@ -6,12 +6,12 @@ import {
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/controller.utils';
+} from '../../../shared/utils/presentation/controller.utils';
 import { ICreateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyWorkplacePictureUseCase';
 import { IUpdateCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyWorkplacePictureUseCase';
 import { IDeleteCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyWorkplacePictureUseCase';
 import { IGetCompanyWorkplacePictureUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyWorkplacePictureUseCase';
-import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dto/company/company-workplace-pictures.dto';
+import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from '../../../application/dtos/company/common/company-workplace-pictures.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyWorkplacePictureController {
@@ -83,3 +83,5 @@ export class CompanyWorkplacePictureController {
     }
   };
 }
+
+

@@ -2,8 +2,8 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { IAddCommentUseCase } from '../../../domain/interfaces/use-cases/ats/IAddCommentUseCase';
 import { IGetCommentsByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetCommentsByApplicationUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { AddCommentDto } from '../../../application/dto/ats/add-comment.dto';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
+import { AddCommentDto } from '../../../application/dtos/ats/requests/add-comment.dto';
 import { ATSStage } from '../../../domain/enums/ats-stage.enum';
 
 export class ATSCommentController {
@@ -93,4 +93,6 @@ export class ATSCommentController {
     }
   };
 }
+
+
 

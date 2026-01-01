@@ -6,8 +6,8 @@ import {
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/controller.utils';
-import { UpdateCompanyContactDto } from '../../../application/dto/company/company-contact.dto';
+} from '../../../shared/utils/presentation/controller.utils';
+import { UpdateCompanyContactDto } from '../../../application/dtos/company/common/company-contact.dto';
 import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyContactUseCase';
 import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/IUpsertCompanyContactUseCase';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
@@ -49,3 +49,5 @@ export class CompanyContactController {
     }
   };
 }
+
+

@@ -5,8 +5,8 @@ import {
   handleAsyncError,
   sendSuccessResponse,
   validateUserId,
-} from '../../../shared/utils/controller.utils';
-import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dto/company/company-office-location.dto';
+} from '../../../shared/utils/presentation/controller.utils';
+import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from '../../../application/dtos/company/common/company-office-location.dto';
 import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyOfficeLocationUseCase';
 import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyOfficeLocationUseCase';
 import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/IDeleteCompanyOfficeLocationUseCase';
@@ -84,3 +84,5 @@ export class CompanyOfficeLocationController {
     }
   };
 }
+
+

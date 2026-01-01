@@ -6,12 +6,12 @@ import {
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/controller.utils';
+} from '../../../shared/utils/presentation/controller.utils';
 import { ICreateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/ICreateCompanyBenefitUseCase';
 import { IUpdateCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IUpdateCompanyBenefitUseCase';
 import { IDeleteCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IDeleteCompanyBenefitUseCase';
 import { IGetCompanyBenefitUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyBenefitUseCase';
-import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dto/company/company-benefits.dto';
+import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from '../../../application/dtos/company/common/company-benefits.dto';
 import { IGetCompanyIdByUserIdUseCase } from '../../../domain/interfaces/use-cases/company/IGetCompanyIdByUserIdUseCase';
 
 export class CompanyBenefitController {
@@ -83,3 +83,5 @@ export class CompanyBenefitController {
     }
   };
 }
+
+

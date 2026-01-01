@@ -6,10 +6,10 @@ import { IGetCompensationUseCase } from '../../../domain/interfaces/use-cases/at
 import { IScheduleCompensationMeetingUseCase } from '../../../domain/interfaces/use-cases/ats/IScheduleCompensationMeetingUseCase';
 import { IGetCompensationMeetingsUseCase } from '../../../domain/interfaces/use-cases/ats/IGetCompensationMeetingsUseCase';
 import { IUpdateCompensationMeetingStatusUseCase } from '../../../domain/interfaces/use-cases/ats/IUpdateCompensationMeetingStatusUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
-import { InitiateCompensationDto } from '../../../application/dto/ats/initiate-compensation.dto';
-import { UpdateCompensationDto } from '../../../application/dto/ats/update-compensation.dto';
-import { ScheduleCompensationMeetingDto } from '../../../application/dto/ats/schedule-compensation-meeting.dto';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
+import { InitiateCompensationDto } from '../../../application/dtos/ats/common/initiate-compensation.dto';
+import { UpdateCompensationDto } from '../../../application/dtos/ats/requests/update-compensation.dto';
+import { ScheduleCompensationMeetingDto } from '../../../application/dtos/ats/common/schedule-compensation-meeting.dto';
 
 export class ATSCompensationController {
   constructor(
@@ -206,4 +206,6 @@ export class ATSCompensationController {
     }
   };
 }
+
+
 

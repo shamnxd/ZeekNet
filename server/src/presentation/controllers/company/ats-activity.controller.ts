@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
 import { IGetApplicationActivitiesPaginatedUseCase } from '../../../domain/interfaces/use-cases/ats/IGetApplicationActivitiesPaginatedUseCase';
-import { sendSuccessResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
 
 export class ATSActivityController {
   constructor(
@@ -52,4 +52,5 @@ export class ATSActivityController {
     }
   };
 }
+
 

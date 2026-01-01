@@ -6,10 +6,10 @@ import { IDeleteTechnicalTaskUseCase } from '../../../domain/interfaces/use-case
 import { IGetTechnicalTasksByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetTechnicalTasksByApplicationUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
 import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { AssignTechnicalTaskDto } from '../../../application/dto/ats/assign-technical-task.dto';
-import { UpdateTechnicalTaskDto } from '../../../application/dto/ats/update-technical-task.dto';
+import { AssignTechnicalTaskDto } from '../../../application/dtos/ats/common/assign-technical-task.dto';
+import { UpdateTechnicalTaskDto } from '../../../application/dtos/ats/requests/update-technical-task.dto';
 
 export class ATSTechnicalTaskController {
   constructor(
@@ -204,4 +204,6 @@ export class ATSTechnicalTaskController {
     }
   };
 }
+
+
 

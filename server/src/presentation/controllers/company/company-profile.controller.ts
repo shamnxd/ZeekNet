@@ -6,16 +6,16 @@ import {
   sendSuccessResponse,
   validateUserId,
   sendNotFoundResponse,
-} from '../../../shared/utils/controller.utils';
-import { SimpleCompanyProfileDto } from '../../../application/dto/company/create-company.dto';
-import { SimpleUpdateCompanyProfileDto } from '../../../application/dto/company/company-profile.dto';
+} from '../../../shared/utils/presentation/controller.utils';
+import { SimpleCompanyProfileDto } from '../../../application/dtos/company/requests/create-company.dto';
+import { SimpleUpdateCompanyProfileDto } from '../../../application/dtos/company/common/company-profile.dto';
 import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/IUpdateCompanyProfileUseCase';
 import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/ICreateCompanyProfileFromDtoUseCase';
 import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyProfileWithJobPostingsUseCase';
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/IReapplyCompanyVerificationUseCase';
 import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/IGetCompanyDashboardUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/IUploadLogoUseCase';
-import { CompanyProfileMapper } from '../../../application/mappers/company-profile.mapper';
+import { CompanyProfileMapper } from '../../../application/mappers/company/company-profile.mapper';
 
 export class CompanyProfileController {
   constructor(
@@ -134,3 +134,6 @@ export class CompanyProfileController {
     }
   };
 }
+
+
+

@@ -5,10 +5,10 @@ import { IUpdateOfferStatusUseCase } from '../../../domain/interfaces/use-cases/
 import { IGetOffersByApplicationUseCase } from '../../../domain/interfaces/use-cases/ats/IGetOffersByApplicationUseCase';
 import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
 import { IFileUrlService } from '../../../domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/controller.utils';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from '../../../shared/utils/presentation/controller.utils';
 import { UploadService, UploadedFile } from '../../../shared/services/upload.service';
-import { UploadOfferDto } from '../../../application/dto/ats/upload-offer.dto';
-import { UpdateOfferStatusDto } from '../../../application/dto/ats/update-offer-status.dto';
+import { UploadOfferDto } from '../../../application/dtos/ats/common/upload-offer.dto';
+import { UpdateOfferStatusDto } from '../../../application/dtos/ats/requests/update-offer-status.dto';
 import { ATSOffer } from '../../../domain/entities/ats-offer.entity';
 
 export class ATSOfferController {
@@ -140,4 +140,6 @@ export class ATSOfferController {
     }
   };
 }
+
+
 
