@@ -32,6 +32,20 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return document ? this.mapToEntity(document) : null;
   }
 
+  async findByIds(ids: string[]): Promise<JobPosting[]> {
+    const validIds = ids.filter(id => Types.ObjectId.isValid(id));
+    
+    if (validIds.length === 0) {
+      return [];
+    }
+
+    const documents = await JobPostingModel.find({
+      _id: { $in: validIds.map(id => new Types.ObjectId(id)) }
+    }).populate('company_id', 'companyName logo');
+
+    return documents.map(doc => this.mapToEntity(doc));
+  }
+
   async postJob(jobData: CreateInput<JobPosting>): Promise<JobPosting> {
 
     const document = new JobPostingModel({
