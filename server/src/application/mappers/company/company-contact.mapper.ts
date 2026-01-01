@@ -1,5 +1,5 @@
-import { CompanyContact } from '../../domain/entities/company-contact.entity';
-import { CompanyContactResponseDto } from '../dto/company/company-response.dto';
+import { CompanyContact } from '../../../domain/entities/company-contact.entity';
+import { CompanyContactResponseDto } from '../../dtos/company/responses/company-response.dto';
 
 export class CompanyContactMapper {
   static toResponse(contact: CompanyContact): CompanyContactResponseDto {
@@ -17,4 +17,6 @@ export class CompanyContactMapper {
     return contacts.map((contact) => this.toResponse(contact));
   }
 }
+
+
 

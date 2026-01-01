@@ -1,10 +1,10 @@
-import { PaymentOrder } from '../../domain/entities/payment-order.entity';
-import { PaymentResponseDto } from '../dto/payments/payment-response.dto';
-import { PaymentStatus } from '../../domain/enums/payment-status.enum';
-import { PaymentMethod } from '../../domain/enums/payment-method.enum';
-import { BillingCycle } from '../../domain/enums/billing-cycle.enum';
-import { PaymentOrderWithDetailsResponseDto } from '../dto/payments/payment-order-with-details-response.dto';
-import { CreateInput } from '../../domain/types/common.types';
+import { PaymentOrder } from '../../../domain/entities/payment-order.entity';
+import { PaymentResponseDto } from '../../dtos/payments/responses/payment-response.dto';
+import { PaymentStatus } from '../../../domain/enums/payment-status.enum';
+import { PaymentMethod } from '../../../domain/enums/payment-method.enum';
+import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import { PaymentOrderWithDetailsResponseDto } from '../../dtos/payments/responses/payment-order-with-details-response.dto';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class PaymentMapper {
   static toEntity(data: {
@@ -86,3 +86,5 @@ export class PaymentMapper {
     };
   }
 }
+
+

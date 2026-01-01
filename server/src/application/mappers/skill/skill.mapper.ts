@@ -1,4 +1,4 @@
-import { Skill } from '../../domain/entities/skill.entity';
+import { Skill } from '../../../domain/entities/skill.entity';
 
 export interface SkillResponseDto {
   id: string;
@@ -21,3 +21,4 @@ export class SkillMapper {
     return skills.map((skill) => this.toResponse(skill));
   }
 }
+

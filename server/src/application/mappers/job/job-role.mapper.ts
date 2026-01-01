@@ -1,4 +1,4 @@
-import { JobRole } from '../../domain/entities/job-role.entity';
+import { JobRole } from '../../../domain/entities/job-role.entity';
 
 export interface JobRoleResponseDto {
   id: string;
@@ -21,3 +21,4 @@ export class JobRoleMapper {
     return jobRoles.map((role) => this.toResponse(role));
   }
 }
+

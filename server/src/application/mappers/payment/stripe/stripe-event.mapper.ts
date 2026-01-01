@@ -1,8 +1,8 @@
-import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import { BillingCycle } from '../../../../domain/enums/billing-cycle.enum';
 import {
   PaymentSubscription,
   PaymentInvoice,
-} from '../../../domain/types/payment/payment-types';
+} from '../../../../domain/types/payment/payment-types';
 
 export class StripeEventMapper {
   static parseSubscriptionDates(subscription: PaymentSubscription, billingCycle?: string): { 

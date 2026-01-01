@@ -1,5 +1,5 @@
-import { CompanyOfficeLocation } from '../../domain/entities/company-office-location.entity';
-import { CompanyLocationResponseDto } from '../dto/company/company-response.dto';
+import { CompanyOfficeLocation } from '../../../domain/entities/company-office-location.entity';
+import { CompanyLocationResponseDto } from '../../dtos/company/responses/company-response.dto';
 
 export class CompanyOfficeLocationMapper {
   static toResponse(location: CompanyOfficeLocation): CompanyLocationResponseDto {
@@ -16,4 +16,6 @@ export class CompanyOfficeLocationMapper {
     return locations.map((location) => this.toResponse(location));
   }
 }
+
+
 

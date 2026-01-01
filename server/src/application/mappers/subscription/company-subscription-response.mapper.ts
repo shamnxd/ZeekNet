@@ -1,5 +1,5 @@
 import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
-import { CompanySubscriptionResponseDto } from '../../dto/subscription/subscription-response.dto';
+import { CompanySubscriptionResponseDto } from '../../dtos/subscription/common/subscription-response.dto';
 
 type CompanySubscriptionWithActiveJobCount = CompanySubscription & { activeJobCount?: number };
 
@@ -78,3 +78,4 @@ export class CompanySubscriptionResponseMapper {
     } as CreateInput<CompanySubscription>;
   }
 }
+

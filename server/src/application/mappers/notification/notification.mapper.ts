@@ -1,7 +1,7 @@
-import { Notification } from '../../domain/entities/notification.entity';
-import { NotificationResponseDto } from '../dto/notification/notification-response.dto';
-import { NotificationType } from '../../domain/enums/notification-type.enum';
-import { CreateInput } from '../../domain/types/common.types';
+import { Notification } from '../../../domain/entities/notification.entity';
+import { NotificationResponseDto } from '../../dtos/notification/responses/notification-response.dto';
+import { NotificationType } from '../../../domain/enums/notification-type.enum';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class NotificationMapper {
   static toEntity(data: {
@@ -40,3 +40,5 @@ export class NotificationMapper {
     return notifications.map((notification) => this.toResponse(notification));
   }
 }
+
+

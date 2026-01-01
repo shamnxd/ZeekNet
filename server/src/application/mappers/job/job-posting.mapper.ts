@@ -1,12 +1,12 @@
-import { JobPosting, ATSPipelineConfig } from '../../domain/entities/job-posting.entity';
-import { JobStatus } from '../../domain/enums/job-status.enum';
-import { EmploymentType } from '../../domain/enums/employment-type.enum';
-import { ATSStage } from '../../domain/enums/ats-stage.enum';
-import { Salary } from '../../domain/interfaces/salary.interface';
-import { STAGE_TO_SUB_STAGES } from '../../domain/utils/ats-pipeline.util';
-import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from '../dto/job-posting/job-posting-response.dto';
-import { AdminJobListItem, AdminJobStatsResponseDto } from '../dto/admin/admin-job-response.dto';
-import { CreateInput } from '../../domain/types/common.types';
+import { JobPosting, ATSPipelineConfig } from '../../../domain/entities/job-posting.entity';
+import { JobStatus } from '../../../domain/enums/job-status.enum';
+import { EmploymentType } from '../../../domain/enums/employment-type.enum';
+import { ATSStage } from '../../../domain/enums/ats-stage.enum';
+import { Salary } from '../../../domain/interfaces/salary.interface';
+import { STAGE_TO_SUB_STAGES } from '../../../domain/utils/ats-pipeline.util';
+import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from '../../dtos/job-posting/common/job-posting-response.dto';
+import { AdminJobListItem, AdminJobStatsResponseDto } from '../../dtos/admin/responses/admin-job-response.dto';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class JobPostingMapper {
   static toDomain(data: {
@@ -260,3 +260,5 @@ export class JobPostingMapper {
     return jobs.map((job) => this.toPublicJobListItem(job));
   }
 }
+
+

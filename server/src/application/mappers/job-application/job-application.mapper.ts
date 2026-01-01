@@ -1,11 +1,11 @@
-import { JobApplication } from '../../domain/entities/job-application.entity';
-import { JobPosting } from '../../domain/entities/job-posting.entity';
-import { ATSStage, ATSSubStage, InReviewSubStage } from '../../domain/enums/ats-stage.enum';
+import { JobApplication } from '../../../domain/entities/job-application.entity';
+import { JobPosting } from '../../../domain/entities/job-posting.entity';
+import { ATSStage, ATSSubStage, InReviewSubStage } from '../../../domain/enums/ats-stage.enum';
 import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
-} from '../dto/application/job-application-response.dto';
-import { CreateInput } from '../../domain/types/common.types';
+} from '../../dtos/job-application/responses/job-application-response.dto';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class JobApplicationMapper {
   static toEntity(data: {
@@ -150,3 +150,5 @@ export class JobApplicationMapper {
     };
   }
 }
+
+

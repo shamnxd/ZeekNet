@@ -1,8 +1,8 @@
-import { User } from '../../domain/entities/user.entity';
-import { UserResponseDto } from '../dto/auth/user-response.dto';
+import { User } from '../../../domain/entities/user.entity';
+import { UserResponseDto } from '../../dtos/auth/responses/user-response.dto';
 
-import { UserRole } from '../../domain/enums/user-role.enum';
-import { CreateInput } from '../../domain/types/common.types';
+import { UserRole } from '../../../domain/enums/user-role.enum';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class UserMapper {
   static toResponse(user: User): UserResponseDto {
@@ -38,3 +38,4 @@ export class UserMapper {
     };
   }
 }
+

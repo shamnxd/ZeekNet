@@ -1,7 +1,7 @@
-import { CompanySubscription } from '../../domain/entities/company-subscription.entity';
-import { SubscriptionStatus } from '../../domain/enums/subscription-status.enum';
-import { BillingCycle } from '../../domain/enums/billing-cycle.enum';
-import { CreateInput } from '../../domain/types/common.types';
+import { CompanySubscription } from '../../../domain/entities/company-subscription.entity';
+import { SubscriptionStatus } from '../../../domain/enums/subscription-status.enum';
+import { BillingCycle } from '../../../domain/enums/billing-cycle.enum';
+import { CreateInput } from '../../../domain/types/common.types';
 
 export class CompanySubscriptionMapper {
   static toEntity(data: {
@@ -70,3 +70,4 @@ export class CompanySubscriptionMapper {
     } as Partial<CompanySubscription>;
   }
 }
+
