@@ -3,4 +3,6 @@ import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRe
 
 export interface IUserRepository extends IBaseRepository<User> {
   findByIds(ids: string[]): Promise<User[]>;
+  countVerified(): Promise<number>;
+  countByRole(role: 'seeker' | 'company'): Promise<number>;
 }

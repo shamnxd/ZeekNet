@@ -215,5 +215,30 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
 
     return count;
   }
-}
 
+  async countTotal(): Promise<number> {
+    return JobPostingModel.countDocuments();
+  }
+
+  async countActive(): Promise<number> {
+    return JobPostingModel.countDocuments({ status: 'active' });
+  }
+
+  async countExpired(): Promise<number> {
+    return JobPostingModel.countDocuments({ 
+      $or: [
+        { status: 'expired' },
+        { closingDate: { $lt: new Date() } }
+      ]
+    });
+  }
+
+  async findRecent(limit: number): Promise<JobPosting[]> {
+    const docs = await JobPostingModel.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate('company_id', 'companyName logo');
+      
+    return docs.map(doc => this.mapToEntity(doc));
+  }
+}

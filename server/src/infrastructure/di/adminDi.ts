@@ -10,6 +10,7 @@ import { JobRoleRepository } from 'src/infrastructure/persistence/mongodb/reposi
 import { SubscriptionPlanRepository } from 'src/infrastructure/persistence/mongodb/repositories/subscription-plan.repository';
 import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-subscription.repository';
 import { PaymentOrderRepository } from 'src/infrastructure/persistence/mongodb/repositories/payment-order.repository';
+import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
 import { PriceHistoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/price-history.repository';
 import { stripeService } from 'src/infrastructure/di/companyDi';
 import { GetAllUsersUseCase } from 'src/application/use-cases/admin/user/get-all-users.use-case';
@@ -55,6 +56,8 @@ import { AdminPaymentOrderController } from 'src/presentation/controllers/admin/
 import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-all-companies.use-case';
 import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
+import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
+import { AdminDashboardController } from 'src/interface-adapters/controllers/admin/dashboard.controller';
 
 logger.info('Initializing adminDi...');
 const userRepository = new UserRepository();
@@ -69,6 +72,7 @@ const subscriptionPlanRepository = new SubscriptionPlanRepository();
 const companySubscriptionRepository = new CompanySubscriptionRepository();
 const paymentOrderRepository = new PaymentOrderRepository();
 const priceHistoryRepository = new PriceHistoryRepository();
+const seekerProfileRepository = new SeekerProfileRepository();
 
 const s3Service = new S3Service();
 
@@ -164,6 +168,16 @@ const getAllPaymentOrdersUseCase = new GetAllPaymentOrdersUseCase(paymentOrderRe
 
 const adminPaymentOrderController = new AdminPaymentOrderController(getAllPaymentOrdersUseCase);
 
+const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(
+  companyProfileRepository,
+  seekerProfileRepository,
+  jobPostingRepository,
+  paymentOrderRepository,
+  userRepository
+);
+
+const adminDashboardController = new AdminDashboardController(getAdminDashboardStatsUseCase);
+
 export {
   adminController,
   adminJobController,
@@ -172,6 +186,7 @@ export {
   adminJobRoleController,
   adminSubscriptionPlanController,
   adminPaymentOrderController,
+  adminDashboardController,
 };
 logger.info('adminDi initialization complete');
 

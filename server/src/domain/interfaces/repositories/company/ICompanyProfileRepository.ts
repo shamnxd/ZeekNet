@@ -13,4 +13,7 @@ export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfil
     sortOrder?: 'asc' | 'desc';
   }): Promise<{ companies: CompanyProfile[]; total: number }>;
   findByIds(ids: string[]): Promise<CompanyProfile[]>;
+  countTotal(): Promise<number>;
+  countByVerificationStatus(status: 'pending' | 'rejected' | 'verified'): Promise<number>;
+  getLocationStats(): Promise<{ country: string; count: number }[]>;
 }

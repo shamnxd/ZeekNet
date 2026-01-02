@@ -97,5 +97,9 @@ export class SeekerProfileRepository extends RepositoryBase<SeekerProfile, Model
 
     return { seekers, total };
   }
+
+  async countTotal(): Promise<number> {
+    return SeekerProfileModel.countDocuments();
+  }
 }
 

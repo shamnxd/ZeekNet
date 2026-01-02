@@ -19,6 +19,7 @@ export const AdminRoutes = {
   SUBSCRIPTION_PLANS_ID: '/api/admin/subscription-plans/:id',
   SUBSCRIPTION_PLANS_MIGRATE: '/api/admin/subscription-plans/:id/migrate-subscribers',
   PAYMENT_ORDERS: '/api/admin/payment-orders',
+  DASHBOARD_STATS: '/api/admin/dashboard/stats',
 } as const;
 
 export const AuthRoutes = {
