@@ -13,12 +13,12 @@ import { UpdateTechnicalTaskDto } from 'src/application/dtos/application/task/re
 
 export class ATSTechnicalTaskController {
   constructor(
-    private assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
-    private updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
-    private deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
-    private getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
-    private s3Service: IS3Service,
-    private fileUrlService: IFileUrlService,
+    private _assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
+    private _updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
+    private _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
+    private _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
+    private _s3Service: IS3Service,
+    private _fileUrlService: IFileUrlService,
   ) {}
 
   assignTechnicalTask = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -37,7 +37,7 @@ export class ATSTechnicalTaskController {
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
         documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
@@ -51,7 +51,7 @@ export class ATSTechnicalTaskController {
         ? new Date(dto.deadline) 
         : dto.deadline;
 
-      const task = await this.assignTechnicalTaskUseCase.execute({
+      const task = await this._assignTechnicalTaskUseCase.execute({
         applicationId: dto.applicationId,
         title: dto.title,
         description: dto.description,
@@ -65,7 +65,7 @@ export class ATSTechnicalTaskController {
       
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
-        const signedUrl = await this.fileUrlService.getSignedUrl(task.documentUrl);
+        const signedUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
         taskWithSignedUrl = {
           ...task,
           documentUrl: signedUrl,
@@ -99,12 +99,12 @@ export class ATSTechnicalTaskController {
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
         documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       }
 
-      const task = await this.updateTechnicalTaskUseCase.execute({
+      const task = await this._updateTechnicalTaskUseCase.execute({
         taskId: id,
         title: dto.title,
         description: dto.description,
@@ -121,14 +121,14 @@ export class ATSTechnicalTaskController {
       
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
-        const signedUrl = await this.fileUrlService.getSignedUrl(task.documentUrl);
+        const signedUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
         taskWithSignedUrl = {
           ...taskWithSignedUrl,
           documentUrl: signedUrl,
         };
       }
       if (task.submissionUrl) {
-        const submissionSignedUrl = await this.fileUrlService.getSignedUrl(task.submissionUrl);
+        const submissionSignedUrl = await this._fileUrlService.getSignedUrl(task.submissionUrl);
         taskWithSignedUrl = {
           ...taskWithSignedUrl,
           submissionUrl: submissionSignedUrl,
@@ -150,7 +150,7 @@ export class ATSTechnicalTaskController {
     try {
       const { applicationId } = req.params;
 
-      const tasks = await this.getTechnicalTasksByApplicationUseCase.execute(applicationId);
+      const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(applicationId);
 
       
       const tasksWithSignedUrls = await Promise.all(
@@ -158,11 +158,11 @@ export class ATSTechnicalTaskController {
           const taskObj: typeof task & { documentUrl?: string; submissionUrl?: string } = { ...task };
           
           if (task.documentUrl) {
-            taskObj.documentUrl = await this.fileUrlService.getSignedUrl(task.documentUrl);
+            taskObj.documentUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
           }
           
           if (task.submissionUrl) {
-            taskObj.submissionUrl = await this.fileUrlService.getSignedUrl(task.submissionUrl);
+            taskObj.submissionUrl = await this._fileUrlService.getSignedUrl(task.submissionUrl);
           }
           
           return taskObj;
@@ -187,7 +187,7 @@ export class ATSTechnicalTaskController {
         return;
       }
 
-      await this.deleteTechnicalTaskUseCase.execute({
+      await this._deleteTechnicalTaskUseCase.execute({
         taskId: id,
         performedBy: userId,
         performedByName: userName,

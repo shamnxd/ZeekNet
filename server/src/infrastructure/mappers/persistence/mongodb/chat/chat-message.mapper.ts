@@ -3,7 +3,7 @@ import { ChatMessage } from 'src/domain/entities/chat-message.entity';
 import { ChatMessageDocument } from 'src/infrastructure/persistence/mongodb/models/chat-message.model';
 
 export class ChatMessagePersistenceMapper {
-  static toEntity(doc: ChatMessageDocument): ChatMessage {
+   static toEntity(doc: ChatMessageDocument): ChatMessage {
     
     const senderId = typeof doc.sender_id === 'object' && doc.sender_id !== null && '_id' in doc.sender_id
       ? String((doc.sender_id as { _id: unknown })._id)

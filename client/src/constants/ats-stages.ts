@@ -6,7 +6,8 @@ export const ATSStage = {
   TECHNICAL_TASK: 'TECHNICAL_TASK',
   COMPENSATION: 'COMPENSATION',
   OFFER: 'OFFER',
-  HIRED: 'HIRED'
+  HIRED: 'HIRED',
+  REJECTED: 'REJECTED'
 } as const;
 
 
@@ -17,7 +18,8 @@ export const ATSStageDisplayNames: Record<string, string> = {
   [ATSStage.TECHNICAL_TASK]: 'Technical Task',
   [ATSStage.COMPENSATION]: 'Compensation',
   [ATSStage.OFFER]: 'Offer',
-  [ATSStage.HIRED]: 'Hired'
+  [ATSStage.HIRED]: 'Hired',
+  [ATSStage.REJECTED]: 'Rejected'
 };
 
 export type ATSStage = typeof ATSStage[keyof typeof ATSStage];
@@ -139,7 +141,8 @@ export const STAGE_SUB_STAGES: Record<ATSStage, Array<{ key: string; label: stri
     { key: OfferSubStage.OFFER_ACCEPTED, label: SubStageDisplayNames[OfferSubStage.OFFER_ACCEPTED] },
     { key: OfferSubStage.OFFER_DECLINED, label: SubStageDisplayNames[OfferSubStage.OFFER_DECLINED] }
   ],
-  [ATSStage.HIRED]: []
+  [ATSStage.HIRED]: [],
+  [ATSStage.REJECTED]: []
 };
 
 export const STAGE_DESCRIPTIONS: Record<ATSStage, string> = {
@@ -149,7 +152,8 @@ export const STAGE_DESCRIPTIONS: Record<ATSStage, string> = {
   [ATSStage.TECHNICAL_TASK]: 'Technical assessment and coding challenge phase',
   [ATSStage.COMPENSATION]: 'Salary negotiation and compensation discussion',
   [ATSStage.OFFER]: 'Final offer stage and onboarding preparation',
-  [ATSStage.HIRED]: 'Candidate has been hired for this position'
+  [ATSStage.HIRED]: 'Candidate has been hired for this position',
+  [ATSStage.REJECTED]: 'Candidate has been rejected'
 };
 
 export const STAGE_TAILWIND: Record<ATSStage, { bg: string; bgLight: string; text: string; border: string }> = {
@@ -194,6 +198,12 @@ export const STAGE_TAILWIND: Record<ATSStage, { bg: string; bgLight: string; tex
     bgLight: 'bg-emerald-50',
     text: 'text-emerald-700',
     border: 'border-emerald-200'
+  },
+  [ATSStage.REJECTED]: {
+    bg: 'bg-red-500',
+    bgLight: 'bg-red-50',
+    text: 'text-red-700',
+    border: 'border-red-200'
   }
 };
 
@@ -204,7 +214,8 @@ export const STAGE_COLORS: Record<ATSStage, string> = {
   [ATSStage.TECHNICAL_TASK]: '#EC4899',
   [ATSStage.COMPENSATION]: '#F59E0B',
   [ATSStage.OFFER]: '#10B981',
-  [ATSStage.HIRED]: '#059669'
+  [ATSStage.HIRED]: '#059669',
+  [ATSStage.REJECTED]: '#EF4444'
 };
 
 export const ActivityType = {

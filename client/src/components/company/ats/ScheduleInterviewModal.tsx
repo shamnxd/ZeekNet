@@ -157,8 +157,8 @@ export const ScheduleInterviewModal = ({
                                     className={cn(
                                         "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
                                         formData.type === 'online'
-                                            ? "border-primary bg-accent text-primary"
-                                            : "border-border hover:border-primary/50"
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-border hover:border-primary/50 text-muted-foreground"
                                     )}
                                 >
                                     <Video className="w-4 h-4" />
@@ -170,8 +170,8 @@ export const ScheduleInterviewModal = ({
                                     className={cn(
                                         "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
                                         formData.type === 'offline'
-                                            ? "border-primary bg-accent text-primary"
-                                            : "border-border hover:border-primary/50"
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-border hover:border-primary/50 text-muted-foreground"
                                     )}
                                 >
                                     <MapPin className="w-4 h-4" />
@@ -221,12 +221,12 @@ export const ScheduleInterviewModal = ({
                                         className={cn(
                                             "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
                                             formData.videoType === 'in-app'
-                                                ? "border-primary bg-accent text-primary"
-                                                : "border-border hover:border-primary/50"
+                                                ? "border-primary bg-primary text-primary-foreground"
+                                                : "border-border hover:border-primary/50 text-muted-foreground"
                                         )}
                                     >
                                         <Video className="w-4 h-4" />
-                                        <span className="font-medium">In-App Video (Recommended)</span>
+                                        <span className="font-medium">In-App Video (P2P Recommended)</span>
                                     </button>
                                     <button
                                         type="button"
@@ -234,8 +234,8 @@ export const ScheduleInterviewModal = ({
                                         className={cn(
                                             "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
                                             formData.videoType === 'external'
-                                                ? "border-primary bg-accent text-primary"
-                                                : "border-border hover:border-primary/50"
+                                                ? "border-primary bg-primary text-primary-foreground"
+                                                : "border-border hover:border-primary/50 text-muted-foreground"
                                         )}
                                     >
                                         <Video className="w-4 h-4" />
@@ -244,7 +244,7 @@ export const ScheduleInterviewModal = ({
                                 </div>
                                 {formData.videoType === 'in-app' && (
                                     <p className="mt-2 text-sm text-muted-foreground">
-                                        The interview will be conducted using our in-app video calling feature. A unique room will be created automatically.
+                                        The interview will be conducted using our secure in-app peer-to-peer video calling feature. A unique room will be created automatically.
                                     </p>
                                 )}
                                 {formData.videoType === 'external' && (

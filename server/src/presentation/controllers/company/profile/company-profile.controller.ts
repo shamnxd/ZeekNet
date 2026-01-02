@@ -13,7 +13,6 @@ import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/co
 import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/ICreateCompanyProfileFromDtoUseCase';
 import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyProfileWithJobPostingsUseCase';
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/profile/verification/IReapplyCompanyVerificationUseCase';
-import { IGetCompanyDashboardUseCase } from 'src/domain/interfaces/use-cases/company/analytics/IGetCompanyDashboardUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 
@@ -23,7 +22,6 @@ export class CompanyProfileController {
     private readonly _updateCompanyProfileUseCase: IUpdateCompanyProfileUseCase,
     private readonly _getCompanyProfileWithJobPostingsUseCase: IGetCompanyProfileWithJobPostingsUseCase,
     private readonly _reapplyCompanyVerificationUseCase: IReapplyCompanyVerificationUseCase,
-    private readonly _getCompanyDashboardUseCase: IGetCompanyDashboardUseCase,
     private readonly _uploadLogoUseCase: IUploadLogoUseCase,
   ) {}
 
@@ -81,15 +79,6 @@ export class CompanyProfileController {
     }
   };
 
-  getCompanyDashboard = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = validateUserId(req);
-      const dashboardData = await this._getCompanyDashboardUseCase.execute(userId);
-      sendSuccessResponse(res, 'Company dashboard data retrieved successfully', dashboardData);
-    } catch (error) {
-      handleAsyncError(error, next);
-    }
-  };
 
   reapplyVerification = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {

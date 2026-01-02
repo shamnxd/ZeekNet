@@ -54,6 +54,7 @@ export const CompanyRoutes = {
   DELETE_UPLOAD: '/api/company/upload/delete',
   SUBSCRIPTION_PLANS: '/api/company/subscription-plans',
   DASHBOARD: '/api/company/dashboard',
+  DASHBOARD_STATS: '/api/company/dashboard/stats',
   CONTACT: '/api/company/contact',
   TECH_STACKS: '/api/company/tech-stacks',
   TECH_STACKS_ID: '/api/company/tech-stacks/:id',

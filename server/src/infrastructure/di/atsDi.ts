@@ -49,6 +49,9 @@ import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/rep
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 import { getCompanyIdByUserIdUseCase } from 'src/infrastructure/di/companyDi';
+import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
 
 const interviewRepository = new ATSInterviewRepository();
 const technicalTaskRepository = new ATSTechnicalTaskRepository();
@@ -61,9 +64,9 @@ const jobApplicationRepository = new JobApplicationRepository();
 const jobPostingRepository = new JobPostingRepository();
 const userRepository = new UserRepository();
 const s3Service = new S3Service();
+const seekerProfileRepository = new SeekerProfileRepository();
 
-import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+
 
 const mailerService = new NodemailerService();
 const emailTemplateService = new EmailTemplateService();
@@ -127,6 +130,8 @@ const getJobApplicationsForKanbanUseCase = new GetJobApplicationsForKanbanUseCas
   jobApplicationRepository,
   jobPostingRepository,
   userRepository,
+  seekerProfileRepository,
+  s3Service,
 );
 const initiateCompensationUseCase = new InitiateCompensationUseCase(
   compensationRepository,

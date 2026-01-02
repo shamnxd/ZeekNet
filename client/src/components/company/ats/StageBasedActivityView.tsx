@@ -23,7 +23,7 @@ interface StageBasedActivityViewProps {
   isLoadingMore?: boolean;
   hasMore?: boolean;
   formatDateTime: (dateString: string) => string;
-  applicationId?: string; 
+  applicationId?: string;
 }
 
 
@@ -40,9 +40,9 @@ const STAGE_ORDER: string[] = [
 
 const groupActivitiesByStage = (activities: Activity[]): Map<string, Activity[]> => {
   const grouped = new Map<string, Activity[]>();
-  
+
   activities.forEach((activity) => {
-    
+
     const stage = activity.stage || inferStageFromActivity(activity);
     if (!grouped.has(stage)) {
       grouped.set(stage, []);
@@ -50,7 +50,7 @@ const groupActivitiesByStage = (activities: Activity[]): Map<string, Activity[]>
     grouped.get(stage)!.push(activity);
   });
 
-  
+
   grouped.forEach((stageActivities) => {
     stageActivities.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
@@ -65,22 +65,22 @@ const groupActivitiesByStage = (activities: Activity[]): Map<string, Activity[]>
 
 const groupActivitiesBySubStage = (activities: Activity[], stage: string): Map<string, Activity[]> => {
   const grouped = new Map<string, Activity[]>();
-  
-  
+
+
   const expectedSubStages = getSubStagesForStage(stage);
-  
+
   activities.forEach((activity) => {
-    
+
     let subStage = activity.subStage;
-    
+
     if (!subStage) {
-      
+
       const type = activity.type;
       if (type === ActivityType.SUBSTAGE_CHANGE) {
-        
+
         subStage = expectedSubStages.length > 0 ? expectedSubStages[0].key : 'UNKNOWN';
       } else if (type.includes('INTERVIEW')) {
-        
+
         if (type === ActivityType.INTERVIEW_SCHEDULED) {
           subStage = 'SCHEDULED';
         } else if (type === ActivityType.INTERVIEW_COMPLETED) {
@@ -89,7 +89,7 @@ const groupActivitiesBySubStage = (activities: Activity[], stage: string): Map<s
           subStage = expectedSubStages.length > 0 ? expectedSubStages[0].key : 'UNKNOWN';
         }
       } else if (type.includes('TASK')) {
-        
+
         if (type === ActivityType.TASK_ASSIGNED) {
           subStage = 'ASSIGNED';
         } else if (type === ActivityType.TASK_SUBMITTED) {
@@ -100,18 +100,18 @@ const groupActivitiesBySubStage = (activities: Activity[], stage: string): Map<s
           subStage = expectedSubStages.length > 0 ? expectedSubStages[0].key : 'UNKNOWN';
         }
       } else {
-        
+
         subStage = expectedSubStages.length > 0 ? expectedSubStages[0].key : 'UNKNOWN';
       }
     }
-    
+
     if (!grouped.has(subStage)) {
       grouped.set(subStage, []);
     }
     grouped.get(subStage)!.push(activity);
   });
 
-  
+
   grouped.forEach((subStageActivities) => {
     subStageActivities.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
@@ -136,18 +136,18 @@ const inferStageFromActivity = (activity: Activity): string => {
   if (type.includes('COMPENSATION')) return ATSStage.COMPENSATION;
   if (type.includes('OFFER')) return ATSStage.OFFER;
   if (type === ActivityType.STAGE_CHANGE || type === ActivityType.SUBSTAGE_CHANGE) {
-    
-    return ATSStage.IN_REVIEW; 
+
+    return ATSStage.IN_REVIEW;
   }
-  return ATSStage.IN_REVIEW; 
+  return ATSStage.IN_REVIEW;
 };
 
 
-const ActivityItem = ({ 
-  activity, 
-  formatDateTime 
-}: { 
-  activity: Activity; 
+const ActivityItem = ({
+  activity,
+  formatDateTime
+}: {
+  activity: Activity;
   formatDateTime: (dateString: string) => string;
 }) => {
   return (
@@ -195,11 +195,11 @@ const SubStageMilestone = ({
 }) => {
   return (
     <div className="flex gap-4 relative ml-6">
-      {}
+      { }
       <div className="flex flex-col items-start flex-shrink-0">
-        {}
+        { }
         <div className="w-3 h-3 rounded-full bg-[#4640DE] border-2 border-white shadow-sm z-10" />
-        {}
+        { }
         {!isLast && (
           <div
             className="w-0.5 flex-1 mt-1 ml-[2px]"
@@ -208,9 +208,9 @@ const SubStageMilestone = ({
         )}
       </div>
 
-      {}
+      { }
       <div className="flex-1 min-w-0 pb-4">
-        {}
+        { }
         <div className="mb-3">
           <h4 className="text-sm font-semibold text-gray-800 mb-1">
             {subStageLabel}
@@ -222,7 +222,7 @@ const SubStageMilestone = ({
           )}
         </div>
 
-        {}
+        { }
         <div className="space-y-0">
           {activities.map((activity, index) => (
             <ActivityItem
@@ -253,24 +253,24 @@ const SubStageTimeline = ({
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
 }) => {
-  
+
   const groupedBySubStage = useMemo(() => groupActivitiesBySubStage(activities, stage), [activities, stage]);
-  
-  
+
+
   const expectedSubStages = getSubStagesForStage(stage);
-  
-  
+
+
   const orderedSubStages = useMemo(() => {
     const subStagesWithActivities: Array<{ key: string; label: string }> = [];
-    
-    
+
+
     expectedSubStages.forEach((subStage) => {
       if (groupedBySubStage.has(subStage.key)) {
         subStagesWithActivities.push(subStage);
       }
     });
-    
-    
+
+
     groupedBySubStage.forEach((_, subStageKey) => {
       if (!expectedSubStages.find(s => s.key === subStageKey)) {
         subStagesWithActivities.push({
@@ -279,7 +279,7 @@ const SubStageTimeline = ({
         });
       }
     });
-    
+
     return subStagesWithActivities;
   }, [groupedBySubStage, expectedSubStages]);
 
@@ -308,8 +308,8 @@ const SubStageTimeline = ({
           />
         );
       })}
-      
-      {}
+
+      { }
       {hasMore && onLoadMore && (
         <div className="flex justify-center pt-4 ml-8">
           <button
@@ -359,23 +359,22 @@ const StageMilestone = ({
   isLoadingMore?: boolean;
 }) => {
   const hasActivities = activities.length > 0;
-  
+
   void isLoadingMore;
-  
+
   return (
     <div ref={sectionRef} className="flex gap-4 relative">
-      {}
+      { }
       <div className="flex flex-col items-center flex-shrink-0">
-        {}
+        { }
         <button
           onClick={onToggle}
-          className={`w-5 h-5 rounded-full border-2 border-white shadow-md z-10 transition-all ${
-            isCompleted
+          className={`w-5 h-5 rounded-full border-2 border-white shadow-md z-10 transition-all ${isCompleted
               ? 'bg-green-500 hover:bg-green-600'
               : isCurrent
-              ? 'bg-[#4640DE] hover:bg-[#3730A3]'
-              : 'bg-gray-300 hover:bg-gray-400'
-          }`}
+                ? 'bg-[#4640DE] hover:bg-[#3730A3]'
+                : 'bg-gray-300 hover:bg-gray-400'
+            }`}
           aria-label={`${ATSStageDisplayNames[stage] || stage} stage`}
         >
           {isCompleted && (
@@ -384,21 +383,20 @@ const StageMilestone = ({
             </div>
           )}
         </button>
-        {}
-        {}
+        { }
+        { }
       </div>
 
-      {}
+      { }
       <div className="flex-1 min-w-0 pb-6">
-        {}
+        { }
         <button
           onClick={onToggle}
           className="w-full text-left mb-2 hover:opacity-80 transition-opacity"
         >
           <div className="flex items-center gap-2 mb-1">
-            <h3 className={`text-base font-semibold ${
-              isCompleted ? 'text-green-700' : isCurrent ? 'text-[#4640DE]' : 'text-gray-600'
-            }`}>
+            <h3 className={`text-base font-semibold ${isCompleted ? 'text-green-700' : isCurrent ? 'text-[#4640DE]' : 'text-gray-600'
+              }`}>
               {ATSStageDisplayNames[stage] || stage}
             </h3>
             {hasActivities && (
@@ -409,7 +407,7 @@ const StageMilestone = ({
           </div>
         </button>
 
-        {}
+        { }
         {isExpanded && (
           <div className="mt-4">
             {activities.length === 0 ? (
@@ -442,22 +440,22 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
   hasMore = false,
   formatDateTime,
 }: StageBasedActivityViewProps) => {
-  
+
   void isLoadingMore;
-  
+
   const [loadingStage, setLoadingStage] = useState<string | null>(null);
-  
-  
+
+
   const groupedActivities = useMemo(() => groupActivitiesByStage(activities), [activities]);
 
-  
+
   const stageWithOldestActivity = useMemo(() => {
     if (activities.length === 0 || !hasMore) return null;
-    
-    
+
+
     let oldestActivity: Activity | null = null;
     let oldestDate = new Date();
-    
+
     for (const activity of activities) {
       const activityDate = new Date(activity.createdAt);
       if (activityDate < oldestDate) {
@@ -465,50 +463,50 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
         oldestActivity = activity;
       }
     }
-    
+
     if (!oldestActivity) return null;
-    
-    
+
+
     const activityStage = oldestActivity.stage || inferStageFromActivity(oldestActivity);
     return activityStage;
   }, [activities, hasMore]);
 
-  
-  
+
+
   const visibleStages = useMemo(() => {
     const stages = enabledStages || STAGE_ORDER;
     const allStages = STAGE_ORDER.filter(stage => stages.includes(stage));
-    
-    
+
+
     if (currentStage && allStages.includes(currentStage)) {
       const currentIndex = allStages.indexOf(currentStage);
       const beforeCurrent = allStages.slice(0, currentIndex);
       const afterCurrent = allStages.slice(currentIndex + 1);
-      
-      
+
+
       return [
         currentStage,
         ...afterCurrent.reverse(),
         ...beforeCurrent.reverse()
       ];
     }
-    
-    
+
+
     return allStages.reverse();
   }, [enabledStages, currentStage]);
 
-  
+
   const getStageStatus = (stage: string): 'completed' | 'current' | 'upcoming' => {
     if (!currentStage) return 'upcoming';
     const currentIndex = STAGE_ORDER.indexOf(currentStage);
     const stageIndex = STAGE_ORDER.indexOf(stage);
-    
+
     if (stageIndex < currentIndex) return 'completed';
     if (stageIndex === currentIndex) return 'current';
     return 'upcoming';
   };
 
-  
+
   const [expandedStages, setExpandedStages] = useState<Set<string>>(() => {
     const initial = new Set<string>();
     if (currentStage) {
@@ -517,11 +515,11 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
     return initial;
   });
 
-  
+
   const sectionRefs = useRef<Map<string, React.RefObject<HTMLDivElement | null>>>(new Map());
   const hasAutoExpanded = useRef(false);
 
-  
+
   useEffect(() => {
     visibleStages.forEach((stage) => {
       if (!sectionRefs.current.has(stage)) {
@@ -530,7 +528,7 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
     });
   }, [visibleStages]);
 
-  
+
   useEffect(() => {
     if (currentStage && !hasAutoExpanded.current && activities.length > 0) {
       setExpandedStages((prev) => {
@@ -542,14 +540,14 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
     }
   }, [currentStage, activities.length]);
 
-  
 
-  
+
+
   const handleLoadMoreForStage = async (stage: string) => {
     if (loadingStage || !onLoadMore) return;
-    
+
     setLoadingStage(stage);
-    
+
     try {
       await onLoadMore(stage);
     } finally {
@@ -570,13 +568,13 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
   };
 
 
-  
+
 
   return (
     <div className="space-y-0 bg-white p-6 rounded-lg border border-gray-200">
-      {}
+      { }
       <div className="relative">
-        {}
+        { }
         <div className="space-y-0">
           {visibleStages.map((stage, index) => {
             const stageActivities = groupedActivities.get(stage) || [];
@@ -587,22 +585,22 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
             const isLastStage = index === visibleStages.length - 1;
             const prevStatus = index > 0 ? getStageStatus(visibleStages[index - 1]) : null;
             const prevIsCompleted = prevStatus === 'completed';
-            
-            
+
+
             let ref = sectionRefs.current.get(stage);
             if (!ref) {
               ref = React.createRef<HTMLDivElement | null>();
               sectionRefs.current.set(stage, ref);
             }
-            
-            
-            
+
+
+
             const stageHasMore = hasMore && isExpanded && stage === stageWithOldestActivity;
             const isStageLoading = loadingStage === stage;
-            
+
             return (
               <div key={stage} className="relative">
-                {}
+                { }
                 {index > 0 && (
                   <div
                     className="absolute left-[10px] w-0.5 z-0"
@@ -613,7 +611,7 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
                     }}
                   />
                 )}
-                
+
                 <StageMilestone
                   stage={stage}
                   activities={stageActivities}
@@ -627,8 +625,8 @@ export const StageBasedActivityView: React.FC<StageBasedActivityViewProps> = ({
                   onLoadMore={stageHasMore && isExpanded ? () => handleLoadMoreForStage(stage) : undefined}
                   isLoadingMore={isStageLoading}
                 />
-                
-                {}
+
+                { }
                 {!isLastStage && (
                   <div
                     className="absolute left-[10px] w-0.5 z-0"

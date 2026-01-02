@@ -13,12 +13,12 @@ import { ScheduleCompensationMeetingDto } from 'src/application/dtos/application
 
 export class ATSCompensationController {
   constructor(
-    private initiateCompensationUseCase: IInitiateCompensationUseCase,
-    private updateCompensationUseCase: IUpdateCompensationUseCase,
-    private getCompensationUseCase: IGetCompensationUseCase,
-    private scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
-    private getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
-    private updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
+    private _initiateCompensationUseCase: IInitiateCompensationUseCase,
+    private _updateCompensationUseCase: IUpdateCompensationUseCase,
+    private _getCompensationUseCase: IGetCompensationUseCase,
+    private _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
+    private _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
+    private _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
   ) {}
 
   initiateCompensation = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -33,7 +33,7 @@ export class ATSCompensationController {
         return;
       }
 
-      const created = await this.initiateCompensationUseCase.execute({
+      const created = await this._initiateCompensationUseCase.execute({
         applicationId,
         candidateExpected: dto.candidateExpected,
         notes: dto.notes,
@@ -73,7 +73,7 @@ export class ATSCompensationController {
       const expectedJoining = dto.expectedJoining ? new Date(dto.expectedJoining) : undefined;
       const approvedAt = dto.approvedAt ? new Date(dto.approvedAt) : undefined;
 
-      const updated = await this.updateCompensationUseCase.execute({
+      const updated = await this._updateCompensationUseCase.execute({
         applicationId,
         candidateExpected: dto.candidateExpected,
         companyProposed: dto.companyProposed,
@@ -103,7 +103,7 @@ export class ATSCompensationController {
     try {
       const { applicationId } = req.params;
 
-      const compensation = await this.getCompensationUseCase.execute(applicationId);
+      const compensation = await this._getCompensationUseCase.execute(applicationId);
 
       if (!compensation) {
         sendNotFoundResponse(res, 'Compensation record not found');
@@ -132,7 +132,7 @@ export class ATSCompensationController {
       
       const scheduledDate = new Date(`${dto.date}T${dto.time}`);
 
-      const created = await this.scheduleCompensationMeetingUseCase.execute({
+      const created = await this._scheduleCompensationMeetingUseCase.execute({
         applicationId,
         type: dto.type,
         scheduledDate,
@@ -160,7 +160,7 @@ export class ATSCompensationController {
     try {
       const { applicationId } = req.params;
 
-      const meetings = await this.getCompensationMeetingsUseCase.execute(applicationId);
+      const meetings = await this._getCompensationMeetingsUseCase.execute(applicationId);
 
       sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
     } catch (error) {
@@ -181,7 +181,7 @@ export class ATSCompensationController {
         return;
       }
 
-      const updated = await this.updateCompensationMeetingStatusUseCase.execute({
+      const updated = await this._updateCompensationMeetingStatusUseCase.execute({
         meetingId,
         applicationId,
         status: status as 'scheduled' | 'completed' | 'cancelled',

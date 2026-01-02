@@ -13,11 +13,11 @@ import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 
 export class ATSOfferController {
   constructor(
-    private uploadOfferUseCase: IUploadOfferUseCase,
-    private updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
-    private getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
-    private s3Service: IS3Service,
-    private fileUrlService: IFileUrlService,
+    private _uploadOfferUseCase: IUploadOfferUseCase,
+    private _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
+    private _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
+    private _s3Service: IS3Service,
+    private _fileUrlService: IFileUrlService,
   ) {}
 
   uploadOffer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -36,7 +36,7 @@ export class ATSOfferController {
       let documentFilename: string;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this.s3Service, 'document');
+        const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
         documentUrl = uploadResult.url; 
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
@@ -48,7 +48,7 @@ export class ATSOfferController {
         return;
       }
 
-      const offer = await this.uploadOfferUseCase.execute({
+      const offer = await this._uploadOfferUseCase.execute({
         applicationId: dto.applicationId,
         documentUrl: documentUrl, 
         documentFilename: documentFilename,
@@ -58,7 +58,7 @@ export class ATSOfferController {
       });
 
       
-      const signedUrl = await this.fileUrlService.getSignedUrl(offer.documentUrl);
+      const signedUrl = await this._fileUrlService.getSignedUrl(offer.documentUrl);
       const offerWithSignedUrl = {
         ...offer,
         documentUrl: signedUrl,
@@ -83,7 +83,7 @@ export class ATSOfferController {
         return;
       }
 
-      const offer = await this.updateOfferStatusUseCase.execute({
+      const offer = await this._updateOfferStatusUseCase.execute({
         offerId: id,
         status: dto.status,
         withdrawalReason: dto.withdrawalReason,
@@ -106,13 +106,13 @@ export class ATSOfferController {
     try {
       const { applicationId } = req.params;
 
-      const offers = await this.getOffersByApplicationUseCase.execute(applicationId);
+      const offers = await this._getOffersByApplicationUseCase.execute(applicationId);
 
       
       const offersWithSignedUrls = await Promise.all(
         offers.map(async (offer) => {
           try {
-            const signedUrl = await this.fileUrlService.getSignedUrl(offer.documentUrl);
+            const signedUrl = await this._fileUrlService.getSignedUrl(offer.documentUrl);
             const offerObj: ATSOffer & { documentUrl: string; signedDocumentUrl?: string } = {
               ...offer,
               documentUrl: signedUrl,
@@ -120,7 +120,7 @@ export class ATSOfferController {
             
             
             if (offer.signedDocumentUrl) {
-              const signedDocUrl = await this.fileUrlService.getSignedUrl(offer.signedDocumentUrl);
+              const signedDocUrl = await this._fileUrlService.getSignedUrl(offer.signedDocumentUrl);
               offerObj.signedDocumentUrl = signedDocUrl;
             }
             

@@ -57,7 +57,7 @@ import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companie
 import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
 import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
-import { AdminDashboardController } from 'src/interface-adapters/controllers/admin/dashboard.controller';
+import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
 
 logger.info('Initializing adminDi...');
 const userRepository = new UserRepository();

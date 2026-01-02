@@ -13,20 +13,20 @@ import { validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 export class ATSPipelineController {
   constructor(
-    private getJobPipelineUseCase: IGetJobATSPipelineUseCase,
-    private getJobApplicationsForKanbanUseCase: IGetJobApplicationsForKanbanUseCase,
-    private moveApplicationStageUseCase: IMoveApplicationStageUseCase,
-    private updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
-    private getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    private _getJobPipelineUseCase: IGetJobATSPipelineUseCase,
+    private _getJobApplicationsForKanbanUseCase: IGetJobApplicationsForKanbanUseCase,
+    private _moveApplicationStageUseCase: IMoveApplicationStageUseCase,
+    private _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
+    private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   getJobPipeline = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { jobId } = req.params;
       const userId = validateUserId(req);
-      const companyId = await this.getCompanyIdByUserIdUseCase.execute(userId);
+      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const pipeline = await this.getJobPipelineUseCase.execute(jobId, companyId);
+      const pipeline = await this._getJobPipelineUseCase.execute(jobId, companyId);
       sendSuccessResponse(res, 'Pipeline retrieved successfully', pipeline);
     } catch (error) {
       console.error('Error fetching pipeline:', error);
@@ -38,9 +38,9 @@ export class ATSPipelineController {
     try {
       const { jobId } = req.params;
       const userId = validateUserId(req);
-      const companyId = await this.getCompanyIdByUserIdUseCase.execute(userId);
+      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
-      const applications = await this.getJobApplicationsForKanbanUseCase.execute(jobId, companyId);
+      const applications = await this._getJobApplicationsForKanbanUseCase.execute(jobId, companyId);
       sendSuccessResponse(res, 'Applications retrieved successfully', applications);
     } catch (error) {
       console.error('Error fetching applications for kanban:', error);
@@ -68,7 +68,7 @@ export class ATSPipelineController {
 
       const dto: MoveApplicationStageDto = validationResult.data;
 
-      const application = await this.moveApplicationStageUseCase.execute({
+      const application = await this._moveApplicationStageUseCase.execute({
         applicationId: id,
         nextStage: dto.nextStage as ATSStage,
         subStage: dto.subStage as ATSSubStage | undefined,
@@ -103,7 +103,7 @@ export class ATSPipelineController {
 
       const dto: UpdateSubStageDto = validationResult.data;
 
-      const application = await this.updateApplicationSubStageUseCase.execute({
+      const application = await this._updateApplicationSubStageUseCase.execute({
         applicationId: id,
         subStage: dto.subStage as ATSSubStage,
         performedBy: userId,

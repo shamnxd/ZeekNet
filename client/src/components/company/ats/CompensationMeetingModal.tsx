@@ -59,11 +59,11 @@ export const CompensationMeetingModal = ({
     useEffect(() => {
         if (isOpen) {
             if (meetingToEdit) {
-                
+
                 let scheduledDate: Date
                 if (meetingToEdit.scheduledDate) {
                     scheduledDate = new Date(meetingToEdit.scheduledDate)
-                    
+
                     const year = scheduledDate.getFullYear()
                     const month = String(scheduledDate.getMonth() + 1).padStart(2, '0')
                     const day = String(scheduledDate.getDate()).padStart(2, '0')
@@ -83,7 +83,7 @@ export const CompensationMeetingModal = ({
                         notes: meetingToEdit.notes || ''
                     })
                 } else {
-                    
+
                     const today = new Date().toISOString().split('T')[0]
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
@@ -96,7 +96,7 @@ export const CompensationMeetingModal = ({
                     })
                 }
             } else {
-                
+
                 const today = new Date().toISOString().split('T')[0];
                 setFormData({
                     type: 'call',
@@ -150,7 +150,7 @@ export const CompensationMeetingModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {}
+                    { }
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -169,7 +169,7 @@ export const CompensationMeetingModal = ({
                         </button>
                     </div>
 
-                    {}
+                    { }
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
                         <div className="space-y-2">
                             <Label className="text-foreground">Meeting Type <span className="text-destructive">*</span></Label>
@@ -260,7 +260,7 @@ export const CompensationMeetingModal = ({
                                         )}
                                     >
                                         <Video className="w-4 h-4" />
-                                        <span className="text-sm font-medium">In-App Video (Recommended)</span>
+                                        <span className="text-sm font-medium">In-App Video (P2P Recommended)</span>
                                     </button>
                                     <button
                                         type="button"
@@ -278,7 +278,7 @@ export const CompensationMeetingModal = ({
                                 </div>
                                 {formData.videoType === 'in-app' && (
                                     <p className="text-sm text-muted-foreground">
-                                        The meeting will be conducted using our in-app video calling feature. A unique room will be created automatically.
+                                        The meeting will be conducted using our secure in-app peer-to-peer video calling feature. A unique room will be created automatically.
                                     </p>
                                 )}
                                 {formData.videoType === 'external' && (
@@ -327,7 +327,7 @@ export const CompensationMeetingModal = ({
                             />
                         </div>
 
-                        {}
+                        { }
                         <div className="flex justify-end gap-3 pt-4 border-t border-border">
                             <Button
                                 type="button"

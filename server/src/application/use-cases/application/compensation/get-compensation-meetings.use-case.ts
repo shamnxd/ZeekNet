@@ -3,10 +3,10 @@ import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/reposit
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 
 export class GetCompensationMeetingsUseCase implements IGetCompensationMeetingsUseCase {
-  constructor(private compensationMeetingRepository: IATSCompensationMeetingRepository) {}
+  constructor(private _compensationMeetingRepository: IATSCompensationMeetingRepository) {}
 
   async execute(applicationId: string): Promise<ATSCompensationMeeting[]> {
-    return await this.compensationMeetingRepository.findByApplicationId(applicationId);
+    return await this._compensationMeetingRepository.findByApplicationId(applicationId);
   }
 }
 

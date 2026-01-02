@@ -22,23 +22,23 @@ import { env } from 'src/infrastructure/config/env';
 import { StripeWebApiMapper } from 'src/infrastructure/external-services/stripe/mappers/stripe-web-api.mapper';
 
 export class StripeService implements IStripeService {
-  private stripe: Stripe;
-  private webhookSecret: string;
+  private _stripe: Stripe;
+  private _webhookSecret: string;
 
   constructor() {
-    this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+    this._stripe = new Stripe(env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-11-17.clover' as Stripe.LatestApiVersion,
       typescript: true,
     });
 
-    this.webhookSecret = env.STRIPE_WEBHOOK_SECRET;
+    this._webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   }
 
   
 
   async createCustomer(params: CreateCustomerParams): Promise<PaymentCustomer> {
     try {
-      const customer = await this.stripe.customers.create({
+      const customer = await this._stripe.customers.create({
         email: params.email,
         name: params.name,
         metadata: params.metadata,
@@ -53,7 +53,7 @@ export class StripeService implements IStripeService {
 
   async getCustomer(customerId: string): Promise<PaymentCustomer | null> {
     try {
-      const customer = await this.stripe.customers.retrieve(customerId);
+      const customer = await this._stripe.customers.retrieve(customerId);
       if (customer.deleted) {
         return null;
       }
@@ -66,7 +66,7 @@ export class StripeService implements IStripeService {
 
   async createProduct(params: CreateProductParams): Promise<PaymentProduct> {
     try {
-      const product = await this.stripe.products.create({
+      const product = await this._stripe.products.create({
         name: params.name,
         description: params.description,
         metadata: params.metadata,
@@ -84,7 +84,7 @@ export class StripeService implements IStripeService {
     params: Partial<CreateProductParams>,
   ): Promise<PaymentProduct> {
     try {
-      const product = await this.stripe.products.update(productId, {
+      const product = await this._stripe.products.update(productId, {
         name: params.name,
         description: params.description,
         metadata: params.metadata,
@@ -99,7 +99,7 @@ export class StripeService implements IStripeService {
 
   async archiveProduct(productId: string): Promise<PaymentProduct> {
     try {
-      const product = await this.stripe.products.update(productId, {
+      const product = await this._stripe.products.update(productId, {
         active: false,
       });
       logger.info(`Stripe product archived: ${product.id}`);
@@ -112,7 +112,7 @@ export class StripeService implements IStripeService {
 
   async createPrice(params: CreatePriceParams): Promise<PaymentPrice> {
     try {
-      const price = await this.stripe.prices.create({
+      const price = await this._stripe.prices.create({
         product: params.productId,
         unit_amount: params.unitAmount,
         currency: params.currency,
@@ -131,7 +131,7 @@ export class StripeService implements IStripeService {
 
   async archivePrice(priceId: string): Promise<PaymentPrice> {
     try {
-      const price = await this.stripe.prices.update(priceId, {
+      const price = await this._stripe.prices.update(priceId, {
         active: false,
       });
       logger.info(`Stripe price archived: ${price.id}`);
@@ -144,7 +144,7 @@ export class StripeService implements IStripeService {
 
   async createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PaymentSession> {
     try {
-      const session = await this.stripe.checkout.sessions.create({
+      const session = await this._stripe.checkout.sessions.create({
         customer: params.customerId,
         mode: 'subscription',
         payment_method_types: ['card'],
@@ -179,7 +179,7 @@ export class StripeService implements IStripeService {
     returnUrl: string,
   ): Promise<PaymentBillingPortalSession> {
     try {
-      const session = await this.stripe.billingPortal.sessions.create({
+      const session = await this._stripe.billingPortal.sessions.create({
         customer: customerId,
         return_url: returnUrl,
       });
@@ -197,7 +197,7 @@ export class StripeService implements IStripeService {
 
   async getSubscription(subscriptionId: string): Promise<PaymentSubscription | null> {
     try {
-      const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await this._stripe.subscriptions.retrieve(subscriptionId);
       return StripeWebApiMapper.mapSubscription(subscription);
     } catch (error) {
       logger.error(`Failed to get Stripe subscription: ${subscriptionId}`, error);
@@ -225,7 +225,7 @@ export class StripeService implements IStripeService {
         params.starting_after = startingAfter;
       }
 
-      const subscriptions = await this.stripe.subscriptions.list(params);
+      const subscriptions = await this._stripe.subscriptions.list(params);
       
       return {
         data: subscriptions.data.map(s => StripeWebApiMapper.mapSubscription(s)),
@@ -240,9 +240,9 @@ export class StripeService implements IStripeService {
 
   async updateSubscription(params: UpdateSubscriptionParams): Promise<PaymentSubscription> {
     try {
-      const subscription = await this.stripe.subscriptions.retrieve(params.subscriptionId);
+      const subscription = await this._stripe.subscriptions.retrieve(params.subscriptionId);
       
-      const updatedSubscription = await this.stripe.subscriptions.update(params.subscriptionId, {
+      const updatedSubscription = await this._stripe.subscriptions.update(params.subscriptionId, {
         items: [
           {
             id: subscription.items.data[0].id,
@@ -266,10 +266,10 @@ export class StripeService implements IStripeService {
   ): Promise<PaymentSubscription> {
     try {
       const subscription = cancelAtPeriodEnd
-        ? await this.stripe.subscriptions.update(subscriptionId, {
+        ? await this._stripe.subscriptions.update(subscriptionId, {
           cancel_at_period_end: true,
         })
-        : await this.stripe.subscriptions.cancel(subscriptionId);
+        : await this._stripe.subscriptions.cancel(subscriptionId);
       
       logger.info(
         `Stripe subscription ${cancelAtPeriodEnd ? 'set to cancel at period end' : 'canceled immediately'}: ${subscriptionId}`,
@@ -283,7 +283,7 @@ export class StripeService implements IStripeService {
 
   async resumeSubscription(subscriptionId: string): Promise<PaymentSubscription> {
     try {
-      const subscription = await this.stripe.subscriptions.update(subscriptionId, {
+      const subscription = await this._stripe.subscriptions.update(subscriptionId, {
         cancel_at_period_end: false,
       });
       logger.info(`Stripe subscription resumed: ${subscriptionId}`);
@@ -295,8 +295,8 @@ export class StripeService implements IStripeService {
   }
 
   async getInvoice(invoiceId: string): Promise<PaymentInvoice | null> {
-    try {
-      const invoice = await this.stripe.invoices.retrieve(invoiceId);
+    try { 
+      const invoice = await this._stripe.invoices.retrieve(invoiceId);
       return StripeWebApiMapper.mapInvoice(invoice);
     } catch (error) {
       logger.error(`Failed to get Stripe invoice: ${invoiceId}`, error);
@@ -305,7 +305,7 @@ export class StripeService implements IStripeService {
   }
 
   constructWebhookEvent(payload: string | Buffer, signature: string): PaymentEvent {
-    const event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
+    const event = this._stripe.webhooks.constructEvent(payload, signature, this._webhookSecret);
     return StripeWebApiMapper.mapEvent(event);
   }
 }

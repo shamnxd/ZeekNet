@@ -38,7 +38,10 @@ const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepositor
 const userRepository = new UserRepository();
 const s3Service = new S3Service();
 
-const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
+const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(
+  jobPostingRepository,
+  s3Service,
+);
 
 const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(
   jobPostingRepository,

@@ -8,11 +8,11 @@ import { env } from 'src/infrastructure/config/env';
 import { ISocketServer } from 'src/domain/interfaces/services/ISocketServer';
 
 export class SocketServer implements ISocketServer {
-  private io: SocketIOServer;
-  private webrtcRooms: Map<string, Set<string>> = new Map(); 
+  private _io: SocketIOServer;
+  private _webrtcRooms: Map<string, Set<string>> = new Map(); 
 
   constructor(httpServer: HTTPServer) {
-    this.io = new SocketIOServer(httpServer, {
+    this._io = new SocketIOServer(httpServer, {
       cors: {
         origin: env.FRONTEND_URL || 'http://localhost:5173',
         credentials: true,
@@ -20,16 +20,16 @@ export class SocketServer implements ISocketServer {
       transports: ['websocket', 'polling'],
     });
 
-    this.setupMiddleware();
-    this.setupEventHandlers();
-    notificationService.setIO(this.io);
-    chatService.setIO(this.io);
+    this._setupMiddleware();
+    this._setupEventHandlers();
+    notificationService.setIO(this._io);
+    chatService.setIO(this._io);
   }
 
-  private setupMiddleware(): void {
+  private _setupMiddleware(): void {
     const tokenService = new JwtTokenService();
 
-    this.io.use((socket: Socket, next) => {
+    this._io.use((socket: Socket, next) => {
       const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
 
       if (!token) {
@@ -47,8 +47,8 @@ export class SocketServer implements ISocketServer {
     });
   }
 
-  private setupEventHandlers(): void {
-    this.io.on('connection', (socket: Socket) => {
+  private _setupEventHandlers(): void {
+    this._io.on('connection', (socket: Socket) => {
       const userId = socket.data.userId;
       logger.info(`Socket connected: ${socket.id} for user: ${userId}`);
 
@@ -135,27 +135,34 @@ export class SocketServer implements ISocketServer {
       );
 
       
-      socket.on('webrtc:join-room', (payload: { roomId: string }, callback?: (response: unknown) => void) => {
+      socket.on('webrtc:join-room', (payload: { roomId: string; userName?: string }, callback?: (response: unknown) => void) => {
         try {
-          const { roomId } = payload || {};
+          const { roomId, userName } = payload || {};
           if (!roomId) {
             callback?.({ success: false, message: 'roomId is required' });
+            return;
+          }
+
+          // Check if room is full (2 people max for P2P)
+          const roomParticipants = this._webrtcRooms.get(roomId);
+          if (roomParticipants && roomParticipants.size >= 2 && !roomParticipants.has(socket.id)) {
+            callback?.({ success: false, message: 'Room is full' });
             return;
           }
 
           socket.join(`webrtc:${roomId}`);
           
           
-          if (!this.webrtcRooms.has(roomId)) {
-            this.webrtcRooms.set(roomId, new Set());
+          if (!this._webrtcRooms.has(roomId)) {
+            this._webrtcRooms.set(roomId, new Set());
           }
-          this.webrtcRooms.get(roomId)!.add(socket.id);
+          this._webrtcRooms.get(roomId)!.add(socket.id);
 
           
-          const otherParticipants = Array.from(this.webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
-          socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', { socketId: socket.id, userId });
+          const otherParticipants = Array.from(this._webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
+          socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', { socketId: socket.id, userId, userName });
 
-          logger.info(`User ${userId} joined WebRTC room: ${roomId}`);
+          logger.info(`User ${userId} (${userName || 'Unknown'}) joined WebRTC room: ${roomId}`);
           callback?.({ success: true, participants: otherParticipants.length });
         } catch (error) {
           logger.error('Error handling webrtc:join-room:', error);
@@ -165,17 +172,15 @@ export class SocketServer implements ISocketServer {
 
       socket.on('webrtc:offer', (payload: { roomId: string; offer: RTCSessionDescriptionInit; targetSocketId?: string }) => {
         try {
-          const { roomId, offer, targetSocketId } = payload || {};
+          const { roomId, offer, targetSocketId, ...rest } = payload || {};
           if (!roomId || !offer) {
             return;
           }
 
           if (targetSocketId) {
-            
-            socket.to(targetSocketId).emit('webrtc:offer', { offer, socketId: socket.id });
+            socket.to(targetSocketId).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           } else {
-            
-            socket.to(`webrtc:${roomId}`).emit('webrtc:offer', { offer, socketId: socket.id });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:offer:', error);
@@ -184,17 +189,15 @@ export class SocketServer implements ISocketServer {
 
       socket.on('webrtc:answer', (payload: { roomId: string; answer: RTCSessionDescriptionInit; targetSocketId?: string }) => {
         try {
-          const { roomId, answer, targetSocketId } = payload || {};
+          const { roomId, answer, targetSocketId, ...rest } = payload || {};
           if (!roomId || !answer) {
             return;
           }
 
           if (targetSocketId) {
-            
-            socket.to(targetSocketId).emit('webrtc:answer', { answer, socketId: socket.id });
+            socket.to(targetSocketId).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           } else {
-            
-            socket.to(`webrtc:${roomId}`).emit('webrtc:answer', { answer, socketId: socket.id });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:answer:', error);
@@ -220,6 +223,16 @@ export class SocketServer implements ISocketServer {
         }
       });
 
+      socket.on('webrtc:media-toggle', (payload: { roomId: string; type: 'video' | 'audio'; enabled: boolean }) => {
+        try {
+          const { roomId, type, enabled } = payload || {};
+          if (!roomId) return;
+          socket.to(`webrtc:${roomId}`).emit('webrtc:media-toggle', { type, enabled, socketId: socket.id });
+        } catch (error) {
+          logger.error('Error handling webrtc:media-toggle:', error);
+        }
+      });
+
       socket.on('webrtc:leave-room', (payload: { roomId: string }) => {
         try {
           const { roomId } = payload || {};
@@ -230,11 +243,11 @@ export class SocketServer implements ISocketServer {
           socket.leave(`webrtc:${roomId}`);
           
           
-          const roomParticipants = this.webrtcRooms.get(roomId);
+          const roomParticipants = this._webrtcRooms.get(roomId);
           if (roomParticipants) {
             roomParticipants.delete(socket.id);
             if (roomParticipants.size === 0) {
-              this.webrtcRooms.delete(roomId);
+              this._webrtcRooms.delete(roomId);
             } else {
               
               socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
@@ -253,12 +266,12 @@ export class SocketServer implements ISocketServer {
         notificationService.unregisterUser(userId);
 
         
-        this.webrtcRooms.forEach((participants, roomId) => {
+        this._webrtcRooms.forEach((participants, roomId) => {
           if (participants.has(socket.id)) {
             participants.delete(socket.id);
             socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
             if (participants.size === 0) {
-              this.webrtcRooms.delete(roomId);
+              this._webrtcRooms.delete(roomId);
             }
           }
         });
@@ -267,7 +280,7 @@ export class SocketServer implements ISocketServer {
   }
 
   getIO(): SocketIOServer {
-    return this.io;
+    return this._io;
   }
 }
 

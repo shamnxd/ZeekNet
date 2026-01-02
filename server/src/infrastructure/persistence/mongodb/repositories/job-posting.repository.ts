@@ -241,4 +241,17 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       
     return docs.map(doc => this.mapToEntity(doc));
   }
+
+  async countJobsCreatedAfter(companyId: string, date: Date): Promise<number> {
+    if (!Types.ObjectId.isValid(companyId)) {
+      return 0;
+    }
+
+    const count = await JobPostingModel.countDocuments({
+      company_id: new Types.ObjectId(companyId),
+      createdAt: { $gte: date },
+    });
+
+    return count;
+  }
 }

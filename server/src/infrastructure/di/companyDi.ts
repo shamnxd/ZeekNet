@@ -7,6 +7,8 @@ import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongod
 import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
 import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
 import { JobApplicationRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-application.repository';
+import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
+import { ChatMessageRepository } from 'src/infrastructure/persistence/mongodb/repositories/chat-message.repository';
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
 import { SeekerExperienceRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-experience.repository';
@@ -20,7 +22,6 @@ import { CreateCompanyProfileFromDtoUseCase } from 'src/application/use-cases/co
 import { UpdateCompanyProfileUseCase } from 'src/application/use-cases/company/profile/info/update-company-profile.use-case';
 import { GetCompanyProfileUseCase } from 'src/application/use-cases/company/profile/info/get-company-profile.use-case';
 import { GetCompanyProfileWithJobPostingsUseCase } from 'src/application/use-cases/admin/companies/get-company-profile-with-job-postings.use-case';
-import { GetCompanyDashboardUseCase } from 'src/application/use-cases/company/analytics/get-company-dashboard.use-case';
 import { ReapplyCompanyVerificationUseCase } from 'src/application/use-cases/company/profile/verification/reapply-company-verification.use-case';
 import { GetCompanyContactUseCase } from 'src/application/use-cases/company/profile/contacts/get-company-contact.use-case';
 import { UpsertCompanyContactUseCase } from 'src/application/use-cases/company/profile/contacts/upsert-company-contact.use-case';
@@ -94,6 +95,8 @@ import { MarkCandidateHiredUseCase } from 'src/application/use-cases/company/hir
 import { CloseJobManuallyUseCase } from 'src/application/use-cases/job/close-job-manually.use-case';
 import { ReopenJobUseCase } from 'src/application/use-cases/job/reopen-job.use-case';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { GetCompanyDashboardStatsUseCase } from 'src/application/use-cases/company/dashboard/get-company-dashboard-stats.use-case';
+import { CompanyDashboardController } from 'src/presentation/controllers/company/dashboard/company-dashboard.controller';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -104,6 +107,8 @@ const companyBenefitsRepository = new CompanyBenefitsRepository();
 const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
+const atsInterviewRepository = new ATSInterviewRepository();
+const chatMessageRepository = new ChatMessageRepository();
 const userRepository = new UserRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
 const seekerExperienceRepository = new SeekerExperienceRepository();
@@ -168,7 +173,6 @@ const createCompanyProfileFromDtoUseCase = new CreateCompanyProfileFromDtoUseCas
 
 const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase, s3Service);
 
-const getCompanyDashboardUseCase = new GetCompanyDashboardUseCase(getCompanyProfileUseCase);
 
 const updateJobPostingUseCase = new UpdateJobPostingUseCase(jobPostingRepository);
 
@@ -239,12 +243,19 @@ const reopenJobUseCase = new ReopenJobUseCase(
   companyProfileRepository,
 );
 
+const getCompanyDashboardStatsUseCase = new GetCompanyDashboardStatsUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  atsInterviewRepository,
+  chatMessageRepository,
+  getCompanyIdByUserIdUseCase,
+);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
   getCompanyProfileWithJobPostingsUseCase,
   reapplyCompanyVerificationUseCase,
-  getCompanyDashboardUseCase,
   uploadLogoUseCase,
 );
 
@@ -319,6 +330,8 @@ const companySubscriptionController = new CompanySubscriptionController(
 
 const companyCandidatesController = new CompanyCandidatesController(getCandidatesUseCase, getCandidateDetailsUseCase);
 
+const companyDashboardController = new CompanyDashboardController(getCompanyDashboardStatsUseCase);
+
 logger.info('Creating Controllers...');
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
@@ -336,6 +349,7 @@ export {
   companySubscriptionController,
   stripeWebhookController,
   companyCandidatesController,
+  companyDashboardController,
   companyProfileRepository,
   subscriptionMiddleware,
   stripeService,

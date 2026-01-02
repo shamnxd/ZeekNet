@@ -20,7 +20,7 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
   }
 
   async findByJobId(jobId: string): Promise<JobApplication[]> {
-    const docs = await JobApplicationModel.find({ jobId }).sort({ createdAt: -1 });
+    const docs = await JobApplicationModel.find({ job_id: new Types.ObjectId(jobId) }).sort({ createdAt: -1 });
     return docs.map(JobApplicationMapper.toEntity);
   }
 

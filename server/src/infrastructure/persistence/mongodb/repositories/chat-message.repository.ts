@@ -99,6 +99,23 @@ export class ChatMessageRepository
 
     return result ? this.mapToEntity(result) : null;
   }
+
+  async countByReceiverId(receiverId: string, since?: Date): Promise<number> {
+    if (!Types.ObjectId.isValid(receiverId)) {
+      return 0;
+    }
+
+    const filter: any = {
+      receiver_id: new Types.ObjectId(receiverId),
+      isDeleted: { $ne: true },
+    };
+
+    if (since) {
+      filter.createdAt = { $gte: since };
+    }
+
+    return await ChatMessageModel.countDocuments(filter);
+  }
 }
 
 
