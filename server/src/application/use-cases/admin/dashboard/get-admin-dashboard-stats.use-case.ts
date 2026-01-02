@@ -7,11 +7,11 @@ import { AdminDashboardStatsDto } from './dto/get-admin-dashboard-stats.dto';
 
 export class GetAdminDashboardStatsUseCase {
   constructor(
-    private companyRepository: ICompanyProfileRepository,
-    private seekerRepository: ISeekerProfileRepository,
-    private jobRepository: IJobPostingRepository,
-    private paymentRepository: IPaymentOrderRepository,
-    private userRepository: IUserRepository,
+    private _companyRepository: ICompanyProfileRepository,
+    private _seekerRepository: ISeekerProfileRepository,
+    private _jobRepository: IJobPostingRepository,
+    private _paymentRepository: IPaymentOrderRepository,
+    private _userRepository: IUserRepository,
   ) {}
 
   async execute(period: 'day' | 'week' | 'month' | 'year' = 'month', startDate?: Date, endDate?: Date): Promise<AdminDashboardStatsDto> {
@@ -28,17 +28,17 @@ export class GetAdminDashboardStatsUseCase {
       recentOrders,
       totalVerifiedUsers
     ] = await Promise.all([
-      this.companyRepository.countTotal(),
-      this.companyRepository.countByVerificationStatus('pending'),
-      this.userRepository.countByRole('seeker'),
-      this.jobRepository.countTotal(),
-      this.jobRepository.countActive(),
-      this.jobRepository.countExpired(),
-      this.paymentRepository.sumTotalEarnings(),
-      this.paymentRepository.getEarningsByPeriod(period, startDate, endDate),
-      this.jobRepository.findRecent(5),
-      this.paymentRepository.findRecent(5),
-      this.userRepository.countVerified()
+      this._companyRepository.countTotal(),
+      this._companyRepository.countByVerificationStatus('pending'),
+      this._userRepository.countByRole('seeker'),
+      this._jobRepository.countTotal(),
+      this._jobRepository.countActive(),
+      this._jobRepository.countExpired(),
+      this._paymentRepository.sumTotalEarnings(),
+      this._paymentRepository.getEarningsByPeriod(period, startDate, endDate),
+      this._jobRepository.findRecent(5),
+      this._paymentRepository.findRecent(5),
+      this._userRepository.countVerified()
     ]);
 
     // Mock Location Data (since we don't have real location aggregation yet)
