@@ -18,6 +18,8 @@ export class ScheduleCompensationMeetingUseCase implements IScheduleCompensation
     applicationId: string;
     type: 'call' | 'online' | 'in-person';
     scheduledDate: Date;
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     location?: string;
     meetingLink?: string;
     notes?: string;
@@ -30,11 +32,19 @@ export class ScheduleCompensationMeetingUseCase implements IScheduleCompensation
       throw new NotFoundError('Application not found');
     }
 
+    // Generate webrtcRoomId if videoType is 'in-app' and not provided
+    let webrtcRoomId = data.webrtcRoomId;
+    if (data.type === 'online' && data.videoType === 'in-app' && !webrtcRoomId) {
+      webrtcRoomId = uuidv4();
+    }
+
     const meeting = ATSCompensationMeeting.create({
       id: uuidv4(),
       applicationId: data.applicationId,
       type: data.type,
       scheduledDate: data.scheduledDate,
+      videoType: data.videoType,
+      webrtcRoomId,
       location: data.location,
       meetingLink: data.meetingLink,
       notes: data.notes,

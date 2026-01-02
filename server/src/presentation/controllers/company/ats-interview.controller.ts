@@ -37,6 +37,8 @@ export class ATSInterviewController {
         title: dto.title,
         scheduledDate,
         type: dto.type,
+        videoType: dto.videoType,
+        webrtcRoomId: dto.webrtcRoomId,
         meetingLink: dto.meetingLink,
         location: dto.location,
         performedBy: userId,

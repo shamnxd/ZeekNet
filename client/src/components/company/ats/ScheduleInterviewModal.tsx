@@ -29,6 +29,7 @@ interface ScheduleInterviewModalProps {
 interface InterviewFormData {
     title: string;
     type: 'online' | 'offline';
+    videoType?: 'in-app' | 'external';
     date: string;
     time: string;
     location?: string;
@@ -46,6 +47,7 @@ export const ScheduleInterviewModal = ({
     const [formData, setFormData] = useState<InterviewFormData>({
         title: '',
         type: 'online',
+        videoType: 'in-app',
         date: '',
         time: '',
         location: '',
@@ -60,6 +62,7 @@ export const ScheduleInterviewModal = ({
             setFormData({
                 title: interviewToReschedule.title || '',
                 type: interviewToReschedule.type || 'online',
+                videoType: (interviewToReschedule as any).videoType || (interviewToReschedule.meetingLink ? 'external' : 'in-app'),
                 date: scheduledDate.toISOString().split('T')[0] || '',
                 time: scheduledDate.toTimeString().slice(0, 5) || '',
                 location: interviewToReschedule.location || '',
@@ -71,6 +74,7 @@ export const ScheduleInterviewModal = ({
             setFormData({
                 title: '',
                 type: 'online',
+                videoType: 'in-app',
                 date: '',
                 time: '',
                 location: '',
@@ -204,21 +208,64 @@ export const ScheduleInterviewModal = ({
                             </div>
                         </div>
 
-                        {/* Location or Meeting Link */}
-                        {formData.type === 'online' ? (
+                        {/* Video Type Selection (only for online) */}
+                        {formData.type === 'online' && (
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-1.5">
-                                    Meeting Link
+                                    Video Meeting Type
                                 </label>
-                                <input
-                                    type="url"
-                                    value={formData.meetingLink}
-                                    onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
-                                    placeholder="https://meet.google.com/..."
-                                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                />
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, videoType: 'in-app', meetingLink: '' })}
+                                        className={cn(
+                                            "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
+                                            formData.videoType === 'in-app'
+                                                ? "border-primary bg-accent text-primary"
+                                                : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <Video className="w-4 h-4" />
+                                        <span className="font-medium">In-App Video (Recommended)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, videoType: 'external' })}
+                                        className={cn(
+                                            "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
+                                            formData.videoType === 'external'
+                                                ? "border-primary bg-accent text-primary"
+                                                : "border-border hover:border-primary/50"
+                                        )}
+                                    >
+                                        <Video className="w-4 h-4" />
+                                        <span className="font-medium">External Link</span>
+                                    </button>
+                                </div>
+                                {formData.videoType === 'in-app' && (
+                                    <p className="mt-2 text-sm text-muted-foreground">
+                                        The interview will be conducted using our in-app video calling feature. A unique room will be created automatically.
+                                    </p>
+                                )}
+                                {formData.videoType === 'external' && (
+                                    <div className="mt-3">
+                                        <label className="block text-sm font-medium text-foreground mb-1.5">
+                                            Meeting Link (Google Meet / Zoom)
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={formData.meetingLink}
+                                            onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
+                                            placeholder="https://meet.google.com/... or https://zoom.us/j/..."
+                                            className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        />
+                                    </div>
+                                )}
                             </div>
-                        ) : (
+                        )}
+
+                        {/* Location (only for offline) */}
+                        {formData.type === 'offline' && (
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-1.5">
                                     Location

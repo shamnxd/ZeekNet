@@ -136,6 +136,8 @@ export class ATSCompensationController {
         applicationId,
         type: dto.type,
         scheduledDate,
+        videoType: dto.videoType,
+        webrtcRoomId: dto.webrtcRoomId,
         location: dto.location,
         meetingLink: dto.meetingLink,
         notes: dto.notes,

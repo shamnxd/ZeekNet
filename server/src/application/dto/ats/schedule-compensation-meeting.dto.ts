@@ -10,6 +10,14 @@ export class ScheduleCompensationMeetingDto {
   @IsString()
     time: string;
 
+  @IsEnum(['in-app', 'external'])
+  @IsOptional()
+    videoType?: 'in-app' | 'external';
+
+  @IsString()
+  @IsOptional()
+    webrtcRoomId?: string;
+
   @IsString()
   @IsOptional()
     location?: string;

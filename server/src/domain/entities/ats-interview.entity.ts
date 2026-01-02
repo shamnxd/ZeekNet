@@ -5,6 +5,8 @@ export class ATSInterview {
     public readonly title: string,
     public readonly scheduledDate: Date,
     public readonly type: 'online' | 'offline',
+    public readonly videoType?: 'in-app' | 'external',
+    public readonly webrtcRoomId?: string,
     public readonly meetingLink?: string,
     public readonly location?: string,
     public readonly status: 'scheduled' | 'completed' | 'cancelled' = 'scheduled',
@@ -20,6 +22,8 @@ export class ATSInterview {
     title: string;
     scheduledDate: Date;
     type: 'online' | 'offline';
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     meetingLink?: string;
     location?: string;
     status?: 'scheduled' | 'completed' | 'cancelled';
@@ -34,6 +38,8 @@ export class ATSInterview {
       data.title,
       data.scheduledDate,
       data.type,
+      data.videoType,
+      data.webrtcRoomId,
       data.meetingLink,
       data.location,
       data.status ?? 'scheduled',

@@ -5,6 +5,8 @@ export interface IScheduleCompensationMeetingUseCase {
     applicationId: string;
     type: 'call' | 'online' | 'in-person';
     scheduledDate: Date;
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     location?: string;
     meetingLink?: string;
     notes?: string;

@@ -150,7 +150,7 @@ function SeekerApplications() {
                         )}
                       </div>
                       <div>
-                        <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || 'Unknown Company'}</p>
+                        <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || 'Loading...'}</p>
                       </div>
                     </div>
                   </td>

@@ -5,6 +5,7 @@ import { JobStatus } from '../../../../domain/enums/job-status.enum';
 import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
 import { ATSStage } from '../../../../domain/enums/ats-stage.enum';
 import { STAGE_TO_SUB_STAGES } from '../../../../domain/utils/ats-pipeline.util';
+import { JobClosureType } from '../../../../domain/enums/job-closure-type.enum';
 
 
 
@@ -159,9 +160,9 @@ export class JobPostingMapper {
     }
     
     if (input.closureType !== undefined) {
-      doc.closure_type = input.closureType as string;
+      doc.closure_type = input.closureType as JobClosureType;
     } else if (input.closure_type !== undefined) {
-      doc.closure_type = input.closure_type as string;
+      doc.closure_type = input.closure_type as JobClosureType;
     }
     
     if (input.closedAt !== undefined) {

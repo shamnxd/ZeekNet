@@ -115,6 +115,10 @@ class SocketService {
   isConnected(): boolean {
     return this.socket?.connected || false;
   }
+
+  getSocket(): Socket | null {
+    return this.socket;
+  }
 }
 
 export const socketService = new SocketService();

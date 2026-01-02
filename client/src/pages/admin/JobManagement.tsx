@@ -331,7 +331,7 @@ const JobManagement = () => {
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem 
-                                  onClick={() => handleToggleStatus(job.id || job._id || '', job.status ?? 'unlisted')}
+                                  onClick={() => handleToggleStatus(job.id || job._id || '', (job.status === 'closed' ? 'active' : job.status) ?? 'unlisted')}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Publish

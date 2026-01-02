@@ -16,27 +16,27 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 
 // Extended types to match actual API responses
 type ExtendedATSTechnicalTask = ATSTechnicalTask & {
-    documentUrl?: string;
-    documentFilename?: string;
-    submissionUrl?: string;
-    submissionFilename?: string;
-    submissionLink?: string;
-    submissionNote?: string;
-    submittedAt?: string;
+  documentUrl?: string;
+  documentFilename?: string;
+  submissionUrl?: string;
+  submissionFilename?: string;
+  submissionLink?: string;
+  submissionNote?: string;
+  submittedAt?: string;
 }
 
 type ExtendedATSOfferDocument = ATSOfferDocument & {
-    documentUrl?: string;
-    documentFilename?: string;
-    offerAmount?: string;
-    sentAt?: string;
-    signedAt?: string;
-    declinedAt?: string;
-    signedDocumentUrl?: string;
-    signedDocumentFilename?: string;
-    withdrawalReason?: string;
-    withdrawnByName?: string;
-    declineReason?: string;
+  documentUrl?: string;
+  documentFilename?: string;
+  offerAmount?: string;
+  sentAt?: string;
+  signedAt?: string;
+  declinedAt?: string;
+  signedDocumentUrl?: string;
+  signedDocumentFilename?: string;
+  withdrawalReason?: string;
+  withdrawnByName?: string;
+  declineReason?: string;
 }
 
 const SeekerApplicationDetails = () => {
@@ -77,17 +77,17 @@ const SeekerApplicationDetails = () => {
         setLoading(true)
         const appRes = await jobApplicationApi.getSeekerApplicationById(applicationId)
         const appData = appRes?.data?.data || appRes?.data
-        
+
         if (!appData) {
           toast.error('Application not found')
           navigate('/seeker/applications')
           return
         }
-        
+
         setApplication(appData)
-        
+
         const responseApplicationId = appData?.id || appData?._id || applicationId
-        
+
         if (responseApplicationId && responseApplicationId !== 'undefined' && responseApplicationId !== 'null') {
           try {
             const [tasksResponse, interviewsResponse, offersResponse, meetingsResponse] = await Promise.all([
@@ -98,7 +98,7 @@ const SeekerApplicationDetails = () => {
             ])
             setTechnicalTasks(tasksResponse.data || [])
             setInterviews(interviewsResponse.data || [])
-            
+
             let offersData = []
             if (Array.isArray(offersResponse)) {
               offersData = offersResponse
@@ -179,11 +179,11 @@ const SeekerApplicationDetails = () => {
   const currentSubStage = (typeof application?.sub_stage === 'string' ? application.sub_stage : typeof application?.subStage === 'string' ? application.subStage : undefined) as string | undefined
 
   // Helper function to render interview actions
-  const renderInterviewActions = (): ReactNode => {
+  const renderInterviewActions = (): ReactNode | null => {
     const stageStr: string = String(currentStage)
     const isInterview: boolean = stageStr === 'INTERVIEW'
     const hasInterviews: boolean = interviews.length > 0
-    
+
     if (!isInterview || !hasInterviews) {
       return null
     }
@@ -191,18 +191,30 @@ const SeekerApplicationDetails = () => {
       <div className="mt-6 pt-6 border-t border-[#e5e7eb]">
         <h3 className="text-[16px] font-semibold text-[#1f2937] mb-4">Actions</h3>
         <div className="flex flex-wrap gap-3">
-          {interviews.some((i: ATSInterview) => i.meetingLink && i.status === 'scheduled') ? (
+          {interviews.some((i: ATSInterview) =>
+            (i.videoType === 'in-app' && i.webrtcRoomId && i.status === 'scheduled') ||
+            (i.meetingLink && i.status === 'scheduled')
+          ) ? (
             <Button
               onClick={() => {
-                const scheduledInterview = interviews.find((i: ATSInterview) => i.meetingLink && i.status === 'scheduled')
-                if (scheduledInterview?.meetingLink) {
-                  window.open(scheduledInterview.meetingLink, '_blank')
+                const scheduledInterview = interviews.find((i: ATSInterview) =>
+                  (i.videoType === 'in-app' && i.webrtcRoomId && i.status === 'scheduled') ||
+                  (i.meetingLink && i.status === 'scheduled')
+                )
+                if (scheduledInterview) {
+                  if (scheduledInterview.videoType === 'in-app' && scheduledInterview.webrtcRoomId) {
+                    navigate(`/video-call/${scheduledInterview.webrtcRoomId}`)
+                  } else if (scheduledInterview.meetingLink) {
+                    window.open(scheduledInterview.meetingLink, '_blank')
+                  }
                 }
               }}
               className="bg-[#4640DE] hover:bg-[#3730A3] gap-2"
             >
               <Video className="h-4 w-4" />
-              Join Interview
+              {interviews.some((i: ATSInterview) => i.videoType === 'in-app' && i.webrtcRoomId && i.status === 'scheduled')
+                ? 'Join In-App Video'
+                : 'Join Interview'}
             </Button>
           ) : null}
           <Button
@@ -243,7 +255,7 @@ const SeekerApplicationDetails = () => {
             {/* Hiring Progress */}
             <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
               <h2 className="text-[20px] font-bold text-[#1f2937] mb-6">Hiring Progress</h2>
-              
+
               {/* Current Stage */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -257,7 +269,7 @@ const SeekerApplicationDetails = () => {
                     {ATSStageDisplayNames[currentStage] || currentStage}
                   </Badge>
                 </div>
-                
+
                 {currentSubStage && (
                   <div className="mt-4 pt-4 border-t border-[#e5e7eb]">
                     <p className="text-[14px] text-[#6b7280] mb-1">Sub-stage</p>
@@ -314,7 +326,7 @@ const SeekerApplicationDetails = () => {
                     {offers.map((offer) => {
                       const getStatusDisplay = (status: string, hasWithdrawalReason?: boolean) => {
                         if (status === 'declined' || status === 'OFFER_DECLINED') {
-                          return hasWithdrawalReason 
+                          return hasWithdrawalReason
                             ? { label: 'Offer Withdrawn', color: 'bg-orange-100 text-orange-700' }
                             : { label: 'Offer Declined', color: 'bg-red-100 text-red-700' }
                         }
@@ -345,7 +357,7 @@ const SeekerApplicationDetails = () => {
                                   {statusInfo.label}
                                 </Badge>
                               </div>
-                              
+
                               {offer.offerAmount && (
                                 <div className="mb-3">
                                   <p className="text-[13px] text-[#6b7280] mb-1">Offer Amount</p>
@@ -514,14 +526,14 @@ const SeekerApplicationDetails = () => {
                               <span>Due: {task.deadline ? formatDate(task.deadline) : 'No deadline'}</span>
                               <Badge className={
                                 isAssigned ? 'bg-blue-100 text-blue-700' :
-                                isSubmitted ? 'bg-yellow-100 text-yellow-700' :
-                                isUnderReview ? 'bg-purple-100 text-purple-700' :
-                                'bg-green-100 text-green-700'
+                                  isSubmitted ? 'bg-yellow-100 text-yellow-700' :
+                                    isUnderReview ? 'bg-purple-100 text-purple-700' :
+                                      'bg-green-100 text-green-700'
                               }>
                                 {isAssigned ? 'Assigned' :
-                                 isSubmitted ? 'Submitted' :
-                                 isUnderReview ? 'Under Review' :
-                                 'Completed'}
+                                  isSubmitted ? 'Submitted' :
+                                    isUnderReview ? 'Under Review' :
+                                      'Completed'}
                               </Badge>
                             </div>
                           </div>
@@ -572,7 +584,7 @@ const SeekerApplicationDetails = () => {
                         {isSubmitted && (task.submissionUrl || task.submissionLink) && (
                           <div className="mb-4 p-3 bg-[#f9fafb] rounded border border-[#e5e7eb]">
                             <p className="text-[13px] font-medium text-[#1f2937] mb-2">Your Submission</p>
-                            
+
                             {/* File Submission */}
                             {task.submissionUrl && (
                               <div className="mb-2 flex items-center gap-2 text-[13px] text-[#6b7280]">
@@ -642,8 +654,8 @@ const SeekerApplicationDetails = () => {
                             <span>{formatDateTime(interview.scheduledDate)}</span>
                             <Badge className={
                               interview.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-                              interview.status === 'completed' ? 'bg-green-100 text-green-700' :
-                              'bg-gray-100 text-gray-700'
+                                interview.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                  'bg-gray-100 text-gray-700'
                             }>
                               {interview.status || 'Scheduled'}
                             </Badge>
@@ -677,14 +689,14 @@ const SeekerApplicationDetails = () => {
                     const isCompleted = meetingStatus === 'completed'
                     const isCancelled = meetingStatus === 'cancelled'
                     const isScheduled = meetingStatus === 'scheduled'
-                    
+
                     let bgColor = ''
                     if (isCancelled) {
                       bgColor = 'bg-gray-50 border-gray-200'
                     } else if (isCompleted) {
                       bgColor = 'bg-green-50 border-green-200'
                     }
-                    
+
                     return (
                       <div key={idx} className={`border rounded-lg p-4 ${bgColor}`}>
                         <div className="flex items-start justify-between mb-2">
@@ -845,19 +857,19 @@ const SeekerApplicationDetails = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (!file) return
-                
+
                 const allowedExtensions = ['.pdf', '.doc', '.docx']
                 const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
                 if (!allowedExtensions.includes(fileExtension)) {
                   toast.error('Please upload a PDF, DOC, or DOCX file')
                   return
                 }
-                
+
                 if (file.size > 10 * 1024 * 1024) {
                   toast.error('File size must be less than 10MB')
                   return
                 }
-                
+
                 setSelectedFile(file)
               }}
             />
@@ -914,7 +926,7 @@ const SeekerApplicationDetails = () => {
                       toast.error('Please select a signed document to upload')
                       return
                     }
-                    
+
                     try {
                       setUploading(true)
                       await atsService.uploadSignedOfferDocument(id, selectedOffer.id, selectedFile)

@@ -48,6 +48,8 @@ export interface Interview {
   title: string;
   scheduledDate: string;
   type: 'online' | 'in-person' | 'phone';
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   meetingLink?: string;
   location?: string;
   status: 'scheduled' | 'completed' | 'cancelled';

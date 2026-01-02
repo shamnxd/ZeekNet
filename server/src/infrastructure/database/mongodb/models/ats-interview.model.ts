@@ -5,6 +5,8 @@ export interface IATSInterviewDocument extends Document {
   title: string;
   scheduledDate: Date;
   type: 'online' | 'offline';
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   meetingLink?: string;
   location?: string;
   status: 'scheduled' | 'completed' | 'cancelled';
@@ -34,6 +36,13 @@ const ATSInterviewSchema = new Schema<IATSInterviewDocument>(
       type: String,
       enum: ['online', 'offline'],
       required: true,
+    },
+    videoType: {
+      type: String,
+      enum: ['in-app', 'external'],
+    },
+    webrtcRoomId: {
+      type: String,
     },
     meetingLink: {
       type: String,
