@@ -116,6 +116,7 @@ const s3Service = new S3Service();
 
 const stripeService = new StripeService();
 logger.info('Stripe service initialized');
+logger.info('Starting UseCase initialization...');
 
 const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
@@ -192,6 +193,7 @@ const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobAppli
 const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
 const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
 
+logger.info('Creating Stripe related UseCases...');
 const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, userRepository);
 
 const revertToDefaultPlanUseCase = new RevertToDefaultPlanUseCase(companySubscriptionRepository, subscriptionPlanRepository, jobPostingRepository, companyProfileRepository, notificationRepository, logger);
@@ -212,6 +214,9 @@ const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s
 const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
 
 const mailerService = new NodemailerService();
+import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+const emailTemplateService = new EmailTemplateService();
+
 const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
   jobApplicationRepository,
   jobPostingRepository,
@@ -226,6 +231,7 @@ const closeJobManuallyUseCase = new CloseJobManuallyUseCase(
   companyProfileRepository,
   userRepository,
   mailerService,
+  emailTemplateService,
 );
 
 const reopenJobUseCase = new ReopenJobUseCase(
@@ -313,6 +319,7 @@ const companySubscriptionController = new CompanySubscriptionController(
 
 const companyCandidatesController = new CompanyCandidatesController(getCandidatesUseCase, getCandidateDetailsUseCase);
 
+logger.info('Creating Controllers...');
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
 export {
@@ -334,4 +341,4 @@ export {
   stripeService,
   getCompanyIdByUserIdUseCase,
 };
-
+logger.info('companyDi initialization complete');

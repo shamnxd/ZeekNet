@@ -6,11 +6,20 @@ import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivity
 import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+
 export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
   constructor(
     private taskRepository: IATSTechnicalTaskRepository,
     private jobApplicationRepository: IJobApplicationRepository,
+    private jobPostingRepository: IJobPostingRepository,
+    private userRepository: IUserRepository,
     private activityLoggerService: IActivityLoggerService,
+    private mailerService: IMailerService,
+    private emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(data: {
@@ -43,6 +52,16 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       throw new NotFoundError('Application not found');
     }
 
+    const job = await this.jobPostingRepository.findById(application.jobId);
+    if (job && application.seekerId) {
+        await this._sendTechnicalTaskAssignedEmail(
+            application.seekerId,
+            job.title,
+            job.companyName || 'ZeekNet',
+            data.title,
+            data.deadline
+        );
+    }
     
     await this.activityLoggerService.logTaskAssignedActivity({
       applicationId: data.applicationId,
@@ -56,5 +75,31 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
     });
 
     return savedTask;
+  }
+
+  private async _sendTechnicalTaskAssignedEmail(
+    seekerId: string,
+    jobTitle: string,
+    companyName: string,
+    taskTitle: string,
+    deadline: Date,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepository.findById(seekerId);
+      if (!user) return;
+
+      const deadlineStr = deadline.toLocaleDateString();
+
+      const { subject, html } = this.emailTemplateService.getTechnicalTaskAssignedEmail(
+        user.name,
+        jobTitle,
+        companyName,
+        taskTitle,
+        deadlineStr,
+      );
+      await this.mailerService.sendMail(user.email, subject, html);
+    } catch (error) {
+      console.error('Failed to send technical task assigned email:', error);
+    }
   }
 }

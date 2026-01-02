@@ -52,6 +52,9 @@ import { GetCompensationMeetingsByApplicationUseCase } from 'src/application/use
 import { UpdateOfferStatusUseCase } from 'src/application/use-cases/seeker/applications/update-offer-status.use-case';
 import { UploadSignedOfferDocumentUseCase } from 'src/application/use-cases/seeker/applications/upload-signed-offer-document.use-case';
 
+import { logger } from 'src/infrastructure/config/logger';
+
+logger.info('Initializing seekerDi...');
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
@@ -69,6 +72,12 @@ const activityRepository = new ATSActivityRepository();
 const activityLoggerService = new ActivityLoggerService(activityRepository);
 const atsService = new AtsService(env.GROQ_API_KEY);
 const resumeParserService = new ResumeParserService();
+
+import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+
+const mailerService = new NodemailerService();
+const emailTemplateService = new EmailTemplateService();
 
 const createSeekerProfileUseCase = new CreateSeekerProfileUseCase(seekerProfileRepository, s3Service);
 const getSeekerProfileUseCase = new GetSeekerProfileUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
@@ -100,6 +109,8 @@ const createJobApplicationUseCase = new CreateJobApplicationUseCase(
   notificationService,
   resumeParserService,
   calculateATSScoreUseCase,
+  mailerService,
+  emailTemplateService,
 );
 const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
@@ -157,4 +168,5 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
 );
 
 export { seekerJobApplicationController, seekerProfileController };
+logger.info('seekerDi initialization complete');
 

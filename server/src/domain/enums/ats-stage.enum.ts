@@ -7,6 +7,7 @@ export enum ATSStage {
   COMPENSATION = 'COMPENSATION',
   OFFER = 'OFFER',
   HIRED = 'HIRED',
+  REJECTED = 'REJECTED',
 }
 
 

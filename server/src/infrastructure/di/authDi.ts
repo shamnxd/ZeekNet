@@ -28,6 +28,9 @@ import { OtpController } from 'src/presentation/controllers/auth/otp.controller'
 import { CookieService } from 'src/infrastructure/services/cookie.service';
 import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
 
+import { logger } from 'src/infrastructure/config/logger';
+
+logger.info('Initializing authDi...');
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
 const passwordHasher = new BcryptPasswordHasher();
@@ -78,4 +81,5 @@ export const passwordController = new PasswordController(forgotPasswordUseCase, 
 export const otpController = new OtpController(otpService, mailerService, getUserByEmailUseCase, updateUserVerificationStatusUseCase, updateUserRefreshTokenUseCase, tokenService, passwordHasher, cookieService);
 
 export { userRepository };
+logger.info('authDi initialization complete');
 
