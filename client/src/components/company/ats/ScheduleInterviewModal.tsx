@@ -55,14 +55,14 @@ export const ScheduleInterviewModal = ({
         notes: ''
     });
 
-    // Pre-fill form when rescheduling
+
     React.useEffect(() => {
         if (interviewToReschedule && isOpen && interviewToReschedule.scheduledDate) {
             const scheduledDate = new Date(interviewToReschedule.scheduledDate);
             setFormData({
                 title: interviewToReschedule.title || '',
                 type: interviewToReschedule.type || 'online',
-                videoType: (interviewToReschedule as any).videoType || (interviewToReschedule.meetingLink ? 'external' : 'in-app'),
+                videoType: (interviewToReschedule as { videoType?: 'in-app' | 'external' }).videoType || (interviewToReschedule.meetingLink ? 'external' : 'in-app'),
                 date: scheduledDate.toISOString().split('T')[0] || '',
                 time: scheduledDate.toTimeString().slice(0, 5) || '',
                 location: interviewToReschedule.location || '',
@@ -70,7 +70,7 @@ export const ScheduleInterviewModal = ({
                 notes: ''
             });
         } else if (!interviewToReschedule && isOpen) {
-            // Reset form for new interview
+
             setFormData({
                 title: '',
                 type: 'online',
@@ -107,7 +107,7 @@ export const ScheduleInterviewModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    { }
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-stage-interview/20 flex items-center justify-center">
@@ -128,9 +128,9 @@ export const ScheduleInterviewModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    { }
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        {/* Title */}
+                        { }
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Interview Title
@@ -145,7 +145,7 @@ export const ScheduleInterviewModal = ({
                             />
                         </div>
 
-                        {/* Type */}
+                        { }
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Interview Type
@@ -180,7 +180,7 @@ export const ScheduleInterviewModal = ({
                             </div>
                         </div>
 
-                        {/* Date & Time */}
+                        { }
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -208,7 +208,7 @@ export const ScheduleInterviewModal = ({
                             </div>
                         </div>
 
-                        {/* Video Type Selection (only for online) */}
+                        { }
                         {formData.type === 'online' && (
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -264,7 +264,7 @@ export const ScheduleInterviewModal = ({
                             </div>
                         )}
 
-                        {/* Location (only for offline) */}
+                        { }
                         {formData.type === 'offline' && (
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -280,7 +280,7 @@ export const ScheduleInterviewModal = ({
                             </div>
                         )}
 
-                        {/* Notes */}
+                        { }
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Notes (Optional)
@@ -294,7 +294,7 @@ export const ScheduleInterviewModal = ({
                             />
                         </div>
 
-                        {/* Actions */}
+                        { }
                         <div className="flex gap-3 pt-2">
                             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                                 Cancel
