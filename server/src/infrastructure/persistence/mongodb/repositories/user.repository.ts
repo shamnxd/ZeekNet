@@ -31,5 +31,13 @@ export class UserRepository extends RepositoryBase<User, UserDocument> implement
 
     return documents.map(doc => this.mapToEntity(doc));
   }
+
+  async countVerified(): Promise<number> {
+    return UserModel.countDocuments({ isVerified: true });
+  }
+
+  async countByRole(role: 'seeker' | 'company'): Promise<number> {
+    return UserModel.countDocuments({ role });
+  }
 }
 

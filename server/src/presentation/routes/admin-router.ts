@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from 'express';
-import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController } from 'src/infrastructure/di/adminDi';
+import { adminController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController, adminDashboardController } from 'src/infrastructure/di/adminDi';
 
 import { requireAdmin } from 'src/presentation/middleware/admin.middleware';
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
@@ -35,6 +35,8 @@ export class AdminRouter {
     this.router.get('/users', validateQuery(GetAllUsersDto), adminController.getAllUsers);
     this.router.patch('/users/block', adminController.blockUser);
     this.router.get('/users/:id', adminController.getUserById);
+    
+    this.router.get('/dashboard/stats', adminDashboardController.getDashboardStats);
 
     this.router.get('/companies', adminController.getAllCompanies);
     this.router.get('/companies/verification', adminController.getPendingCompanies);

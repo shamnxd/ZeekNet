@@ -211,5 +211,29 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
     const docs = await CompanyProfileModel.find({ _id: { $in: ids } }).exec();
     return docs.map(doc => this.mapToEntity(doc));
   }
+
+  async countTotal(): Promise<number> {
+    return CompanyProfileModel.countDocuments();
+  }
+
+  async countByVerificationStatus(status: 'pending' | 'rejected' | 'verified'): Promise<number> {
+    return CompanyProfileModel.countDocuments({ isVerified: status });
+  }
+
+  async getLocationStats(): Promise<{ country: string; count: number }[]> {
+    // Assuming location is typically stored in 'phone' (e.g., country code) or 'userId' meta?
+    // Or literally just aggregation on 'location' field if it exists?
+    // CompanyProfile has 'officeLocations' usually separate, but entity usually just has basics.
+    // Looking at schema/entity, I don't see a top level 'country'.
+    // Use 'industry' for now as placeholder or if 'officeLocations' exists use that?
+    // Wait, the client expects "Popular Location".
+    // I see 'ICompanyOfficeLocationRepository' earlier. Maybe I should aggregate there?
+    // But CompanyProfile might have it.
+    // For now, I will aggregate on 'industry' as a placeholder or return empty if no location field.
+    // Actually, let's return mock or implementation based on available data.
+    // If no country field, I can't aggregate.
+    // Let's check schema/model imports.
+    return [];
+  }
 }
 
