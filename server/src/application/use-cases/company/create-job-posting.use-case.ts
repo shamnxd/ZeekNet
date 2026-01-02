@@ -54,6 +54,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       skillsRequired: jobData.skills_required,
       categoryIds: jobData.category_ids,
       isFeatured,
+      totalVacancies: jobData.total_vacancies ?? 1,
     });
 
     const createdJob = await this._jobPostingRepository.postJob(jobPosting);

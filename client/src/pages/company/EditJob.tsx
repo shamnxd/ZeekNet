@@ -35,6 +35,8 @@ const EditJob = () => {
     niceToHaves: [],
     benefits: [],
     enabledStages: Object.values(ATSStage),
+    totalVacancies: 1,
+    filledVacancies: 0,
   });
 
   const steps = [
@@ -62,7 +64,7 @@ const EditJob = () => {
     {
       id: 4,
       title: "Hiring Pipeline",
-      description: "Customize hiring workflow",
+      description: "View hiring workflow stages",
       icon: GitPullRequest,
       component: HiringPipelineStep,
     },
@@ -96,6 +98,9 @@ const EditJob = () => {
             niceToHaves: job.niceToHaves || job.nice_to_haves || [],
             benefits: job.benefits || [],
             enabledStages: (job.enabledStages || job.enabled_stages || Object.values(ATSStage)) as ATSStage[],
+            totalVacancies: job.totalVacancies || job.total_vacancies || 1,
+            filledVacancies: job.filledVacancies || job.filled_vacancies || 0,
+            status: job.status || 'active',
           });
         } else {
           toast.error("Failed to load job data");
@@ -177,6 +182,29 @@ const EditJob = () => {
         return;
       }
 
+      // Validate totalVacancies >= filledVacancies
+      const filledVacancies = jobData.filledVacancies ?? 0;
+      const totalVacancies = jobData.totalVacancies ?? 1;
+      if (totalVacancies < filledVacancies) {
+        toast.error("Validation failed", {
+          description: `Total vacancies (${totalVacancies}) cannot be less than filled vacancies (${filledVacancies})`,
+        });
+        return;
+      }
+
+      // Check if job is ACTIVE (OPEN) - only allow updating totalVacancies when OPEN
+      // Note: This will be validated on backend as well
+      if (totalVacancies !== (jobData.totalVacancies ?? 1)) {
+        // If totalVacancies changed, we need to check job status
+        // This will be handled by backend validation
+      }
+
+      // Automatically include all stages with OFFER stage always included
+      const allStages = Object.values(ATSStage);
+      const enabledStages = allStages.includes(ATSStage.OFFER) 
+        ? allStages 
+        : [...allStages, ATSStage.OFFER];
+
       const jobPostingData: JobPostingRequest = {
         title: jobData.title,
         description: jobData.description,
@@ -189,7 +217,8 @@ const EditJob = () => {
         location: jobData.location,
         skills_required: jobData.skillsRequired,
         category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
-        enabled_stages: jobData.enabledStages.length > 0 ? jobData.enabledStages : Object.values(ATSStage) as string[]
+        enabled_stages: enabledStages as string[],
+        total_vacancies: jobData.totalVacancies ?? 1
       };
 
       const response = await companyApi.updateJobPosting(id, jobPostingData);
@@ -288,15 +317,28 @@ const EditJob = () => {
         </div>
 
         <div className="w-full">
-          <CurrentStepComponent
-            data={jobData}
-            onDataChange={handleDataChange}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            isFirstStep={currentStep === 1}
-            isLastStep={currentStep === 4}
-            onSubmit={handleSubmit}
-          />
+          {currentStep === 4 ? (
+            <HiringPipelineStep
+              data={jobData}
+              onDataChange={handleDataChange}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              isFirstStep={false}
+              isLastStep={true}
+              onSubmit={handleSubmit}
+              readOnly={true}
+            />
+          ) : (
+            <CurrentStepComponent
+              data={jobData}
+              onDataChange={handleDataChange}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              isFirstStep={currentStep === 1}
+              isLastStep={currentStep === 3}
+              onSubmit={handleSubmit}
+            />
+          )}
         </div>
       </div>
     </CompanyLayout>

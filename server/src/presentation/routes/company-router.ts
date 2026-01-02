@@ -102,9 +102,12 @@ export class CompanyRouter {
     this.router.put('/jobs/:id', validateBody(UpdateJobPostingDto), companyJobPostingController.updateJobPosting);
     this.router.delete('/jobs/:id', companyJobPostingController.deleteJobPosting);
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
+    this.router.post('/jobs/:id/close', companyJobPostingController.closeJob);
+    this.router.post('/jobs/:id/reopen', companyJobPostingController.reopenJob);
 
     this.router.get('/applications', companyJobApplicationController.getApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
+    this.router.post('/applications/:id/mark-hired', companyJobApplicationController.markAsHired);
     
     const { 
       atsInterviewController, 

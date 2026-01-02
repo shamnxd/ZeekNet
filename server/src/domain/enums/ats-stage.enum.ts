@@ -6,6 +6,7 @@ export enum ATSStage {
   TECHNICAL_TASK = 'TECHNICAL_TASK',
   COMPENSATION = 'COMPENSATION',
   OFFER = 'OFFER',
+  HIRED = 'HIRED',
 }
 
 // Sub-Stages for IN_REVIEW

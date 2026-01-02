@@ -88,6 +88,10 @@ import { SubscriptionMiddleware } from '../../presentation/middleware/subscripti
 import { GetCandidatesUseCase } from '../../application/use-cases/company/get-candidates.use-case';
 import { GetCandidateDetailsUseCase } from '../../application/use-cases/company/get-candidate-details.use-case';
 import { CompanyCandidatesController } from '../../presentation/controllers/company/company-candidates.controller';
+import { MarkCandidateHiredUseCase } from '../../application/use-cases/company/mark-candidate-hired.use-case';
+import { CloseJobManuallyUseCase } from '../../application/use-cases/company/close-job-manually.use-case';
+import { ReopenJobUseCase } from '../../application/use-cases/company/reopen-job.use-case';
+import { NodemailerService } from '../messaging/mailer';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -198,6 +202,28 @@ const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRep
 const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s3Service);
 const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
 
+const mailerService = new NodemailerService();
+const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
+  jobApplicationRepository,
+  jobPostingRepository,
+  companyProfileRepository,
+  userRepository,
+  mailerService,
+);
+
+const closeJobManuallyUseCase = new CloseJobManuallyUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  companyProfileRepository,
+  userRepository,
+  mailerService,
+);
+
+const reopenJobUseCase = new ReopenJobUseCase(
+  jobPostingRepository,
+  companyProfileRepository,
+);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
@@ -251,7 +277,7 @@ const companyUploadController = new CompanyUploadController(
   deleteImageUseCase,
 );
 
-const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase);
+const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase, closeJobManuallyUseCase, reopenJobUseCase);
 
 const companyJobApplicationController = new CompanyJobApplicationController(
   getApplicationsByJobUseCase,
@@ -260,6 +286,7 @@ const companyJobApplicationController = new CompanyJobApplicationController(
   updateApplicationStageUseCase,
   updateApplicationScoreUseCase,
   bulkUpdateApplicationsUseCase,
+  markCandidateHiredUseCase,
 );
 
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);

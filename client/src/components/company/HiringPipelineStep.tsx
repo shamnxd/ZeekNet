@@ -5,13 +5,18 @@ import type { JobPostingStepProps } from "@/interfaces/job/job-posting-step-prop
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const HiringPipelineStep: React.FC<JobPostingStepProps> = ({
+interface HiringPipelineStepProps extends JobPostingStepProps {
+    readOnly?: boolean;
+}
+
+const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     data,
     onDataChange,
     onNext,
     onPrevious,
     isLastStep,
     onSubmit,
+    readOnly = false,
 }) => {
     const allStages = Object.values(ATSStage);
 
@@ -62,7 +67,9 @@ const HiringPipelineStep: React.FC<JobPostingStepProps> = ({
             <div className="flex flex-col gap-1 w-full">
                 <h2 className="text-base font-semibold text-[#25324B]">Hiring Pipeline</h2>
                 <p className="text-sm text-[#7C8493]">
-                    Customize the hiring stages for this job position.
+                    {readOnly 
+                        ? "View the hiring stages for this job position. Stages are automatically configured and cannot be modified."
+                        : "Customize the hiring stages for this job position."}
                 </p>
             </div>
 
@@ -76,12 +83,16 @@ const HiringPipelineStep: React.FC<JobPostingStepProps> = ({
                     return (
                         <div
                             key={stage}
-                            onClick={() => handleStageToggle(stage)}
+                            onClick={readOnly ? undefined : () => handleStageToggle(stage)}
                             className={cn(
-                                "group relative flex items-start gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-md",
+                                "group relative flex items-start gap-4 p-4 rounded-xl border-2 transition-all",
+                                readOnly 
+                                    ? "cursor-default bg-gray-50"
+                                    : "cursor-pointer hover:shadow-md",
                                 isSelected
                                     ? "border-[#4640DE] bg-[#4640DE]/5"
-                                    : "border-[#D6DDEB] hover:border-[#4640DE]/50 bg-white"
+                                    : "border-[#D6DDEB] bg-white",
+                                !readOnly && !isSelected && "hover:border-[#4640DE]/50"
                             )}
                         >
                             <div
@@ -89,7 +100,9 @@ const HiringPipelineStep: React.FC<JobPostingStepProps> = ({
                                     "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
                                     isSelected
                                         ? "border-[#4640DE] bg-[#4640DE] text-white"
-                                        : "border-[#D6DDEB] bg-transparent group-hover:border-[#4640DE]/50"
+                                        : readOnly
+                                            ? "border-[#D6DDEB] bg-transparent"
+                                            : "border-[#D6DDEB] bg-transparent group-hover:border-[#4640DE]/50"
                                 )}
                             >
                                 {isSelected && <Check className="h-4 w-4" />}

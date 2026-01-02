@@ -42,6 +42,10 @@ export class JobPostingMapper {
       isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
       applicationCount: doc.application_count || 0,
+      totalVacancies: doc.total_vacancies,
+      filledVacancies: doc.filled_vacancies,
+      closureType: doc.closure_type,
+      closedAt: doc.closed_at,
       createdAt: doc.createdAt || new Date(),
       updatedAt: doc.updatedAt || new Date(),
       companyName,
@@ -93,9 +97,19 @@ export class JobPostingMapper {
     }
     
     if (input.enabledStages !== undefined) {
-      doc.enabled_stages = input.enabledStages as ATSStage[];
+      let enabledStages = input.enabledStages as ATSStage[];
+      // Ensure OFFER stage is always included
+      if (!enabledStages.includes(ATSStage.OFFER)) {
+        enabledStages = [...enabledStages, ATSStage.OFFER];
+      }
+      doc.enabled_stages = enabledStages;
     } else if (input.enabled_stages !== undefined) {
-      doc.enabled_stages = input.enabled_stages as ATSStage[];
+      let enabledStages = input.enabled_stages as ATSStage[];
+      // Ensure OFFER stage is always included
+      if (!enabledStages.includes(ATSStage.OFFER)) {
+        enabledStages = [...enabledStages, ATSStage.OFFER];
+      }
+      doc.enabled_stages = enabledStages;
     }
     
     if (input.atsPipelineConfig !== undefined) {
@@ -130,6 +144,30 @@ export class JobPostingMapper {
       doc.application_count = input.applicationCount as number;
     } else if (input.application_count !== undefined) {
       doc.application_count = input.application_count as number;
+    }
+    
+    if (input.totalVacancies !== undefined) {
+      doc.total_vacancies = input.totalVacancies as number;
+    } else if (input.total_vacancies !== undefined) {
+      doc.total_vacancies = input.total_vacancies as number;
+    }
+    
+    if (input.filledVacancies !== undefined) {
+      doc.filled_vacancies = input.filledVacancies as number;
+    } else if (input.filled_vacancies !== undefined) {
+      doc.filled_vacancies = input.filled_vacancies as number;
+    }
+    
+    if (input.closureType !== undefined) {
+      doc.closure_type = input.closureType as string;
+    } else if (input.closure_type !== undefined) {
+      doc.closure_type = input.closure_type as string;
+    }
+    
+    if (input.closedAt !== undefined) {
+      doc.closed_at = input.closedAt as Date;
+    } else if (input.closed_at !== undefined) {
+      doc.closed_at = input.closed_at as Date;
     }
     
     return doc;

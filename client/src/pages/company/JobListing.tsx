@@ -18,7 +18,9 @@ import {
   Eye,
   Edit,
   EyeOff,
-  List
+  List,
+  XCircle,
+  RotateCcw
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -26,6 +28,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -36,7 +48,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed') => {
   switch (status) {
     case 'active':
       return 'Live';
@@ -46,6 +58,8 @@ const getStatusBadge = (status: 'active' | 'unlisted' | 'expired' | 'blocked') =
       return 'Expired';
     case 'blocked':
       return 'Blocked';
+    case 'closed':
+      return 'Closed';
     default:
       return 'Unknown';
   }
@@ -69,6 +83,9 @@ const CompanyJobListing = () => {
     total: 0,
     totalPages: 0
   })
+  const [reopenDialogOpen, setReopenDialogOpen] = useState(false)
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+  const [additionalVacancies, setAdditionalVacancies] = useState<number>(1)
 
   const fetchJobs = async (page: number = 1, limit: number = 10) => {
     try {
@@ -123,7 +140,71 @@ const CompanyJobListing = () => {
     navigate(`/company/edit-job/${jobId}`)
   }
 
-  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked') => {
+  const handleCloseJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to close this job? This action cannot be undone. All remaining candidates will be notified.')) {
+      return;
+    }
+
+    try {
+      const response = await companyApi.closeJob(jobId);
+      
+      if (response.success) {
+        toast.success('Job closed successfully', {
+          description: 'All remaining candidates have been notified.'
+        });
+        await fetchJobs(pagination.page, pagination.limit);
+      } else {
+        toast.error('Failed to close job', {
+          description: response.message || 'Please try again later.'
+        });
+      }
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      toast.error('Failed to close job', {
+        description: apiError?.response?.data?.message || 'Please try again later.'
+      });
+    }
+  };
+
+  const handleReopenJob = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setAdditionalVacancies(1);
+    setReopenDialogOpen(true);
+  };
+
+  const handleReopenSubmit = async () => {
+    if (!selectedJobId || additionalVacancies < 1) {
+      toast.error('Invalid input', {
+        description: 'Additional vacancies must be at least 1.'
+      });
+      return;
+    }
+
+    try {
+      const response = await companyApi.reopenJob(selectedJobId, additionalVacancies);
+      
+      if (response.success) {
+        toast.success('Job reopened successfully', {
+          description: `Job has been reopened with ${additionalVacancies} additional ${additionalVacancies === 1 ? 'vacancy' : 'vacancies'}.`
+        });
+        setReopenDialogOpen(false);
+        setSelectedJobId(null);
+        setAdditionalVacancies(1);
+        await fetchJobs(pagination.page, pagination.limit);
+      } else {
+        toast.error('Failed to reopen job', {
+          description: response.message || 'Please try again later.'
+        });
+      }
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      toast.error('Failed to reopen job', {
+        description: apiError?.response?.data?.message || 'Please try again later.'
+      });
+    }
+  };
+
+  const handleToggleJobStatus = async (jobId: string, currentStatus: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed') => {
     const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
     const statusText = newStatus === 'active' ? 'listed' : 'unlisted'
     
@@ -259,6 +340,8 @@ const CompanyJobListing = () => {
                         return 'border-[#7C8493] text-[#7C8493] bg-transparent';
                       case 'blocked':
                         return 'border-red-500 text-red-500 bg-transparent';
+                      case 'closed':
+                        return 'border-gray-600 text-gray-600 bg-transparent';
                       default:
                         return 'border-[#D6DDEB] text-[#7C8493] bg-transparent';
                     }
@@ -333,13 +416,34 @@ const CompanyJobListing = () => {
                             <Eye className="w-4 h-4 mr-2" />
                             View
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditJob(jobId)}>
+                          <DropdownMenuItem 
+                            onClick={() => handleEditJob(jobId)}
+                            disabled={status === 'closed' || status === 'blocked'}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
+                          {status !== 'closed' && (
+                            <DropdownMenuItem 
+                              onClick={() => handleCloseJob(jobId)}
+                              className="text-red-600"
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Close Job
+                            </DropdownMenuItem>
+                          )}
+                          {status === 'closed' && (job.closureType === 'auto_filled' || job.closure_type === 'auto_filled') && (
+                            <DropdownMenuItem 
+                              onClick={() => handleReopenJob(jobId)}
+                              className="text-green-600"
+                            >
+                              <RotateCcw className="w-4 h-4 mr-2" />
+                              Reopen Job
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             onClick={() => handleToggleJobStatus(jobId, status)}
-                            disabled={status === 'blocked' || status === 'expired'}
+                            disabled={status === 'blocked' || status === 'expired' || status === 'closed'}
                             className={status === 'active' ? 'text-orange-600' : 'text-green-600'}
                           >
                             {status === 'active' ? (
@@ -434,6 +538,49 @@ const CompanyJobListing = () => {
           </Card>
         </div>
       </div>
+
+      {/* Reopen Job Dialog */}
+      <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reopen Job</DialogTitle>
+            <DialogDescription>
+              This job was automatically closed when all vacancies were filled. Add additional vacancies to reopen the job.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="additionalVacancies">Additional Vacancies</Label>
+              <Input
+                id="additionalVacancies"
+                type="number"
+                min="1"
+                value={additionalVacancies}
+                onChange={(e) => setAdditionalVacancies(parseInt(e.target.value) || 1)}
+                placeholder="Enter number of additional vacancies"
+              />
+              <p className="text-sm text-muted-foreground">
+                Enter the number of new vacancies you want to add to this job posting.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setReopenDialogOpen(false);
+                setSelectedJobId(null);
+                setAdditionalVacancies(1);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleReopenSubmit}>
+              Reopen Job
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </CompanyLayout>
   )
 }

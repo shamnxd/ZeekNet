@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 import { EmploymentType } from '../../../../domain/enums/employment-type.enum';
 import { JobStatus } from '../../../../domain/enums/job-status.enum';
+import { JobClosureType } from '../../../../domain/enums/job-closure-type.enum';
 import { ATSStage, ATSSubStage } from '../../../../domain/enums/ats-stage.enum';
 import { STAGE_TO_SUB_STAGES } from '../../../../domain/utils/ats-pipeline.util';
 
@@ -39,6 +40,10 @@ export interface JobPostingDocument extends Document {
   unpublish_reason?: string;
   view_count: number;
   application_count: number;
+  total_vacancies?: number;
+  filled_vacancies?: number;
+  closure_type?: JobClosureType;
+  closed_at?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -205,6 +210,23 @@ const JobPostingSchema = new Schema<JobPostingDocument>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    total_vacancies: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+    filled_vacancies: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    closure_type: {
+      type: String,
+      enum: Object.values(JobClosureType),
+    },
+    closed_at: {
+      type: Date,
     },
   },
   {

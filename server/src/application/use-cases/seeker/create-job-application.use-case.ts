@@ -69,6 +69,9 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
+    if (job.status === 'closed') {
+      throw new ValidationError('This job posting has been closed and is no longer accepting applications');
+    }
     if (job.status !== 'active') {
       throw new ValidationError('This job posting is not available for applications');
     }

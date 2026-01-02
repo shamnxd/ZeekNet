@@ -60,6 +60,7 @@ export interface JobPostingRequest {
   skills_required?: string[]
   category_ids: string[]
   enabled_stages?: string[]
+  total_vacancies?: number
 }
 
 export interface CompanyDashboard {

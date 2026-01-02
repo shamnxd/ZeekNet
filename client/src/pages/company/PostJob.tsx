@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../../components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle, GitPullRequest } from "lucide-react";
+import { ArrowLeft, Briefcase, ClipboardList, Heart, AlertCircle } from "lucide-react";
 import JobInformationStep from "../../components/company/JobInformationStep";
 import JobDescriptionStep from "../../components/company/JobDescriptionStep";
 import PerksBenefitsStep from "../../components/company/PerksBenefitsStep";
-import HiringPipelineStep from "../../components/company/HiringPipelineStep";
 import type { JobPostingData } from "@/interfaces/job/job-posting-data.interface";
 import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
@@ -36,6 +35,7 @@ const PostJob = () => {
     niceToHaves: [],
     benefits: [],
     enabledStages: Object.values(ATSStage),
+    totalVacancies: 1,
   });
 
   const steps = [
@@ -60,17 +60,10 @@ const PostJob = () => {
       icon: Heart,
       component: PerksBenefitsStep,
     },
-    {
-      id: 4,
-      title: "Hiring Pipeline",
-      description: "Customize hiring workflow",
-      icon: GitPullRequest,
-      component: HiringPipelineStep,
-    },
   ];
 
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -94,6 +87,12 @@ const PostJob = () => {
         return;
       }
 
+      // Automatically include all stages with OFFER stage always included
+      const allStages = Object.values(ATSStage);
+      const enabledStages = allStages.includes(ATSStage.OFFER) 
+        ? allStages 
+        : [...allStages, ATSStage.OFFER];
+
       const jobPostingData: JobPostingRequest = {
         title: jobData.title,
         description: jobData.description,
@@ -106,7 +105,8 @@ const PostJob = () => {
         location: jobData.location,
         skills_required: jobData.skillsRequired,
         category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
-        enabled_stages: jobData.enabledStages.length > 0 ? jobData.enabledStages : Object.values(ATSStage) as string[]
+        enabled_stages: enabledStages as string[],
+        total_vacancies: jobData.totalVacancies ?? 1
       };
 
       const response = await companyApi.createJobPosting(jobPostingData);
@@ -132,6 +132,7 @@ const PostJob = () => {
           niceToHaves: [],
           benefits: [],
           enabledStages: Object.values(ATSStage),
+          totalVacancies: 1,
         });
 
         setCurrentStep(1);
@@ -247,7 +248,7 @@ const PostJob = () => {
                             : "text-[#A8ADB7]"
                         }`}
                     >
-                      Step {step.id}/4
+                      Step {step.id}/3
                     </p>
                     <p
                       className={`text-base font-semibold ${isActive
@@ -276,7 +277,7 @@ const PostJob = () => {
             onNext={handleNext}
             onPrevious={handlePrevious}
             isFirstStep={currentStep === 1}
-            isLastStep={currentStep === 4}
+            isLastStep={currentStep === 3}
             onSubmit={handleSubmit}
           />
         </div>

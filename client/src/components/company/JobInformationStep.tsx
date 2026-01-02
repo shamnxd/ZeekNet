@@ -209,6 +209,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
       newErrors.salary = "Minimum salary cannot be greater than maximum salary";
     }
     
+    if (!data.totalVacancies || data.totalVacancies < 1) {
+      newErrors.totalVacancies = "Total vacancies must be at least 1";
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -373,6 +377,49 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
             <p className="text-xs text-red-500 mt-1">{errors.salary}</p>
           )}
           </div>
+      </div>
+
+      {}
+      <div className="w-full h-px bg-[#D6DDEB]"></div>
+
+      {}
+      <div className="flex gap-30 w-full">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-semibold text-[#25324B]">
+            Total Vacancies <span className="text-red-500">*</span>
+          </h3>
+          <p className="text-sm text-[#7C8493]">Number of positions available for this job</p>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <Input
+              type="number"
+              min="1"
+              placeholder="e.g. 1"
+              value={data.totalVacancies ?? 1}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 1;
+                handleFieldChange('totalVacancies', value);
+              }}
+              disabled={data.status === 'closed'}
+              className={`w-[387px] h-11 px-4 py-3 border rounded-[10px] ${errors.totalVacancies ? 'border-red-500' : 'border-[#D6DDEB]'} ${data.status === 'closed' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+            />
+            {data.filledVacancies !== undefined && data.filledVacancies > 0 && (
+              <div className="flex flex-col">
+                <span className="text-xs text-[#7C8493]">Filled: <strong className="text-[#25324B]">{data.filledVacancies}</strong></span>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-[#7C8493]">Minimum 1 vacancy required</p>
+          {errors.totalVacancies && (
+            <p className="text-xs text-red-500 mt-1">{errors.totalVacancies}</p>
+          )}
+          {data.filledVacancies !== undefined && data.filledVacancies > 0 && (
+            <p className="text-xs text-amber-600 mt-1">
+              {data.filledVacancies} position{data.filledVacancies > 1 ? 's' : ''} already filled
+            </p>
+          )}
+        </div>
       </div>
 
       {}

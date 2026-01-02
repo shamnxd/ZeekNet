@@ -25,6 +25,7 @@ export class JobPostingMapper {
     enabledStages?: ATSStage[];
     isFeatured?: boolean;
     expiresAt?: Date;
+    totalVacancies?: number;
   }): Omit<JobPosting, 'id' | '_id' | 'createdAt' | 'updatedAt' | 'companyName' | 'companyLogo' | 'unpublishReason'> {
     const defaultEnabledStages = [
       ATSStage.IN_REVIEW,
@@ -34,7 +35,12 @@ export class JobPostingMapper {
       ATSStage.COMPENSATION,
       ATSStage.OFFER,
     ];
-    const enabledStages = data.enabledStages || defaultEnabledStages;
+    let enabledStages = data.enabledStages || defaultEnabledStages;
+    
+    // Ensure OFFER stage is always included
+    if (!enabledStages.includes(ATSStage.OFFER)) {
+      enabledStages = [...enabledStages, ATSStage.OFFER];
+    }
     
     // Initialize pipeline config
     const atsPipelineConfig: ATSPipelineConfig = {};
@@ -64,6 +70,8 @@ export class JobPostingMapper {
       status: JobStatus.ACTIVE,
       viewCount: 0,
       applicationCount: 0,
+      totalVacancies: data.totalVacancies ?? 1,
+      filledVacancies: 0,
     };
   }
   static toResponse(
@@ -92,6 +100,10 @@ export class JobPostingMapper {
       view_count: jobPosting.viewCount,
       application_count: jobPosting.applicationCount,
       enabled_stages: jobPosting.enabledStages,
+      total_vacancies: jobPosting.totalVacancies,
+      filled_vacancies: jobPosting.filledVacancies,
+      closure_type: jobPosting.closureType,
+      closed_at: jobPosting.closedAt,
       createdAt: jobPosting.createdAt,
       updatedAt: jobPosting.updatedAt,
     };
@@ -129,6 +141,10 @@ export class JobPostingMapper {
       view_count: baseDto.view_count,
       application_count: baseDto.application_count,
       enabled_stages: baseDto.enabled_stages,
+      total_vacancies: baseDto.total_vacancies,
+      filled_vacancies: baseDto.filled_vacancies,
+      closure_type: baseDto.closure_type,
+      closed_at: baseDto.closed_at instanceof Date ? baseDto.closed_at.toISOString() : baseDto.closed_at,
       createdAt: baseDto.createdAt instanceof Date ? baseDto.createdAt.toISOString() : baseDto.createdAt,
       updatedAt: baseDto.updatedAt instanceof Date ? baseDto.updatedAt.toISOString() : baseDto.updatedAt,
       company: {

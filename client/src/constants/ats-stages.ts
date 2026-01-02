@@ -5,7 +5,8 @@ export const ATSStage = {
   INTERVIEW: 'INTERVIEW',
   TECHNICAL_TASK: 'TECHNICAL_TASK',
   COMPENSATION: 'COMPENSATION',
-  OFFER: 'OFFER'
+  OFFER: 'OFFER',
+  HIRED: 'HIRED'
 } as const;
 
 // Display names for UI
@@ -15,7 +16,8 @@ export const ATSStageDisplayNames: Record<string, string> = {
   [ATSStage.INTERVIEW]: 'Interview',
   [ATSStage.TECHNICAL_TASK]: 'Technical Task',
   [ATSStage.COMPENSATION]: 'Compensation',
-  [ATSStage.OFFER]: 'Offer'
+  [ATSStage.OFFER]: 'Offer',
+  [ATSStage.HIRED]: 'Hired'
 };
 
 export type ATSStage = typeof ATSStage[keyof typeof ATSStage];
@@ -136,7 +138,8 @@ export const STAGE_SUB_STAGES: Record<ATSStage, Array<{ key: string; label: stri
     { key: OfferSubStage.OFFER_SENT, label: SubStageDisplayNames[OfferSubStage.OFFER_SENT] },
     { key: OfferSubStage.OFFER_ACCEPTED, label: SubStageDisplayNames[OfferSubStage.OFFER_ACCEPTED] },
     { key: OfferSubStage.OFFER_DECLINED, label: SubStageDisplayNames[OfferSubStage.OFFER_DECLINED] }
-  ]
+  ],
+  [ATSStage.HIRED]: []
 };
 
 export const STAGE_DESCRIPTIONS: Record<ATSStage, string> = {
@@ -145,7 +148,8 @@ export const STAGE_DESCRIPTIONS: Record<ATSStage, string> = {
   [ATSStage.INTERVIEW]: 'Interview process and evaluation phase',
   [ATSStage.TECHNICAL_TASK]: 'Technical assessment and coding challenge phase',
   [ATSStage.COMPENSATION]: 'Salary negotiation and compensation discussion',
-  [ATSStage.OFFER]: 'Final offer stage and onboarding preparation'
+  [ATSStage.OFFER]: 'Final offer stage and onboarding preparation',
+  [ATSStage.HIRED]: 'Candidate has been hired for this position'
 };
 
 export const STAGE_TAILWIND: Record<ATSStage, { bg: string; bgLight: string; text: string; border: string }> = {
@@ -184,6 +188,12 @@ export const STAGE_TAILWIND: Record<ATSStage, { bg: string; bgLight: string; tex
     bgLight: 'bg-green-50',
     text: 'text-green-700',
     border: 'border-green-200'
+  },
+  [ATSStage.HIRED]: {
+    bg: 'bg-emerald-600',
+    bgLight: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    border: 'border-emerald-200'
   }
 };
 
@@ -193,7 +203,8 @@ export const STAGE_COLORS: Record<ATSStage, string> = {
   [ATSStage.INTERVIEW]: '#8B5CF6',
   [ATSStage.TECHNICAL_TASK]: '#EC4899',
   [ATSStage.COMPENSATION]: '#F59E0B',
-  [ATSStage.OFFER]: '#10B981'
+  [ATSStage.OFFER]: '#10B981',
+  [ATSStage.HIRED]: '#059669'
 };
 
 export const ActivityType = {

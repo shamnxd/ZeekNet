@@ -23,6 +23,10 @@ export interface JobPostingResponseDto {
   view_count: number;
   application_count: number;
   enabled_stages?: string[];
+  total_vacancies?: number;
+  filled_vacancies?: number;
+  closure_type?: string;
+  closed_at?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,6 +79,10 @@ export interface JobPostingDetailResponseDto {
   view_count: number;
   application_count: number;
   enabled_stages?: string[];
+  total_vacancies?: number;
+  filled_vacancies?: number;
+  closure_type?: string;
+  closed_at?: string;
   createdAt: string;
   updatedAt: string;
   has_applied?: boolean;

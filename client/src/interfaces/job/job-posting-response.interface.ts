@@ -27,7 +27,7 @@ export interface JobPostingResponse {
   categoryIds?: string[]
   enabled_stages?: string[]
   enabledStages?: string[]
-  status?: 'active' | 'unlisted' | 'expired' | 'blocked'
+  status?: 'active' | 'unlisted' | 'expired' | 'blocked' | 'closed'
   unpublish_reason?: string
   unpublishReason?: string
   view_count?: number
@@ -35,6 +35,14 @@ export interface JobPostingResponse {
   application_count?: number
   applicationCount?: number
   applications?: number
+  total_vacancies?: number
+  totalVacancies?: number
+  filled_vacancies?: number
+  filledVacancies?: number
+  closure_type?: string
+  closureType?: string
+  closed_at?: string
+  closedAt?: string
   createdAt?: string
   updatedAt?: string
   has_applied?: boolean

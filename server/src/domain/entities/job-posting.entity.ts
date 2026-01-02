@@ -1,5 +1,6 @@
 import { EmploymentType } from '../enums/employment-type.enum';
 import { JobStatus } from '../enums/job-status.enum';
+import { JobClosureType } from '../enums/job-closure-type.enum';
 import { ATSStage, ATSSubStage } from '../enums/ats-stage.enum';
 import { Salary } from '../interfaces/salary.interface';
 import { Types } from 'mongoose';
@@ -40,6 +41,10 @@ export class JobPosting {
     public readonly isFeatured: boolean,
     public readonly viewCount: number,
     public readonly applicationCount: number,
+    public readonly totalVacancies?: number,
+    public readonly filledVacancies?: number,
+    public readonly closureType?: JobClosureType,
+    public readonly closedAt?: Date,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly companyName?: string,
@@ -67,6 +72,10 @@ export class JobPosting {
     isFeatured?: boolean;
     viewCount?: number;
     applicationCount?: number;
+    totalVacancies?: number;
+    filledVacancies?: number;
+    closureType?: JobClosureType;
+    closedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
     companyName?: string;
@@ -83,7 +92,12 @@ export class JobPosting {
       ATSStage.OFFER,
     ];
     
-    const enabledStages = (data.enabledStages && data.enabledStages.length > 0) ? data.enabledStages : defaultEnabledStages;
+    let enabledStages = (data.enabledStages && data.enabledStages.length > 0) ? data.enabledStages : defaultEnabledStages;
+    
+    // Ensure OFFER stage is always included
+    if (!enabledStages.includes(ATSStage.OFFER)) {
+      enabledStages = [...enabledStages, ATSStage.OFFER];
+    }
     
     // Initialize pipeline config if not provided
     let pipelineConfig = data.atsPipelineConfig;
@@ -117,6 +131,10 @@ export class JobPosting {
       data.isFeatured ?? false,
       data.viewCount ?? 0,
       data.applicationCount ?? 0,
+      data.totalVacancies ?? 1,
+      data.filledVacancies ?? 0,
+      data.closureType,
+      data.closedAt,
       data.createdAt ?? now,
       data.updatedAt ?? now,
       data.companyName,
