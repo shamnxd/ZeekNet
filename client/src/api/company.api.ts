@@ -347,6 +347,11 @@ export const companyApi = {
     return (await api.post(endpoint, payload)).data;
   },
 
+  async getDashboardStats(period?: 'week' | 'month'): Promise<ApiEnvelope<import('@/interfaces/company/company-dashboard-stats.interface').CompanyDashboardStats>> {
+    const params = period ? `?period=${period}` : '';
+    return (await api.get(`${CompanyRoutes.DASHBOARD_STATS}${params}`)).data;
+  },
+
   async markApplicationAsHired(applicationId: string): Promise<ApiEnvelope<{ message: string }>> {
     const endpoint = CompanyRoutes.APPLICATIONS_ID_MARK_HIRED.replace(':id', applicationId);
     return (await api.post(endpoint)).data;
