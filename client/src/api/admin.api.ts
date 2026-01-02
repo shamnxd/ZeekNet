@@ -17,6 +17,7 @@ import type {
 } from '@/interfaces/admin/subscription-plan.interface';
 import type { PaymentOrder, GetAllPaymentOrdersParams } from '@/interfaces/admin/payment-order.interface';
 import type { AdminStats } from '@/interfaces/admin/admin-stats.interface';
+import type { AdminDashboardStats } from '@/interfaces/admin/admin-dashboard-stats.interface';
 
 export const adminApi = {
   getAllJobs: async (query: JobPostingQuery & {
@@ -642,6 +643,36 @@ export const adminApi = {
         return {
           success: false,
           message: apiError.response?.data?.message || 'Failed to fetch payment orders',
+        };
+      }
+    },
+
+  getDashboardStats: async (params?: {
+      period?: 'day' | 'week' | 'month' | 'year';
+      startDate?: string;
+      endDate?: string;
+    }): Promise<{
+      success: boolean;
+      data?: AdminDashboardStats;
+      message?: string;
+    }> => {
+      try {
+        const queryParams = new URLSearchParams();
+        if (params?.period) queryParams.append('period', params.period);
+        if (params?.startDate) queryParams.append('startDate', params.startDate);
+        if (params?.endDate) queryParams.append('endDate', params.endDate);
+        
+        const url = queryParams.toString() 
+          ? `${AdminRoutes.DASHBOARD_STATS}?${queryParams.toString()}`
+          : AdminRoutes.DASHBOARD_STATS;
+          
+        const response = await api.get(url);
+        return { success: true, data: response.data };
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        return {
+          success: false,
+          message: apiError.response?.data?.message || 'Failed to fetch dashboard stats',
         };
       }
     }

@@ -3,40 +3,100 @@ import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Users, 
-  Building2, 
-  Briefcase, 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Users,
+  Building2,
+  Briefcase,
   UserCheck,
   Eye,
   Info,
   AlertCircle,
-  IndianRupee
+  IndianRupee,
+  Loader2,
+  CalendarIcon
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { adminApi } from '@/api/admin.api'
+import type { AdminDashboardStats } from '@/interfaces/admin/admin-dashboard-stats.interface'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
-  
+
+  const [dashboardData, setDashboardData] = useState<AdminDashboardStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [periodType, setPeriodType] = useState<'today' | 'week' | 'month' | 'year' | 'custom'>('month')
+  const [customStartDate, setCustomStartDate] = useState<Date | undefined>()
+  const [customEndDate, setCustomEndDate] = useState<Date | undefined>()
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setIsLoading(true)
+      try {
+        let period: 'day' | 'week' | 'month' | 'year' = 'month'
+        let startDate: string | undefined
+        let endDate: string | undefined
+
+        if (periodType === 'custom' && customStartDate && customEndDate) {
+          period = 'day' // Use day granularity for custom range
+          startDate = customStartDate.toISOString()
+          endDate = customEndDate.toISOString()
+        } else if (periodType === 'today') {
+          period = 'day'
+          const today = new Date()
+          startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString()
+          endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString()
+        } else if (periodType === 'week') {
+          period = 'week'
+        } else if (periodType === 'month') {
+          period = 'month'
+        } else if (periodType === 'year') {
+          period = 'year'
+        }
+
+        const response = await adminApi.getDashboardStats({ period, startDate, endDate })
+        if (response.success && response.data) {
+          setDashboardData(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (periodType !== 'custom' || (customStartDate && customEndDate)) {
+      fetchStats()
+    }
+  }, [periodType, customStartDate, customEndDate])
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    )
+  }
+
   const stats = [
-    { label: 'Earnings', value: '₹ 540', icon: IndianRupee, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600', info: true },
-    { label: 'Total Candidates', value: '31', icon: Users, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Total Companies', value: '11', icon: Building2, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600' },
-    { label: 'Total Verified Users', value: '41', icon: UserCheck, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Active Jobs', value: '924', icon: Briefcase, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Expired Jobs', value: '10', icon: Briefcase, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Pending Company', value: '16', icon: AlertCircle, color: 'bg-red-100 text-red-600', iconColor: 'text-red-600', clickable: true, route: '/admin/pending-companies' },
-    { label: 'All Jobs', value: '950', icon: Briefcase, color: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', clickable: true, route: '/admin/jobs' }
+    { label: 'Earnings', value: `₹ ${dashboardData?.stats.earnings || 0}`, icon: IndianRupee, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600', info: true },
+    { label: 'Total Candidates', value: dashboardData?.stats.totalCandidates || 0, icon: Users, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
+    { label: 'Total Companies', value: dashboardData?.stats.totalCompanies || 0, icon: Building2, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600' },
+    { label: 'Total Verified Users', value: dashboardData?.stats.totalVerifiedUsers || 0, icon: UserCheck, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
+    { label: 'Active Jobs', value: dashboardData?.stats.activeJobs || 0, icon: Briefcase, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
+    { label: 'Expired Jobs', value: dashboardData?.stats.expiredJobs || 0, icon: Briefcase, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
+    { label: 'Pending Company', value: dashboardData?.stats.pendingCompanies || 0, icon: AlertCircle, color: 'bg-red-100 text-red-600', iconColor: 'text-red-600', clickable: true, route: '/admin/pending-companies' },
+    { label: 'All Jobs', value: dashboardData?.stats.allJobs || 0, icon: Briefcase, color: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', clickable: true, route: '/admin/jobs' }
   ]
 
-  const recentJobs = [
-    { title: 'MERN Stack Developer', experience: '5+ Years', jobType: 'Intern' },
-    { title: 'React Developer', experience: '3+ Years', jobType: 'Freelance' }
-  ]
-
-  const recentOrders = [
-    { orderNo: '#401791570', amount: '$ 100', planName: 'Standard Plan', paymentProvider: 'Offline (Cash On)', paymentStatus: 'Paid', createdTime: '9 hours ago' },
-    { orderNo: '#460550587', amount: '$ 100', planName: 'Free Plan', paymentProvider: 'Offline', paymentStatus: 'Paid', createdTime: '9 hours ago' }
-  ]
+  const recentJobs = dashboardData?.recentJobs || []
+  const recentOrders = dashboardData?.recentOrders || []
 
   return (
     <AdminLayout>
@@ -47,11 +107,10 @@ const AdminDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-            <Card 
-              key={index} 
-              className={`hover:shadow-lg transition-all duration-200 border-0 shadow-md ${
-                stat.clickable ? 'cursor-pointer hover:scale-105' : ''
-              }`}
+            <Card
+              key={index}
+              className={`hover:shadow-lg transition-all duration-200 border-0 shadow-md ${stat.clickable ? 'cursor-pointer hover:scale-105' : ''
+                }`}
               onClick={() => stat.clickable && stat.route && navigate(stat.route)}
             >
               <CardContent className="p-1">
@@ -75,27 +134,87 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full mx-auto">
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-800">Your Earnings Overview Of This Year</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-gray-800">Your Earnings Overview</CardTitle>
+                <div className="flex gap-2 items-center">
+                  <Select value={periodType} onValueChange={(value: any) => setPeriodType(value)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select period" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="month">This Month</SelectItem>
+                      <SelectItem value="year">This Year</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {periodType === 'custom' && (
+                    <div className="flex gap-2 items-center">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-[140px] justify-start text-left font-normal",
+                              !customStartDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {customStartDate ? format(customStartDate, "PPP") : "Start date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={customStartDate}
+                            onSelect={setCustomStartDate}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+
+                      <span className="text-gray-500">to</span>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-[140px] justify-start text-left font-normal",
+                              !customEndDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {customEndDate ? format(customEndDate, "PPP") : "End date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={customEndDate}
+                            onSelect={setCustomEndDate}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-end justify-center space-x-3">
                 {[
-                  { month: 'Jan', value: 120, height: 24 },
-                  { month: 'Feb', value: 150, height: 50 },
-                  { month: 'Mar', value: 180, height: 36 },
-                  { month: 'Apr', value: 200, height: 110 },
-                  { month: 'May', value: 140, height: 28 },
-                  { month: 'Jun', value: 300, height: 200 },
-                  { month: 'Jul', value: 250, height: 50 },
-                  { month: 'Aug', value: 280, height: 56 },
-                  { month: 'Sep', value: 320, height: 110 },
-                  { month: 'Oct', value: 290, height: 58 },
-                  { month: 'Nov', value: 350, height: 70 },
-                  { month: 'Dec', value: 400, height: 80 }
-                ].map((data) => (
-                  <div key={data.month} className="flex flex-col items-center">
+                  ...(dashboardData?.charts.earningsOverview || []).map(data => ({
+                    ...data,
+                    height: (data.value / (Math.max(...(dashboardData?.charts.earningsOverview || []).map(d => d.value), 100))) * 200 // dynamic height
+                  }))
+                ].map((data, idx) => (
+                  <div key={idx} className="flex flex-col items-center">
                     <div className="w-8 bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-lg shadow-sm" style={{ height: `${data.height}px` }}></div>
-                    <span className="text-xs font-medium text-gray-600 mt-2">{data.month}</span>
+                    <span className="text-xs font-medium text-gray-600 mt-2">{data.label}</span>
                     <span className="text-xs text-gray-500">{data.value}</span>
                   </div>
                 ))}
@@ -198,24 +317,18 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div className="space-y-3 flex-1">
-                  {[
-                    { name: 'United States', percentage: 25, color: 'bg-cyan-500' },
-                    { name: 'United Kingdom', percentage: 18, color: 'bg-blue-500' },
-                    { name: 'Canada', percentage: 15, color: 'bg-green-500' },
-                    { name: 'Australia', percentage: 12, color: 'bg-yellow-500' },
-                    { name: 'Germany', percentage: 10, color: 'bg-red-500' },
-                    { name: 'France', percentage: 8, color: 'bg-purple-500' },
-                    { name: 'Japan', percentage: 7, color: 'bg-pink-500' },
-                    { name: 'India', percentage: 5, color: 'bg-orange-500' }
-                  ].map((location) => (
-                    <div key={location.name} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center">
-                        <div className={`w-4 h-4 rounded-full mr-3 ${location.color}`}></div>
-                        <span className="text-gray-700">{location.name}</span>
+                  {(dashboardData?.charts.popularLocation || []).map((location, idx) => {
+                    const colors = ['bg-cyan-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500'];
+                    return (
+                      <div key={location.name} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                          <div className={`w-4 h-4 rounded-full mr-3 ${colors[idx % colors.length]}`}></div>
+                          <span className="text-gray-700">{location.name}</span>
+                        </div>
+                        <span className="text-gray-500 font-medium">{location.percentage}%</span>
                       </div>
-                      <span className="text-gray-500 font-medium">{location.percentage}%</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </CardContent>
@@ -227,9 +340,9 @@ const AdminDashboard = () => {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-gray-800">Recently Published Jobs</CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="text-blue-600 border-blue-200 hover:bg-blue-50"
                   onClick={() => navigate('/admin/jobs')}
                 >
@@ -261,9 +374,9 @@ const AdminDashboard = () => {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-gray-800">Recently Purchased Orders</CardTitle>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="text-blue-600 border-blue-200 hover:bg-blue-50"
                   onClick={() => navigate('/admin/payments')}
                 >
