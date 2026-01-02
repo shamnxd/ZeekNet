@@ -9,4 +9,5 @@ export interface ISeekerProfileRepository extends IBaseRepository<SeekerProfile>
     skills?: string[];
     location?: string;
   }): Promise<{ seekers: (SeekerProfile & { user: { name: string; email: string; _id: string } })[]; total: number }>;
+  countTotal(): Promise<number>;
 }
