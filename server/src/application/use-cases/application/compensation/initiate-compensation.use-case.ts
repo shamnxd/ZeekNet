@@ -8,12 +8,21 @@ import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+
 export class InitiateCompensationUseCase implements IInitiateCompensationUseCase {
   constructor(
     private compensationRepository: IATSCompensationRepository,
     private jobApplicationRepository: IJobApplicationRepository,
+    private jobPostingRepository: IJobPostingRepository,
+    private userRepository: IUserRepository,
     private addCommentUseCase: IAddCommentUseCase,
     private activityLoggerService: IActivityLoggerService,
+    private mailerService: IMailerService,
+    private emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(data: {
@@ -33,6 +42,15 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
+    }
+
+    const job = await this.jobPostingRepository.findById(application.jobId);
+    if (job && application.seekerId) {
+        await this._sendCompensationInitiatedEmail(
+            application.seekerId,
+            job.title,
+            job.companyName || 'ZeekNet'
+        );
     }
 
     
@@ -67,5 +85,24 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
 
     return created;
   }
-}
 
+  private async _sendCompensationInitiatedEmail(
+    seekerId: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepository.findById(seekerId);
+      if (!user) return;
+
+      const { subject, html } = this.emailTemplateService.getCompensationInitiatedEmail(
+        user.name,
+        jobTitle,
+        companyName,
+      );
+      await this.mailerService.sendMail(user.email, subject, html);
+    } catch (error) {
+      console.error('Failed to send compensation initiated email:', error);
+    }
+  }
+}

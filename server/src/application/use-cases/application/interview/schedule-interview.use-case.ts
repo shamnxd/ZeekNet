@@ -6,11 +6,20 @@ import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivity
 import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+
 export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
   constructor(
     private interviewRepository: IATSInterviewRepository,
     private jobApplicationRepository: IJobApplicationRepository,
+    private jobPostingRepository: IJobPostingRepository,
+    private userRepository: IUserRepository,
     private activityLoggerService: IActivityLoggerService,
+    private mailerService: IMailerService,
+    private emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(data: {
@@ -53,6 +62,17 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       throw new NotFoundError('Application not found');
     }
 
+    const job = await this.jobPostingRepository.findById(application.jobId);
+    if (job && application.seekerId) {
+        await this._sendInterviewScheduledEmail(
+            application.seekerId, 
+            job.title, 
+            job.companyName || 'ZeekNet', 
+            data.scheduledDate, 
+            data.type
+        );
+    }
+
     
     await this.activityLoggerService.logInterviewScheduledActivity({
       applicationId: data.applicationId,
@@ -67,5 +87,33 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     });
 
     return savedInterview;
+  }
+
+  private async _sendInterviewScheduledEmail(
+    seekerId: string,
+    jobTitle: string,
+    companyName: string,
+    date: Date,
+    type: string,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepository.findById(seekerId);
+      if (!user) return;
+
+      const dateStr = date.toLocaleDateString();
+      const timeStr = date.toLocaleTimeString();
+
+      const { subject, html } = this.emailTemplateService.getInterviewScheduledEmail(
+        user.name,
+        jobTitle,
+        companyName,
+        dateStr,
+        timeStr,
+        type,
+      );
+      await this.mailerService.sendMail(user.email, subject, html);
+    } catch (error) {
+      console.error('Failed to send interview scheduled email:', error);
+    }
   }
 }

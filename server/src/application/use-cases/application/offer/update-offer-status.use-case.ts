@@ -7,12 +7,21 @@ import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 import { ATSStage, OfferSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
 
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+
 export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
   constructor(
     private offerRepository: IATSOfferRepository,
     private jobApplicationRepository: IJobApplicationRepository,
+    private jobPostingRepository: IJobPostingRepository,
+    private userRepository: IUserRepository,
     private updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
     private activityLoggerService: IActivityLoggerService,
+    private mailerService: IMailerService,
+    private emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(data: {
@@ -66,6 +75,15 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
     if (!application) {
       throw new NotFoundError('Application not found');
     }
+    
+    const job = await this.jobPostingRepository.findById(application.jobId);
+    if (job && application.seekerId) {
+        if (data.status === 'sent') {
+            await this._sendOfferExtendedEmail(application.seekerId, job.title, job.companyName || 'ZeekNet');
+        } else if (data.status === 'signed') {
+            await this._sendOfferAcceptedEmail(application.seekerId, job.title, job.companyName || 'ZeekNet');
+        }
+    }
 
     
     if (data.status === 'declined' && data.withdrawalReason && application.stage === ATSStage.OFFER) {
@@ -93,5 +111,44 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
 
     return offer;
   }
-}
 
+  private async _sendOfferExtendedEmail(
+    seekerId: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepository.findById(seekerId);
+      if (!user) return;
+
+      const { subject, html } = this.emailTemplateService.getOfferExtendedEmail(
+        user.name,
+        jobTitle,
+        companyName,
+      );
+      await this.mailerService.sendMail(user.email, subject, html);
+    } catch (error) {
+      console.error('Failed to send offer extended email:', error);
+    }
+  }
+
+  private async _sendOfferAcceptedEmail(
+    seekerId: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    try {
+      const user = await this.userRepository.findById(seekerId);
+      if (!user) return;
+
+      const { subject, html } = this.emailTemplateService.getOfferAcceptedEmail(
+        user.name,
+        jobTitle,
+        companyName,
+      );
+      await this.mailerService.sendMail(user.email, subject, html);
+    } catch (error) {
+      console.error('Failed to send offer accepted email:', error);
+    }
+  }
+}

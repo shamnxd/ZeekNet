@@ -7,6 +7,7 @@ import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 
 export interface CloseJobManuallyDto {
   userId: string;
@@ -20,6 +21,7 @@ export class CloseJobManuallyUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(dto: CloseJobManuallyDto): Promise<void> {
@@ -63,47 +65,18 @@ export class CloseJobManuallyUseCase {
       const seeker = await this._userRepository.findById(application.seekerId);
       if (seeker && seeker.email) {
         
-        await this.sendJobClosedEmail(seeker.email, job.title, seeker.name || 'Candidate');
+        await this.sendJobClosedEmail(seeker.email, job.title, seeker.name || 'Candidate', job.companyName || 'ZeekNet');
       }
     }
   }
 
-  private async sendJobClosedEmail(email: string, jobTitle: string, candidateName: string): Promise<void> {
-    const subject = `Update on Your Application for ${jobTitle}`;
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background-color: #4640DE; color: white; padding: 20px; text-align: center; }
-          .content { padding: 20px; background-color: #f9f9f9; }
-          .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Application Update</h1>
-          </div>
-          <div class="content">
-            <p>Dear ${candidateName},</p>
-            <p>Thank you for your interest in the position of <strong>${jobTitle}</strong>.</p>
-            <p>We regret to inform you that this position has been closed by the employer due to internal hiring decisions. This decision is not related to your qualifications or application quality.</p>
-            <p>We appreciate the time and effort you invested in your application and encourage you to continue exploring other opportunities on our platform.</p>
-            <p>Best regards,<br>The Hiring Team</p>
-          </div>
-          <div class="footer">
-            <p>This is an automated message. Please do not reply to this email.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-
+  private async sendJobClosedEmail(email: string, jobTitle: string, candidateName: string, companyName: string): Promise<void> {
     try {
+      const { subject, html } = this._emailTemplateService.getJobClosedEmail(
+        candidateName,
+        jobTitle,
+        companyName,
+      );
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
       
@@ -111,6 +84,3 @@ export class CloseJobManuallyUseCase {
     }
   }
 }
-
-
-

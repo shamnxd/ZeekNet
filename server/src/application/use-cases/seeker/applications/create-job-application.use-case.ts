@@ -13,7 +13,9 @@ import { IResumeParserService } from 'src/domain/interfaces/services/IResumePars
 import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 import { ICalculateATSScoreUseCase } from 'src/application/use-cases/seeker/applications/calculate-ats-score.use-case';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
-
+import { User } from 'src/domain/entities/user.entity';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
@@ -24,6 +26,8 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _notificationService: INotificationService,
     private readonly _resumeParserService: IResumeParserService,
     private readonly _calculateATSScoreUseCase: ICalculateATSScoreUseCase,
+    private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
   ) {}
 
   async execute(
@@ -34,7 +38,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     const { seekerId, ...applicationData } = data;
     
     
-    await this._validateSeeker(seekerId);
+    const seeker = await this._validateSeeker(seekerId);
     
     
     const job = await this._validateJobPosting(applicationData.job_id);
@@ -56,12 +60,14 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     
     
     await this._notifyCompany(job, application.id);
+
+    await this._sendApplicationReceivedEmail(seeker.email, seeker.name, job.title, job.companyName || 'ZeekNet');
     
     return { id: application.id };
   }
 
   
-  private async _validateSeeker(seekerId?: string): Promise<void> {
+  private async _validateSeeker(seekerId?: string): Promise<User> {
     if (!seekerId) {
       throw new Error('Seeker ID is required');
     }
@@ -74,6 +80,8 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     if (!user.isVerified) {
       throw new ValidationError('Please verify your email before applying for jobs');
     }
+
+    return user;
   }
 
   
@@ -194,6 +202,24 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     } catch (error) {
       
       console.error('Failed to send notification to company:', error);
+    }
+  }
+
+  private async _sendApplicationReceivedEmail(
+    email: string,
+    candidateName: string,
+    jobTitle: string,
+    companyName: string,
+  ): Promise<void> {
+    try {
+      const { subject, html } = this._emailTemplateService.getApplicationReceivedEmail(
+        candidateName,
+        jobTitle,
+        companyName,
+      );
+      await this._mailerService.sendMail(email, subject, html);
+    } catch (error) {
+      console.error('Failed to send application received email to candidate:', error);
     }
   }
 }
