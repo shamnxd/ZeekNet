@@ -3,7 +3,7 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   ArrowRight,
   FileText,
   TrendingUp,
@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, Loader2 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
+import type { CompanyDashboardStats } from '@/interfaces/company/company-dashboard-stats.interface'
 
 const CompanyDashboard = () => {
   const dispatch = useAppDispatch()
@@ -44,8 +45,38 @@ const CompanyDashboard = () => {
   })
   const [uploading, setUploading] = useState<{ logo: boolean; business_license: boolean }>({ logo: false, business_license: false })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [dashboardStats, setDashboardStats] = useState<CompanyDashboardStats | null>(null)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [period, setPeriod] = useState<'week' | 'month'>('week')
+  const [activeTab, setActiveTab] = useState<'overview' | 'views' | 'applied'>('overview')
 
-  
+  // Fetch dashboard stats
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setIsLoadingStats(true)
+        const response = await companyApi.getDashboardStats(period)
+        console.log('Dashboard stats response:', response)
+        if (response.success && response.data) {
+          console.log('Setting dashboard stats:', response.data)
+          setDashboardStats(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error)
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+    fetchDashboardStats()
+  }, [period])
+
+  // Debug: Log dashboard stats whenever it changes
+  useEffect(() => {
+    console.log('Dashboard stats updated:', dashboardStats)
+    console.log('Is loading:', isLoadingStats)
+  }, [dashboardStats, isLoadingStats])
+
+
   const loadProfileForReverify = async () => {
     if (reverifyOpen && !form.company_name) {
       try {
@@ -78,7 +109,7 @@ const CompanyDashboard = () => {
     }
   }
 
-  
+
   useEffect(() => {
     if (companyVerificationStatus === 'rejected' && !rejectionReason) {
       companyApi.getProfile().then((res) => {
@@ -89,24 +120,15 @@ const CompanyDashboard = () => {
             setRejectionReason(profileData.rejection_reason)
           }
         }
-      }).catch(() => {})
+      }).catch(() => { })
     }
   }, [companyVerificationStatus, rejectionReason])
 
-  const jobStats = [
-    { day: 'Mon', views: 45, applied: 12 },
-    { day: 'Tue', views: 67, applied: 18 },
-    { day: 'Wed', views: 54, applied: 34 },
-    { day: 'Thu', views: 89, applied: 25 },
-    { day: 'Fri', views: 92, applied: 28 },
-    { day: 'Sat', views: 56, applied: 15 },
-    { day: 'Sun', views: 34, applied: 9 }
-  ]
-  
+
   return (
     <CompanyLayout>
       <div className="min-h-screen">
-        {}
+        { }
         <div className="px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -132,16 +154,16 @@ const CompanyDashboard = () => {
                   </h3>
                   <p className="text-xs text-gray-600 mt-1">
                     {companyVerificationStatus === 'rejected'
-                      ? rejectionReason 
+                      ? rejectionReason
                         ? `Reason: ${rejectionReason}`
                         : 'Reason: Your submission did not meet verification requirements.'
                       : 'Your company verification is currently under review.'}
                   </p>
                 </div>
                 {companyVerificationStatus === 'rejected' && (
-                  <Button size="sm" variant="destructive" onClick={() => { 
-                    setReverifyStep(1); 
-                    setValidationErrors({}); 
+                  <Button size="sm" variant="destructive" onClick={() => {
+                    setReverifyStep(1);
+                    setValidationErrors({});
                     setReverifyOpen(true);
                     loadProfileForReverify();
                   }}>
@@ -151,35 +173,37 @@ const CompanyDashboard = () => {
               </div>
             </div>
           )}
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {}
+            {/* New Candidates */}
             <div className="bg-[#FF2D55] rounded-lg p-4 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold mb-1">76</p>
+                  <p className="text-3xl font-bold mb-1">
+                    {isLoadingStats ? '...' : (dashboardStats?.stats.newCandidates ?? 0)}
+                  </p>
                   <p className="text-sm font-medium">New candidates to review</p>
                 </div>
                 <ArrowRight className="h-4 w-4" />
               </div>
             </div>
 
-            {}
+            {/* Schedule for Today */}
             <div className="bg-[#A2845E] rounded-lg p-4 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold mb-1">3</p>
+                  <p className="text-3xl font-bold mb-1">{isLoadingStats ? '...' : dashboardStats?.stats.scheduledToday || 0}</p>
                   <p className="text-sm font-medium">Schedule for today</p>
                 </div>
                 <ArrowRight className="h-4 w-4" />
               </div>
             </div>
 
-            {}
+            {/* Messages Received */}
             <div className="bg-[#34C759] rounded-lg p-4 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold mb-1">24</p>
+                  <p className="text-3xl font-bold mb-1">{isLoadingStats ? '...' : dashboardStats?.stats.messagesReceived || 0}</p>
                   <p className="text-sm font-medium">Messages received</p>
                 </div>
                 <ArrowRight className="h-4 w-4" />
@@ -187,9 +211,9 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          {}
+          {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {}
+            {/* Job Statistics */}
             <div className="lg:col-span-2">
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">
@@ -199,33 +223,61 @@ const CompanyDashboard = () => {
                       <CardDescription className="text-sm text-gray-600">Showing Jobstatistic Jul 19-25</CardDescription>
                     </div>
                     <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                      <Button variant="ghost" size="sm" className="bg-white text-[#4640DE] font-semibold text-xs">Week</Button>
-                      <Button variant="ghost" size="sm" className="text-gray-600 text-xs">Month</Button>
-                      <Button variant="ghost" size="sm" className="text-gray-600 text-xs">Year</Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPeriod('week')}
+                        className={`text-xs font-semibold ${period === 'week' ? 'bg-white text-[#4640DE]' : 'text-gray-600'}`}
+                      >
+                        Week
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPeriod('month')}
+                        className={`text-xs font-semibold ${period === 'month' ? 'bg-white text-[#4640DE]' : 'text-gray-600'}`}
+                      >
+                        Month
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {}
+                    {/* Tabs */}
                     <div className="flex space-x-6 border-b border-gray-200">
-                      <button className="pb-1 border-b-2 border-[#4640DE] text-[#4640DE] font-semibold text-sm">Overview</button>
-                      <button className="pb-1 text-gray-600 font-semibold text-sm">Jobs View</button>
-                      <button className="pb-1 text-gray-600 font-semibold text-sm">Jobs Applied</button>
+                      <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`pb-1 font-semibold text-sm ${activeTab === 'overview' ? 'border-b-2 border-[#4640DE] text-[#4640DE]' : 'text-gray-600'}`}
+                      >
+                        Overview
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('views')}
+                        className={`pb-1 font-semibold text-sm ${activeTab === 'views' ? 'border-b-2 border-[#4640DE] text-[#4640DE]' : 'text-gray-600'}`}
+                      >
+                        Jobs View
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('applied')}
+                        className={`pb-1 font-semibold text-sm ${activeTab === 'applied' ? 'border-b-2 border-[#4640DE] text-[#4640DE]' : 'text-gray-600'}`}
+                      >
+                        Jobs Applied
+                      </button>
                     </div>
 
-                    {}
+                    {/* Chart and Legend */}
                     <div className="space-y-3">
-                      {}
+                      {/* Chart */}
                       <div className="h-48 flex items-end space-x-3">
-                        {jobStats.map((stat, index) => (
+                        {(dashboardStats?.charts.jobStats || []).map((stat, index) => (
                           <div key={index} className="flex-1 flex flex-col items-center space-y-1">
                             <div className="w-full flex flex-col space-y-0.5">
-                              <div 
+                              <div
                                 className="bg-[#FFCC00] rounded-t"
                                 style={{ height: `${(stat.views / 150) * 150}px` }}
                               ></div>
-                              <div 
+                              <div
                                 className="bg-[#AF52DE] rounded-b"
                                 style={{ height: `${(stat.applied / 50) * 150}px` }}
                               ></div>
@@ -235,7 +287,7 @@ const CompanyDashboard = () => {
                         ))}
                       </div>
 
-                      {}
+                      {/* Chart Legend */}
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-1">
                           <div className="w-3 h-3 bg-[#FFCC00] rounded"></div>
@@ -248,7 +300,7 @@ const CompanyDashboard = () => {
                       </div>
                     </div>
 
-                    {}
+                    {/* Job View & Applied Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <Card className="bg-white border border-gray-200 rounded-lg">
                         <CardContent className="p-3">
@@ -259,12 +311,12 @@ const CompanyDashboard = () => {
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-2xl font-bold text-gray-900">2,342</p>
+                            <p className="text-2xl font-bold text-gray-900">{dashboardStats?.stats.jobViews.total || 0}</p>
                             <div className="flex items-center space-x-1">
                               <span className="text-xs text-gray-600">This Week</span>
                               <div className="flex items-center space-x-1">
                                 <TrendingUp className="h-2 w-2 text-[#7B61FF]" />
-                                <span className="text-xs text-[#7B61FF] font-medium">6.4%</span>
+                                <span className="text-xs text-[#7B61FF] font-medium">{dashboardStats?.stats.jobViews.percentageChange.toFixed(1) || 0}%</span>
                               </div>
                             </div>
                           </div>
@@ -280,12 +332,12 @@ const CompanyDashboard = () => {
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-2xl font-bold text-gray-900">654</p>
+                            <p className="text-2xl font-bold text-gray-900">{dashboardStats?.stats.jobApplied.total || 0}</p>
                             <div className="flex items-center space-x-1">
                               <span className="text-xs text-gray-600">This Week</span>
                               <div className="flex items-center space-x-1">
                                 <TrendingUp className="h-2 w-2 text-red-500" />
-                                <span className="text-xs text-red-500 font-medium">0.5%</span>
+                                <span className="text-xs text-red-500 font-medium">{dashboardStats?.stats.jobApplied.percentageChange.toFixed(1) || 0}%</span>
                               </div>
                             </div>
                           </div>
@@ -297,33 +349,33 @@ const CompanyDashboard = () => {
               </Card>
             </div>
 
-            {}
+            {/* Right Column */}
             <div className="space-y-4">
-              {}
+              {/* Job Open Card */}
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-bold text-gray-900">Job Open</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">12</p>
+                    <p className="text-4xl font-bold text-gray-900 mb-1">{dashboardStats?.stats.jobsOpen || 0}</p>
                     <p className="text-sm text-gray-600">Jobs Opened</p>
                   </div>
                 </CardContent>
               </Card>
 
-              {}
+              {/* Applicants Summary Card */}
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-bold text-gray-900">Applicants Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">67</p>
+                    <p className="text-4xl font-bold text-gray-900 mb-1">{dashboardStats?.stats.totalApplicants || 0}</p>
                     <p className="text-sm text-gray-600">Applicants</p>
                   </div>
 
-                  {}
+                  {/* Color Bars */}
                   <div className="flex items-center justify-center space-x-1 mb-4">
                     <div className="w-8 h-3 bg-[#7B61FF] rounded"></div>
                     <div className="w-4 h-3 bg-[#56CDAD] rounded"></div>
@@ -332,36 +384,36 @@ const CompanyDashboard = () => {
                     <div className="w-1 h-3 bg-[#FF6550] rounded"></div>
                   </div>
 
-                  {}
+                  {/* Legend */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-[#7B61FF] rounded"></div>
-                        <span className="text-xs text-gray-600">Full Time : 45</span>
+                        <span className="text-xs text-gray-600">Full Time : {dashboardStats?.applicantsByType.fullTime || 0}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-[#56CDAD] rounded"></div>
-                        <span className="text-xs text-gray-600">Part-Time : 24</span>
+                        <span className="text-xs text-gray-600">Part-Time : {dashboardStats?.applicantsByType.partTime || 0}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-[#26A4FF] rounded"></div>
-                        <span className="text-xs text-gray-600">Remote : 22</span>
+                        <span className="text-xs text-gray-600">Remote : {dashboardStats?.applicantsByType.remote || 0}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-[#FFB836] rounded"></div>
-                        <span className="text-xs text-gray-600">Internship : 32</span>
+                        <span className="text-xs text-gray-600">Internship : {dashboardStats?.applicantsByType.internship || 0}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-[#FF6550] rounded"></div>
-                        <span className="text-xs text-gray-600">Contract : 30</span>
+                        <span className="text-xs text-gray-600">Contract : {dashboardStats?.applicantsByType.contract || 0}</span>
                       </div>
                     </div>
                   </div>
@@ -370,7 +422,7 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          {}
+          {/* Job Updates Section */}
           <div className="mt-6">
             <Card className="bg-white border border-gray-200 rounded-lg">
               <CardHeader className="pb-3">
@@ -384,54 +436,44 @@ const CompanyDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {}
-                  {[
-                    { company: 'Nomad', title: 'Social Media Assistant', location: 'Paris, France', type: 'Full-Time', categories: ['Marketing', 'Design'], progress: 50 },
-                    { company: 'Dropbox', title: 'Brand Designer', location: 'Paris, France', type: 'Full-Time', categories: ['Business', 'Design'], progress: 50 },
-                    { company: 'Terraform', title: 'Interactive Developer', location: 'Berlin, Germany', type: 'Full-Time', categories: ['Marketing', 'Design'], progress: 50 },
-                    { company: 'ClassPass', title: 'Product Designer', location: 'Berlin, Germ..', type: 'Full-Time', categories: ['Business', 'Design'], progress: 50 }
-                  ].map((job, index) => (
+                  {/* Job Updates */}
+                  {(dashboardStats?.recentJobs || []).map((job, index) => (
                     <Card key={index} className="bg-white border border-gray-200 rounded-lg">
                       <CardContent className="p-4">
                         <div className="space-y-3">
-                          {}
+                          {/* Header */}
                           <div className="flex items-center justify-between">
                             <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">{job.company[0]}</span>
+                              <span className="text-white font-bold text-sm">{job.title[0]}</span>
                             </div>
-                            <Badge className="bg-green-100 text-green-600 border-green-200 text-xs">Full-Time</Badge>
+                            <Badge className="bg-green-100 text-green-600 border-green-200 text-xs">{job.employmentType}</Badge>
                           </div>
 
-                          {}
+                          {/* Job Info */}
                           <div>
                             <h3 className="text-sm font-semibold text-gray-900 mb-1">{job.title}</h3>
                             <div className="flex items-center space-x-1 text-gray-600">
-                              <span className="text-xs">{job.company}</span>
-                              <div className="w-0.5 h-0.5 bg-gray-400 rounded-full"></div>
                               <span className="text-xs">{job.location}</span>
                             </div>
                           </div>
 
-                          {}
-                          <div className="flex flex-wrap gap-1">
-                            {job.categories.map((category, catIndex) => (
-                              <Badge key={catIndex} variant="outline" className="text-xs px-2 py-0.5">
-                                {category}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          {}
+                          {/* Progress */}
                           <div className="space-y-1">
                             <div className="flex space-x-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <div 
-                                  key={i} 
-                                  className={`h-1 flex-1 rounded ${i < 2 ? 'bg-green-500' : 'bg-gray-200'}`}
-                                ></div>
-                              ))}
+                              {[...Array(5)].map((_, i) => {
+                                const segments = 5;
+                                const filledSegments = Math.ceil((job.hiredCount / job.totalVacancies) * segments);
+                                return (
+                                  <div
+                                    key={i}
+                                    className={`h-1 flex-1 rounded ${i < filledSegments ? 'bg-green-500' : 'bg-gray-200'}`}
+                                  ></div>
+                                );
+                              })}
                             </div>
-                            <p className="text-xs text-gray-600">5 applied of 10 capacity</p>
+                            <p className="text-xs text-gray-600">
+                              <span className="font-medium text-gray-900">{job.hiredCount}</span> hired, <span className="font-medium text-gray-900">{job.appliedCount}</span> applied of {job.totalVacancies} capacity
+                            </p>
                           </div>
                         </div>
                       </CardContent>
@@ -446,7 +488,7 @@ const CompanyDashboard = () => {
 
       <FormDialog
         open={reverifyOpen}
-        onOpenChange={(open) => { 
+        onOpenChange={(open) => {
           setReverifyOpen(open)
           if (!open) {
             setValidationErrors({})
@@ -477,8 +519,8 @@ const CompanyDashboard = () => {
               tax_id: form.tax_id,
             })
             if (resp.success) {
-              
-              dispatch(fetchCompanyProfileThunk()).catch(() => {})
+
+              dispatch(fetchCompanyProfileThunk()).catch(() => { })
 
               toast.success('Reverification submitted. Status set to pending.')
               setReverifyOpen(false)
@@ -499,7 +541,7 @@ const CompanyDashboard = () => {
             toast.error('Failed to submit reverification')
           }
         }}
-        
+
         cancelLabel="Cancel"
         maxWidth="lg"
       >
