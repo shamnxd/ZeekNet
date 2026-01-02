@@ -1,4 +1,4 @@
-import { ATSOffer } from '../../../entities/ats-offer.entity';
+import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 
 export interface IATSOfferRepository {
   create(offer: ATSOffer): Promise<ATSOffer>;

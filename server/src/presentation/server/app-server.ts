@@ -5,25 +5,25 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
-import { connectToDatabase } from '../../infrastructure/database/mongodb/connection/mongoose';
-import { connectRedis } from '../../infrastructure/database/redis/connection/redis';
-import { env } from '../../infrastructure/config/env';
-import { logger } from '../../infrastructure/config/logger';
-import { SocketServer } from '../../infrastructure/external-services/socket/socket-server';
+import { connectToDatabase } from 'src/infrastructure/persistence/mongodb/connection/mongoose';
+import { connectRedis } from 'src/infrastructure/persistence/redis/connection/redis';
+import { env } from 'src/infrastructure/config/env';
+import { logger } from 'src/infrastructure/config/logger';
+import { SocketServer } from 'src/infrastructure/external-services/socket/socket-server';
 
-import { AuthRouter } from '../routes/auth-router';
-import { CompanyRouter } from '../routes/company-router';
-import { AdminRouter } from '../routes/admin-router';
-import { SeekerRouter } from '../routes/seeker-router';
-import { PublicRouter } from '../routes/public-router';
-import { authenticateToken } from '../middleware/auth.middleware';
-import { errorHandler } from '../middleware/error-handler';
-import { UserBlockedMiddleware } from '../middleware/user-blocked.middleware';
-import { userRepository } from '../../infrastructure/di/authDi';
-import { notificationRouter } from '../../infrastructure/di/notificationDi';
-import { chatRouter } from '../../infrastructure/di/chatDi';
-import { DateTimeUtil } from '../../shared/utils/datetime.utils';
-import { stripeWebhookController } from '../../infrastructure/di/companyDi';
+import { AuthRouter } from 'src/presentation/routes/auth-router';
+import { CompanyRouter } from 'src/presentation/routes/company-router';
+import { AdminRouter } from 'src/presentation/routes/admin-router';
+import { SeekerRouter } from 'src/presentation/routes/seeker-router';
+import { PublicRouter } from 'src/presentation/routes/public-router';
+import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+import { errorHandler } from 'src/presentation/middleware/error-handler';
+import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
+import { userRepository } from 'src/infrastructure/di/authDi';
+import { notificationRouter } from 'src/infrastructure/di/notificationDi';
+import { chatRouter } from 'src/infrastructure/di/chatDi';
+import { DateTimeUtil } from 'src/shared/utils/core/datetime.utils';
+import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
   private _app: express.Application;
@@ -139,3 +139,5 @@ export class AppServer {
     }
   }
 }
+
+

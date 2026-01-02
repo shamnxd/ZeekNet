@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from 'socket.io';
-import { CreateNotificationData } from '../repositories/notification/INotificationRepository';
+import { CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
 
 export interface INotificationService {
   setIO(io: SocketIOServer): void;

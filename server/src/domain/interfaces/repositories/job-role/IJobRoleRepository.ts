@@ -1,5 +1,5 @@
-import { JobRole } from '../../../entities/job-role.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { JobRole } from 'src/domain/entities/job-role.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface JobRoleQueryFilters {
   page?: number;

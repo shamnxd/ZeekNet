@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodSchema } from 'zod';
-import { sendBadRequestResponse, sendInternalServerErrorResponse } from '../../shared/utils/controller.utils';
+import { sendBadRequestResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export const validateBody = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -45,3 +45,4 @@ export const validateQuery = (schema: ZodSchema) => {
     }
   };
 };
+

@@ -1,4 +1,4 @@
-import { Experience, Education, ResumeMeta, SocialLink } from '../interfaces/seeker-profile.interfaces';
+import { Experience, Education, ResumeMeta, SocialLink } from 'src/domain/interfaces/seeker-profile.interfaces';
 
 export { Experience, Education, ResumeMeta, SocialLink };
 

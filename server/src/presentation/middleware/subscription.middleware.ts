@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { ICompanySubscriptionRepository } from '../../domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { ICompanyProfileRepository } from '../../domain/interfaces/repositories/company/ICompanyProfileRepository';
-import { CompanySubscription } from '../../domain/entities/company-subscription.entity';
-import { AuthenticatedRequest } from './auth.middleware';
-import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from '../../shared/utils/controller.utils';
+import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
+import { AuthenticatedRequest } from 'src/presentation/middleware/auth.middleware';
+import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class SubscriptionMiddleware {
   constructor(
@@ -84,3 +84,4 @@ export class SubscriptionMiddleware {
     }
   };
 }
+

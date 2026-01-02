@@ -1,4 +1,4 @@
-import { ATSTechnicalTask } from '../../../entities/ats-technical-task.entity';
+import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
 
 export interface IATSTechnicalTaskRepository {
   create(task: ATSTechnicalTask): Promise<ATSTechnicalTask>;

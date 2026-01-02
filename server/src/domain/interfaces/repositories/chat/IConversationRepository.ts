@@ -1,5 +1,5 @@
-import { Conversation } from '../../../entities/conversation.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { Conversation } from 'src/domain/entities/conversation.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface ConversationQueryOptions {
   page?: number;

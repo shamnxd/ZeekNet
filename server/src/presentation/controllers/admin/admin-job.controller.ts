@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { GetAllJobsQueryDtoType } from '../../../application/dto/admin/get-all-jobs-query.dto';
-import { AdminUpdateJobStatusDto } from '../../../application/dto/admin/admin-job.dto';
-import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobStatsUseCase';
-import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminDeleteJobUseCase';
-import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminUpdateJobStatusUseCase';
-import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetJobByIdUseCase';
-import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/IAdminGetAllJobsUseCase';
-import { handleValidationError } from '../../../shared/utils/controller.utils';
-import { handleAsyncError } from '../../../shared/utils/controller.utils';
-import { sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { GetAllJobsQueryDtoType } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
+import { AdminUpdateJobStatusDto } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
+import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IAdminGetJobStatsUseCase';
+import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminDeleteJobUseCase';
+import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminUpdateJobStatusUseCase';
+import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetJobByIdUseCase';
+import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetAllJobsUseCase';
+import { handleValidationError } from 'src/shared/utils/presentation/controller.utils';
+import { handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminJobController {
   constructor(
@@ -87,3 +87,4 @@ export class AdminJobController {
     }
   };
 }
+

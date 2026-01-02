@@ -1,5 +1,5 @@
-import { BillingCycle } from '../enums/billing-cycle.enum';
-import { SubscriptionStatus } from '../enums/subscription-status.enum';
+import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
+import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
 
 
 export class CompanySubscription {

@@ -1,0 +1,179 @@
+import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { success, handleError, handleValidationError, handleAsyncError, sendSuccessResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
+import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/ICreateJobPostingUseCase';
+import { IGetJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IGetJobPostingUseCase';
+import { IGetCompanyJobPostingsUseCase } from 'src/domain/interfaces/use-cases/job/IGetCompanyJobPostingsUseCase';
+import { IUpdateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobPostingUseCase';
+import { IDeleteJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IDeleteJobPostingUseCase';
+import { IIncrementJobViewCountUseCase } from 'src/domain/interfaces/use-cases/job/IIncrementJobViewCountUseCase';
+import { CreateJobPostingRequestDto } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
+import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
+import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
+import { IGetCompanyJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IGetCompanyJobPostingUseCase';
+import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
+import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobStatusUseCase';
+import { CloseJobManuallyUseCase } from 'src/application/use-cases/job/close-job-manually.use-case';
+import { ReopenJobUseCase } from 'src/application/use-cases/job/reopen-job.use-case';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
+
+export class CompanyJobPostingController {
+  constructor(
+    private readonly _createJobPostingUseCase: ICreateJobPostingUseCase,
+    private readonly _getJobPostingUseCase: IGetJobPostingUseCase,
+    private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
+    private readonly _updateJobPostingUseCase: IUpdateJobPostingUseCase,
+    private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
+    private readonly _incrementJobViewCountUseCase: IIncrementJobViewCountUseCase,
+    private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
+    private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
+    private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
+    private readonly _closeJobManuallyUseCase: CloseJobManuallyUseCase,
+    private readonly _reopenJobUseCase: ReopenJobUseCase,
+  ) {}
+
+  createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = CreateJobPostingRequestDtoSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
+
+    try {
+      const userId = validateUserId(req);
+      const jobPosting = await this._createJobPostingUseCase.execute({ userId, ...parsed.data });
+      sendSuccessResponse(res, 'Job posting created successfully', jobPosting, undefined, HttpStatus.CREATED);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  getJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const userRole = req.user?.role || '';
+
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
+      }
+
+      const jobPosting = await this._getCompanyJobPostingUseCase.execute(id, companyProfile.id);
+
+      this._incrementJobViewCountUseCase.execute(id, userRole).catch(console.error);
+
+      sendSuccessResponse(res, 'Job posting retrieved successfully', jobPosting);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  getCompanyJobPostings = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = validateUserId(req);
+
+      const query = req.query as unknown as JobPostingQueryRequestDto;
+      const result = await this._getCompanyJobPostingsUseCase.execute({ userId, ...query });
+
+      sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  updateJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = UpdateJobPostingDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(`Invalid job posting data: ${parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+    }
+
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
+      }
+
+      const jobPosting = await this._updateJobPostingUseCase.execute({ jobId: id, ...parsed.data });
+
+      sendSuccessResponse(res, 'Job posting updated successfully', jobPosting);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  deleteJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
+      }
+
+      await this._deleteJobPostingUseCase.execute(id, companyProfile.id);
+
+      sendSuccessResponse(res, 'Job posting deleted successfully', null);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  updateJobStatus = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const { status } = req.body;
+    const validStatuses = ['active', 'unlisted', 'expired'];
+    if (!status || !validStatuses.includes(status)) {
+      return handleValidationError('status must be one of: active, unlisted, expired', next);
+    }
+
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
+      if (!companyProfile) {
+        throw new Error('Company profile not found');
+      }
+
+      const jobPosting = await this._updateJobStatusUseCase.execute({ jobId: id, status, userId });
+
+      sendSuccessResponse(res, `Job status updated to '${status}' successfully`, jobPosting);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  closeJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+
+      await this._closeJobManuallyUseCase.execute({ userId, jobId: id });
+
+      sendSuccessResponse(res, 'Job closed successfully. All remaining candidates have been notified.', null);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  reopenJob = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const userId = validateUserId(req);
+      const { additionalVacancies } = req.body;
+
+      if (!additionalVacancies || typeof additionalVacancies !== 'number' || additionalVacancies < 1) {
+        return handleValidationError('additionalVacancies must be a number and at least 1', next);
+      }
+
+      await this._reopenJobUseCase.execute({ userId, jobId: id, additionalVacancies });
+
+      sendSuccessResponse(res, `Job reopened successfully with ${additionalVacancies} additional ${additionalVacancies === 1 ? 'vacancy' : 'vacancies'}.`, null);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+}
+
+

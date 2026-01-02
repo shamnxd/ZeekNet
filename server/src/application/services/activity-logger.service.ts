@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IActivityLoggerService, LogInterviewActivityParams, LogTechnicalTaskActivityParams, LogOfferActivityParams, LogCompensationActivityParams, LogCompensationMeetingActivityParams, LogStageChangeActivityParams, LogSubStageChangeActivityParams, LogInterviewScheduledActivityParams, LogTaskAssignedActivityParams, LogOfferSentActivityParams, LogCommentAddedActivityParams } from '../../domain/interfaces/services/IActivityLoggerService';
-import { IATSActivityRepository } from '../../domain/interfaces/repositories/ats/IATSActivityRepository';
-import { ATSActivity } from '../../domain/entities/ats-activity.entity';
-import { ActivityType } from '../../domain/enums/ats-stage.enum';
+import { IActivityLoggerService, LogInterviewActivityParams, LogTechnicalTaskActivityParams, LogOfferActivityParams, LogCompensationActivityParams, LogCompensationMeetingActivityParams, LogStageChangeActivityParams, LogSubStageChangeActivityParams, LogInterviewScheduledActivityParams, LogTaskAssignedActivityParams, LogOfferSentActivityParams, LogCommentAddedActivityParams } from 'src/domain/interfaces/services/IActivityLoggerService';
+import { IATSActivityRepository } from 'src/domain/interfaces/repositories/ats/IATSActivityRepository';
+import { ATSActivity } from 'src/domain/entities/ats-activity.entity';
+import { ActivityType } from 'src/domain/enums/ats-stage.enum';
 
 export class ActivityLoggerService implements IActivityLoggerService {
   constructor(private activityRepository: IATSActivityRepository) {}
@@ -10,7 +10,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
   async logInterviewActivity(params: LogInterviewActivityParams): Promise<void> {
     const { applicationId, interviewId, interviewTitle, status, rating, feedback, stage, subStage, performedBy, performedByName } = params;
 
-    // Determine activity type and details
+    
     let activityType: ActivityType | null = null;
     let activityTitle = 'Interview Updated';
     let activityDescription = 'Interview details updated';
@@ -25,7 +25,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       activityDescription = interviewTitle ? `${interviewTitle} cancelled` : 'Interview cancelled';
     }
 
-    // Also log if feedback or rating was added/updated without status change
+    
     const hasFeedbackOrRating = rating !== undefined || feedback;
     const shouldLogFeedbackUpdate = hasFeedbackOrRating && !status;
 
@@ -50,7 +50,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
 
       await this.activityRepository.create(activity);
     } else if (shouldLogFeedbackUpdate) {
-      // Log feedback/rating updates when status hasn't changed
+      
       const feedbackDescription = rating && feedback
         ? `Interview rated ${rating}/5 with feedback`
         : rating
@@ -60,7 +60,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       const activity = ATSActivity.create({
         id: uuidv4(),
         applicationId,
-        type: ActivityType.INTERVIEW_COMPLETED, // Using INTERVIEW_COMPLETED for feedback updates
+        type: ActivityType.INTERVIEW_COMPLETED, 
         title: 'Interview Feedback Added',
         description: feedbackDescription,
         performedBy,
@@ -85,7 +85,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       const activity = ATSActivity.create({
         id: uuidv4(),
         applicationId,
-        type: ActivityType.TASK_ASSIGNED, // Using TASK_ASSIGNED as there's no TASK_DELETED type
+        type: ActivityType.TASK_ASSIGNED, 
         title: 'Technical Task Deleted',
         description: taskTitle ? `${taskTitle} deleted` : 'Technical task deleted',
         performedBy,
@@ -102,7 +102,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       return;
     }
 
-    // Create activity log for task status changes
+    
     let activityType: ActivityType | null = null;
     let activityTitle = 'Technical Task Updated';
     let activityDescription = 'Technical task details updated';
@@ -112,7 +112,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       activityTitle = 'Technical Task Submitted';
       activityDescription = taskTitle ? `${taskTitle} submitted` : 'Technical task submitted';
     } else if (status === 'under_review') {
-      activityType = ActivityType.TASK_SUBMITTED; // Using TASK_SUBMITTED as there's no TASK_UNDER_REVIEW type
+      activityType = ActivityType.TASK_SUBMITTED; 
       activityTitle = 'Technical Task Under Review';
       activityDescription = taskTitle ? `${taskTitle} is now under review` : 'Technical task is now under review';
     } else if (status === 'completed') {
@@ -120,12 +120,12 @@ export class ActivityLoggerService implements IActivityLoggerService {
       activityTitle = 'Technical Task Completed';
       activityDescription = taskTitle ? `${taskTitle} completed` : 'Technical task completed';
     } else if (status === 'cancelled') {
-      activityType = ActivityType.TASK_ASSIGNED; // Using TASK_ASSIGNED as there's no TASK_CANCELLED type
+      activityType = ActivityType.TASK_ASSIGNED; 
       activityTitle = 'Technical Task Cancelled';
       activityDescription = taskTitle ? `${taskTitle} cancelled` : 'Technical task cancelled';
     }
 
-    // Also log if task details were updated (deadline, title, description, etc.)
+    
     const hasDetailChanges = deadline || title || rating;
     const shouldLogDetailUpdate = hasDetailChanges && !status;
 
@@ -149,7 +149,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
 
       await this.activityRepository.create(activity);
     } else if (shouldLogDetailUpdate) {
-      // Log detail updates when status hasn't changed
+      
       const updateDescription = deadline 
         ? `Task deadline updated to ${new Date(deadline).toLocaleDateString()}`
         : title
@@ -161,7 +161,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
       const activity = ATSActivity.create({
         id: uuidv4(),
         applicationId,
-        type: ActivityType.TASK_ASSIGNED, // Using TASK_ASSIGNED for general updates
+        type: ActivityType.TASK_ASSIGNED, 
         title: 'Technical Task Updated',
         description: updateDescription,
         performedBy,
@@ -183,7 +183,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
   async logOfferActivity(params: LogOfferActivityParams): Promise<void> {
     const { applicationId, offerId, status, withdrawalReason, stage, subStage, performedBy, performedByName } = params;
 
-    // Create activity log for offer status changes
+    
     let activityType: ActivityType | null = null;
     let activityTitle = 'Offer Status Updated';
     let activityDescription = 'Offer status updated';
@@ -195,7 +195,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
     } else if (status === 'declined') {
       activityType = ActivityType.OFFER_DECLINED;
       
-      // Distinguish between company withdrawal and candidate decline
+      
       if (withdrawalReason) {
         activityTitle = 'Offer Withdrawn';
         activityDescription = `Offer withdrawn by company. Reason: ${withdrawalReason}`;
@@ -287,7 +287,7 @@ export class ActivityLoggerService implements IActivityLoggerService {
         ? `${meetingType} meeting scheduled for ${scheduledDate.toLocaleDateString()}`
         : `${meetingType} meeting scheduled`;
     } else {
-      // status_updated
+      
       activityTitle = `Compensation Meeting ${status === 'completed' ? 'Completed' : status === 'cancelled' ? 'Cancelled' : 'Updated'}`;
       activityDescription = `Meeting status updated to ${status}`;
     }

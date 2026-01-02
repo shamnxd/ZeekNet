@@ -1,4 +1,13 @@
-import Stripe from 'stripe';
+import {
+  PaymentCustomer,
+  PaymentProduct,
+  PaymentPrice,
+  PaymentSession,
+  PaymentSubscription,
+  PaymentBillingPortalSession,
+  PaymentEvent,
+  PaymentInvoice,
+} from 'src/domain/types/payment/payment-types';
 
 export interface CreateProductParams {
   name: string;
@@ -36,29 +45,29 @@ export interface UpdateSubscriptionParams {
 }
 
 export interface IStripeService {
-  createCustomer(params: CreateCustomerParams): Promise<Stripe.Customer>;
-  getCustomer(customerId: string): Promise<Stripe.Customer | null>;
+  createCustomer(params: CreateCustomerParams): Promise<PaymentCustomer>;
+  getCustomer(customerId: string): Promise<PaymentCustomer | null>;
 
-  createProduct(params: CreateProductParams): Promise<Stripe.Product>;
-  updateProduct(productId: string, params: Partial<CreateProductParams>): Promise<Stripe.Product>;
-  archiveProduct(productId: string): Promise<Stripe.Product>;
-  createPrice(params: CreatePriceParams): Promise<Stripe.Price>;
-  archivePrice(priceId: string): Promise<Stripe.Price>;
+  createProduct(params: CreateProductParams): Promise<PaymentProduct>;
+  updateProduct(productId: string, params: Partial<CreateProductParams>): Promise<PaymentProduct>;
+  archiveProduct(productId: string): Promise<PaymentProduct>;
+  createPrice(params: CreatePriceParams): Promise<PaymentPrice>;
+  archivePrice(priceId: string): Promise<PaymentPrice>;
 
-  createCheckoutSession(params: CreateCheckoutSessionParams): Promise<Stripe.Checkout.Session>;
-  createBillingPortalSession(customerId: string, returnUrl: string): Promise<Stripe.BillingPortal.Session>;
+  createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PaymentSession>;
+  createBillingPortalSession(customerId: string, returnUrl: string): Promise<PaymentBillingPortalSession>;
 
-  getSubscription(subscriptionId: string): Promise<Stripe.Subscription | null>;
+  getSubscription(subscriptionId: string): Promise<PaymentSubscription | null>;
   listSubscriptionsByPrice(priceId: string, limit?: number, startingAfter?: string): Promise<{
-    data: Stripe.Subscription[];
+    data: PaymentSubscription[];
     hasMore: boolean;
     lastId?: string;
   }>;
-  updateSubscription(params: UpdateSubscriptionParams): Promise<Stripe.Subscription>;
-  cancelSubscription(subscriptionId: string, cancelAtPeriodEnd?: boolean): Promise<Stripe.Subscription>;
-  resumeSubscription(subscriptionId: string): Promise<Stripe.Subscription>;
+  updateSubscription(params: UpdateSubscriptionParams): Promise<PaymentSubscription>;
+  cancelSubscription(subscriptionId: string, cancelAtPeriodEnd?: boolean): Promise<PaymentSubscription>;
+  resumeSubscription(subscriptionId: string): Promise<PaymentSubscription>;
 
-  getInvoice(invoiceId: string): Promise<Stripe.Invoice | null>;
+  getInvoice(invoiceId: string): Promise<PaymentInvoice | null>;
 
-  constructWebhookEvent(payload: string | Buffer, signature: string): Stripe.Event;
+  constructWebhookEvent(payload: string | Buffer, signature: string): PaymentEvent;
 }

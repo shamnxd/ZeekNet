@@ -1,5 +1,5 @@
-import { CompanyProfile } from '../../../entities/company-profile.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfile> {
   getAllCompanies(options: {

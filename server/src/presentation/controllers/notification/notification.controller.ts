@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/types/authenticated-request';
-import { IGetNotificationsUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { IMarkNotificationAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { IMarkAllNotificationsAsReadUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { IGetUnreadNotificationCountUseCase } from '../../../domain/interfaces/use-cases/notifications/INotificationUseCases';
-import { sendSuccessResponse, handleAsyncError, validateUserId } from '../../../shared/utils/controller.utils';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { IGetNotificationsUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { IMarkAllNotificationsAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { IGetUnreadNotificationCountUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { sendSuccessResponse, handleAsyncError, validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 export class NotificationController {
   constructor(
@@ -61,4 +61,5 @@ export class NotificationController {
     }
   };
 }
+
 

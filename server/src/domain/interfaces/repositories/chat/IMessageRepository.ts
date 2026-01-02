@@ -1,5 +1,5 @@
-import { ChatMessage } from '../../../entities/chat-message.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { ChatMessage } from 'src/domain/entities/chat-message.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface MessageQueryOptions {
   page?: number;

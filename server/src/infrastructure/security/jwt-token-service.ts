@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { ITokenPayload, ITokenService } from '../../domain/interfaces/services/ITokenService';
-import { env } from '../config/env';
+import { ITokenPayload, ITokenService } from 'src/domain/interfaces/services/ITokenService';
+import { env } from 'src/infrastructure/config/env';
 
 export class JwtTokenService implements ITokenService {
   signAccess(payload: ITokenPayload): string {

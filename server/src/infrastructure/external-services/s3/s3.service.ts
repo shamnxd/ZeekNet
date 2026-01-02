@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { env } from '../../config/env';
-import { IS3Service } from '../../../domain/interfaces/services/IS3Service';
+import { env } from 'src/infrastructure/config/env';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
 export class S3Service implements IS3Service {
   private _s3Client: S3Client;

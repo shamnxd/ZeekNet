@@ -1,9 +1,10 @@
-import { JobPosting } from '../../../entities/job-posting.entity';
-import { IBaseRepository } from '../IBaseRepository';
-import { CreateInput } from '../../../types/common.types';
+import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
-  postJob(jobData: CreateInput<JobPosting>): Promise<JobPosting>;
+  postJob(job: JobPosting): Promise<JobPosting>;
+  findByIds(ids: string[]): Promise<JobPosting[]>;
   getAllJobsForPublic(
     projection: Record<string, 1 | 0>,
     filters?: {

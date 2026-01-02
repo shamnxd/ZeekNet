@@ -1,0 +1,29 @@
+import { NotificationModel, NotificationDocument } from 'src/infrastructure/persistence/mongodb/models/notification.model';
+import { INotificationRepository, CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
+import { Notification } from 'src/domain/entities/notification.entity';
+import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { Types } from 'mongoose';
+import { NotificationMapper } from 'src/infrastructure/mappers/persistence/mongodb/notification/notification.mapper';
+
+export class NotificationRepository extends RepositoryBase<Notification, NotificationDocument> implements INotificationRepository {
+  constructor() {
+    super(NotificationModel);
+  }
+
+  protected mapToEntity(document: NotificationDocument): Notification {
+    return NotificationMapper.toEntity(document);
+  }
+
+  protected mapToDocument(entity: Partial<Notification>): Partial<NotificationDocument> {
+    return NotificationMapper.toDocument(entity);
+  }
+
+  async markAllAsRead(userId: string): Promise<void> {
+    await NotificationModel.updateMany(
+      { user_id: new Types.ObjectId(userId), is_read: false },
+      { is_read: true },
+    );
+  }
+}
+
+

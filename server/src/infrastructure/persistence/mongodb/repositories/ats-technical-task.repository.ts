@@ -1,0 +1,50 @@
+import { Types } from 'mongoose';
+import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
+import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
+import { ATSTechnicalTaskModel } from 'src/infrastructure/persistence/mongodb/models/ats-technical-task.model';
+import { ATSTechnicalTaskMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-technical-task.mapper';
+
+export class ATSTechnicalTaskRepository implements IATSTechnicalTaskRepository {
+  async create(task: ATSTechnicalTask): Promise<ATSTechnicalTask> {
+    const doc = await ATSTechnicalTaskModel.create(ATSTechnicalTaskMapper.toDocument(task));
+    return ATSTechnicalTaskMapper.toEntity(doc);
+  }
+
+  async findById(id: string): Promise<ATSTechnicalTask | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+    const doc = await ATSTechnicalTaskModel.findById(id);
+    return doc ? ATSTechnicalTaskMapper.toEntity(doc) : null;
+  }
+
+  async findByApplicationId(applicationId: string): Promise<ATSTechnicalTask[]> {
+    if (!Types.ObjectId.isValid(applicationId)) {
+      return [];
+    }
+    const docs = await ATSTechnicalTaskModel.find({ applicationId: new Types.ObjectId(applicationId) })
+      .sort({ createdAt: -1 });
+    return docs.map(doc => ATSTechnicalTaskMapper.toEntity(doc));
+  }
+
+  async update(id: string, data: Partial<ATSTechnicalTask>): Promise<ATSTechnicalTask | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
+    const doc = await ATSTechnicalTaskModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true },
+    );
+    return doc ? ATSTechnicalTaskMapper.toEntity(doc) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) {
+      return false;
+    }
+    const result = await ATSTechnicalTaskModel.deleteOne({ _id: new Types.ObjectId(id) });
+    return result.deletedCount > 0;
+  }
+}
+

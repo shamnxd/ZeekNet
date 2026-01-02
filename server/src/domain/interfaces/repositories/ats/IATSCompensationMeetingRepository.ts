@@ -1,4 +1,4 @@
-import { ATSCompensationMeeting } from '../../../entities/ats-compensation-meeting.entity';
+import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 
 export interface IATSCompensationMeetingRepository {
   create(meeting: ATSCompensationMeeting): Promise<ATSCompensationMeeting>;

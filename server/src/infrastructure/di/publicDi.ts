@@ -1,26 +1,27 @@
-import { JobPostingRepository } from '../database/mongodb/repositories/job-posting.repository';
-import { JobApplicationRepository } from '../database/mongodb/repositories/job-application.repository';
-import { SkillRepository } from '../database/mongodb/repositories/skill.repository';
-import { JobCategoryRepository } from '../database/mongodb/repositories/job-category.repository';
-import { JobRoleRepository } from '../database/mongodb/repositories/job-role.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { CompanySubscriptionRepository } from '../database/mongodb/repositories/company-subscription.repository';
-import { CompanyContactRepository } from '../database/mongodb/repositories/company-contact.repository';
-import { CompanyOfficeLocationRepository } from '../database/mongodb/repositories/company-office-location.repository';
-import { CompanyTechStackRepository } from '../database/mongodb/repositories/company-tech-stack.repository';
-import { CompanyBenefitsRepository } from '../database/mongodb/repositories/company-benefits.repository';
-import { CompanyWorkplacePicturesRepository } from '../database/mongodb/repositories/company-workplace-pictures.repository';
-import { S3Service } from '../external-services/s3/s3.service';
-import { GetAllJobPostingsUseCase } from '../../application/use-cases/public/get-all-job-postings.use-case';
-import { GetJobPostingForPublicUseCase } from '../../application/use-cases/public/get-job-posting-for-public.use-case';
-import { GetPublicSkillsUseCase } from '../../application/use-cases/public/get-public-skills.use-case';
-import { GetPublicJobCategoriesUseCase } from '../../application/use-cases/public/get-public-job-categories.use-case';
-import { GetPublicJobRolesUseCase } from '../../application/use-cases/public/get-public-job-roles.use-case';
-import { GetSeekerCompaniesUseCase } from '../../application/use-cases/public/get-seeker-companies.use-case';
-import { GetPublicCompanyProfileUseCase } from '../../application/use-cases/public/get-public-company-profile.use-case';
-import { GetPublicCompanyJobsUseCase } from '../../application/use-cases/public/get-public-company-jobs.use-case';
-import { PublicJobController } from '../../presentation/controllers/public/public-job.controller';
-import { PublicDataController } from '../../presentation/controllers/public/public-data.controller';
+import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
+import { JobApplicationRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-application.repository';
+import { SkillRepository } from 'src/infrastructure/persistence/mongodb/repositories/skill.repository';
+import { JobCategoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-category.repository';
+import { JobRoleRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-role.repository';
+import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
+import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-subscription.repository';
+import { CompanyContactRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-contact.repository';
+import { CompanyOfficeLocationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyTechStackRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
+import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
+import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { GetAllJobPostingsUseCase } from 'src/application/use-cases/public/listings/jobs/get-all-job-postings.use-case';
+import { GetJobPostingForPublicUseCase } from 'src/application/use-cases/public/listings/jobs/get-job-posting-for-public.use-case';
+import { GetPublicSkillsUseCase } from 'src/application/use-cases/public/attributes/get-public-skills.use-case';
+import { GetPublicJobCategoriesUseCase } from 'src/application/use-cases/public/attributes/get-public-job-categories.use-case';
+import { GetPublicJobRolesUseCase } from 'src/application/use-cases/public/attributes/get-public-job-roles.use-case';
+import { GetSeekerCompaniesUseCase } from 'src/application/use-cases/public/listings/companys/get-seeker-companies.use-case';
+import { GetPublicCompanyProfileUseCase } from 'src/application/use-cases/public/listings/companys/get-public-company-profile.use-case';
+import { GetPublicCompanyJobsUseCase } from 'src/application/use-cases/public/listings/get-public-company-jobs.use-case';
+import { PublicJobController } from 'src/presentation/controllers/public/public-job.controller';
+import { PublicDataController } from 'src/presentation/controllers/public/public-data.controller';
 
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
@@ -34,11 +35,19 @@ const companyOfficeLocationRepository = new CompanyOfficeLocationRepository();
 const companyTechStackRepository = new CompanyTechStackRepository();
 const companyBenefitsRepository = new CompanyBenefitsRepository();
 const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
+const userRepository = new UserRepository();
 const s3Service = new S3Service();
 
 const getAllJobPostingsUseCase = new GetAllJobPostingsUseCase(jobPostingRepository);
 
-const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(jobPostingRepository, jobApplicationRepository, s3Service);
+const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  companyProfileRepository,
+  userRepository,
+  companyWorkplacePicturesRepository,
+  s3Service,
+);
 
 const getPublicSkillsUseCase = new GetPublicSkillsUseCase(skillRepository);
 const getPublicJobCategoriesUseCase = new GetPublicJobCategoriesUseCase(jobCategoryRepository);
@@ -77,3 +86,4 @@ const publicDataController = new PublicDataController(
 );
 
 export { publicJobController, publicDataController };
+

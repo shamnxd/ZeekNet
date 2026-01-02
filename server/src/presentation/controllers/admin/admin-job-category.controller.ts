@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateJobCategoryDto, UpdateJobCategoryDto, GetAllJobCategoriesDto, GetAllJobCategoriesRequestDto } from '../../../application/dto/admin/job-category.dto';
-import { ICreateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/ICreateJobCategoryUseCase';
-import { IGetAllJobCategoriesUseCase } from '../../../domain/interfaces/use-cases/job-categories/IGetAllJobCategoriesUseCase';
-import { IGetJobCategoryByIdUseCase } from '../../../domain/interfaces/use-cases/job-categories/IGetJobCategoryByIdUseCase';
-import { IUpdateJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/IUpdateJobCategoryUseCase';
-import { IDeleteJobCategoryUseCase } from '../../../domain/interfaces/use-cases/job-categories/IDeleteJobCategoryUseCase';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { CreateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/create-job-category-request.dto';
+import { UpdateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
+import { GetAllJobCategoriesDto, GetAllJobCategoriesRequestDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/get-all-job-categories-query.dto';
+import { ICreateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/ICreateJobCategoryUseCase';
+import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IGetAllJobCategoriesUseCase';
+import { IGetJobCategoryByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IGetJobCategoryByIdUseCase';
+import { IUpdateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IUpdateJobCategoryUseCase';
+import { IDeleteJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IDeleteJobCategoryUseCase';
+import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminJobCategoryController {
   constructor(
@@ -87,3 +89,4 @@ export class AdminJobCategoryController {
     }
   };
 }
+

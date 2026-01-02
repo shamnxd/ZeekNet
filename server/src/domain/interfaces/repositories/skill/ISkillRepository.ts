@@ -1,5 +1,5 @@
-import { Skill } from '../../../entities/skill.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { Skill } from 'src/domain/entities/skill.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface SkillQueryFilters {
   page?: number;

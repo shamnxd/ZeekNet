@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/IGetAllJobPostingsUseCase';
-import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/IGetJobPostingForPublicUseCase';
-import { handleError, success, handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
-import { JobPostingQueryRequestDto } from '../../../application/dto/job-posting/job-posting.dto';
+import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetAllJobPostingsUseCase';
+import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetJobPostingForPublicUseCase';
+import { handleError, success, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
 
 export class PublicJobController {
   constructor(
@@ -44,3 +44,5 @@ export class PublicJobController {
     }
   };
 }
+
+

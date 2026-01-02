@@ -1,5 +1,5 @@
-import { PaymentOrder } from '../../../entities/payment-order.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface IPaymentOrderRepository extends IBaseRepository<PaymentOrder> {
   findByCompanyId(companyId: string): Promise<PaymentOrder[]>;

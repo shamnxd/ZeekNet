@@ -1,31 +1,32 @@
-import { UserRepository } from '../database/mongodb/repositories/user.repository';
-import { CompanyProfileRepository } from '../database/mongodb/repositories/company-profile.repository';
-import { BcryptPasswordHasher } from '../security/bcrypt-password-hasher';
-import { JwtTokenService } from '../security/jwt-token-service';
-import { GoogleAuthTokenVerifier } from '../security/google-token-verifier';
-import { PasswordResetServiceImpl } from '../security/password-reset-service';
-import { RedisOtpService } from '../database/redis/services/redis-otp-service';
-import { NodemailerService } from '../messaging/mailer';
-import { RegisterUserUseCase } from '../../application/use-cases/auth/register-user.use-case';
-import { LoginUserUseCase } from '../../application/use-cases/auth/login-user.use-case';
-import { AdminLoginUseCase } from '../../application/use-cases/auth/admin-login.use-case';
-import { ForgotPasswordUseCase } from '../../application/use-cases/auth/forgot-password.use-case';
-import { ResetPasswordUseCase } from '../../application/use-cases/auth/reset-password.use-case';
-import { VerifyOtpUseCase } from '../../application/use-cases/auth/verify-otp.use-case';
-import { GoogleLoginUseCase } from '../../application/use-cases/auth/google-login.use-case';
-import { RefreshTokenUseCase } from '../../application/use-cases/auth/refresh-token.use-case';
-import { LogoutUseCase } from '../../application/use-cases/auth/logout.use-case';
-import { GetUserByIdUseCase } from '../../application/use-cases/auth/get-user-by-id.use-case';
-import { GetUserByEmailUseCase } from '../../application/use-cases/auth/get-user-by-email.use-case';
-import { UpdateUserVerificationStatusUseCase } from '../../application/use-cases/auth/update-user-verification-status.use-case';
-import { UpdateUserRefreshTokenUseCase } from '../../application/use-cases/auth/update-user-refresh-token.use-case';
-import { GetCompanyProfileByUserIdUseCase } from '../../application/use-cases/auth/get-company-profile-by-user-id.use-case';
-import { RegistrationController } from '../../presentation/controllers/auth/registration.controller';
-import { LoginController } from '../../presentation/controllers/auth/login.controller';
-import { TokenController } from '../../presentation/controllers/auth/token.controller';
-import { PasswordController } from '../../presentation/controllers/auth/password.controller';
-import { OtpController } from '../../presentation/controllers/auth/otp.controller';
-import { CookieService } from '../services/cookie.service';
+import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
+import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
+import { BcryptPasswordHasher } from 'src/infrastructure/security/bcrypt-password-hasher';
+import { JwtTokenService } from 'src/infrastructure/security/jwt-token-service';
+import { GoogleAuthTokenVerifier } from 'src/infrastructure/security/google-token-verifier';
+import { PasswordResetServiceImpl } from 'src/infrastructure/security/password-reset-service';
+import { RedisOtpService } from 'src/infrastructure/persistence/redis/services/redis-otp-service';
+import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { RegisterUserUseCase } from 'src/application/use-cases/auth/registration/register-user.use-case';
+import { LoginUserUseCase } from 'src/application/use-cases/auth/session/login-user.use-case';
+import { AdminLoginUseCase } from 'src/application/use-cases/auth/session/admin-login.use-case';
+import { ForgotPasswordUseCase } from 'src/application/use-cases/auth/password/forgot-password.use-case';
+import { ResetPasswordUseCase } from 'src/application/use-cases/auth/password/reset-password.use-case';
+import { VerifyOtpUseCase } from 'src/application/use-cases/auth/verification/verify-otp.use-case';
+import { GoogleLoginUseCase } from 'src/application/use-cases/auth/session/google-login.use-case';
+import { RefreshTokenUseCase } from 'src/application/use-cases/auth/session/refresh-token.use-case';
+import { LogoutUseCase } from 'src/application/use-cases/auth/session/logout.use-case';
+import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
+import { GetUserByEmailUseCase } from 'src/application/use-cases/auth/user/get-user-by-email.use-case';
+import { UpdateUserVerificationStatusUseCase } from 'src/application/use-cases/auth/verification/update-user-verification-status.use-case';
+import { UpdateUserRefreshTokenUseCase } from 'src/application/use-cases/auth/session/update-user-refresh-token.use-case';
+import { GetCompanyProfileByUserIdUseCase } from 'src/application/use-cases/company/profile/info/get-company-profile-by-user-id.use-case';
+import { RegistrationController } from 'src/presentation/controllers/auth/registration.controller';
+import { LoginController } from 'src/presentation/controllers/auth/login.controller';
+import { TokenController } from 'src/presentation/controllers/auth/token.controller';
+import { PasswordController } from 'src/presentation/controllers/auth/password.controller';
+import { OtpController } from 'src/presentation/controllers/auth/otp.controller';
+import { CookieService } from 'src/infrastructure/services/cookie.service';
+import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
 
 const userRepository = new UserRepository();
 const companyProfileRepository = new CompanyProfileRepository();
@@ -36,10 +37,11 @@ const otpService = new RedisOtpService();
 const mailerService = new NodemailerService();
 const passwordResetService = new PasswordResetServiceImpl(mailerService);
 const cookieService = new CookieService();
+const emailTemplateService = new EmailTemplateService();
 
-const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService);
+const registerUserUseCase = new RegisterUserUseCase(userRepository, passwordHasher, otpService, mailerService, emailTemplateService);
 
-const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService);
+const loginUserUseCase = new LoginUserUseCase(userRepository, passwordHasher, tokenService, otpService, mailerService, emailTemplateService);
 
 const adminLoginUseCase = new AdminLoginUseCase(userRepository, passwordHasher, tokenService);
 
@@ -49,7 +51,7 @@ const resetPasswordUseCase = new ResetPasswordUseCase(passwordHasher, passwordRe
 
 const verifyOtpUseCase = new VerifyOtpUseCase(otpService, userRepository);
 
-const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService);
+const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher, tokenService, googleTokenVerifier, otpService, mailerService, emailTemplateService);
 
 const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, tokenService, passwordHasher);
 
@@ -76,3 +78,4 @@ export const passwordController = new PasswordController(forgotPasswordUseCase, 
 export const otpController = new OtpController(otpService, mailerService, getUserByEmailUseCase, updateUserVerificationStatusUseCase, updateUserRefreshTokenUseCase, tokenService, passwordHasher, cookieService);
 
 export { userRepository };
+

@@ -1,5 +1,5 @@
-import { SeekerProfile } from '../../../entities/seeker-profile.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { SeekerProfile } from 'src/domain/entities/seeker-profile.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface ISeekerProfileRepository extends IBaseRepository<SeekerProfile> {
   getAll(options: {

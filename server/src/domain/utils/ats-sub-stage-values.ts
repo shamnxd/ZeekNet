@@ -5,11 +5,9 @@ import {
   TechnicalTaskSubStage,
   CompensationSubStage,
   OfferSubStage,
-} from '../enums/ats-stage.enum';
+} from 'src/domain/enums/ats-stage.enum';
 
-/**
- * All possible ATS sub-stage values as an array for Zod validation
- */
+
 export const ATS_SUB_STAGE_VALUES = [
   ...Object.values(InReviewSubStage),
   ...Object.values(ShortlistedSubStage),

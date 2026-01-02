@@ -1,5 +1,5 @@
-import { CompanySubscription } from '../../../entities/company-subscription.entity';
-import { IBaseRepository } from '../IBaseRepository';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
 
 export interface ICompanySubscriptionRepository extends IBaseRepository<CompanySubscription> {
   findActiveByCompanyId(companyId: string): Promise<CompanySubscription | null>;

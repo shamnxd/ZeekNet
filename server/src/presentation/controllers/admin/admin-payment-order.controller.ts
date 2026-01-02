@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { GetAllPaymentOrdersUseCase } from '../../../application/use-cases/admin/get-all-payment-orders.use-case';
-import { GetAllPaymentOrdersDto } from '../../../application/dto/admin/payment-order.dto';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
+import { GetAllPaymentOrdersDto } from 'src/application/dtos/admin/payments/requests/payment-order.dto';
+import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminPaymentOrderController {
   constructor(
@@ -22,3 +22,5 @@ export class AdminPaymentOrderController {
     }
   };
 }
+
+

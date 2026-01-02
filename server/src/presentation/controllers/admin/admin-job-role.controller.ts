@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IUpdateJobRoleUseCase';
-import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/IDeleteJobRoleUseCase';
-import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetJobRoleByIdUseCase';
-import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/job-roles/IGetAllJobRolesUseCase';
-import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/job-roles/ICreateJobRoleUseCase';
-import { GetAllJobRolesRequestDto } from '../../../application/dto/admin/job-role-management.dto';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from '../../../shared/utils/controller.utils';
+import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IUpdateJobRoleUseCase';
+import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IDeleteJobRoleUseCase';
+import { IGetJobRoleByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IGetJobRoleByIdUseCase';
+import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IGetAllJobRolesUseCase';
+import { ICreateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/ICreateJobRoleUseCase';
+import { GetAllJobRolesRequestDto } from 'src/application/dtos/admin/attributes/job-roles/requests/get-all-job-roles-query.dto';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, created } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminJobRoleController {
   constructor(
@@ -77,4 +77,6 @@ export class AdminJobRoleController {
     }
   };
 }
+
+
 

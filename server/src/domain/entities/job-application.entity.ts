@@ -1,4 +1,4 @@
-import { ATSStage, ATSSubStage, InReviewSubStage } from '../enums/ats-stage.enum';
+import { ATSStage, ATSSubStage, InReviewSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export class JobApplication {
   constructor(

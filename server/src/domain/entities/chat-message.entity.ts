@@ -1,4 +1,4 @@
-import { MessageStatus } from '../enums/message-status.enum';
+import { MessageStatus } from 'src/domain/enums/message-status.enum';
 
 export { MessageStatus };
 export class ChatMessage {

@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { ATSInterviewController } from '../controllers/company/ats-interview.controller';
-import { ATSTechnicalTaskController } from '../controllers/company/ats-technical-task.controller';
-import { ATSOfferController } from '../controllers/company/ats-offer.controller';
-import { ATSCommentController } from '../controllers/company/ats-comment.controller';
-import { ATSCompensationController } from '../controllers/company/ats-compensation.controller';
-import { ATSActivityController } from '../controllers/company/ats-activity.controller';
-import { authenticateToken, authorizeRoles } from '../middleware/auth.middleware';
-import { uploadDocument } from '../middleware/upload-document.middleware';
+import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
+import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
+import { ATSOfferController } from 'src/presentation/controllers/ats/offer/ats-offer.controller';
+import { ATSCommentController } from 'src/presentation/controllers/ats/activity/ats-comment.controller';
+import { ATSCompensationController } from 'src/presentation/controllers/ats/offer/ats-compensation.controller';
+import { ATSActivityController } from 'src/presentation/controllers/ats/activity/ats-activity.controller';
+import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
+import { uploadDocument } from 'src/presentation/middleware/upload-document.middleware';
 
 export const createATSRoutes = (
   interviewController: ATSInterviewController,

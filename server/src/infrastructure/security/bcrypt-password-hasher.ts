@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { IPasswordHasher } from '../../domain/interfaces/services/IPasswordHasher';
-import { env } from '../config/env';
+import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { env } from 'src/infrastructure/config/env';
 
 export class BcryptPasswordHasher implements IPasswordHasher {
   async hash(plain: string): Promise<string> {

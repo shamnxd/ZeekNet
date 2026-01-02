@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto, GetAllSubscriptionPlansDto, MigratePlanSubscribersDto } from '../../../application/dto/admin/subscription-plan-management.dto';
-import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IUpdateSubscriptionPlanUseCase';
-import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetSubscriptionPlanByIdUseCase';
-import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/subscriptions/IGetAllSubscriptionPlansUseCase';
-import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscriptions/ICreateSubscriptionPlanUseCase';
-import { MigratePlanSubscribersUseCase } from '../../../application/use-cases/admin/migrate-plan-subscribers.use-case';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse } from '../../../shared/utils/controller.utils';
+import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan-request.dto';
+import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/update-subscription-plan-request.dto';
+import { GetAllSubscriptionPlansDto } from 'src/application/dtos/admin/subscription/requests/get-all-subscription-plans-query.dto';
+import { MigratePlanSubscribersDto } from 'src/application/dtos/admin/subscription/requests/migrate-plan-subscribers-request.dto';
+import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IUpdateSubscriptionPlanUseCase';
+import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IGetSubscriptionPlanByIdUseCase';
+import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IGetAllSubscriptionPlansUseCase';
+import { ICreateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/ICreateSubscriptionPlanUseCase';
+import { MigratePlanSubscribersUseCase } from 'src/application/use-cases/admin/subscription/migrate-plan-subscribers.use-case';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminSubscriptionPlanController {
   constructor(
@@ -113,3 +116,6 @@ export class AdminSubscriptionPlanController {
     }
   };
 }
+
+
+

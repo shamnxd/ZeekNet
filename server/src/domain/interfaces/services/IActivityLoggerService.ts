@@ -1,4 +1,4 @@
-import { ActivityType, ATSStage, ATSSubStage } from '../../enums/ats-stage.enum';
+import { ActivityType, ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 
 export interface LogInterviewActivityParams {
   applicationId: string;

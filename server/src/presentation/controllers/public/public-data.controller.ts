@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobRolesUseCase';
-import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicJobCategoriesUseCase';
-import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicSkillsUseCase';
-import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/IGetSeekerCompaniesUseCase';
-import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicCompanyProfileUseCase';
-import { IGetPublicCompanyJobsUseCase } from 'src/domain/interfaces/use-cases/public/IGetPublicCompanyJobsUseCase';
-import { handleAsyncError, sendSuccessResponse } from '../../../shared/utils/controller.utils';
+import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobRolesUseCase';
+import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobCategoriesUseCase';
+import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicSkillsUseCase';
+import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetSeekerCompaniesUseCase';
+import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetPublicCompanyProfileUseCase';
+import { IGetPublicCompanyJobsUseCase } from 'src/presentation/interfaces/IGetPublicCompanyJobsUseCase';
+import { handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class PublicDataController {
   constructor(
@@ -90,4 +90,5 @@ export class PublicDataController {
     }
   };
 }
+
 

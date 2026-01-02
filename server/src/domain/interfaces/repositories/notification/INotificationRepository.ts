@@ -1,6 +1,6 @@
-import { Notification } from '../../../entities/notification.entity';
-import { IBaseRepository } from '../IBaseRepository';
-import { NotificationType } from '../../../enums/notification-type.enum';
+import { Notification } from 'src/domain/entities/notification.entity';
+import { IBaseRepository } from 'src/domain/interfaces/repositories/base/IBaseRepository';
+import { NotificationType } from 'src/domain/enums/notification-type.enum';
 
 export interface CreateNotificationData {
   user_id: string;

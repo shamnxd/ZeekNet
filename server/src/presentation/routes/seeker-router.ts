@@ -1,22 +1,22 @@
 import { Router } from 'express';
-import { seekerJobApplicationController, seekerProfileController } from '../../infrastructure/di/seekerDi';
+import { seekerJobApplicationController, seekerProfileController } from 'src/infrastructure/di/seekerDi';
 
-import { authenticateToken } from '../middleware/auth.middleware';
-import { validateQuery, validateBody } from '../middleware/validation.middleware';
-import { uploadSingle } from '../middleware/upload.middleware';
-import { uploadResume } from '../middleware/upload-resume.middleware';
-import { uploadDocument } from '../middleware/upload-document.middleware';
-import { JobPostingQueryDto } from '../../application/dto/job-posting/get-job-postings-query.dto';
-import { ApplicationFiltersDto } from '../../application/dto/application/application-filters.dto';
-import { CreateSeekerProfileDto } from '../../application/dto/seeker/create-seeker-profile-request.dto';
-import { UpdateSeekerProfileDto } from '../../application/dto/seeker/update-seeker-profile-request.dto';
-import { AddExperienceDto } from '../../application/dto/seeker/add-experience-request.dto';
-import { UpdateExperienceDto } from '../../application/dto/seeker/update-experience-request.dto';
-import { AddEducationDto } from '../../application/dto/seeker/add-education-request.dto';
-import { UpdateEducationDto } from '../../application/dto/seeker/update-education-request.dto';
-import { UpdateSkillsDto } from '../../application/dto/seeker/update-skills-request.dto';
-import { UpdateLanguagesDto } from '../../application/dto/seeker/update-languages-request.dto';
-import { UploadResumeDto } from '../../application/dto/seeker/seeker-profile.dto';
+import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+import { validateQuery, validateBody } from 'src/presentation/middleware/validation.middleware';
+import { uploadSingle } from 'src/presentation/middleware/upload.middleware';
+import { uploadResume } from 'src/presentation/middleware/upload-resume.middleware';
+import { uploadDocument } from 'src/presentation/middleware/upload-document.middleware';
+import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { CreateSeekerProfileDto } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
+import { UpdateSeekerProfileDto } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
+import { AddExperienceDto } from 'src/application/dtos/seeker/profile/experience/requests/add-experience-request.dto';
+import { UpdateExperienceDto } from 'src/application/dtos/seeker/profile/experience/requests/update-experience-request.dto';
+import { AddEducationDto } from 'src/application/dtos/seeker/profile/education/requests/add-education-request.dto';
+import { UpdateEducationDto } from 'src/application/dtos/seeker/profile/education/requests/update-education-request.dto';
+import { UpdateSkillsDto } from 'src/application/dtos/seeker/profile/skills/requests/update-skills-request.dto';
+import { UpdateLanguagesDto } from 'src/application/dtos/seeker/profile/languages/requests/update-languages-request.dto';
+import { UploadResumeDto } from 'src/application/dtos/seeker/media/requests/seeker-profile.dto';
 
 export class SeekerRouter {
   public router: Router;

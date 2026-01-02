@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import { AppServer } from './presentation/server/app-server';
-import { logger } from './infrastructure/config/logger';
+import { AppServer } from 'src/presentation/server/app-server';
+import { logger } from 'src/infrastructure/config/logger';
 
 async function start() {
   try {
