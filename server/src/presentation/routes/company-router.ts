@@ -12,6 +12,7 @@ import {
   companySubscriptionPlanController,
   companySubscriptionController,
   companyCandidatesController,
+  companyDashboardController,
   subscriptionMiddleware,
 } from 'src/infrastructure/di/companyDi';
 
@@ -62,7 +63,7 @@ export class CompanyRouter {
     this.router.get('/subscription-plans', companySubscriptionPlanController.getActiveSubscriptionPlans);
 
     this.router.use(companyVerificationMiddleware.checkCompanyVerified);
-    this.router.get('/dashboard', companyProfileController.getCompanyDashboard);
+    this.router.get('/dashboard', companyDashboardController.getCompanyDashboardStats);
 
     this.router.get('/contact', companyContactController.getCompanyContact);
     this.router.put('/contact', companyContactController.updateCompanyContact);
