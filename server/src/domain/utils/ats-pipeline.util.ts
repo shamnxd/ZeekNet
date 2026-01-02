@@ -18,6 +18,7 @@ export const STAGE_TO_SUB_STAGES: Record<ATSStage, readonly ATSSubStage[]> = {
   [ATSStage.COMPENSATION]: Object.values(CompensationSubStage),
   [ATSStage.OFFER]: Object.values(OfferSubStage),
   [ATSStage.HIRED]: [],
+  [ATSStage.REJECTED]: [],
 };
 
 
@@ -36,7 +37,9 @@ export function getDefaultSubStage(stage: ATSStage): ATSSubStage {
   case ATSStage.OFFER:
     return OfferSubStage.NOT_SENT;
   case ATSStage.HIRED:
-    return InReviewSubStage.PROFILE_REVIEW; 
+    return InReviewSubStage.PROFILE_REVIEW;
+  case ATSStage.REJECTED:
+    return InReviewSubStage.PROFILE_REVIEW;
   default:
     return InReviewSubStage.PROFILE_REVIEW;
   }
@@ -52,4 +55,3 @@ export function isValidSubStageForStage(stage: ATSStage, subStage: ATSSubStage):
 export function getValidSubStagesForStage(stage: ATSStage): readonly ATSSubStage[] {
   return STAGE_TO_SUB_STAGES[stage];
 }
-
