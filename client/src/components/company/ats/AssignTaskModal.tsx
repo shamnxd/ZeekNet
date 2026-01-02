@@ -8,7 +8,7 @@ interface AssignTaskModalProps {
     onClose: () => void;
     candidateName: string;
     onAssign: (data: TaskFormData) => void;
-    taskToEdit?: TaskFormData & { id?: string }; // Task data for editing
+    taskToEdit?: TaskFormData & { id?: string }; 
 }
 
 interface TaskFormData {
@@ -39,7 +39,7 @@ export const AssignTaskModal = ({
     const [existingDocumentUrl, setExistingDocumentUrl] = useState<string | undefined>(taskToEdit?.documentUrl);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Update form data when taskToEdit changes
+    
     useEffect(() => {
         if (taskToEdit) {
             setFormData({
@@ -66,23 +66,23 @@ export const AssignTaskModal = ({
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Validate file type
+            
             const validTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!validTypes.some(type => file.type.includes(type.split('/')[1]) || file.type === type)) {
                 alert('Please select a valid file (PDF, DOC, DOCX, or ZIP)');
                 return;
             }
-            // Validate file size (10MB)
+            
             if (file.size > 10 * 1024 * 1024) {
                 alert('File size must be less than 10MB');
                 return;
             }
             setSelectedFile(file);
-            // Store file data - in real implementation, this would be uploaded first
+            
             setFormData(prev => ({
                 ...prev,
                 documentFilename: file.name,
-                documentUrl: URL.createObjectURL(file) // Temporary URL, should be replaced with actual upload
+                documentUrl: URL.createObjectURL(file) 
             }));
         }
     };
@@ -101,12 +101,12 @@ export const AssignTaskModal = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Pass the actual File object if a new file is selected
+        
         onAssign({
             ...formData,
             document: selectedFile || undefined
         });
-        // Reset form
+        
         setFormData({
             title: '',
             description: '',
@@ -156,7 +156,7 @@ export const AssignTaskModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-stage-task/20 flex items-center justify-center">
@@ -175,9 +175,9 @@ export const AssignTaskModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        {/* Title */}
+                        {}
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Task Title
@@ -192,7 +192,7 @@ export const AssignTaskModal = ({
                             />
                         </div>
 
-                        {/* Description */}
+                        {}
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Task Description
@@ -207,7 +207,7 @@ export const AssignTaskModal = ({
                             />
                         </div>
 
-                        {/* Deadline */}
+                        {}
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Deadline
@@ -221,7 +221,7 @@ export const AssignTaskModal = ({
                             />
                         </div>
 
-                        {/* Attachments */}
+                        {}
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
                                 Attach Documents (Optional)
@@ -293,7 +293,7 @@ export const AssignTaskModal = ({
                             )}
                         </div>
 
-                        {/* Actions */}
+                        {}
                         <div className="flex gap-3 pt-2">
                             <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
                                 Cancel

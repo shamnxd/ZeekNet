@@ -7,8 +7,8 @@ export interface Toast {
 }
 
 export function toast({ title, description, variant = 'default' }: Toast) {
-  // Simple console-based toast for now
-  // In a real app, this would integrate with a toast UI component
+  
+  
   const message = description ? `${title}: ${description}` : title;
   
   if (variant === 'destructive') {
@@ -17,8 +17,8 @@ export function toast({ title, description, variant = 'default' }: Toast) {
     console.log(message);
   }
   
-  // You can replace this with actual toast notification logic
-  // For example, using a toast library or custom implementation
+  
+  
 }
 
 export function useToast() {
@@ -28,7 +28,7 @@ export function useToast() {
     toast(toastData);
     setToasts(prev => [...prev, toastData]);
     
-    // Auto-dismiss after 3 seconds
+    
     setTimeout(() => {
       setToasts(prev => prev.slice(1));
     }, 3000);

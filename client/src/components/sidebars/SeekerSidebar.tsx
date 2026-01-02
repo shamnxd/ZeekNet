@@ -34,7 +34,7 @@ function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
           setProfileImage(response.data.avatarUrl);
         }
       } catch {
-        // Failed to fetch seeker profile
+        
       } finally {
         setLoading(false);
       }

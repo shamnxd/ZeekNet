@@ -326,7 +326,7 @@ export const companyApi = {
     return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`)).data;
   },
 
-  // ATS Pipeline APIs
+  
   async getJobATSPipeline(jobId: string): Promise<ApiEnvelope<ATSPipelineConfig>> {
     const endpoint = CompanyRoutes.JOBS_ID_ATS_PIPELINE.replace(':jobId', jobId);
     return (await api.get(endpoint)).data;

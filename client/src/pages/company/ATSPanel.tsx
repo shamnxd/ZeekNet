@@ -27,16 +27,16 @@ const ATSPanel = () => {
         setLoadingJobs(true);
         const response = await companyApi.getJobPostings({ limit: 100 });
         if (response.data && response.data.jobs) {
-          // Filter only active jobs
+
           const activeJobs = response.data.jobs.filter(job => job.status === 'active');
           setJobs(activeJobs);
 
-          // Construct URL param handling
+
           const jobIdParam = searchParams.get('jobId');
           if (jobIdParam) {
             setSelectedJobId(jobIdParam);
           } else if (activeJobs.length > 0) {
-            // Optionally select first job, or leave empty
+            setSelectedJobId(activeJobs[0].id);
           }
         }
       } catch (error) {
@@ -59,7 +59,7 @@ const ATSPanel = () => {
       try {
         setLoadingApps(true);
 
-        // Fetch pipeline config and applications in parallel
+
         const [pipelineResponse, applicationsResponse] = await Promise.all([
           companyApi.getJobATSPipeline(selectedJobId),
           companyApi.getJobApplicationsForKanban(selectedJobId),
@@ -82,7 +82,7 @@ const ATSPanel = () => {
     };
 
     if (selectedJobId) {
-      // Update URL
+
       setSearchParams({ jobId: selectedJobId });
       fetchPipelineAndApps();
     }
@@ -108,10 +108,10 @@ const ATSPanel = () => {
   };
 
   const handleCandidateClick = (candidateId: string) => {
-    // Navigate to the candidate profile view we just updated
-    // Use the application ID as the candidate identifier for ATS view if needed, 
-    // or pass both context.
-    // Based on CandidateProfileView logic: "/ats/candidate/:id"
+
+
+
+
     navigate(`/company/ats/candidate/${candidateId}`);
   };
 
@@ -128,7 +128,7 @@ const ATSPanel = () => {
   return (
     <CompanyLayout>
       <div className="px-4 py-4 space-y-4">
-        {/* Header */}
+        { }
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-gray-900">ATS Pipeline</h1>
@@ -136,7 +136,7 @@ const ATSPanel = () => {
           </div>
         </div>
 
-        {/* Job Selector */}
+        { }
         <div className="bg-white rounded-lg mb-8 mt-6">
           <label className="block text-xs font-semibold text-gray-900 mb-2">
             Select Job
@@ -144,7 +144,7 @@ const ATSPanel = () => {
 
           <div className="flex items-center justify-between gap-4">
 
-            {/* Custom Dropdown */}
+            { }
             <div className="relative w-full">
               <button
                 type="button"
@@ -169,7 +169,7 @@ const ATSPanel = () => {
                 </svg>
               </button>
 
-              {/* Dropdown List */}
+              { }
               <div
                 id="job-dropdown"
                 className="hidden absolute z-50 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto"
@@ -259,19 +259,19 @@ const ATSPanel = () => {
           </div>
         ) : (
           <>
-            {/* Kanban Board */}
+            { }
             <div className="flex gap-3 overflow-x-auto pb-3 min-h-[500px]">
               {enabledStages.map((stage) => {
                 const stageKey = stage as ATSStage;
                 const candidates = getCandidatesByStage(stageKey);
-                const stageColor = STAGE_COLORS[stageKey] || '#6B7280'; // Default gray if undefined
+                const stageColor = STAGE_COLORS[stageKey] || '#6B7280';
 
                 return (
                   <div
                     key={stage}
                     className="flex-shrink-0 w-60 bg-gray-50 rounded-lg border border-gray-200 flex flex-col h-full"
                   >
-                    {/* Stage Header */}
+                    { }
                     <div
                       onClick={() => handleStageClick(stageKey)}
                       className="p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
@@ -289,7 +289,7 @@ const ATSPanel = () => {
                       <p className="text-[10px] text-gray-500 mt-0.5">Click to view sub-stages</p>
                     </div>
 
-                    {/* Candidate Cards */}
+                    { }
                     <div className="p-2 space-y-2 flex-grow overflow-y-auto">
                       {candidates.length === 0 ? (
                         <div className="text-center py-6 text-gray-400 text-xs">
@@ -305,7 +305,7 @@ const ATSPanel = () => {
                             }}
                             className="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#4640DE] hover:shadow-md transition-all cursor-pointer group"
                           >
-                            {/* Candidate Header */}
+                            { }
                             <div className="flex items-start gap-2">
                               <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
                                 {app.seekerAvatar ? (
@@ -330,7 +330,7 @@ const ATSPanel = () => {
                               </div>
                             </div>
 
-                            {/* ATS Score */}
+                            { }
                             {app.atsScore !== undefined && (
                               <div className="mt-2 flex items-center gap-1.5">
                                 <TrendingUp className="h-3 w-3 text-[#4640DE]" />
@@ -340,7 +340,7 @@ const ATSPanel = () => {
                               </div>
                             )}
 
-                            {/* Sub-stage Badge */}
+                            { }
                             {app.subStage && (
                               <div className="mt-2">
                                 <Badge

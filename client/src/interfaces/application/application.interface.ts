@@ -1,8 +1,8 @@
 import { ApplicationStage } from '@/constants/enums'
 
 export interface Application {
-  id?: string // Server returns 'id'
-  _id?: string // Legacy support
+  id?: string 
+  _id?: string 
   seeker_id?: string
   seeker_name?: string
   seeker_avatar?: string

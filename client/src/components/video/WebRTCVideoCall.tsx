@@ -60,7 +60,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         setIsConnecting(true);
         setError(null);
 
-        // Get local stream and set it to local video
+        
         await webrtcService.initialize(roomId, callbacks);
         const localStream = webrtcService.getLocalStream();
 
@@ -105,7 +105,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         screenShareStreamRef.current = stream;
         setIsScreenSharing(true);
 
-        // Update local video with screen share
+        
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
@@ -139,7 +139,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white overflow-hidden relative">
 
-      {/* Status Badge (Top Right) */}
+      {}
       <div className="absolute top-6 right-6 z-20">
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border ${connectionState === 'connected'
           ? 'bg-green-500/10 border-green-500/20 text-green-400'
@@ -151,7 +151,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         </div>
       </div>
 
-      {/* Main Video Area */}
+      {}
       <div className="flex-1 relative flex items-center justify-center p-4">
         {isConnecting && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm z-10 transition-all duration-500">
@@ -168,7 +168,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
           </div>
         )}
 
-        {/* Remote Video */}
+        {}
         <div className="w-full h-full relative rounded-2xl overflow-hidden bg-slate-900 shadow-2xl ring-1 ring-slate-800/50">
           <video
             ref={remoteVideoRef}
@@ -177,7 +177,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
             className="w-full h-full object-cover"
           />
 
-          {/* Remote User Name Overlay */}
+          {}
           {connectionState === 'connected' && remoteUserId && (
             <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="text-sm font-medium text-white/90 flex items-center gap-2">
@@ -206,7 +206,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
           )}
         </div>
 
-        {/* Local Video (Floating PIP) */}
+        {}
         <div className="absolute top-6 left-6 w-72 aspect-video rounded-xl overflow-hidden bg-slate-800 ring-1 ring-white/10 shadow-2xl transition-all hover:scale-105 hover:ring-white/20 z-20 group">
           <video
             ref={localVideoRef}
@@ -228,7 +228,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         </div>
       </div>
 
-      {/* Floating Controls Bar */}
+      {}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
         <div className="flex items-center gap-4 bg-slate-900/60 backdrop-blur-xl border border-white/10 p-3 rounded-full shadow-2xl">
           <Button

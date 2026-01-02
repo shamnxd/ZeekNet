@@ -66,7 +66,7 @@ export interface UpdateApplicationStageRequest {
 }
 
 class ATSService {
-  // Interview endpoints
+  
   async scheduleInterview(data: ScheduleInterviewRequest) {
     const response = await api.post('/api/company/applications/interviews', data);
     return response.data;
@@ -82,7 +82,7 @@ class ATSService {
     return response.data;
   }
 
-  // Technical Task endpoints
+  
   async assignTechnicalTask(data: AssignTechnicalTaskRequest & { document?: File }) {
     const formData = new FormData();
     formData.append('applicationId', data.applicationId);
@@ -146,7 +146,7 @@ class ATSService {
     return response.data;
   }
 
-  // Offer endpoints
+  
   async uploadOffer(data: UploadOfferRequest) {
     const formData = new FormData();
     formData.append('applicationId', data.applicationId);
@@ -214,7 +214,7 @@ class ATSService {
     return response.data?.data || response.data || [];
   }
 
-  // Comment endpoints
+  
   async addComment(data: AddCommentRequest) {
     const response = await api.post('/api/company/applications/comments', data);
     return response.data;
@@ -225,7 +225,7 @@ class ATSService {
     return response.data;
   }
 
-  // Activity endpoints
+  
   async getActivitiesByApplication(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/activities`);
     return response.data;
@@ -241,13 +241,13 @@ class ATSService {
     return response.data?.data || response.data;
   }
 
-  // Application stage update
+  
   async updateApplicationStage(applicationId: string, data: UpdateApplicationStageRequest) {
     const response = await api.patch(`/api/company/applications/${applicationId}/stage`, data);
     return response.data;
   }
 
-  // Seeker-specific endpoints (read-only)
+  
   async getInterviewsByApplicationForSeeker(applicationId: string) {
     const response = await api.get(`/api/seeker/applications/${applicationId}/interviews`);
     return response.data;
@@ -270,7 +270,7 @@ class ATSService {
     if (data.submissionNote) {
       formData.append('submissionNote', data.submissionNote);
     }
-    // Backward compatibility
+    
     if (data.submissionUrl && !data.document) {
       formData.append('submissionUrl', data.submissionUrl);
     }
@@ -284,7 +284,7 @@ class ATSService {
     return response.data;
   }
 
-  // Compensation endpoints
+  
   async initiateCompensation(applicationId: string, data: { candidateExpected: string; notes?: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/initiate`, data);
     return response.data;
@@ -307,19 +307,19 @@ class ATSService {
 
   async getCompensation(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation`);
-    // API returns { success, message, data } - extract data field
+    
     return response.data?.data || response.data || null;
   }
 
   async scheduleCompensationMeeting(applicationId: string, data: { type: string; videoType?: 'in-app' | 'external'; date: string; time: string; location?: string; meetingLink?: string; notes?: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/meetings`, data);
-    // API returns { success, message, data } - extract data field
+    
     return response.data?.data || response.data;
   }
 
   async getCompensationMeetings(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation/meetings`);
-    // API returns { success, message, data } - extract data field
+    
     return response.data?.data || response.data || [];
   }
 
@@ -330,13 +330,13 @@ class ATSService {
 
   async addCompensationNote(applicationId: string, data: { note: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/notes`, data);
-    // API returns { success, message, data } - extract data field
+    
     return response.data?.data || response.data;
   }
 
   async getCompensationNotes(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation/notes`);
-    // API returns { success, message, data } - extract data field
+    
     return response.data?.data || response.data || [];
   }
 }

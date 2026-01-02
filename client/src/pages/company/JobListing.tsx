@@ -539,7 +539,7 @@ const CompanyJobListing = () => {
         </div>
       </div>
 
-      {/* Reopen Job Dialog */}
+      {}
       <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

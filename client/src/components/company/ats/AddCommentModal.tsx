@@ -47,7 +47,7 @@ export const AddCommentModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -66,7 +66,7 @@ export const AddCommentModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
@@ -83,7 +83,7 @@ export const AddCommentModal = ({
                             />
                         </div>
 
-                        {/* Actions */}
+                        {}
                         <div className="flex gap-3">
                             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                                 Cancel

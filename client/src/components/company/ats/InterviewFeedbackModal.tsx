@@ -39,7 +39,7 @@ export const InterviewFeedbackModal = ({
         try {
             setIsSubmitting(true);
             await onSubmit(rating, feedback);
-            // Reset form
+            
             setRating(0);
             setFeedback('');
             onClose();
@@ -69,7 +69,7 @@ export const InterviewFeedbackModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div>
                             <h2 className="text-lg font-semibold text-foreground">Add Interview Feedback</h2>
@@ -83,9 +83,9 @@ export const InterviewFeedbackModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-6">
-                        {/* Rating */}
+                        {}
                         <div>
                             <Label className="text-sm font-medium text-foreground mb-3 block">
                                 Rating <span className="text-destructive">*</span>
@@ -117,7 +117,7 @@ export const InterviewFeedbackModal = ({
                             )}
                         </div>
 
-                        {/* Feedback */}
+                        {}
                         <div>
                             <Label htmlFor="feedback" className="text-sm font-medium text-foreground mb-2 block">
                                 Feedback Notes
@@ -132,7 +132,7 @@ export const InterviewFeedbackModal = ({
                             />
                         </div>
 
-                        {/* Actions */}
+                        {}
                         <div className="flex gap-3 pt-2">
                             <Button
                                 type="button"

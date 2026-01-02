@@ -1,5 +1,20 @@
 import { ApplicationStage } from '@/constants/enums'
 
+export interface InterviewScheduleItem {
+  id: string
+  date: string
+  interview_type: string
+  time: string
+  location: string
+  status?: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled'
+  feedback?: {
+    reviewer_name: string
+    rating?: number
+    comment: string
+    reviewed_at: string
+  }
+}
+
 export interface ApplicationDetails {
   _id: string
   seeker_id: string
@@ -67,18 +82,5 @@ export interface ApplicationDetails {
       replies?: number
     }>
   }
-  interview_schedule?: Array<{
-    id: string
-    date: string
-    interview_type: string
-    time: string
-    location: string
-    status?: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled'
-    feedback?: {
-      reviewer_name: string
-      rating?: number
-      comment: string
-      reviewed_at: string
-    }
-  }>
+  interview_schedule?: InterviewScheduleItem[]
 }

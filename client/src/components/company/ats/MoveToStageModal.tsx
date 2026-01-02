@@ -29,25 +29,25 @@ export const MoveToStageModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Normalize availableStages to enum values (handle display names)
+  
   const normalizedStages = useMemo(() => {
-    // Create reverse mapping from display name to enum value
+    
     const displayNameToEnum = Object.entries(ATSStageDisplayNames).reduce((acc, [enumValue, displayName]) => {
       acc[displayName] = enumValue
       return acc
     }, {} as Record<string, string>)
     
     return availableStages.map((stage: string) => {
-      // If it's already an enum value, return as-is
+      
       if (Object.values(ATSStage).includes(stage as ATSStage)) {
         return stage
       }
-      // Otherwise, try to convert from display name to enum
+      
       return displayNameToEnum[stage] || stage
     }) as ATSStage[]
   }, [availableStages])
   
-  // Filter out current stage and only show stages that come after current stage
+  
   const currentIndex = normalizedStages.indexOf(currentStage)
   
   const nextStages = normalizedStages.filter((stage) => {
@@ -58,7 +58,7 @@ export const MoveToStageModal = ({
 
   useEffect(() => {
     if (!isOpen) {
-      // Reset form when modal closes
+      
       setTargetStage('')
       setReason('')
       setError('')
@@ -68,7 +68,7 @@ export const MoveToStageModal = ({
   const handleConfirm = async () => {
     setError('')
 
-    // Validation
+    
     if (!targetStage) {
       setError('Please select a target stage')
       return
@@ -87,7 +87,7 @@ export const MoveToStageModal = ({
     try {
       setIsSubmitting(true)
       await onConfirm(targetStage as ATSStage, reason.trim())
-      // Reset form on success
+      
       setTargetStage('')
       setReason('')
       onClose()

@@ -25,7 +25,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     );
     const requiredStages: NonHiredStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
 
-    // Initialize with all stages if empty (first load behavior default)
+    
     const selectedStages = data.enabledStages && data.enabledStages.length > 0
         ? data.enabledStages.filter((stage): stage is NonHiredStage => stage !== ATSStage.HIRED)
         : availableStages;
@@ -35,8 +35,8 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             return;
         }
 
-        // Prevent deselecting mandatory stages if we want to enforce some like IN_REVIEW or OFFER
-        // For now, let's assume at least one stage is required
+        
+        
 
         let newStages: NonHiredStage[];
 
@@ -46,7 +46,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             newStages = [...selectedStages, stage];
         }
 
-        // Sort stages based on the original order
+        
         newStages.sort((a, b) => {
             return availableStages.indexOf(a) - availableStages.indexOf(b);
         });
@@ -56,10 +56,10 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
 
     const handleNextAction = () => {
         if (selectedStages.length === 0) {
-            // Force at least one stage
+            
             return;
         }
-        // ensure the updated state is saved if it was empty initially
+        
         if (!data.enabledStages || data.enabledStages.length === 0) {
             onDataChange({ enabledStages: selectedStages });
         }

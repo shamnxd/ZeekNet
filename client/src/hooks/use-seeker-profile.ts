@@ -1,0 +1,790 @@
+
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import type { SeekerProfile as SeekerProfileType, Experience, Education } from '@/interfaces/seeker/seeker.interface';
+import { seekerApi } from '@/api/seeker.api';
+import { publicApi } from '@/api/public.api';
+import type { Area } from 'react-easy-crop';
+import type { ComboboxOption } from '@/components/ui/combobox';
+
+export const useSeekerProfile = () => {
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    
+    const [editBannerOpen, setEditBannerOpen] = useState(false);
+    const [bannerCropperOpen, setBannerCropperOpen] = useState(false);
+    const [editProfileOpen, setEditProfileOpen] = useState(false);
+    const [profileCropperOpen, setProfileCropperOpen] = useState(false);
+    const [editAboutOpen, setEditAboutOpen] = useState(false);
+    const [addExperienceOpen, setAddExperienceOpen] = useState(false);
+    const [editExperienceOpen, setEditExperienceOpen] = useState(false);
+    const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
+    const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
+    const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
+    const [addEducationOpen, setAddEducationOpen] = useState(false);
+    const [editEducationOpen, setEditEducationOpen] = useState(false);
+    const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
+    const [deleteEducationOpen, setDeleteEducationOpen] = useState(false);
+    const [educationToDelete, setEducationToDelete] = useState<string | null>(null);
+    const [addSkillOpen, setAddSkillOpen] = useState(false);
+    const [deleteSkillOpen, setDeleteSkillOpen] = useState(false);
+    const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
+    const [editDetailsOpen, setEditDetailsOpen] = useState(false);
+    const [editSocialOpen, setEditSocialOpen] = useState(false);
+
+    
+    const [profile, setProfile] = useState<SeekerProfileType | null>(null);
+    const [experiences, setExperiences] = useState<Experience[]>([]);
+    const [education, setEducation] = useState<Education[]>([]);
+
+    
+    const [tempBannerImage, setTempBannerImage] = useState<string>('');
+    const [tempProfileImage, setTempProfileImage] = useState<string>('');
+
+    const [bannerImage, setBannerImage] = useState<string>('');
+    const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
+    const [profilePhoto, setProfilePhoto] = useState<string>('');
+    const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
+
+    const [profileData, setProfileData] = useState({
+        name: '',
+        headline: '',
+        location: '',
+        dateOfBirth: '',
+        gender: '',
+    });
+
+    const [aboutData, setAboutData] = useState('');
+
+    const [experienceData, setExperienceData] = useState({
+        title: '',
+        company: '',
+        employmentType: 'full-time',
+        startDate: '',
+        endDate: '',
+        location: '',
+        description: '',
+        technologies: [] as string[],
+        isCurrent: false,
+    });
+
+    const [educationData, setEducationData] = useState({
+        school: '',
+        degree: '',
+        fieldOfStudy: '',
+        startDate: '',
+        endDate: '',
+        grade: '',
+    });
+
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);
+    const [skillsLoading, setSkillsLoading] = useState(false);
+    
+    const [technologyOptions, setTechnologyOptions] = useState<ComboboxOption[]>([]);
+    const [technologyLoading, setTechnologyLoading] = useState(false);
+
+    const [editingSocialLinks, setEditingSocialLinks] = useState<Array<{ name: string; link: string }>>([]);
+    const [editingLanguages, setEditingLanguages] = useState<string[]>([]);
+    const [newLanguage, setNewLanguage] = useState('');
+    const [editingPhone, setEditingPhone] = useState<string>('');
+    const [editingEmail, setEditingEmail] = useState<string>('');
+
+    const SOCIAL_PLATFORMS = [
+        { value: 'github', label: 'GitHub' },
+        { value: 'linkedin', label: 'LinkedIn' },
+        { value: 'twitter', label: 'Twitter' },
+        { value: 'portfolio', label: 'Portfolio' },
+        { value: 'behance', label: 'Behance' },
+        { value: 'dribbble', label: 'Dribbble' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'custom', label: 'Custom' },
+    ];
+
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
+
+    const fetchProfileData = async () => {
+        try {
+            setLoading(true);
+            const profileResponse = await seekerApi.getProfile();
+
+            if (profileResponse.success && profileResponse.data) {
+                const profileData = profileResponse.data;
+                setProfile(profileData);
+                setProfilePhoto(profileData.avatarUrl || '');
+                setBannerImage(profileData.bannerUrl || '');
+                const dateOfBirthValue = profileData.dateOfBirth
+                    ? (() => {
+                        try {
+                            const date = new Date(profileData.dateOfBirth);
+                            if (isNaN(date.getTime())) return '';
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        } catch {
+                            return '';
+                        }
+                    })()
+                    : '';
+                setProfileData({
+                    name: profileData.name || '',
+                    headline: profileData.headline || '',
+                    location: profileData.location || '',
+                    dateOfBirth: dateOfBirthValue,
+                    gender: profileData.gender || '',
+                });
+                setAboutData(profileData.summary || '');
+                setEditingPhone(profileData.phone || '');
+                setEditingEmail(profileData.email || '');
+                setEditingLanguages(profileData.languages || []);
+
+                setExperiences(profileData.experiences || []);
+                setEducation(profileData.education || []);
+            }
+        } catch {
+            toast.error('Failed to load profile data, please refresh the page.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setBannerImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const imageUrl = reader.result as string;
+                setTempBannerImage(imageUrl);
+                setEditBannerOpen(false);
+                setBannerCropperOpen(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const dataURLtoFile = (dataUrl: string, filename: string): File => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, { type: mime });
+    };
+
+    const handleBannerCropComplete = async (_croppedAreaPixels: Area, croppedImage: string) => {
+        try {
+            setSaving(true);
+
+            const file = dataURLtoFile(croppedImage, `banner-${Date.now()}.png`);
+            const response = await seekerApi.uploadBanner(file);
+            if (response.success && response.data) {
+                setBannerImage(response.data.bannerUrl || croppedImage);
+                toast.success('Banner updated successfully');
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update banner');
+            }
+        } catch {
+            toast.error('Failed to update banner');
+        } finally {
+            setBannerImageFile(null);
+            setBannerCropperOpen(false);
+            setSaving(false);
+        }
+    };
+
+    const handleEditBanner = () => {
+        setEditBannerOpen(false);
+    };
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setProfilePhotoFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const imageUrl = reader.result as string;
+                setTempProfileImage(imageUrl);
+                setEditProfileOpen(false);
+                setProfileCropperOpen(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleProfileCropComplete = async (_croppedAreaPixels: Area, croppedImage: string) => {
+        try {
+            setSaving(true);
+
+            const file = dataURLtoFile(croppedImage, `avatar-${Date.now()}.png`);
+            const response = await seekerApi.uploadAvatar(file);
+            if (response.success && response.data) {
+                setProfilePhoto(response.data.avatarUrl || croppedImage);
+                toast.success('Profile photo updated successfully');
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update profile photo');
+            }
+        } catch {
+            toast.error('Failed to update profile photo');
+        } finally {
+            setProfilePhotoFile(null);
+            setProfileCropperOpen(false);
+            setSaving(false);
+        }
+    };
+
+    const handleEditProfile = async () => {
+        try {
+            setSaving(true);
+
+            const response = await seekerApi.updateProfile({
+                name: profileData.name,
+                headline: profileData.headline,
+                location: profileData.location,
+                dateOfBirth: profileData.dateOfBirth || undefined,
+                gender: profileData.gender || undefined,
+            });
+            if (response.success) {
+                toast.success('Profile updated successfully');
+                setEditProfileOpen(false);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update profile');
+            }
+        } catch {
+            toast.error('Failed to update profile');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEditAbout = async () => {
+        try {
+            setSaving(true);
+            const response = await seekerApi.updateProfile({
+                summary: aboutData,
+            });
+            if (response.success) {
+                toast.success('About section updated successfully');
+                setEditAboutOpen(false);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update about section');
+            }
+        } catch {
+            toast.error('Failed to update about section');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddExperience = async () => {
+        try {
+            setSaving(true);
+            const response = await seekerApi.addExperience({
+                title: experienceData.title,
+                company: experienceData.company,
+                startDate: experienceData.startDate,
+                endDate: experienceData.endDate || undefined,
+                employmentType: experienceData.employmentType,
+                location: experienceData.location || undefined,
+                description: experienceData.description || undefined,
+                technologies: experienceData.technologies,
+                isCurrent: experienceData.isCurrent,
+            });
+            if (response.success) {
+                toast.success('Experience added successfully');
+                setAddExperienceOpen(false);
+                setExperienceData({
+                    title: '',
+                    company: '',
+                    employmentType: 'full-time',
+                    startDate: '',
+                    endDate: '',
+                    location: '',
+                    description: '',
+                    technologies: [],
+                    isCurrent: false,
+                });
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to add experience');
+            }
+        } catch {
+            toast.error('Failed to add experience');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEditExperience = async () => {
+        if (!editingExperienceId) return;
+        try {
+            setSaving(true);
+            const response = await seekerApi.updateExperience(editingExperienceId, {
+                title: experienceData.title,
+                company: experienceData.company,
+                startDate: experienceData.startDate,
+                endDate: experienceData.endDate || undefined,
+                employmentType: experienceData.employmentType,
+                location: experienceData.location || undefined,
+                description: experienceData.description || undefined,
+                technologies: experienceData.technologies,
+                isCurrent: experienceData.isCurrent,
+            });
+            if (response.success) {
+                toast.success('Experience updated successfully');
+                setEditExperienceOpen(false);
+                setEditingExperienceId(null);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update experience');
+            }
+        } catch {
+            toast.error('Failed to update experience, please refresh the page and try again');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+     const handleRemoveExperience = (experienceId: string) => {
+        setExperienceToDelete(experienceId);
+        setDeleteExperienceOpen(true);
+    };
+
+    const confirmRemoveExperience = async () => {
+        if (!experienceToDelete) return;
+        try {
+            setSaving(true);
+            const response = await seekerApi.removeExperience(experienceToDelete);
+            if (response.success) {
+                toast.success('Experience removed successfully');
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to remove experience');
+            }
+        } catch {
+            toast.error('Failed to remove experience');
+        } finally {
+            setSaving(false);
+            setDeleteExperienceOpen(false);
+            setExperienceToDelete(null);
+        }
+    };
+
+    const handleAddEducation = async () => {
+        try {
+            setSaving(true);
+            const response = await seekerApi.addEducation({
+                school: educationData.school,
+                degree: educationData.degree || undefined,
+                fieldOfStudy: educationData.fieldOfStudy || undefined,
+                startDate: educationData.startDate,
+                endDate: educationData.endDate || undefined,
+                grade: educationData.grade || undefined,
+            });
+            if (response.success) {
+                toast.success('Education added successfully');
+                setAddEducationOpen(false);
+                setEducationData({
+                    school: '',
+                    degree: '',
+                    fieldOfStudy: '',
+                    startDate: '',
+                    endDate: '',
+                    grade: '',
+                });
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to add education');
+            }
+        } catch {
+            toast.error('Failed to add education');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEditEducation = async () => {
+        if (!editingEducationId) return;
+        try {
+            setSaving(true);
+            const response = await seekerApi.updateEducation(editingEducationId, {
+                school: educationData.school,
+                degree: educationData.degree || undefined,
+                fieldOfStudy: educationData.fieldOfStudy || undefined,
+                startDate: educationData.startDate,
+                endDate: educationData.endDate || undefined,
+                grade: educationData.grade || undefined,
+            });
+            if (response.success) {
+                toast.success('Education updated successfully');
+                setEditEducationOpen(false);
+                setEditingEducationId(null);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update education');
+            }
+        } catch {
+            toast.error('Failed to update education');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRemoveEducation = (educationId: string) => {
+        setEducationToDelete(educationId);
+        setDeleteEducationOpen(true);
+    };
+
+    const confirmRemoveEducation = async () => {
+        if (!educationToDelete) return;
+        try {
+            setSaving(true);
+            const response = await seekerApi.removeEducation(educationToDelete);
+            if (response.success) {
+                toast.success('Education removed successfully');
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to remove education');
+            }
+        } catch {
+            toast.error('Failed to remove education');
+        } finally {
+            setSaving(false);
+            setDeleteEducationOpen(false);
+            setEducationToDelete(null);
+        }
+    };
+
+    const fetchSkills = async (searchTerm?: string) => {
+        try {
+            setSkillsLoading(true);
+            const response = await publicApi.getAllSkills({
+                limit: 20,
+                search: searchTerm,
+            });
+            if (response.success && response.data) {
+                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                    value: skillName,
+                    label: skillName,
+                }));
+                setSkillsOptions(options);
+            }
+        } catch (error) {
+            console.error('Failed to fetch skills:', error);
+        } finally {
+            setSkillsLoading(false);
+        }
+    };
+
+    const fetchTechnologies = async (searchTerm?: string) => {
+        try {
+            setTechnologyLoading(true);
+            const response = await publicApi.getAllSkills({
+                limit: 20,
+                search: searchTerm,
+            });
+            if (response.success && response.data) {
+                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                    value: skillName,
+                    label: skillName,
+                }));
+                setTechnologyOptions(options);
+            }
+        } catch (error) {
+            console.error('Failed to fetch technologies:', error);
+        } finally {
+            setTechnologyLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (addSkillOpen) {
+            fetchSkills();
+            if (profile?.skills) {
+                setSelectedSkills(profile.skills);
+            }
+        }
+    }, [addSkillOpen, profile?.skills]);
+
+    useEffect(() => {
+        if (addExperienceOpen || editExperienceOpen) {
+            fetchTechnologies();
+        }
+    }, [addExperienceOpen, editExperienceOpen]);
+
+    const handleAddSkill = async () => {
+        if (selectedSkills.length === 0) {
+            toast.error('Please select at least one skill');
+            return;
+        }
+        if (!profile) {
+            toast.error('Profile not loaded');
+            return;
+        }
+        try {
+            setSaving(true);
+            const response = await seekerApi.updateSkills(selectedSkills);
+            if (response.success) {
+                toast.success('Skills updated successfully');
+                setAddSkillOpen(false);
+                setSelectedSkills([]);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update skills');
+            }
+        } catch {
+            toast.error('Failed to update skills');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRemoveSkill = async (skill: string) => {
+        setSkillToDelete(skill);
+        setDeleteSkillOpen(true);
+    };
+
+    const confirmRemoveSkill = async () => {
+        if (!profile || !skillToDelete) return;
+        try {
+            setSaving(true);
+            const updatedSkills = profile.skills.filter((s: string) => s !== skillToDelete);
+            const response = await seekerApi.updateSkills(updatedSkills);
+            if (response.success) {
+                toast.success('Skill removed successfully');
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to remove skill');
+            }
+        } catch {
+            toast.error('Failed to remove skill');
+        } finally {
+            setSaving(false);
+            setDeleteSkillOpen(false);
+            setSkillToDelete(null);
+        }
+    };
+
+    const handleAddLanguage = () => {
+        if (!newLanguage.trim()) {
+            toast.error('Please enter a language name');
+            return;
+        }
+        const trimmed = newLanguage.trim();
+        if (editingLanguages.includes(trimmed)) {
+            toast.error('This language is already added');
+            return;
+        }
+        setEditingLanguages([...editingLanguages, trimmed]);
+        setNewLanguage('');
+    };
+
+    const handleRemoveLanguage = (language: string) => {
+        setEditingLanguages(editingLanguages.filter(lang => lang !== language));
+    };
+
+    const handleEditDetails = async () => {
+        if (!profile) return;
+        try {
+            setSaving(true);
+
+            const updateData: {
+                phone?: string;
+                email?: string;
+            } = {};
+
+            let hasChanges = false;
+
+            if (editingPhone !== profile.phone) {
+                updateData.phone = editingPhone || undefined;
+                hasChanges = true;
+            }
+
+            if (editingEmail !== profile.email) {
+                if (!editingEmail.trim()) {
+                    toast.error('Email is required');
+                    setSaving(false);
+                    return;
+                }
+                updateData.email = editingEmail.trim();
+                hasChanges = true;
+            }
+
+            const updatePromises = [];
+
+            if (Object.keys(updateData).length > 0) {
+                updatePromises.push(seekerApi.updateProfile(updateData));
+            }
+
+            const currentLanguages = profile.languages || [];
+            const languagesChanged = JSON.stringify(editingLanguages.sort()) !== JSON.stringify(currentLanguages.sort());
+
+            if (languagesChanged) {
+                updatePromises.push(seekerApi.updateLanguages(editingLanguages));
+                hasChanges = true;
+            }
+
+            if (hasChanges && updatePromises.length > 0) {
+                await Promise.all(updatePromises);
+                toast.success('Contact details updated successfully');
+                setEditDetailsOpen(false);
+                fetchProfileData();
+            } else {
+                setEditDetailsOpen(false);
+            }
+        } catch {
+            toast.error('Failed to update contact details');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEditSocial = async () => {
+        if (!profile) return;
+        try {
+            setSaving(true);
+
+            const validLinks = editingSocialLinks
+                .filter(link => link.name?.trim() && link.link?.trim())
+                .map(link => ({
+                    name: SOCIAL_PLATFORMS.find(p => p.value === link.name?.toLowerCase())
+                        ? link.name.toLowerCase()
+                        : link.name.trim(),
+                    link: link.link.startsWith('http') ? link.link : `https://${link.link}`,
+                }));
+
+            const response = await seekerApi.updateProfile({
+                socialLinks: validLinks,
+            });
+            if (response.success) {
+                toast.success('Social links updated successfully');
+                setEditSocialOpen(false);
+                fetchProfileData();
+            } else {
+                toast.error(response.message || 'Failed to update social links');
+            }
+        } catch {
+            toast.error('Failed to update social links');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    useEffect(() => {
+        if (editSocialOpen && profile) {
+            const links = profile.socialLinks || [];
+
+            setEditingSocialLinks(links.length > 0 ? links : [{ name: '', link: '' }]);
+        }
+        if (editDetailsOpen && profile) {
+            setEditingPhone(profile.phone || '');
+            setEditingEmail(profile.email || '');
+            setEditingLanguages(profile.languages || []);
+        }
+    }, [editSocialOpen, editDetailsOpen, profile]);
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    };
+
+    const formatPeriod = (startDate: string, endDate?: string, isCurrent?: boolean) => {
+        const start = formatDate(startDate);
+        if (isCurrent) {
+            return `${start} - Present`;
+        }
+        if (endDate) {
+            const end = formatDate(endDate);
+            return `${start} - ${end}`;
+        }
+        return start;
+    };
+
+    const isoToDateInput = (isoDate: string): string => {
+        if (!isoDate) return '';
+        try {
+            const date = new Date(isoDate);
+            if (isNaN(date.getTime())) return '';
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        } catch {
+            return '';
+        }
+    };
+
+    return {
+        
+        loading, saving, profile, experiences, education,
+        profilePhoto, bannerImage,
+        
+        
+        editBannerOpen, setEditBannerOpen,
+        bannerCropperOpen, setBannerCropperOpen,
+        editProfileOpen, setEditProfileOpen,
+        profileCropperOpen, setProfileCropperOpen,
+        editAboutOpen, setEditAboutOpen,
+        addExperienceOpen, setAddExperienceOpen,
+        editExperienceOpen, setEditExperienceOpen,
+        deleteExperienceOpen, setDeleteExperienceOpen,
+        addEducationOpen, setAddEducationOpen,
+        editEducationOpen, setEditEducationOpen,
+        deleteEducationOpen, setDeleteEducationOpen,
+        addSkillOpen, setAddSkillOpen,
+        deleteSkillOpen, setDeleteSkillOpen,
+        editDetailsOpen, setEditDetailsOpen,
+        editSocialOpen, setEditSocialOpen,
+        
+        
+        tempBannerImage, setTempBannerImage,
+        tempProfileImage, setTempProfileImage,
+        bannerImageFile, 
+        profilePhotoFile,
+        profileData, setProfileData,
+        aboutData, setAboutData,
+        experienceData, setExperienceData,
+        educationData, setEducationData,
+        selectedSkills, setSelectedSkills,
+        skillsOptions, skillsLoading, fetchSkills,
+        technologyOptions, technologyLoading, fetchTechnologies,
+        editingSocialLinks, setEditingSocialLinks,
+        editingLanguages, setEditingLanguages,
+        newLanguage, setNewLanguage,
+        editingPhone, setEditingPhone,
+        editingEmail, setEditingEmail,
+        experienceToDelete, setExperienceToDelete,
+        educationToDelete, setEducationToDelete,
+        skillToDelete, setSkillToDelete,
+        editingExperienceId, setEditingExperienceId,
+        editingEducationId, setEditingEducationId,
+
+        
+        SOCIAL_PLATFORMS,
+
+        
+        handleBannerChange, handleBannerCropComplete, handleEditBanner,
+        handlePhotoChange, handleProfileCropComplete,
+        handleEditProfile,
+        handleEditAbout,
+        handleAddExperience, handleEditExperience, handleRemoveExperience, confirmRemoveExperience,
+        handleAddEducation, handleEditEducation, handleRemoveEducation, confirmRemoveEducation,
+        handleAddSkill, handleRemoveSkill, confirmRemoveSkill,
+        handleAddLanguage, handleRemoveLanguage,
+        handleEditDetails, handleEditSocial,
+
+        
+        formatDate, formatPeriod, isoToDateInput,
+    }
+}

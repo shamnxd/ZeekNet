@@ -1,4 +1,4 @@
-// Server enum values (must match server/src/domain/enums/ats-stage.enum.ts)
+
 export const ATSStage = {
   IN_REVIEW: 'IN_REVIEW',
   SHORTLISTED: 'SHORTLISTED',
@@ -9,7 +9,7 @@ export const ATSStage = {
   HIRED: 'HIRED'
 } as const;
 
-// Display names for UI
+
 export const ATSStageDisplayNames: Record<string, string> = {
   [ATSStage.IN_REVIEW]: 'In Review',
   [ATSStage.SHORTLISTED]: 'Shortlisted',
@@ -22,7 +22,7 @@ export const ATSStageDisplayNames: Record<string, string> = {
 
 export type ATSStage = typeof ATSStage[keyof typeof ATSStage];
 
-// Server enum values (must match server)
+
 export const InReviewSubStage = {
   PROFILE_REVIEW: 'PROFILE_REVIEW',
   PENDING_DECISION: 'PENDING_DECISION'
@@ -63,33 +63,33 @@ export const OfferSubStage = {
   OFFER_DECLINED: 'OFFER_DECLINED'
 } as const;
 
-// Display names for UI
+
 export const SubStageDisplayNames: Record<string, string> = {
-  // IN_REVIEW
+  
   [InReviewSubStage.PROFILE_REVIEW]: 'Profile Review',
   [InReviewSubStage.PENDING_DECISION]: 'Pending Decision',
-  // SHORTLISTED
+  
   [ShortlistedSubStage.READY_FOR_INTERVIEW]: 'Ready for Interview',
   [ShortlistedSubStage.CONTACTED]: 'Contacted',
   [ShortlistedSubStage.AWAITING_RESPONSE]: 'Awaiting Response',
-  // INTERVIEW
+  
   [InterviewSubStage.NOT_SCHEDULED]: 'Not Scheduled',
   [InterviewSubStage.SCHEDULED]: 'Scheduled',
-  // COMPLETED is shared between INTERVIEW and TECHNICAL_TASK
+  
   [InterviewSubStage.COMPLETED]: 'Completed',
   [InterviewSubStage.EVALUATION_PENDING]: 'Evaluation Pending',
-  // TECHNICAL_TASK
+  
   [TechnicalTaskSubStage.NOT_ASSIGNED]: 'Not Assigned',
   [TechnicalTaskSubStage.ASSIGNED]: 'Assigned',
   [TechnicalTaskSubStage.SUBMITTED]: 'Submitted',
   [TechnicalTaskSubStage.UNDER_REVIEW]: 'Under Review',
-  // TechnicalTaskSubStage.COMPLETED uses the same value 'COMPLETED' as InterviewSubStage.COMPLETED, so the entry above covers both
-  // COMPENSATION
+  
+  
   [CompensationSubStage.NOT_INITIATED]: 'Not Initiated',
   [CompensationSubStage.INITIATED]: 'Initiated',
   [CompensationSubStage.NEGOTIATION_ONGOING]: 'Negotiation Ongoing',
   [CompensationSubStage.APPROVED]: 'Approved',
-  // OFFER
+  
   [OfferSubStage.NOT_SENT]: 'Not Sent',
   [OfferSubStage.OFFER_SENT]: 'Offer Sent',
   [OfferSubStage.OFFER_ACCEPTED]: 'Offer Accepted',

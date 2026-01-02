@@ -94,7 +94,7 @@ const CompanyPlans = () => {
         setBillingHistory(formattedHistory)
       }
     } catch {
-      // Failed to fetch billing history
+      
     }
   }, [])
 
@@ -126,7 +126,7 @@ const CompanyPlans = () => {
         await fetchBillingHistory()
       }
     } catch {
-      // No active subscription found
+      
     }
   }, [fetchBillingHistory])
 

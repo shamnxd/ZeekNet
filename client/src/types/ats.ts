@@ -123,3 +123,19 @@ export interface ATSComment {
   timestamp?: string;
   createdAt?: string;
 }
+
+export interface ATSCompensation {
+  id?: string;
+  applicationId?: string;
+  candidateExpected?: string;
+  companyProposed?: string;
+  finalAgreed?: string;
+  expectedJoining?: string;
+  benefits?: string[];
+  status?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  approvedByName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

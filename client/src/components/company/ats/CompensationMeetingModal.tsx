@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 interface CompensationMeeting {
     id?: string;
     type?: 'call' | 'online' | 'in-person';
+    videoType?: 'in-app' | 'external';
     scheduledDate?: string;
     location?: string;
     meetingLink?: string;
@@ -58,23 +59,23 @@ export const CompensationMeetingModal = ({
     useEffect(() => {
         if (isOpen) {
             if (meetingToEdit) {
-                // Edit mode - populate form with existing meeting data
+                
                 let scheduledDate: Date
                 if (meetingToEdit.scheduledDate) {
                     scheduledDate = new Date(meetingToEdit.scheduledDate)
-                    // Handle timezone issues - use local time
+                    
                     const year = scheduledDate.getFullYear()
                     const month = String(scheduledDate.getMonth() + 1).padStart(2, '0')
                     const day = String(scheduledDate.getDate()).padStart(2, '0')
                     const hours = String(scheduledDate.getHours()).padStart(2, '0')
                     const minutes = String(scheduledDate.getMinutes()).padStart(2, '0')
-                    
+
                     const dateStr = `${year}-${month}-${day}`
                     const timeStr = `${hours}:${minutes}`
-                    
+
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
-                        videoType: (meetingToEdit as any).videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
+                        videoType: meetingToEdit.videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
                         date: dateStr,
                         time: timeStr,
                         location: meetingToEdit.location || '',
@@ -82,11 +83,11 @@ export const CompensationMeetingModal = ({
                         notes: meetingToEdit.notes || ''
                     })
                 } else {
-                    // Fallback if no scheduledDate
+                    
                     const today = new Date().toISOString().split('T')[0]
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
-                        videoType: (meetingToEdit as any).videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
+                        videoType: meetingToEdit.videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
                         date: today,
                         time: '',
                         location: meetingToEdit.location || '',
@@ -95,7 +96,7 @@ export const CompensationMeetingModal = ({
                     })
                 }
             } else {
-                // New meeting - Set default date to today
+                
                 const today = new Date().toISOString().split('T')[0];
                 setFormData({
                     type: 'call',
@@ -149,7 +150,7 @@ export const CompensationMeetingModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -168,7 +169,7 @@ export const CompensationMeetingModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
                         <div className="space-y-2">
                             <Label className="text-foreground">Meeting Type <span className="text-destructive">*</span></Label>
@@ -326,7 +327,7 @@ export const CompensationMeetingModal = ({
                             />
                         </div>
 
-                        {/* Footer */}
+                        {}
                         <div className="flex justify-end gap-3 pt-4 border-t border-border">
                             <Button
                                 type="button"

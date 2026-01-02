@@ -22,67 +22,67 @@ interface ActivityTimelineProps {
   formatDateTime: (dateString: string) => string;
 }
 
-// Get color for activity type
+
 const getActivityTypeColor = (type: string): string => {
-  // Stage changes = blue
+  
   if (type === ActivityType.STAGE_CHANGE || type === ActivityType.SUBSTAGE_CHANGE) {
-    return '#3B82F6'; // blue-500
+    return '#3B82F6'; 
   }
-  // Comments/Notes = gray
+  
   if (type === ActivityType.COMMENT_ADDED || type === ActivityType.NOTE_ADDED) {
-    return '#6B7280'; // gray-500
+    return '#6B7280'; 
   }
-  // Interviews = purple
+  
   if (
     type === ActivityType.INTERVIEW_SCHEDULED ||
     type === ActivityType.INTERVIEW_COMPLETED ||
     type === ActivityType.INTERVIEW_CANCELLED
   ) {
-    return '#9333EA'; // purple-600
+    return '#9333EA'; 
   }
-  // Compensation = green
+  
   if (
     type === ActivityType.COMPENSATION_INITIATED ||
     type === ActivityType.COMPENSATION_UPDATED ||
     type === ActivityType.COMPENSATION_APPROVED ||
     type === ActivityType.COMPENSATION_MEETING_SCHEDULED
   ) {
-    return '#10B981'; // green-500
+    return '#10B981'; 
   }
-  // Offer = orange
+  
   if (
     type === ActivityType.OFFER_SENT ||
     type === ActivityType.OFFER_ACCEPTED ||
     type === ActivityType.OFFER_DECLINED
   ) {
-    return '#F97316'; // orange-500
+    return '#F97316'; 
   }
-  // Tasks = indigo
+  
   if (
     type === ActivityType.TASK_ASSIGNED ||
     type === ActivityType.TASK_SUBMITTED ||
     type === ActivityType.TASK_COMPLETED
   ) {
-    return '#6366F1'; // indigo-500
+    return '#6366F1'; 
   }
-  // Default = gray
+  
   return '#6B7280';
 };
 
-// Format date for grouping (YYYY-MM-DD)
+
 const formatDateForGrouping = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toISOString().split('T')[0];
 };
 
-// Format date header (e.g., "Today", "Yesterday", "January 15, 2024")
+
 const formatDateHeader = (dateString: string): string => {
   const date = new Date(dateString);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  // Reset time for comparison
+  
   const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
@@ -101,7 +101,7 @@ const formatDateHeader = (dateString: string): string => {
   });
 };
 
-// Group activities by date
+
 const groupActivitiesByDate = (activities: Activity[]): Map<string, Activity[]> => {
   const grouped = new Map<string, Activity[]>();
   
@@ -116,7 +116,7 @@ const groupActivitiesByDate = (activities: Activity[]): Map<string, Activity[]> 
   return grouped;
 };
 
-// Timeline Item Component (memoized for performance)
+
 const TimelineItem = memo(({ 
   activity, 
   isLast, 
@@ -130,14 +130,14 @@ const TimelineItem = memo(({
 
   return (
     <div className="flex gap-4 relative">
-      {/* Timeline rail */}
+      {}
       <div className="flex flex-col items-center flex-shrink-0">
-        {/* Dot */}
+        {}
         <div
           className="w-3 h-3 rounded-full border-2 border-white shadow-sm z-10"
           style={{ backgroundColor: dotColor }}
         />
-        {/* Vertical line - only show if not last item */}
+        {}
         {!isLast && (
           <div
             className="w-0.5 flex-1 mt-1"
@@ -146,7 +146,7 @@ const TimelineItem = memo(({
         )}
       </div>
 
-      {/* Activity card */}
+      {}
       <div className="flex-1 min-w-0 pb-6">
         <div className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors bg-white">
           <div className="flex items-start justify-between gap-4">
@@ -198,10 +198,10 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   hasMore = false,
   formatDateTime,
 }) => {
-  // Group activities by date (sorted oldest to newest within each group)
+  
   const groupedActivities = groupActivitiesByDate(activities);
   
-  // Sort date keys (oldest first)
+  
   const sortedDateKeys = Array.from(groupedActivities.keys()).sort();
 
   if (activities.length === 0) {
@@ -220,20 +220,20 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
 
         return (
           <div key={dateKey} className="space-y-0">
-            {/* Date header */}
+            {}
             <div className="sticky top-0 bg-white z-10 py-2 mb-4">
               <h3 className="text-sm font-semibold text-gray-700">
                 {formatDateHeader(dateKey)}
               </h3>
             </div>
 
-            {/* Timeline items for this date */}
+            {}
             <div className="space-y-0">
               {dateActivities.map((activity, activityIndex) => {
                 const isLastActivityInGroup = activityIndex === dateActivities.length - 1;
-                // Determine if this is the last activity in the entire timeline
+                
                 const isLastActivityInTimeline = isLastDateGroup && isLastActivityInGroup;
-                // Show connector line unless it's the very last activity AND there are no more to load
+                
                 const shouldShowConnector = !isLastActivityInTimeline || hasMore;
 
                 return (
@@ -250,7 +250,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
         );
       })}
 
-      {/* Load More Button */}
+      {}
       {hasMore && (
         <div className="flex justify-center pt-4">
           <button
