@@ -47,7 +47,7 @@ export const CompensationInitModal = ({
     useEffect(() => {
         if (isOpen) {
             if (existingData) {
-                // Pre-fill with existing data
+                
                 setFormData({
                     candidateExpected: existingData.candidateExpected || '',
                     companyProposed: existingData.companyProposed || '',
@@ -56,7 +56,7 @@ export const CompensationInitModal = ({
                     notes: existingData.notes || ''
                 });
             } else {
-                // Reset to empty
+                
                 setFormData({
                     candidateExpected: '',
                     companyProposed: '',
@@ -118,7 +118,7 @@ export const CompensationInitModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -137,7 +137,7 @@ export const CompensationInitModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
                         <div className="space-y-2">
                             <Label htmlFor="candidateExpected" className="text-foreground">
@@ -254,7 +254,7 @@ export const CompensationInitModal = ({
                             />
                         </div>
 
-                        {/* Footer */}
+                        {}
                         <div className="flex justify-end gap-3 pt-4 border-t border-border">
                             <Button
                                 type="button"

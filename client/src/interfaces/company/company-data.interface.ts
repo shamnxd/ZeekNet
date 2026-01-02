@@ -68,7 +68,7 @@ export interface WorkplacePicture {
 }
 
 export interface CompanySideApplication {
-  // IDs - support both naming conventions
+  
   id?: string;
   _id?: string;
   jobId?: string;
@@ -83,14 +83,14 @@ export interface CompanySideApplication {
   subStage?: string;
   sub_stage?: string;
   
-  // Resume and cover letter - support both naming conventions
+  
   resumeUrl?: string;
   resume_url?: string;
   resume_filename?: string;
   coverLetter?: string;
   cover_letter?: string;
   
-  // Dates - support both naming conventions
+  
   createdAt?: string;
   created_at?: string;
   updatedAt?: string;
@@ -98,7 +98,7 @@ export interface CompanySideApplication {
   applied_date?: string;
   appliedAt?: string;
   
-  // Seeker info - support both naming conventions
+  
   seeker_name?: string;
   seeker_avatar?: string;
   seeker_headline?: string;
@@ -111,7 +111,7 @@ export interface CompanySideApplication {
   experience?: string;
   match_percentage?: number;
   
-  // Profile details from server
+  
   date_of_birth?: string | Date;
   gender?: string;
   languages?: string[];
@@ -137,7 +137,7 @@ export interface CompanySideApplication {
     other_skills?: string[];
   };
   
-  // Nested objects
+  
   seeker?: {
     id: string;
     name: string;

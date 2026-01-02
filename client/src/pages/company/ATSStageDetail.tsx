@@ -25,21 +25,21 @@ const ATSStageDetail = () => {
   const decodedStage = decodeURIComponent(stage || '') as ATSStage;
   const stageColor = STAGE_COLORS[decodedStage] || '#6B7280';
   
-  // Get allowed sub-stages for this stage from pipeline config
+  
   const allowedSubStages = pipelineConfig?.pipelineConfig[decodedStage] || [];
   const subStages = allowedSubStages.map(key => ({
     key,
     label: SubStageDisplayNames[key] || key,
   }));
 
-  // Fetch data
+  
   useEffect(() => {
     const fetchData = async () => {
       if (!jobId) return;
       try {
         setLoading(true);
         
-        // Fetch Job and Pipeline config in parallel
+        
         const [jobRes, pipelineRes, applicationsRes] = await Promise.all([
           companyApi.getJobPosting(jobId),
           companyApi.getJobATSPipeline(jobId),
@@ -69,10 +69,10 @@ const ATSStageDetail = () => {
   const getCandidatesBySubStage = (subStageKey: string): ApplicationKanbanItem[] => {
     if (!jobId) return [];
 
-    // Get applications for this stage
+    
     const stageApps = applicationsByStage[decodedStage] || [];
 
-    // Filter by sub-stage key
+    
     const candidates = stageApps.filter(app => app.subStage === subStageKey);
 
     if (searchTerm === '') return candidates;
@@ -127,7 +127,7 @@ const ATSStageDetail = () => {
   return (
     <CompanyLayout>
       <div className="px-5 py-5 space-y-5">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -161,7 +161,7 @@ const ATSStageDetail = () => {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {}
         <div className="bg-white rounded-lg border border-gray-200 p-3.5">
           <input
             type="text"
@@ -172,7 +172,7 @@ const ATSStageDetail = () => {
           />
         </div>
 
-        {/* Kanban Board - Sub-stages */}
+        {}
         <div className="flex gap-3.5 overflow-x-auto pb-3.5">
           {subStages.length === 0 ? (
             <div className="text-center py-12 w-full">
@@ -187,7 +187,7 @@ const ATSStageDetail = () => {
                   key={subStage.key}
                   className="flex-shrink-0 w-64 bg-gray-50 rounded-lg border border-gray-200"
                 >
-                  {/* Sub-stage Header */}
+                  {}
                   <div
                     className="p-3.5 border-b border-gray-200"
                     style={{ borderTopColor: stageColor, borderTopWidth: '2px' }}
@@ -203,7 +203,7 @@ const ATSStageDetail = () => {
                     </div>
                   </div>
 
-                  {/* Candidate Cards */}
+                  {}
                   <div className="p-2.5 space-y-2.5 max-h-[calc(100vh-280px)] overflow-y-auto">
                     {candidates.length === 0 ? (
                       <div className="text-center py-8 text-gray-400 text-sm">
@@ -216,7 +216,7 @@ const ATSStageDetail = () => {
                           onClick={() => handleCandidateClick(app.id)}
                           className="bg-white rounded-lg p-3.5 border border-gray-200 hover:border-[#4640DE] hover:shadow-md transition-all cursor-pointer group"
                         >
-                          {/* Candidate Header */}
+                          {}
                           <div className="flex items-start gap-2.5">
                             <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
                               {app.seekerAvatar ? (
@@ -241,7 +241,7 @@ const ATSStageDetail = () => {
                             </div>
                           </div>
 
-                          {/* ATS Score */}
+                          {}
                           {app.atsScore !== undefined && (
                             <div className="mt-2.5 flex items-center gap-2">
                               <TrendingUp className="h-3.5 w-3.5 text-[#4640DE]" />
@@ -251,7 +251,7 @@ const ATSStageDetail = () => {
                             </div>
                           )}
 
-                          {/* Additional Info */}
+                          {}
                           <div className="mt-2 text-xs text-gray-500">
                             📅 Applied: {app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : 'Recent'}
                           </div>

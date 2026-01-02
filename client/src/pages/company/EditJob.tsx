@@ -182,7 +182,7 @@ const EditJob = () => {
         return;
       }
 
-      // Validate totalVacancies >= filledVacancies
+
       const filledVacancies = jobData.filledVacancies ?? 0;
       const totalVacancies = jobData.totalVacancies ?? 1;
       if (totalVacancies < filledVacancies) {
@@ -192,17 +192,14 @@ const EditJob = () => {
         return;
       }
 
-      // Check if job is ACTIVE (OPEN) - only allow updating totalVacancies when OPEN
-      // Note: This will be validated on backend as well
-      if (totalVacancies !== (jobData.totalVacancies ?? 1)) {
-        // If totalVacancies changed, we need to check job status
-        // This will be handled by backend validation
-      }
 
-      // Automatically include all stages with OFFER stage always included
+
+
+
+
       const allStages = Object.values(ATSStage);
-      const enabledStages = allStages.includes(ATSStage.OFFER) 
-        ? allStages 
+      const enabledStages = allStages.includes(ATSStage.OFFER)
+        ? allStages
         : [...allStages, ATSStage.OFFER];
 
       const jobPostingData: JobPostingRequest = {
@@ -277,10 +274,10 @@ const EditJob = () => {
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive
+                      ? "bg-[#4640DE] text-white"
+                      : isCompleted
                         ? "bg-[#4640DE] text-white"
-                        : isCompleted
-                          ? "bg-[#4640DE] text-white"
-                          : "bg-[#E9EBFD] text-[#7C8493]"
+                        : "bg-[#E9EBFD] text-[#7C8493]"
                       }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -288,20 +285,20 @@ const EditJob = () => {
                   <div className="hidden md:block">
                     <p
                       className={`text-sm font-normal ${isActive
+                        ? "text-[#4640DE]"
+                        : isCompleted
                           ? "text-[#4640DE]"
-                          : isCompleted
-                            ? "text-[#4640DE]"
-                            : "text-[#A8ADB7]"
+                          : "text-[#A8ADB7]"
                         }`}
                     >
                       Step {step.id}/4
                     </p>
                     <p
                       className={`text-base font-semibold ${isActive
+                        ? "text-[#25324B]"
+                        : isCompleted
                           ? "text-[#25324B]"
-                          : isCompleted
-                            ? "text-[#25324B]"
-                            : "text-[#7C8493]"
+                          : "text-[#7C8493]"
                         }`}
                     >
                       {step.title}

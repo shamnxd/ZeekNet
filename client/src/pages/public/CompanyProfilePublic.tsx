@@ -350,10 +350,10 @@ export default function CompanyProfilePublic() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Column */}
+          {}
           <div className="lg:col-span-2 space-y-8">
             
-            {/* About Section */}
+            {}
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 About us
@@ -363,7 +363,7 @@ export default function CompanyProfilePublic() {
               </p>
             </section>
 
-            {/* Contact Section */}
+            {}
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Contact</h3>
               {contact ? (
@@ -416,7 +416,7 @@ export default function CompanyProfilePublic() {
               )}
             </section>
 
-            {/* Workplace Pictures */}
+            {}
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Workplace</h3>
               {workplacePictures.length > 0 ? (
@@ -453,7 +453,7 @@ export default function CompanyProfilePublic() {
               )}
             </section>
 
-            {/* Benefits */}
+            {}
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Benefits</h3>
               {benefits.length > 0 ? (
@@ -479,7 +479,7 @@ export default function CompanyProfilePublic() {
               )}
             </section>
 
-            {/* Open Positions */}
+            {}
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Open Positions</h3>
@@ -541,9 +541,9 @@ export default function CompanyProfilePublic() {
             </section>
           </div>
 
-          {/* Sidebar Column */}
+          {}
           <div className="space-y-8">
-            {/* Tech Stack */}
+            {}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Tech Stack</h3>
               {techStack.length > 0 ? (
@@ -564,7 +564,7 @@ export default function CompanyProfilePublic() {
               )}
             </div>
 
-            {/* Office Locations */}
+            {}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Office Locations</h3>
               {locations.length > 0 ? (

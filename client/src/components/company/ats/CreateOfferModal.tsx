@@ -80,19 +80,19 @@ export const CreateOfferModal = ({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Validate file type
+            
             const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!validTypes.includes(file.type)) {
                 alert('Please upload a PDF or DOC file');
                 return;
             }
-            // Validate file size (10MB)
+            
             if (file.size > 10 * 1024 * 1024) {
                 alert('File size must be less than 10MB');
                 return;
             }
             setSelectedFile(file);
-            // Create temporary URL for preview
+            
             const url = URL.createObjectURL(file);
             setFormData(prev => ({
                 ...prev,
@@ -122,7 +122,7 @@ export const CreateOfferModal = ({
         if (!formData.offerAmount.trim() || !formData.joiningDate || !formData.validityDate) {
             return;
         }
-        // Pass the actual File object if a new file is selected
+        
         onCreate({
             ...formData,
             document: selectedFile || undefined
@@ -165,7 +165,7 @@ export const CreateOfferModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
@@ -186,9 +186,9 @@ export const CreateOfferModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        {/* Job Title (Read-only) */}
+                        {}
                         <div className="space-y-2">
                             <Label className="text-foreground">Job Title</Label>
                             <Input
@@ -199,7 +199,7 @@ export const CreateOfferModal = ({
                             />
                         </div>
 
-                        {/* Offer Amount */}
+                        {}
                         <div className="space-y-2">
                             <Label htmlFor="offerAmount" className="text-foreground">
                                 Salary / Offer Amount <span className="text-destructive">*</span>
@@ -215,7 +215,7 @@ export const CreateOfferModal = ({
                             />
                         </div>
 
-                        {/* Employment Type */}
+                        {}
                         <div className="space-y-2">
                             <Label htmlFor="employmentType" className="text-foreground">
                                 Employment Type <span className="text-destructive">*</span>
@@ -235,7 +235,7 @@ export const CreateOfferModal = ({
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            {/* Joining Date */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="joiningDate" className="text-foreground">
                                     Joining Date <span className="text-destructive">*</span>
@@ -250,7 +250,7 @@ export const CreateOfferModal = ({
                                 />
                             </div>
 
-                            {/* Validity Date */}
+                            {}
                             <div className="space-y-2">
                                 <Label htmlFor="validityDate" className="text-foreground">
                                     Offer Validity Date <span className="text-destructive">*</span>
@@ -266,7 +266,7 @@ export const CreateOfferModal = ({
                             </div>
                         </div>
 
-                        {/* Document Upload */}
+                        {}
                         <div className="space-y-2">
                             <Label className="text-foreground">Offer Letter (PDF, DOC - Max 10MB)</Label>
                             {existingDocumentUrl && !selectedFile && (
@@ -334,7 +334,7 @@ export const CreateOfferModal = ({
                             )}
                         </div>
 
-                        {/* Notes */}
+                        {}
                         <div className="space-y-2">
                             <Label htmlFor="notes" className="text-foreground">Notes (Optional)</Label>
                             <Textarea
@@ -347,7 +347,7 @@ export const CreateOfferModal = ({
                             />
                         </div>
 
-                        {/* Footer */}
+                        {}
                         <div className="flex justify-end gap-3 pt-4 border-t border-border">
                             <Button
                                 type="button"

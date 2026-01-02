@@ -53,7 +53,7 @@ export const RatingModal = ({
                         Rate: <span className="font-medium text-foreground">{itemName}</span>
                     </div>
 
-                    {/* Star Rating */}
+                    {}
                     <div className="space-y-2">
                         <Label>Rating <span className="text-destructive">*</span></Label>
                         <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export const RatingModal = ({
                         </div>
                     </div>
 
-                    {/* Feedback */}
+                    {}
                     <div className="space-y-2">
                         <Label htmlFor="feedback">Feedback / Notes (optional)</Label>
                         <Textarea

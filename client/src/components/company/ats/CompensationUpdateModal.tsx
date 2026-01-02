@@ -106,7 +106,7 @@ export const CompensationUpdateModal = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
                 >
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between p-5 border-b border-border">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
@@ -125,7 +125,7 @@ export const CompensationUpdateModal = ({
                         </button>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
                         {candidateExpected && (
                             <div className="p-3 bg-muted rounded-lg">
@@ -221,7 +221,7 @@ export const CompensationUpdateModal = ({
                             />
                         </div>
 
-                        {/* Footer */}
+                        {}
                         <div className="flex justify-end gap-3 pt-4 border-t border-border">
                             <Button
                                 type="button"

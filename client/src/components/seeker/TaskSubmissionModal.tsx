@@ -26,7 +26,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      // Validate file type
+      
       const allowedTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed']
       const allowedExtensions = ['.pdf', '.zip', '.doc', '.docx']
       const fileExtension = selectedFile.name.substring(selectedFile.name.lastIndexOf('.')).toLowerCase()
@@ -36,14 +36,14 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
         return
       }
 
-      // Validate file size (max 10MB)
+      
       if (selectedFile.size > 10 * 1024 * 1024) {
         alert('File size must be less than 10MB')
         return
       }
 
       setFile(selectedFile)
-      // Create temporary URL for preview
+      
       const url = URL.createObjectURL(selectedFile)
       setFileUrl(url)
     }
@@ -61,7 +61,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
     try {
       setUploading(true)
 
-      // Validate that at least one submission method is provided
+      
       if (submissionType === 'file' && !file) {
         alert('Please upload a file')
         setUploading(false)
@@ -78,15 +78,15 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
         return
       }
 
-      // Upload file to S3 if file is provided
-      // The file will be uploaded via FormData in the onSubmit handler
+      
+      
       await onSubmit({
         document: file || undefined,
         submissionLink: submissionLink.trim() || undefined,
         submissionNote: submissionNote.trim() || undefined,
       })
 
-      // Reset form
+      
       setFile(null)
       setFileUrl('')
       setSubmissionLink('')
@@ -121,7 +121,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Submission Type Selection */}
+          {}
           <div className="space-y-2">
             <Label>Submission Type</Label>
             <div className="flex gap-3">
@@ -163,7 +163,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
             </div>
           </div>
 
-          {/* File Upload Section */}
+          {}
           {(submissionType === 'file' || submissionType === 'both') && (
             <div className="space-y-2">
               <Label htmlFor="file-upload">Upload File (PDF, ZIP, DOC, DOCX - Max 10MB)</Label>
@@ -208,7 +208,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
           </div>
           )}
 
-          {/* Link Submission Section */}
+          {}
           {(submissionType === 'link' || submissionType === 'both') && (
             <div className="space-y-2">
               <Label htmlFor="submission-link">Submission Link (GitHub, CodeSandbox, Live Demo, etc.)</Label>
@@ -224,7 +224,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
             </div>
           )}
 
-          {/* Note Section */}
+          {}
           <div className="space-y-2">
             <Label htmlFor="submission-note">Additional Notes (Optional)</Label>
             <Textarea
@@ -238,7 +238,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
             <p className="text-xs text-gray-500">Optional: Add any notes, setup instructions, or context the reviewer should know</p>
           </div>
 
-          {/* Action Buttons */}
+          {}
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               type="button"

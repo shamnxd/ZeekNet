@@ -21,11 +21,11 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      // Socket connected
+      
     });
 
     this.socket.on('disconnect', () => {
-      // Socket disconnected
+      
     });
 
     this.socket.on('connect_error', (error) => {

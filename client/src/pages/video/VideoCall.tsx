@@ -12,14 +12,14 @@ const VideoCall = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Basic authorization check - user must be logged in
+    
     if (!token) {
       navigate('/auth/login');
       return;
     }
 
-    // In a real implementation, you would validate room access here
-    // For now, we'll just check if user is authenticated
+    
+    
     setIsAuthorized(true);
     setIsLoading(false);
   }, [token, navigate]);
@@ -55,7 +55,7 @@ const VideoCall = () => {
   return (
     <WebRTCVideoCall
       roomId={roomId}
-      isInitiator={true}
+
       onEndCall={() => navigate(-1)}
     />
   );
