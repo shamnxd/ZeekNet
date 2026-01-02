@@ -27,11 +27,16 @@ import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
   private _app: express.Application;
+  
+  static {
+    logger.info('AppServer class definition loading...');
+  }
   private _port: number;
   private _httpServer: ReturnType<typeof createServer>;
   private _socketServer: SocketServer | null = null;
 
   constructor() {
+    logger.info('AppServer constructor start');
     this._app = express();
     this._port = Number(env.PORT ?? 4000);
     this._httpServer = createServer(this._app);

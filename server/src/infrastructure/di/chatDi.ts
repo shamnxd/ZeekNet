@@ -12,6 +12,9 @@ import { ChatController } from 'src/presentation/controllers/chat/chat.controlle
 import { ChatRouter } from 'src/presentation/routes/chat-router';
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 
+import { logger } from 'src/infrastructure/config/logger';
+
+logger.info('Initializing chatDi...');
 const s3Service = new S3Service();
 const conversationRepository = new ConversationRepository(s3Service);
 const messageRepository = new ChatMessageRepository();
@@ -38,6 +41,7 @@ const chatController = new ChatController(chatService);
 export const chatRouter = new ChatRouter(chatController, userRepository);
 
 export { conversationRepository as chatConversationRepository, messageRepository as chatMessageRepository, userRepository as chatUserRepository };
+logger.info('chatDi initialization complete');
 
 
 

@@ -8,6 +8,9 @@ import { MarkNotificationAsReadUseCase } from 'src/application/use-cases/notific
 import { MarkAllNotificationsAsReadUseCase } from 'src/application/use-cases/notification/management/mark-all-notifications-as-read.use-case';
 import { GetUnreadNotificationCountUseCase } from 'src/application/use-cases/notification/management/get-unread-notification-count.use-case';
 
+import { logger } from 'src/infrastructure/config/logger';
+
+logger.info('Initializing notificationDi...');
 const notificationRepository = new NotificationRepository();
 
 const createNotificationUseCase = new CreateNotificationUseCase(notificationRepository);
@@ -27,4 +30,5 @@ const notificationController = new NotificationController(
 
 export const notificationRouter = new NotificationRouter(notificationController);
 export { notificationRepository };
+logger.info('notificationDi initialization complete');
 

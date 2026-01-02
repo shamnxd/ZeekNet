@@ -1,3 +1,5 @@
+import { logger } from 'src/infrastructure/config/logger';
+logger.info('Entering adminDi.ts - starting imports');
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
 import { CompanyVerificationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-verification.repository';
@@ -54,7 +56,9 @@ import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companie
 import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
 
+logger.info('Initializing adminDi...');
 const userRepository = new UserRepository();
+logger.info('adminDi: Repositories instantiated');
 const companyProfileRepository = new CompanyProfileRepository();
 const companyVerificationRepository = new CompanyVerificationRepository();
 const jobPostingRepository = new JobPostingRepository();
@@ -133,7 +137,6 @@ const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscr
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
 const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const mailerService = new NodemailerService();
-import { logger } from 'src/infrastructure/config/logger';
 import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
 
 const emailTemplateService = new EmailTemplateService();
@@ -170,4 +173,5 @@ export {
   adminSubscriptionPlanController,
   adminPaymentOrderController,
 };
+logger.info('adminDi initialization complete');
 
