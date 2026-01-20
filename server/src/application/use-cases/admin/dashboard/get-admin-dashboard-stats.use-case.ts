@@ -3,9 +3,11 @@ import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/see
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IPaymentOrderRepository } from 'src/domain/interfaces/repositories/payment/IPaymentOrderRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { AdminDashboardStatsDto } from './dto/get-admin-dashboard-stats.dto';
+import { AdminDashboardStatsResponseDto } from 'src/application/dtos/admin/analytics/responses/admin-dashboard-stats-response.dto';
+import { IGetAdminDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IGetAdminDashboardStatsUseCase';
+import { GetAdminDashboardStatsQueryDto } from 'src/application/dtos/admin/analytics/requests/get-admin-dashboard-stats-query.dto';
 
-export class GetAdminDashboardStatsUseCase {
+export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUseCase {
   constructor(
     private _companyRepository: ICompanyProfileRepository,
     private _seekerRepository: ISeekerProfileRepository,
@@ -14,7 +16,8 @@ export class GetAdminDashboardStatsUseCase {
     private _userRepository: IUserRepository,
   ) {}
 
-  async execute(period: 'day' | 'week' | 'month' | 'year' = 'month', startDate?: Date, endDate?: Date): Promise<AdminDashboardStatsDto> {
+  async execute(query: GetAdminDashboardStatsQueryDto): Promise<AdminDashboardStatsResponseDto> {
+    const { period, startDate, endDate } = query;
     const [
       totalCompanies,
       pendingCompanies,

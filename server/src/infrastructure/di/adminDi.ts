@@ -46,7 +46,8 @@ import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/s
 import { MigratePlanSubscribersUseCase } from 'src/application/use-cases/admin/subscription/migrate-plan-subscribers.use-case';
 import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { AdminController } from 'src/presentation/controllers/admin/admin.controller';
+import { AdminUserController } from 'src/presentation/controllers/admin/admin-user.controller';
+import { AdminCompanyController } from 'src/presentation/controllers/admin/admin-company.controller';
 import { AdminJobController } from 'src/presentation/controllers/admin/admin-job.controller';
 import { AdminJobCategoryController } from 'src/presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from 'src/presentation/controllers/admin/admin-skill.controller';
@@ -114,7 +115,9 @@ const getJobCategoryByIdUseCase = new GetJobCategoryByIdUseCase(jobCategoryRepos
 const updateJobCategoryUseCase = new UpdateJobCategoryUseCase(jobCategoryRepository);
 const deleteJobCategoryUseCase = new DeleteJobCategoryUseCase(jobCategoryRepository);
 
-const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getAllCompaniesUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase);
+const adminUserController = new AdminUserController(getAllUsersUseCase, adminGetUserByIdUseCase, blockUserUseCase);
+
+const adminCompanyController = new AdminCompanyController(getAllCompaniesUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase, verifyCompanyUseCase);
 
 const adminJobController = new AdminJobController(adminGetAllJobsUseCase, adminGetJobByIdUseCase, adminUpdateJobStatusUseCase, adminDeleteJobUseCase, adminGetJobStatsUseCase);
 
@@ -179,7 +182,8 @@ const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(
 const adminDashboardController = new AdminDashboardController(getAdminDashboardStatsUseCase);
 
 export {
-  adminController,
+  adminUserController,
+  adminCompanyController,
   adminJobController,
   adminJobCategoryController,
   adminSkillController,

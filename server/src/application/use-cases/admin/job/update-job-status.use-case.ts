@@ -3,11 +3,14 @@ import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/ad
 import { NotFoundError, InternalServerError } from 'src/domain/errors/errors';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { UpdateJobStatusRequestDto } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 
 export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
+  constructor(private readonly _jobPostingRepository: IJobPostingRepository) { }
 
-  async execute(jobId: string, status: JobStatus, unpublishReason?: string): Promise<JobPosting> {
+  async execute(jobId: string, dto: UpdateJobStatusRequestDto): Promise<JobPosting> {
+    const { status, unpublish_reason: unpublishReason } = dto;
+
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {

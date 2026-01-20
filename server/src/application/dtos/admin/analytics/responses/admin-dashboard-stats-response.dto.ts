@@ -1,4 +1,4 @@
-export class AdminDashboardStatsDto {
+export class AdminDashboardStatsResponseDto {
   stats: {
     earnings: number;
     totalCandidates: number;

@@ -1,5 +1,5 @@
-import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
+import { VerifyCompanyRequestDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
 
 export interface IVerifyCompanyUseCase {
-  execute(companyId: string, isVerified: CompanyVerificationStatus, rejectionReason?: string): Promise<void>;
+  execute(dto: VerifyCompanyRequestDto): Promise<void>;
 }

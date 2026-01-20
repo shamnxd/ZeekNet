@@ -1,6 +1,6 @@
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
-import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { UpdateJobStatusRequestDto } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 
 export interface IAdminUpdateJobStatusUseCase {
-  execute(jobId: string, status: JobStatus, unpublishReason?: string): Promise<JobPosting>;
+  execute(jobId: string, dto: UpdateJobStatusRequestDto): Promise<JobPosting>;
 }
