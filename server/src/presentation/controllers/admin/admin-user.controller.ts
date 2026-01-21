@@ -50,7 +50,7 @@ export class AdminUserController {
         }
 
         try {
-            await this._blockUserUseCase.execute(parsed.data.userId, parsed.data.isBlocked);
+            await this._blockUserUseCase.execute(parsed.data);
             const message = `User ${parsed.data.isBlocked ? 'blocked' : 'unblocked'} successfully`;
             sendSuccessResponse(res, message, null);
         } catch (error) {

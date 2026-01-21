@@ -17,8 +17,8 @@ import { UpdateTechnicalTaskUseCase } from 'src/application/use-cases/applicatio
 import { DeleteTechnicalTaskUseCase } from 'src/application/use-cases/application/task/delete-technical-task.use-case';
 import { UploadOfferUseCase } from 'src/application/use-cases/application/offer/upload-offer.use-case';
 import { UpdateOfferStatusUseCase } from 'src/application/use-cases/application/offer/update-offer-status.use-case';
-import { AddCommentUseCase } from 'src/application/use-cases/application/activity/add-comment.use-case';
-import { GetApplicationActivitiesPaginatedUseCase } from 'src/application/use-cases/application/activity/get-application-activities-paginated.use-case';
+import { AddCommentUseCase } from 'src/application/use-cases/application/comments/add-comment.use-case';
+import { GetApplicationActivitiesUseCase } from 'src/application/use-cases/application/activity/get-application-activities.use-case';
 import { GetInterviewsByApplicationUseCase } from 'src/application/use-cases/application/interview/get-interviews-by-application.use-case';
 import { GetTechnicalTasksByApplicationUseCase } from 'src/application/use-cases/application/task/get-technical-tasks-by-application.use-case';
 import { GetOffersByApplicationUseCase } from 'src/application/use-cases/application/offer/get-offers-by-application.use-case';
@@ -32,7 +32,9 @@ import { GetCompensationUseCase } from 'src/application/use-cases/application/co
 import { ScheduleCompensationMeetingUseCase } from 'src/application/use-cases/application/compensation/schedule-compensation-meeting.use-case';
 import { GetCompensationMeetingsUseCase } from 'src/application/use-cases/application/compensation/get-compensation-meetings.use-case';
 import { UpdateCompensationMeetingStatusUseCase } from 'src/application/use-cases/application/compensation/update-compensation-meeting-status.use-case';
-import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/activity/get-comments-by-application.use-case';
+import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/comments/get-comments-by-application.use-case';
+import { GetCompensationNotesUseCase } from 'src/application/use-cases/application/comments/get-compensation-notes.use-case';
+import { AddCompensationNoteUseCase } from 'src/application/use-cases/application/comments/add-compensation-note.use-case';
 
 import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
 import { FileUrlService } from 'src/application/services/file-url.service';
@@ -116,7 +118,7 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   emailTemplateService,
 );
 const addCommentUseCase = new AddCommentUseCase(commentRepository, activityLoggerService);
-const getApplicationActivitiesPaginatedUseCase = new GetApplicationActivitiesPaginatedUseCase(activityRepository);
+const getApplicationActivitiesUseCase = new GetApplicationActivitiesUseCase(activityRepository);
 const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
@@ -149,6 +151,8 @@ const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCas
 const getCompensationMeetingsUseCase = new GetCompensationMeetingsUseCase(compensationMeetingRepository);
 const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService);
 const getCommentsByApplicationUseCase = new GetCommentsByApplicationUseCase(commentRepository);
+const getCompensationNotesUseCase = new GetCompensationNotesUseCase(commentRepository);
+const addCompensationNoteUseCase = new AddCompensationNoteUseCase(commentRepository, activityLoggerService);
 
 export const atsInterviewController = new ATSInterviewController(
   scheduleInterviewUseCase,
@@ -176,7 +180,9 @@ export const atsOfferController = new ATSOfferController(
 
 export const atsCommentController = new ATSCommentController(
   addCommentUseCase,
+  addCompensationNoteUseCase,
   getCommentsByApplicationUseCase,
+  getCompensationNotesUseCase,
 );
 
 export const atsCompensationController = new ATSCompensationController(
@@ -189,7 +195,7 @@ export const atsCompensationController = new ATSCompensationController(
 );
 
 export const atsActivityController = new ATSActivityController(
-  getApplicationActivitiesPaginatedUseCase,
+  getApplicationActivitiesUseCase,
 );
 
 export const atsPipelineController = new ATSPipelineController(

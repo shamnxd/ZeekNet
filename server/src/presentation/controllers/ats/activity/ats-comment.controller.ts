@@ -1,98 +1,105 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
+
+import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
+import { IAddCompensationNoteUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCompensationNoteUseCase';
+import { IGetCommentsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/comments/IGetCommentsByApplicationUseCase';
+import { IGetCompensationNotesUseCase } from 'src/domain/interfaces/use-cases/application/comments/IGetCompensationNotesUseCase';
+
+import { AddCommentRequestDtoSchema } from 'src/application/dtos/application/comments/requests/add-comment-request.dto';
+import { AddCompensationNoteRequestDtoSchema } from 'src/application/dtos/application/comments/requests/add-compensation-note-request.dto';
+import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
+
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/activity/IAddCommentUseCase';
-import { IGetCommentsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/activity/IGetCommentsByApplicationUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { AddCommentDto } from 'src/application/dtos/application/requests/add-comment.dto';
-import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class ATSCommentController {
   constructor(
-    private addCommentUseCase: IAddCommentUseCase,
-    private getCommentsByApplicationUseCase: IGetCommentsByApplicationUseCase,
-  ) {}
+    private readonly addCommentUseCase: IAddCommentUseCase,
+    private readonly addCompensationNoteUseCase: IAddCompensationNoteUseCase,
+    private readonly getCommentsByApplicationUseCase: IGetCommentsByApplicationUseCase,
+    private readonly getCompensationNotesUseCase: IGetCompensationNotesUseCase,
+  ) { }
 
-  addComment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  addComment = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsedBody = AddCommentRequestDtoSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return handleValidationError(formatZodErrors(parsedBody.error), next);
+    }
+
     try {
-      const dto: AddCommentDto = req.body;
-      const userId = req.user?.id;
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
+      const { id: userId, email } = req.user!;
 
       const comment = await this.addCommentUseCase.execute({
-        applicationId: dto.applicationId,
-        comment: dto.comment,
-        stage: dto.stage,
-        subStage: dto.subStage,
+        ...parsedBody.data,
         addedBy: userId,
-        addedByName: userName,
+        addedByName: email,
       });
 
       sendCreatedResponse(res, 'Comment added successfully', comment);
     } catch (error) {
-      console.error('Error adding comment:', error);
-      sendInternalServerErrorResponse(res, 'Failed to add comment');
+      handleAsyncError(error, next);
     }
   };
 
-  getCommentsByApplication = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    try {
-      const { applicationId } = req.params;
+  getCommentsByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsedParams = ParamsWithIdDto.safeParse(req.params);
+    if (!parsedParams.success) {
+      return handleValidationError(formatZodErrors(parsedParams.error), next);
+    }
 
-      const comments = await this.getCommentsByApplicationUseCase.execute(applicationId);
+    try {
+      const comments = await this.getCommentsByApplicationUseCase.execute({
+        applicationId: parsedParams.data.id,
+      });
 
       sendSuccessResponse(res, 'Comments retrieved successfully', comments);
     } catch (error) {
-      console.error('Error fetching comments:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch comments');
+      handleAsyncError(error, next);
     }
   };
 
-  addCompensationNote = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  addCompensationNote = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsedParams = ParamsWithIdDto.safeParse(req.params);
+    if (!parsedParams.success) {
+      return handleValidationError(formatZodErrors(parsedParams.error), next);
+    }
+
+    const parsedBody = AddCompensationNoteRequestDtoSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return handleValidationError(formatZodErrors(parsedBody.error), next);
+    }
+
     try {
-      const { applicationId } = req.params;
-      const { note } = req.body;
-      const userId = req.user?.id;
-      const userName = req.user?.email || 'Unknown User';
+      const { id: userId, email } = req.user!;
 
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
-
-      const comment = await this.addCommentUseCase.execute({
-        applicationId,
-        comment: note,
-        stage: ATSStage.COMPENSATION,
+      const comment = await this.addCompensationNoteUseCase.execute({
+        applicationId: parsedParams.data.id,
+        note: parsedBody.data.note,
         addedBy: userId,
-        addedByName: userName,
+        addedByName: email,
       });
 
       sendCreatedResponse(res, 'Compensation note added successfully', comment);
     } catch (error) {
-      console.error('Error adding compensation note:', error);
-      sendInternalServerErrorResponse(res, 'Failed to add compensation note');
+      handleAsyncError(error, next);
     }
   };
 
-  getCompensationNotes = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    try {
-      const { applicationId } = req.params;
+  getCompensationNotes = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsedParams = ParamsWithIdDto.safeParse(req.params);
+    if (!parsedParams.success) {
+      return handleValidationError(formatZodErrors(parsedParams.error), next);
+    }
 
-      const comments = await this.getCommentsByApplicationUseCase.execute(applicationId);
-      const compensationNotes = comments.filter(c => c.stage === ATSStage.COMPENSATION);
+    try {
+      const compensationNotes = await this.getCompensationNotesUseCase.execute({
+        applicationId: parsedParams.data.id,
+      });
 
       sendSuccessResponse(res, 'Compensation notes retrieved successfully', compensationNotes);
     } catch (error) {
-      console.error('Error fetching compensation notes:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch compensation notes');
+      handleAsyncError(error, next);
     }
   };
 }
-
-
-

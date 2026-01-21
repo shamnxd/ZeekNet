@@ -1,7 +1,7 @@
 import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/activity/IAddCommentUseCase';
+import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
 import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
@@ -13,7 +13,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     private jobApplicationRepository: IJobApplicationRepository,
     private addCommentUseCase: IAddCommentUseCase,
     private activityLoggerService: IActivityLoggerService,
-  ) {}
+  ) { }
 
   async execute(data: {
     applicationId: string;
@@ -34,7 +34,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
       throw new NotFoundError('Compensation record not found. Please initiate compensation first.');
     }
 
-    
+
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
@@ -50,7 +50,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
       approvedBy?: string;
       approvedByName?: string;
     } = {};
-    
+
     if (data.candidateExpected !== undefined) {
       updateData.candidateExpected = data.candidateExpected;
     }
@@ -66,8 +66,8 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     if (data.finalAgreed !== undefined) {
       updateData.finalAgreed = data.finalAgreed;
     }
-    
-    
+
+
     if (data.approvedAt || data.finalAgreed) {
       updateData.approvedAt = data.approvedAt || new Date();
       updateData.approvedBy = data.approvedBy || data.performedBy;
@@ -83,10 +83,10 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
       throw new NotFoundError('Failed to update compensation');
     }
 
-    
+
     const activityType = data.approvedAt || data.finalAgreed ? 'approved' : 'updated';
 
-    
+
     await this.activityLoggerService.logCompensationActivity({
       applicationId: data.applicationId,
       type: activityType,

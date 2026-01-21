@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/activity/IAddCommentUseCase';
+import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
 import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
@@ -23,7 +23,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     private activityLoggerService: IActivityLoggerService,
     private mailerService: IMailerService,
     private emailTemplateService: IEmailTemplateService,
-  ) {}
+  ) { }
 
   async execute(data: {
     applicationId: string;
@@ -32,13 +32,13 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     performedBy: string;
     performedByName: string;
   }): Promise<ATSCompensation> {
-    
+
     const existing = await this.compensationRepository.findByApplicationId(data.applicationId);
     if (existing) {
       throw new ValidationError('Compensation discussion already initiated');
     }
 
-    
+
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
@@ -46,14 +46,14 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
 
     const job = await this.jobPostingRepository.findById(application.jobId);
     if (job && application.seekerId) {
-        await this._sendCompensationInitiatedEmail(
-            application.seekerId,
-            job.title,
-            job.companyName || 'ZeekNet'
-        );
+      await this._sendCompensationInitiatedEmail(
+        application.seekerId,
+        job.title,
+        job.companyName || 'ZeekNet'
+      );
     }
 
-    
+
     const compensation = ATSCompensation.create({
       id: uuidv4(),
       applicationId: data.applicationId,
@@ -62,7 +62,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
 
     const created = await this.compensationRepository.create(compensation);
 
-    
+
     await this.activityLoggerService.logCompensationActivity({
       applicationId: data.applicationId,
       type: 'initiated',
