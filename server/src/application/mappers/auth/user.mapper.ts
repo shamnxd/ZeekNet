@@ -1,8 +1,9 @@
 import { User } from 'src/domain/entities/user.entity';
-import { UserResponseDto } from 'src/application/dtos/auth/verification/responses/user-response.dto';
+import { UserResponseDto } from 'src/application/dtos/auth/user/user-response.dto';
 
 import { UserRole } from 'src/domain/enums/user-role.enum';
 import { CreateInput } from 'src/domain/types/common.types';
+import { RegisterRequestDto } from 'src/application/dtos/auth/registration/register.dto';
 
 export class UserMapper {
   static toResponse(user: User): UserResponseDto {
@@ -18,23 +19,33 @@ export class UserMapper {
     };
   }
 
-  static toEntity(data: {
-    name?: string;
-    email: string;
-    password: string;
-    role: UserRole;
-    isVerified: boolean;
-    isBlocked: boolean;
-    refreshToken?: string;
-  }): CreateInput<User> {
+  static fromGoogleProfile(
+    profile: { name: string; email: string; emailVerified: boolean },
+    hashedPassword: string
+  ): CreateInput<User> {
     return {
-      name: data.name || '',
+      name: profile.name || '',
+      email: profile.email,
+      password: hashedPassword,
+      role: UserRole.SEEKER,
+      isVerified: profile.emailVerified,
+      isBlocked: false,
+      refreshToken: null,
+    };
+  }
+
+  static fromRegistration(
+    data: RegisterRequestDto,
+    hashedPassword: string
+  ): CreateInput<User> {
+    return {
+      name: data.name,
       email: data.email,
-      password: data.password,
-      role: data.role,
-      isVerified: data.isVerified,
-      isBlocked: data.isBlocked,
-      refreshToken: data.refreshToken || null,
+      password: hashedPassword,
+      role: data.role || UserRole.SEEKER,
+      isVerified: false,
+      isBlocked: false,
+      refreshToken: null,
     };
   }
 }

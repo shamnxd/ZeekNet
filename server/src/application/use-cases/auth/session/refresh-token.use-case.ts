@@ -1,4 +1,4 @@
-import { LoginResponseDto } from 'src/application/dtos/auth/session/responses/login-response.dto';
+import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
 import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
@@ -11,7 +11,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     private readonly _userRepository: IUserRepository,
     private readonly _tokenService: ITokenService,
     private readonly _passwordHasher: IPasswordHasher,
-  ) {}
+  ) { }
 
   async execute(refreshToken: string): Promise<LoginResponseDto> {
     const payload = this._tokenService.verifyRefresh(refreshToken);
@@ -31,7 +31,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     if (user.isBlocked) {
       throw new AuthorizationError('User account is blocked');
     }
-    
+
     const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role });
     const newRefreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedNewRefresh = await this._passwordHasher.hash(newRefreshToken);

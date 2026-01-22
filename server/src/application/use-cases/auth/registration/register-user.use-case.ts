@@ -1,14 +1,14 @@
-import { RegisterResponseDto } from 'src/application/dtos/auth/registration/responses/register-response.dto';
-import { UserRole } from 'src/domain/enums/user-role.enum';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { ValidationError } from 'src/domain/errors/errors';
 import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
-import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/registration/IRegisterUserUseCase';
-import { ValidationError } from 'src/domain/errors/errors';
+import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/registration/IRegisterUserUseCase';
+
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
-import { User } from 'src/domain/entities/user.entity';
+import { RegisterResponseDto } from 'src/application/dtos/auth/registration/register-response.dto';
+import { RegisterRequestDto } from 'src/application/dtos/auth/registration/register.dto';
 
 export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
@@ -17,9 +17,11 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+  ) { }
 
-  async execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResponseDto> {
+  async execute(params: RegisterRequestDto): Promise<RegisterResponseDto> {
+    const { email, password } = params;
+
     const existingUser = await this._userRepository.findOne({ email });
     if (existingUser) {
       throw new ValidationError('Email already registered');
@@ -28,18 +30,10 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     const hashedPassword = await this._passwordHasher.hash(password);
 
     const user = await this._userRepository.create(
-      UserMapper.toEntity({
-        name: name || '',
-        email,
-        password: hashedPassword,
-        role: role as UserRole || UserRole.SEEKER,
-        isVerified: false,
-        isBlocked: false,
-      }),
+      UserMapper.fromRegistration(params, hashedPassword)
     );
 
     await this.sendOtpEmail(user.email);
-
     return { user: UserMapper.toResponse(user) };
   }
 

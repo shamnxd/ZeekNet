@@ -1,8 +1,7 @@
-import { RegisterResponseDto } from 'src/application/dtos/auth/registration/responses/register-response.dto';
-import { UserRole } from 'src/domain/enums/user-role.enum';
-
+import { RegisterRequestDto } from 'src/application/dtos/auth/registration/register.dto';
+import { RegisterResponseDto } from 'src/application/dtos/auth/registration/register-response.dto';
 
 export interface IRegisterUserUseCase {
-  execute(email: string, password: string, role?: UserRole, name?: string): Promise<RegisterResponseDto>;
+  execute(params: RegisterRequestDto): Promise<RegisterResponseDto>;
 }
 
