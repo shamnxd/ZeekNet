@@ -12,5 +12,3 @@ export const UserResponseDto = z.object({
 });
 
 export type UserResponseDto = z.infer<typeof UserResponseDto>;
-
-export type UserResponseRequestDto = z.infer<typeof UserResponseDto>;
