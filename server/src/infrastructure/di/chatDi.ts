@@ -37,7 +37,15 @@ export const chatService = new ChatService(
   conversationRepository,
 );
 
-const chatController = new ChatController(chatService);
+const chatController = new ChatController(
+  createConversationUseCase,
+  sendMessageUseCase,
+  getConversationsUseCase,
+  getMessagesUseCase,
+  markMessagesAsReadUseCase,
+  deleteMessageUseCase,
+  chatService,
+);
 export const chatRouter = new ChatRouter(chatController, userRepository);
 
 export { conversationRepository as chatConversationRepository, messageRepository as chatMessageRepository, userRepository as chatUserRepository };

@@ -20,8 +20,8 @@ import { GoogleAuthTokenVerifier } from 'src/infrastructure/security/google-toke
 import { PasswordResetServiceImpl } from 'src/infrastructure/security/password-reset-service';
 
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { CookieService } from 'src/infrastructure/services/cookie.service';
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { CookieService } from 'src/infrastructure/http/cookie.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 
 import { OtpController } from 'src/presentation/controllers/auth/otp.controller';
 import { LoginController } from 'src/presentation/controllers/auth/login.controller';

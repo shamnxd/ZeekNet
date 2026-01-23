@@ -4,9 +4,9 @@ import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application
 import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUpdateOfferStatusUseCase';
 import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/offer/IGetOffersByApplicationUseCase';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
-import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { UploadOfferDto } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
 import { UpdateOfferStatusDto } from 'src/application/dtos/application/offer/requests/update-offer-status.dto';
 import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
@@ -17,13 +17,13 @@ export class ATSOfferController {
     private _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
     private _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
     private _s3Service: IS3Service,
-    private _fileUrlService: IFileUrlService,
-  ) {}
+    private _fileUploadService: IFileUploadService,
+  ) { }
 
   uploadOffer = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const dto: UploadOfferDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -31,16 +31,16 @@ export class ATSOfferController {
         return;
       }
 
-      
+
       let documentUrl: string;
       let documentFilename: string;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
-        documentUrl = uploadResult.url; 
+        const uploadResult = await this._fileUploadService.uploadOfferLetter(req.file as unknown as UploadedFile, 'document');
+        documentUrl = uploadResult.url;
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
-        
+
         documentUrl = dto.documentUrl;
         documentFilename = dto.documentFilename;
       } else {
@@ -50,15 +50,15 @@ export class ATSOfferController {
 
       const offer = await this._uploadOfferUseCase.execute({
         applicationId: dto.applicationId,
-        documentUrl: documentUrl, 
+        documentUrl: documentUrl,
         documentFilename: documentFilename,
         offerAmount: dto.offerAmount,
         uploadedBy: userId,
         uploadedByName: userName,
       });
 
-      
-      const signedUrl = await this._fileUrlService.getSignedUrl(offer.documentUrl);
+
+      const signedUrl = await this._s3Service.getSignedUrl(offer.documentUrl);
       const offerWithSignedUrl = {
         ...offer,
         documentUrl: signedUrl,
@@ -75,7 +75,7 @@ export class ATSOfferController {
     try {
       const { id } = req.params;
       const dto: UpdateOfferStatusDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -108,26 +108,26 @@ export class ATSOfferController {
 
       const offers = await this._getOffersByApplicationUseCase.execute(applicationId);
 
-      
+
       const offersWithSignedUrls = await Promise.all(
         offers.map(async (offer) => {
           try {
-            const signedUrl = await this._fileUrlService.getSignedUrl(offer.documentUrl);
+            const signedUrl = await this._s3Service.getSignedUrl(offer.documentUrl);
             const offerObj: ATSOffer & { documentUrl: string; signedDocumentUrl?: string } = {
               ...offer,
               documentUrl: signedUrl,
             };
-            
-            
+
+
             if (offer.signedDocumentUrl) {
-              const signedDocUrl = await this._fileUrlService.getSignedUrl(offer.signedDocumentUrl);
+              const signedDocUrl = await this._s3Service.getSignedUrl(offer.signedDocumentUrl);
               offerObj.signedDocumentUrl = signedDocUrl;
             }
-            
+
             return offerObj;
           } catch (error: unknown) {
             console.error(`Error generating signed URL for offer ${offer.id}:`, error);
-            
+
             return offer;
           }
         }),

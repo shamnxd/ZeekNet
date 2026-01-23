@@ -10,7 +10,7 @@ import { CompanySubscriptionResponseMapper } from 'src/application/mappers/compa
 import { AuthenticationError, ValidationError } from 'src/domain/errors/errors';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { PaymentMapper } from 'src/application/mappers/payment/payment.mapper';
-import { sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
 
 export class CompanySubscriptionController {
@@ -22,11 +22,11 @@ export class CompanySubscriptionController {
     private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
     private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
     private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
-  ) {}
+  ) { }
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
@@ -45,7 +45,7 @@ export class CompanySubscriptionController {
 
   getPaymentHistory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
@@ -60,13 +60,13 @@ export class CompanySubscriptionController {
 
   createCheckoutSession = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
 
       const { planId, billingCycle, successUrl, cancelUrl } = req.body;
-      
+
       if (!planId) {
         throw new ValidationError('Plan ID is required');
       }
@@ -91,7 +91,7 @@ export class CompanySubscriptionController {
 
   cancelSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
@@ -110,7 +110,7 @@ export class CompanySubscriptionController {
 
   resumeSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
@@ -125,13 +125,13 @@ export class CompanySubscriptionController {
 
   changeSubscriptionPlan = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
 
       const { planId, billingCycle } = req.body;
-      
+
       if (!planId) {
         throw new ValidationError('New plan ID is required');
       }
@@ -150,13 +150,13 @@ export class CompanySubscriptionController {
 
   getBillingPortal = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       if (!userId) {
         throw new AuthenticationError();
       }
 
       const { returnUrl } = req.body;
-      
+
       if (!returnUrl) {
         throw new ValidationError('Return URL is required');
       }

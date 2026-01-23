@@ -144,7 +144,7 @@ const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscr
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
 const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const mailerService = new NodemailerService();
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 
 const emailTemplateService = new EmailTemplateService();
 

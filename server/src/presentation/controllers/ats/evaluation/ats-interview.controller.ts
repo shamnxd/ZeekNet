@@ -3,8 +3,7 @@ import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/interview/IGetInterviewsByApplicationUseCase';
-import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { ScheduleInterviewDto } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
 import { UpdateInterviewDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 
@@ -13,13 +12,12 @@ export class ATSInterviewController {
     private scheduleInterviewUseCase: IScheduleInterviewUseCase,
     private updateInterviewUseCase: IUpdateInterviewUseCase,
     private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
-    private fileUrlService: IFileUrlService,
-  ) {}
+  ) { }
 
   scheduleInterview = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const dto: ScheduleInterviewDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -27,9 +25,9 @@ export class ATSInterviewController {
         return;
       }
 
-      
-      const scheduledDate = typeof dto.scheduledDate === 'string' 
-        ? new Date(dto.scheduledDate) 
+
+      const scheduledDate = typeof dto.scheduledDate === 'string'
+        ? new Date(dto.scheduledDate)
         : dto.scheduledDate;
 
       const interview = await this.scheduleInterviewUseCase.execute({
@@ -56,7 +54,7 @@ export class ATSInterviewController {
     try {
       const { id } = req.params;
       const dto: UpdateInterviewDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -97,6 +95,3 @@ export class ATSInterviewController {
     }
   };
 }
-
-
-

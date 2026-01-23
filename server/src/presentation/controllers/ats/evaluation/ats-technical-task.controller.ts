@@ -5,9 +5,9 @@ import { IUpdateTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/app
 import { IDeleteTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IDeleteTechnicalTaskUseCase';
 import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/task/IGetTechnicalTasksByApplicationUseCase';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
-import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
+import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { AssignTechnicalTaskDto } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
 import { UpdateTechnicalTaskDto } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
 
@@ -18,13 +18,13 @@ export class ATSTechnicalTaskController {
     private _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
     private _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
     private _s3Service: IS3Service,
-    private _fileUrlService: IFileUrlService,
-  ) {}
+    private _fileUploadService: IFileUploadService,
+  ) { }
 
   assignTechnicalTask = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const dto: AssignTechnicalTaskDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -32,23 +32,23 @@ export class ATSTechnicalTaskController {
         return;
       }
 
-      
+
       let documentUrl: string | undefined;
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
-        documentUrl = uploadResult.url; 
+        const uploadResult = await this._fileUploadService.uploadTaskDocument(req.file as unknown as UploadedFile, 'document');
+        documentUrl = uploadResult.url;
         documentFilename = uploadResult.filename;
       } else if (dto.documentUrl && dto.documentFilename) {
-        
+
         documentUrl = dto.documentUrl;
         documentFilename = dto.documentFilename;
       }
 
-      
-      const deadline = typeof dto.deadline === 'string' 
-        ? new Date(dto.deadline) 
+
+      const deadline = typeof dto.deadline === 'string'
+        ? new Date(dto.deadline)
         : dto.deadline;
 
       const task = await this._assignTechnicalTaskUseCase.execute({
@@ -62,10 +62,10 @@ export class ATSTechnicalTaskController {
         performedByName: userName,
       });
 
-      
+
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
-        const signedUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
+        const signedUrl = await this._s3Service.getSignedUrl(task.documentUrl);
         taskWithSignedUrl = {
           ...task,
           documentUrl: signedUrl,
@@ -83,7 +83,7 @@ export class ATSTechnicalTaskController {
     try {
       const { id } = req.params;
       const dto: UpdateTechnicalTaskDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -91,16 +91,16 @@ export class ATSTechnicalTaskController {
         return;
       }
 
-      
+
       const deadline = dto.deadline ? new Date(dto.deadline) : undefined;
 
-      
+
       let documentUrl: string | undefined;
       let documentFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskDocumentUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
-        documentUrl = uploadResult.url; 
+        const uploadResult = await this._fileUploadService.uploadTaskDocument(req.file as unknown as UploadedFile, 'document');
+        documentUrl = uploadResult.url;
         documentFilename = uploadResult.filename;
       }
 
@@ -118,17 +118,17 @@ export class ATSTechnicalTaskController {
         performedByName: userName,
       });
 
-      
+
       let taskWithSignedUrl = { ...task };
       if (task.documentUrl) {
-        const signedUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
+        const signedUrl = await this._s3Service.getSignedUrl(task.documentUrl);
         taskWithSignedUrl = {
           ...taskWithSignedUrl,
           documentUrl: signedUrl,
         };
       }
       if (task.submissionUrl) {
-        const submissionSignedUrl = await this._fileUrlService.getSignedUrl(task.submissionUrl);
+        const submissionSignedUrl = await this._s3Service.getSignedUrl(task.submissionUrl);
         taskWithSignedUrl = {
           ...taskWithSignedUrl,
           submissionUrl: submissionSignedUrl,
@@ -152,19 +152,19 @@ export class ATSTechnicalTaskController {
 
       const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(applicationId);
 
-      
+
       const tasksWithSignedUrls = await Promise.all(
         tasks.map(async (task) => {
           const taskObj: typeof task & { documentUrl?: string; submissionUrl?: string } = { ...task };
-          
+
           if (task.documentUrl) {
-            taskObj.documentUrl = await this._fileUrlService.getSignedUrl(task.documentUrl);
+            taskObj.documentUrl = await this._s3Service.getSignedUrl(task.documentUrl);
           }
-          
+
           if (task.submissionUrl) {
-            taskObj.submissionUrl = await this._fileUrlService.getSignedUrl(task.submissionUrl);
+            taskObj.submissionUrl = await this._s3Service.getSignedUrl(task.submissionUrl);
           }
-          
+
           return taskObj;
         }),
       );
@@ -179,7 +179,7 @@ export class ATSTechnicalTaskController {
   deleteTechnicalTask = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {

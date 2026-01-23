@@ -1,4 +1,3 @@
-
 import { ATSPipelineController } from 'src/presentation/controllers/ats/pipeline/ats-pipeline.controller';
 import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
 import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
@@ -37,7 +36,7 @@ import { GetCompensationNotesUseCase } from 'src/application/use-cases/applicati
 import { AddCompensationNoteUseCase } from 'src/application/use-cases/application/comments/add-compensation-note.use-case';
 
 import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
-import { FileUrlService } from 'src/application/services/file-url.service';
+import { FileUploadService } from 'src/application/services/file-upload.service';
 
 import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
 import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-technical-task.repository';
@@ -52,7 +51,7 @@ import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositor
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 import { getCompanyIdByUserIdUseCase } from 'src/infrastructure/di/companyDi';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
 
 const interviewRepository = new ATSInterviewRepository();
@@ -74,7 +73,7 @@ const mailerService = new NodemailerService();
 const emailTemplateService = new EmailTemplateService();
 
 const activityLoggerService = new ActivityLoggerService(activityRepository);
-const fileUrlService = new FileUrlService(s3Service);
+const fileUploadService = new FileUploadService(s3Service);
 
 const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   interviewRepository,
@@ -106,6 +105,7 @@ const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
   activityLoggerService,
+
 );
 const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   offerRepository,
@@ -158,7 +158,6 @@ export const atsInterviewController = new ATSInterviewController(
   scheduleInterviewUseCase,
   updateInterviewUseCase,
   getInterviewsByApplicationUseCase,
-  fileUrlService,
 );
 
 export const atsTechnicalTaskController = new ATSTechnicalTaskController(
@@ -167,7 +166,7 @@ export const atsTechnicalTaskController = new ATSTechnicalTaskController(
   deleteTechnicalTaskUseCase,
   getTechnicalTasksByApplicationUseCase,
   s3Service,
-  fileUrlService,
+  fileUploadService,
 );
 
 export const atsOfferController = new ATSOfferController(
@@ -175,7 +174,7 @@ export const atsOfferController = new ATSOfferController(
   updateOfferStatusUseCase,
   getOffersByApplicationUseCase,
   s3Service,
-  fileUrlService,
+  fileUploadService,
 );
 
 export const atsCommentController = new ATSCommentController(

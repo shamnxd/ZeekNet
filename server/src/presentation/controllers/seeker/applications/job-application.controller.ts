@@ -21,8 +21,8 @@ import { IGetCompensationByApplicationUseCase } from 'src/domain/interfaces/use-
 import { IGetCompensationMeetingsByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetCompensationMeetingsByApplicationUseCase';
 import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUpdateOfferStatusUseCase';
 import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUploadSignedOfferDocumentUseCase';
-import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
-import { UploadService, UploadedFile } from 'src/shared/services/upload.service';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
 import { CreateJobApplicationDto } from 'src/application/dtos/seeker/applications/requests/create-job-application.dto';
 import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
 import { ValidationError } from 'src/domain/errors/errors';
@@ -41,8 +41,8 @@ export class SeekerJobApplicationController {
     private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
     private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
     private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
-    private readonly _s3Service: IS3Service,
-  ) {}
+    private readonly _fileUploadService: IFileUploadService,
+  ) { }
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -52,7 +52,7 @@ export class SeekerJobApplicationController {
         return badRequest(res, 'Resume file is required');
       }
 
-      const resumeUploadResult = await UploadService.handleResumeUpload(req.file as unknown as UploadedFile, this._s3Service, 'resume');
+      const resumeUploadResult = await this._fileUploadService.uploadResume(req.file as unknown as UploadedFile, 'resume');
 
       const { job_id, cover_letter } = req.body;
 
@@ -126,7 +126,7 @@ export class SeekerJobApplicationController {
 
   analyzeResume = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = validateUserId(req); 
+      const userId = validateUserId(req);
 
       if (!req.file) {
         return badRequest(res, 'Resume file is required');
@@ -136,10 +136,10 @@ export class SeekerJobApplicationController {
       if (!job_id) {
         return badRequest(res, 'Job ID is required');
       }
-      
-      
+
+
       if (!req.file.buffer) {
-        
+
         return badRequest(res, 'File processing error');
       }
 
@@ -187,7 +187,7 @@ export class SeekerJobApplicationController {
       let submissionFilename: string | undefined;
 
       if (req.file) {
-        const uploadResult = await UploadService.handleTaskSubmissionUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
+        const uploadResult = await this._fileUploadService.uploadTaskSubmission(req.file as unknown as UploadedFile, 'document');
         submissionUrl = uploadResult.url;
         submissionFilename = uploadResult.filename;
       } else if (req.body.submissionUrl && req.body.submissionFilename) {
@@ -271,7 +271,7 @@ export class SeekerJobApplicationController {
         return sendBadRequestResponse(res, 'Signed document file is required');
       }
 
-      const uploadResult = await UploadService.handleOfferLetterUpload(req.file as unknown as UploadedFile, this._s3Service, 'document');
+      const uploadResult = await this._fileUploadService.uploadOfferLetter(req.file as unknown as UploadedFile, 'document');
 
       const updatedOffer = await this._uploadSignedOfferDocumentUseCase.execute(userId, userName, offerId, {
         signedDocumentUrl: uploadResult.url,

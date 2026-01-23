@@ -6,14 +6,14 @@ import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/ICreateJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
-import { generateId } from 'src/shared/utils/core/id.utils';
+import { Types } from 'mongoose';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-  ) {}
+  ) { }
 
   async execute(data: CreateJobPostingRequestDto & { userId?: string }): Promise<JobPosting> {
     const { userId, ...jobData } = data;
@@ -40,9 +40,9 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     if (isFeatured && !subscription.canPostFeaturedJob()) {
       throw new ValidationError(`You have reached your active featured job limit of ${subscription.featuredJobLimit} jobs. Please upgrade your plan or unlist other featured jobs.`);
     }
-    
-    const id = generateId();
-    
+
+    const id = new Types.ObjectId().toString();
+
     const jobPosting = JobPostingMapper.toDomain({
       id,
       companyId: companyProfile.id,

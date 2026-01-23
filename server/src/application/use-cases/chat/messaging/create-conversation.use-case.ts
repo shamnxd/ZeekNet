@@ -1,17 +1,22 @@
-import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/messaging/IChatUseCases';
+import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/ICreateConversationUseCase';
 import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { ValidationError, NotFoundError } from 'src/domain/errors/errors';
 import { Conversation } from 'src/domain/entities/conversation.entity';
 import { CreateInput } from 'src/domain/types/common.types';
+import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
+import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
+import { CreateConversationDto } from 'src/application/dtos/chat/requests/create-conversation.dto';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
     private readonly _conversationRepository: IConversationRepository,
     private readonly _userRepository: IUserRepository,
-  ) {}
+  ) { }
 
-  async execute(creatorId: string, participantId: string): Promise<Conversation> {
+  async execute(input: CreateConversationDto): Promise<ConversationResponseDto> {
+    const { creatorId, participantId } = input;
+
     if (creatorId === participantId) {
       throw new ValidationError('Cannot start a conversation with yourself');
     }
@@ -34,7 +39,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
 
     const existing = await this._conversationRepository.findByParticipants(creatorId, participantId);
     if (existing) {
-      return existing;
+      return ConversationMapper.toResponse(existing);
     }
 
     const payload: CreateInput<Conversation> = {
@@ -46,7 +51,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       withLastMessage: Conversation.prototype.withLastMessage,
     };
 
-    return this._conversationRepository.create(payload);
+    const newConversation = await this._conversationRepository.create(payload);
+    return ConversationMapper.toResponse(newConversation);
   }
 }
-

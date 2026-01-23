@@ -1,37 +1,27 @@
-import { ChatMessageResponseDto } from 'src/application/dtos/chat/responses/chat-message-response.dto';
 import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
-import { ChatMessage } from 'src/domain/entities/chat-message.entity';
-import { Conversation } from 'src/domain/entities/conversation.entity';
-import { SendMessageInput } from 'src/domain/interfaces/use-cases/chat/messaging/IChatUseCases';
+import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
+import { PaginatedConversationsResponseDto } from 'src/application/dtos/chat/responses/paginated-conversations-response.dto';
+import { PaginatedMessagesResponseDto } from 'src/application/dtos/chat/responses/paginated-messages-response.dto';
+import { SendMessageResponseDto } from 'src/application/dtos/chat/responses/send-message-response.dto';
+import { ChatMessageResponseDto } from 'src/application/dtos/chat/responses/chat-message-response.dto';
 
 export interface IChatService {
   setIO(io: import('socket.io').Server): void;
   registerConnection(userId: string, socketId: string): void;
   unregisterConnection(userId: string, socketId: string): void;
+
+  // Use Case wrappers (legacy/support)
   createConversation(creatorId: string, participantId: string): Promise<ConversationResponseDto>;
-  sendMessage(data: SendMessageInput): Promise<{
-    conversation: ConversationResponseDto;
-    message: ChatMessageResponseDto;
-  }>;
-  getConversations(userId: string, page?: number, limit?: number): Promise<{
-    data: ConversationResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }>;
-  getMessages(userId: string, conversationId: string, page?: number, limit?: number): Promise<{
-    data: ChatMessageResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }>;
+  sendMessage(data: SendMessageDto): Promise<SendMessageResponseDto>;
+  getConversations(userId: string, page?: number, limit?: number): Promise<PaginatedConversationsResponseDto>;
+  getMessages(userId: string, conversationId: string, page?: number, limit?: number): Promise<PaginatedMessagesResponseDto>;
   markMessagesAsRead(userId: string, conversationId: string): Promise<void>;
   deleteMessage(userId: string, messageId: string): Promise<void>;
-  emitTyping(conversationId: string, senderId: string, receiverId: string): void;
-  emitMessageDelivered(message: ChatMessage, conversation: Conversation): void;
-  emitMessagesRead(conversationId: string, readerId: string, otherParticipantId: string): void;
   ensureParticipant(conversationId: string, userId: string): Promise<boolean>;
-}
 
+  // Socket Emitters
+  emitTyping(conversationId: string, senderId: string, receiverId: string): void;
+  emitMessageDelivered(message: ChatMessageResponseDto, conversation: ConversationResponseDto): void;
+  emitMessagesRead(conversationId: string, readerId: string, otherParticipantId: string): void;
+  emitMessageDeleted(message: ChatMessageResponseDto, conversation: ConversationResponseDto): void;
+}

@@ -5,7 +5,7 @@ import { IUpdateApplicationSubStageUseCase } from 'src/domain/interfaces/use-cas
 import { IGetJobATSPipelineUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobATSPipelineUseCase';
 import { IGetJobApplicationsForKanbanUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobApplicationsForKanbanUseCase';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { MoveApplicationStageDto, MoveApplicationStageDtoSchema } from 'src/application/dtos/application/requests/move-application-stage.dto';
 import { UpdateSubStageDto, UpdateSubStageDtoSchema } from 'src/application/dtos/application/requests/update-sub-stage.dto';
 import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
@@ -18,7 +18,7 @@ export class ATSPipelineController {
     private _moveApplicationStageUseCase: IMoveApplicationStageUseCase,
     private _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
     private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
-  ) {}
+  ) { }
 
   getJobPipeline = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -51,7 +51,7 @@ export class ATSPipelineController {
   moveApplicationStage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -59,7 +59,7 @@ export class ATSPipelineController {
         return;
       }
 
-      
+
       const validationResult = MoveApplicationStageDtoSchema.safeParse(req.body);
       if (!validationResult.success) {
         sendBadRequestResponse(res, `Validation error: ${validationResult.error.message}`);
@@ -86,7 +86,7 @@ export class ATSPipelineController {
   updateApplicationSubStage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -94,7 +94,7 @@ export class ATSPipelineController {
         return;
       }
 
-      
+
       const validationResult = UpdateSubStageDtoSchema.safeParse(req.body);
       if (!validationResult.success) {
         sendBadRequestResponse(res, `Validation error: ${validationResult.error.message}`);

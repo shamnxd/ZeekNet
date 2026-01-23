@@ -1,6 +1,6 @@
 import { IAtsService } from 'src/domain/interfaces/services/IAtsService';
 import { ATSScoreResult, JobDetails, CandidateData } from 'src/domain/types/ats.types';
-import { GroqService } from 'src/infrastructure/services/groq.service';
+import { GroqService } from './groq-client.service';
 
 
 export class AtsService implements IAtsService {

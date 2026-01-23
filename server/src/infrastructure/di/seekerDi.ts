@@ -40,7 +40,7 @@ import { ATSCompensationMeetingRepository } from 'src/infrastructure/persistence
 import { ATSActivityRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-activity.repository';
 import { UpdateApplicationSubStageUseCase } from 'src/application/use-cases/application/pipeline/update-application-sub-stage.use-case';
 import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
-import { AtsService } from 'src/infrastructure/services/ats.service';
+import { AtsService } from 'src/infrastructure/external-services/ai/ats-groq.service';
 import { ResumeParserService } from 'src/infrastructure/services/resume-parser.service';
 import { env } from 'src/infrastructure/config/env';
 import { GetInterviewsByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-interviews-by-application.use-case';
@@ -51,6 +51,7 @@ import { GetCompensationByApplicationUseCase } from 'src/application/use-cases/s
 import { GetCompensationMeetingsByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-compensation-meetings-by-application.use-case';
 import { UpdateOfferStatusUseCase } from 'src/application/use-cases/seeker/applications/update-offer-status.use-case';
 import { UploadSignedOfferDocumentUseCase } from 'src/application/use-cases/seeker/applications/upload-signed-offer-document.use-case';
+import { FileUploadService } from 'src/application/services/file-upload.service';
 
 import { logger } from 'src/infrastructure/config/logger';
 
@@ -74,10 +75,11 @@ const atsService = new AtsService(env.GROQ_API_KEY);
 const resumeParserService = new ResumeParserService();
 
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 
 const mailerService = new NodemailerService();
 const emailTemplateService = new EmailTemplateService();
+const fileUploadService = new FileUploadService(s3Service);
 
 const createSeekerProfileUseCase = new CreateSeekerProfileUseCase(seekerProfileRepository, s3Service);
 const getSeekerProfileUseCase = new GetSeekerProfileUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
@@ -164,7 +166,7 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   getCompensationMeetingsByApplicationUseCase,
   updateOfferStatusUseCase,
   uploadSignedOfferDocumentUseCase,
-  s3Service,
+  fileUploadService,
 );
 
 export { seekerJobApplicationController, seekerProfileController };

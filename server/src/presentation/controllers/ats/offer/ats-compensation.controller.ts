@@ -6,7 +6,7 @@ import { IGetCompensationUseCase } from 'src/domain/interfaces/use-cases/applica
 import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
 import { IGetCompensationMeetingsUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationMeetingsUseCase';
 import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
 import { InitiateCompensationDto } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
 import { UpdateCompensationDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
 import { ScheduleCompensationMeetingDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
@@ -19,13 +19,13 @@ export class ATSCompensationController {
     private _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
     private _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
     private _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
-  ) {}
+  ) { }
 
   initiateCompensation = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { applicationId } = req.params;
       const dto: InitiateCompensationDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -62,7 +62,7 @@ export class ATSCompensationController {
     try {
       const { applicationId } = req.params;
       const dto: UpdateCompensationDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -121,7 +121,7 @@ export class ATSCompensationController {
     try {
       const { applicationId } = req.params;
       const dto: ScheduleCompensationMeetingDto = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {
@@ -129,7 +129,7 @@ export class ATSCompensationController {
         return;
       }
 
-      
+
       const scheduledDate = new Date(`${dto.date}T${dto.time}`);
 
       const created = await this._scheduleCompensationMeetingUseCase.execute({
@@ -173,7 +173,7 @@ export class ATSCompensationController {
     try {
       const { applicationId, meetingId } = req.params;
       const { status } = req.body;
-      const userId = req.user?.id;
+      const userId = extractUserId(req);
       const userName = req.user?.email || 'Unknown User';
 
       if (!userId) {

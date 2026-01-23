@@ -185,7 +185,7 @@ const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
-import { notificationService } from 'src/infrastructure/di/notificationDi'; 
+import { notificationService } from 'src/infrastructure/di/notificationDi';
 
 
 
@@ -218,7 +218,7 @@ const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s
 const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
 
 const mailerService = new NodemailerService();
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 const emailTemplateService = new EmailTemplateService();
 
 const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(

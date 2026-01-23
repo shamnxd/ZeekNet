@@ -1,21 +1,8 @@
 import { z } from 'zod';
 
-export const CreateConversationRequestDtoSchema = z.object({
-  participantId: z.string().min(1, 'participantId is required'),
+export const CreateConversationDtoSchema = z.object({
+  creatorId: z.string().min(1, 'Creator ID is required'),
+  participantId: z.string().min(1, 'Participant ID is required'),
 });
 
-export type CreateConversationRequestDto = z.infer<typeof CreateConversationRequestDtoSchema>;
-
-export const CreateConversationDto = CreateConversationRequestDtoSchema;
-
-
-
-
-
-
-
-
-
-
-
-
+export type CreateConversationDto = z.infer<typeof CreateConversationDtoSchema>;

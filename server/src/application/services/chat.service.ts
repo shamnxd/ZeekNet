@@ -1,19 +1,16 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { IChatService } from 'src/domain/interfaces/services/IChatService';
-import {
-  ISendMessageUseCase,
-  IGetConversationsUseCase,
-  IGetMessagesUseCase,
-  IMarkMessagesAsReadUseCase,
-  ICreateConversationUseCase,
-  IDeleteMessageUseCase,
-  SendMessageInput,
-} from 'src/domain/interfaces/use-cases/chat/messaging/IChatUseCases';
-import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
-import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.mapper';
-import { ChatMessage } from 'src/domain/entities/chat-message.entity';
-import { Conversation } from 'src/domain/entities/conversation.entity';
+import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat/IMarkMessagesAsReadUseCase';
+import { IGetMessagesUseCase } from 'src/domain/interfaces/use-cases/chat/IGetMessagesUseCase';
+import { IGetConversationsUseCase } from 'src/domain/interfaces/use-cases/chat/IGetConversationsUseCase';
+import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/ICreateConversationUseCase';
+import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendMessageUseCase';
+import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDeleteMessageUseCase';
 import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
+
+import { ChatMessageResponseDto } from 'src/application/dtos/chat/responses/chat-message-response.dto';
+import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
+import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
 
 export class ChatService implements IChatService {
   private io: SocketIOServer | null = null;
@@ -27,7 +24,7 @@ export class ChatService implements IChatService {
     private readonly _createConversationUseCase: ICreateConversationUseCase,
     private readonly _deleteMessageUseCase: IDeleteMessageUseCase,
     private readonly _conversationRepository: IConversationRepository,
-  ) {}
+  ) { }
 
   setIO(io: SocketIOServer): void {
     this.io = io;
@@ -50,38 +47,25 @@ export class ChatService implements IChatService {
   }
 
   async createConversation(creatorId: string, participantId: string) {
-    const conversation = await this._createConversationUseCase.execute(creatorId, participantId);
-    return ConversationMapper.toResponse(conversation);
+    return this._createConversationUseCase.execute({ creatorId, participantId });
   }
 
-  async sendMessage(data: SendMessageInput) {
+  async sendMessage(data: SendMessageDto) {
     const result = await this._sendMessageUseCase.execute(data);
     this.emitMessageDelivered(result.message, result.conversation);
-    return {
-      conversation: ConversationMapper.toResponse(result.conversation),
-      message: ChatMessageMapper.toResponse(result.message),
-    };
+    return result;
   }
 
   async getConversations(userId: string, page = 1, limit = 20) {
-    const result = await this._getConversationsUseCase.execute(userId, page, limit);
-    return {
-      ...result,
-      data: ConversationMapper.toResponseList(result.data),
-    };
+    return this._getConversationsUseCase.execute({ userId, page, limit });
   }
 
   async getMessages(userId: string, conversationId: string, page = 1, limit = 50) {
-    const result = await this._getMessagesUseCase.execute(userId, conversationId, page, limit);
-    return {
-      ...result,
-      data: ChatMessageMapper.toResponseList(result.data),
-    };
+    return this._getMessagesUseCase.execute({ userId, conversationId, page, limit });
   }
 
   async markMessagesAsRead(userId: string, conversationId: string): Promise<void> {
-    await this._markMessagesAsReadUseCase.execute(userId, conversationId);
-    const conversation = await this._conversationRepository.findById(conversationId);
+    const conversation = await this._markMessagesAsReadUseCase.execute({ userId, conversationId });
     if (!conversation) return;
 
     const otherParticipant = conversation.participants.find((p) => p.userId !== userId);
@@ -91,23 +75,20 @@ export class ChatService implements IChatService {
   }
 
   async deleteMessage(userId: string, messageId: string): Promise<void> {
-    const deletedMessage = await this._deleteMessageUseCase.execute(userId, messageId);
-    if (deletedMessage) {
-      const conversation = await this._conversationRepository.findById(deletedMessage.conversationId);
-      if (conversation) {
-        this.emitMessageDeleted(deletedMessage, conversation);
-      }
+    const result = await this._deleteMessageUseCase.execute({ userId, messageId });
+    if (result && result.conversation) {
+      this.emitMessageDeleted(result.message, result.conversation);
     }
   }
 
-  emitMessageDeleted(message: ChatMessage, conversation: Conversation): void {
+  emitMessageDeleted(message: ChatMessageResponseDto, conversation: ConversationResponseDto): void {
     if (!this.io) return;
     const payload = {
       conversationId: conversation.id,
       messageId: message.id,
       participants: conversation.participants.map((p) => p.userId),
     };
-    
+
     const userRooms = conversation.participants.map((p) => this.getUserRoom(p.userId));
     this.io.to(userRooms).emit('message_deleted', payload);
   }
@@ -119,20 +100,18 @@ export class ChatService implements IChatService {
       senderId,
       timestamp: new Date().toISOString(),
     };
-    
+
     this.io.to(this.getUserRoom(receiverId)).emit('typing_indicator', payload);
   }
 
-  emitMessageDelivered(message: ChatMessage, conversation: Conversation): void {
+  emitMessageDelivered(message: ChatMessageResponseDto, conversation: ConversationResponseDto): void {
     if (!this.io) return;
     const payload = {
       conversationId: conversation.id,
-      message: ChatMessageMapper.toResponse(message),
+      message: message,
       participants: conversation.participants.map((p) => p.userId),
     };
-    
-    
-    
+
     const userRooms = conversation.participants.map((p) => this.getUserRoom(p.userId));
     this.io.to(userRooms).emit('message_received', payload);
   }
@@ -141,7 +120,7 @@ export class ChatService implements IChatService {
     if (!this.io) return;
     const room = this.getUserRoom(otherParticipantId);
     const payload = { conversationId, readerId };
-    
+
     this.io.to(room).emit('messages_read', payload);
   }
 
@@ -158,5 +137,3 @@ export class ChatService implements IChatService {
     return !!conversation?.participants.some((p) => p.userId === userId);
   }
 }
-
-
