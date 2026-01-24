@@ -9,4 +9,6 @@ export const BulkUpdateApplicationsDto = z.object({
 });
 
 
-export type BulkUpdateApplicationsRequestDto = z.infer<typeof BulkUpdateApplicationsDto>;
+export type BulkUpdateApplicationsRequestDto = z.infer<typeof BulkUpdateApplicationsDto> & {
+  companyId: string;
+};

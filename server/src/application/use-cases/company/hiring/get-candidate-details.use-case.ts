@@ -14,9 +14,10 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
     private readonly seekerEducationRepository: ISeekerEducationRepository,
     private readonly userRepository: IUserRepository,
     private readonly s3Service: IS3Service,
-  ) {}
+  ) { }
 
-  async execute(candidateId: string): Promise<CandidateDetails> {
+  async execute(params: { candidateId: string }): Promise<CandidateDetails> {
+    const { candidateId } = params;
     if (!candidateId) {
       throw new NotFoundError('Candidate ID is required');
     }
@@ -36,14 +37,14 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
     const educations = await this.seekerEducationRepository.findBySeekerProfileId(candidateId);
 
     const profileData = { ...profile };
-    
+
     try {
       if (profile.avatarFileName && !profile.avatarFileName.startsWith('http')) {
         profileData.avatarFileName = await this.s3Service.getSignedUrl(profile.avatarFileName);
       }
     } catch (error) {
       console.error('Error getting avatar signed URL:', error);
-      
+
     }
 
     try {
@@ -52,9 +53,9 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
       }
     } catch (error) {
       console.error('Error getting banner signed URL:', error);
-      
+
     }
-    
+
     try {
       if (profile.resume?.url && !profile.resume.url.startsWith('http')) {
         const signedResumeUrl = await this.s3Service.getSignedUrl(profile.resume.url);
@@ -65,7 +66,7 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
       }
     } catch (error) {
       console.error('Error getting resume signed URL:', error);
-      
+
     }
 
     return {

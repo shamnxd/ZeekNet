@@ -14,7 +14,9 @@ export interface CloseJobManuallyDto {
   jobId: string;
 }
 
-export class CloseJobManuallyUseCase {
+import { ICloseJobManuallyUseCase } from 'src/domain/interfaces/use-cases/job/ICloseJobManuallyUseCase';
+
+export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
@@ -22,7 +24,7 @@ export class CloseJobManuallyUseCase {
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+  ) { }
 
   async execute(dto: CloseJobManuallyDto): Promise<void> {
     const { userId, jobId } = dto;
@@ -41,30 +43,30 @@ export class CloseJobManuallyUseCase {
       throw new ValidationError('You can only close your own job postings');
     }
 
-    
+
     if (job.status === JobStatus.CLOSED) {
       throw new ValidationError('Job is already closed');
     }
 
-    
+
     await this._jobPostingRepository.update(jobId, {
       status: JobStatus.CLOSED,
       closureType: JobClosureType.MANUAL,
       closedAt: new Date(),
     });
 
-    
+
     const allApplications = await this._jobApplicationRepository.findByJobId(jobId);
     const nonHiredApplications = allApplications.filter(
       (app) => app.stage !== ATSStage.HIRED,
     );
 
-    
+
     for (const application of nonHiredApplications) {
-      
+
       const seeker = await this._userRepository.findById(application.seekerId);
       if (seeker && seeker.email) {
-        
+
         await this.sendJobClosedEmail(seeker.email, job.title, seeker.name || 'Candidate', job.companyName || 'ZeekNet');
       }
     }
@@ -79,7 +81,7 @@ export class CloseJobManuallyUseCase {
       );
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
-      
+
       console.error(`Failed to send job closed email to ${email}:`, error);
     }
   }

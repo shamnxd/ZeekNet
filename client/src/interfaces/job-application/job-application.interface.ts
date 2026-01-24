@@ -7,7 +7,6 @@ export interface GetSeekerApplicationsParams {
 }
 
 export interface GetCompanyApplicationsParams {
-  job_id?: string;
   stage?: ApplicationStage;
   search?: string;
   page?: number;

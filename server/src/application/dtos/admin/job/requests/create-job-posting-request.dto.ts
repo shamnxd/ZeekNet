@@ -31,6 +31,8 @@ export const CreateJobPostingRequestDtoSchema = z.object({
   total_vacancies: z.number().int().min(1, 'Total vacancies must be at least 1').optional().default(1),
 });
 
-export type CreateJobPostingRequestDto = z.infer<typeof CreateJobPostingRequestDtoSchema>;
+export type CreateJobPostingRequestDto = z.infer<typeof CreateJobPostingRequestDtoSchema> & {
+  userId?: string;
+};
 
 

@@ -7,6 +7,7 @@ import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IC
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 import { Types } from 'mongoose';
+import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
@@ -15,7 +16,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) { }
 
-  async execute(data: CreateJobPostingRequestDto & { userId?: string }): Promise<JobPosting> {
+  async execute(data: CreateJobPostingRequestDto): Promise<JobPostingResponseDto> {
     const { userId, ...jobData } = data;
     if (!userId) throw new Error('User ID is required');
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
@@ -68,7 +69,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       await this._companySubscriptionRepository.incrementFeaturedJobsUsed(subscription.id);
     }
 
-    return createdJob;
+    return JobPostingMapper.toResponse(createdJob);
   }
 }
 

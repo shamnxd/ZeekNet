@@ -6,15 +6,17 @@ import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobStatusUseCase';
 import { UpdateJobStatusDto } from 'src/application/dtos/job/requests/update-job-status.dto';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
+import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
-  ) {}
+  ) { }
 
-  async execute(dto: UpdateJobStatusDto): Promise<JobPosting> {
+  async execute(dto: UpdateJobStatusDto): Promise<JobPostingResponseDto> {
     const { jobId, status, userId } = dto;
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
@@ -26,7 +28,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new AuthorizationError('This job has been blocked by admin and cannot be modified');
     }
 
-    
+
     if (existingJob.status === JobStatus.CLOSED) {
       throw new ValidationError('Closed jobs cannot be reopened. They remain permanently closed for consistency and audit safety.');
     }
@@ -52,7 +54,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
           );
         }
       }
-      
+
       if (!subscription.canPostJob()) {
         throw new ValidationError(
           `You have reached your active job limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan or unlist other jobs.`,
@@ -84,9 +86,6 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new InternalServerError('Failed to update job status');
     }
 
-    return updatedJob;
+    return JobPostingMapper.toResponse(updatedJob);
   }
 }
-
-
-

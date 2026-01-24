@@ -1,4 +1,6 @@
 
+import { DeleteCompanyJobPostingDto } from 'src/application/dtos/company/job/requests/delete-company-job-posting.dto';
+
 export interface IDeleteJobPostingUseCase {
-  execute(id: string, userId: string): Promise<void>;
+  execute(dto: DeleteCompanyJobPostingDto): Promise<void>;
 }

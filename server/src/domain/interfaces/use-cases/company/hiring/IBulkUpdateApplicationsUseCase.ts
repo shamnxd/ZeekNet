@@ -1,9 +1,7 @@
-import { z } from 'zod';
-import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
+import { BulkUpdateApplicationsRequestDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
+import { BulkUpdateApplicationsResponseDto } from 'src/application/dtos/company/hiring/responses/bulk-update-applications-response.dto';
 
 export interface IBulkUpdateApplicationsUseCase {
-  execute(
-    data: z.infer<typeof BulkUpdateApplicationsDto> & { companyId: string }
-  ): Promise<{ success: boolean; updated: number; failed: number; errors: Array<{ application_id: string; error: string }> }>;
+  execute(dto: BulkUpdateApplicationsRequestDto): Promise<BulkUpdateApplicationsResponseDto>;
 }
 

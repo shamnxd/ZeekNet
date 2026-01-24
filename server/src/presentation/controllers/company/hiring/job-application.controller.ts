@@ -1,4 +1,16 @@
 import { Response, NextFunction } from 'express';
+import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationScoreUseCase';
+import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationStageUseCase';
+import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationDetailsUseCase';
+import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByCompanyUseCase';
+import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByJobUseCase';
+import { IBulkUpdateApplicationsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IBulkUpdateApplicationsUseCase';
+import { IMarkCandidateHiredUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IMarkCandidateHiredUseCase';
+import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { UpdateApplicationStageRequestDtoSchema } from 'src/application/dtos/application/requests/update-application-stage.dto';
+import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
+import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
+import { GetCandidateDetailsDto } from 'src/application/dtos/company/hiring/requests/get-candidate-details.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import {
   handleValidationError,
@@ -6,18 +18,7 @@ import {
   sendSuccessResponse,
   validateUserId,
 } from 'src/shared/utils/presentation/controller.utils';
-import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationScoreUseCase';
-import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationStageUseCase';
-import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationDetailsUseCase';
-import { IGetApplicationsByCompanyUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByCompanyUseCase';
-import { IGetApplicationsByJobUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationsByJobUseCase';
-import { IBulkUpdateApplicationsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IBulkUpdateApplicationsUseCase';
-import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
-import { UpdateApplicationStageDto } from 'src/application/dtos/application/requests/update-application-stage.dto';
-import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
-import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
-import { MarkCandidateHiredUseCase } from 'src/application/use-cases/company/hiring/mark-candidate-hired.use-case';
-import { z } from 'zod';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -27,46 +28,58 @@ export class CompanyJobApplicationController {
     private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
     private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
     private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
-    private readonly _markCandidateHiredUseCase: MarkCandidateHiredUseCase,
-  ) {}
+    private readonly _markCandidateHiredUseCase: IMarkCandidateHiredUseCase,
+  ) { }
 
-  getApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getCompanyApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const userId = validateUserId(req);
+    const parsed = ApplicationFiltersDto.safeParse(req.query);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
+
     try {
-      const userId = validateUserId(req);
-      const { job_id } = req.query;
+      const result = await this._getApplicationsByCompanyUseCase.execute({ ...parsed.data, userId });
+      sendSuccessResponse(res, 'Company applications retrieved successfully', result);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
 
-      const filters = ApplicationFiltersDto.safeParse(req.query);
-      if (!filters.success) {
-        return handleValidationError(
-          `Validation error: ${filters.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
-      }
+  getJobApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const userId = validateUserId(req);
+    const { job_id } = req.params;
 
-      let result;
-      if (job_id) {
-        result = await this._getApplicationsByJobUseCase.execute({
-          jobId: job_id as string,
-          ...filters.data,
-          userId,
-        });
-      } else {
-        result = await this._getApplicationsByCompanyUseCase.execute({ ...filters.data, userId });
-      }
+    const parsed = ApplicationFiltersDto.safeParse(req.query);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
 
-      sendSuccessResponse(res, 'Applications retrieved successfully', result);
+    if (!job_id) {
+      return handleValidationError("Job ID is required", next);
+    }
+
+    try {
+      const result = await this._getApplicationsByJobUseCase.execute({
+        jobId: job_id,
+        ...parsed.data,
+        userId,
+      });
+      sendSuccessResponse(res, 'Job applications retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 
   getApplicationDetails = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const userId = validateUserId(req);
+    const parsed = GetCandidateDetailsDto.safeParse(req.params);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
+
     try {
-      const userId = validateUserId(req);
-      const { id } = req.params;
-
-      const response = await this._getApplicationDetailsUseCase.execute({ userId, applicationId: id });
-
+      const response = await this._getApplicationDetailsUseCase.execute({ userId, applicationId: parsed.data.candidateId });
       sendSuccessResponse(res, 'Application details retrieved successfully', response);
     } catch (error) {
       handleAsyncError(error, next);
@@ -74,16 +87,22 @@ export class CompanyJobApplicationController {
   };
 
   updateStage = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = validateUserId(req);
-      const { id } = req.params;
+    const userId = validateUserId(req);
+    const paramParsed = GetCandidateDetailsDto.safeParse(req.params);
+    const bodyParsed = UpdateApplicationStageRequestDtoSchema.safeParse(req.body);
 
+    if (!paramParsed.success) {
+      return handleValidationError(formatZodErrors(paramParsed.error), next);
+    }
+    if (!bodyParsed.success) {
+      return handleValidationError(formatZodErrors(bodyParsed.error), next);
+    }
+
+    try {
       const application = await this._updateApplicationStageUseCase.execute({
         userId,
-        applicationId: id,
-        stage: req.body.stage,
-        subStage: req.body.subStage,
-        rejectionReason: req.body.rejectionReason,
+        applicationId: paramParsed.data.candidateId,
+        ...bodyParsed.data
       });
 
       sendSuccessResponse(res, 'Application stage updated successfully', application);
@@ -93,19 +112,23 @@ export class CompanyJobApplicationController {
   };
 
   updateScore = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const userId = validateUserId(req);
+    const paramParsed = GetCandidateDetailsDto.safeParse(req.params);
+    const bodyParsed = UpdateScoreDto.safeParse(req.body);
+
+    if (!paramParsed.success) {
+      return handleValidationError(formatZodErrors(paramParsed.error), next);
+    }
+    if (!bodyParsed.success) {
+      return handleValidationError(formatZodErrors(bodyParsed.error), next);
+    }
+
     try {
-      const userId = validateUserId(req);
-      const { id } = req.params;
-
-      const dto = UpdateScoreDto.safeParse(req.body);
-      if (!dto.success) {
-        return handleValidationError(
-          `Validation error: ${dto.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
-      }
-
-      const application = await this._updateApplicationScoreUseCase.execute({ userId, applicationId: id, score: dto.data.score });
+      const application = await this._updateApplicationScoreUseCase.execute({
+        userId,
+        applicationId: paramParsed.data.candidateId,
+        score: bodyParsed.data.score
+      });
 
       sendSuccessResponse(res, 'Application score updated successfully', application);
     } catch (error) {
@@ -114,19 +137,15 @@ export class CompanyJobApplicationController {
   };
 
   bulkUpdate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const userId = validateUserId(req);
+    const parsed = BulkUpdateApplicationsDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
+
     try {
-      const userId = validateUserId(req);
-
-      const dto = BulkUpdateApplicationsDto.safeParse(req.body);
-      if (!dto.success) {
-        return handleValidationError(
-          `Validation error: ${dto.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
-      }
-
       const result = await this._bulkUpdateApplicationsUseCase.execute({
-        ...dto.data,
+        ...parsed.data,
         companyId: userId,
       });
 
@@ -137,13 +156,16 @@ export class CompanyJobApplicationController {
   };
 
   markAsHired = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const userId = validateUserId(req);
-      const { id } = req.params;
+    const userId = validateUserId(req);
+    const parsed = GetCandidateDetailsDto.safeParse(req.params);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
 
+    try {
       await this._markCandidateHiredUseCase.execute({
         userId,
-        applicationId: id,
+        applicationId: parsed.data.candidateId,
       });
 
       sendSuccessResponse(res, 'Candidate marked as hired successfully', null);
@@ -152,6 +174,7 @@ export class CompanyJobApplicationController {
     }
   };
 }
+
 
 
 

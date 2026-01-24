@@ -106,17 +106,18 @@ export class CompanyRouter {
     this.router.post('/jobs/:id/close', companyJobPostingController.closeJob);
     this.router.post('/jobs/:id/reopen', companyJobPostingController.reopenJob);
 
-    this.router.get('/applications', companyJobApplicationController.getApplications);
+    this.router.get('/applications', companyJobApplicationController.getCompanyApplications);
+    this.router.get('/jobs/:job_id/applications', companyJobApplicationController.getJobApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
     this.router.post('/applications/:id/mark-hired', companyJobApplicationController.markAsHired);
-    
-    const { 
-      atsInterviewController, 
-      atsTechnicalTaskController, 
-      atsOfferController, 
-      atsCommentController, 
-      atsCompensationController, 
-      atsActivityController, 
+
+    const {
+      atsInterviewController,
+      atsTechnicalTaskController,
+      atsOfferController,
+      atsCommentController,
+      atsCompensationController,
+      atsActivityController,
       atsPipelineController,
     } = require('../../infrastructure/di/atsDi');
     const { createATSRoutes } = require('./ats.routes');
@@ -128,10 +129,10 @@ export class CompanyRouter {
       atsCompensationController,
       atsActivityController,
     ));
-    
+
     this.router.post('/applications/:id/move-stage', atsPipelineController.moveApplicationStage);
     this.router.post('/applications/:id/update-sub-stage', atsPipelineController.updateApplicationSubStage);
-    
+
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
     this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageRequestDtoSchema), companyJobApplicationController.updateStage);
     this.router.patch('/applications/:id/score', validateBody(UpdateScoreDto), companyJobApplicationController.updateScore);
