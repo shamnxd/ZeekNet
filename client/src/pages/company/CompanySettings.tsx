@@ -6,22 +6,26 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Loading } from '@/components/ui/loading'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
+import {
   Image,
   Lock,
   Eye,
   EyeOff
 } from 'lucide-react'
 import { companyApi } from '@/api/company.api'
+import { authApi } from '@/api/auth.api'
 import type { CompanyProfileResponse } from '@/interfaces/company/company-api.interface'
 import { toast } from 'sonner'
+import { useAppDispatch } from '@/hooks/useRedux'
+import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 
 const CompanySettings = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'general'>('overview')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
-  
+  const dispatch = useAppDispatch()
+
   const [, setCompanyProfile] = useState<CompanyProfileResponse | null>(null)
   const [companyName, setCompanyName] = useState('')
   const [website, setWebsite] = useState('')
@@ -30,7 +34,7 @@ const CompanySettings = () => {
   const [organization, setOrganization] = useState('')
   const [dateFounded, setDateFounded] = useState('')
   const [logo, setLogo] = useState('')
-  
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -65,11 +69,11 @@ const CompanySettings = () => {
     try {
       setLoading(true)
       const response = await companyApi.getCompleteProfile()
-      
+
       if (response.success && response.data) {
         const data = response.data
         const profile = data.profile
-        
+
         setCompanyProfile(profile)
         setCompanyName(profile.company_name || '')
         setWebsite(profile.website_link || '')
@@ -102,9 +106,10 @@ const CompanySettings = () => {
     setUploadingLogo(true)
     try {
       const response = await companyApi.uploadLogo(file)
-      
+
       if (response.success && response.data) {
         setLogo(response.data.url)
+        dispatch(fetchCompanyProfileThunk()).catch(() => { })
         toast.success('Logo uploaded and saved successfully')
       } else {
         throw new Error(response.message || 'Upload failed')
@@ -119,32 +124,54 @@ const CompanySettings = () => {
   const handleSaveChanges = async () => {
     try {
       setSaving(true)
-      
-      const updateData = {
-        company_name: companyName,
-        website_link: website,
-        employee_count: employee ? parseInt(employee) : undefined,
-        industry: industry,
-        organisation: organization,
-        logo: logo
-      }
+
+      console.log('📝 Form values:', { companyName, website, employee, industry, organization, logo })
+
+      const updateData: Record<string, string | number> = {}
+
+      if (companyName?.trim()) updateData.company_name = companyName.trim()
+      if (website?.trim()) updateData.website_link = website.trim()
+      if (employee?.trim()) updateData.employee_count = parseInt(employee)
+      if (industry?.trim()) updateData.industry = industry.trim()
+      if (organization?.trim()) updateData.organisation = organization.trim()
+      if (logo?.trim()) updateData.logo = logo.trim()
+
+      console.log('📤 Sending update data:', updateData)
 
       const response = await companyApi.updateProfile(updateData)
-      
-      if (response.success) {
+
+      if (response.success && response.data) {
+        const profile = response.data
+        setCompanyProfile(profile)
+        setCompanyName(profile.company_name || '')
+        setWebsite(profile.website_link || '')
+        setEmployee(profile.employee_count?.toString() || '')
+        setIndustry(profile.industry || '')
+        setOrganization(profile.organisation || '')
+        setLogo(profile.logo || '')
         toast.success('Company settings updated successfully')
-        await fetchCompanyProfile()
       } else {
-        toast.error('Failed to update company settings')
+        toast.error(response.message || 'Failed to update company settings')
       }
-    } catch {
-      toast.error('Failed to update company settings')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update company settings'
+      toast.error(errorMessage)
     } finally {
       setSaving(false)
     }
   }
 
   const handlePasswordUpdate = async () => {
+    if (!currentPassword.trim()) {
+      toast.error('Please enter your current password')
+      return
+    }
+
+    if (!newPassword.trim()) {
+      toast.error('Please enter a new password')
+      return
+    }
+
     if (newPassword !== confirmPassword) {
       toast.error('New passwords do not match')
       return
@@ -157,12 +184,15 @@ const CompanySettings = () => {
 
     try {
       setSaving(true)
+      await authApi.changePassword(currentPassword, newPassword)
       toast.success('Password updated successfully')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-    } catch {
-      toast.error('Failed to update password')
+      setShowPasswords({ current: false, new: false, confirm: false })
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update password'
+      toast.error(errorMessage)
     } finally {
       setSaving(false)
     }
@@ -194,7 +224,7 @@ const CompanySettings = () => {
               <div className="text-gray-400 text-3xl font-bold">♫</div>
             )}
           </div>
-          
+
           <div className="border-2 border-dashed border-purple-500 rounded-lg p-5 flex flex-col items-center gap-2 min-w-[280px]">
             <input
               type="file"
@@ -225,11 +255,11 @@ const CompanySettings = () => {
           <h3 className="text-base font-semibold text-gray-900 mb-1">Company Details</h3>
           <p className="text-sm text-gray-600">Introduce your company core info quickly to users by fill up company details</p>
         </div>
-        
+
         <div className="w-[510px] space-y-5">
           <div className="space-y-1">
             <Label htmlFor="company-name" className="text-gray-800 font-semibold">Company Name</Label>
-            <Input 
+            <Input
               id="company-name"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
@@ -240,7 +270,7 @@ const CompanySettings = () => {
 
           <div className="space-y-1">
             <Label htmlFor="website" className="text-gray-800 font-semibold">Website</Label>
-            <Input 
+            <Input
               id="website"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
@@ -278,7 +308,7 @@ const CompanySettings = () => {
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1">
               <Label htmlFor="employee" className="text-gray-800 font-semibold">Employee</Label>
-              <Input 
+              <Input
                 id="employee"
                 value={employee}
                 onChange={(e) => setEmployee(e.target.value)}
@@ -288,7 +318,7 @@ const CompanySettings = () => {
             </div>
             <div className="space-y-1">
               <Label htmlFor="industry" className="text-gray-800 font-semibold">Industry</Label>
-              <Input 
+              <Input
                 id="industry"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
@@ -300,7 +330,7 @@ const CompanySettings = () => {
 
           <div className="space-y-1">
             <Label htmlFor="date-founded" className="text-gray-800 font-semibold">Date Founded</Label>
-            <Input 
+            <Input
               id="date-founded"
               value={dateFounded}
               onChange={(e) => setDateFounded(e.target.value)}
@@ -329,12 +359,12 @@ const CompanySettings = () => {
           <h3 className="text-base font-semibold text-gray-900 mb-1">Change Password</h3>
           <p className="text-sm text-gray-600">Update your account password for better security.</p>
         </div>
-        
+
         <div className="w-[510px] space-y-5">
           <div className="space-y-1">
             <Label htmlFor="current-password" className="text-gray-800 font-semibold">Current Password</Label>
             <div className="relative">
-              <Input 
+              <Input
                 id="current-password"
                 type={showPasswords.current ? "text" : "password"}
                 value={currentPassword}
@@ -355,7 +385,7 @@ const CompanySettings = () => {
           <div className="space-y-1">
             <Label htmlFor="new-password" className="text-gray-800 font-semibold">New Password</Label>
             <div className="relative">
-              <Input 
+              <Input
                 id="new-password"
                 type={showPasswords.new ? "text" : "password"}
                 value={newPassword}
@@ -376,7 +406,7 @@ const CompanySettings = () => {
           <div className="space-y-1">
             <Label htmlFor="confirm-password" className="text-gray-800 font-semibold">Confirm New Password</Label>
             <div className="relative">
-              <Input 
+              <Input
                 id="confirm-password"
                 type={showPasswords.confirm ? "text" : "password"}
                 value={confirmPassword}
@@ -394,8 +424,8 @@ const CompanySettings = () => {
             </div>
           </div>
 
-          <Button 
-            className="text-white" 
+          <Button
+            className="text-white"
             variant='company'
             onClick={handlePasswordUpdate}
             disabled={saving}
@@ -413,7 +443,7 @@ const CompanySettings = () => {
           <h3 className="text-base font-semibold text-gray-900 mb-1">Notifications</h3>
           <p className="text-sm text-gray-600">Manage your notification preferences.</p>
         </div>
-        
+
         <div className="w-[510px] space-y-5">
           <div className="flex items-center justify-between">
             <div>
@@ -423,6 +453,7 @@ const CompanySettings = () => {
             <Switch
               checked={settings.emailNotifications}
               onCheckedChange={(checked) => handleSettingChange('emailNotifications', checked)}
+              disabled={true}
             />
           </div>
 
@@ -434,6 +465,7 @@ const CompanySettings = () => {
             <Switch
               checked={settings.jobAlerts}
               onCheckedChange={(checked) => handleSettingChange('jobAlerts', checked)}
+              disabled={true}
             />
           </div>
         </div>
@@ -446,7 +478,7 @@ const CompanySettings = () => {
           <h3 className="text-base font-semibold text-gray-900 mb-1">Privacy</h3>
           <p className="text-sm text-gray-600">Control your profile visibility and privacy settings.</p>
         </div>
-        
+
         <div className="w-[510px] space-y-5">
           <div className="flex items-center justify-between">
             <div>
@@ -456,6 +488,7 @@ const CompanySettings = () => {
             <Switch
               checked={settings.profileVisibility}
               onCheckedChange={(checked) => handleSettingChange('profileVisibility', checked)}
+              disabled={true}
             />
           </div>
 
@@ -467,6 +500,7 @@ const CompanySettings = () => {
             <Switch
               checked={settings.twoFactorAuth}
               onCheckedChange={(checked) => handleSettingChange('twoFactorAuth', checked)}
+              disabled={true}
             />
           </div>
         </div>
@@ -489,25 +523,23 @@ const CompanySettings = () => {
       <div className="flex-1 overflow-auto bg-white">
         <div className="px-5 py-5">
           <h1 className="text-2xl font-semibold text-gray-900 mb-5">Settings</h1>
-          
+
           <div className="flex gap-9 border-b border-gray-200">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`pb-4 px-1 border-b-2 font-semibold ${
-                activeTab === 'overview'
-                  ? 'border-purple-500 text-gray-900'
-                  : 'border-transparent text-gray-600'
-              }`}
+              className={`pb-4 px-1 border-b-2 font-semibold ${activeTab === 'overview'
+                ? 'border-purple-500 text-gray-900'
+                : 'border-transparent text-gray-600'
+                }`}
             >
               Overview
             </button>
             <button
               onClick={() => setActiveTab('general')}
-              className={`pb-4 px-1 border-b-2 font-semibold ${
-                activeTab === 'general'
-                  ? 'border-purple-500 text-gray-900'
-                  : 'border-transparent text-gray-600'
-              }`}
+              className={`pb-4 px-1 border-b-2 font-semibold ${activeTab === 'general'
+                ? 'border-purple-500 text-gray-900'
+                : 'border-transparent text-gray-600'
+                }`}
             >
               General
             </button>
@@ -519,18 +551,20 @@ const CompanySettings = () => {
           {activeTab === 'general' && renderGeneralTab()}
         </div>
 
-        <div className="px-7 pb-7">
-          <div className="border-t border-gray-200 pt-5">
-            <Button 
-              className="text-white px-7 py-2 text-base font-semibold"  
-              variant='company'
-              onClick={handleSaveChanges}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
+        {activeTab === 'overview' && (
+          <div className="px-7 pb-7">
+            <div className="border-t border-gray-200 pt-5">
+              <Button
+                className="text-white px-7 py-2 text-base font-semibold"
+                variant='company'
+                onClick={handleSaveChanges}
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </CompanyLayout>
   )

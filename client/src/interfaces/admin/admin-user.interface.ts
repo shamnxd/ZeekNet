@@ -7,6 +7,8 @@ export interface User {
   isBlocked: boolean;
   createdAt: string;
   updatedAt: string;
+  avatar?: string;
+  seekerProfile?: import('../seeker/seeker.interface').SeekerProfile;
 }
 
 export interface GetAllUsersParams {

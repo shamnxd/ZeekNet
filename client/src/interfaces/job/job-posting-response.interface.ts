@@ -46,6 +46,8 @@ export interface JobPostingResponse {
   createdAt?: string
   updatedAt?: string
   has_applied?: boolean
+  is_featured?: boolean
+  isFeatured?: boolean
   company?: {
     companyName: string
     logo?: string

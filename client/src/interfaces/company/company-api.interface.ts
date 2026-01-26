@@ -61,6 +61,7 @@ export interface JobPostingRequest {
   category_ids: string[]
   enabled_stages?: string[]
   total_vacancies?: number
+  is_featured?: boolean
 }
 
 export interface CompanyDashboard {

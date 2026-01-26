@@ -22,6 +22,7 @@ export const useSeekerProfile = () => {
     const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
     const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
     const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
+    const [experienceError, setExperienceError] = useState<string>('');
     const [addEducationOpen, setAddEducationOpen] = useState(false);
     const [editEducationOpen, setEditEducationOpen] = useState(false);
     const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
@@ -90,6 +91,7 @@ export const useSeekerProfile = () => {
     const [newLanguage, setNewLanguage] = useState('');
     const [editingPhone, setEditingPhone] = useState<string>('');
     const [editingEmail, setEditingEmail] = useState<string>('');
+    const [detailsError, setDetailsError] = useState<string>('');
 
     const SOCIAL_PLATFORMS = [
         { value: 'github', label: 'GitHub' },
@@ -288,13 +290,14 @@ export const useSeekerProfile = () => {
     };
 
     const handleAddExperience = async () => {
+        setExperienceError('');
         try {
             setSaving(true);
             const response = await seekerApi.addExperience({
                 title: experienceData.title,
                 company: experienceData.company,
                 startDate: experienceData.startDate,
-                endDate: experienceData.endDate || undefined,
+                endDate: experienceData.isCurrent ? undefined : (experienceData.endDate || undefined),
                 employmentType: experienceData.employmentType,
                 location: experienceData.location || undefined,
                 description: experienceData.description || undefined,
@@ -317,10 +320,14 @@ export const useSeekerProfile = () => {
                 });
                 fetchProfileData();
             } else {
-                toast.error(response.message || 'Failed to add experience');
+                const msg = response.message || 'Failed to add experience';
+                setExperienceError(msg);
+                toast.error(msg);
             }
-        } catch {
-            toast.error('Failed to add experience');
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add experience';
+            setExperienceError(msg);
+            toast.error(msg);
         } finally {
             setSaving(false);
         }
@@ -328,13 +335,14 @@ export const useSeekerProfile = () => {
 
     const handleEditExperience = async () => {
         if (!editingExperienceId) return;
+        setExperienceError('');
         try {
             setSaving(true);
             const response = await seekerApi.updateExperience(editingExperienceId, {
                 title: experienceData.title,
                 company: experienceData.company,
                 startDate: experienceData.startDate,
-                endDate: experienceData.endDate || undefined,
+                endDate: experienceData.isCurrent ? undefined : (experienceData.endDate || undefined),
                 employmentType: experienceData.employmentType,
                 location: experienceData.location || undefined,
                 description: experienceData.description || undefined,
@@ -347,10 +355,14 @@ export const useSeekerProfile = () => {
                 setEditingExperienceId(null);
                 fetchProfileData();
             } else {
-                toast.error(response.message || 'Failed to update experience');
+                const msg = response.message || 'Failed to update experience';
+                setExperienceError(msg);
+                toast.error(msg);
             }
-        } catch {
-            toast.error('Failed to update experience, please refresh the page and try again');
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update experience';
+            setExperienceError(msg);
+            toast.error(msg);
         } finally {
             setSaving(false);
         }
@@ -582,12 +594,26 @@ export const useSeekerProfile = () => {
             return;
         }
         const trimmed = newLanguage.trim();
+        
+        // Validate language - should not be just numbers
+        if (/^\d+$/.test(trimmed)) {
+            setDetailsError('Please enter a valid language name (numbers are not allowed)');
+            return;
+        }
+        
+        // Validate language - should contain at least one letter
+        if (!/[a-zA-Z]/.test(trimmed)) {
+            setDetailsError('Please enter a valid language name');
+            return;
+        }
+        
         if (editingLanguages.includes(trimmed)) {
             toast.error('This language is already added');
             return;
         }
         setEditingLanguages([...editingLanguages, trimmed]);
         setNewLanguage('');
+        setDetailsError('');
     };
 
     const handleRemoveLanguage = (language: string) => {
@@ -596,6 +622,29 @@ export const useSeekerProfile = () => {
 
     const handleEditDetails = async () => {
         if (!profile) return;
+        setDetailsError('');
+        
+        // Validate email
+        if (editingEmail && editingEmail.trim()) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
+                setDetailsError('Please enter a valid email address');
+                return;
+            }
+        }
+        
+        // Validate phone number - must have at least 10 digits and should not be just special characters
+        if (editingPhone && editingPhone.trim()) {
+            const digitsOnly = editingPhone.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                setDetailsError('Please enter a valid phone number (at least 10 digits)');
+                return;
+            }
+            // Check if phone contains valid characters (digits, spaces, dashes, parentheses, plus)
+            if (!/^[\d\s\-\(\)\+]+$/.test(editingPhone.trim())) {
+                setDetailsError('Please enter a valid phone number');
+                return;
+            }
+        }
         try {
             setSaving(true);
 
@@ -638,6 +687,7 @@ export const useSeekerProfile = () => {
             if (hasChanges && updatePromises.length > 0) {
                 await Promise.all(updatePromises);
                 toast.success('Contact details updated successfully');
+                setDetailsError('');
                 setEditDetailsOpen(false);
                 fetchProfileData();
             } else {
@@ -655,14 +705,35 @@ export const useSeekerProfile = () => {
         try {
             setSaving(true);
 
+            // Validate URLs before processing
+            const invalidLinks = editingSocialLinks.filter(link => {
+                if (!link.name?.trim() || !link.link?.trim()) return false;
+                const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
+                try {
+                    new URL(urlToCheck);
+                    return false;
+                } catch {
+                    return true;
+                }
+            });
+
+            if (invalidLinks.length > 0) {
+                toast.error('Please enter valid URLs for all social links');
+                setSaving(false);
+                return;
+            }
+
             const validLinks = editingSocialLinks
                 .filter(link => link.name?.trim() && link.link?.trim())
-                .map(link => ({
-                    name: SOCIAL_PLATFORMS.find(p => p.value === link.name?.toLowerCase())
-                        ? link.name.toLowerCase()
-                        : link.name.trim(),
-                    link: link.link.startsWith('http') ? link.link : `https://${link.link}`,
-                }));
+                .map(link => {
+                    const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
+                    return {
+                        name: SOCIAL_PLATFORMS.find(p => p.value === link.name?.toLowerCase())
+                            ? link.name.toLowerCase()
+                            : link.name.trim(),
+                        link: urlToCheck,
+                    };
+                });
 
             const response = await seekerApi.updateProfile({
                 socialLinks: validLinks,
@@ -779,10 +850,12 @@ export const useSeekerProfile = () => {
         handleEditProfile,
         handleEditAbout,
         handleAddExperience, handleEditExperience, handleRemoveExperience, confirmRemoveExperience,
+        experienceError, setExperienceError,
         handleAddEducation, handleEditEducation, handleRemoveEducation, confirmRemoveEducation,
         handleAddSkill, handleRemoveSkill, confirmRemoveSkill,
         handleAddLanguage, handleRemoveLanguage,
         handleEditDetails, handleEditSocial,
+        detailsError, setDetailsError,
 
         
         formatDate, formatPeriod, isoToDateInput,

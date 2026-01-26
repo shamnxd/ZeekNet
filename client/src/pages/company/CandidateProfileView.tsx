@@ -40,6 +40,7 @@ import {
   Bell,
   UserCheck,
   AlertTriangle,
+  ArrowRight,
 } from "lucide-react";
 import { companyApi } from "@/api/company.api";
 import { atsService } from "@/services/ats.service";
@@ -195,6 +196,8 @@ const CandidateProfileView = () => {
   const [showAssignTaskModal, setShowAssignTaskModal] = useState(false);
   const [selectedTaskForReview, setSelectedTaskForReview] =
     useState<ExtendedATSTechnicalTask | null>(null);
+  const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
+  const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number } | null>(null);
   const [selectedTaskForEdit, setSelectedTaskForEdit] =
     useState<ExtendedATSTechnicalTask | null>(null);
   const [showRevokeConfirmDialog, setShowRevokeConfirmDialog] = useState(false);
@@ -662,13 +665,22 @@ const CandidateProfileView = () => {
           if (candRes.data) {
             setCandidateData(candRes.data);
           }
-        } catch (e) {
+        } catch (e: unknown) {
           console.error("Failed to fetch candidate details", e);
-          toast({
-            title: "Error",
-            description: "Failed to load candidate data.",
-            variant: "destructive",
-          });
+          const error = e as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number } } } };
+          if (error.response?.status === 403 && error.response.data?.data?.limitExceeded) {
+            setShowLimitExceededDialog(true);
+            setLimitExceededData({
+              currentLimit: error.response.data.data.currentLimit || 0,
+              used: error.response.data.data.used || 0,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: error.response?.data?.message || "Failed to load candidate data.",
+              variant: "destructive",
+            });
+          }
         }
       }
     } catch (error) {
@@ -5307,6 +5319,49 @@ const CandidateProfileView = () => {
               }
             >
               {withdrawing ? "Withdrawing..." : "Confirm Withdraw"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Limit Exceeded Dialog */}
+      <Dialog open={showLimitExceededDialog} onOpenChange={setShowLimitExceededDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              Candidate View Limit Exceeded
+            </DialogTitle>
+            <DialogDescription>
+              You have reached your candidate view limit for your current subscription plan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-sm text-gray-700">
+                <strong>Current Usage:</strong> {limitExceededData?.used || 0} / {limitExceededData?.currentLimit || 0} views
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                Upgrade your plan to view more candidate profiles and unlock additional features.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowLimitExceededDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowLimitExceededDialog(false);
+                navigate('/company/billing');
+              }}
+              className="bg-[#4640DE] hover:bg-[#3730b8]"
+            >
+              Upgrade Plan
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </DialogFooter>
         </DialogContent>

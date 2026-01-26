@@ -19,4 +19,5 @@ export interface JobPostingData {
   totalVacancies?: number
   filledVacancies?: number
   status?: string
+  isFeatured?: boolean
 }

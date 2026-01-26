@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { 
+import {
   ArrowLeft,
   Building2,
   MapPin,
@@ -15,7 +15,6 @@ import {
   Eye,
   CheckCircle,
   XCircle,
-  Trash2,
   Clock,
   Briefcase,
   Target,
@@ -23,7 +22,6 @@ import {
   Heart,
   Code
 } from 'lucide-react'
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { toast } from 'sonner'
 import { adminApi } from '@/api/admin.api'
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
@@ -34,7 +32,6 @@ const JobView = () => {
   const navigate = useNavigate()
   const [job, setJob] = useState<JobPostingResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [deleteDialog, setDeleteDialog] = useState(false)
   const unpublishReasons = [
     { value: 'expired', label: 'Position is filled or job expired' },
     { value: 'incomplete', label: 'Job information is incomplete or inaccurate' },
@@ -75,7 +72,7 @@ const JobView = () => {
       const jobId = job.id || '';
       const newStatus = job.status === 'active' ? 'unlisted' : 'active';
       const response = await adminApi.updateJobStatus(jobId, newStatus, undefined)
-      
+
       if (response.success) {
         setJob({ ...job, status: newStatus } as JobPostingResponse)
         toast.success(`Job ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
@@ -84,24 +81,6 @@ const JobView = () => {
       }
     } catch {
       toast.error('Failed to update job status')
-    }
-  }
-
-  const handleDeleteJob = async () => {
-    if (!job) return
-
-    try {
-      const jobId = job.id || '';
-      const response = await adminApi.deleteJob(jobId)
-      
-      if (response.success) {
-        toast.success('Job deleted successfully')
-        navigate('/admin/jobs')
-      } else {
-        toast.error(response.message || 'Failed to delete job')
-      }
-    } catch {
-      toast.error('Failed to delete job')
     }
   }
 
@@ -158,19 +137,21 @@ const JobView = () => {
             <div>
               <h1 className="text-2xl font-bold text-foreground">{job.title}</h1>
               <div className="flex items-center space-x-2 mt-1">
-                <Badge 
+                <Badge
                   variant={job.status === 'active' ? "default" : "secondary"}
                   className={
                     job.status === 'active' ? "bg-green-100 text-green-800 border-green-200" :
-                    job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
-                    job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
-                    "bg-gray-100 text-gray-800 border-gray-200"
+                      job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
+                        job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
+                          job.status === 'closed' ? "bg-orange-100 text-orange-800 border-orange-200" :
+                            "bg-gray-100 text-gray-800 border-gray-200"
                   }
                 >
                   {job.status === 'active' ? 'Active' :
-                   job.status === 'blocked' ? 'Blocked' :
-                   job.status === 'expired' ? 'Expired' :
-                   job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
+                    job.status === 'blocked' ? 'Blocked' :
+                      job.status === 'expired' ? 'Expired' :
+                        job.status === 'closed' ? 'Closed' :
+                          job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
                 </Badge>
                 <span className="text-sm text-gray-500">
                   Posted {formatDate(job.createdAt ?? '')}
@@ -178,32 +159,27 @@ const JobView = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              onClick={job.status === 'active' ? () => setReasonDialogOpen(true) : handleToggleStatus}
-              className={job.status === 'active' ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
-            >
-              {job.status === 'active' ? (
-                <>
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Unpublish
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Publish
-                </>
-              )}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => setDeleteDialog(true)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-          </div>
+          {job.status !== 'closed' && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                onClick={job.status === 'active' ? () => setReasonDialogOpen(true) : handleToggleStatus}
+                className={job.status === 'active' ? "text-red-600 border-red-200" : "text-green-600 border-green-200"}
+              >
+                {job.status === 'active' ? (
+                  <>
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Unpublish
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Publish
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -220,7 +196,7 @@ const JobView = () => {
                   <div className="flex items-center space-x-2">
                     <Building2 className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">Company:</span>
-                    <span className="text-sm">{job.company_name || 'Unknown'}</span>
+                    <span className="text-sm">{job.company_name || job.companyName || job.company?.companyName || 'Unknown'}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4 text-gray-400" />
@@ -398,16 +374,15 @@ const JobView = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-3">
-                  {job.company_logo && (
-                    <img 
-                      src={job.company_logo || ''} 
-                      alt={job.company_name || 'Company'}
+                  {(job.company_logo || job.companyLogo || job.company?.logo) && (
+                    <img
+                      src={job.company_logo || job.companyLogo || job.company?.logo || ''}
+                      alt={job.company_name || job.companyName || job.company?.companyName || 'Company'}
                       className="w-16 h-16 mx-auto rounded-lg object-cover"
                     />
                   )}
                   <div>
-                    <h3 className="font-medium">{job.company_name || 'Unknown Company'}</h3>
-                    
+                    <h3 className="font-medium">{job.company_name || job.companyName || job.company?.companyName || 'Unknown Company'}</h3>
                   </div>
                 </div>
               </CardContent>
@@ -415,17 +390,6 @@ const JobView = () => {
           </div>
         </div>
       </div>
-
-      <ConfirmationDialog
-        isOpen={deleteDialog}
-        onClose={() => setDeleteDialog(false)}
-        onConfirm={handleDeleteJob}
-        title="Delete Job"
-        description={`Are you sure you want to delete "${job.title}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-      />
 
       <ReasonActionDialog
         open={reasonDialogOpen}
@@ -437,7 +401,7 @@ const JobView = () => {
           try {
             const jobId = job?.id || '';
             const response = await adminApi.updateJobStatus(jobId, 'blocked', reason);
-            
+
             if (response.success) {
               setJob({ ...job, status: 'blocked', unpublish_reason: reason } as JobPostingResponse);
               toast.success(`Unpublished ${job?.title}`);
@@ -452,7 +416,7 @@ const JobView = () => {
         actionLabel="Unpublish"
         confirmVariant="destructive"
       />
-    </AdminLayout>
+    </AdminLayout >
   )
 }
 

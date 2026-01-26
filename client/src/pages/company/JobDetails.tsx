@@ -8,7 +8,6 @@ import { JobTabs } from '@/components/company/job/details/JobTabs';
 import { JobStatusAlert } from '@/components/company/job/details/JobStatusAlert';
 import { JobApplicantsTab } from '@/components/company/job/details/JobApplicantsTab';
 import { JobDetailsTab } from '@/components/company/job/details/JobDetailsTab';
-import { JobAnalyticsTab } from '@/components/company/job/details/JobAnalyticsTab';
 
 const JobDetails = () => {
   const {
@@ -29,16 +28,6 @@ const JobDetails = () => {
     getEmploymentType,
     formatSalary,
     formatDate,
-    viewRange,
-    setViewRange,
-    analyticsData,
-    chartWidth,
-    chartHeight,
-    areaPath,
-    linePath,
-    chartCoordinates,
-    lastCoordinate,
-    trafficSegments,
   } = useJobDetails();
 
   if (loading) {
@@ -106,20 +95,7 @@ const JobDetails = () => {
             />
           )}
 
-          {activeTab === 'analytics' && (
-            <JobAnalyticsTab
-              analyticsData={analyticsData}
-              viewRange={viewRange}
-              setViewRange={setViewRange}
-              chartWidth={chartWidth}
-              chartHeight={chartHeight}
-              areaPath={areaPath}
-              linePath={linePath}
-              chartCoordinates={chartCoordinates}
-              lastCoordinate={lastCoordinate}
-              trafficSegments={trafficSegments}
-            />
-          )}
+
         </div>
       </div>
     </CompanyLayout>

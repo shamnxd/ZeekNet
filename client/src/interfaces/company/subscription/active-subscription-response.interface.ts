@@ -17,6 +17,7 @@ export interface ActiveSubscriptionResponse {
     name: string;
     jobPostLimit: number;
     featuredJobLimit: number;
+    applicantAccessLimit: number;
     isDefault?: boolean;
     price?: number;
   };

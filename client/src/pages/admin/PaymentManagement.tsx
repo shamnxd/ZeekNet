@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, Filter, ChevronLeft, ChevronRight, Eye, Download } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { adminApi } from '@/api/admin.api';
 import type { PaymentOrder } from '@/interfaces/admin/payment-order.interface';
 import { toast } from 'sonner';
@@ -128,8 +128,8 @@ const PaymentManagement = () => {
               View and manage all payment orders
             </p>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="text-blue-600 border-blue-200 hover:bg-blue-50"
           >
             <Download className="h-4 w-4 mr-2" />
@@ -202,7 +202,6 @@ const PaymentManagement = () => {
                         <TableHead>Payment Method</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -231,15 +230,7 @@ const PaymentManagement = () => {
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-blue-600 hover:bg-blue-50"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
+
                         </TableRow>
                       ))}
                     </TableBody>

@@ -13,7 +13,7 @@ export const jobApi = {
   }> => {
     try {
       const params = new URLSearchParams();
-      
+
       if (query.page) params.append('page', query.page.toString());
       if (query.limit) params.append('limit', query.limit.toString());
       if (query.category_ids?.length) params.append('category_ids', query.category_ids.join(','));
@@ -47,6 +47,27 @@ export const jobApi = {
       return {
         success: false,
         message: apiError.response?.data?.message || 'Failed to fetch job',
+      };
+    }
+  },
+
+  getFeaturedJobs: async (query: { page?: number; limit?: number } = {}): Promise<{
+    success: boolean;
+    data?: PaginatedJobPostings;
+    message?: string;
+  }> => {
+    try {
+      const params = new URLSearchParams();
+      if (query.page) params.append('page', query.page.toString());
+      if (query.limit) params.append('limit', query.limit.toString());
+
+      const response = await api.get(`${PublicRoutes.FEATURED_JOBS}?${params.toString()}`);
+      return response.data;
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      return {
+        success: false,
+        message: apiError.response?.data?.message || 'Failed to fetch featured jobs',
       };
     }
   },

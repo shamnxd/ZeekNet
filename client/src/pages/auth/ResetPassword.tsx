@@ -7,10 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  ArrowLeft, 
-  Lock, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Lock,
+  CheckCircle,
   AlertCircle,
   Eye,
   EyeOff,
@@ -40,10 +40,10 @@ const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setPasswordError('')
-    
+
     const urlParams = new URLSearchParams(window.location.search)
     const tokenFromUrl = urlParams.get('token')
-    
+
     if (!tokenFromUrl) {
       setPasswordError('Invalid or missing reset token')
       return
@@ -73,9 +73,9 @@ const ResetPassword = () => {
       setIsPasswordReset(true)
     } catch (error) {
       const axiosError = error as { response?: { data?: { message?: string } }, message?: string }
-      const errorMessage = axiosError.response?.data?.message || 
-                         axiosError.message || 
-                         'Failed to reset password. Please try again.'
+      const errorMessage = axiosError.response?.data?.message ||
+        axiosError.message ||
+        'Failed to reset password. Please try again.'
       setPasswordError(errorMessage)
       toast.error('Password Reset Failed', {
         description: errorMessage
@@ -86,13 +86,13 @@ const ResetPassword = () => {
   if (isPasswordReset) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        {}
+        { }
         <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  
+
                   <img src="/white.png" alt="ZeekNet Logo" className="h-6 w-6" />
                 </div>
                 <h1 className="text-xl font-bold text-foreground">ZeekNet</h1>
@@ -101,9 +101,9 @@ const ResetPassword = () => {
                   Job Portal
                 </Badge>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => (window.location.href = '/')} 
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = '/')}
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -112,7 +112,7 @@ const ResetPassword = () => {
             </nav>
           </div>
         </header>
-        
+
         <main className="container mx-auto px-4 py-8">
           <div className="mx-auto max-w-md">
             <Card className="shadow-xl">
@@ -123,16 +123,16 @@ const ResetPassword = () => {
                       <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold">Password Reset Successful</h2>
                     <p className="text-muted-foreground">
                       Your password has been successfully reset. You can now log in with your new password.
                     </p>
                   </div>
-                  
+
                   <Button asChild className="w-full">
-                    <Link to="/auth">
+                    <Link to="/auth/login">
                       <ArrowRight className="mr-2 h-4 w-4" />
                       Go to Login
                     </Link>
@@ -148,13 +148,13 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {}
+      { }
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                
+
                 <img src="/white.png" alt="ZeekNet Logo" className="h-6 w-6" />
               </div>
               <h1 className="text-xl font-bold text-foreground">ZeekNet</h1>
@@ -163,9 +163,9 @@ const ResetPassword = () => {
                 Job Portal
               </Badge>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => (window.location.href = '/')} 
+            <Button
+              variant="outline"
+              onClick={() => (window.location.href = '/')}
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -174,7 +174,7 @@ const ResetPassword = () => {
           </nav>
         </div>
       </header>
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mx-auto max-w-md">
           {(passwordError) && (
@@ -183,7 +183,7 @@ const ResetPassword = () => {
               <span>{passwordError}</span>
             </div>
           )}
-          
+
           <Card className="shadow-xl">
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-center mb-4">
@@ -260,7 +260,7 @@ const ResetPassword = () => {
                     </Button>
                   </div>
                 </div>
-                
+
                 <Button type="submit" className="w-full">
                   <div className="flex items-center space-x-2">
                     <Shield className="h-4 w-4" />
@@ -268,16 +268,16 @@ const ResetPassword = () => {
                   </div>
                 </Button>
               </form>
-              
+
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                   Remember your password?{' '}
-                  <Button 
-                    variant="link" 
+                  <Button
+                    variant="link"
                     asChild
                     className="p-0 h-auto font-semibold"
                   >
-                    <Link to="/auth">Back to Login</Link>
+                    <Link to="/auth/login">Back to Login</Link>
                   </Button>
                 </p>
               </div>

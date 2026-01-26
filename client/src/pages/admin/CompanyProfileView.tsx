@@ -2,27 +2,36 @@ import AdminLayout from '../../components/layouts/AdminLayout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
-import { 
-  Building2, 
-  MapPin, 
-  Users, 
-  ArrowRight, 
-  Linkedin, 
-  Twitter, 
-  Facebook, 
-  Phone, 
+import {
+  Building2,
+  MapPin,
+  Users,
+  ArrowRight,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Phone,
   Mail,
   Briefcase,
-  Flame
+  Flame,
+  Loader2
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { adminApi } from '@/api/admin.api'
+import { toast } from 'sonner'
+import type { Company } from '@/interfaces/admin/admin-company.interface'
 import FormDialog from '../../components/common/FormDialog'
 
 const CompanyProfileView = () => {
+  const { id } = useParams<{ id: string }>()
+  const [company, setCompany] = useState<Company | null>(null)
+  const [loading, setLoading] = useState(true)
   const [blockOpen, setBlockOpen] = useState(false)
   const [reasonType, setReasonType] = useState('')
   const [customReason, setCustomReason] = useState('')
   const [blocked, setBlocked] = useState(false)
+
   const blockReasons = [
     { value: 'fraudulent', label: 'Posting fraudulent jobs or misleading company information' },
     { value: 'violation', label: 'Repeated violation of platform rules, guidelines or TOS' },
@@ -31,57 +40,104 @@ const CompanyProfileView = () => {
     { value: 'abuse', label: 'Suspected scam, abuse, or exploitation' },
     { value: 'other', label: 'Other (please specify)' }
   ];
+
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      if (!id) return
+      try {
+        setLoading(true)
+        const response = await adminApi.getCompanyById(id)
+        if (response.success && response.data) {
+          setCompany(response.data)
+          setBlocked(response.data.isBlocked)
+        } else {
+          toast.error(response.message || 'Failed to fetch company data')
+        }
+      } catch (error) {
+        console.error('Error fetching company:', error)
+        toast.error('An error occurred while fetching company data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCompanyData()
+  }, [id])
+
   const blockReason = reasonType === 'other'
     ? customReason
     : (blockReasons.find(r => r.value === reasonType)?.label || '');
+
   const canBlock = reasonType && (reasonType !== 'other' || customReason.trim());
-  const handleBlock = () => {
-    if (!canBlock) return;
-    setBlocked(true);
-    setBlockOpen(false);
+
+  const handleBlock = async () => {
+    if (!canBlock || !company) return;
+    try {
+      const response = await adminApi.blockUser(company.userId, !blocked)
+      if (response.success) {
+        setBlocked(!blocked)
+        toast.success(`Company ${!blocked ? 'blocked' : 'unblocked'} successfully`)
+        setBlockOpen(false)
+      } else {
+        toast.error(response.message || 'Failed to update block status')
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating block status')
+    }
   }
-  
-  const data = useMemo(() => ({
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (!company) {
+    return (
+      <AdminLayout>
+        <div className="flex h-[60vh] flex-col items-center justify-center space-y-4">
+          <Building2 className="h-12 w-12 text-gray-400" />
+          <p className="text-gray-500">Company not found</p>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  // Mapping actual data from the company object
+  const displayData = {
     profile: {
-      company_name: 'ZeekNet Technologies',
-      website_link: 'www.zeeknet.com',
-      industry: 'Information Technology',
-      created_at: '2016-04-10T00:00:00.000Z',
-      about_us:
-        'We are a product-first technology company focused on building delightful hiring experiences.',
-      logo: ''
+      company_name: company.companyName,
+      website_link: company.websiteLink || 'Not specified',
+      industry: company.industry || 'Not specified',
+      created_at: company.createdAt,
+      about_us: company.aboutUs || 'No about information provided.',
+      logo: company.logo,
+      banner: company.banner
     },
     contact: {
-      email: 'contact@zeeknet.com',
-      phone: '+1 555 0100',
-      twitter_link: 'twitter.com/zeeknet',
-      facebook_link: 'facebook.com/zeeknet',
-      linkedin: 'linkedin.com/company/zeeknet'
+      email: company.contact?.email || company.email || 'Not specified',
+      phone: company.contact?.phone || 'Not specified',
+      twitter_link: company.contact?.twitterLink || 'Not specified',
+      facebook_link: company.contact?.facebookLink || 'Not specified',
+      linkedin: company.contact?.linkedin || 'Not specified'
     },
-    locations: [
-      { id: '1', location: 'San Francisco, USA', officeName: 'HQ', address: '', isHeadquarters: true },
-      { id: '2', location: 'Bangalore, India', officeName: 'India Office', address: '', isHeadquarters: false },
-    ],
-    techStack: [
-      { id: '1', techStack: 'React' },
-      { id: '2', techStack: 'Node.js' },
-      { id: '3', techStack: 'MongoDB' },
-      { id: '4', techStack: 'Redis' },
-      { id: '5', techStack: 'Docker' },
-    ],
-    pictures: [
-      { id: '1', pictureUrl: '/white.png', caption: 'Workspace' },
-      { id: '2', pictureUrl: '/blue.png', caption: 'Team' },
-      { id: '3', pictureUrl: '/white.png', caption: 'Culture' },
-      { id: '4', pictureUrl: '/blue.png', caption: 'Events' },
-    ],
-    jobs: [
-      { id: '1', title: 'Senior React Engineer', description: 'Build modern web apps.', location: 'Remote', employmentType: 'Full-Time' },
-      { id: '2', title: 'Backend Engineer', description: 'Scale services.', location: 'Bangalore', employmentType: 'Full-Time' },
-    ]
-  }), [])
+    locations: company.locations?.map(loc => ({
+      id: loc.id,
+      location: loc.city || 'Unknown',
+      officeName: 'Office',
+      address: loc.address || '',
+      isHeadquarters: loc.isPrimary
+    })) || [],
+    techStack: company.techStack || [],
+    pictures: company.workplacePictures || [],
+    jobs: [] as { id: string, title: string, description: string, location: string, employmentType: string }[]
+  }
 
-  const { profile, contact, locations, techStack, pictures, jobs } = data
+  const { profile, contact, locations, techStack, pictures, jobs } = displayData
 
   return (
     <AdminLayout>
@@ -121,7 +177,7 @@ const CompanyProfileView = () => {
                   </div>
                   <div>
                     <div className="text-xs text-gray-600">Employees</div>
-                    <div className="font-semibold text-gray-900 text-sm">Not specified</div>
+                    <div className="font-semibold text-gray-900 text-sm">{company.employeeCount || 'Not specified'}</div>
                   </div>
                 </div>
 
@@ -158,7 +214,7 @@ const CompanyProfileView = () => {
         </div>
         {blocked && <div className="text-red-600 font-semibold p-1">Blocked: {blockReason}</div>}
       </div>
-      
+
       <FormDialog
         isOpen={blockOpen}
         onClose={() => setBlockOpen(false)}
@@ -250,13 +306,13 @@ const CompanyProfileView = () => {
             <div className="flex gap-2.5">
               {pictures.slice(0, 1).map((picture) => (
                 <div key={picture.id} className="w-64 h-72 bg-gray-200 rounded-lg overflow-hidden">
-                  <img src={picture.pictureUrl} alt={picture.caption || 'Workplace'} className="w-full h-full object-cover" />
+                  <img src={picture.imageUrl} alt={picture.caption || 'Workplace'} className="w-full h-full object-cover" />
                 </div>
               ))}
               <div className="flex flex-col gap-2.5">
                 {pictures.slice(1, 4).map((picture) => (
                   <div key={picture.id} className="w-48 h-44 bg-gray-200 rounded-lg overflow-hidden">
-                    <img src={picture.pictureUrl} alt={picture.caption || 'Workplace'} className="w-full h-full object-cover" />
+                    <img src={picture.imageUrl} alt={picture.caption || 'Workplace'} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
@@ -314,9 +370,9 @@ const CompanyProfileView = () => {
                     {techStack.slice(rowIndex * 3, (rowIndex + 1) * 3).map((tech) => (
                       <div key={tech.id} className="flex flex-col items-center gap-1.5 p-2.5">
                         <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-semibold">{tech.techStack.charAt(0).toUpperCase()}</span>
+                          <span className="text-xs font-semibold">{tech.name.charAt(0).toUpperCase()}</span>
                         </div>
-                        <span className="text-xs">{tech.techStack}</span>
+                        <span className="text-xs">{tech.name}</span>
                       </div>
                     ))}
                   </div>

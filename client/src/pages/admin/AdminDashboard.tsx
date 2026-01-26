@@ -85,14 +85,14 @@ const AdminDashboard = () => {
   }
 
   const stats = [
-    { label: 'Earnings', value: `₹ ${dashboardData?.stats.earnings || 0}`, icon: IndianRupee, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600', info: true },
-    { label: 'Total Candidates', value: dashboardData?.stats.totalCandidates || 0, icon: Users, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Total Companies', value: dashboardData?.stats.totalCompanies || 0, icon: Building2, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600' },
-    { label: 'Total Verified Users', value: dashboardData?.stats.totalVerifiedUsers || 0, icon: UserCheck, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Active Jobs', value: dashboardData?.stats.activeJobs || 0, icon: Briefcase, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Expired Jobs', value: dashboardData?.stats.expiredJobs || 0, icon: Briefcase, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Pending Company', value: dashboardData?.stats.pendingCompanies || 0, icon: AlertCircle, color: 'bg-red-100 text-red-600', iconColor: 'text-red-600', clickable: true, route: '/admin/pending-companies' },
-    { label: 'All Jobs', value: dashboardData?.stats.allJobs || 0, icon: Briefcase, color: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', clickable: true, route: '/admin/jobs' }
+    { label: 'Earnings', value: `₹ ${dashboardData?.stats?.earnings || 0}`, icon: IndianRupee, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600', info: true },
+    { label: 'Total Candidates', value: dashboardData?.stats?.totalCandidates || 0, icon: Users, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
+    { label: 'Total Companies', value: dashboardData?.stats?.totalCompanies || 0, icon: Building2, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600' },
+    { label: 'Total Verified Users', value: dashboardData?.stats?.totalVerifiedUsers || 0, icon: UserCheck, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
+    { label: 'Active Jobs', value: dashboardData?.stats?.activeJobs || 0, icon: Briefcase, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
+    { label: 'Expired Jobs', value: dashboardData?.stats?.expiredJobs || 0, icon: Briefcase, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
+    { label: 'Pending Company', value: dashboardData?.stats?.pendingCompanies || 0, icon: AlertCircle, color: 'bg-red-100 text-red-600', iconColor: 'text-red-600', clickable: true, route: '/admin/pending-companies' },
+    { label: 'All Jobs', value: dashboardData?.stats?.allJobs || 0, icon: Briefcase, color: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', clickable: true, route: '/admin/jobs' }
   ]
 
   const recentJobs = dashboardData?.recentJobs || []
@@ -207,9 +207,9 @@ const AdminDashboard = () => {
             <CardContent>
               <div className="h-64 flex items-end justify-center space-x-3">
                 {[
-                  ...(dashboardData?.charts.earningsOverview || []).map(data => ({
+                  ...(dashboardData?.charts?.earningsOverview || []).map(data => ({
                     ...data,
-                    height: (data.value / (Math.max(...(dashboardData?.charts.earningsOverview || []).map(d => d.value), 100))) * 200 // dynamic height
+                    height: (data.value / (Math.max(...(dashboardData?.charts?.earningsOverview || []).map(d => d.value), 100))) * 200 // dynamic height
                   }))
                 ].map((data, idx) => (
                   <div key={idx} className="flex flex-col items-center">
@@ -228,108 +228,52 @@ const AdminDashboard = () => {
 
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-gray-800">Popular Location</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-gray-800">Pending Companies</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={() => navigate('/admin/pending-companies')}
+                >
+                  View All
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex">
-                <div className="w-32 h-32 mr-4 relative">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#06b6d4"
-                      strokeWidth="20"
-                      strokeDasharray={`${25 * 2.51} 251`}
-                      strokeDashoffset="0"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#3b82f6"
-                      strokeWidth="20"
-                      strokeDasharray={`${18 * 2.51} 251`}
-                      strokeDashoffset={`-${25 * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="20"
-                      strokeDasharray={`${15 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18) * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#f59e0b"
-                      strokeWidth="20"
-                      strokeDasharray={`${12 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18 + 15) * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#ef4444"
-                      strokeWidth="20"
-                      strokeDasharray={`${10 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18 + 15 + 12) * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#8b5cf6"
-                      strokeWidth="20"
-                      strokeDasharray={`${8 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18 + 15 + 12 + 10) * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#ec4899"
-                      strokeWidth="20"
-                      strokeDasharray={`${7 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18 + 15 + 12 + 10 + 8) * 2.51}`}
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      fill="none"
-                      stroke="#f97316"
-                      strokeWidth="20"
-                      strokeDasharray={`${5 * 2.51} 251`}
-                      strokeDashoffset={`-${(25 + 18 + 15 + 12 + 10 + 8 + 7) * 2.51}`}
-                    />
-                  </svg>
-                </div>
-                <div className="space-y-3 flex-1">
-                  {(dashboardData?.charts.popularLocation || []).map((location, idx) => {
-                    const colors = ['bg-cyan-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500'];
-                    return (
-                      <div key={location.name} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center">
-                          <div className={`w-4 h-4 rounded-full mr-3 ${colors[idx % colors.length]}`}></div>
-                          <span className="text-gray-700">{location.name}</span>
+              <div className="space-y-4">
+                {dashboardData?.pendingCompanies && dashboardData.pendingCompanies.length > 0 ? (
+                  dashboardData.pendingCompanies.map((company, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
+                          {company.logo ? (
+                            <img src={company.logo} alt={company.companyName} className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 className="h-5 w-5 text-blue-600" />
+                          )}
                         </div>
-                        <span className="text-gray-500 font-medium">{location.percentage}%</span>
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{company.companyName}</p>
+                          <p className="text-xs text-gray-500">{company.industry}</p>
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 hover:bg-blue-50"
+                        onClick={() => navigate(`/admin/companies/${company.id}`)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        <span className="text-xs">Verify</span>
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    No pending companies to verify
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -360,7 +304,12 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">{job.jobType}</Badge>
-                      <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 hover:bg-blue-50"
+                        onClick={() => navigate(`/admin/jobs/${job.id}`)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
@@ -397,9 +346,6 @@ const AdminDashboard = () => {
                       <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
                         {order.paymentStatus}
                       </Badge>
-                      <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">
-                        <Eye className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 ))}

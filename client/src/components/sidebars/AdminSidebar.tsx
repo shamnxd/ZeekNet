@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   LayoutDashboard,
   Users,
   Building2,
@@ -9,7 +10,7 @@ import {
   Settings,
   Grid3X3,
   User,
-  
+
   Globe,
   LogOut,
   Menu,
@@ -73,7 +74,7 @@ const AdminSidebar = () => {
       label: 'Subscription Plans',
       icon: PackageCheck,
     },
-    
+
   ]
 
   const bottomItems = [
@@ -95,6 +96,10 @@ const AdminSidebar = () => {
   ]
 
   const handleNavigation = (path: string) => {
+    if (path === '/admin/settings') {
+      toast.info('Feature is coming')
+      return
+    }
     navigate(path)
   }
 
@@ -109,14 +114,14 @@ const AdminSidebar = () => {
 
   return (
     <div className="w-64 bg-slate-800 h-[100vh] relative">
-      {}
+      { }
       <div className="absolute top-4 right-4 z-10">
         <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
           <Menu className="h-5 w-5" />
         </Button>
       </div>
 
-      {}
+      { }
       <div className="p-6 border-b border-slate-700">
         <div className="flex items-center space-x-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg">
@@ -127,21 +132,20 @@ const AdminSidebar = () => {
           </div>
         </div>
       </div>
-      
-      {}
+
+      { }
       <nav className="p-4">
         <div className="space-y-1">
           {generalItems.map((item) => {
             const isActive = location.pathname === item.path
             const Icon = item.icon
-            
+
             return (
               <Button
                 key={item.path}
                 variant="ghost"
-                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${
-                  isActive ? "bg-slate-600 text-white" : ""
-                }`}
+                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
+                  }`}
                 onClick={() => handleNavigation(item.path)}
               >
                 <Icon className="h-4 w-4 mr-3" />
@@ -152,21 +156,20 @@ const AdminSidebar = () => {
         </div>
       </nav>
 
-      {}
+      { }
       <div className="px-4 pb-2">
         <p className="text-xs text-slate-400 uppercase tracking-wider font-medium mb-2">MANAGE JOBS</p>
         <div className="space-y-1">
           {manageJobsItems.map((item) => {
             const isActive = location.pathname === item.path
             const Icon = item.icon
-            
+
             return (
               <Button
                 key={item.path}
                 variant="ghost"
-                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${
-                  isActive ? "bg-slate-600 text-white" : ""
-                }`}
+                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
+                  }`}
                 onClick={() => handleNavigation(item.path)}
               >
                 <Icon className="h-4 w-4 mr-3" />
@@ -176,20 +179,19 @@ const AdminSidebar = () => {
           })}
         </div>
       </div>
-      
-      {}
+
+      { }
       <div className="absolute bottom-0 w-64 p-4 space-y-1">
         {bottomItems.map((item) => {
           const isActive = location.pathname === item.path
           const Icon = item.icon
-          
+
           return (
             <Button
               key={item.path}
               variant="ghost"
-              className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${
-                isActive ? "bg-slate-600 text-white" : ""
-              }`}
+              className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
+                }`}
               onClick={item.path === '/logout' ? handleLogout : () => handleNavigation(item.path)}
             >
               <Icon className="h-4 w-4 mr-3" />

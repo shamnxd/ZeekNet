@@ -2,8 +2,8 @@
 import React from 'react';
 
 interface JobTabsProps {
-    activeTab: 'applicants' | 'details' | 'analytics';
-    setActiveTab: (tab: 'applicants' | 'details' | 'analytics') => void;
+    activeTab: 'applicants' | 'details';
+    setActiveTab: (tab: 'applicants' | 'details') => void;
 }
 
 export const JobTabs: React.FC<JobTabsProps> = ({ activeTab, setActiveTab }) => {
@@ -28,15 +28,6 @@ export const JobTabs: React.FC<JobTabsProps> = ({ activeTab, setActiveTab }) => 
                         onClick={() => setActiveTab('details')}
                     >
                         Job Details
-                    </button>
-                    <button
-                        className={`py-3.5 text-sm border-b-2 transition-colors ${activeTab === 'analytics'
-                            ? 'font-semibold text-[#25324B] border-[#4640DE]'
-                            : 'font-medium text-[#7C8493] border-transparent'
-                            }`}
-                        onClick={() => setActiveTab('analytics')}
-                    >
-                        Analytics
                     </button>
                 </div>
             </div>

@@ -31,6 +31,7 @@ export const AuthRoutes = {
   CHECK_AUTH: '/api/auth/check-auth',
   FORGOT_PASSWORD: '/api/auth/forgot-password',
   RESET_PASSWORD: '/api/auth/reset-password',
+  CHANGE_PASSWORD: '/api/auth/change-password',
   LOGOUT: '/api/auth/logout',
   OTP_REQUEST: '/api/auth/otp-request',
   OTP_VERIFY: '/api/auth/otp-verify',
@@ -104,6 +105,7 @@ export const NotificationRoutes = {
 export const PublicRoutes = {
   JOBS: '/api/public/jobs',
   JOBS_ID: '/api/public/jobs/:id',
+  FEATURED_JOBS: '/api/public/featured-jobs',
   SKILLS: '/api/public/skills',
   JOB_CATEGORIES: '/api/public/job-categories',
   JOB_ROLES: '/api/public/job-roles',

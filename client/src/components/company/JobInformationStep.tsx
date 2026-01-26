@@ -21,6 +21,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [showJobRoleSuggestions, setShowJobRoleSuggestions] = useState(false);
 
+
   const employmentTypes = [
     { value: "full-time", label: "Full-Time" },
     { value: "part-time", label: "Part-Time" },
@@ -41,7 +42,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
           value: categoryName,
           label: categoryName,
         }));
-        
+
         const allOptions = [...fetchedOptions];
         for (const selectedCategory of data.categoryIds) {
           if (!allOptions.find(opt => opt.value === selectedCategory)) {
@@ -51,7 +52,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
             });
           }
         }
-        
+
         setCategoriesOptions(allOptions);
       }
     } catch (error) {
@@ -83,7 +84,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
             });
           }
         }
-        
+
         setSkillsOptions(allOptions);
       }
     } catch (error) {
@@ -96,7 +97,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   const fetchJobRoles = async (searchTerm?: string) => {
     try {
       const response = await publicApi.getAllJobRoles({
-        limit: 20,
+        limit: 10,
         search: searchTerm,
       });
       if (response.success && response.data) {
@@ -117,7 +118,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
       await fetchSkills();
       await fetchJobRoles();
     };
-    
+
     initializeOptions();
   }, [data.categoryIds, data.skillsRequired, fetchCategories, fetchSkills]);
 
@@ -136,11 +137,13 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     setShowJobRoleSuggestions(false);
   };
 
+
+
   const handleEmploymentTypeToggle = (type: string) => {
     const updatedTypes = data.employmentTypes.includes(type)
       ? data.employmentTypes.filter(t => t !== type)
       : [...data.employmentTypes, type];
-    
+
     onDataChange({ employmentTypes: updatedTypes });
   };
 
@@ -151,11 +154,11 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
   };
 
   const handleSalaryChange = (field: 'min' | 'max', value: number) => {
-    onDataChange({ 
-      salary: { 
-        ...data.salary, 
-        [field]: value 
-      } 
+    onDataChange({
+      salary: {
+        ...data.salary,
+        [field]: value
+      }
     });
   };
 
@@ -170,7 +173,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
 
   const validateFields = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!data.title.trim()) {
       newErrors.title = "Job title is required";
     } else if (data.title.trim().length < 2) {
@@ -178,7 +181,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     } else if (data.title.trim().length > 100) {
       newErrors.title = "Title must not exceed 100 characters";
     }
-    
+
     if (!data.location.trim()) {
       newErrors.location = "Location is required";
     } else if (data.location.trim().length < 2) {
@@ -186,7 +189,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     } else if (data.location.trim().length > 100) {
       newErrors.location = "Location must not exceed 100 characters";
     }
-    
+
     if (data.employmentTypes.length === 0) {
       newErrors.employmentTypes = "Please select at least one employment type";
     } else {
@@ -196,11 +199,11 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         newErrors.employmentTypes = `Invalid employment types: ${invalidTypes.join(", ")}`;
       }
     }
-    
+
     if (data.categoryIds.length === 0) {
       newErrors.categoryIds = "Please select at least one category";
     }
-    
+
     if (data.salary.min < 0) {
       newErrors.salary = "Minimum salary cannot be negative";
     } else if (data.salary.max < 0) {
@@ -208,11 +211,11 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
     } else if (data.salary.min > data.salary.max) {
       newErrors.salary = "Minimum salary cannot be greater than maximum salary";
     }
-    
+
     if (!data.totalVacancies || data.totalVacancies < 1) {
       newErrors.totalVacancies = "Total vacancies must be at least 1";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -232,16 +235,16 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
 
   return (
     <div className="flex flex-col items-end gap-5 px-4 py-6">
-      {}
+      { }
       <div className="flex flex-col gap-1 w-full">
         <h2 className="text-base font-semibold text-[#25324B]">Basic Information</h2>
         <p className="text-sm text-[#7C8493]">This information will be displayed publicly</p>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">
@@ -249,7 +252,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
           </h3>
           <p className="text-sm text-[#7C8493]">Job titles must be describe one position</p>
         </div>
-        <div className="flex flex-col gap-1 relative">
+        <div className="flex flex-col gap-1 relative w-[387px]">
           <Input
             placeholder="e.g. Software Engineer"
             value={data.title}
@@ -262,14 +265,14 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
             onBlur={() => {
               setTimeout(() => setShowJobRoleSuggestions(false), 200);
             }}
-            className={`w-[387px] h-11 px-4 py-3 border rounded-[10px] ${errors.title ? 'border-red-500' : 'border-[#D6DDEB]'}`}
+            className={`w-full h-11 px-4 py-3 border rounded-[10px] ${errors.title ? 'border-red-500' : 'border-[#D6DDEB]'}`}
           />
           <p className="text-xs text-[#7C8493]">At least 2 characters</p>
           {errors.title && (
             <p className="text-xs text-red-500 mt-1">{errors.title}</p>
           )}
           {showJobRoleSuggestions && jobRolesOptions.length > 0 && (
-            <div className="absolute top-full left-0 z-50 w-[387px] mt-1 bg-white border border-[#D6DDEB] rounded-[10px] shadow-lg max-h-60 overflow-auto">
+            <div className="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-[#D6DDEB] rounded-[10px] shadow-lg max-h-60 overflow-auto">
               {jobRolesOptions.map((role) => (
                 <div
                   key={role.value}
@@ -284,10 +287,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">
@@ -309,10 +312,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">
@@ -340,10 +343,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">Salary</h3>
@@ -376,13 +379,13 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
           {errors.salary && (
             <p className="text-xs text-red-500 mt-1">{errors.salary}</p>
           )}
-          </div>
+        </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">
@@ -422,10 +425,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">
@@ -455,10 +458,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
+      { }
       <div className="flex gap-30 w-full">
         <div className="flex flex-col gap-1">
           <h3 className="text-sm font-semibold text-[#25324B]">Required Skills</h3>
@@ -482,12 +485,12 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
         </div>
       </div>
 
-      {}
+      { }
       <div className="w-full h-px bg-[#D6DDEB]"></div>
 
-      {}
-      <Button 
-        onClick={handleNext} 
+      { }
+      <Button
+        onClick={handleNext}
         variant="company"
         className="w-[150px] h-10 bg-[#4640de] hover:bg-[#4640DE]/90 text-white text-sm font-bold rounded-lg"
       >

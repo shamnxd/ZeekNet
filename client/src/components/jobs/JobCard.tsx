@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Users, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Users, Clock, Star } from "lucide-react";
 
 import type { JobCardProps } from '@/interfaces/job/job-card-props.interface';
 
@@ -21,7 +22,7 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -44,18 +45,22 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
   const applicationCount = job.applicationCount ?? job.application_count ?? 0;
   const employmentTypes = job.employmentTypes || job.employment_types || [];
   const salary = job.salary || { min: 0, max: 0 };
+  const isFeatured = !!(job.isFeatured ?? job.is_featured);
 
   return (
-    <Card 
-      className="!p-0 hover:shadow-lg hover:border-[#3570E2]/20 transition-all duration-200 group border border-gray-200 bg-white cursor-pointer"
+    <Card
+      className={`!p-0 hover:shadow-lg transition-all duration-200 group cursor-pointer ${isFeatured
+        ? 'border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-white shadow-md'
+        : 'hover:border-[#3570E2]/20 border border-gray-200 bg-white'
+        }`}
       onClick={handleCardClick}
     >
       <CardContent className="p-5">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-12 h-12 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
             {companyLogo ? (
-              <img 
-                src={companyLogo} 
+              <img
+                src={companyLogo}
                 alt={companyName}
                 className="w-10 h-10 rounded-lg object-cover"
                 onError={(e) => {
@@ -70,7 +75,15 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-[#6B7280] mb-0.5">{companyName}</p>
+            <div className="flex items-center gap-2 mb-0.5">
+              <p className="text-sm text-[#6B7280]">{companyName}</p>
+              {isFeatured && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-600 bg-amber-50 gap-0.5">
+                  <Star className="w-3 h-3 fill-amber-500" />
+                  Featured
+                </Badge>
+              )}
+            </div>
             <h3 className="text-lg font-bold text-[#141414] group-hover:text-[#3570E2] transition-colors line-clamp-2 leading-snug" style={{ fontFamily: 'DM Sans, sans-serif' }}>
               {job.title}
             </h3>

@@ -23,6 +23,13 @@ export function Combobox({
   const [searchTerm, setSearchTerm] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    if (!multiple && value.length > 0) {
+      const option = options.find(opt => opt.value === value[0]);
+      setSearchTerm(option ? option.label : value[0]);
+    }
+  }, [value, multiple, options]);
+
   const filteredOptions = React.useMemo(() => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase();
@@ -41,8 +48,11 @@ export function Combobox({
       }
     } else {
       onChange([selectedValue]);
+      const option = options.find(opt => opt.value === selectedValue);
+      setSearchTerm(option ? option.label : selectedValue);
     }
-    setSearchTerm("");
+    // setSearchTerm(""); // Removed for single select persistence
+    if (multiple) setSearchTerm("");
     setOpen(false);
     inputRef.current?.focus();
   };
@@ -50,15 +60,17 @@ export function Combobox({
   const handleAddCustom = (customValue: string) => {
     const trimmed = customValue.trim();
     if (!trimmed) return;
-    
+
     if (multiple) {
       if (!value.includes(trimmed)) {
         onChange([...value, trimmed]);
       }
     } else {
       onChange([trimmed]);
+      setSearchTerm(trimmed);
     }
-    setSearchTerm("");
+    // setSearchTerm("");
+    if (multiple) setSearchTerm("");
     setOpen(false);
     inputRef.current?.focus();
   };
@@ -188,21 +200,21 @@ export function Combobox({
                 );
               })}
 
-              {searchTerm.trim() && 
-               !filteredOptions.some(opt => opt?.value?.toLowerCase() === searchTerm.trim().toLowerCase()) &&
-               !value.includes(searchTerm.trim()) && (
-                <div
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleAddCustom(searchTerm);
-                  }}
-                  className="cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground border-t"
-                >
-                  <span className="text-muted-foreground">Add "</span>
-                  <span className="font-medium">{searchTerm}</span>
-                  <span className="text-muted-foreground">"</span>
-                </div>
-              )}
+              {searchTerm.trim() &&
+                !filteredOptions.some(opt => opt?.value?.toLowerCase() === searchTerm.trim().toLowerCase()) &&
+                !value.includes(searchTerm.trim()) && (
+                  <div
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleAddCustom(searchTerm);
+                    }}
+                    className="cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground border-t"
+                  >
+                    <span className="text-muted-foreground">Add "</span>
+                    <span className="font-medium">{searchTerm}</span>
+                    <span className="text-muted-foreground">"</span>
+                  </div>
+                )}
             </>
           )}
         </div>

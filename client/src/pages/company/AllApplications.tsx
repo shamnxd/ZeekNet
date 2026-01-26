@@ -8,7 +8,7 @@ import { ScoreBadge } from '@/components/ui/score-badge'
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { 
+import {
   Search,
   Filter,
   Calendar,
@@ -38,9 +38,11 @@ import {
 } from '@/components/ui/dialog'
 import { jobApplicationApi } from '@/api'
 import { chatApi } from '@/api/chat.api'
-import { ApplicationStage } from '@/constants/enums'
+import { ATSStage, ATSStageDisplayNames, STAGE_TAILWIND } from '@/constants/ats-stages'
 import type { Application } from '@/interfaces/application/application.interface'
 import type { ApiError } from '@/types/api-error.type'
+import { companyApi } from '@/api/company.api'
+import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
 
 const AllApplications = () => {
   const navigate = useNavigate()
@@ -63,17 +65,35 @@ const AllApplications = () => {
     total: 0,
     totalPages: 0
   })
+  const [jobs, setJobs] = useState<JobPostingResponse[]>([])
+  const [selectedJobId, setSelectedJobId] = useState<string>('all')
 
-  const fetchApplications = useCallback(async (page: number = 1, limit: number = 10, search: string = '', stageFilter?: string) => {
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await companyApi.getJobPostings({ limit: 100 })
+        setJobs(res.data?.jobs || [])
+      } catch (error) {
+        console.error('Failed to fetch jobs', error)
+      }
+    }
+    fetchJobs()
+  }, [])
+
+  const fetchApplications = useCallback(async (page: number = 1, limit: number = 10, search: string = '', stageFilter?: string, jobIdFilter?: string) => {
     try {
       setLoading(true)
 
       const params: Record<string, unknown> = { page, limit, search }
-      
+
       if (stageFilter && stageFilter !== 'all') {
-        params.stage = stageFilter as ApplicationStage
+        params.stage = stageFilter
       }
-      
+
+      if (jobIdFilter && jobIdFilter !== 'all') {
+        params.job_id = jobIdFilter
+      }
+
       if (minScore) params.min_score = parseInt(minScore)
       if (maxScore) params.max_score = parseInt(maxScore)
       if (sortBy) params.sort_by = sortBy === 'score' ? 'score' : 'applied_date'
@@ -85,7 +105,7 @@ const AllApplications = () => {
         _id: a.id,
         seeker_id: a.seeker_id,
         seeker_name: a.seeker_name || a.seeker_full_name || 'Candidate',
-        seeker_avatar: a.seeker_avatar, 
+        seeker_avatar: a.seeker_avatar,
         job_id: a.job_id,
         job_title: a.job_title,
         score: a.score,
@@ -119,8 +139,8 @@ const AllApplications = () => {
   }, [searchQuery])
 
   useEffect(() => {
-    fetchApplications(pagination.page, pagination.limit, debouncedSearchQuery, stage)
-  }, [pagination.page, pagination.limit, stage, debouncedSearchQuery, fetchApplications])
+    fetchApplications(pagination.page, pagination.limit, debouncedSearchQuery, stage, selectedJobId)
+  }, [pagination.page, pagination.limit, stage, debouncedSearchQuery, selectedJobId, fetchApplications])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -130,34 +150,29 @@ const AllApplications = () => {
   const handleLimitChange = (value: string) => {
     const nextLimit = Number(value) || 10
     setPagination((p) => ({ ...p, page: 1, limit: nextLimit }))
-    fetchApplications(1, nextLimit, debouncedSearchQuery, stage)
+    fetchApplications(1, nextLimit, debouncedSearchQuery, stage, selectedJobId)
   }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-GB', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     })
   }
 
   const getStageBadge = (stage: string) => {
-    const stageMap: Record<string, { label: string; className: string }> = {
-      [ApplicationStage.APPLIED]: { label: 'Applied', className: 'border-[#4640DE] text-[#4640DE]' },
-      [ApplicationStage.SHORTLISTED]: { label: 'Shortlisted', className: 'border-[#4640DE] text-[#4640DE]' },
-      [ApplicationStage.INTERVIEW]: { label: 'Interview', className: 'border-[#FFB836] text-[#FFB836]' },
-      [ApplicationStage.REJECTED]: { label: 'Rejected', className: 'border-red-500 text-red-500' },
-      [ApplicationStage.HIRED]: { label: 'Hired', className: 'border-[#56CDAD] text-[#56CDAD]' },
-    }
-    
-    const stageInfo = stageMap[stage] || stageMap[ApplicationStage.APPLIED]
+    const upperStage = stage.toUpperCase() as ATSStage
+    const label = ATSStageDisplayNames[upperStage] || stage
+    const style = STAGE_TAILWIND[upperStage] || { text: 'text-gray-500', border: 'border-gray-300', bgLight: 'bg-gray-50' }
+
     return (
       <Badge
         variant="outline"
-        className={`${stageInfo.className} bg-transparent px-2.5 py-1 rounded-full text-xs font-semibold`}
+        className={`bg-transparent px-2.5 py-1 rounded-full text-xs font-semibold ${style.text} outline outline-1 ${style.border}`}
       >
-        {stageInfo.label}
+        {label}
       </Badge>
     )
   }
@@ -173,7 +188,7 @@ const AllApplications = () => {
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      fetchApplications(newPage, pagination.limit, debouncedSearchQuery, stage)
+      fetchApplications(newPage, pagination.limit, debouncedSearchQuery, stage, selectedJobId)
     }
   }
 
@@ -191,7 +206,7 @@ const AllApplications = () => {
     }
   }
 
-  
+
   const handleSelectAll = () => {
     if (selectedApplications.size === applications.length) {
       setSelectedApplications(new Set())
@@ -212,7 +227,7 @@ const AllApplications = () => {
     })
   }
 
-  
+
   const toggleSort = () => {
     if (sortBy === 'date') {
       setSortBy('score')
@@ -225,22 +240,21 @@ const AllApplications = () => {
     }
   }
 
-  
+
   const executeBulkShortlist = async () => {
     const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
-    
-    
-    const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
+
+
+    const unchangeableApps = selectedApps.filter(app => app.stage === ATSStage.HIRED || app.stage === ATSStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
       setShowShortlistConfirm(false)
       return
     }
-    
-    
-    const invalidApps = selectedApps.filter(app => app.stage !== ApplicationStage.APPLIED)
+
+    const invalidApps = selectedApps.filter(app => app.stage !== ATSStage.IN_REVIEW)
     if (invalidApps.length > 0) {
-      toast.error(`Cannot shortlist ${invalidApps.length} application(s). Only 'applied' applications can be shortlisted.`)
+      toast.error(`Cannot shortlist ${invalidApps.length} application(s). Only 'In Review' applications can be shortlisted.`)
       setShowShortlistConfirm(false)
       return
     }
@@ -253,17 +267,17 @@ const AllApplications = () => {
 
     try {
       setBulkActionLoading(true)
-      await jobApplicationApi.bulkUpdateApplicationStage({ 
-        application_ids: Array.from(selectedApplications), 
-        stage: ApplicationStage.SHORTLISTED 
+      await jobApplicationApi.bulkUpdateApplicationStage({
+        application_ids: Array.from(selectedApplications),
+        stage: ATSStage.SHORTLISTED
       })
       toast.success(`${selectedApps.length} application(s) moved to shortlisted`)
-      
-      
+
+
       setApplications(prev => prev.map(app => {
         const appId = app._id
         return appId && selectedApplications.has(appId)
-          ? { ...app, stage: ApplicationStage.SHORTLISTED }
+          ? { ...app, stage: ATSStage.SHORTLISTED }
           : app
       }))
       setSelectedApplications(new Set())
@@ -278,21 +292,11 @@ const AllApplications = () => {
 
   const executeBulkReject = async () => {
     const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
-    
-    
-    const unchangeableApps = selectedApps.filter(app => app.stage === ApplicationStage.HIRED || app.stage === ApplicationStage.REJECTED)
+
+
+    const unchangeableApps = selectedApps.filter(app => app.stage === ATSStage.HIRED || app.stage === ATSStage.REJECTED)
     if (unchangeableApps.length > 0) {
       toast.error(`Cannot change ${unchangeableApps.length} application(s) in hired or rejected stage`)
-      setShowRejectConfirm(false)
-      return
-    }
-    
-    
-    const invalidApps = selectedApps.filter(app => 
-      app.stage !== ApplicationStage.APPLIED && app.stage !== ApplicationStage.SHORTLISTED && app.stage !== ApplicationStage.INTERVIEW
-    )
-    if (invalidApps.length > 0) {
-      toast.error(`Cannot reject ${invalidApps.length} application(s) in invalid stage`)
       setShowRejectConfirm(false)
       return
     }
@@ -305,17 +309,17 @@ const AllApplications = () => {
 
     try {
       setBulkActionLoading(true)
-      await jobApplicationApi.bulkUpdateApplicationStage({ 
-        application_ids: Array.from(selectedApplications), 
-        stage: ApplicationStage.REJECTED 
+      await jobApplicationApi.bulkUpdateApplicationStage({
+        application_ids: Array.from(selectedApplications),
+        stage: ATSStage.REJECTED
       })
       toast.success(`${selectedApps.length} application(s) rejected`)
-      
-      
+
+
       setApplications(prev => prev.map(app => {
         const appId = app._id
         return appId && selectedApplications.has(appId)
-          ? { ...app, stage: ApplicationStage.REJECTED }
+          ? { ...app, stage: ATSStage.REJECTED }
           : app
       }))
       setSelectedApplications(new Set())
@@ -334,6 +338,24 @@ const AllApplications = () => {
 
   const handleBulkReject = () => {
     setShowRejectConfirm(true)
+  }
+
+  const getEnabledStages = () => {
+    if (selectedJobId && selectedJobId !== 'all') {
+      const job = jobs.find(j => j.id === selectedJobId)
+      return job?.enabled_stages || Object.values(ATSStage)
+    }
+
+    // Union of all enabled stages
+    const allStages = new Set<string>()
+    jobs.forEach(job => {
+      job.enabled_stages?.forEach((s: string) => allStages.add(s))
+    })
+
+    if (allStages.size === 0) return Object.values(ATSStage)
+
+    // Return in correct order
+    return Object.values(ATSStage).filter(s => allStages.has(s))
   }
 
   return (
@@ -358,17 +380,29 @@ const AllApplications = () => {
               />
             </div>
             <div className="flex items-center gap-2">
+              <Select value={selectedJobId} onValueChange={(v) => { setSelectedJobId(v); setPagination(p => ({ ...p, page: 1 })); setStage('all'); }}>
+                <SelectTrigger className="w-[200px] border-[#D6DDEB] rounded-lg">
+                  <SelectValue placeholder="All Jobs" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Jobs</SelectItem>
+                  {jobs.map(job => (
+                    <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={stage} onValueChange={(v) => setStage(v)}>
                 <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Stage" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All stages</SelectItem>
-                  <SelectItem value={ApplicationStage.APPLIED}>Applied</SelectItem>
-                  <SelectItem value={ApplicationStage.SHORTLISTED}>Shortlisted</SelectItem>
-                  <SelectItem value={ApplicationStage.INTERVIEW}>Interview</SelectItem>
-                  <SelectItem value={ApplicationStage.REJECTED}>Rejected</SelectItem>
-                  <SelectItem value={ApplicationStage.HIRED}>Hired</SelectItem>
+                  {getEnabledStages().map((stageValue) => (
+                    <SelectItem key={stageValue} value={stageValue}>
+                      {ATSStageDisplayNames[stageValue]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Input
@@ -401,55 +435,53 @@ const AllApplications = () => {
             </div>
           </div>
 
-          {}
+          { }
           {selectedApplications.size > 0 && (() => {
             const selectedApps = applications.filter(app => app._id && selectedApplications.has(app._id))
-            
-            
-            const hasRejectedOrHired = selectedApps.some(app => 
-              app.stage === ApplicationStage.REJECTED || app.stage === ApplicationStage.HIRED
+
+
+            const hasRejectedOrHired = selectedApps.some(app =>
+              app.stage === ATSStage.REJECTED || app.stage === ATSStage.HIRED
             )
-            
-            
-            const cannotShortlist = hasRejectedOrHired || selectedApps.some(app => 
-              app.stage === ApplicationStage.SHORTLISTED || app.stage === ApplicationStage.INTERVIEW
-            )
-            
-            
+
+
+            const cannotShortlist = selectedApps.some(app => app.stage !== ATSStage.IN_REVIEW)
+
+
             const cannotReject = hasRejectedOrHired
-            
+
             return (
-            <div className="mt-4 flex items-center gap-3 p-3 bg-[#F8F8FD] rounded-lg border border-[#D6DDEB]">
-              <span className="text-sm text-[#25324B] font-medium">
-                {selectedApplications.size} selected
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkShortlist}
-                disabled={bulkActionLoading || cannotShortlist}
-                className="border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Move to Shortlisted
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkReject}
-                disabled={bulkActionLoading || cannotReject}
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Reject
-              </Button>
-            </div>
+              <div className="mt-4 flex items-center gap-3 p-3 bg-[#F8F8FD] rounded-lg border border-[#D6DDEB]">
+                <span className="text-sm text-[#25324B] font-medium">
+                  {selectedApplications.size} selected
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkShortlist}
+                  disabled={bulkActionLoading || cannotShortlist}
+                  className="border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Move to Shortlisted
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkReject}
+                  disabled={bulkActionLoading || cannotReject}
+                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Reject
+                </Button>
+              </div>
             )
           })()}
         </div>
 
-        {}
+        { }
         <div className="px-7 py-5">
           <div className="border border-[#D6DDEB] rounded-lg overflow-hidden">
-            {}
+            { }
             <div className="bg-white border-b border-[#D6DDEB] px-5 py-4">
               <div className="grid gap-4 items-center" style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}>
                 <div>
@@ -483,7 +515,7 @@ const AllApplications = () => {
               </div>
             </div>
 
-            {}
+            { }
             <div className="divide-y divide-[#D6DDEB]">
               {loading ? (
                 <div className="px-5 py-10 flex justify-center">
@@ -497,12 +529,11 @@ const AllApplications = () => {
                 applications.map((application, index) => (
                   <div
                     key={application._id}
-                    className={`px-5 py-4 grid gap-4 items-center ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-[#F8F8FD]'
-                    }`}
+                    className={`px-5 py-4 grid gap-4 items-center ${index % 2 === 0 ? 'bg-white' : 'bg-[#F8F8FD]'
+                      }`}
                     style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}
                   >
-                    {}
+                    { }
                     <div>
                       <Checkbox
                         checked={application._id ? selectedApplications.has(application._id) : false}
@@ -510,7 +541,7 @@ const AllApplications = () => {
                       />
                     </div>
 
-                    {}
+                    { }
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
                         {application.seeker_avatar ? (
@@ -525,27 +556,27 @@ const AllApplications = () => {
                       </span>
                     </div>
 
-                    {}
+                    { }
                     <div className="flex items-center">
                       <ScoreBadge score={application.score} />
                     </div>
 
-                    {}
+                    { }
                     <div>
-                      {getStageBadge(application.stage)}
+                      {getStageBadge(application.stage || ATSStage.IN_REVIEW)}
                     </div>
 
-                    {}
+                    { }
                     <span className="text-sm font-medium text-[#25324B]">
                       {formatDate(application.applied_date)}
                     </span>
 
-                    {}
+                    { }
                     <span className="text-sm font-medium text-[#25324B]">
                       {application.job_title}
                     </span>
 
-                    {}
+                    { }
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="outline"
@@ -572,7 +603,7 @@ const AllApplications = () => {
             </div>
           </div>
 
-          {}
+          { }
           {!loading && applications.length > 0 && (
             <div className="mt-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -591,31 +622,30 @@ const AllApplications = () => {
               </div>
 
               <div className="flex items-center gap-1">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1"
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page <= 1}
                 >
                   <ChevronLeft className="w-4 h-4 text-[#25324B]" />
                 </Button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                     const pageNum = i + 1
                     const isActive = pageNum === pagination.page
-                    
+
                     return (
-                      <Button 
+                      <Button
                         key={pageNum}
-                        variant="outline" 
-                        size="sm" 
-                        className={`px-2 py-1 ${
-                          isActive 
-                            ? 'bg-[#4640DE] text-white border-[#4640DE]' 
-                            : 'text-[#515B6F] border-[#D6DDEB]'
-                        }`}
+                        variant="outline"
+                        size="sm"
+                        className={`px-2 py-1 ${isActive
+                          ? 'bg-[#4640DE] text-white border-[#4640DE]'
+                          : 'text-[#515B6F] border-[#D6DDEB]'
+                          }`}
                         onClick={() => handlePageChange(pageNum)}
                       >
                         {pageNum}
@@ -623,10 +653,10 @@ const AllApplications = () => {
                     )
                   })}
                 </div>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1"
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page >= pagination.totalPages}
@@ -639,7 +669,7 @@ const AllApplications = () => {
         </div>
       </div>
 
-      {}
+      { }
       <Dialog open={showShortlistConfirm} onOpenChange={setShowShortlistConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -652,8 +682,8 @@ const AllApplications = () => {
             <Button variant="outline" onClick={() => setShowShortlistConfirm(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={executeBulkShortlist} 
+            <Button
+              onClick={executeBulkShortlist}
               disabled={bulkActionLoading}
               className="bg-[#4640DE] hover:bg-[#4640DE]/90"
             >
@@ -675,8 +705,8 @@ const AllApplications = () => {
             <Button variant="outline" onClick={() => setShowRejectConfirm(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={executeBulkReject} 
+            <Button
+              onClick={executeBulkReject}
               disabled={bulkActionLoading}
               variant="destructive"
             >

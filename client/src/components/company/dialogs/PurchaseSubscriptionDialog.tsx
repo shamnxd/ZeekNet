@@ -52,16 +52,16 @@ export function PurchaseConfirmationDialog({
               <div className="text-right">
                 {isAnnual && plan.yearlyDiscount > 0 && (
                   <div className="text-xs text-muted-foreground line-through mb-1">
-                    ${originalYearlyPrice}
+                    ₹{originalYearlyPrice}
                   </div>
                 )}
                 <div className="text-2xl font-bold text-[#4640DE]">
-                  ${totalPrice}
+                  ₹{totalPrice}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {isAnnual ? (
                     <>
-                      <span className="font-medium">${(totalPrice / 12).toFixed(2)}/month</span>
+                      <span className="font-medium">₹{(totalPrice / 12).toFixed(2)}/month</span>
                       {plan.yearlyDiscount > 0 && (
                         <Badge variant="default" className="ml-2 bg-green-600">
                           Save {plan.yearlyDiscount}%

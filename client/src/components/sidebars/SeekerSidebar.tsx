@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, User, Settings as SettingsIcon, HelpCircle, LogOut, Bookmark } from 'lucide-react';
+import { LayoutDashboard, FileText, User, Settings as SettingsIcon, HelpCircle, LogOut } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux';
 import { logoutThunk } from '@/store/slices/auth.slice';
 import { seekerApi } from '@/api/seeker.api';
@@ -10,12 +10,8 @@ import type { SeekerSidebarPage as Page } from '@/interfaces/ui/sidebar.types';
 
 const menuItems = [
   { id: 'dashboard' as Page, label: 'Dashboard', icon: LayoutDashboard, count: null },
-  { id: 'applications' as Page, label: 'My Applications', icon: FileText, count: 12 },
+  { id: 'applications' as Page, label: 'My Applications', icon: FileText, count: null },
   { id: 'profile' as Page, label: 'My Public Profile', icon: User, count: null },
-];
-
-const quickActions = [
-  { id: 'saved', label: 'Saved Jobs', icon: Bookmark, count: 8 }
 ];
 
 function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
@@ -106,30 +102,6 @@ function SeekerSidebar({ currentPage, onNavigate }: SeekerSidebarProps) {
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider mb-3 px-3">
-              Quick Actions
-            </h3>
-            <div className="space-y-1">
-              {quickActions.map((action) => (
-                <button
-                  key={action.id}
-                  className="w-full flex items-center justify-between px-3 py-3 rounded-xl text-[14px] font-medium text-[#374151] hover:bg-[#f3f4f6] hover:text-[#1f2937] transition-all duration-200 group"
-                >
-                  <div className="flex items-center gap-3">
-                    <action.icon className="w-5 h-5 text-[#6b7280] group-hover:text-[#4640de]" />
-                    <span>{action.label}</span>
-                  </div>
-                  {action.count && (
-                    <span className="text-[12px] px-2 py-1 rounded-full bg-[#e5e7eb] text-[#6b7280] group-hover:bg-[#4640de] group-hover:text-white">
-                      {action.count}
-                    </span>
-                  )}
-                </button>
-              ))}
             </div>
           </div>
 

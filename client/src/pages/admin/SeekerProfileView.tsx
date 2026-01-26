@@ -2,80 +2,23 @@ import AdminLayout from '../../components/layouts/AdminLayout'
 import { Card } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
-import { MapPin, Flag, Plus, Globe, Mail, Phone } from 'lucide-react'
-import { useState } from 'react'
+import { MapPin, Flag, Plus, Globe, Mail, Phone, Loader2, Linkedin, Twitter, Instagram, Link as LinkIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { adminApi } from '@/api/admin.api'
+import { toast } from 'sonner'
+import type { User } from '@/interfaces/admin/admin-user.interface'
 import FormDialog from '../../components/common/FormDialog'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 const SeekerProfileView = () => {
-  
-  const profile = {
-    name: 'Jake Gyll',
-    position: 'Product Designer',
-    company: 'Twitter',
-    location: 'Manchester, UK',
-    openForOpportunities: true,
-    bannerImage: 'https://rerouting.ca/wp-content/uploads/2020/12/2.png',
-    profilePhoto: 'https://img.freepik.com/premium-photo/3d-avatar-cartoon-character_113255-103130.jpg',
-  }
-
-  const aboutText = `I'm a product designer + filmmaker currently working remotely at Twitter from beautiful Manchester, United Kingdom. I'm passionate about designing digital products that have a positive impact on the world.
-
-For 10 years, I've specialised in interface, experience & interaction design as well as working in user research and product strategy for product agencies, big tech companies & start-ups.`
-
-  const experiences = [
-    {
-      id: 1,
-      title: 'Product Designer',
-      company: 'Twitter',
-      type: 'Full-Time',
-      period: 'Jun 2019 - Present (1y 1m)',
-      location: 'Manchester, UK',
-      description:
-        'Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.',
-    },
-    {
-      id: 2,
-      title: 'Growth Marketing Designer',
-      company: 'GoDaddy',
-      type: 'Full-Time',
-      period: 'Jun 2011 - May 2019 (8y)',
-      location: 'Manchester, UK',
-      description:
-        'Developed digital marketing strategies, activation plans, proposals, contests and promotions for client initiatives',
-    },
-  ]
-
-  const education = [
-    {
-      id: 1,
-      school: 'Harvard University',
-      degree: 'Postgraduate degree, Applied Psychology',
-      period: '2010 - 2012',
-      description:
-        'As an Applied Psychologist in the field of Consumer and Society, I am specialized in creating business opportunities by observing, analysing, researching and changing behaviour.',
-    },
-    {
-      id: 2,
-      school: 'University of Toronto',
-      degree: 'Bachelor of Arts, Visual Communication',
-      period: '2005 - 2009',
-    },
-  ]
-
-  const skills = ['Communication', 'Analytics', 'Facebook Ads', 'Content Planning', 'Community Manager']
-
-  const additionalDetails = {
-    email: 'jakegyll@email.com',
-    phone: '+44 1245 572 135',
-    languages: 'English, French',
-  }
-
-  const social = {
-    instagram: 'instagram.com/jakegyll',
-    twitter: 'twitter.com/jakegyll',
-    website: 'www.jakegyll.com',
-  }
+  const { id } = useParams<{ id: string }>()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [blockOpen, setBlockOpen] = useState(false)
+  const [reasonType, setReasonType] = useState('')
+  const [customReason, setCustomReason] = useState('')
+  const [blocked, setBlocked] = useState(false)
 
   const blockReasons = [
     { value: 'fraudulent', label: 'Submitting fake or misleading profile information' },
@@ -85,18 +28,120 @@ For 10 years, I've specialised in interface, experience & interaction design as 
     { value: 'abuse', label: 'Suspected scam, abuse, or exploitation' },
     { value: 'other', label: 'Other (please specify)' }
   ];
-  const [blockOpen, setBlockOpen] = useState(false)
-  const [reasonType, setReasonType] = useState('');
-  const [customReason, setCustomReason] = useState('');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!id) return
+      try {
+        setLoading(true)
+        const response = await adminApi.getUserById(id)
+        if (response.success && response.data) {
+          setUser(response.data)
+          setBlocked(response.data.isBlocked)
+        } else {
+          toast.error(response.message || 'Failed to fetch user data')
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+        toast.error('An error occurred while fetching user data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [id])
+
   const blockReason = reasonType === 'other'
     ? customReason
     : (blockReasons.find(r => r.value === reasonType)?.label || '');
+
   const canBlock = reasonType && (reasonType !== 'other' || customReason.trim());
-  const [blocked, setBlocked] = useState(false)
-  const handleBlock = () => {
-    if (!canBlock) return;
-    setBlocked(true);
-    setBlockOpen(false);
+
+  const handleBlock = async () => {
+    if (!canBlock || !user) return;
+    try {
+      const response = await adminApi.blockUser(user.id, !blocked)
+      if (response.success) {
+        setBlocked(!blocked)
+        toast.success(`User ${!blocked ? 'blocked' : 'unblocked'} successfully`)
+        setBlockOpen(false)
+      } else {
+        toast.error(response.message || 'Failed to update block status')
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating block status')
+    }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (!user) {
+    return (
+      <AdminLayout>
+        <div className="flex h-[60vh] flex-col items-center justify-center space-y-4">
+          <MapPin className="h-12 w-12 text-gray-400" />
+          <p className="text-gray-500">User not found</p>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  const profile = {
+    name: user.name || 'No Name',
+    position: user.seekerProfile?.headline || 'Seeker',
+    company: user.seekerProfile?.experiences?.[0]?.company || 'Looking for opportunities',
+    location: user.seekerProfile?.location || 'Not specified',
+    openForOpportunities: true,
+    bannerImage: user.seekerProfile?.bannerUrl || 'https://rerouting.ca/wp-content/uploads/2020/12/2.png',
+    profilePhoto: user.avatar || user.seekerProfile?.avatarUrl || 'https://img.freepik.com/premium-photo/3d-avatar-cartoon-character_113255-103130.jpg',
+  }
+
+  const aboutText = user.seekerProfile?.summary || 'No summary provided.'
+
+  const experiences = user.seekerProfile?.experiences.map(exp => ({
+    id: exp.id,
+    title: exp.title,
+    company: exp.company,
+    type: exp.employmentType,
+    period: `${new Date(exp.startDate).toLocaleDateString()} - ${exp.endDate ? new Date(exp.endDate).toLocaleDateString() : 'Present'}`,
+    location: exp.location || '',
+    description: exp.description || ''
+  })) || []
+
+  const education = user.seekerProfile?.education.map(edu => ({
+    id: edu.id,
+    school: edu.school,
+    degree: edu.degree || '',
+    period: `${new Date(edu.startDate).getFullYear()} - ${edu.endDate ? new Date(edu.endDate).getFullYear() : 'Present'}`,
+    description: ''
+  })) || []
+
+  const skills = user.seekerProfile?.skills || []
+
+  const additionalDetails = {
+    email: user.email,
+    phone: user.seekerProfile?.phone || 'Not specified',
+    languages: user.seekerProfile?.languages?.join(', ') || 'Not specified',
+  }
+
+  const socialLinks = user.seekerProfile?.socialLinks || []
+
+  const getSocialIcon = (name: string) => {
+    const n = name.toLowerCase()
+    if (n.includes('linkedin')) return <Linkedin className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
+    if (n.includes('twitter') || n.includes('x')) return <Twitter className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
+    if (n.includes('instagram')) return <Instagram className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
+    if (n.includes('website')) return <Globe className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
+    return <LinkIcon className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
   }
 
   return (
@@ -111,14 +156,14 @@ For 10 years, I've specialised in interface, experience & interaction design as 
         </div>
         {blocked && <div className="text-red-600 font-semibold p-1">Blocked: {blockReason}</div>}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          
+
           <div className="lg:col-span-2 space-y-5">
-            
+
             <Card className="!py-0 border border-[#d6ddeb] overflow-hidden">
               <div className="h-[140px] relative overflow-hidden">
-                <img 
-                  src={profile.bannerImage} 
-                  alt="Profile Banner" 
+                <img
+                  src={profile.bannerImage}
+                  alt="Profile Banner"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/20"></div>
@@ -253,7 +298,7 @@ For 10 years, I've specialised in interface, experience & interaction design as 
           </div>
 
           <div className="space-y-5">
-            
+
             <Card className="p-5 !gap-0 border border-[#d6ddeb]">
               <div className="flex items-center justify-between mb-5">
                 <p className="font-bold text-[16px] text-[#25324b]">Additional Details</p>
@@ -288,41 +333,32 @@ For 10 years, I've specialised in interface, experience & interaction design as 
                 <p className="font-bold text-[16px] text-[#25324b]">Social Links</p>
               </div>
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 text-[#7c8493] flex-shrink-0">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12C2 16.84 5.44 20.87 10 21.8V15H8V12H10V9.5C10 7.57 11.57 6 13.5 6H16V9H14C13.45 9 13 9.45 13 10V12H16V15H13V21.95C18.05 21.45 22 17.19 22 12C22 6.48 17.52 2 12 2Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-[#7c8493] mb-1">Instagram</p>
-                    <p className="text-[13px] text-[#4640de] font-medium hover:underline cursor-pointer">{social.instagram}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 text-[#7c8493] flex-shrink-0">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M22.46 6C21.69 6.35 20.86 6.58 20 6.69C20.88 6.16 21.56 5.32 21.88 4.31C21.05 4.81 20.13 5.16 19.16 5.36C18.37 4.5 17.26 4 16 4C13.65 4 11.73 5.92 11.73 8.29C11.73 8.63 11.77 8.96 11.84 9.27C8.28 9.09 5.11 7.38 3 4.79C2.63 5.42 2.42 6.16 2.42 6.94C2.42 8.43 3.17 9.75 4.33 10.5C3.62 10.5 2.96 10.3 2.38 10C2.38 10 2.38 10 2.38 10.03C2.38 12.11 3.86 13.85 5.82 14.24C5.46 14.34 5.08 14.39 4.69 14.39C4.42 14.39 4.15 14.36 3.89 14.31C4.43 16 6 17.26 7.89 17.29C6.43 18.45 4.58 19.13 2.56 19.13C2.22 19.13 1.88 19.11 1.54 19.07C3.44 20.29 5.70 21 8.12 21C16 21 20.33 14.46 20.33 8.79C20.33 8.6 20.33 8.42 20.32 8.23C21.16 7.63 21.88 6.87 22.46 6Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[13px] text-[#7c8493] font-medium mb-1">Twitter</p>
-                    <p className="text-[13px] text-[#4640de] font-medium hover:underline cursor-pointer">{social.twitter}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Globe className="w-5 h-5 text-[#7c8493] flex-shrink-0" />
-                  <div>
-                    <p className="text-[13px] text-[#7c8493] font-medium mb-1">Website</p>
-                    <p className="text-[13px] text-[#4640de] font-medium hover:underline cursor-pointer">{social.website}</p>
-                  </div>
-                </div>
+                {socialLinks.length > 0 ? (
+                  socialLinks.map((link, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      {getSocialIcon(link.name)}
+                      <div>
+                        <p className="text-[13px] font-medium text-[#7c8493] mb-1 capitalize">{link.name}</p>
+                        <a
+                          href={link.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[13px] text-[#4640de] font-medium hover:underline cursor-pointer block break-all"
+                        >
+                          {link.link}
+                        </a>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-[13px] text-[#7c8493]">No social links provided.</p>
+                )}
               </div>
             </Card>
           </div>
         </div>
       </div>
-      
+
       <FormDialog
         isOpen={blockOpen}
         onClose={() => setBlockOpen(false)}

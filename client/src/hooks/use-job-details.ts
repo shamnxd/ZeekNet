@@ -15,7 +15,7 @@ export const useJobDetails = () => {
     const [loading, setLoading] = useState(true);
     const [applications, setApplications] = useState<CompanySideApplication[]>([]);
     const [applicationsLoading, setApplicationsLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'applicants' | 'details' | 'analytics'>('details');
+    const [activeTab, setActiveTab] = useState<'applicants' | 'details'>('details');
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [stageFilter, setStageFilter] = useState<StageFilter>('all');

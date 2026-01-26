@@ -1,5 +1,3 @@
-import { ApplicationStage } from '@/constants/enums'
-
 export interface Application {
   id?: string 
   _id?: string 
@@ -9,7 +7,7 @@ export interface Application {
   job_id: string
   job_title: string
   score?: number
-  stage: ApplicationStage
+  stage?: string
   applied_date: string
   resume_url?: string
   company_name?: string

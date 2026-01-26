@@ -15,10 +15,10 @@ import { useAppSelector } from "@/hooks/useRedux";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ATSStage } from "@/constants/ats-stages";
 
-type SelectableStage = Exclude<ATSStage, typeof ATSStage.HIRED>;
+type SelectableStage = Exclude<ATSStage, typeof ATSStage.HIRED | typeof ATSStage.REJECTED>;
 const REQUIRED_STAGES: SelectableStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
 const SELECTABLE_STAGES_DEFAULT: SelectableStage[] = Object.values(ATSStage).filter(
-  (stage): stage is SelectableStage => stage !== ATSStage.HIRED
+  (stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED
 );
 
 const PostJob = () => {
@@ -43,6 +43,7 @@ const PostJob = () => {
     benefits: [],
     enabledStages: Array.from(new Set([...SELECTABLE_STAGES_DEFAULT, ...REQUIRED_STAGES])),
     totalVacancies: 1,
+    isFeatured: false,
   });
 
   const steps = [
@@ -102,7 +103,7 @@ const PostJob = () => {
       }
 
       const selectedStages = (jobData.enabledStages && jobData.enabledStages.length > 0)
-        ? jobData.enabledStages.filter((stage): stage is SelectableStage => stage !== ATSStage.HIRED)
+        ? jobData.enabledStages.filter((stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED)
         : SELECTABLE_STAGES_DEFAULT;
 
       const withMandatory = Array.from(new Set<SelectableStage>([
@@ -137,7 +138,8 @@ const PostJob = () => {
         skills_required: jobData.skillsRequired,
         category_ids: jobData.categoryIds.length > 0 ? jobData.categoryIds : ["tech"],
         enabled_stages: uniqueEnabledStages as string[],
-        total_vacancies: jobData.totalVacancies ?? 1
+        total_vacancies: jobData.totalVacancies ?? 1,
+        is_featured: jobData.isFeatured ?? false,
       };
 
       const response = await companyApi.createJobPosting(jobPostingData);
@@ -162,8 +164,9 @@ const PostJob = () => {
           qualifications: [],
           niceToHaves: [],
           benefits: [],
-        enabledStages: Array.from(new Set([...SELECTABLE_STAGES_DEFAULT, ...REQUIRED_STAGES])),
+          enabledStages: Array.from(new Set([...SELECTABLE_STAGES_DEFAULT, ...REQUIRED_STAGES])),
           totalVacancies: 1,
+          isFeatured: false,
         });
 
         setCurrentStep(1);
@@ -251,7 +254,7 @@ const PostJob = () => {
           <h1 className="text-xl font-semibold text-[#25324B]">Post a Job</h1>
         </div>
 
-          <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
+        <div className="flex items-center justify-center gap-20 px-5 py-3 w-full">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
@@ -262,10 +265,10 @@ const PostJob = () => {
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive
+                      ? "bg-[#4640DE] text-white"
+                      : isCompleted
                         ? "bg-[#4640DE] text-white"
-                        : isCompleted
-                          ? "bg-[#4640DE] text-white"
-                          : "bg-[#E9EBFD] text-[#7C8493]"
+                        : "bg-[#E9EBFD] text-[#7C8493]"
                       }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -273,20 +276,20 @@ const PostJob = () => {
                   <div className="hidden md:block">
                     <p
                       className={`text-sm font-normal ${isActive
+                        ? "text-[#4640DE]"
+                        : isCompleted
                           ? "text-[#4640DE]"
-                          : isCompleted
-                            ? "text-[#4640DE]"
-                            : "text-[#A8ADB7]"
+                          : "text-[#A8ADB7]"
                         }`}
                     >
                       Step {step.id}/{steps.length}
                     </p>
                     <p
                       className={`text-base font-semibold ${isActive
+                        ? "text-[#25324B]"
+                        : isCompleted
                           ? "text-[#25324B]"
-                          : isCompleted
-                            ? "text-[#25324B]"
-                            : "text-[#7C8493]"
+                          : "text-[#7C8493]"
                         }`}
                     >
                       {step.title}

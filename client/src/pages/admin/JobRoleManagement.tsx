@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import FormDialog from '@/components/common/FormDialog'
-import { 
-  Search, 
+import {
+  Search,
   Plus,
   Edit,
   Trash2,
@@ -32,21 +32,21 @@ const JobRoleManagement = () => {
   const [totalJobRoles, setTotalJobRoles] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const itemsPerPage = 10
-  
+
   const fetchJobRoles = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      
-      const params = { 
-        page: currentPage, 
-        limit: itemsPerPage, 
-        search: searchTerm || undefined 
+
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm || undefined
       }
       const response = await adminApi.getAllJobRoles(params)
-      
-      if (response.success && response.data && response.data.jobRoles && Array.isArray(response.data.jobRoles)) {
-        const mappedJobRoles = response.data.jobRoles.map(role => ({
+
+      if (response.success && response.data && response.data.roles && Array.isArray(response.data.roles)) {
+        const mappedJobRoles = response.data.roles.map(role => ({
           id: role.id,
           name: role.name,
           createdAt: role.createdAt,
@@ -96,9 +96,9 @@ const JobRoleManagement = () => {
 
     try {
       const response = await adminApi.createJobRole({ name: jobRoleName.trim() })
-      
+
       if (response.success && response.data) {
-        
+
         const newJobRole = {
           id: response.data.id,
           name: response.data.name,
@@ -127,11 +127,11 @@ const JobRoleManagement = () => {
 
     try {
       const response = await adminApi.updateJobRole(selectedJobRole.id, { name: jobRoleName.trim() })
-      
+
       if (response.success && response.data) {
-        
-        setJobRoles(prev => prev.map(role => 
-          role.id === selectedJobRole.id 
+
+        setJobRoles(prev => prev.map(role =>
+          role.id === selectedJobRole.id
             ? { ...role, name: response.data!.name, updatedAt: response.data!.updatedAt }
             : role
         ))
@@ -153,9 +153,9 @@ const JobRoleManagement = () => {
 
     try {
       const response = await adminApi.deleteJobRole(selectedJobRole.id)
-      
+
       if (response.success) {
-        
+
         setJobRoles(prev => prev.filter(role => role.id !== selectedJobRole.id))
         setTotalJobRoles(prev => Math.max(0, prev - 1))
         toast.success('Job role deleted successfully')
@@ -248,7 +248,7 @@ const JobRoleManagement = () => {
                       </tr>
                     ) : (
                       jobRoles.map((jobRole) => (
-                         <tr key={jobRole.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
+                        <tr key={jobRole.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
                           <td className="p-4">
                             <p className="font-medium text-gray-800">{jobRole.name}</p>
                           </td>
@@ -257,17 +257,17 @@ const JobRoleManagement = () => {
                           </td>
                           <td className="p-4">
                             <div className="flex items-center space-x-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                 onClick={() => handleEdit(jobRole)}
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                 onClick={() => handleDelete(jobRole)}
                               >
@@ -301,7 +301,7 @@ const JobRoleManagement = () => {
                 <ChevronLeft className="h-4 w-4" />
                 <span>Previous</span>
               </Button>
-              
+
               <div className="flex items-center space-x-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <Button
@@ -309,17 +309,16 @@ const JobRoleManagement = () => {
                     variant={currentPage === page ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 p-0 ${
-                      currentPage === page 
-                        ? 'bg-cyan-600 text-white hover:bg-cyan-700' 
+                    className={`w-8 h-8 p-0 ${currentPage === page
+                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
                         : 'hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {page}
                   </Button>
                 ))}
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"
