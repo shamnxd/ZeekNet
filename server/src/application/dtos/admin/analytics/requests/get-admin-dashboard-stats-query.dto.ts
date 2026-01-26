@@ -12,6 +12,6 @@ export const GetAdminDashboardStatsQueryDto = z.object({
   },
   {
     message: 'startDate must be before or equal to endDate',
-  }
+  },
 );
 export type GetAdminDashboardStatsQueryDto = z.infer<typeof GetAdminDashboardStatsQueryDto>;

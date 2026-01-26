@@ -4,11 +4,13 @@ import { ICreateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attri
 import { BadRequestError, ConflictError } from 'src/domain/errors/errors';
 import { CreateInput } from 'src/domain/types/common.types';
 import { CreateSkillRequestDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
+import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/responses/skill-response.dto';
+import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
 
 export class CreateSkillUseCase implements ICreateSkillUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) { }
 
-  async execute(dto: CreateSkillRequestDto): Promise<Skill> {
+  async execute(dto: CreateSkillRequestDto): Promise<SkillResponseDto> {
     const { name } = dto;
 
     if (!name || !name.trim()) {
@@ -22,6 +24,7 @@ export class CreateSkillUseCase implements ICreateSkillUseCase {
       throw new ConflictError('Skill with this name already exists');
     }
 
-    return await this._skillRepository.create({ name: normalizedName } as CreateInput<Skill>);
+    const skill = await this._skillRepository.create({ name: normalizedName } as CreateInput<Skill>);
+    return SkillMapper.toResponse(skill);
   }
 }

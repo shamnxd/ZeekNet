@@ -11,9 +11,15 @@ export class AdminDashboardStatsResponseDto {
   };
   charts: {
     earningsOverview: { label: string; value: number }[];
-    popularLocation: { name: string; percentage: number }[];
   };
+  pendingCompanies: {
+    id: string;
+    companyName: string;
+    logo: string;
+    industry: string;
+  }[];
   recentJobs: {
+    id: string;
     title: string;
     experience: string;
     jobType: string;

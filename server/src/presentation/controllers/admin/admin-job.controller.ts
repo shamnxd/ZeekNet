@@ -4,7 +4,6 @@ import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/j
 import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetJobByIdUseCase';
 import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IAdminGetJobStatsUseCase';
 import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminUpdateJobStatusUseCase';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
 import { UpdateJobStatusRequestDtoSchema } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 import { GetAllJobsQueryDto } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
@@ -34,13 +33,9 @@ export class AdminJobController {
   };
 
   getJobById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
-      const job = await this._getJobByIdUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      const job = await this._getJobByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Job retrieved successfully', job);
     } catch (error) {
       handleAsyncError(error, next);
@@ -48,18 +43,14 @@ export class AdminJobController {
   };
 
   updateJobStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     const parsedBody = UpdateJobStatusRequestDtoSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
 
     try {
-      await this._updateJobStatusUseCase.execute(parsedParams.data.id, parsedBody.data);
+      const { id } = req.params;
+      await this._updateJobStatusUseCase.execute(id, parsedBody.data);
       const message = `Job status updated to '${parsedBody.data.status}' successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
@@ -68,13 +59,9 @@ export class AdminJobController {
   };
 
   deleteJob = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
-      await this._deleteJobUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      await this._deleteJobUseCase.execute(id);
       sendSuccessResponse(res, 'Job deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

@@ -4,7 +4,6 @@ import { IDeleteJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin
 import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IGetAllJobCategoriesUseCase';
 import { IGetJobCategoryByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IGetJobCategoryByIdUseCase';
 import { IUpdateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IUpdateJobCategoryUseCase';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
 import { CreateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/create-job-category-request.dto';
 import { GetAllJobCategoriesQueryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/get-all-job-categories-query.dto';
 import { UpdateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
@@ -47,12 +46,9 @@ export class AdminJobCategoryController {
   };
 
   getJobCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
     try {
-      const category = await this._getJobCategoryByIdUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      const category = await this._getJobCategoryByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Category retrieved successfully', category);
     } catch (error) {
       handleAsyncError(error, next);
@@ -60,19 +56,13 @@ export class AdminJobCategoryController {
   };
 
   updateJobCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
     const parsedBody = UpdateJobCategoryDto.safeParse(req.body);
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
     try {
-      const category = await this._updateJobCategoryUseCase.execute(
-        parsedParams.data.id,
-        parsedBody.data
-      );
+      const { id } = req.params;
+      const category = await this._updateJobCategoryUseCase.execute(id, parsedBody.data);
       sendSuccessResponse(res, 'Category updated successfully', category);
     } catch (error) {
       handleAsyncError(error, next);
@@ -80,12 +70,9 @@ export class AdminJobCategoryController {
   };
 
   deleteJobCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
     try {
-      await this._deleteJobCategoryUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      await this._deleteJobCategoryUseCase.execute(id);
       sendSuccessResponse(res, 'Category deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

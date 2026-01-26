@@ -19,7 +19,7 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
     await this._companyVerificationRepository.updateVerificationStatus(
       companyId,
       isVerified as CompanyVerificationStatus,
-      rejectionReason
+      rejectionReason,
     );
 
     if (isVerified === 'verified') {

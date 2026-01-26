@@ -4,7 +4,6 @@ import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases
 import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IGetSubscriptionPlanByIdUseCase';
 import { IMigratePlanSubscribersUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IMigratePlanSubscribersUseCase';
 import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IUpdateSubscriptionPlanUseCase';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
 import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan-request.dto';
 import { GetAllSubscriptionPlansDto } from 'src/application/dtos/admin/subscription/requests/get-all-subscription-plans-query.dto';
 import { MigratePlanSubscribersDto } from 'src/application/dtos/admin/subscription/requests/migrate-plan-subscribers-request.dto';
@@ -50,13 +49,9 @@ export class AdminSubscriptionPlanController {
   };
 
   getSubscriptionPlanById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
-      const plan = await this._getSubscriptionPlanByIdUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      const plan = await this._getSubscriptionPlanByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Subscription plan retrieved successfully', plan);
     } catch (error) {
       handleAsyncError(error, next);
@@ -64,12 +59,8 @@ export class AdminSubscriptionPlanController {
   };
 
   updateSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
-    const parsedBody = UpdateSubscriptionPlanDto.safeParse({ ...req.body, planId: parsedParams.data.id });
+    const { id } = req.params;
+    const parsedBody = UpdateSubscriptionPlanDto.safeParse({ ...req.body, planId: id });
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
@@ -83,12 +74,8 @@ export class AdminSubscriptionPlanController {
   };
 
   migratePlanSubscribers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
-    const parsedBody = MigratePlanSubscribersDto.safeParse({ ...req.body, planId: parsedParams.data.id });
+    const { id } = req.params;
+    const parsedBody = MigratePlanSubscribersDto.safeParse({ ...req.body, planId: id });
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }

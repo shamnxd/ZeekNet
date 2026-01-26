@@ -3,11 +3,13 @@ import { Skill } from 'src/domain/entities/skill.entity';
 import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IUpdateSkillUseCase';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from 'src/domain/errors/errors';
 import { UpdateSkillRequestDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
+import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/responses/skill-response.dto';
+import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
 
 export class UpdateSkillUseCase implements IUpdateSkillUseCase {
   constructor(private readonly _skillRepository: ISkillRepository) { }
 
-  async execute(skillId: string, dto: UpdateSkillRequestDto): Promise<Skill> {
+  async execute(skillId: string, dto: UpdateSkillRequestDto): Promise<SkillResponseDto> {
     const { name } = dto;
 
     if (!name || !name.trim()) {
@@ -33,6 +35,6 @@ export class UpdateSkillUseCase implements IUpdateSkillUseCase {
       throw new InternalServerError('Failed to update skill');
     }
 
-    return updatedSkill;
+    return SkillMapper.toResponse(updatedSkill);
   }
 }

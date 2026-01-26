@@ -4,7 +4,6 @@ import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attri
 import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IGetAllSkillsUseCase';
 import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IGetSkillByIdUseCase';
 import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IUpdateSkillUseCase';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
 import { CreateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
 import { GetAllSkillsDto } from 'src/application/dtos/admin/attributes/skills/requests/get-all-skills-query.dto';
 import { UpdateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
@@ -49,13 +48,9 @@ export class AdminSkillController {
   };
 
   getSkillById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
-      const skill = await this._getSkillByIdUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      const skill = await this._getSkillByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Skill retrieved successfully', skill);
     } catch (error) {
       handleAsyncError(error, next);
@@ -63,18 +58,14 @@ export class AdminSkillController {
   };
 
   updateSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     const parsedBody = UpdateSkillDto.safeParse(req.body);
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
 
     try {
-      const skill = await this._updateSkillUseCase.execute(parsedParams.data.id, parsedBody.data);
+      const { id } = req.params;
+      const skill = await this._updateSkillUseCase.execute(id, parsedBody.data);
       sendSuccessResponse(res, 'Skill updated successfully', skill);
     } catch (error) {
       handleAsyncError(error, next);
@@ -82,13 +73,9 @@ export class AdminSkillController {
   };
 
   deleteSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
-      await this._deleteSkillUseCase.execute(parsedParams.data.id);
+      const { id } = req.params;
+      await this._deleteSkillUseCase.execute(id);
       sendSuccessResponse(res, 'Skill deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

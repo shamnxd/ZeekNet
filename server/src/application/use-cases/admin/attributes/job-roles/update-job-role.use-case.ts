@@ -3,11 +3,13 @@ import { JobRole } from 'src/domain/entities/job-role.entity';
 import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IUpdateJobRoleUseCase';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from 'src/domain/errors/errors';
 import { UpdateJobRoleRequestDto } from 'src/application/dtos/admin/attributes/job-roles/requests/update-job-role-request.dto';
+import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-roles/responses/job-role-response.dto';
+import { JobRoleMapper } from 'src/application/mappers/job/job-role.mapper';
 
 export class UpdateJobRoleUseCase implements IUpdateJobRoleUseCase {
   constructor(private readonly _jobRoleRepository: IJobRoleRepository) { }
 
-  async execute(jobRoleId: string, dto: UpdateJobRoleRequestDto): Promise<JobRole> {
+  async execute(jobRoleId: string, dto: UpdateJobRoleRequestDto): Promise<JobRoleResponseDto> {
     const { name } = dto;
 
     if (!name || !name.trim()) {
@@ -33,7 +35,7 @@ export class UpdateJobRoleUseCase implements IUpdateJobRoleUseCase {
       throw new InternalServerError('Failed to update job role');
     }
 
-    return updatedJobRole;
+    return JobRoleMapper.toResponse(updatedJobRole);
   }
 }
 

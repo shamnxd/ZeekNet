@@ -3,11 +3,13 @@ import { JobCategory } from 'src/domain/entities/job-category.entity';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from 'src/domain/errors/errors';
 import { IUpdateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-categorys/IUpdateJobCategoryUseCase';
 import { UpdateJobCategoryRequestDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
+import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
+import { JobCategoryMapper } from 'src/application/mappers/job/job-category.mapper';
 
 export class UpdateJobCategoryUseCase implements IUpdateJobCategoryUseCase {
   constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
-  async execute(id: string, dto: UpdateJobCategoryRequestDto): Promise<JobCategory> {
+  async execute(id: string, dto: UpdateJobCategoryRequestDto): Promise<JobCategoryResponseDto> {
     const { name } = dto;
     
     if (!name || !name.trim()) {
@@ -31,6 +33,6 @@ export class UpdateJobCategoryUseCase implements IUpdateJobCategoryUseCase {
       throw new InternalServerError('Failed to update category');
     }
 
-    return updated;
+    return JobCategoryMapper.toResponse(updated);
   }
 }
