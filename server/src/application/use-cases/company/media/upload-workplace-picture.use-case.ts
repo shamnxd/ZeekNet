@@ -5,17 +5,18 @@ import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/
 import { UploadWorkplacePictureDto } from 'src/application/dtos/company/media/requests/upload-workplace-picture.dto';
 
 export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
-  constructor(private readonly _s3Service: IS3Service) {}
+  constructor(private readonly _s3Service: IS3Service) { }
 
   async execute(dto: UploadWorkplacePictureDto): Promise<UploadWorkplacePictureResult> {
     const { buffer, originalname, mimetype } = dto;
     this.validateFileType(mimetype, originalname);
     this.validateFileSize(buffer.length);
-    
+
     const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const signedUrl = await this._s3Service.getSignedUrl(key);
 
     return {
-      url: key,
+      url: signedUrl,
       filename: originalname,
     };
   }

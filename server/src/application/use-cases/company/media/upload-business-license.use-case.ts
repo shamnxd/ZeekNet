@@ -5,16 +5,17 @@ import { UploadBusinessLicenseResult } from 'src/application/dtos/company/media/
 import { UploadBusinessLicenseDto } from 'src/application/dtos/company/media/requests/upload-business-license.dto';
 
 export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCase {
-  constructor(private readonly _s3Service: IS3Service) {}
+  constructor(private readonly _s3Service: IS3Service) { }
 
   async execute(dto: UploadBusinessLicenseDto): Promise<UploadBusinessLicenseResult> {
     const { buffer, originalname, mimetype } = dto;
     this.validateFileType(mimetype, originalname);
-    
+
     const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+    const signedUrl = await this._s3Service.getSignedUrl(key);
 
     return {
-      url: key,
+      url: signedUrl,
       filename: originalname,
     };
   }
