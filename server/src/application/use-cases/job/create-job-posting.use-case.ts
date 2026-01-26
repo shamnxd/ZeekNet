@@ -3,7 +3,6 @@ import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositori
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { CreateJobPostingRequestDto } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
-import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { ICreateJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/ICreateJobPostingUseCase';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
@@ -28,12 +27,10 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
     }
 
     let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
-    
-    // If subscription is expired, fall back to default plan
+
     if (!subscription || (subscription && subscription.isExpired() && !subscription.isDefault)) {
       const defaultPlan = await this._subscriptionPlanRepository.findDefault();
       if (defaultPlan) {
-        // If subscription exists but is expired, update it to default plan
         if (subscription && subscription.isExpired()) {
           await this._companySubscriptionRepository.update(subscription.id, {
             planId: defaultPlan.id,

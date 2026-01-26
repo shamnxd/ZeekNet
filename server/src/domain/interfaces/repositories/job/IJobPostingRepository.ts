@@ -24,4 +24,5 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
   countActive(): Promise<number>;
   countExpired(): Promise<number>;
   findRecent(limit: number): Promise<JobPosting[]>;
+  countJobsCreatedAfter(companyId: string, date: Date): Promise<number>;
 }

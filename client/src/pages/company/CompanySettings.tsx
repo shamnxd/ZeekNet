@@ -190,8 +190,9 @@ const CompanySettings = () => {
       setNewPassword('')
       setConfirmPassword('')
       setShowPasswords({ current: false, new: false, confirm: false })
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update password'
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const errorMessage = err?.response?.data?.message || err?.message || 'Failed to update password'
       toast.error(errorMessage)
     } finally {
       setSaving(false)

@@ -1,15 +1,12 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   ArrowRight,
   FileText,
-  TrendingUp,
-  Calendar,
-  Eye
+  Calendar
 } from 'lucide-react'
 import { companyApi } from '@/api/company.api'
 import { toast } from 'sonner'
@@ -21,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, Loader2 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useRedux'
 import { fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
+import type { CompanySideApplication } from '@/interfaces/company/company-data.interface'
 
 const CompanyDashboard = () => {
   const dispatch = useAppDispatch()
@@ -35,10 +33,10 @@ const CompanyDashboard = () => {
     totalApplications: number;
     upcomingInterviews: number;
     unreadMessages: number;
-    newCandidatesCount: number;
+    newCandidatesCount?: number;
   } | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
-  const [applications, setApplications] = useState<Array<{ stage: string; employmentType?: string }>>([])
+  const [applications, setApplications] = useState<CompanySideApplication[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(true)
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
   const [form, setForm] = useState({
@@ -71,7 +69,7 @@ const CompanyDashboard = () => {
     return '1000+';
   }
 
-  const loadProfileForReverify = async () => {
+  const loadProfileForReverify = useCallback(async () => {
     if (reverifyOpen) {
       try {
         const resp = await companyApi.getCompleteProfile()
@@ -113,7 +111,7 @@ const CompanyDashboard = () => {
         toast.error('Failed to load profile data')
       }
     }
-  }
+  }, [reverifyOpen])
 
 
   useEffect(() => {
@@ -134,7 +132,7 @@ const CompanyDashboard = () => {
     if (reverifyOpen) {
       loadProfileForReverify()
     }
-  }, [reverifyOpen])
+  }, [reverifyOpen, loadProfileForReverify])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -440,7 +438,7 @@ const CompanyDashboard = () => {
             </div>
           </div>
 
-          {stats && stats.newCandidatesCount > 0 && (
+          {stats && (stats.newCandidatesCount || 0) > 0 && (
             <div className="mt-6">
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">

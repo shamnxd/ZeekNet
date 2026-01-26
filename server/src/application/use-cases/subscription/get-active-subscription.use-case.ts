@@ -55,12 +55,20 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
 
     // Get the plan to include applicantAccessLimit in response
     const plan = await this._subscriptionPlanRepository.findById(subscription.planId);
-    if (plan && !subscription.applicantAccessLimit) {
-      subscription = CompanySubscription.create({
-        ...subscription,
-        applicantAccessLimit: plan.applicantAccessLimit,
-      });
-    }
+
+    // Sync featured jobs count
+    const featuredJobsResult = await this._jobPostingRepository.paginate({
+      companyId: companyProfile.id,
+      isFeatured: true,
+      status: 'active'
+    }, { page: 1, limit: 1 });
+
+    // Update local subscription object for response
+    subscription = CompanySubscription.create({
+      ...subscription,
+      featuredJobsUsed: featuredJobsResult.total,
+      applicantAccessLimit: plan?.applicantAccessLimit || subscription.applicantAccessLimit,
+    });
 
     return CompanySubscriptionResponseMapper.toResponse(
       Object.assign(subscription, { activeJobCount }),

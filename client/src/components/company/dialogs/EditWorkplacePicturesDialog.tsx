@@ -88,7 +88,7 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
     }
 
     // Clean up preview URLs before saving
-    const picturesToSave = validPictures.map(({ previewUrl, ...rest }) => rest);
+    const picturesToSave = validPictures.map(({ previewUrl: _previewUrl, ...rest }) => rest);
 
     onSave(picturesToSave);
     onClose();

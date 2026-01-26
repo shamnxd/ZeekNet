@@ -40,7 +40,7 @@ export class ToggleFeaturedJobUseCase implements IToggleFeaturedJobUseCase {
     const newIsFeatured = !jobPosting.isFeatured;
 
     if (newIsFeatured) {
-      const subscription = await this._companySubscriptionRepository.findOne({ companyId: companyProfile.id });
+      const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
       if (!subscription) {
         throw new ConflictError('No active subscription found');
       }
@@ -54,6 +54,13 @@ export class ToggleFeaturedJobUseCase implements IToggleFeaturedJobUseCase {
 
       if (featuredJobsResult.total >= featuredJobLimit) {
         throw new ConflictError(`You have reached your featured jobs limit (${featuredJobLimit}). Upgrade your plan to feature more jobs.`);
+      }
+
+      await this._companySubscriptionRepository.incrementFeaturedJobsUsed(subscription.id);
+    } else {
+      const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
+      if (subscription) {
+        await this._companySubscriptionRepository.decrementFeaturedJobsUsed(subscription.id);
       }
     }
 

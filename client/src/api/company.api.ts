@@ -56,9 +56,7 @@ export const companyApi = {
   },
 
   async updateProfile(data: Partial<CompanyProfileData>): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    // @ts-ignore - Runtime check for File objects
     const hasFileUpload = ((data.logo as unknown) instanceof File) ||
-      // @ts-ignore - Runtime check for File objects
       ((data.business_license as unknown) instanceof File);
 
     if (!hasFileUpload) {
@@ -69,7 +67,6 @@ export const companyApi = {
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        // @ts-ignore - Runtime check for File objects
         if ((value as unknown) instanceof File) {
           formData.append(key, value as unknown as File);
         } else {

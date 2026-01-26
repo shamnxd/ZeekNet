@@ -74,6 +74,7 @@ const ATSPanel = () => {
 
           const groupedByStage: ApplicationsKanbanResponse = {};
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           applications.forEach((app: any) => {
             const stage = app.stage;
             if (!groupedByStage[stage]) {

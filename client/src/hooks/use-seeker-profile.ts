@@ -11,7 +11,7 @@ export const useSeekerProfile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    
+
     const [editBannerOpen, setEditBannerOpen] = useState(false);
     const [bannerCropperOpen, setBannerCropperOpen] = useState(false);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
@@ -34,12 +34,12 @@ export const useSeekerProfile = () => {
     const [editDetailsOpen, setEditDetailsOpen] = useState(false);
     const [editSocialOpen, setEditSocialOpen] = useState(false);
 
-    
+
     const [profile, setProfile] = useState<SeekerProfileType | null>(null);
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [education, setEducation] = useState<Education[]>([]);
 
-    
+
     const [tempBannerImage, setTempBannerImage] = useState<string>('');
     const [tempProfileImage, setTempProfileImage] = useState<string>('');
 
@@ -82,7 +82,7 @@ export const useSeekerProfile = () => {
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);
     const [skillsLoading, setSkillsLoading] = useState(false);
-    
+
     const [technologyOptions, setTechnologyOptions] = useState<ComboboxOption[]>([]);
     const [technologyLoading, setTechnologyLoading] = useState(false);
 
@@ -368,7 +368,7 @@ export const useSeekerProfile = () => {
         }
     };
 
-     const handleRemoveExperience = (experienceId: string) => {
+    const handleRemoveExperience = (experienceId: string) => {
         setExperienceToDelete(experienceId);
         setDeleteExperienceOpen(true);
     };
@@ -594,19 +594,19 @@ export const useSeekerProfile = () => {
             return;
         }
         const trimmed = newLanguage.trim();
-        
+
         // Validate language - should not be just numbers
         if (/^\d+$/.test(trimmed)) {
             setDetailsError('Please enter a valid language name (numbers are not allowed)');
             return;
         }
-        
+
         // Validate language - should contain at least one letter
         if (!/[a-zA-Z]/.test(trimmed)) {
             setDetailsError('Please enter a valid language name');
             return;
         }
-        
+
         if (editingLanguages.includes(trimmed)) {
             toast.error('This language is already added');
             return;
@@ -623,7 +623,7 @@ export const useSeekerProfile = () => {
     const handleEditDetails = async () => {
         if (!profile) return;
         setDetailsError('');
-        
+
         // Validate email
         if (editingEmail && editingEmail.trim()) {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
@@ -631,7 +631,7 @@ export const useSeekerProfile = () => {
                 return;
             }
         }
-        
+
         // Validate phone number - must have at least 10 digits and should not be just special characters
         if (editingPhone && editingPhone.trim()) {
             const digitsOnly = editingPhone.replace(/\D/g, '');
@@ -640,7 +640,7 @@ export const useSeekerProfile = () => {
                 return;
             }
             // Check if phone contains valid characters (digits, spaces, dashes, parentheses, plus)
-            if (!/^[\d\s\-\(\)\+]+$/.test(editingPhone.trim())) {
+            if (!/^[\d\s\-()+]+$/.test(editingPhone.trim())) {
                 setDetailsError('Please enter a valid phone number');
                 return;
             }
@@ -797,11 +797,11 @@ export const useSeekerProfile = () => {
     };
 
     return {
-        
+
         loading, saving, profile, experiences, education,
         profilePhoto, bannerImage,
-        
-        
+
+
         editBannerOpen, setEditBannerOpen,
         bannerCropperOpen, setBannerCropperOpen,
         editProfileOpen, setEditProfileOpen,
@@ -817,11 +817,11 @@ export const useSeekerProfile = () => {
         deleteSkillOpen, setDeleteSkillOpen,
         editDetailsOpen, setEditDetailsOpen,
         editSocialOpen, setEditSocialOpen,
-        
-        
+
+
         tempBannerImage, setTempBannerImage,
         tempProfileImage, setTempProfileImage,
-        bannerImageFile, 
+        bannerImageFile,
         profilePhotoFile,
         profileData, setProfileData,
         aboutData, setAboutData,
@@ -841,10 +841,10 @@ export const useSeekerProfile = () => {
         editingExperienceId, setEditingExperienceId,
         editingEducationId, setEditingEducationId,
 
-        
+
         SOCIAL_PLATFORMS,
 
-        
+
         handleBannerChange, handleBannerCropComplete, handleEditBanner,
         handlePhotoChange, handleProfileCropComplete,
         handleEditProfile,
@@ -857,7 +857,7 @@ export const useSeekerProfile = () => {
         handleEditDetails, handleEditSocial,
         detailsError, setDetailsError,
 
-        
+
         formatDate, formatPeriod, isoToDateInput,
     }
 }

@@ -2,7 +2,7 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { companyApi } from '@/api/company.api'
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface'
@@ -89,7 +89,7 @@ const CompanyJobListing = () => {
   const [additionalVacancies, setAdditionalVacancies] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchJobs = async (page: number = 1, limit: number = 10) => {
+  const fetchJobs = useCallback(async (page: number = 1, limit: number = 10) => {
     try {
       setLoading(true)
       setError(null)
@@ -119,11 +119,11 @@ const CompanyJobListing = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm])
 
   useEffect(() => {
     fetchJobs()
-  }, [])
+  }, [fetchJobs])
 
   const handleJobClick = (jobId: string) => {
     navigate(`/company/job-details/${jobId}`)

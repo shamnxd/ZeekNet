@@ -2287,17 +2287,18 @@ const CandidateProfileView = () => {
                     <div className="mt-3 pt-3 border-t flex gap-2 flex-wrap">
                       {interview.status === "scheduled" && (
                         <>
-                          {(interview as any).videoType === "in-app" &&
-                            (interview as any).webrtcRoomId ? (
+                          {('videoType' in interview) && (interview as unknown as { videoType: string }).videoType === "in-app" &&
+                            ('webrtcRoomId' in interview) && (interview as unknown as { webrtcRoomId: string }).webrtcRoomId ? (
                             <Button
                               size="sm"
                               variant="default"
                               onClick={() =>
                                 navigate(
-                                  `/video-call/${(interview as any).webrtcRoomId
+                                  `/video-call/${(interview as unknown as { webrtcRoomId: string }).webrtcRoomId
                                   }`
                                 )
                               }
+                              className='mb-2'
                             >
                               <Video className="h-3.5 w-3.5 mr-1" />
                               Join In-App Video

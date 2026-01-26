@@ -137,7 +137,7 @@ const AdminDashboard = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-gray-800">Your Earnings Overview</CardTitle>
                 <div className="flex gap-2 items-center">
-                  <Select value={periodType} onValueChange={(value: any) => setPeriodType(value)}>
+                  <Select value={periodType} onValueChange={(value: 'today' | 'week' | 'month' | 'year' | 'custom') => setPeriodType(value)}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select period" />
                     </SelectTrigger>

@@ -50,7 +50,7 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
 
       if (phoneValue.includes('-') && phoneValue.startsWith('-')) {
         newErrors.phone = 'Phone number cannot be negative';
-      } else if (!/^[\d\s\-\(\)\+]+$/.test(phoneValue)) {
+      } else if (!/^[\d\s\-()+]+$/.test(phoneValue)) {
         newErrors.phone = 'Phone number can only contain digits, spaces, +, -, ( and )';
       } else {
         const digitsOnly = phoneValue.replace(/\D/g, '');

@@ -34,9 +34,10 @@ const FindCandidates = () => {
       })
       setCandidates(response.data?.candidates || [])
       setTotalPages(response.data?.totalPages || 1)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      if (error?.response?.data?.message?.includes('limit') || error?.response?.data?.message?.includes('subscription')) {
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err?.response?.data?.message?.includes('limit') || err?.response?.data?.message?.includes('subscription')) {
         setLimitReached(true)
         setCandidates([])
       }

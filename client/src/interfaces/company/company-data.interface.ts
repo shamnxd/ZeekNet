@@ -9,7 +9,7 @@ export interface CompanyContact {
   facebook?: string;
   createdAt?: string;
   updatedAt?: string;
-  
+
   linkedin?: string;
   twitter_link?: string;
   facebook_link?: string;
@@ -22,7 +22,7 @@ export interface TechStackItem {
   category?: string;
   createdAt?: string;
   updatedAt?: string;
-  
+
   techStack?: string;
 }
 
@@ -37,7 +37,7 @@ export interface OfficeLocation {
   isPrimary?: boolean;
   createdAt?: string;
   updatedAt?: string;
-  
+
   location?: string;
   officeName?: string;
   isHeadquarters?: boolean;
@@ -51,7 +51,7 @@ export interface Benefit {
   icon?: string;
   createdAt?: string;
   updatedAt?: string;
-  
+
   perk?: string;
 }
 
@@ -63,12 +63,12 @@ export interface WorkplacePicture {
   order?: number;
   createdAt?: string;
   updatedAt?: string;
-  
+
   pictureUrl?: string;
 }
 
 export interface CompanySideApplication {
-  
+
   id?: string;
   _id?: string;
   jobId?: string;
@@ -77,28 +77,29 @@ export interface CompanySideApplication {
   seeker_id?: string;
   companyId?: string;
   company_id?: string;
-  
+
   status?: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
   stage?: string;
   subStage?: string;
   sub_stage?: string;
-  
-  
+  employmentType?: string;
+
+
   resumeUrl?: string;
   resume_url?: string;
   resume_filename?: string;
   coverLetter?: string;
   cover_letter?: string;
-  
-  
+
+
   createdAt?: string;
   created_at?: string;
   updatedAt?: string;
   updated_at?: string;
   applied_date?: string;
   appliedAt?: string;
-  
-  
+
+
   seeker_name?: string;
   seeker_avatar?: string;
   seeker_headline?: string;
@@ -110,8 +111,8 @@ export interface CompanySideApplication {
   avatar?: string;
   experience?: string;
   match_percentage?: number;
-  
-  
+
+
   date_of_birth?: string | Date;
   gender?: string;
   languages?: string[];
@@ -136,8 +137,8 @@ export interface CompanySideApplication {
     tools_technologies?: string[];
     other_skills?: string[];
   };
-  
-  
+
+
   seeker?: {
     id: string;
     name: string;

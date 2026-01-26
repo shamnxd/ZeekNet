@@ -81,7 +81,7 @@ const CompanyProfileView = () => {
       } else {
         toast.error(response.message || 'Failed to update block status')
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred while updating block status')
     }
   }
