@@ -5,7 +5,7 @@ export const SimpleUpdateCompanyProfileDto = z.object({
   company_name: z.string().min(1).optional(),
   logo: z.string().optional(),
   banner: z.string().optional(),
-  website_link: z.string().url().optional(),
+  website_link: z.union([z.string().url(), z.literal('')]).optional(),
   employee_count: z.number().min(1).optional(),
   industry: z.string().min(1).optional(),
   organisation: z.string().min(1).optional(),

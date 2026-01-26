@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
+export const GetCompanyOfficeLocationDto = z.object({
+  userId: z.string(),
+});
+
 export const CreateCompanyOfficeLocationDto = z.object({
-  companyId: z.string().min(1, 'Company ID is required').optional(),
   location: z.string().min(1, 'Location cannot be empty'),
   officeName: z.string().optional(),
   address: z.string().optional(),
@@ -9,7 +12,6 @@ export const CreateCompanyOfficeLocationDto = z.object({
 });
 
 export const UpdateCompanyOfficeLocationDto = z.object({
-  companyId: z.string().min(1, 'Company ID is required'),
   locationId: z.string().min(1, 'Location ID is required'),
   location: z.string().min(1, 'Location cannot be empty').optional(),
   officeName: z.string().optional(),
@@ -17,5 +19,16 @@ export const UpdateCompanyOfficeLocationDto = z.object({
   isHeadquarters: z.boolean().optional(),
 });
 
-export type CreateCompanyOfficeLocationRequestDto = z.infer<typeof CreateCompanyOfficeLocationDto>;
-export type UpdateCompanyOfficeLocationRequestDto = z.infer<typeof UpdateCompanyOfficeLocationDto>;
+export const DeleteCompanyOfficeLocationDto = z.object({
+  userId: z.string(),
+  locationId: z.string(),
+});
+
+export type GetCompanyOfficeLocationRequestDto = z.infer<typeof GetCompanyOfficeLocationDto>;
+export type CreateCompanyOfficeLocationRequestDto = z.infer<typeof CreateCompanyOfficeLocationDto> & {
+  userId: string;
+};
+export type UpdateCompanyOfficeLocationRequestDto = z.infer<typeof UpdateCompanyOfficeLocationDto> & {
+  userId: string;
+};
+export type DeleteCompanyOfficeLocationRequestDto = z.infer<typeof DeleteCompanyOfficeLocationDto>;
