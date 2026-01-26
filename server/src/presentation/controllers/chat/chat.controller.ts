@@ -5,7 +5,6 @@ import { SendMessageRequestDtoSchema } from 'src/application/dtos/chat/requests/
 import { GetConversationsRequestDtoSchema } from 'src/application/dtos/chat/requests/get-conversations-request.dto';
 import { GetMessagesRequestDtoSchema } from 'src/application/dtos/chat/requests/get-messages-request.dto';
 
-import { IChatService } from 'src/domain/interfaces/services/IChatService';
 import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/ICreateConversationUseCase';
 import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendMessageUseCase';
 import { IGetConversationsUseCase } from 'src/domain/interfaces/use-cases/chat/IGetConversationsUseCase';
@@ -18,7 +17,7 @@ import {
   handleAsyncError,
   handleValidationError,
   sendSuccessResponse,
-  validateUserId
+  validateUserId,
 } from 'src/shared/utils/presentation/controller.utils';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
@@ -30,7 +29,6 @@ export class ChatController {
     private readonly _getMessagesUseCase: IGetMessagesUseCase,
     private readonly _markMessagesAsReadUseCase: IMarkMessagesAsReadUseCase,
     private readonly _deleteMessageUseCase: IDeleteMessageUseCase,
-    private readonly _chatSocketService: IChatService,
   ) { }
 
   createConversation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -45,7 +43,7 @@ export class ChatController {
 
       const conversation = await this._createConversationUseCase.execute({
         creatorId: userId,
-        participantId: parsed.data.participantId
+        participantId: parsed.data.participantId,
       });
 
       sendSuccessResponse(res, 'Conversation ready', conversation);
@@ -69,8 +67,6 @@ export class ChatController {
         senderId: userId,
       });
 
-      this._chatSocketService.emitMessageDelivered(result.message, result.conversation);
-
       sendSuccessResponse(res, 'Message sent successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -83,7 +79,7 @@ export class ChatController {
 
       const parsed = GetConversationsRequestDtoSchema.safeParse({
         userId,
-        ...req.query
+        ...req.query,
       });
 
       if (!parsed.success) {
@@ -107,7 +103,7 @@ export class ChatController {
       const parsed = GetMessagesRequestDtoSchema.safeParse({
         userId,
         conversationId,
-        ...req.query
+        ...req.query,
       });
 
       if (!parsed.success) {
@@ -128,15 +124,10 @@ export class ChatController {
       const userId = validateUserId(req);
       const conversationId = req.params.conversationId;
 
-      const conversation = await this._markMessagesAsReadUseCase.execute({
+      await this._markMessagesAsReadUseCase.execute({
         userId,
-        conversationId
+        conversationId,
       });
-
-      const otherParticipant = conversation.participants.find((p) => p.userId !== userId);
-      if (otherParticipant) {
-        this._chatSocketService.emitMessagesRead(conversationId, userId, otherParticipant.userId);
-      }
 
       sendSuccessResponse(res, 'Messages marked as read', null);
     } catch (error) {
@@ -149,14 +140,10 @@ export class ChatController {
       const userId = validateUserId(req);
       const messageId = req.params.messageId;
 
-      const result = await this._deleteMessageUseCase.execute({
+      await this._deleteMessageUseCase.execute({
         userId,
-        messageId
+        messageId,
       });
-
-      if (result && result.conversation) {
-        this._chatSocketService.emitMessageDeleted(result.message, result.conversation);
-      }
 
       sendSuccessResponse(res, 'Message deleted successfully', null);
     } catch (error) {

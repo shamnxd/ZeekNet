@@ -2,14 +2,20 @@ import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { JwtTokenService } from 'src/infrastructure/security/jwt-token-service';
 import { notificationService } from 'src/infrastructure/di/notificationDi';
-import { chatService } from 'src/infrastructure/di/chatDi';
+import {
+  chatSocketService,
+  socketConnectionManager,
+  sendMessageUseCase,
+  markMessagesAsReadUseCase,
+  chatConversationRepository,
+} from 'src/infrastructure/di/chatDi';
 import { logger } from 'src/infrastructure/config/logger';
 import { env } from 'src/infrastructure/config/env';
 import { ISocketServer } from 'src/domain/interfaces/services/ISocketServer';
 
 export class SocketServer implements ISocketServer {
   private _io: SocketIOServer;
-  private _webrtcRooms: Map<string, Set<string>> = new Map(); 
+  private _webrtcRooms: Map<string, Set<string>> = new Map();
 
   constructor(httpServer: HTTPServer) {
     this._io = new SocketIOServer(httpServer, {
@@ -23,7 +29,7 @@ export class SocketServer implements ISocketServer {
     this._setupMiddleware();
     this._setupEventHandlers();
     notificationService.setIO(this._io);
-    chatService.setIO(this._io);
+    chatSocketService.setIO(this._io);
   }
 
   private _setupMiddleware(): void {
@@ -50,10 +56,10 @@ export class SocketServer implements ISocketServer {
   private _setupEventHandlers(): void {
     this._io.on('connection', (socket: Socket) => {
       const userId = socket.data.userId;
-      logger.info(`Socket connected: ${socket.id} for user: ${userId}`);
+      logger.info(`Socket connected: ${socket.id} for user: ${userId} `);
 
-      socket.join(`user:${userId}`);
-      chatService.registerConnection(userId, socket.id);
+      socket.join(`user:${userId} `);
+      socketConnectionManager.registerConnection(userId, socket.id);
       notificationService.registerUser(userId, socket.id);
 
       socket.on(
@@ -68,7 +74,7 @@ export class SocketServer implements ISocketServer {
               callback?.({ success: false, message: 'conversationId is required' });
               return;
             }
-            const result = await chatService.sendMessage({
+            const result = await sendMessageUseCase.execute({
               senderId: userId,
               receiverId,
               content,
@@ -94,13 +100,14 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          const isParticipant = await chatService.ensureParticipant(conversationId, userId);
+          const conversation = await chatConversationRepository.findById(conversationId);
+          const isParticipant = !!conversation?.participants.some((p) => p.userId === userId);
           if (!isParticipant) {
             callback?.({ success: false, message: 'Not authorized for this conversation' });
             return;
           }
 
-          socket.join(`conversation:${conversationId}`);
+          socket.join(`conversation:${conversationId} `);
           callback?.({ success: true });
         },
       );
@@ -109,7 +116,7 @@ export class SocketServer implements ISocketServer {
         'typing_indicator',
         (payload: { conversationId: string; receiverId: string } | undefined) => {
           if (!payload?.conversationId || !payload.receiverId) return;
-          chatService.emitTyping(payload.conversationId, userId, payload.receiverId);
+          chatSocketService.emitTyping(payload.conversationId, userId, payload.receiverId);
         },
       );
 
@@ -122,7 +129,7 @@ export class SocketServer implements ISocketServer {
           }
 
           try {
-            await chatService.markMessagesAsRead(userId, payload.conversationId);
+            await markMessagesAsReadUseCase.execute({ userId, conversationId: payload.conversationId });
             callback?.({ success: true });
           } catch (error) {
             logger.error('Error handling mark_as_read event:', error);
@@ -134,7 +141,7 @@ export class SocketServer implements ISocketServer {
         },
       );
 
-      
+
       socket.on('webrtc:join-room', (payload: { roomId: string; userName?: string }, callback?: (response: unknown) => void) => {
         try {
           const { roomId, userName } = payload || {};
@@ -150,19 +157,19 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          socket.join(`webrtc:${roomId}`);
-          
-          
+          socket.join(`webrtc:${roomId} `);
+
+
           if (!this._webrtcRooms.has(roomId)) {
             this._webrtcRooms.set(roomId, new Set());
           }
           this._webrtcRooms.get(roomId)!.add(socket.id);
 
-          
-          const otherParticipants = Array.from(this._webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
-          socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', { socketId: socket.id, userId, userName });
 
-          logger.info(`User ${userId} (${userName || 'Unknown'}) joined WebRTC room: ${roomId}`);
+          const otherParticipants = Array.from(this._webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
+          socket.to(`webrtc:${roomId} `).emit('webrtc:user-joined', { socketId: socket.id, userId, userName });
+
+          logger.info(`User ${userId} (${userName || 'Unknown'}) joined WebRTC room: ${roomId} `);
           callback?.({ success: true, participants: otherParticipants.length });
         } catch (error) {
           logger.error('Error handling webrtc:join-room:', error);
@@ -180,7 +187,7 @@ export class SocketServer implements ISocketServer {
           if (targetSocketId) {
             socket.to(targetSocketId).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           } else {
-            socket.to(`webrtc:${roomId}`).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
+            socket.to(`webrtc:${roomId} `).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:offer:', error);
@@ -197,7 +204,7 @@ export class SocketServer implements ISocketServer {
           if (targetSocketId) {
             socket.to(targetSocketId).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           } else {
-            socket.to(`webrtc:${roomId}`).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
+            socket.to(`webrtc:${roomId} `).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:answer:', error);
@@ -212,11 +219,11 @@ export class SocketServer implements ISocketServer {
           }
 
           if (targetSocketId) {
-            
+
             socket.to(targetSocketId).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           } else {
-            
-            socket.to(`webrtc:${roomId}`).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
+
+            socket.to(`webrtc:${roomId} `).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           }
         } catch (error) {
           logger.error('Error handling webrtc:ice-candidate:', error);
@@ -227,7 +234,7 @@ export class SocketServer implements ISocketServer {
         try {
           const { roomId, type, enabled } = payload || {};
           if (!roomId) return;
-          socket.to(`webrtc:${roomId}`).emit('webrtc:media-toggle', { type, enabled, socketId: socket.id });
+          socket.to(`webrtc:${roomId} `).emit('webrtc:media-toggle', { type, enabled, socketId: socket.id });
         } catch (error) {
           logger.error('Error handling webrtc:media-toggle:', error);
         }
@@ -240,36 +247,36 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          socket.leave(`webrtc:${roomId}`);
-          
-          
+          socket.leave(`webrtc:${roomId} `);
+
+
           const roomParticipants = this._webrtcRooms.get(roomId);
           if (roomParticipants) {
             roomParticipants.delete(socket.id);
             if (roomParticipants.size === 0) {
               this._webrtcRooms.delete(roomId);
             } else {
-              
-              socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
+
+              socket.to(`webrtc:${roomId} `).emit('webrtc:user-left', { socketId: socket.id });
             }
           }
 
-          logger.info(`User ${userId} left WebRTC room: ${roomId}`);
+          logger.info(`User ${userId} left WebRTC room: ${roomId} `);
         } catch (error) {
           logger.error('Error handling webrtc:leave-room:', error);
         }
       });
 
       socket.on('disconnect', () => {
-        logger.info(`Socket disconnected: ${socket.id} for user: ${userId}`);
-        chatService.unregisterConnection(userId, socket.id);
+        logger.info(`Socket disconnected: ${socket.id} for user: ${userId} `);
+        socketConnectionManager.unregisterConnection(userId, socket.id);
         notificationService.unregisterUser(userId);
 
-        
+
         this._webrtcRooms.forEach((participants, roomId) => {
           if (participants.has(socket.id)) {
             participants.delete(socket.id);
-            socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
+            socket.to(`webrtc:${roomId} `).emit('webrtc:user-left', { socketId: socket.id });
             if (participants.size === 0) {
               this._webrtcRooms.delete(roomId);
             }
