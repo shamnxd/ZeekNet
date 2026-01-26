@@ -3,7 +3,7 @@ import { RequestOtpDto } from 'src/application/dtos/auth/verification/request-ot
 import { VerifyOtpDto } from 'src/application/dtos/auth/verification/verify-otp.dto';
 import { IRequestOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IRequestOtpUseCase';
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IVerifyOtpUseCase';
-import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { ICookieService } from 'src/presentation/services/ICookieService';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 

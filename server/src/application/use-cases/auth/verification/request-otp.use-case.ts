@@ -7,29 +7,29 @@ import { RequestOtpRequestDto } from 'src/application/dtos/auth/verification/req
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
 export class RequestOtpUseCase implements IRequestOtpUseCase {
-    constructor(
+  constructor(
         private readonly _otpService: IOtpService,
         private readonly _mailerService: IMailerService,
         private readonly _userRepository: IUserRepository,
-    ) { }
+  ) { }
 
-    async execute(params: RequestOtpRequestDto): Promise<void> {
-        const { email } = params;
+  async execute(params: RequestOtpRequestDto): Promise<void> {
+    const { email } = params;
 
-        const user = await this._userRepository.findOne({ email });
-        if (!user) {
-            throw new ValidationError('User not found');
-        }
-
-        if (user.isVerified) {
-            throw new ValidationError('User already verified');
-        }
-
-        const code = await this._otpService.generateAndStoreOtp(email);
-        await this._mailerService.sendMail(
-            email,
-            otpVerificationTemplate.subject,
-            otpVerificationTemplate.html(code)
-        );
+    const user = await this._userRepository.findOne({ email });
+    if (!user) {
+      throw new ValidationError('User not found');
     }
+
+    if (user.isVerified) {
+      throw new ValidationError('User already verified');
+    }
+
+    const code = await this._otpService.generateAndStoreOtp(email);
+    await this._mailerService.sendMail(
+      email,
+      otpVerificationTemplate.subject,
+      otpVerificationTemplate.html(code),
+    );
+  }
 }

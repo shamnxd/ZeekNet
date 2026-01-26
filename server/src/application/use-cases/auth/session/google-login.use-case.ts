@@ -32,7 +32,7 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
       const randomPassword = crypto.randomBytes(32).toString('hex');
       const hashedPassword = await this._passwordHasher.hash(randomPassword);
       user = await this._userRepository.create(
-        UserMapper.fromGoogleProfile(profile, hashedPassword)
+        UserMapper.fromGoogleProfile(profile, hashedPassword),
       );
     }
 

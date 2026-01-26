@@ -4,7 +4,7 @@ import { GoogleLoginDto } from 'src/application/dtos/auth/session/google-login.d
 import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/session/ILoginUserUseCase';
 import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IAdminLoginUseCase';
 import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IGoogleLoginUseCase';
-import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { ICookieService } from 'src/presentation/services/ICookieService';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 

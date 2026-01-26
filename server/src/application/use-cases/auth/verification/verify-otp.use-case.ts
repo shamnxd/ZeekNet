@@ -37,7 +37,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
 
     const accessToken = this._tokenService.signAccess({
       sub: user.id,
-      role: user.role as UserRole
+      role: user.role as UserRole,
     });
     const refreshToken = this._tokenService.signRefresh({ sub: user.id });
     const hashedRefresh = await this._passwordHasher.hash(refreshToken);
@@ -48,7 +48,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
     await this._mailerService.sendMail(
       user.email,
       welcomeTemplate.subject,
-      welcomeTemplate.html(user.name || 'User', dashboardLink)
+      welcomeTemplate.html(user.name || 'User', dashboardLink),
     );
 
     return {

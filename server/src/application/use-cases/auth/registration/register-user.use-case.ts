@@ -30,7 +30,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     const hashedPassword = await this._passwordHasher.hash(password);
 
     const user = await this._userRepository.create(
-      UserMapper.fromRegistration(params, hashedPassword)
+      UserMapper.fromRegistration(params, hashedPassword),
     );
 
     await this.sendOtpEmail(user.email);
