@@ -1,3 +1,5 @@
+import { CloseJobDto } from 'src/application/dtos/company/job/requests/close-job.dto';
+
 export interface ICloseJobManuallyUseCase {
-    execute(params: { userId: string; jobId: string }): Promise<void>;
+    execute(dto: CloseJobDto): Promise<void>;
 }

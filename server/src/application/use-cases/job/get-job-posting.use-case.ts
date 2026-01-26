@@ -1,12 +1,13 @@
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetJobPostingUseCase } from 'src/domain/interfaces/use-cases/job/IGetJobPostingUseCase';
 import { NotFoundError } from 'src/domain/errors/errors';
-import { JobPosting } from 'src/domain/entities/job-posting.entity';
+import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
+import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
 export class GetJobPostingUseCase implements IGetJobPostingUseCase {
   constructor(private readonly _jobPostingRepository: IJobPostingRepository) {}
 
-  async execute(jobId: string): Promise<JobPosting> {
+  async execute(jobId: string): Promise<JobPostingResponseDto> {
     const jobPosting = await this._jobPostingRepository.findById(jobId);
 
     if (!jobPosting) {
@@ -17,7 +18,7 @@ export class GetJobPostingUseCase implements IGetJobPostingUseCase {
       throw new NotFoundError('Job posting not found');
     }
 
-    return jobPosting;
+    return JobPostingMapper.toResponse(jobPosting);
   }
 }
 

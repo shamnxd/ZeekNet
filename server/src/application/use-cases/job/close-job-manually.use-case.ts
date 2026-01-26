@@ -8,12 +8,9 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
-export interface CloseJobManuallyDto {
-  userId: string;
-  jobId: string;
-}
-
+import { CloseJobDto } from 'src/application/dtos/company/job/requests/close-job.dto';
 import { ICloseJobManuallyUseCase } from 'src/domain/interfaces/use-cases/job/ICloseJobManuallyUseCase';
 
 export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
@@ -24,9 +21,10 @@ export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
+    private readonly _logger: ILogger,
   ) { }
 
-  async execute(dto: CloseJobManuallyDto): Promise<void> {
+  async execute(dto: CloseJobDto): Promise<void> {
     const { userId, jobId } = dto;
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
@@ -82,7 +80,7 @@ export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
 
-      console.error(`Failed to send job closed email to ${email}:`, error);
+      this._logger.error(`Failed to send job closed email to ${email}:`, error);
     }
   }
 }

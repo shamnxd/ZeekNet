@@ -1,3 +1,5 @@
+import { ReopenJobRequestDto } from 'src/application/dtos/company/job/requests/reopen-job-request.dto';
+
 export interface IReopenJobUseCase {
-    execute(params: { userId: string; jobId: string; additionalVacancies: number }): Promise<void>;
+    execute(dto: ReopenJobRequestDto): Promise<void>;
 }
