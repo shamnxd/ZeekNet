@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { env } from 'src/infrastructure/config/env';
-import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { ICookieService } from 'src/presentation/services/ICookieService';
 
 export class CookieService implements ICookieService {
   private readonly _cookieName: string = env.COOKIE_NAME_REFRESH;
@@ -9,7 +9,7 @@ export class CookieService implements ICookieService {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
-    maxAge: 7 * 24 * 60 * 60 * 1000, 
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
   };
 

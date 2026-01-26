@@ -3,6 +3,7 @@ import { createSuccessResponse, createErrorResponse } from 'src/shared/utils/pre
 import { ErrorHandler } from 'src/shared/utils/presentation/error.utils';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
+import { logger } from 'src/infrastructure/config/logger';
 
 export function extractUserId(req: AuthenticatedRequest): string | null {
   return req.user?.id || null;
@@ -49,7 +50,7 @@ export function badRequest(res: Response, message: string): void {
 }
 
 export function handleError(res: Response, error: unknown): void {
-  console.error('Controller error:', error);
+  logger.error('Controller error:', error);
 
   if (error && typeof error === 'object' && 'statusCode' in error && 'message' in error) {
     sendErrorResponse(res, (error as { message: string }).message, null, (error as { statusCode: number }).statusCode);

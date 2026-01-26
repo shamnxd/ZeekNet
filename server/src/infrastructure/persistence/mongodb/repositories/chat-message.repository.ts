@@ -7,8 +7,7 @@ import { ChatMessagePersistenceMapper } from 'src/infrastructure/mappers/persist
 
 export class ChatMessageRepository
   extends RepositoryBase<ChatMessage, ChatMessageDocument>
-  implements IMessageRepository
-{
+  implements IMessageRepository {
   constructor() {
     super(ChatMessageModel);
   }
@@ -105,7 +104,13 @@ export class ChatMessageRepository
       return 0;
     }
 
-    const filter: any = {
+    interface FilterType {
+      receiver_id: Types.ObjectId;
+      isDeleted: { $ne: boolean };
+      createdAt?: { $gte: Date };
+    }
+
+    const filter: FilterType = {
       receiver_id: new Types.ObjectId(receiverId),
       isDeleted: { $ne: true },
     };

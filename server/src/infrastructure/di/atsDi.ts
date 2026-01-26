@@ -37,6 +37,7 @@ import { AddCompensationNoteUseCase } from 'src/application/use-cases/applicatio
 
 import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
 import { FileUploadService } from 'src/application/services/file-upload.service';
+import { LoggerService } from 'src/infrastructure/services/logger.service';
 
 import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
 import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-technical-task.repository';
@@ -74,6 +75,7 @@ const emailTemplateService = new EmailTemplateService();
 
 const activityLoggerService = new ActivityLoggerService(activityRepository);
 const fileUploadService = new FileUploadService(s3Service);
+const loggerService = new LoggerService();
 
 const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   interviewRepository,
@@ -83,8 +85,10 @@ const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, jobApplicationRepository, activityLoggerService);
+const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, jobApplicationRepository, activityLoggerService, userRepository);
+
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(interviewRepository);
 const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
   technicalTaskRepository,
@@ -94,11 +98,12 @@ const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService);
+const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const deleteTechnicalTaskUseCase = new DeleteTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository);
-const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, activityLoggerService);
+const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRepository);
 
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
@@ -116,8 +121,9 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const addCommentUseCase = new AddCommentUseCase(commentRepository, activityLoggerService);
+const addCommentUseCase = new AddCommentUseCase(commentRepository, activityLoggerService, userRepository);
 const getApplicationActivitiesUseCase = new GetApplicationActivitiesUseCase(activityRepository);
 const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   jobApplicationRepository,
@@ -126,14 +132,16 @@ const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   userRepository,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const getJobPipelineUseCase = new GetJobATSPipelineUseCase(jobPostingRepository);
+const getJobPipelineUseCase = new GetJobATSPipelineUseCase(jobPostingRepository, getCompanyIdByUserIdUseCase);
 const getJobApplicationsForKanbanUseCase = new GetJobApplicationsForKanbanUseCase(
   jobApplicationRepository,
   jobPostingRepository,
   userRepository,
   seekerProfileRepository,
   s3Service,
+  getCompanyIdByUserIdUseCase,
 );
 const initiateCompensationUseCase = new InitiateCompensationUseCase(
   compensationRepository,
@@ -144,15 +152,16 @@ const initiateCompensationUseCase = new InitiateCompensationUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateCompensationUseCase = new UpdateCompensationUseCase(compensationRepository, jobApplicationRepository, addCommentUseCase, activityLoggerService);
+const updateCompensationUseCase = new UpdateCompensationUseCase(compensationRepository, jobApplicationRepository, addCommentUseCase, activityLoggerService, userRepository);
 const getCompensationUseCase = new GetCompensationUseCase(compensationRepository);
-const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService);
+const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getCompensationMeetingsUseCase = new GetCompensationMeetingsUseCase(compensationMeetingRepository);
-const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService);
+const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getCommentsByApplicationUseCase = new GetCommentsByApplicationUseCase(commentRepository);
 const getCompensationNotesUseCase = new GetCompensationNotesUseCase(commentRepository);
-const addCompensationNoteUseCase = new AddCompensationNoteUseCase(commentRepository, activityLoggerService);
+const addCompensationNoteUseCase = new AddCompensationNoteUseCase(commentRepository, activityLoggerService, userRepository);
 
 export const atsInterviewController = new ATSInterviewController(
   scheduleInterviewUseCase,
@@ -165,16 +174,12 @@ export const atsTechnicalTaskController = new ATSTechnicalTaskController(
   updateTechnicalTaskUseCase,
   deleteTechnicalTaskUseCase,
   getTechnicalTasksByApplicationUseCase,
-  s3Service,
-  fileUploadService,
 );
 
 export const atsOfferController = new ATSOfferController(
   uploadOfferUseCase,
   updateOfferStatusUseCase,
   getOffersByApplicationUseCase,
-  s3Service,
-  fileUploadService,
 );
 
 export const atsCommentController = new ATSCommentController(
@@ -202,7 +207,6 @@ export const atsPipelineController = new ATSPipelineController(
   getJobApplicationsForKanbanUseCase,
   moveApplicationStageUseCase,
   updateApplicationSubStageUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 logger.info('atsDi initialization complete');
 

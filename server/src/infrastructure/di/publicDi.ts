@@ -14,12 +14,12 @@ import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositor
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 import { GetAllJobPostingsUseCase } from 'src/application/use-cases/public/listings/jobs/get-all-job-postings.use-case';
 import { GetJobPostingForPublicUseCase } from 'src/application/use-cases/public/listings/jobs/get-job-posting-for-public.use-case';
+import { GetFeaturedJobsUseCase } from 'src/application/use-cases/public/listings/jobs/get-featured-jobs.use-case';
 import { GetPublicSkillsUseCase } from 'src/application/use-cases/public/attributes/get-public-skills.use-case';
 import { GetPublicJobCategoriesUseCase } from 'src/application/use-cases/public/attributes/get-public-job-categories.use-case';
 import { GetPublicJobRolesUseCase } from 'src/application/use-cases/public/attributes/get-public-job-roles.use-case';
 import { GetSeekerCompaniesUseCase } from 'src/application/use-cases/public/listings/companys/get-seeker-companies.use-case';
 import { GetPublicCompanyProfileUseCase } from 'src/application/use-cases/public/listings/companys/get-public-company-profile.use-case';
-import { GetPublicCompanyJobsUseCase } from 'src/application/use-cases/public/listings/get-public-company-jobs.use-case';
 import { PublicJobController } from 'src/presentation/controllers/public/public-job.controller';
 import { PublicDataController } from 'src/presentation/controllers/public/public-data.controller';
 
@@ -52,6 +52,11 @@ const getJobPostingForPublicUseCase = new GetJobPostingForPublicUseCase(
   s3Service,
 );
 
+const getFeaturedJobsUseCase = new GetFeaturedJobsUseCase(
+  jobPostingRepository,
+  s3Service,
+);
+
 const getPublicSkillsUseCase = new GetPublicSkillsUseCase(skillRepository);
 const getPublicJobCategoriesUseCase = new GetPublicJobCategoriesUseCase(jobCategoryRepository);
 const getPublicJobRolesUseCase = new GetPublicJobRolesUseCase(jobRoleRepository);
@@ -72,12 +77,12 @@ const getPublicCompanyProfileUseCase = new GetPublicCompanyProfileUseCase(
   companyWorkplacePicturesRepository,
   s3Service,
 );
-const getPublicCompanyJobsUseCase = new GetPublicCompanyJobsUseCase(
-  companyProfileRepository,
-  jobPostingRepository,
-);
 
-const publicJobController = new PublicJobController(getAllJobPostingsUseCase, getJobPostingForPublicUseCase);
+const publicJobController = new PublicJobController(
+  getAllJobPostingsUseCase,
+  getJobPostingForPublicUseCase,
+  getFeaturedJobsUseCase,
+);
 
 const publicDataController = new PublicDataController(
   getPublicSkillsUseCase,
@@ -85,8 +90,6 @@ const publicDataController = new PublicDataController(
   getPublicJobRolesUseCase,
   getSeekerCompaniesUseCase,
   getPublicCompanyProfileUseCase,
-  getPublicCompanyJobsUseCase,
 );
 
 export { publicJobController, publicDataController };
-

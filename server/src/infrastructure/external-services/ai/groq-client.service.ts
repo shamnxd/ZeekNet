@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import { ATSScoreResult, JobDetails, CandidateData } from 'src/domain/types/ats.types';
+import { logger } from 'src/infrastructure/config/logger';
 
 export class GroqService {
   private client: Groq;
@@ -59,8 +60,8 @@ CRITICAL: If the provided candidate application text does not appear to be a res
       }
 
       const result = JSON.parse(responseContent);
-      
-      
+
+
       let score = Number(result.score);
       if (isNaN(score) || score < 0) score = 0;
       if (score > 100) score = 100;
@@ -71,8 +72,8 @@ CRITICAL: If the provided candidate application text does not appear to be a res
         missingKeywords: Array.isArray(result.missingKeywords) ? result.missingKeywords : [],
       };
     } catch (error) {
-      console.error('Error calculating ATS score with Groq:', error);
-      
+      logger.error('Error calculating ATS score with Groq:', error);
+
       return {
         score: 0,
         reasoning: 'Unable to process the resume. Please ensure it is a valid text-based file.',

@@ -9,7 +9,9 @@ import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-use
 import { VerifyOtpUseCase } from 'src/application/use-cases/auth/verification/verify-otp.use-case';
 import { RequestOtpUseCase } from 'src/application/use-cases/auth/verification/request-otp.use-case';
 import { ResetPasswordUseCase } from 'src/application/use-cases/auth/password/reset-password.use-case';
+import { ChangePasswordUseCase } from 'src/application/use-cases/auth/password/change-password.use-case';
 import { RegisterUserUseCase } from 'src/application/use-cases/auth/registration/register-user.use-case';
+import { getSeekerProfileUseCase } from 'src/infrastructure/di/seekerDi';
 
 import { RedisOtpService } from 'src/infrastructure/persistence/redis/services/redis-otp-service';
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
@@ -51,6 +53,7 @@ const googleLoginUseCase = new GoogleLoginUseCase(userRepository, passwordHasher
 
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepository, passwordResetService);
 const resetPasswordUseCase = new ResetPasswordUseCase(passwordHasher, passwordResetService, userRepository);
+const changePasswordUseCase = new ChangePasswordUseCase(userRepository, passwordHasher);
 
 const verifyOtpUseCase = new VerifyOtpUseCase(otpService, tokenService, passwordHasher, mailerService, userRepository);
 const requestOtpUseCase = new RequestOtpUseCase(otpService, mailerService, userRepository);
@@ -58,12 +61,12 @@ const requestOtpUseCase = new RequestOtpUseCase(otpService, mailerService, userR
 const refreshTokenUseCase = new RefreshTokenUseCase(userRepository, tokenService, passwordHasher);
 const logoutUseCase = new LogoutUseCase(userRepository);
 
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+export const getUserByIdUseCase = new GetUserByIdUseCase(userRepository, getSeekerProfileUseCase);
 
 export const registrationController = new RegistrationController(registerUserUseCase);
 export const loginController = new LoginController(loginUserUseCase, adminLoginUseCase, googleLoginUseCase, cookieService);
 export const tokenController = new TokenController(refreshTokenUseCase, getUserByIdUseCase, tokenService, cookieService);
-export const passwordController = new PasswordController(forgotPasswordUseCase, resetPasswordUseCase, logoutUseCase, cookieService);
+export const passwordController = new PasswordController(forgotPasswordUseCase, resetPasswordUseCase, changePasswordUseCase, logoutUseCase, cookieService);
 export const otpController = new OtpController(requestOtpUseCase, verifyOtpUseCase, cookieService);
 export { userRepository };
 

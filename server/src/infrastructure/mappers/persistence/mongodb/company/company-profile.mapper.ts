@@ -21,20 +21,22 @@ export class CompanyProfileMapper {
     });
   }
 
-  static toDocument(entity: CompanyProfile): Partial<CompanyProfileDocument> {
-    return {
-      userId: entity.userId,
-      companyName: entity.companyName,
-      logo: entity.logo,
-      banner: entity.banner,
-      websiteLink: entity.websiteLink,
-      employeeCount: entity.employeeCount,
-      industry: entity.industry,
-      organisation: entity.organisation,
-      aboutUs: entity.aboutUs,
-      isVerified: entity.isVerified,
-      rejectionReason: entity.rejectionReason,
-    };
+  static toDocument(entity: Partial<CompanyProfile>): Partial<CompanyProfileDocument> {
+    const doc: Partial<CompanyProfileDocument> = {};
+
+    if (entity.userId !== undefined) doc.userId = entity.userId;
+    if (entity.companyName !== undefined) doc.companyName = entity.companyName;
+    if (entity.logo !== undefined) doc.logo = entity.logo;
+    if (entity.banner !== undefined) doc.banner = entity.banner;
+    if (entity.websiteLink !== undefined) doc.websiteLink = entity.websiteLink;
+    if (entity.employeeCount !== undefined) doc.employeeCount = entity.employeeCount;
+    if (entity.industry !== undefined) doc.industry = entity.industry;
+    if (entity.organisation !== undefined) doc.organisation = entity.organisation;
+    if (entity.aboutUs !== undefined) doc.aboutUs = entity.aboutUs;
+    if (entity.isVerified !== undefined) doc.isVerified = entity.isVerified;
+    if (entity.rejectionReason !== undefined) doc.rejectionReason = entity.rejectionReason;
+
+    return doc;
   }
 }
 

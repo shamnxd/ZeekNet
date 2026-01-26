@@ -12,7 +12,13 @@ import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mo
 import { PaymentOrderRepository } from 'src/infrastructure/persistence/mongodb/repositories/payment-order.repository';
 import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
 import { PriceHistoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/price-history.repository';
+import { CompanyContactRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-contact.repository';
+import { CompanyOfficeLocationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyTechStackRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
 import { stripeService } from 'src/infrastructure/di/companyDi';
+import { getSeekerProfileUseCase } from 'src/infrastructure/di/seekerDi';
 import { GetAllUsersUseCase } from 'src/application/use-cases/admin/user/get-all-users.use-case';
 import { BlockUserUseCase } from 'src/application/use-cases/admin/user/block-user.use-case';
 import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
@@ -74,10 +80,15 @@ const companySubscriptionRepository = new CompanySubscriptionRepository();
 const paymentOrderRepository = new PaymentOrderRepository();
 const priceHistoryRepository = new PriceHistoryRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
+const companyContactRepository = new CompanyContactRepository();
+const companyOfficeLocationRepository = new CompanyOfficeLocationRepository();
+const companyTechStackRepository = new CompanyTechStackRepository();
+const companyBenefitsRepository = new CompanyBenefitsRepository();
+const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
 
 const s3Service = new S3Service();
 
-const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
+const getAllUsersUseCase = new GetAllUsersUseCase(userRepository, seekerProfileRepository, s3Service);
 
 import { notificationService } from 'src/infrastructure/di/notificationDi';
 
@@ -87,7 +98,7 @@ import { notificationService } from 'src/infrastructure/di/notificationDi';
 
 const blockUserUseCase = new BlockUserUseCase(userRepository, notificationService);
 
-const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository, getSeekerProfileUseCase);
 
 const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository, s3Service);
 
@@ -97,11 +108,21 @@ const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationReposit
 
 const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
 
-const getCompanyByIdUseCase = new GetCompanyByIdUseCase(getCompaniesWithVerificationUseCase);
+const getCompanyByIdUseCase = new GetCompanyByIdUseCase(
+  companyProfileRepository,
+  companyVerificationRepository,
+  jobPostingRepository,
+  companyContactRepository,
+  companyOfficeLocationRepository,
+  companyTechStackRepository,
+  companyBenefitsRepository,
+  companyWorkplacePicturesRepository,
+  s3Service,
+);
 
-const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository);
+const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository, s3Service);
 
-const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
+const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository, s3Service);
 
 const adminUpdateJobStatusUseCase = new AdminUpdateJobStatusUseCase(jobPostingRepository);
 
@@ -176,7 +197,8 @@ const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(
   seekerProfileRepository,
   jobPostingRepository,
   paymentOrderRepository,
-  userRepository
+  userRepository,
+  s3Service,
 );
 
 const adminDashboardController = new AdminDashboardController(getAdminDashboardStatsUseCase);

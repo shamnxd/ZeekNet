@@ -49,9 +49,10 @@ import { SubmitTechnicalTaskUseCase } from 'src/application/use-cases/seeker/app
 import { GetOffersByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-offers-by-application.use-case';
 import { GetCompensationByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-compensation-by-application.use-case';
 import { GetCompensationMeetingsByApplicationUseCase } from 'src/application/use-cases/seeker/applications/get-compensation-meetings-by-application.use-case';
-import { UpdateOfferStatusUseCase } from 'src/application/use-cases/seeker/applications/update-offer-status.use-case';
+import { UpdateOfferStatusUseCase } from 'src/application/use-cases/application/offer/update-offer-status.use-case';
 import { UploadSignedOfferDocumentUseCase } from 'src/application/use-cases/seeker/applications/upload-signed-offer-document.use-case';
 import { FileUploadService } from 'src/application/services/file-upload.service';
+import { LoggerService } from 'src/infrastructure/services/logger.service';
 
 import { logger } from 'src/infrastructure/config/logger';
 
@@ -73,6 +74,7 @@ const activityRepository = new ATSActivityRepository();
 const activityLoggerService = new ActivityLoggerService(activityRepository);
 const atsService = new AtsService(env.GROQ_API_KEY);
 const resumeParserService = new ResumeParserService();
+const loggerService = new LoggerService();
 
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
 import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
@@ -101,7 +103,7 @@ const uploadBannerUseCase = new UploadBannerUseCase(seekerProfileRepository, s3S
 
 
 
-const calculateATSScoreUseCase = new CalculateATSScoreUseCase(jobApplicationRepository, atsService);
+const calculateATSScoreUseCase = new CalculateATSScoreUseCase(jobApplicationRepository, atsService, loggerService);
 
 const createJobApplicationUseCase = new CreateJobApplicationUseCase(
   jobApplicationRepository,
@@ -113,8 +115,10 @@ const createJobApplicationUseCase = new CreateJobApplicationUseCase(
   calculateATSScoreUseCase,
   mailerService,
   emailTemplateService,
+  fileUploadService,
+  loggerService,
 );
-const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service);
+const getApplicationsBySeekerUseCase = new GetApplicationsBySeekerUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, s3Service, loggerService);
 const getSeekerApplicationDetailsUseCase = new GetSeekerApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository);
 const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository, atsService, resumeParserService);
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
@@ -126,12 +130,24 @@ const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
 
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(jobApplicationRepository, interviewRepository);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(jobApplicationRepository, technicalTaskRepository, s3Service);
-const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository);
-const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(jobApplicationRepository, offerRepository, s3Service);
+const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository, fileUploadService);
+const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(jobApplicationRepository, offerRepository, s3Service, loggerService);
 const getCompensationByApplicationUseCase = new GetCompensationByApplicationUseCase(jobApplicationRepository, compensationRepository);
 const getCompensationMeetingsByApplicationUseCase = new GetCompensationMeetingsByApplicationUseCase(jobApplicationRepository, compensationMeetingRepository);
-const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(jobApplicationRepository, offerRepository);
-const uploadSignedOfferDocumentUseCase = new UploadSignedOfferDocumentUseCase(jobApplicationRepository, offerRepository, updateApplicationSubStageUseCase);
+
+const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
+  offerRepository,
+  jobApplicationRepository,
+  jobPostingRepository,
+  userRepository,
+  updateApplicationSubStageUseCase,
+  activityLoggerService,
+  mailerService,
+  emailTemplateService,
+  loggerService,
+);
+
+const uploadSignedOfferDocumentUseCase = new UploadSignedOfferDocumentUseCase(jobApplicationRepository, offerRepository, updateApplicationSubStageUseCase, fileUploadService, loggerService);
 
 const seekerProfileController = new SeekerProfileController(
   createSeekerProfileUseCase,
@@ -166,9 +182,7 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
   getCompensationMeetingsByApplicationUseCase,
   updateOfferStatusUseCase,
   uploadSignedOfferDocumentUseCase,
-  fileUploadService,
 );
 
-export { seekerJobApplicationController, seekerProfileController };
+export { seekerJobApplicationController, seekerProfileController, getSeekerProfileUseCase };
 logger.info('seekerDi initialization complete');
-

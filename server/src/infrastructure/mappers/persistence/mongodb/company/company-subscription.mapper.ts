@@ -5,7 +5,7 @@ import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
 
 export class CompanySubscriptionMapper {
-  static toEntity(doc: CompanySubscriptionDocument | (CompanySubscriptionDocument & { planId?: { name: string; jobPostLimit: number; featuredJobLimit: number } })): CompanySubscription {
+  static toEntity(doc: CompanySubscriptionDocument | (CompanySubscriptionDocument & { planId?: { name: string; jobPostLimit: number; featuredJobLimit: number; applicantAccessLimit?: number } })): CompanySubscription {
     return CompanySubscription.create({
       id: String(doc._id),
       companyId: String(doc.companyId),
@@ -27,6 +27,7 @@ export class CompanySubscriptionMapper {
       planName: (doc as CompanySubscriptionDocument & { planId?: { name?: string } }).planId?.name ?? undefined,
       jobPostLimit: (doc as CompanySubscriptionDocument & { planId?: { jobPostLimit?: number } }).planId?.jobPostLimit ?? undefined,
       featuredJobLimit: (doc as CompanySubscriptionDocument & { planId?: { featuredJobLimit?: number } }).planId?.featuredJobLimit ?? undefined,
+      applicantAccessLimit: (doc as CompanySubscriptionDocument & { planId?: { applicantAccessLimit?: number } }).planId?.applicantAccessLimit ?? undefined,
       isDefault: (doc as CompanySubscriptionDocument & { planId?: { isDefault?: boolean } }).planId?.isDefault ?? false,
       stripeCustomerId: doc.stripeCustomerId,
       stripeSubscriptionId: doc.stripeSubscriptionId,

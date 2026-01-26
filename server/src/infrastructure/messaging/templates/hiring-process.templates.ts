@@ -9,7 +9,7 @@ export const applicationReceivedTemplate = {
       <p>We have received your application and will review it shortly.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const stageChangedTemplate = {
@@ -22,7 +22,7 @@ export const stageChangedTemplate = {
       <p>We will be in touch soon with next steps.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const interviewScheduledTemplate = {
@@ -38,7 +38,7 @@ export const interviewScheduledTemplate = {
       <p>Please check your dashboard for more details and the meeting link.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const technicalTaskAssignedTemplate = {
@@ -53,7 +53,7 @@ export const technicalTaskAssignedTemplate = {
       <p>Please log in to your dashboard to view the instructions and submit your work.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const compensationInitiatedTemplate = {
@@ -66,7 +66,7 @@ export const compensationInitiatedTemplate = {
       <p>Our team will reach out to you shortly to discuss the details.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const offerExtendedTemplate = {
@@ -80,7 +80,7 @@ export const offerExtendedTemplate = {
       <p>We look forward to having you on board.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const offerAcceptedTemplate = {
@@ -93,7 +93,7 @@ export const offerAcceptedTemplate = {
       <p>We will be in touch with onboarding details soon.</p>
       <p>Welcome to ${companyName}!</p>
     </div>
-  `
+  `,
 };
 
 export const rejectionTemplate = {
@@ -107,7 +107,7 @@ export const rejectionTemplate = {
       <p>We appreciate your interest and wish you the best in your job search.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
 
 export const jobClosedTemplate = {
@@ -120,5 +120,5 @@ export const jobClosedTemplate = {
       <p>Thank you for your interest.</p>
       <p>Best regards,<br/>The ${companyName} Team</p>
     </div>
-  `
+  `,
 };
