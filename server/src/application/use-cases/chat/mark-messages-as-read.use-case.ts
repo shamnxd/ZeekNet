@@ -1,6 +1,7 @@
 import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat/IMarkMessagesAsReadUseCase';
 import { IMessageRepository } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
 import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
+import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketService';
 import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
@@ -10,6 +11,7 @@ export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
   constructor(
     private readonly _messageRepository: IMessageRepository,
     private readonly _conversationRepository: IConversationRepository,
+    private readonly _chatSocketService: IChatSocketService,
   ) { }
 
   async execute(input: MarkMessagesAsReadDto): Promise<ConversationResponseDto> {
@@ -28,6 +30,13 @@ export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
     await this._messageRepository.markAsRead(conversationId, userId);
     await this._conversationRepository.resetUnread(conversationId, userId);
 
-    return ConversationMapper.toResponse(conversation);
+    const response = ConversationMapper.toResponse(conversation);
+
+    const otherParticipant = conversation.participants.find((p) => p.userId !== userId);
+    if (otherParticipant) {
+      this._chatSocketService.emitMessagesRead(conversationId, userId, otherParticipant.userId);
+    }
+
+    return response;
   }
 }

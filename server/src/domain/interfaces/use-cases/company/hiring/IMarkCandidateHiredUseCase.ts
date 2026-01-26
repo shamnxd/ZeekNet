@@ -1,4 +1,7 @@
-import { MarkCandidateHiredDto } from 'src/application/use-cases/company/hiring/mark-candidate-hired.use-case';
+export interface MarkCandidateHiredDto {
+    userId: string;
+    applicationId: string;
+}
 
 export interface IMarkCandidateHiredUseCase {
     execute(dto: MarkCandidateHiredDto): Promise<void>;

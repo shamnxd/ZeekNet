@@ -1,17 +1,6 @@
-import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
+import { ScheduleCompensationMeetingRequestDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
+import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
 
 export interface IScheduleCompensationMeetingUseCase {
-  execute(data: {
-    applicationId: string;
-    type: 'call' | 'online' | 'in-person';
-    scheduledDate: Date;
-    videoType?: 'in-app' | 'external';
-    webrtcRoomId?: string;
-    location?: string;
-    meetingLink?: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensationMeeting>;
+  execute(dto: ScheduleCompensationMeetingRequestDto): Promise<ATSCompensationMeetingResponseDto>;
 }
-

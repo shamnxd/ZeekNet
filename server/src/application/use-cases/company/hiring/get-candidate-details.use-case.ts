@@ -5,6 +5,7 @@ import { ISeekerExperienceRepository } from 'src/domain/interfaces/repositories/
 import { ISeekerEducationRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerEducationRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { NotFoundError } from 'src/domain/errors/errors';
 
 export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
@@ -14,10 +15,11 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
     private readonly seekerEducationRepository: ISeekerEducationRepository,
     private readonly userRepository: IUserRepository,
     private readonly s3Service: IS3Service,
+    private readonly logger: ILogger,
   ) { }
 
-  async execute(params: { candidateId: string }): Promise<CandidateDetails> {
-    const { candidateId } = params;
+  async execute(params: { id: string }): Promise<CandidateDetails> {
+    const candidateId = params.id;
     if (!candidateId) {
       throw new NotFoundError('Candidate ID is required');
     }
@@ -43,7 +45,7 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
         profileData.avatarFileName = await this.s3Service.getSignedUrl(profile.avatarFileName);
       }
     } catch (error) {
-      console.error('Error getting avatar signed URL:', error);
+      this.logger.error('Error getting avatar signed URL:', error);
 
     }
 
@@ -52,7 +54,7 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
         profileData.bannerFileName = await this.s3Service.getSignedUrl(profile.bannerFileName);
       }
     } catch (error) {
-      console.error('Error getting banner signed URL:', error);
+      this.logger.error('Error getting banner signed URL:', error);
 
     }
 
@@ -65,7 +67,7 @@ export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
         };
       }
     } catch (error) {
-      console.error('Error getting resume signed URL:', error);
+      this.logger.error('Error getting resume signed URL:', error);
 
     }
 

@@ -1,8 +1,7 @@
-import { CreateSubscriptionPlanRequestDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan-request.dto';
-import { SubscriptionPlan } from 'src/domain/entities/subscription-plan.entity';
-
+import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan.dto';
+import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
 
 export interface ICreateSubscriptionPlanUseCase {
-  execute(data: CreateSubscriptionPlanRequestDto): Promise<SubscriptionPlan>;
+  execute(data: CreateSubscriptionPlanDto): Promise<SubscriptionPlanResponseDto>;
 }
 

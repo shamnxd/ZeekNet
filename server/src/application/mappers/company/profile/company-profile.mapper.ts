@@ -109,9 +109,9 @@ export class CompanyProfileMapper {
       techStack: CompanyTechStackMapper.toResponseList(data.techStack),
       benefits: CompanyBenefitMapper.toResponseList(data.benefits),
       workplacePictures: data.signedUrls?.workplacePictures || CompanyWorkplacePictureMapper.toResponseList(data.workplacePictures),
-      jobPostings: (data.jobPostings 
+      jobPostings: (data.jobPostings
         ? (data.jobPostings.length > 0 && 'createdAt' in data.jobPostings[0] && data.jobPostings[0].createdAt instanceof Date
-          ? JobPostingMapper.toSimpleResponseList(data.jobPostings as JobPosting[]) 
+          ? JobPostingMapper.toSimpleResponseList(data.jobPostings as JobPosting[])
           : data.jobPostings)
         : []) as Array<{
           id: string;
@@ -131,12 +131,14 @@ export class CompanyProfileMapper {
   static toAdminListItemResponse(
     company: CompanyProfile,
     verification?: { taxId: string; businessLicenseUrl: string } | null,
+    logoUrl?: string,
   ): CompanyWithVerificationResult {
     return {
       id: company.id,
       userId: company.userId,
       companyName: company.companyName,
-      logo: company.logo,
+      logo: logoUrl || company.logo,
+      banner: company.banner,
       websiteLink: company.websiteLink,
       employeeCount: company.employeeCount,
       industry: company.industry,
@@ -156,16 +158,69 @@ export class CompanyProfileMapper {
     };
   }
 
+  static toAdminFullProfileResponse(data: {
+    company: CompanyProfile;
+    verification?: { taxId: string; businessLicenseUrl: string } | null;
+    contact?: CompanyContact | null;
+    locations?: CompanyOfficeLocation[];
+    techStack?: CompanyTechStack[];
+    benefits?: CompanyBenefits[];
+    workplacePictures?: Array<{ id: string; imageUrl: string; caption?: string }>;
+    activeJobCount?: number;
+    jobs?: JobPosting[];
+  }): CompanyWithVerificationResult {
+    const base = this.toAdminListItemResponse(data.company, data.verification);
+
+    return {
+      ...base,
+      contact: data.contact ? {
+        email: data.contact.email || '',
+        phone: data.contact.phone || '',
+        twitterLink: data.contact.twitterLink || '',
+        facebookLink: data.contact.facebookLink || '',
+        linkedin: data.contact.linkedin || '',
+      } : null,
+      locations: data.locations?.map(loc => ({
+        id: loc.id,
+        city: loc.location,
+        state: '',
+        country: '',
+        address: loc.address || '',
+        isPrimary: loc.isHeadquarters,
+      })),
+      techStack: data.techStack?.map(tech => ({
+        id: tech.id,
+        name: tech.techStack,
+        category: 'Development',
+      })),
+      benefits: data.benefits?.map(benefit => ({
+        id: benefit.id,
+        title: benefit.perk,
+        description: benefit.description || '',
+        icon: 'star',
+      })),
+      workplacePictures: data.workplacePictures,
+      activeJobCount: data.activeJobCount,
+      jobs: data.jobs?.map(job => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        employmentType: job.employmentTypes[0] || 'Full-time',
+      })),
+    };
+  }
+
   static toUpdateEntity(data: Partial<SimpleUpdateCompanyProfileRequestDto>): Partial<CompanyProfile> {
     return {
-      ...(data.company_name && { companyName: data.company_name }),
-      ...(data.logo && { logo: data.logo }),
-      ...(data.banner && { banner: data.banner }),
-      ...(data.website_link && { websiteLink: data.website_link }),
+      ...(data.company_name !== undefined && { companyName: data.company_name }),
+      ...(data.logo !== undefined && { logo: data.logo }),
+      ...(data.banner !== undefined && { banner: data.banner }),
+      ...(data.website_link !== undefined && { websiteLink: data.website_link }),
       ...(data.employee_count !== undefined && { employeeCount: data.employee_count }),
-      ...(data.industry && { industry: data.industry }),
-      ...(data.organisation && { organisation: data.organisation }),
-      ...(data.about_us && { aboutUs: data.about_us }),
+      ...(data.industry !== undefined && { industry: data.industry }),
+      ...(data.organisation !== undefined && { organisation: data.organisation }),
+      ...(data.about_us !== undefined && { aboutUs: data.about_us }),
     };
   }
 

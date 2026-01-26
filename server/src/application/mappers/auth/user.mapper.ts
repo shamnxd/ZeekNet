@@ -21,7 +21,7 @@ export class UserMapper {
 
   static fromGoogleProfile(
     profile: { name: string; email: string; emailVerified: boolean },
-    hashedPassword: string
+    hashedPassword: string,
   ): CreateInput<User> {
     return {
       name: profile.name || '',
@@ -36,7 +36,7 @@ export class UserMapper {
 
   static fromRegistration(
     data: RegisterRequestDto,
-    hashedPassword: string
+    hashedPassword: string,
   ): CreateInput<User> {
     return {
       name: data.name,

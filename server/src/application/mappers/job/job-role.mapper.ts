@@ -1,11 +1,5 @@
 import { JobRole } from 'src/domain/entities/job-role.entity';
-
-export interface JobRoleResponseDto {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-roles/responses/job-role-response.dto';
 
 export class JobRoleMapper {
   static toResponse(jobRole: JobRole): JobRoleResponseDto {

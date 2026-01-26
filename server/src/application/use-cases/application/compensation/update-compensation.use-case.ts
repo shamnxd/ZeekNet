@@ -1,3 +1,4 @@
+
 import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
@@ -6,39 +7,34 @@ import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivity
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { UpdateCompensationRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
+import { ATSCompensationMapper } from 'src/application/mappers/ats/ats-compensation.mapper';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
 export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
   constructor(
-    private compensationRepository: IATSCompensationRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-    private addCommentUseCase: IAddCommentUseCase,
-    private activityLoggerService: IActivityLoggerService,
+    private readonly _compensationRepository: IATSCompensationRepository,
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _addCommentUseCase: IAddCommentUseCase,
+    private readonly _activityLoggerService: IActivityLoggerService,
+    private readonly _userRepository: IUserRepository,
   ) { }
 
-  async execute(data: {
-    applicationId: string;
-    candidateExpected?: string;
-    companyProposed?: string;
-    expectedJoining?: Date;
-    benefits?: string[];
-    finalAgreed?: string;
-    approvedAt?: Date;
-    approvedBy?: string;
-    approvedByName?: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensation> {
-    const existing = await this.compensationRepository.findByApplicationId(data.applicationId);
+  async execute(dto: UpdateCompensationRequestDto): Promise<ATSCompensationResponseDto> {
+    const existing = await this._compensationRepository.findByApplicationId(dto.applicationId);
     if (!existing) {
       throw new NotFoundError('Compensation record not found. Please initiate compensation first.');
     }
 
 
-    const application = await this.jobApplicationRepository.findById(data.applicationId);
+    const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
+
+    const currentUser = await this._userRepository.findById(dto.performedBy);
+    const performedByName = currentUser ? currentUser.name : 'Unknown';
 
     const updateData: {
       candidateExpected?: string;
@@ -51,68 +47,67 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
       approvedByName?: string;
     } = {};
 
-    if (data.candidateExpected !== undefined) {
-      updateData.candidateExpected = data.candidateExpected;
+    if (dto.candidateExpected !== undefined) {
+      updateData.candidateExpected = dto.candidateExpected;
     }
-    if (data.companyProposed !== undefined) {
-      updateData.companyProposed = data.companyProposed;
+    if (dto.companyProposed !== undefined) {
+      updateData.companyProposed = dto.companyProposed;
     }
-    if (data.expectedJoining !== undefined) {
-      updateData.expectedJoining = data.expectedJoining;
+    if (dto.expectedJoining !== undefined) {
+      updateData.expectedJoining = dto.expectedJoining;
     }
-    if (data.benefits !== undefined) {
-      updateData.benefits = data.benefits;
+    if (dto.benefits !== undefined) {
+      updateData.benefits = dto.benefits;
     }
-    if (data.finalAgreed !== undefined) {
-      updateData.finalAgreed = data.finalAgreed;
+    if (dto.finalAgreed !== undefined) {
+      updateData.finalAgreed = dto.finalAgreed;
     }
 
 
-    if (data.approvedAt || data.finalAgreed) {
-      updateData.approvedAt = data.approvedAt || new Date();
-      updateData.approvedBy = data.approvedBy || data.performedBy;
-      updateData.approvedByName = data.approvedByName || data.performedByName;
-      if (data.finalAgreed && !updateData.finalAgreed) {
-        updateData.finalAgreed = data.finalAgreed;
+    if (dto.approvedAt || dto.finalAgreed) {
+      updateData.approvedAt = dto.approvedAt || new Date();
+      updateData.approvedBy = dto.approvedBy || dto.performedBy;
+      updateData.approvedByName = dto.approvedByName || performedByName;
+      if (dto.finalAgreed && !updateData.finalAgreed) {
+        updateData.finalAgreed = dto.finalAgreed;
       }
     }
 
-    const updated = await this.compensationRepository.update(data.applicationId, updateData);
+    const updated = await this._compensationRepository.update(dto.applicationId, updateData);
 
     if (!updated) {
       throw new NotFoundError('Failed to update compensation');
     }
 
 
-    const activityType = data.approvedAt || data.finalAgreed ? 'approved' : 'updated';
+    const activityType = dto.approvedAt || dto.finalAgreed ? 'approved' : 'updated';
 
 
-    await this.activityLoggerService.logCompensationActivity({
-      applicationId: data.applicationId,
+    await this._activityLoggerService.logCompensationActivity({
+      applicationId: dto.applicationId,
       type: activityType,
-      candidateExpected: data.candidateExpected,
-      companyProposed: data.companyProposed,
-      finalAgreed: data.finalAgreed,
-      expectedJoining: data.expectedJoining ? data.expectedJoining.toISOString() : undefined,
-      benefits: data.benefits,
+      candidateExpected: dto.candidateExpected,
+      companyProposed: dto.companyProposed,
+      finalAgreed: dto.finalAgreed,
+      expectedJoining: dto.expectedJoining ? dto.expectedJoining.toISOString() : undefined,
+      benefits: dto.benefits,
       approvedAt: updateData.approvedAt,
       stage: ATSStage.COMPENSATION,
       subStage: application.subStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
+      performedBy: dto.performedBy,
+      performedByName: performedByName,
     });
 
-    if (data.notes) {
-      await this.addCommentUseCase.execute({
-        applicationId: data.applicationId,
-        comment: data.notes,
+    if (dto.notes) {
+      await this._addCommentUseCase.execute({
+        applicationId: dto.applicationId,
+        comment: dto.notes,
         stage: ATSStage.COMPENSATION,
-        addedBy: data.performedBy,
-        addedByName: data.performedByName,
+        userId: dto.performedBy,
       });
     }
 
-    return updated;
+    return ATSCompensationMapper.toResponse(updated) as ATSCompensationResponseDto;
   }
 }
 

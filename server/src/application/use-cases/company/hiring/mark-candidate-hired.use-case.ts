@@ -4,15 +4,11 @@ import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/co
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
-import { IMarkCandidateHiredUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IMarkCandidateHiredUseCase';
-
-export interface MarkCandidateHiredDto {
-  userId: string;
-  applicationId: string;
-}
+import { IMarkCandidateHiredUseCase, MarkCandidateHiredDto } from 'src/domain/interfaces/use-cases/company/hiring/IMarkCandidateHiredUseCase';
 
 export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
   constructor(
@@ -21,6 +17,7 @@ export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
+    private readonly _logger: ILogger,
   ) { }
 
   async execute(dto: MarkCandidateHiredDto): Promise<void> {
@@ -148,7 +145,7 @@ export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
 
-      console.error(`Failed to send rejection email to ${email}:`, error);
+      this._logger.error(`Failed to send rejection email to ${email}:`, error);
     }
   }
 }

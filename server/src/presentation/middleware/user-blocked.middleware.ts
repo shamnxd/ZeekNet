@@ -1,23 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/user/IAuthGetUserByIdUseCase';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendForbiddenResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
+import { sendForbiddenResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 
 export class UserBlockedMiddleware {
   constructor(
-    private readonly _userRepository: IUserRepository,
+    private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
   ) { }
 
   checkUserBlocked = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = extractUserId(req);
-      if (!userId) {
-        return next();
-      }
-
-      const user = await this._userRepository.findById(userId);
+      const userId = validateUserId(req);
+      const user = await this._getUserByIdUseCase.execute(userId);
+      
       if (!user) {
         return next();
       }
@@ -27,10 +24,8 @@ export class UserBlockedMiddleware {
         return;
       }
 
-
       next();
     } catch (error) {
-      console.error('Error in user blocked middleware:', error);
       next(error);
     }
   };

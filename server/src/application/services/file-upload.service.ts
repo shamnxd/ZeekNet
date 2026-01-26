@@ -4,178 +4,178 @@ import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadSe
 import { UploadedFile } from 'src/domain/types/common.types';
 
 export class FileUploadService implements IFileUploadService {
-    constructor(private readonly _s3Service: IS3Service) { }
+  constructor(private readonly _s3Service: IS3Service) { }
 
-    private _validateFileType(mimetype: string, filename: string): void {
-        const allowedTypes = [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/gif',
-            'image/webp',
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
+  private _validateFileType(mimetype: string, filename: string): void {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
 
-        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx'];
 
-        const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
 
-        if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
-            throw new ValidationError(`File type ${mimetype} is not allowed`);
-        }
+    if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
+      throw new ValidationError(`File type ${mimetype} is not allowed`);
+    }
+  }
+
+  private _validateFileSize(fileSize: number, maxSizeInMB: number = 5): void {
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+    if (fileSize > maxSizeInBytes) {
+      throw new ValidationError(`File size must be less than ${maxSizeInMB}MB`);
+    }
+  }
+
+  async uploadFile(file: UploadedFile, fieldName: string = 'file'): Promise<{ url: string; filename: string }> {
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    private _validateFileSize(fileSize: number, maxSizeInMB: number = 5): void {
-        const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+    const { buffer, originalname, mimetype } = file;
 
-        if (fileSize > maxSizeInBytes) {
-            throw new ValidationError(`File size must be less than ${maxSizeInMB}MB`);
-        }
+    this._validateFileType(mimetype, originalname);
+    this._validateFileSize(file.size, 5);
+
+    const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
+
+    return {
+      url: key,
+      filename: originalname,
+    };
+  }
+
+  async uploadMultipleFiles(files: UploadedFile[], fieldName: string = 'files'): Promise<Array<{ url: string; filename: string }>> {
+    if (!files || files.length === 0) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    async uploadFile(file: UploadedFile, fieldName: string = 'file'): Promise<{ url: string; filename: string }> {
-        if (!file) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
+    const uploadPromises = files.map(async (file) => {
+      return this.uploadFile(file, fieldName);
+    });
 
-        const { buffer, originalname, mimetype } = file;
+    return Promise.all(uploadPromises);
+  }
 
-        this._validateFileType(mimetype, originalname);
-        this._validateFileSize(file.size, 5);
-
-        const key = await this._s3Service.uploadImage(buffer, originalname, mimetype);
-
-        return {
-            url: key,
-            filename: originalname,
-        };
+  async deleteFile(fileUrl: string): Promise<void> {
+    if (!fileUrl) {
+      throw new ValidationError('File URL is required');
     }
 
-    async uploadMultipleFiles(files: UploadedFile[], fieldName: string = 'files'): Promise<Array<{ url: string; filename: string }>> {
-        if (!files || files.length === 0) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
+    await this._s3Service.deleteImage(fileUrl);
+  }
 
-        const uploadPromises = files.map(async (file) => {
-            return this.uploadFile(file, fieldName);
-        });
+  // Specific upload methods ensuring specific types and folders
 
-        return Promise.all(uploadPromises);
+  private _validateResumeFileType(mimetype: string, filename: string): void {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+
+    const allowedExtensions = ['.pdf', '.doc', '.docx'];
+    const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+
+    if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
+      throw new ValidationError('Only PDF, DOC, and DOCX files are allowed for resumes');
+    }
+  }
+
+  async uploadResume(file: UploadedFile, fieldName: string = 'resume'): Promise<{ url: string; filename: string }> {
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    async deleteFile(fileUrl: string): Promise<void> {
-        if (!fileUrl) {
-            throw new ValidationError('File URL is required');
-        }
+    const { buffer, originalname, mimetype } = file;
 
-        await this._s3Service.deleteImage(fileUrl);
+    this._validateResumeFileType(mimetype, originalname);
+    this._validateFileSize(file.size, 5);
+
+    const key = await this._s3Service.uploadResume(buffer, originalname, mimetype);
+
+    return {
+      url: key,
+      filename: originalname,
+    };
+  }
+
+  private _validateDocumentFileType(mimetype: string, filename: string): void {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/zip',
+      'application/x-zip-compressed',
+    ];
+
+    const allowedExtensions = ['.pdf', '.doc', '.docx', '.zip'];
+    const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+
+    if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
+      throw new ValidationError('Only PDF, DOC, DOCX, and ZIP files are allowed');
+    }
+  }
+
+  async uploadOfferLetter(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    // Specific upload methods ensuring specific types and folders
+    const { buffer, originalname, mimetype } = file;
 
-    private _validateResumeFileType(mimetype: string, filename: string): void {
-        const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
+    this._validateDocumentFileType(mimetype, originalname);
+    this._validateFileSize(file.size, 10);
 
-        const allowedExtensions = ['.pdf', '.doc', '.docx'];
-        const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    const key = await this._s3Service.uploadOfferLetter(buffer, originalname, mimetype);
 
-        if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
-            throw new ValidationError('Only PDF, DOC, and DOCX files are allowed for resumes');
-        }
+    return {
+      url: key,
+      filename: originalname,
+    };
+  }
+
+  async uploadTaskDocument(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    async uploadResume(file: UploadedFile, fieldName: string = 'resume'): Promise<{ url: string; filename: string }> {
-        if (!file) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
+    const { buffer, originalname, mimetype } = file;
 
-        const { buffer, originalname, mimetype } = file;
+    this._validateDocumentFileType(mimetype, originalname);
+    this._validateFileSize(file.size, 10);
 
-        this._validateResumeFileType(mimetype, originalname);
-        this._validateFileSize(file.size, 5);
+    const key = await this._s3Service.uploadTaskDocument(buffer, originalname, mimetype);
 
-        const key = await this._s3Service.uploadResume(buffer, originalname, mimetype);
+    return {
+      url: key,
+      filename: originalname,
+    };
+  }
 
-        return {
-            url: key,
-            filename: originalname,
-        };
+  async uploadTaskSubmission(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
+    if (!file) {
+      throw new ValidationError(`No ${fieldName} uploaded`);
     }
 
-    private _validateDocumentFileType(mimetype: string, filename: string): void {
-        const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/zip',
-            'application/x-zip-compressed',
-        ];
+    const { buffer, originalname, mimetype } = file;
 
-        const allowedExtensions = ['.pdf', '.doc', '.docx', '.zip'];
-        const fileExtension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    this._validateDocumentFileType(mimetype, originalname);
+    this._validateFileSize(file.size, 10);
 
-        if (!allowedTypes.includes(mimetype) && !allowedExtensions.includes(fileExtension)) {
-            throw new ValidationError('Only PDF, DOC, DOCX, and ZIP files are allowed');
-        }
-    }
+    const key = await this._s3Service.uploadTaskSubmission(buffer, originalname, mimetype);
 
-    async uploadOfferLetter(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-        if (!file) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
-
-        const { buffer, originalname, mimetype } = file;
-
-        this._validateDocumentFileType(mimetype, originalname);
-        this._validateFileSize(file.size, 10);
-
-        const key = await this._s3Service.uploadOfferLetter(buffer, originalname, mimetype);
-
-        return {
-            url: key,
-            filename: originalname,
-        };
-    }
-
-    async uploadTaskDocument(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-        if (!file) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
-
-        const { buffer, originalname, mimetype } = file;
-
-        this._validateDocumentFileType(mimetype, originalname);
-        this._validateFileSize(file.size, 10);
-
-        const key = await this._s3Service.uploadTaskDocument(buffer, originalname, mimetype);
-
-        return {
-            url: key,
-            filename: originalname,
-        };
-    }
-
-    async uploadTaskSubmission(file: UploadedFile, fieldName: string = 'document'): Promise<{ url: string; filename: string }> {
-        if (!file) {
-            throw new ValidationError(`No ${fieldName} uploaded`);
-        }
-
-        const { buffer, originalname, mimetype } = file;
-
-        this._validateDocumentFileType(mimetype, originalname);
-        this._validateFileSize(file.size, 10);
-
-        const key = await this._s3Service.uploadTaskSubmission(buffer, originalname, mimetype);
-
-        return {
-            url: key,
-            filename: originalname,
-        };
-    }
+    return {
+      url: key,
+      filename: originalname,
+    };
+  }
 }

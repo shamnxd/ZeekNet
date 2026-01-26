@@ -1,19 +1,6 @@
-import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { UpdateCompensationRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
 
 export interface IUpdateCompensationUseCase {
-  execute(data: {
-    applicationId: string;
-    candidateExpected?: string;
-    companyProposed?: string;
-    expectedJoining?: Date;
-    benefits?: string[];
-    finalAgreed?: string;
-    approvedAt?: Date;
-    approvedBy?: string;
-    approvedByName?: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensation>;
+  execute(dto: UpdateCompensationRequestDto): Promise<ATSCompensationResponseDto>;
 }
-

@@ -4,6 +4,7 @@ export interface CompanyDashboardStats {
   totalApplications: number;
   upcomingInterviews: number;
   unreadMessages: number;
+  newCandidatesCount: number;
 }
 
 export interface IGetCompanyDashboardStatsUseCase {

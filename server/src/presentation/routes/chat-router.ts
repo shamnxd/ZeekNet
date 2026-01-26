@@ -1,33 +1,28 @@
 import { Router } from 'express';
-import { ChatController } from 'src/presentation/controllers/chat/chat.controller';
-
+import { chatController, chatUserRepository } from 'src/infrastructure/di/chatDi';
+import { getUserByIdUseCase } from 'src/infrastructure/di/authDi';
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
-import { validateBody, validateQuery } from 'src/presentation/middleware/validation.middleware';
-import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
-import { CreateConversationDto } from 'src/application/dtos/chat/requests/create-conversation.dto';
-import { GetConversationsQueryDto } from 'src/application/dtos/chat/requests/get-conversations-query.dto';
-import { GetMessagesQueryDto } from 'src/application/dtos/chat/requests/get-messages-query.dto';
 import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
-export class ChatRouter {  
+export class ChatRouter {
   public router: Router;
 
-  constructor(controller: ChatController, userRepository: IUserRepository) {
+  constructor() {
     this.router = Router();
-    const userBlockedMiddleware = new UserBlockedMiddleware(userRepository);
-    this.setupRoutes(controller, userBlockedMiddleware);
+    this._initializeRoutes();
   }
 
-  private setupRoutes(controller: ChatController, userBlockedMiddleware: UserBlockedMiddleware): void {
+  private _initializeRoutes(): void {
+    const userBlockedMiddleware = new UserBlockedMiddleware(getUserByIdUseCase);
+
     this.router.use(authenticateToken, userBlockedMiddleware.checkUserBlocked);
 
-    this.router.post('/conversations', validateBody(CreateConversationDto), controller.createConversation);
-    this.router.get('/conversations', validateQuery(GetConversationsQueryDto), controller.getConversations);
-    this.router.get('/conversations/:conversationId/messages', validateQuery(GetMessagesQueryDto), controller.getMessages );
-    this.router.post('/messages', validateBody(SendMessageDto), controller.sendMessage);
-    this.router.delete('/messages/:messageId', controller.deleteMessage);
-    this.router.post('/conversations/:conversationId/read', controller.markAsRead);
+    this.router.post('/conversations', chatController.createConversation);
+    this.router.get('/conversations', chatController.getConversations);
+    this.router.get('/conversations/:conversationId/messages', chatController.getMessages);
+    this.router.post('/messages', chatController.sendMessage);
+    this.router.delete('/messages/:messageId', chatController.deleteMessage);
+    this.router.post('/conversations/:conversationId/read', chatController.markAsRead);
   }
 }
 

@@ -2,9 +2,11 @@ import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/jo
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
+import { ATSCompensationMapper } from 'src/application/mappers/ats/ats-compensation.mapper';
 
 export interface IGetCompensationByApplicationUseCase {
-  execute(userId: string, applicationId: string): Promise<ATSCompensation | null>;
+  execute(userId: string, applicationId: string): Promise<ATSCompensationResponseDto | null>;
 }
 
 export class GetCompensationByApplicationUseCase implements IGetCompensationByApplicationUseCase {
@@ -13,7 +15,7 @@ export class GetCompensationByApplicationUseCase implements IGetCompensationByAp
     private readonly _compensationRepository: IATSCompensationRepository,
   ) {}
 
-  async execute(userId: string, applicationId: string): Promise<ATSCompensation | null> {
+  async execute(userId: string, applicationId: string): Promise<ATSCompensationResponseDto | null> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     
     if (!application) {
@@ -24,6 +26,7 @@ export class GetCompensationByApplicationUseCase implements IGetCompensationByAp
       throw new AuthorizationError('You can only view your own applications');
     }
 
-    return this._compensationRepository.findByApplicationId(applicationId);
+    const compensation = await this._compensationRepository.findByApplicationId(applicationId);
+    return compensation ? ATSCompensationMapper.toResponse(compensation) : null;
   }
 }

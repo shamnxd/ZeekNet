@@ -1,13 +1,7 @@
-import { JobApplication } from 'src/domain/entities/job-application.entity';
-import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
+import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
+import { MoveApplicationStageDto } from 'src/application/dtos/application/requests/move-application-stage.dto';
 
 export interface IMoveApplicationStageUseCase {
-  execute(data: {
-    applicationId: string;
-    nextStage: ATSStage;
-    subStage?: ATSSubStage;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<JobApplication>;
+  execute(dto: MoveApplicationStageDto): Promise<JobApplicationResponseDto>;
 }
 

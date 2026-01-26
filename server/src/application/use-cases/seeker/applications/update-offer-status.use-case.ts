@@ -2,9 +2,11 @@ import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/jo
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
 import { NotFoundError, AuthorizationError, ValidationError } from 'src/domain/errors/errors';
 import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
+import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
+import { ATSOfferMapper } from 'src/application/mappers/ats/ats-offer.mapper';
 
 export interface IUpdateOfferStatusUseCase {
-  execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOffer>;
+  execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOfferResponseDto>;
 }
 
 export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
@@ -13,7 +15,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
     private readonly _offerRepository: IATSOfferRepository,
   ) {}
 
-  async execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOffer> {
+  async execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOfferResponseDto> {
     if (!status || !['signed', 'declined'].includes(status)) {
       throw new ValidationError('Invalid status. Must be "signed" or "declined"');
     }
@@ -48,6 +50,6 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       throw new NotFoundError('Failed to update offer');
     }
 
-    return updatedOffer;
+    return ATSOfferMapper.toResponse(updatedOffer);
   }
 }

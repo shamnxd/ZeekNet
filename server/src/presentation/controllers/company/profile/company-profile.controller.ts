@@ -4,9 +4,11 @@ import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
+  sendCreatedResponse,
   validateUserId,
   sendNotFoundResponse,
 } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
 import { SimpleUpdateCompanyProfileDto } from 'src/application/dtos/company/profile/info/requests/company-profile.dto';
 import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IUpdateCompanyProfileUseCase';
@@ -14,7 +16,6 @@ import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-c
 import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyProfileWithJobPostingsUseCase';
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/profile/verification/IReapplyCompanyVerificationUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
-import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 
 export class CompanyProfileController {
   constructor(
@@ -23,19 +24,19 @@ export class CompanyProfileController {
     private readonly _getCompanyProfileWithJobPostingsUseCase: IGetCompanyProfileWithJobPostingsUseCase,
     private readonly _reapplyCompanyVerificationUseCase: IReapplyCompanyVerificationUseCase,
     private readonly _uploadLogoUseCase: IUploadLogoUseCase,
-  ) {}
+  ) { }
 
   createCompanyProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = SimpleCompanyProfileDto.safeParse(req.body);
     if (!parsed.success) {
-      return handleValidationError(`Invalid profile data: ${parsed.error.errors.map((e: { path: { join: (arg: string) => string }; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
       const userId = validateUserId(req);
       const profile = await this._createCompanyProfileFromDtoUseCase.execute({ userId, ...parsed.data });
 
-      sendSuccessResponse(res, 'Company profile created successfully', CompanyProfileMapper.toResponse(profile), undefined, 201);
+      sendCreatedResponse(res, 'Company profile created successfully', profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -44,14 +45,14 @@ export class CompanyProfileController {
   updateCompanyProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = SimpleUpdateCompanyProfileDto.safeParse(req.body);
     if (!parsed.success) {
-      return handleValidationError(`Invalid company profile data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
       const userId = validateUserId(req);
       const companyProfile = await this._updateCompanyProfileUseCase.execute({ userId, ...parsed.data });
 
-      sendSuccessResponse(res, 'Company profile updated successfully', companyProfile, undefined, 200);
+      sendSuccessResponse(res, 'Company profile updated successfully', companyProfile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -81,22 +82,30 @@ export class CompanyProfileController {
 
 
   reapplyVerification = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = SimpleCompanyProfileDto.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
+
     try {
       const userId = validateUserId(req);
-
-      const parsed = SimpleCompanyProfileDto.safeParse(req.body);
-      if (!parsed.success) {
-        return handleValidationError(`Invalid verification data: ${parsed.error.errors.map((e: { path: { join: (arg: string) => string }; message: string }) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
-      }
-
-      const verificationData = {
+      const reapplicationData = {
         userId,
-        taxId: parsed.data.tax_id,
-        businessLicenseUrl: parsed.data.business_license,
+        company_name: parsed.data.company_name,
+        email: parsed.data.email,
+        website: parsed.data.website || '',
+        industry: parsed.data.industry,
+        organisation: parsed.data.organisation,
+        location: parsed.data.location,
+        employees: parsed.data.employees,
+        description: parsed.data.description,
+        logo: parsed.data.logo || '',
+        tax_id: parsed.data.tax_id,
+        business_license: parsed.data.business_license || '',
       };
-      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(verificationData);
+      const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(reapplicationData);
 
-      sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', CompanyProfileMapper.toResponse(updatedProfile));
+      sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', updatedProfile);
     } catch (error) {
       handleAsyncError(error, next);
     }

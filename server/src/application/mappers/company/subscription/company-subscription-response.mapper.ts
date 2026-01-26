@@ -18,7 +18,7 @@ export class CompanySubscriptionResponseMapper {
         name: entity.planName || '',
         jobPostLimit: entity.jobPostLimit || 0,
         featuredJobLimit: entity.featuredJobLimit || 0,
-        applicantAccessLimit: 0,
+        applicantAccessLimit: (entity as CompanySubscription).applicantAccessLimit || 0,
         isDefault: entity.isDefault,
       },
       startDate: entity.startDate,
@@ -40,6 +40,14 @@ export class CompanySubscriptionResponseMapper {
 
   static toDtoArray(entities: CompanySubscription[]): CompanySubscriptionResponseDto[] {
     return entities.map((entity) => this.toDto(entity));
+  }
+
+  static toResponse(entity: CompanySubscription | CompanySubscriptionWithActiveJobCount): CompanySubscriptionResponseDto {
+    return this.toDto(entity);
+  }
+
+  static toResponseList(entities: CompanySubscription[]): CompanySubscriptionResponseDto[] {
+    return this.toDtoArray(entities);
   }
 
   static toEntity(data: {

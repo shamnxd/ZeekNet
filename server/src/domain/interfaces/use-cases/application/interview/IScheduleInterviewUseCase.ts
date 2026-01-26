@@ -1,16 +1,6 @@
-import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
+import { ScheduleInterviewRequestDto } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
+import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
 
 export interface IScheduleInterviewUseCase {
-  execute(data: {
-    applicationId: string;
-    title: string;
-    scheduledDate: Date;
-    type: 'online' | 'offline';
-    videoType?: 'in-app' | 'external';
-    webrtcRoomId?: string;
-    meetingLink?: string;
-    location?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSInterview>;
+  execute(data: ScheduleInterviewRequestDto): Promise<ATSInterviewResponseDto>;
 }

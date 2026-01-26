@@ -1,3 +1,5 @@
+import { DeleteCompanyTechStackRequestDto } from 'src/application/dtos/company/profile/stack/requests/company-tech-stack.dto';
+
 export interface IDeleteCompanyTechStackUseCase {
-  execute(companyId: string, techStackId: string): Promise<void>;
+  execute(dto: DeleteCompanyTechStackRequestDto): Promise<void>;
 }

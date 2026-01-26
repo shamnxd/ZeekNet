@@ -3,6 +3,7 @@ import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { DeleteTechnicalTaskRequestDto } from 'src/application/dtos/application/task/requests/delete-technical-task.dto';
 
 export class DeleteTechnicalTaskUseCase implements IDeleteTechnicalTaskUseCase {
   constructor(
@@ -11,11 +12,7 @@ export class DeleteTechnicalTaskUseCase implements IDeleteTechnicalTaskUseCase {
     private activityLoggerService: IActivityLoggerService,
   ) {}
 
-  async execute(data: {
-    taskId: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<void> {
+  async execute(data: DeleteTechnicalTaskRequestDto): Promise<void> {
     
     const existingTask = await this.technicalTaskRepository.findById(data.taskId);
     if (!existingTask) {

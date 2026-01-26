@@ -1,52 +1,53 @@
 import { Router } from 'express';
-import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
-import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
-import { ATSOfferController } from 'src/presentation/controllers/ats/offer/ats-offer.controller';
-import { ATSCommentController } from 'src/presentation/controllers/ats/activity/ats-comment.controller';
-import { ATSCompensationController } from 'src/presentation/controllers/ats/offer/ats-compensation.controller';
-import { ATSActivityController } from 'src/presentation/controllers/ats/activity/ats-activity.controller';
+import {
+  atsInterviewController,
+  atsTechnicalTaskController,
+  atsOfferController,
+  atsCommentController,
+  atsCompensationController,
+  atsActivityController,
+} from 'src/infrastructure/di/atsDi';
+
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
 import { uploadDocument } from 'src/presentation/middleware/upload-document.middleware';
 
-export const createATSRoutes = (
-  interviewController: ATSInterviewController,
-  technicalTaskController: ATSTechnicalTaskController,
-  offerController: ATSOfferController,
-  commentController: ATSCommentController,
-  compensationController: ATSCompensationController,
-  activityController: ATSActivityController,
-): Router => {
-  const router = Router();
+export class ATSRouter {
+  public router: Router;
 
-  router.use(authenticateToken);
-  router.use(authorizeRoles('company'));
+  constructor() {
+    this.router = Router();
+    this._initializeRoutes();
+  }
 
-  router.post('/interviews', interviewController.scheduleInterview);
-  router.put('/interviews/:id', interviewController.updateInterview);
-  router.get('/:applicationId/interviews', interviewController.getInterviewsByApplication);
+  private _initializeRoutes(): void {
+    this.router.use(authenticateToken);
+    this.router.use(authorizeRoles('company'));
 
-  router.post('/tasks', uploadDocument('document'), technicalTaskController.assignTechnicalTask);
-  router.put('/tasks/:id', uploadDocument('document'), technicalTaskController.updateTechnicalTask);
-  router.delete('/tasks/:id', technicalTaskController.deleteTechnicalTask);
-  router.get('/:applicationId/tasks', technicalTaskController.getTechnicalTasksByApplication);
+    this.router.post('/interviews', atsInterviewController.scheduleInterview);
+    this.router.put('/interviews/:id', atsInterviewController.updateInterview);
+    this.router.get('/:applicationId/interviews', atsInterviewController.getInterviewsByApplication);
 
-  router.post('/offers', uploadDocument('document'), offerController.uploadOffer);
-  router.put('/offers/:id/status', offerController.updateOfferStatus);
-  router.get('/:applicationId/offers', offerController.getOffersByApplication);
+    this.router.post('/tasks', uploadDocument('document'), atsTechnicalTaskController.assignTechnicalTask);
+    this.router.put('/tasks/:id', uploadDocument('document'), atsTechnicalTaskController.updateTechnicalTask);
+    this.router.delete('/tasks/:id', atsTechnicalTaskController.deleteTechnicalTask);
+    this.router.get('/:applicationId/tasks', atsTechnicalTaskController.getTechnicalTasksByApplication);
 
-  router.post('/comments', commentController.addComment);
-  router.get('/:applicationId/comments', commentController.getCommentsByApplication);
+    this.router.post('/offers', uploadDocument('document'), atsOfferController.uploadOffer);
+    this.router.put('/offers/:id/status', atsOfferController.updateOfferStatus);
+    this.router.get('/:applicationId/offers', atsOfferController.getOffersByApplication);
 
-  router.get('/:applicationId/activities', activityController.getActivitiesByApplication);
+    this.router.post('/comments', atsCommentController.addComment);
+    this.router.get('/:applicationId/comments', atsCommentController.getCommentsByApplication);
 
-  router.post('/:applicationId/compensation/initiate', compensationController.initiateCompensation);
-  router.put('/:applicationId/compensation', compensationController.updateCompensation);
-  router.get('/:applicationId/compensation', compensationController.getCompensation);
-  router.post('/:applicationId/compensation/meetings', compensationController.scheduleCompensationMeeting);
-  router.get('/:applicationId/compensation/meetings', compensationController.getCompensationMeetings);
-  router.put('/:applicationId/compensation/meetings/:meetingId/status', compensationController.updateCompensationMeetingStatus);
-  router.post('/:applicationId/compensation/notes', commentController.addCompensationNote);
-  router.get('/:applicationId/compensation/notes', commentController.getCompensationNotes);
+    this.router.get('/:applicationId/activities', atsActivityController.getActivitiesByApplication);
 
-  return router;
-};
+    this.router.post('/:applicationId/compensation/initiate', atsCompensationController.initiateCompensation);
+    this.router.put('/:applicationId/compensation', atsCompensationController.updateCompensation);
+    this.router.get('/:applicationId/compensation', atsCompensationController.getCompensation);
+    this.router.post('/:applicationId/compensation/meetings', atsCompensationController.scheduleCompensationMeeting);
+    this.router.get('/:applicationId/compensation/meetings', atsCompensationController.getCompensationMeetings);
+    this.router.put('/:applicationId/compensation/meetings/:meetingId/status', atsCompensationController.updateCompensationMeetingStatus);
+    this.router.post('/:applicationId/compensation/notes', atsCommentController.addCompensationNote);
+    this.router.get('/:applicationId/compensation/notes', atsCommentController.getCompensationNotes);
+  }
+}

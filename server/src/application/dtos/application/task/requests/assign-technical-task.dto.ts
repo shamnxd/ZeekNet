@@ -1,27 +1,14 @@
-import { IsString, IsNotEmpty, IsDateString, IsOptional } from 'class-validator';
+import { z } from 'zod';
 
-export class AssignTechnicalTaskDto {
-  @IsString()
-  @IsNotEmpty()
-    applicationId!: string;
+export const AssignTechnicalTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  deadline: z.string().transform((str) => new Date(str)).or(z.date()),
+  documentUrl: z.string().optional(),
+  documentFilename: z.string().optional(),
+});
 
-  @IsString()
-  @IsNotEmpty()
-    title!: string;
-
-  @IsString()
-  @IsNotEmpty()
-    description!: string;
-
-  @IsDateString()
-  @IsNotEmpty()
-    deadline!: string;
-
-  @IsString()
-  @IsOptional()
-    documentUrl?: string;
-
-  @IsString()
-  @IsOptional()
-    documentFilename?: string;
-}
+export type AssignTechnicalTaskRequestDto = z.infer<typeof AssignTechnicalTaskSchema> & {
+  applicationId: string;
+  performedBy: string;
+};

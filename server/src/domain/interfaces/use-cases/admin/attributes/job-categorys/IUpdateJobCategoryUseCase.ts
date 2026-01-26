@@ -1,6 +1,6 @@
-import { JobCategory } from 'src/domain/entities/job-category.entity';
+import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
 import { UpdateJobCategoryRequestDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
 
 export interface IUpdateJobCategoryUseCase {
-  execute(id: string, dto: UpdateJobCategoryRequestDto): Promise<JobCategory>;
+  execute(id: string, dto: UpdateJobCategoryRequestDto): Promise<JobCategoryResponseDto>;
 }

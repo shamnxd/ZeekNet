@@ -5,6 +5,10 @@ import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/
 import { IMessageRepository } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { ATSInterviewModel } from 'src/infrastructure/persistence/mongodb/models/ats-interview.model';
+import { JobApplicationModel } from 'src/infrastructure/persistence/mongodb/models/job-application.model';
+import { Types } from 'mongoose';
 
 export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStatsUseCase {
   constructor(
@@ -21,27 +25,49 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
     const activeJobs = await this._jobPostingRepository.countDocuments({
       companyId: companyId,
       status: JobStatus.ACTIVE,
-    }); // Assuming countDocuments works with Partial<JobPosting>
+    });
 
     const totalJobs = await this._jobPostingRepository.countDocuments({
       companyId: companyId,
     });
 
-    // Assuming JobApplication has companyId
     const totalApplications = await this._jobApplicationRepository.countDocuments({
       companyId: companyId,
     });
 
+    // Count new candidates (applications in IN_REVIEW or APPLIED stage)
+    const newCandidatesCount = await JobApplicationModel.countDocuments({
+      company_id: new Types.ObjectId(companyId),
+      stage: { $in: [ATSStage.IN_REVIEW, ATSStage.APPLIED] },
+    });
+
+    // Count upcoming interviews/meetings for today
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Get all applications for this company to find their interview IDs
+    const companyApplications = await JobApplicationModel.find({
+      company_id: new Types.ObjectId(companyId),
+    }).select('_id').lean();
+
+    const applicationIds = companyApplications.map(app => app._id);
+
+    const upcomingInterviews = await ATSInterviewModel.countDocuments({
+      applicationId: { $in: applicationIds },
+      status: 'scheduled',
+      scheduledDate: {
+        $gte: todayStart,
+        $lte: todayEnd,
+      },
+    });
+
     // Unread messages for the user
-    // Assuming readAt is null for unread
     const unreadMessages = await this._messageRepository.countDocuments({
       receiverId: userId,
       readAt: null,
     });
-
-    // Upcoming Interviews - Mocking for now as repo doesn't support complex query
-    // In a real app, we would add countUpcomingByCompany(companyId) to Repo
-    const upcomingInterviews = 0; 
 
     return {
       activeJobs,
@@ -49,6 +75,7 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       totalApplications,
       upcomingInterviews,
       unreadMessages,
+      newCandidatesCount,
     };
   }
 }

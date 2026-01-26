@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ApplicationFiltersDto = z.object({
   userId: z.string().min(1, 'User ID is required').optional(),
   job_id: z.string().optional(),
-  stage: z.enum(['applied', 'shortlisted', 'interview', 'rejected', 'hired']).optional(),
+  stage: z.enum(['applied', 'in_review', 'shortlisted', 'interview', 'technical_task', 'compensation', 'offer', 'rejected', 'hired']).optional(),
   search: z.string().optional(),
   min_score: z.coerce.number().int().min(0).max(100).optional(),
   max_score: z.coerce.number().int().min(0).max(100).optional(),

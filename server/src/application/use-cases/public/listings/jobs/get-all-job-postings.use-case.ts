@@ -11,7 +11,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _s3Service: IS3Service,
-  ) {}
+  ) { }
 
   async execute(query: JobPostingFilters): Promise<PaginatedPublicJobsDto> {
     const projection = {
@@ -27,6 +27,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
       skills_required: 1 as const,
       employment_types: 1 as const,
       category_ids: 1 as const,
+      is_featured: 1 as const,
     };
 
     const filters = {
@@ -50,7 +51,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
 
     await Promise.all(jobDtos.map(async (jobDto) => {
       if (jobDto.companyLogo) {
-        jobDto.companyLogo = await this._s3Service.getSignedUrl (jobDto.companyLogo);
+        jobDto.companyLogo = await this._s3Service.getSignedUrl(jobDto.companyLogo);
       }
     }));
 

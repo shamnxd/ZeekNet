@@ -1,8 +1,8 @@
-import { CompanyContact } from 'src/domain/entities/company-contact.entity';
-import { UpdateCompanyContactDto } from 'src/application/dtos/company/profile/contacts/requests/company-contact.dto';
+import { CompanyContactResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
+import { UpsertCompanyContactRequestDto } from 'src/application/dtos/company/profile/contacts/requests/company-contact.dto';
 
 export interface IUpsertCompanyContactUseCase {
-  execute(data: UpdateCompanyContactDto): Promise<CompanyContact>;
+  execute(dto: UpsertCompanyContactRequestDto): Promise<CompanyContactResponseDto>;
 }
 
 

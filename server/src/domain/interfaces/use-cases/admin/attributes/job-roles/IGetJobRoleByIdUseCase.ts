@@ -1,5 +1,5 @@
-import { JobRole } from 'src/domain/entities/job-role.entity';
+import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-roles/responses/job-role-response.dto';
 
 export interface IGetJobRoleByIdUseCase {
-  execute(jobRoleId: string): Promise<JobRole>;
+  execute(jobRoleId: string): Promise<JobRoleResponseDto>;
 }

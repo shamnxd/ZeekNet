@@ -4,11 +4,13 @@ import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
+  sendCreatedResponse,
   sendNotFoundResponse,
   sendBadRequestResponse,
   validateUserId,
   badRequest,
 } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetSeekerApplicationDetailsUseCase';
 import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetApplicationsBySeekerUseCase';
 import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/ICreateJobApplicationUseCase';
@@ -21,7 +23,6 @@ import { IGetCompensationByApplicationUseCase } from 'src/domain/interfaces/use-
 import { IGetCompensationMeetingsByApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetCompensationMeetingsByApplicationUseCase';
 import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUpdateOfferStatusUseCase';
 import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IUploadSignedOfferDocumentUseCase';
-import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 import { UploadedFile } from 'src/domain/types/common.types';
 import { CreateJobApplicationDto } from 'src/application/dtos/seeker/applications/requests/create-job-application.dto';
 import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
@@ -41,46 +42,25 @@ export class SeekerJobApplicationController {
     private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
     private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
     private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
-    private readonly _fileUploadService: IFileUploadService,
   ) { }
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
 
-      if (!req.file) {
-        return badRequest(res, 'Resume file is required');
-      }
+      const bodySchema = CreateJobApplicationDto.omit({ resume_url: true, resume_filename: true });
+      const parsedBody = bodySchema.safeParse(req.body);
 
-      const resumeUploadResult = await this._fileUploadService.uploadResume(req.file as unknown as UploadedFile, 'resume');
-
-      const { job_id, cover_letter } = req.body;
-
-      if (!job_id) {
-        return badRequest(res, 'Job ID is required');
-      }
-
-      const dto = CreateJobApplicationDto.safeParse({
-        job_id,
-        cover_letter,
-        resume_url: resumeUploadResult.url,
-        resume_filename: resumeUploadResult.filename,
-      });
-
-      if (!dto.success) {
-        return handleValidationError(
-          `Validation error: ${dto.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
+      if (!parsedBody.success) {
+        return handleValidationError(formatZodErrors(parsedBody.error), next);
       }
 
       const application = await this._createJobApplicationUseCase.execute(
-        { seekerId: userId, ...dto.data },
-        req.file.buffer,
-        req.file.mimetype,
+        { seekerId: userId, ...parsedBody.data },
+        req.file as unknown as UploadedFile,
       );
 
-      sendSuccessResponse(res, 'Application submitted successfully', { id: application.id }, undefined, 201);
+      sendCreatedResponse(res, 'Application submitted successfully', { id: application.id });
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -92,15 +72,13 @@ export class SeekerJobApplicationController {
 
       const filters = ApplicationFiltersDto.safeParse(req.query);
       if (!filters.success) {
-        return handleValidationError(
-          `Validation error: ${filters.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
+        return handleValidationError(formatZodErrors(filters.error), next);
       }
 
       const result = await this._getApplicationsBySeekerUseCase.execute({
         seekerId: userId,
         stage: filters.data.stage,
+        search: filters.data.search,
         page: filters.data.page,
         limit: filters.data.limit,
       });
@@ -181,21 +159,10 @@ export class SeekerJobApplicationController {
     try {
       const userId = validateUserId(req);
       const { applicationId, taskId } = req.params;
-      const { submissionLink, submissionNote } = req.body;
-
-      let submissionUrl: string | undefined;
-      let submissionFilename: string | undefined;
-
-      if (req.file) {
-        const uploadResult = await this._fileUploadService.uploadTaskSubmission(req.file as unknown as UploadedFile, 'document');
-        submissionUrl = uploadResult.url;
-        submissionFilename = uploadResult.filename;
-      } else if (req.body.submissionUrl && req.body.submissionFilename) {
-        submissionUrl = req.body.submissionUrl;
-        submissionFilename = req.body.submissionFilename;
-      }
+      const { submissionLink, submissionNote, submissionUrl, submissionFilename } = req.body;
 
       const result = await this._submitTechnicalTaskUseCase.execute(userId, applicationId, taskId, {
+        file: req.file as unknown as UploadedFile,
         submissionUrl,
         submissionFilename,
         submissionLink,
@@ -253,7 +220,12 @@ export class SeekerJobApplicationController {
       const { offerId } = req.params;
       const { status } = req.body;
 
-      const updatedOffer = await this._updateOfferStatusUseCase.execute(userId, offerId, status);
+      const updatedOffer = await this._updateOfferStatusUseCase.execute({
+        performedBy: userId,
+        performedByName: req.user?.email || 'Unknown User',
+        offerId,
+        status: status as 'signed' | 'declined',
+      });
 
       sendSuccessResponse(res, `Offer ${status === 'signed' ? 'accepted' : 'declined'} successfully`, updatedOffer);
     } catch (error) {
@@ -271,11 +243,8 @@ export class SeekerJobApplicationController {
         return sendBadRequestResponse(res, 'Signed document file is required');
       }
 
-      const uploadResult = await this._fileUploadService.uploadOfferLetter(req.file as unknown as UploadedFile, 'document');
-
       const updatedOffer = await this._uploadSignedOfferDocumentUseCase.execute(userId, userName, offerId, {
-        signedDocumentUrl: uploadResult.url,
-        signedDocumentFilename: uploadResult.filename,
+        file: req.file as unknown as UploadedFile,
       });
 
       sendSuccessResponse(res, 'Signed document uploaded successfully', updatedOffer);
@@ -284,5 +253,3 @@ export class SeekerJobApplicationController {
     }
   };
 }
-
-

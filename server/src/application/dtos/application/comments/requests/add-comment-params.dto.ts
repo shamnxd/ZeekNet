@@ -5,6 +5,5 @@ export interface AddCommentParamsDto {
     comment: string;
     stage: ATSStage;
     subStage?: ATSSubStage;
-    addedBy: string;
-    addedByName: string;
+    userId: string;
 }

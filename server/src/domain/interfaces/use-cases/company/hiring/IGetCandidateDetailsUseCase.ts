@@ -12,5 +12,5 @@ export interface CandidateDetails {
 }
 
 export interface IGetCandidateDetailsUseCase {
-  execute(params: { candidateId: string }): Promise<CandidateDetails>;
+  execute(params: { id: string }): Promise<CandidateDetails>;
 }

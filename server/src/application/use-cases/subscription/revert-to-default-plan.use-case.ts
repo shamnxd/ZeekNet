@@ -10,6 +10,8 @@ import { NotificationType } from 'src/domain/enums/notification-type.enum';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { IRevertToDefaultPlanUseCase } from 'src/domain/interfaces/use-cases/subscription/IRevertToDefaultPlanUseCase';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
+import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
 
 export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
   constructor(
@@ -19,29 +21,29 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _notificationRepository: INotificationRepository,
     private readonly _logger: ILogger,
-  ) {}
+  ) { }
 
-  async execute(companyId: string): Promise<CompanySubscription> {
+  async execute(companyId: string): Promise<CompanySubscriptionResponseDto> {
     const defaultPlan = await this._subscriptionPlanRepository.findDefault();
     if (!defaultPlan) {
       throw new NotFoundError('Default subscription plan not found');
     }
 
     let currentSubscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyId);
-    
+
     if (!currentSubscription) {
       const allSubscriptions = await this._companySubscriptionRepository.findByCompanyId(companyId);
       if (allSubscriptions.length === 0) {
         throw new NotFoundError('No subscription found for company');
       }
-      currentSubscription = allSubscriptions.sort((a, b) => 
+      currentSubscription = allSubscriptions.sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )[0];
     }
 
     if (currentSubscription.planId === defaultPlan.id) {
       this._logger.info(`Company ${companyId} is already on default plan`);
-      return currentSubscription;
+      return CompanySubscriptionResponseMapper.toResponse(currentSubscription);
     }
 
     const allJobs = await this._jobPostingRepository.getJobsByCompany(companyId, {
@@ -51,7 +53,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     });
 
     const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
-    
+
     activeJobs.sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -117,7 +119,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
       `Remaining active jobs: ${remainingRegularJobs} regular, ${remainingFeaturedJobs} featured`,
     );
 
-    return updatedSubscription;
+    return CompanySubscriptionResponseMapper.toResponse(updatedSubscription);
   }
 }
 

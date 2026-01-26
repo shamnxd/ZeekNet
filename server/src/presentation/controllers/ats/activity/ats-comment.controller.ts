@@ -1,16 +1,12 @@
 import { NextFunction, Response } from 'express';
-
 import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
 import { IAddCompensationNoteUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCompensationNoteUseCase';
 import { IGetCommentsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/comments/IGetCommentsByApplicationUseCase';
 import { IGetCompensationNotesUseCase } from 'src/domain/interfaces/use-cases/application/comments/IGetCompensationNotesUseCase';
-
 import { AddCommentRequestDtoSchema } from 'src/application/dtos/application/comments/requests/add-comment-request.dto';
 import { AddCompensationNoteRequestDtoSchema } from 'src/application/dtos/application/comments/requests/add-compensation-note-request.dto';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
-
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class ATSCommentController {
@@ -28,12 +24,11 @@ export class ATSCommentController {
     }
 
     try {
-      const { id: userId, email } = req.user!;
+      const userId = validateUserId(req);
 
       const comment = await this.addCommentUseCase.execute({
         ...parsedBody.data,
-        addedBy: userId,
-        addedByName: email,
+        userId,
       });
 
       sendCreatedResponse(res, 'Comment added successfully', comment);
@@ -43,14 +38,10 @@ export class ATSCommentController {
   };
 
   getCommentsByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
+      const { id } = req.params;
       const comments = await this.getCommentsByApplicationUseCase.execute({
-        applicationId: parsedParams.data.id,
+        applicationId: id,
       });
 
       sendSuccessResponse(res, 'Comments retrieved successfully', comments);
@@ -60,24 +51,19 @@ export class ATSCommentController {
   };
 
   addCompensationNote = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     const parsedBody = AddCompensationNoteRequestDtoSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
 
     try {
-      const { id: userId, email } = req.user!;
+      const userId = validateUserId(req);
+      const { id } = req.params;
 
       const comment = await this.addCompensationNoteUseCase.execute({
-        applicationId: parsedParams.data.id,
+        applicationId: id,
         note: parsedBody.data.note,
-        addedBy: userId,
-        addedByName: email,
+        userId,
       });
 
       sendCreatedResponse(res, 'Compensation note added successfully', comment);
@@ -87,14 +73,10 @@ export class ATSCommentController {
   };
 
   getCompensationNotes = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     try {
+      const { id } = req.params;
       const compensationNotes = await this.getCompensationNotesUseCase.execute({
-        applicationId: parsedParams.data.id,
+        applicationId: id,
       });
 
       sendSuccessResponse(res, 'Compensation notes retrieved successfully', compensationNotes);

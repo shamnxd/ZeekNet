@@ -1,13 +1,7 @@
-import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
+import { UpdateInterviewRequestDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
+import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
 
 export interface IUpdateInterviewUseCase {
-  execute(data: {
-    interviewId: string;
-    status?: 'scheduled' | 'completed' | 'cancelled';
-    rating?: number;
-    feedback?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSInterview>;
+  execute(data: UpdateInterviewRequestDto): Promise<ATSInterviewResponseDto>;
 }
 

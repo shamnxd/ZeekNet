@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendNotFoundResponse, validateUserId, badRequest } from 'src/shared/utils/presentation/controller.utils';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, validateUserId, badRequest } from 'src/shared/utils/presentation/controller.utils';
 import { ICreateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/ICreateSeekerProfileUseCase';
 import { IGetSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IGetSeekerProfileUseCase';
 import { IUpdateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IUpdateSeekerProfileUseCase';
@@ -25,6 +25,9 @@ import { UpdateExperienceRequestDto } from 'src/application/dtos/seeker/profile/
 import { AddEducationRequestDto } from 'src/application/dtos/seeker/profile/education/requests/add-education-request.dto';
 import { UpdateEducationRequestDto } from 'src/application/dtos/seeker/profile/education/requests/update-education-request.dto';
 import { UploadResumeRequestDto } from 'src/application/dtos/seeker/media/requests/seeker-profile.dto';
+import { CreateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
+import { UpdateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class SeekerProfileController {
   constructor(
@@ -45,16 +48,24 @@ export class SeekerProfileController {
     private readonly _removeResumeUseCase: IRemoveResumeUseCase,
     private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
     private readonly _uploadBannerUseCase: IUploadBannerUseCase,
-  ) {}
+  ) { }
+
+
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      const dto = req.body as CreateSeekerProfileRequestDto;
-      
-      const profile = await this._createSeekerProfileUseCase.execute({ ...dto, userId });
 
-      sendSuccessResponse(res, 'Seeker profile created successfully', profile, undefined, 201);
+      const bodySchema = CreateSeekerProfileRequestDtoSchema.omit({ userId: true });
+      const parsed = bodySchema.safeParse(req.body);
+
+      if (!parsed.success) {
+        return handleValidationError(formatZodErrors(parsed.error), next);
+      }
+
+      const profile = await this._createSeekerProfileUseCase.execute({ ...parsed.data, userId });
+
+      sendCreatedResponse(res, 'Seeker profile created successfully', profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -73,9 +84,15 @@ export class SeekerProfileController {
   updateSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      const dto = req.body as UpdateSeekerProfileRequestDto;
 
-      const profile = await this._updateSeekerProfileUseCase.execute({ ...dto, userId });
+      const bodySchema = UpdateSeekerProfileRequestDtoSchema.omit({ userId: true });
+      const parsed = bodySchema.safeParse(req.body);
+
+      if (!parsed.success) {
+        return handleValidationError(formatZodErrors(parsed.error), next);
+      }
+
+      const profile = await this._updateSeekerProfileUseCase.execute({ ...parsed.data, userId });
 
       sendSuccessResponse(res, 'Seeker profile updated successfully', profile);
     } catch (error) {
@@ -90,7 +107,7 @@ export class SeekerProfileController {
 
       const experience = await this._addExperienceUseCase.execute({ ...dto, userId });
 
-      sendSuccessResponse(res, 'Experience added successfully', experience, undefined, 201);
+      sendCreatedResponse(res, 'Experience added successfully', experience);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -139,7 +156,7 @@ export class SeekerProfileController {
 
       const education = await this._addEducationUseCase.execute(userId, dto);
 
-      sendSuccessResponse(res, 'Education added successfully', education, undefined, 201);
+      sendCreatedResponse(res, 'Education added successfully', education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -212,7 +229,7 @@ export class SeekerProfileController {
 
       const resume = await this._uploadResumeUseCase.execute({ ...dto, userId });
 
-      sendSuccessResponse(res, 'Resume uploaded successfully', resume, undefined, 201);
+      sendCreatedResponse(res, 'Resume uploaded successfully', resume);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -232,7 +249,7 @@ export class SeekerProfileController {
   uploadAvatar = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      
+
       if (!req.file) {
         return badRequest(res, 'No image file provided');
       }
@@ -253,7 +270,7 @@ export class SeekerProfileController {
   uploadBanner = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      
+
       if (!req.file) {
         return badRequest(res, 'No image file provided');
       }

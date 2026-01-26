@@ -1,10 +1,11 @@
 import { IStripeService } from 'src/domain/interfaces/services/IStripeService';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
-import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IResumeSubscriptionUseCase';
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
+import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
 
 export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
   constructor(
@@ -13,7 +14,7 @@ export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string): Promise<CompanySubscription> {
+  async execute(userId: string): Promise<CompanySubscriptionResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -43,7 +44,7 @@ export class ResumeSubscriptionUseCase implements IResumeSubscriptionUseCase {
       throw new Error('Failed to update subscription');
     }
 
-    return updatedSubscription;
+    return CompanySubscriptionResponseMapper.toDto(updatedSubscription);
   }
 }
 

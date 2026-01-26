@@ -1,6 +1,7 @@
 import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDeleteMessageUseCase';
 import { IMessageRepository } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
 import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
+import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketService';
 import { Conversation } from 'src/domain/entities/conversation.entity';
 import { DeleteMessageResponseDto } from 'src/application/dtos/chat/responses/delete-message-response.dto';
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
@@ -11,6 +12,7 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
   constructor(
     private readonly _messageRepository: IMessageRepository,
     private readonly _conversationRepository: IConversationRepository,
+    private readonly _chatSocketService: IChatSocketService,
   ) { }
 
   async execute(input: DeleteMessageDto): Promise<DeleteMessageResponseDto | null> {
@@ -41,9 +43,15 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
 
     if (!deletedMessage) return null;
 
-    return {
+    const response = {
       message: ChatMessageMapper.toResponse(deletedMessage),
-      conversation: conversation ? ConversationMapper.toResponse(conversation) : null
+      conversation: conversation ? ConversationMapper.toResponse(conversation) : null,
     };
+
+    if (response.conversation) {
+      this._chatSocketService.emitMessageDeleted(response.message, response.conversation);
+    }
+
+    return response;
   }
 }

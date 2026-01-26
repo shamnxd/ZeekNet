@@ -2,6 +2,7 @@ import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendM
 import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
 import { IMessageRepository } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketService';
 import { AuthorizationError, NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { ChatMessage, MessageStatus } from 'src/domain/entities/chat-message.entity';
 import { CreateInput } from 'src/domain/types/common.types';
@@ -15,6 +16,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     private readonly _conversationRepository: IConversationRepository,
     private readonly _messageRepository: IMessageRepository,
     private readonly _userRepository: IUserRepository,
+    private readonly _chatSocketService: IChatSocketService,
   ) { }
 
   async execute(input: SendMessageDto): Promise<SendMessageResponseDto> {
@@ -78,9 +80,13 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       (await this._conversationRepository.updateLastMessage(conversation.id, lastMessage, message.receiverId)) ||
       conversation.withLastMessage(message);
 
-    return {
+    const response = {
       conversation: ConversationMapper.toResponse(updatedConversation),
-      message: ChatMessageMapper.toResponse(message)
+      message: ChatMessageMapper.toResponse(message),
     };
+
+    this._chatSocketService.emitMessageDelivered(response.message, response.conversation);
+
+    return response;
   }
 }

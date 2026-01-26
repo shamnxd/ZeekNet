@@ -1,12 +1,13 @@
-import { IsString, IsOptional } from 'class-validator';
+import { z } from 'zod';
 
-export class InitiateCompensationDto {
-  @IsString()
-    candidateExpected: string;
+export const InitiateCompensationSchema = z.object({
+  candidateExpected: z.string().min(1, 'Candidate expected compensation is required'),
+  notes: z.string().optional(),
+});
 
-  @IsString()
-  @IsOptional()
-    notes?: string;
-}
+export type InitiateCompensationRequestDto = z.infer<typeof InitiateCompensationSchema> & {
+  applicationId: string;
+  performedBy: string;
+};
 
 

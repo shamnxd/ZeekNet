@@ -1,11 +1,5 @@
 import { Skill } from 'src/domain/entities/skill.entity';
-
-export interface SkillResponseDto {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/responses/skill-response.dto';
 
 export class SkillMapper {
   static toResponse(skill: Skill): SkillResponseDto {

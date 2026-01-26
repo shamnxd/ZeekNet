@@ -1,6 +1,6 @@
-import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
 
 export interface IGetCompensationUseCase {
-  execute(applicationId: string): Promise<ATSCompensation | null>;
+  execute(applicationId: string): Promise<ATSCompensationResponseDto | null>;
 }
 

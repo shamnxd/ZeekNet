@@ -1,10 +1,8 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { z } from 'zod';
 
-export class UpdateOfferStatusDto {
-  @IsEnum(['draft', 'sent', 'signed', 'declined'])
-    status!: 'draft' | 'sent' | 'signed' | 'declined';
-  
-  @IsOptional()
-  @IsString()
-    withdrawalReason?: string;
-}
+export const UpdateOfferStatusDtoSchema = z.object({
+  status: z.enum(['draft', 'sent', 'signed', 'declined']),
+  withdrawalReason: z.string().optional(),
+});
+
+export type UpdateOfferStatusDto = z.infer<typeof UpdateOfferStatusDtoSchema>;

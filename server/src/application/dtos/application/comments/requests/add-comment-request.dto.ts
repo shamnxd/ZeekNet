@@ -6,7 +6,7 @@ import {
   InterviewSubStage,
   TechnicalTaskSubStage,
   CompensationSubStage,
-  OfferSubStage
+  OfferSubStage,
 } from 'src/domain/enums/ats-stage.enum';
 
 export const AddCommentRequestDtoSchema = z.object({

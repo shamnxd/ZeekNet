@@ -2,12 +2,18 @@ import { IJobRoleRepository } from 'src/domain/interfaces/repositories/job-role/
 import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobRolesUseCase';
 
 export class GetPublicJobRolesUseCase implements IGetPublicJobRolesUseCase {
-  constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
+  constructor(private readonly _jobRoleRepository: IJobRoleRepository) { }
 
-  async execute(): Promise<string[]> {
-    const result = await this._jobRoleRepository.paginate({}, {
+  async execute(search: string = '', limit: number = 1000): Promise<string[]> {
+    const filter: Record<string, unknown> = {};
+
+    if (search && search.trim()) {
+      filter.name = { $regex: search.trim(), $options: 'i' };
+    }
+
+    const result = await this._jobRoleRepository.paginate(filter, {
       page: 1,
-      limit: 1000,
+      limit: limit,
       sortBy: 'name',
       sortOrder: 'asc',
     });

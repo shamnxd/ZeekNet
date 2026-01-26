@@ -1,162 +1,114 @@
-import { Response } from 'express';
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { Response, NextFunction } from 'express';
+import { z } from 'zod';
+
 import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
 import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
 import { IGetCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationUseCase';
 import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
 import { IGetCompensationMeetingsUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationMeetingsUseCase';
 import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
-import { sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, sendNotFoundResponse, sendInternalServerErrorResponse, extractUserId } from 'src/shared/utils/presentation/controller.utils';
-import { InitiateCompensationDto } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
-import { UpdateCompensationDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
-import { ScheduleCompensationMeetingDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
+
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { InitiateCompensationSchema } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
+import { UpdateCompensationSchema } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
+import { ScheduleCompensationMeetingSchema } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
+import { UpdateCompensationMeetingStatusSchema } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
 
 export class ATSCompensationController {
   constructor(
-    private _initiateCompensationUseCase: IInitiateCompensationUseCase,
-    private _updateCompensationUseCase: IUpdateCompensationUseCase,
-    private _getCompensationUseCase: IGetCompensationUseCase,
-    private _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
-    private _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
-    private _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
+    private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
+    private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
+    private readonly _getCompensationUseCase: IGetCompensationUseCase,
+    private readonly _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
+    private readonly _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
+    private readonly _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
   ) { }
 
-  initiateCompensation = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  initiateCompensation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = InitiateCompensationSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
       const { applicationId } = req.params;
-      const dto: InitiateCompensationDto = req.body;
-      const userId = extractUserId(req);
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
+      const userId = validateUserId(req);
 
       const created = await this._initiateCompensationUseCase.execute({
         applicationId,
-        candidateExpected: dto.candidateExpected,
-        notes: dto.notes,
+        ...validation.data,
         performedBy: userId,
-        performedByName: userName,
       });
 
       sendCreatedResponse(res, 'Compensation discussion initiated successfully', created);
     } catch (error) {
-      console.error('Error initiating compensation:', error);
-      if (error instanceof Error) {
-        if (error.message.includes('not found')) {
-          sendNotFoundResponse(res, error.message);
-          return;
-        }
-        if (error.message.includes('already initiated')) {
-          sendBadRequestResponse(res, error.message);
-          return;
-        }
-      }
-      sendInternalServerErrorResponse(res, 'Failed to initiate compensation discussion');
+      handleAsyncError(error, next);
     }
   };
 
-  updateCompensation = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  updateCompensation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = UpdateCompensationSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
       const { applicationId } = req.params;
-      const dto: UpdateCompensationDto = req.body;
-      const userId = extractUserId(req);
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
-
-      const expectedJoining = dto.expectedJoining ? new Date(dto.expectedJoining) : undefined;
-      const approvedAt = dto.approvedAt ? new Date(dto.approvedAt) : undefined;
+      const userId = validateUserId(req);
 
       const updated = await this._updateCompensationUseCase.execute({
         applicationId,
-        candidateExpected: dto.candidateExpected,
-        companyProposed: dto.companyProposed,
-        expectedJoining,
-        benefits: dto.benefits,
-        finalAgreed: dto.finalAgreed,
-        approvedAt,
-        approvedBy: dto.approvedBy,
-        approvedByName: dto.approvedByName,
-        notes: dto.notes,
+        ...validation.data,
         performedBy: userId,
-        performedByName: userName,
       });
 
       sendSuccessResponse(res, 'Compensation updated successfully', updated);
     } catch (error) {
-      console.error('Error updating compensation:', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        sendNotFoundResponse(res, error.message);
-        return;
-      }
-      sendInternalServerErrorResponse(res, 'Failed to update compensation');
+      handleAsyncError(error, next);
     }
   };
 
-  getCompensation = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getCompensation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { applicationId } = req.params;
 
       const compensation = await this._getCompensationUseCase.execute(applicationId);
 
       if (!compensation) {
-        sendNotFoundResponse(res, 'Compensation record not found');
-        return;
+        throw new Error('Compensation record not found');
       }
 
       sendSuccessResponse(res, 'Compensation retrieved successfully', compensation);
     } catch (error) {
-      console.error('Error fetching compensation:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch compensation');
+      handleAsyncError(error, next);
     }
   };
 
-  scheduleCompensationMeeting = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  scheduleCompensationMeeting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = ScheduleCompensationMeetingSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
       const { applicationId } = req.params;
-      const dto: ScheduleCompensationMeetingDto = req.body;
-      const userId = extractUserId(req);
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
-
-
-      const scheduledDate = new Date(`${dto.date}T${dto.time}`);
+      const userId = validateUserId(req);
 
       const created = await this._scheduleCompensationMeetingUseCase.execute({
         applicationId,
-        type: dto.type,
-        scheduledDate,
-        videoType: dto.videoType,
-        webrtcRoomId: dto.webrtcRoomId,
-        location: dto.location,
-        meetingLink: dto.meetingLink,
-        notes: dto.notes,
+        ...validation.data,
         performedBy: userId,
-        performedByName: userName,
       });
 
       sendCreatedResponse(res, 'Compensation meeting scheduled successfully', created);
     } catch (error) {
-      console.error('Error scheduling compensation meeting:', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        sendNotFoundResponse(res, error.message);
-        return;
-      }
-      sendInternalServerErrorResponse(res, 'Failed to schedule compensation meeting');
+      handleAsyncError(error, next);
     }
   };
 
-  getCompensationMeetings = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getCompensationMeetings = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { applicationId } = req.params;
 
@@ -164,45 +116,30 @@ export class ATSCompensationController {
 
       sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
     } catch (error) {
-      console.error('Error fetching compensation meetings:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch compensation meetings');
+      handleAsyncError(error, next);
     }
   };
 
-  updateCompensationMeetingStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  updateCompensationMeetingStatus = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = UpdateCompensationMeetingStatusSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
       const { applicationId, meetingId } = req.params;
-      const { status } = req.body;
-      const userId = extractUserId(req);
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendBadRequestResponse(res, 'User not authenticated');
-        return;
-      }
+      const userId = validateUserId(req);
 
       const updated = await this._updateCompensationMeetingStatusUseCase.execute({
         meetingId,
         applicationId,
-        status: status as 'scheduled' | 'completed' | 'cancelled',
+        status: validation.data.status,
         performedBy: userId,
-        performedByName: userName,
       });
 
       sendSuccessResponse(res, 'Meeting status updated successfully', updated);
     } catch (error) {
-      console.error('Error updating compensation meeting status:', error);
-      if (error instanceof Error) {
-        if (error.message.includes('not found')) {
-          sendNotFoundResponse(res, error.message);
-          return;
-        }
-        if (error.message.includes('Invalid status') || error.message.includes('does not belong')) {
-          sendBadRequestResponse(res, error.message);
-          return;
-        }
-      }
-      sendInternalServerErrorResponse(res, 'Failed to update meeting status');
+      handleAsyncError(error, next);
     }
   };
 }

@@ -1,19 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { z } from 'zod';
 
-export class UploadOfferDto {
-  @IsString()
-  @IsNotEmpty()
-    applicationId!: string;
+export const UploadOfferSchema = z.object({
+  offerAmount: z.string().optional(),
+  documentUrl: z.string().optional(),
+  documentFilename: z.string().optional(),
+});
 
-  @IsString()
-  @IsOptional()
-    offerAmount?: string;
-
-  @IsString()
-  @IsOptional()
-    documentUrl?: string;
-
-  @IsString()
-  @IsOptional()
-    documentFilename?: string;
-}
+export type UploadOfferRequestDto = z.infer<typeof UploadOfferSchema> & {
+  applicationId: string;
+  performedBy: string;
+};

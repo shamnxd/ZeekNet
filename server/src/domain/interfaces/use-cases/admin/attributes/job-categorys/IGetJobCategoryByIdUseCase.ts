@@ -1,6 +1,5 @@
-import { JobCategory } from 'src/domain/entities/job-category.entity';
-
+import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
 
 export interface IGetJobCategoryByIdUseCase {
-  execute(id: string): Promise<JobCategory>;
+  execute(id: string): Promise<JobCategoryResponseDto>;
 }

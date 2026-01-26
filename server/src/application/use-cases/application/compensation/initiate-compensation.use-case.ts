@@ -12,78 +12,83 @@ import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJ
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { InitiateCompensationRequestDto } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
+import { ATSCompensationMapper } from 'src/application/mappers/ats/ats-compensation.mapper';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
 export class InitiateCompensationUseCase implements IInitiateCompensationUseCase {
   constructor(
-    private compensationRepository: IATSCompensationRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-    private jobPostingRepository: IJobPostingRepository,
-    private userRepository: IUserRepository,
-    private addCommentUseCase: IAddCommentUseCase,
-    private activityLoggerService: IActivityLoggerService,
-    private mailerService: IMailerService,
-    private emailTemplateService: IEmailTemplateService,
+    private readonly _compensationRepository: IATSCompensationRepository,
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _userRepository: IUserRepository,
+    private readonly _addCommentUseCase: IAddCommentUseCase,
+    private readonly _activityLoggerService: IActivityLoggerService,
+    private readonly _mailerService: IMailerService,
+    private readonly _emailTemplateService: IEmailTemplateService,
+    private readonly _logger: ILogger,
   ) { }
 
-  async execute(data: {
-    applicationId: string;
-    candidateExpected: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensation> {
+  async execute(dto: InitiateCompensationRequestDto): Promise<ATSCompensationResponseDto> {
 
-    const existing = await this.compensationRepository.findByApplicationId(data.applicationId);
+    const existing = await this._compensationRepository.findByApplicationId(dto.applicationId);
     if (existing) {
       throw new ValidationError('Compensation discussion already initiated');
     }
 
 
-    const application = await this.jobApplicationRepository.findById(data.applicationId);
+    const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    const job = await this.jobPostingRepository.findById(application.jobId);
+    const job = await this._jobPostingRepository.findById(application.jobId);
     if (job && application.seekerId) {
       await this._sendCompensationInitiatedEmail(
         application.seekerId,
         job.title,
-        job.companyName || 'ZeekNet'
+        job.companyName || 'ZeekNet',
       );
     }
 
 
     const compensation = ATSCompensation.create({
       id: uuidv4(),
-      applicationId: data.applicationId,
-      candidateExpected: data.candidateExpected,
+      applicationId: dto.applicationId,
+      candidateExpected: dto.candidateExpected,
     });
 
-    const created = await this.compensationRepository.create(compensation);
+    const created = await this._compensationRepository.create(compensation);
 
 
-    await this.activityLoggerService.logCompensationActivity({
-      applicationId: data.applicationId,
+    const currentUser = await this._userRepository.findById(dto.performedBy);
+    const performedByName = currentUser ? currentUser.name : 'Unknown';
+
+    await this._activityLoggerService.logCompensationActivity({
+      applicationId: dto.applicationId,
       type: 'initiated',
-      candidateExpected: data.candidateExpected,
+      candidateExpected: dto.candidateExpected,
       stage: ATSStage.COMPENSATION,
       subStage: application.subStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
+      performedBy: dto.performedBy,
+      performedByName: performedByName,
     });
 
-    if (data.notes) {
-      await this.addCommentUseCase.execute({
-        applicationId: data.applicationId,
-        comment: data.notes,
+    if (dto.notes) {
+      await this._addCommentUseCase.execute({
+        applicationId: dto.applicationId,
+        comment: dto.notes,
         stage: ATSStage.COMPENSATION,
-        addedBy: data.performedBy,
-        addedByName: data.performedByName,
+        userId: dto.performedBy,
       });
     }
 
-    return created;
+    if (!created) {
+      throw new Error('Failed to create compensation');
+    }
+
+    return ATSCompensationMapper.toResponse(created) as ATSCompensationResponseDto;
   }
 
   private async _sendCompensationInitiatedEmail(
@@ -92,17 +97,17 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     companyName: string,
   ): Promise<void> {
     try {
-      const user = await this.userRepository.findById(seekerId);
+      const user = await this._userRepository.findById(seekerId);
       if (!user) return;
 
-      const { subject, html } = this.emailTemplateService.getCompensationInitiatedEmail(
+      const { subject, html } = this._emailTemplateService.getCompensationInitiatedEmail(
         user.name,
         jobTitle,
         companyName,
       );
-      await this.mailerService.sendMail(user.email, subject, html);
+      await this._mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      console.error('Failed to send compensation initiated email:', error);
+      this._logger.error('Failed to send compensation initiated email:', error);
     }
   }
 }

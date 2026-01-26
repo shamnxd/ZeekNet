@@ -6,6 +6,9 @@ import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { GetJobApplicationsKanbanDto } from 'src/application/dtos/application/requests/get-job-applications-kanban.dto';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
+import { JobApplicationsKanbanResponseDto } from 'src/application/dtos/application/pipeline/responses/job-applications-kanban-response.dto';
 
 export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsForKanbanUseCase {
   constructor(
@@ -14,22 +17,12 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
     private _userRepository: IUserRepository,
     private _seekerProfileRepository: ISeekerProfileRepository,
     private _s3Service: IS3Service,
+    private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
-  async execute(jobId: string, companyId: string): Promise<{
-    [stage: string]: Array<{
-      id: string;
-      seekerId: string;
-      seekerName?: string;
-      seekerAvatar?: string;
-      jobTitle?: string;
-      atsScore?: number;
-      subStage: string;
-      appliedDate: Date;
-    }>;
-  }> {
-    
-    const job = await this._jobPostingRepository.findById(jobId);
+  async execute(dto: GetJobApplicationsKanbanDto): Promise<JobApplicationsKanbanResponseDto> {
+    const companyId = await this._getCompanyIdByUserIdUseCase.execute(dto.userId);
+    const job = await this._jobPostingRepository.findById(dto.jobId);
     if (!job) {
       throw new NotFoundError('Job not found');
     }
@@ -38,26 +31,13 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
       throw new ValidationError('Job does not belong to this company');
     }
 
-    
-    
     const applications = await this._jobApplicationRepository.findMany({
-      job_id: jobId,
+      job_id: dto.jobId,
       company_id: companyId,
     });
 
     
-    const grouped: {
-      [stage: string]: Array<{
-        id: string;
-        seekerId: string;
-        seekerName?: string;
-        seekerAvatar?: string;
-        jobTitle?: string;
-        atsScore?: number;
-        subStage: string;
-        appliedDate: Date;
-      }>;
-    } = {};
+    const grouped: JobApplicationsKanbanResponseDto = {};
 
     
     job.enabledStages.forEach((stage) => {
@@ -71,12 +51,12 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
         try {
           const [user, profile] = await Promise.all([
             this._userRepository.findById(seekerId),
-            this._seekerProfileRepository.findOne({userId:seekerId})
+            this._seekerProfileRepository.findOne({ userId:seekerId }),
           ]);
 
           const avatarUrl = profile?.avatarFileName 
-          ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
-          : undefined;
+            ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
+            : undefined;
           return { id: seekerId, seeker: user, avatarUrl };
         } catch {
           return { id: seekerId, seeker: null };

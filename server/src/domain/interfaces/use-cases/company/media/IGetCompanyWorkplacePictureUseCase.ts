@@ -1,5 +1,5 @@
-import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
+import { CompanyWorkplacePictureResponseDto } from 'src/application/dtos/company/media/responses/company-workplace-picture-response.dto';
 
 export interface IGetCompanyWorkplacePictureUseCase {
-  execute(companyId: string): Promise<CompanyWorkplacePictures[]>;
+  execute(data: { userId: string }): Promise<CompanyWorkplacePictureResponseDto[]>;
 }

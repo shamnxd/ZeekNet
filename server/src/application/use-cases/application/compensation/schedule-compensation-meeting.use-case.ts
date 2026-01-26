@@ -6,66 +6,65 @@ import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivity
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { ScheduleCompensationMeetingRequestDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
+import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
+import { ATSCompensationMeetingMapper } from 'src/application/mappers/ats/ats-compensation-meeting.mapper';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
 export class ScheduleCompensationMeetingUseCase implements IScheduleCompensationMeetingUseCase {
   constructor(
-    private compensationMeetingRepository: IATSCompensationMeetingRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-    private activityLoggerService: IActivityLoggerService,
-  ) {}
+    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _activityLoggerService: IActivityLoggerService,
+    private readonly _userRepository: IUserRepository,
+  ) { }
 
-  async execute(data: {
-    applicationId: string;
-    type: 'call' | 'online' | 'in-person';
-    scheduledDate: Date;
-    videoType?: 'in-app' | 'external';
-    webrtcRoomId?: string;
-    location?: string;
-    meetingLink?: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensationMeeting> {
-    
-    const application = await this.jobApplicationRepository.findById(data.applicationId);
+  async execute(dto: ScheduleCompensationMeetingRequestDto): Promise<ATSCompensationMeetingResponseDto> {
+
+    const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
-    
-    let webrtcRoomId = data.webrtcRoomId;
-    if (data.type === 'online' && data.videoType === 'in-app' && !webrtcRoomId) {
+    const currentUser = await this._userRepository.findById(dto.performedBy);
+    const performedByName = currentUser ? currentUser.name : 'Unknown';
+
+
+    let webrtcRoomId = dto.webrtcRoomId;
+    if (dto.type === 'online' && dto.videoType === 'in-app' && !webrtcRoomId) {
       webrtcRoomId = uuidv4();
     }
 
+    // Combine date and time
+    const scheduledDate = new Date(`${dto.date}T${dto.time}`);
+
     const meeting = ATSCompensationMeeting.create({
       id: uuidv4(),
-      applicationId: data.applicationId,
-      type: data.type,
-      scheduledDate: data.scheduledDate,
-      videoType: data.videoType,
+      applicationId: dto.applicationId,
+      type: dto.type,
+      scheduledDate: scheduledDate,
+      videoType: dto.videoType,
       webrtcRoomId,
-      location: data.location,
-      meetingLink: data.meetingLink,
-      notes: data.notes,
+      location: dto.location,
+      meetingLink: dto.meetingLink,
+      notes: dto.notes,
     });
 
-    const created = await this.compensationMeetingRepository.create(meeting);
+    const created = await this._compensationMeetingRepository.create(meeting);
 
-    
-    await this.activityLoggerService.logCompensationMeetingActivity({
-      applicationId: data.applicationId,
+
+    await this._activityLoggerService.logCompensationMeetingActivity({
+      applicationId: dto.applicationId,
       meetingId: created.id,
       type: 'scheduled',
-      meetingType: data.type,
-      scheduledDate: data.scheduledDate,
+      meetingType: dto.type,
+      scheduledDate: scheduledDate,
       stage: ATSStage.COMPENSATION,
       subStage: application.subStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
+      performedBy: dto.performedBy,
+      performedByName: performedByName,
     });
 
-    return created;
+    return ATSCompensationMeetingMapper.toResponse(created);
   }
 }
-

@@ -13,21 +13,19 @@ import {
   companySubscriptionController,
   companyCandidatesController,
   companyDashboardController,
+  companyProfileRepository,
   subscriptionMiddleware,
 } from 'src/infrastructure/di/companyDi';
+import {
+  atsPipelineController,
+} from 'src/infrastructure/di/atsDi';
+import { userRepository, getUserByIdUseCase } from 'src/infrastructure/di/authDi';
+import { ATSRouter } from './ats.routes';
 
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
 import { uploadSingle } from 'src/presentation/middleware/upload.middleware';
-import { validateBody, validateQuery } from 'src/presentation/middleware/validation.middleware';
 import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
 import { CompanyVerificationMiddleware } from 'src/presentation/middleware/company-verification.middleware';
-import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
-import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
-import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
-import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
-import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
-import { UpdateApplicationStageRequestDtoSchema } from 'src/application/dtos/application/requests/update-application-stage.dto';
-import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
 
 
 export class CompanyRouter {
@@ -39,10 +37,7 @@ export class CompanyRouter {
   }
 
   private _initializeRoute(): void {
-    const { companyProfileRepository } = require('../../infrastructure/di/companyDi');
-    const { userRepository } = require('../../infrastructure/di/authDi');
-
-    const userBlockedMiddleware = new UserBlockedMiddleware(userRepository);
+    const userBlockedMiddleware = new UserBlockedMiddleware(getUserByIdUseCase);
     const companyVerificationMiddleware = new CompanyVerificationMiddleware(companyProfileRepository);
 
     this.router.use(authenticateToken);
@@ -54,7 +49,7 @@ export class CompanyRouter {
     this.router.put('/profile', companyProfileController.updateCompanyProfile);
     this.router.get('/profile', companyProfileController.getCompanyProfile);
     this.router.get('/profile/:profileId', companyProfileController.getCompanyProfileById);
-    this.router.post('/reapply-verification', validateBody(SimpleCompanyProfileDto), companyProfileController.reapplyVerification);
+    this.router.post('/reapply-verification', companyProfileController.reapplyVerification);
 
     this.router.post('/upload/logo', uploadSingle('logo'), companyProfileController.uploadLogo);
     this.router.post('/upload/business-license', uploadSingle('business_license'), companyUploadController.uploadBusinessLicense);
@@ -97,50 +92,35 @@ export class CompanyRouter {
     this.router.post('/subscriptions/change-plan', companySubscriptionController.changeSubscriptionPlan);
     this.router.post('/subscriptions/billing-portal', companySubscriptionController.getBillingPortal);
 
-    this.router.post('/jobs', validateBody(CreateJobPostingRequestDtoSchema), companyJobPostingController.createJobPosting);
-    this.router.get('/jobs', validateQuery(JobPostingQueryDto), companyJobPostingController.getCompanyJobPostings);
+    this.router.post('/jobs', companyJobPostingController.createJobPosting);
+    this.router.get('/jobs', companyJobPostingController.getCompanyJobPostings);
     this.router.get('/jobs/:id', companyJobPostingController.getJobPosting);
-    this.router.put('/jobs/:id', validateBody(UpdateJobPostingDto), companyJobPostingController.updateJobPosting);
+    this.router.put('/jobs/:id', companyJobPostingController.updateJobPosting);
     this.router.delete('/jobs/:id', companyJobPostingController.deleteJobPosting);
     this.router.patch('/jobs/:id/status', companyJobPostingController.updateJobStatus);
     this.router.post('/jobs/:id/close', companyJobPostingController.closeJob);
     this.router.post('/jobs/:id/reopen', companyJobPostingController.reopenJob);
+    this.router.patch('/jobs/:id/featured', companyJobPostingController.toggleFeatured);
 
     this.router.get('/applications', companyJobApplicationController.getCompanyApplications);
     this.router.get('/jobs/:job_id/applications', companyJobApplicationController.getJobApplications);
     this.router.post('/applications/bulk-update', companyJobApplicationController.bulkUpdate);
     this.router.post('/applications/:id/mark-hired', companyJobApplicationController.markAsHired);
 
-    const {
-      atsInterviewController,
-      atsTechnicalTaskController,
-      atsOfferController,
-      atsCommentController,
-      atsCompensationController,
-      atsActivityController,
-      atsPipelineController,
-    } = require('../../infrastructure/di/atsDi');
-    const { createATSRoutes } = require('./ats.routes');
-    this.router.use('/applications', createATSRoutes(
-      atsInterviewController,
-      atsTechnicalTaskController,
-      atsOfferController,
-      atsCommentController,
-      atsCompensationController,
-      atsActivityController,
-    ));
+    this.router.use('/applications', new ATSRouter().router);
 
     this.router.post('/applications/:id/move-stage', atsPipelineController.moveApplicationStage);
     this.router.post('/applications/:id/update-sub-stage', atsPipelineController.updateApplicationSubStage);
 
     this.router.get('/applications/:id', companyJobApplicationController.getApplicationDetails);
-    this.router.patch('/applications/:id/stage', validateBody(UpdateApplicationStageRequestDtoSchema), companyJobApplicationController.updateStage);
-    this.router.patch('/applications/:id/score', validateBody(UpdateScoreDto), companyJobApplicationController.updateScore);
+    this.router.patch('/applications/:id/stage', companyJobApplicationController.updateStage);
+    this.router.patch('/applications/:id/score', companyJobApplicationController.updateScore);
 
     this.router.get('/jobs/:jobId/ats-pipeline', atsPipelineController.getJobPipeline);
     this.router.get('/jobs/:jobId/applications', atsPipelineController.getJobApplicationsForKanban);
 
     this.router.get('/candidates', companyCandidatesController.getCandidates);
-    this.router.get('/candidates/:id', companyCandidatesController.getCandidateDetails);
+    this.router.get('/candidates/:id', subscriptionMiddleware.checkCanViewCandidate, companyCandidatesController.getCandidateDetails);
   }
 }
+

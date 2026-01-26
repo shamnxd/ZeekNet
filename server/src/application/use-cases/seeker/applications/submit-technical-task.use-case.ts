@@ -1,27 +1,27 @@
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 import { NotFoundError, AuthorizationError, ValidationError } from 'src/domain/errors/errors';
-import { 
-  SubmitTechnicalTaskDto, 
-  ISubmitTechnicalTaskUseCase, 
+import {
+  SubmitTechnicalTaskDto,
+  ISubmitTechnicalTaskUseCase,
 } from 'src/domain/interfaces/use-cases/seeker/applications/ISubmitTechnicalTaskUseCase';
+import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technical-task.mapper';
+import { ATSTechnicalTaskResponseDto } from 'src/application/dtos/application/task/responses/ats-technical-task-response.dto';
 
 export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
-  ) {}
+    private readonly _fileUploadService: IFileUploadService,
+  ) { }
 
   async execute(
     userId: string,
     applicationId: string,
     taskId: string,
     data: SubmitTechnicalTaskDto,
-  ) {
-    if (!data.submissionUrl && !data.submissionLink) {
-      throw new ValidationError('Please provide either a file upload or a submission link');
-    }
-
+  ): Promise<ATSTechnicalTaskResponseDto> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
@@ -40,9 +40,22 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
       throw new ValidationError('Task does not belong to this application');
     }
 
+    let submissionUrl = data.submissionUrl;
+    let submissionFilename = data.submissionFilename;
+
+    if (data.file) {
+      const uploadResult = await this._fileUploadService.uploadTaskSubmission(data.file, 'submission');
+      submissionUrl = uploadResult.url;
+      submissionFilename = uploadResult.filename;
+    }
+
+    if (!submissionUrl && !data.submissionLink) {
+      throw new ValidationError('Please provide either a file upload or a submission link');
+    }
+
     const updatedTask = await this._technicalTaskRepository.update(taskId, {
-      submissionUrl: data.submissionUrl,
-      submissionFilename: data.submissionFilename,
+      submissionUrl,
+      submissionFilename,
       submissionLink: data.submissionLink,
       submissionNote: data.submissionNote,
       status: 'submitted',
@@ -53,22 +66,6 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
       throw new NotFoundError('Failed to update task');
     }
 
-    return {
-      id: updatedTask.id,
-      applicationId: updatedTask.applicationId,
-      title: updatedTask.title,
-      description: updatedTask.description,
-      deadline: updatedTask.deadline,
-      documentUrl: updatedTask.documentUrl,
-      documentFilename: updatedTask.documentFilename,
-      submissionUrl: updatedTask.submissionUrl,
-      submissionFilename: updatedTask.submissionFilename,
-      submissionLink: updatedTask.submissionLink,
-      submissionNote: updatedTask.submissionNote,
-      submittedAt: updatedTask.submittedAt,
-      status: updatedTask.status,
-      createdAt: updatedTask.createdAt,
-      updatedAt: updatedTask.updatedAt,
-    };
+    return ATSTechnicalTaskMapper.toResponse(updatedTask);
   }
 }

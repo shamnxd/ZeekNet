@@ -28,8 +28,11 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
     const result = await this._messageRepository.getByConversationId(conversationId, { page, limit });
 
     return {
-      ...result,
-      data: ChatMessageMapper.toResponseList(result.data)
+      data: ChatMessageMapper.toResponseList(result.data),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     };
   }
 }

@@ -1,7 +1,6 @@
 import { NextFunction, Response } from 'express';
 import { IGetApplicationActivitiesUseCase } from 'src/domain/interfaces/use-cases/application/activity/IGetApplicationActivitiesUseCase';
 import { GetActivitiesQueryDtoSchema } from 'src/application/dtos/application/activity/requests/get-activities-query.dto';
-import { ParamsWithIdDto } from 'src/application/dtos/common/params-with-id.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
@@ -12,20 +11,16 @@ export class ATSActivityController {
   ) { }
 
   getActivitiesByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsedParams = ParamsWithIdDto.safeParse(req.params);
-    if (!parsedParams.success) {
-      return handleValidationError(formatZodErrors(parsedParams.error), next);
-    }
-
     const parsedQuery = GetActivitiesQueryDtoSchema.safeParse(req.query);
     if (!parsedQuery.success) {
       return handleValidationError(formatZodErrors(parsedQuery.error), next);
     }
 
     try {
+      const { id } = req.params;
       const result = await this.getApplicationActivitiesUseCase.execute({
-        applicationId: parsedParams.data.id,
-        ...parsedQuery.data
+        applicationId: id,
+        ...parsedQuery.data,
       });
 
       sendSuccessResponse(res, 'Activities retrieved successfully', result);

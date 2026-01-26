@@ -23,8 +23,11 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
     const result = await this._conversationRepository.getUserConversations(userId, { page, limit });
 
     return {
-      ...result,
-      data: ConversationMapper.toResponseList(result.data)
+      data: ConversationMapper.toResponseList(result.data),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     };
   }
 }

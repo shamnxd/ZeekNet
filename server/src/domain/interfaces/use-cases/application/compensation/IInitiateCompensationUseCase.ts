@@ -1,12 +1,7 @@
-import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { InitiateCompensationRequestDto } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
+import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
 
 export interface IInitiateCompensationUseCase {
-  execute(data: {
-    applicationId: string;
-    candidateExpected: string;
-    notes?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensation>;
+  execute(dto: InitiateCompensationRequestDto): Promise<ATSCompensationResponseDto>;
 }
 
