@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc -p tsconfig.json",
-    "start": "node -r tsconfig-paths/register dist/index.js",
+    "start": "node dist/src/index.js",
     "test:s3": "node test-s3-routes.js",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "format": "prettier --write ."

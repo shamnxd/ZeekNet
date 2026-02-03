@@ -25,9 +25,8 @@ const CompanySidebar = () => {
   const { companyVerificationStatus } = useAppSelector((state) => state.auth)
 
   const isVerified = companyVerificationStatus === 'verified'
-  const hasProfile = companyVerificationStatus !== null && companyVerificationStatus !== undefined && companyVerificationStatus !== 'not_created'
   const canAccessSettings = isVerified
-  const canAccessHelpCenter = true // Help Center is always accessible
+  const canAccessHelpCenter = true
 
   const navigationItems = [
     {
@@ -222,8 +221,8 @@ const CompanySidebar = () => {
                     <div
                       key={item.href}
                       className={`flex items-center gap-3 px-3 py-2.5 pl-7 rounded-lg ${isItemDisabled
-                          ? 'cursor-not-allowed opacity-60'
-                          : 'cursor-pointer hover:bg-gray-100'
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'cursor-pointer hover:bg-gray-100'
                         }`}
                       onClick={() => !isItemDisabled && handleNavigation(item.href)}
                     >
