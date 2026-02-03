@@ -1,6 +1,5 @@
-import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
-
+import { PaymentResponseDto } from 'src/application/dtos/payment/responses/payment-response.dto';
 
 export interface IGetPaymentHistoryUseCase {
-  execute(userId: string): Promise<PaymentOrder[]>;
+  execute(userId: string): Promise<PaymentResponseDto[]>;
 }

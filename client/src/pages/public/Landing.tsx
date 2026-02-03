@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PublicFooter from "@/components/layouts/PublicFooter";
@@ -19,9 +19,34 @@ import {
   MessageCircle,
 } from "lucide-react";
 import PublicHeader from "@/components/layouts/PublicHeader";
+import { useState, useEffect } from "react";
+import { jobApi } from "@/api/job.api";
+import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
+import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Landing = () => {
+  const navigate = useNavigate();
   const { isAuthenticated, role } = useAppSelector((state) => state.auth);
+  const [featuredJobs, setFeaturedJobs] = useState<JobPostingResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await jobApi.getFeaturedJobs({ limit: 6 });
+        if (response.success && response.data) {
+          setFeaturedJobs(response.data.jobs);
+        }
+      } catch (error) {
+        console.error("Failed to fetch jobs:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
   const companiesLogo = [
     {
       name: "Framer",
@@ -222,168 +247,89 @@ const Landing = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                company: "Dribbble",
-                role: "Full-stack developer",
-                location: "Remote",
-                type: "Full-time",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <circle cx="12" cy="12" r="10" fill="#EA4C89" />
-                    <circle cx="12" cy="12" r="3" fill="white" />
-                  </svg>
-                ),
-                color: "bg-pink-500",
-              },
-              {
-                company: "LinkedIn",
-                role: "UI/UX designer (Senior)",
-                location: "New York",
-                type: "Full-time",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <rect
-                      x="2"
-                      y="2"
-                      width="20"
-                      height="20"
-                      rx="3"
-                      fill="#0077B5"
-                    />
-                    <rect x="6" y="6" width="3" height="12" fill="white" />
-                    <rect x="11" y="9" width="3" height="9" fill="white" />
-                    <circle cx="7.5" cy="7.5" r="1.5" fill="white" />
-                  </svg>
-                ),
-                color: "bg-blue-600",
-              },
-              {
-                company: "Upwork",
-                role: "Senior front-end designer",
-                location: "Remote",
-                type: "Contract",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <circle cx="12" cy="12" r="10" fill="#14A800" />
-                    <path
-                      d="M8 10c0-2 2-4 4-4s4 2 4 4-2 4-4 4-4-2-4-4z"
-                      fill="white"
-                    />
-                  </svg>
-                ),
-                color: "bg-green-500",
-              },
-              {
-                company: "Figma",
-                role: "Senior designer",
-                location: "San Francisco",
-                type: "Full-time",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <rect
-                      x="6"
-                      y="2"
-                      width="6"
-                      height="6"
-                      rx="3"
-                      fill="#F24E1E"
-                    />
-                    <rect
-                      x="12"
-                      y="2"
-                      width="6"
-                      height="6"
-                      rx="3"
-                      fill="#A259FF"
-                    />
-                    <rect
-                      x="6"
-                      y="8"
-                      width="6"
-                      height="6"
-                      rx="3"
-                      fill="#1ABCFE"
-                    />
-                    <rect
-                      x="12"
-                      y="8"
-                      width="6"
-                      height="6"
-                      rx="3"
-                      fill="#0ACF83"
-                    />
-                    <circle cx="15" cy="17" r="3" fill="#FF7262" />
-                  </svg>
-                ),
-                color: "bg-purple-500",
-              },
-              {
-                company: "Microsoft",
-                role: "UI/UX designer (Senior) mobile",
-                location: "Seattle",
-                type: "Full-time",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <rect x="3" y="3" width="8" height="8" fill="#F25022" />
-                    <rect x="13" y="3" width="8" height="8" fill="#7FBA00" />
-                    <rect x="3" y="13" width="8" height="8" fill="#00A4EF" />
-                    <rect x="13" y="13" width="8" height="8" fill="#FFB900" />
-                  </svg>
-                ),
-                color: "bg-blue-500",
-              },
-              {
-                company: "Webflow",
-                role: "Senior Mobile Expert",
-                location: "Remote",
-                type: "Full-time",
-                logo: (
-                  <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8">
-                    <rect
-                      x="2"
-                      y="2"
-                      width="20"
-                      height="20"
-                      rx="4"
-                      fill="#4353FF"
-                    />
-                    <path d="M7 8l5 8 5-8H7z" fill="white" />
-                  </svg>
-                ),
-                color: "bg-indigo-500",
-              },
-            ].map((job, index) => (
-              <Card
-                key={index}
-                className="hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 bg-card border border-border group hover:scale-[1.02]"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-gray-200/50 group-hover:shadow-xl group-hover:shadow-gray-200/70 transition-all duration-300">
-                      {job.logo}
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="bg-card border border-border">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <Skeleton className="w-12 h-12 rounded-lg" />
+                      <Skeleton className="w-20 h-6" />
                     </div>
-                    <Badge
-                      variant="secondary"
-                      className="bg-primary text-primary-foreground shadow-sm"
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2 mb-2" />
+                    <Skeleton className="h-4 w-1/3 mb-4" />
+                    <Skeleton className="h-10 w-full" />
+                  </CardContent>
+                </Card>
+              ))
+            ) : featuredJobs.length > 0 ? (
+              featuredJobs.map((job) => (
+                <Card
+                  key={job.id}
+                  className="hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 bg-card border border-border group hover:scale-[1.02] cursor-pointer"
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-gray-200/50 group-hover:shadow-xl group-hover:shadow-gray-200/70 transition-all duration-300 overflow-hidden">
+                        {job.companyLogo || job.company?.logo ? (
+                          <img
+                            src={job.companyLogo || job.company?.logo}
+                            alt={job.companyName || job.company?.companyName}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {(job.companyName || job.company?.companyName || "C")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="bg-primary text-primary-foreground shadow-sm"
+                      >
+                        {(job.employmentTypes && job.employmentTypes[0]) ||
+                          (job.employment_types && job.employment_types[0]) ||
+                          "Full-time"}
+                      </Badge>
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-1 line-clamp-1">
+                      {job.title}
+                    </h3>
+                    <p className="text-primary font-medium mb-2 truncate">
+                      {job.companyName || job.company?.companyName}
+                    </p>
+                    <div className="flex flex-col gap-1 mb-4">
+                      <p className="text-muted-foreground text-sm flex items-center">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {job.location || "Remote"}
+                      </p>
+                      {job.salary && (
+                        <p className="text-sm font-medium text-foreground">
+                          ${job.salary.min.toLocaleString()} - $
+                          {job.salary.max.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/jobs/${job.id}`);
+                      }}
                     >
-                      {job.type}
-                    </Badge>
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {job.role}
-                  </h3>
-                  <p className="text-primary font-medium mb-2">{job.company}</p>
-                  <p className="text-muted-foreground text-sm mb-4 flex items-center">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {job.location}
-                  </p>
-                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
-                    Apply Now
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                      View Details
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10 text-muted-foreground">
+                No featured jobs found at the moment.
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -684,30 +630,25 @@ const Landing = () => {
         </div>
       </section>
 
-      <Link
-        to={
-          isAuthenticated && role === UserRole.SEEKER
-            ? "/seeker/messages"
-            : "/auth/login"
-        }
-        className="fixed bottom-8 right-8 z-50 group"
-      >
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping opacity-75 duration-[2s]" />
-          <div className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 hover:shadow-2xl hover:shadow-primary/50 hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-sm border border-white/20">
-            <MessageCircle className="w-7 h-7" />
-            <span className="absolute top-0 right-0 flex h-5 w-5 translate-x-1 -translate-y-1 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-sm ring-2 ring-white dark:ring-slate-900">
-              3
-            </span>
+      {isAuthenticated && (
+        <Link
+          to={role === UserRole.SEEKER ? "/seeker/messages" : "/auth/login"}
+          className="fixed bottom-8 right-8 z-50 group"
+        >
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping opacity-75 duration-[2s]" />
+            <div className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-full shadow-lg shadow-primary/30 hover:shadow-2xl hover:shadow-primary/50 hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-sm border border-white/20">
+              <MessageCircle className="w-7 h-7" />
+            </div>
+            <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none whitespace-nowrap hidden sm:block">
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                Messages
+              </p>
+              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white/90 dark:bg-slate-800/90 border-r border-t border-slate-200 dark:border-slate-700 rotate-45 transform" />
+            </div>
           </div>
-          <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none whitespace-nowrap hidden sm:block">
-            <p className="text-sm font-medium text-slate-900 dark:text-white">
-              {isAuthenticated ? "3 New Messages" : "Chat with us"}
-            </p>
-            <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white/90 dark:bg-slate-800/90 border-r border-t border-slate-200 dark:border-slate-700 rotate-45 transform" />
-          </div>
-        </div>
-      </Link>
+        </Link>
+      )}
 
       <PublicFooter />
     </div>

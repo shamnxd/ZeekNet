@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -11,10 +12,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { 
-  Search, 
+import {
+  Search,
   Eye,
-  Edit,
   UserX,
   ChevronLeft,
   ChevronRight
@@ -27,6 +27,7 @@ import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
 
 const CompanyManagement = () => {
+  const navigate = useNavigate()
   const [companies, setCompanies] = useState<Company[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -43,12 +44,12 @@ const CompanyManagement = () => {
   const [blockedFilter, setBlockedFilter] = useState('')
   const [categories, setCategories] = useState<string[]>([])
   const itemsPerPage = 5
-  
+
   const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      
+
       const params: GetAllCompaniesParams = {
         page: currentPage,
         limit: itemsPerPage,
@@ -59,7 +60,7 @@ const CompanyManagement = () => {
       }
 
       const response = await adminApi.getAllCompanies(params)
-      
+
       if (response && response.data && response.data.companies) {
         setCompanies(response.data.companies)
         setTotalPages(response.data.totalPages)
@@ -98,54 +99,53 @@ const CompanyManagement = () => {
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
 
 
-const handleBlockConfirm = async () => {
-  if (!selectedCompany) return;
-  if (!selectedCompany.userId) {
-    toast.error("User ID missing");
-    return;
-  }
+  const handleBlockConfirm = async () => {
+    if (!selectedCompany) return;
+    if (!selectedCompany.userId) {
+      toast.error("User ID missing");
+      return;
+    }
 
-  try {
-    const newBlockedStatus = !selectedCompany.isBlocked;
+    try {
+      const newBlockedStatus = !selectedCompany.isBlocked;
 
-    await adminApi.blockUser(selectedCompany.userId, newBlockedStatus);
+      await adminApi.blockUser(selectedCompany.userId, newBlockedStatus);
 
-    setCompanies(prev =>
-      prev.map(c =>
-        c.userId === selectedCompany.userId
-          ? { ...c, isBlocked: newBlockedStatus }
-          : c
-      )
-    );
+      setCompanies(prev =>
+        prev.map(c =>
+          c.userId === selectedCompany.userId
+            ? { ...c, isBlocked: newBlockedStatus }
+            : c
+        )
+      );
 
-    toast.success(
-      `Company ${selectedCompany.companyName} ${
-        newBlockedStatus ? "blocked" : "unblocked"
-      } successfully`
-    );
+      toast.success(
+        `Company ${selectedCompany.companyName} ${newBlockedStatus ? "blocked" : "unblocked"
+        } successfully`
+      );
 
-    setBlockDialogOpen(false);
-    setSelectedCompany(null);
+      setBlockDialogOpen(false);
+      setSelectedCompany(null);
 
-  } catch {
-    toast.error(`Failed to ${selectedCompany.isBlocked ? "unblock" : "block"} company`);
-  }
-};
+    } catch {
+      toast.error(`Failed to ${selectedCompany.isBlocked ? "unblock" : "block"} company`);
+    }
+  };
 
 
   const handleEmailConfirm = async () => {
     if (!selectedCompany) return
-    
+
     try {
       toast.success(`Email verification updated for ${selectedCompany.companyName}`)
-    setEmailDialogOpen(false)
-    setSelectedCompany(null)
+      setEmailDialogOpen(false)
+      setSelectedCompany(null)
       fetchCompanies()
     } catch {
       toast.error('Failed to update email verification')
@@ -181,48 +181,46 @@ const handleBlockConfirm = async () => {
     { value: 'other', label: 'Other (please specify)' },
   ];
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
-  const [reasonCompany, setReasonCompany] = useState<Company|null>(null);
-const handleBlockAction = (company: Company) => {
-  setReasonCompany(company);
-  setReasonDialogOpen(true);
-};
-const handleBlockReasonConfirm = async (reason: string) => {
-  if (!reasonCompany) return;
-  if (!reasonCompany.userId) {
-    toast.error("User ID missing");
-    return;
-  }
+  const [reasonCompany, setReasonCompany] = useState<Company | null>(null);
+  const handleBlockAction = (company: Company) => {
+    setReasonCompany(company);
+    setReasonDialogOpen(true);
+  };
+  const handleBlockReasonConfirm = async (reason: string) => {
+    if (!reasonCompany) return;
+    if (!reasonCompany.userId) {
+      toast.error("User ID missing");
+      return;
+    }
 
-  try {
-    const newBlockedStatus = !reasonCompany.isBlocked;
+    try {
+      const newBlockedStatus = !reasonCompany.isBlocked;
 
-    await adminApi.blockUser(reasonCompany.userId, newBlockedStatus);
+      await adminApi.blockUser(reasonCompany.userId, newBlockedStatus);
 
-    setCompanies(prev =>
-      prev.map(c =>
-        c.userId === reasonCompany.userId
-          ? { ...c, isBlocked: newBlockedStatus }
-          : c
-      )
-    );
+      setCompanies(prev =>
+        prev.map(c =>
+          c.userId === reasonCompany.userId
+            ? { ...c, isBlocked: newBlockedStatus }
+            : c
+        )
+      );
 
-    toast.success(
-      `${reasonCompany.companyName} ${
-        newBlockedStatus ? "blocked" : "unblocked"
-      } successfully${newBlockedStatus ? `. Reason: ${reason}` : ""}`
-    );
+      toast.success(
+        `${reasonCompany.companyName} ${newBlockedStatus ? "blocked" : "unblocked"
+        } successfully${newBlockedStatus ? `. Reason: ${reason}` : ""}`
+      );
 
-    setReasonDialogOpen(false);
-    setReasonCompany(null);
+      setReasonDialogOpen(false);
+      setReasonCompany(null);
 
-  } catch {
-    toast.error(
-      `Failed to ${
-        reasonCompany.isBlocked ? "unblock" : "block"
-      } ${reasonCompany.companyName}`
-    );
-  }
-};
+    } catch {
+      toast.error(
+        `Failed to ${reasonCompany.isBlocked ? "unblock" : "block"
+        } ${reasonCompany.companyName}`
+      );
+    }
+  };
 
 
   return (
@@ -244,7 +242,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium">Industry</label>
-            <select 
+            <select
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={industryFilter}
               onChange={(e) => handleFilterChange('industry', e.target.value)}
@@ -257,7 +255,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium">Verification</label>
-            <select 
+            <select
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={verificationFilter}
               onChange={(e) => handleFilterChange('verification', e.target.value)}
@@ -270,7 +268,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium">Status</label>
-            <select 
+            <select
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={blockedFilter}
               onChange={(e) => handleFilterChange('blocked', e.target.value)}
@@ -282,7 +280,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
           </div>
           <div className="flex items-center space-x-2">
           </div>
-            </div>
+        </div>
 
         {loading && (
           <Card className="border-0 shadow-md">
@@ -311,136 +309,136 @@ const handleBlockReasonConfirm = async (reason: string) => {
         )}
 
         {!loading && !error && (
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border/50">
-                    <th className="text-left p-4 font-medium text-muted-foreground">Company</th>
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border/50">
+                      <th className="text-left p-4 font-medium text-muted-foreground">Company</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Industry</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Organization</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Verification</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Organization</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Verification</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Created</th>
-                    <th className="text-left p-4 font-medium text-muted-foreground">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {companies.map((company) => (
-                    <tr key={company.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center space-x-3">
-                            <img 
-                              src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')} 
+                      <tr key={company.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')}
                               alt={company.companyName || 'Company'}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                          <div>
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                            <div>
                               <p className="font-medium text-gray-800">{company.companyName}</p>
                               <p className="text-sm text-gray-500">{company.websiteLink}</p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.industry}</span>
-                      </td>
-                      <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.organisation}</span>
-                      </td>
+                        </td>
                         <td className="p-4">
-                          <span className={`text-sm px-2 py-1 rounded-full ${
-                            company.isBlocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                          }`}>
+                          <span className="text-sm text-gray-700">{company.industry}</span>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-sm text-gray-700">{company.organisation}</span>
+                        </td>
+                        <td className="p-4">
+                          <span className={`text-sm px-2 py-1 rounded-full ${company.isBlocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                            }`}>
                             {company.isBlocked ? 'Blocked' : 'Active'}
                           </span>
                         </td>
-                      <td className="p-4">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                            company.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
+                        <td className="p-4">
+                          <span className={`text-xs px-2 py-1 rounded-full ${company.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
                             company.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
+                              'bg-red-100 text-red-700'
+                            }`}>
                             {company.isVerified}
-                        </span>
-                      </td>
+                          </span>
+                        </td>
                         <td className="p-4 text-sm text-gray-700">
                           {new Date(company.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm" className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                            onClick={() => handleBlockAction(company)}
-                          >
-                            <UserX className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                              onClick={() => navigate(`/admin/company-profile-view/${company.id}`)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {/* Edit button removed */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                              onClick={() => handleBlockAction(company)}
+                            >
+                              <UserX className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {!loading && !error && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500">
               Showing {startIndex + 1} to {Math.min(endIndex, totalCompanies)} of {totalCompanies} companies
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="flex items-center space-x-1"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span>Previous</span>
-            </Button>
-            
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePageChange(page)}
-                  className={`w-8 h-8 p-0 ${
-                    currentPage === page 
-                      ? 'bg-cyan-600 text-white hover:bg-cyan-700' 
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  {page}
-                </Button>
-              ))}
             </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="flex items-center space-x-1"
-            >
-              <span>Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center space-x-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span>Previous</span>
+              </Button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                    className={`w-8 h-8 p-0 ${currentPage === page
+                      ? 'bg-cyan-600 text-white hover:bg-cyan-700'
+                      : 'hover:bg-gray-50'
+                      }`}
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center space-x-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
         )}
 
         <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
@@ -448,9 +446,9 @@ const handleBlockReasonConfirm = async (reason: string) => {
             <DialogHeader>
               <DialogTitle>{selectedCompany?.isBlocked ? 'Unblock' : 'Block'} Company</DialogTitle>
               <DialogDescription>
-                Are you sure you want to {selectedCompany?.isBlocked ? 'unblock' : 'block'} {selectedCompany?.companyName}? 
-                {selectedCompany?.isBlocked 
-                  ? ' This will restore their account access.' 
+                Are you sure you want to {selectedCompany?.isBlocked ? 'unblock' : 'block'} {selectedCompany?.companyName}?
+                {selectedCompany?.isBlocked
+                  ? ' This will restore their account access.'
                   : ' This will prevent them from accessing their account.'
                 }
               </DialogDescription>
@@ -459,8 +457,8 @@ const handleBlockReasonConfirm = async (reason: string) => {
               <Button variant="outline" onClick={() => setBlockDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={handleBlockConfirm}
                 className="bg-orange-600 hover:bg-orange-700"
               >
@@ -475,7 +473,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
             <DialogHeader>
               <DialogTitle>Email Verification</DialogTitle>
               <DialogDescription>
-                Are you sure you want to verify the email for {selectedCompany?.companyName}? 
+                Are you sure you want to verify the email for {selectedCompany?.companyName}?
                 This will mark their email as verified.
               </DialogDescription>
             </DialogHeader>
@@ -483,7 +481,7 @@ const handleBlockReasonConfirm = async (reason: string) => {
               <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleEmailConfirm}
                 className="bg-cyan-600 hover:bg-cyan-700"
               >
@@ -497,9 +495,9 @@ const handleBlockReasonConfirm = async (reason: string) => {
           open={reasonDialogOpen}
           onOpenChange={setReasonDialogOpen}
           title={reasonCompany?.isBlocked ? 'Unblock Company' : 'Block Company'}
-          description={reasonCompany 
-            ? reasonCompany.isBlocked 
-              ? `Are you sure you want to unblock ${reasonCompany.companyName}?` 
+          description={reasonCompany
+            ? reasonCompany.isBlocked
+              ? `Are you sure you want to unblock ${reasonCompany.companyName}?`
               : `Please select a reason for blocking ${reasonCompany.companyName}.`
             : ''}
           reasonOptions={blockReasons}

@@ -5,6 +5,7 @@ import {
   JobApplicationListResponseDto,
   JobApplicationDetailResponseDto,
 } from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
+import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
 import { CreateInput } from 'src/domain/types/common.types';
 
 export class JobApplicationMapper {
@@ -147,6 +148,26 @@ export class JobApplicationMapper {
           })),
         }
         : undefined,
+    };
+  }
+
+  static toResponse(application: JobApplication): JobApplicationResponseDto {
+    return {
+      id: application.id,
+      seekerId: application.seekerId,
+      jobId: application.jobId,
+      companyId: application.companyId,
+      coverLetter: application.coverLetter,
+      resumeUrl: application.resumeUrl,
+      resumeFilename: application.resumeFilename,
+      stage: application.stage,
+      subStage: application.subStage,
+      score: application.score,
+      atsScore: application.atsScore,
+      appliedDate: application.appliedDate,
+      rejectionReason: application.rejectionReason,
+      createdAt: application.createdAt,
+      updatedAt: application.updatedAt,
     };
   }
 }

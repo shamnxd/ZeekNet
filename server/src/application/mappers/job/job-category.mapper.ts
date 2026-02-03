@@ -1,11 +1,5 @@
 import { JobCategory } from 'src/domain/entities/job-category.entity';
-
-export interface JobCategoryResponseDto {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
 
 export class JobCategoryMapper {
   static toResponse(category: JobCategory): JobCategoryResponseDto {

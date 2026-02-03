@@ -5,11 +5,11 @@ import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.i
 import type { JobPostingQuery } from '@/interfaces/job/job-posting-query.interface';
 import { CompanyRoutes } from '@/constants/api-routes';
 import type { CompanyContact, TechStackItem, OfficeLocation, Benefit, WorkplacePicture, CompanySideApplication } from '@/interfaces/company/company-data.interface';
-import type { 
-  CompanyProfileData, 
-  CompanyProfileResponse, 
-  JobPostingRequest, 
-  CompanyDashboard 
+import type {
+  CompanyProfileData,
+  CompanyProfileResponse,
+  JobPostingRequest,
+  CompanyDashboard
 } from '@/interfaces/company/company-api.interface';
 import type { Experience, Education, SeekerProfile } from '@/interfaces/seeker/seeker.interface';
 import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface';
@@ -20,11 +20,11 @@ import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/
 import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
 import type { ATSPipelineConfig, ApplicationsKanbanResponse, MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
 
-export type { 
-  CompanyProfileData, 
-  CompanyProfileResponse, 
-  JobPostingRequest, 
-  CompanyDashboard 
+export type {
+  CompanyProfileData,
+  CompanyProfileResponse,
+  JobPostingRequest,
+  CompanyDashboard
 };
 
 export interface CandidateDetailsResponse {
@@ -56,15 +56,22 @@ export const companyApi = {
   },
 
   async updateProfile(data: Partial<CompanyProfileData>): Promise<ApiEnvelope<CompanyProfileResponse>> {
-    if (!data.logo && !data.business_license) {
+    const hasFileUpload = ((data.logo as unknown) instanceof File) ||
+      ((data.business_license as unknown) instanceof File);
+
+    if (!hasFileUpload) {
       return (await api.put<ApiEnvelope<CompanyProfileResponse>>(CompanyRoutes.PROFILE, data)).data;
     }
 
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && key !== 'logo' && key !== 'business_license') {
-        formData.append(key, String(value));
+      if (value !== undefined && value !== null) {
+        if ((value as unknown) instanceof File) {
+          formData.append(key, value as unknown as File);
+        } else {
+          formData.append(key, String(value));
+        }
       }
     });
 
@@ -123,13 +130,17 @@ export const companyApi = {
     return (await api.get<ApiEnvelope<CompanyDashboard>>(CompanyRoutes.DASHBOARD)).data;
   },
 
+  async getDashboardStats(): Promise<ApiEnvelope<{ activeJobs: number; totalJobs: number; totalApplications: number; upcomingInterviews: number; unreadMessages: number }>> {
+    return (await api.get(CompanyRoutes.DASHBOARD)).data;
+  },
+
   async createJobPosting(data: JobPostingRequest): Promise<ApiEnvelope<JobPostingResponse>> {
     return (await api.post<ApiEnvelope<JobPostingResponse>>(CompanyRoutes.JOBS, data)).data;
   },
 
   async getJobPostings(query?: JobPostingQuery): Promise<ApiEnvelope<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>> {
     const params = new URLSearchParams();
-    
+
     if (query) {
       if (query.page !== undefined) params.append('page', query.page.toString());
       if (query.limit !== undefined) params.append('limit', query.limit.toString());
@@ -140,7 +151,7 @@ export const companyApi = {
       if (query.location) params.append('location', query.location);
       if (query.search) params.append('search', query.search);
     }
-    
+
     const endpoint = params.toString() ? `${CompanyRoutes.JOBS}?${params.toString()}` : CompanyRoutes.JOBS;
     return (await api.get<ApiEnvelope<{ jobs: JobPostingResponse[], pagination: { page: number, limit: number, total: number, totalPages: number } }>>(endpoint)).data;
   },
@@ -167,6 +178,10 @@ export const companyApi = {
 
   async reopenJob(id: string, additionalVacancies: number): Promise<ApiEnvelope<{ message: string }>> {
     return (await api.post<ApiEnvelope<{ message: string }>>(CompanyRoutes.JOBS_ID_REOPEN.replace(':id', id), { additionalVacancies })).data;
+  },
+
+  async toggleFeaturedJob(id: string): Promise<ApiEnvelope<{ message: string }>> {
+    return (await api.patch<ApiEnvelope<{ message: string }>>(CompanyRoutes.JOBS_ID.replace(':id', id) + '/featured')).data;
   },
 
   async getContact(): Promise<ApiEnvelope<CompanyContact | null>> {
@@ -247,7 +262,7 @@ export const companyApi = {
 
   async getApplications(query?: { page?: number; limit?: number; search?: string; job_id?: string; stage?: string }): Promise<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>> {
     const params = new URLSearchParams();
-    
+
     if (query) {
       if (query.page !== undefined) params.append('page', query.page.toString());
       if (query.limit !== undefined) params.append('limit', query.limit.toString());
@@ -255,7 +270,7 @@ export const companyApi = {
       if (query.job_id) params.append('job_id', query.job_id);
       if (query.stage) params.append('stage', query.stage);
     }
-    
+
     const endpoint = params.toString() ? `${CompanyRoutes.APPLICATIONS}?${params.toString()}` : CompanyRoutes.APPLICATIONS;
     return (await api.get<ApiEnvelope<{ applications: CompanySideApplication[], total: number, page: number, limit: number }>>(endpoint)).data;
   },
@@ -280,7 +295,7 @@ export const companyApi = {
     return (await api.get<ApiEnvelope<PaymentHistoryItem[]>>(CompanyRoutes.SUBSCRIPTIONS_PAYMENT_HISTORY)).data;
   },
 
-  
+
   async createCheckoutSession(planId: string, billingCycle: 'monthly' | 'yearly', successUrl: string, cancelUrl: string): Promise<ApiEnvelope<CheckoutSessionResponse>> {
     return (await api.post<ApiEnvelope<CheckoutSessionResponse>>(CompanyRoutes.SUBSCRIPTIONS_CREATE_CHECKOUT, {
       planId,
@@ -326,14 +341,14 @@ export const companyApi = {
     return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`)).data;
   },
 
-  
+
   async getJobATSPipeline(jobId: string): Promise<ApiEnvelope<ATSPipelineConfig>> {
     const endpoint = CompanyRoutes.JOBS_ID_ATS_PIPELINE.replace(':jobId', jobId);
     return (await api.get(endpoint)).data;
   },
 
   async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<ApplicationsKanbanResponse>> {
-    const endpoint = CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':jobId', jobId);
+    const endpoint = CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':job_id', jobId);
     return (await api.get(endpoint)).data;
   },
 

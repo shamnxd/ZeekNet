@@ -26,6 +26,8 @@ interface ProfileSidebarProps {
     handleAddLanguage: () => void;
     handleRemoveLanguage: (lang: string) => void;
     handleEditDetails: () => Promise<void>;
+    detailsError: string;
+    setDetailsError: (msg: string) => void;
 
     
     editSocialOpen: boolean;
@@ -52,6 +54,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     handleAddLanguage,
     handleRemoveLanguage,
     handleEditDetails,
+    detailsError,
+    setDetailsError,
     editSocialOpen,
     setEditSocialOpen,
     editingSocialLinks,
@@ -72,7 +76,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                         variant="seekerOutline"
                         size="sm"
                         className="h-8 w-8 !rounded-full"
-                        onClick={() => setEditDetailsOpen(true)}
+                        onClick={() => { setDetailsError(''); setEditDetailsOpen(true); }}
                     >
                         <Pencil className="w-3 h-3" />
                     </Button>
@@ -164,6 +168,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Edit Additional Details</DialogTitle>
                     </DialogHeader>
+                    {detailsError && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{detailsError}</p>
+                    )}
                     <div className="space-y-4">
 
                         <div className="space-y-2">

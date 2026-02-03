@@ -1,5 +1,6 @@
-import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
+import { CompanyTechStackResponseDto } from 'src/application/dtos/company/profile/stack/responses/company-tech-stack-response.dto';
+import { GetCompanyTechStackRequestDto } from 'src/application/dtos/company/profile/stack/requests/company-tech-stack.dto';
 
 export interface IGetCompanyTechStackUseCase {
-  execute(companyId: string): Promise<CompanyTechStack[]>;
+  execute(dto: GetCompanyTechStackRequestDto): Promise<CompanyTechStackResponseDto[]>;
 }

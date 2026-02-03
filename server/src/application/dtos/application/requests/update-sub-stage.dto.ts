@@ -7,6 +7,10 @@ export const UpdateSubStageDtoSchema = z.object({
   }),
 });
 
-export type UpdateSubStageDto = z.infer<typeof UpdateSubStageDtoSchema>;
+export type UpdateSubStageDto = z.infer<typeof UpdateSubStageDtoSchema> & {
+  applicationId: string;
+  userId: string;
+  userName: string;
+};
 
 

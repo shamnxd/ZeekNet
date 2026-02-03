@@ -9,6 +9,10 @@ export const MoveApplicationStageDtoSchema = z.object({
   subStage: z.enum(ATS_SUB_STAGE_VALUES as [string, ...string[]]).optional(),
 });
 
-export type MoveApplicationStageDto = z.infer<typeof MoveApplicationStageDtoSchema>;
+export type MoveApplicationStageDto = z.infer<typeof MoveApplicationStageDtoSchema> & {
+  applicationId: string;
+  userId: string;
+  userName: string;
+};
 
 

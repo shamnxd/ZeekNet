@@ -12,7 +12,7 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
     private readonly _s3Service: IS3Service,
-  ) {}
+  ) { }
 
   async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesWithVerificationResultDto> {
     const page = options.page || 1;
@@ -39,10 +39,18 @@ export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVer
           const key = this._s3Service.extractKeyFromUrl(verification.businessLicenseUrl);
           businessLicenseUrl = await this._s3Service.getSignedUrl(key);
         }
+
+        let logoUrl: string | undefined;
+        if (company.logo && !company.logo.startsWith('http') && !company.logo.startsWith('/')) {
+          logoUrl = await this._s3Service.getSignedUrl(company.logo);
+        } else {
+          logoUrl = company.logo;
+        }
+
         return CompanyProfileMapper.toAdminListItemResponse(company, verification ? {
           taxId: verification.taxId,
           businessLicenseUrl: businessLicenseUrl || verification.businessLicenseUrl,
-        } : null);
+        } : null, logoUrl);
       }),
     );
 

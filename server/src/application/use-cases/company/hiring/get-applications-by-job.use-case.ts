@@ -42,7 +42,9 @@ export class GetApplicationsByJobUseCase implements IGetApplicationsByJobUseCase
     const limit = filters.limit || 10;
 
     const query: Record<string, unknown> = { job_id: jobId };
-    if (filters.stage) query.stage = filters.stage;
+    if (filters.stage) {
+      query.stage = String(filters.stage).toUpperCase().replace(/-/g, '_');
+    }
     
     
     if (filters.min_score !== undefined || filters.max_score !== undefined) {

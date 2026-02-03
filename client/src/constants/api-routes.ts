@@ -31,6 +31,7 @@ export const AuthRoutes = {
   CHECK_AUTH: '/api/auth/check-auth',
   FORGOT_PASSWORD: '/api/auth/forgot-password',
   RESET_PASSWORD: '/api/auth/reset-password',
+  CHANGE_PASSWORD: '/api/auth/change-password',
   LOGOUT: '/api/auth/logout',
   OTP_REQUEST: '/api/auth/otp-request',
   OTP_VERIFY: '/api/auth/otp-verify',
@@ -54,6 +55,7 @@ export const CompanyRoutes = {
   DELETE_UPLOAD: '/api/company/upload/delete',
   SUBSCRIPTION_PLANS: '/api/company/subscription-plans',
   DASHBOARD: '/api/company/dashboard',
+  DASHBOARD_STATS: '/api/company/dashboard/stats',
   CONTACT: '/api/company/contact',
   TECH_STACKS: '/api/company/tech-stacks',
   TECH_STACKS_ID: '/api/company/tech-stacks/:id',
@@ -88,7 +90,7 @@ export const CompanyRoutes = {
   APPLICATIONS_ID_INTERVIEWS_INTERVIEW_DELETE: '/api/company/applications/:id/interviews/:interviewId',
   APPLICATIONS_ID_INTERVIEWS_FEEDBACK: '/api/company/applications/:id/interviews/:interviewId/feedback',
   JOBS_ID_ATS_PIPELINE: '/api/company/jobs/:jobId/ats-pipeline',
-  JOBS_ID_APPLICATIONS: '/api/company/jobs/:jobId/applications',
+  JOBS_ID_APPLICATIONS: '/api/company/jobs/:job_id/applications',
   APPLICATIONS_ID_MOVE_STAGE: '/api/company/applications/:id/move-stage',
   APPLICATIONS_ID_UPDATE_SUB_STAGE: '/api/company/applications/:id/update-sub-stage',
 } as const;
@@ -103,6 +105,7 @@ export const NotificationRoutes = {
 export const PublicRoutes = {
   JOBS: '/api/public/jobs',
   JOBS_ID: '/api/public/jobs/:id',
+  FEATURED_JOBS: '/api/public/featured-jobs',
   SKILLS: '/api/public/skills',
   JOB_CATEGORIES: '/api/public/job-categories',
   JOB_ROLES: '/api/public/job-roles',

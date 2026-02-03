@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { IUploadBusinessLicenseUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadBusinessLicenseUseCase';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadWorkplacePictureUseCase';
 import { IDeleteImageUseCase } from 'src/domain/interfaces/use-cases/company/media/IDeleteImageUseCase';
+import { DeleteImageDtoSchema } from 'src/application/dtos/company/media/requests/delete-image.dto';
 
 export class CompanyUploadController {
   constructor(
@@ -42,13 +44,13 @@ export class CompanyUploadController {
   };
 
   deleteImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { imageUrl } = req.body;
-    if (!imageUrl || typeof imageUrl !== 'string') {
-      return handleValidationError('Image URL is required and must be a string', next);
+    const parsed = DeleteImageDtoSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
-      await this._deleteImageUseCase.execute(imageUrl);
+      await this._deleteImageUseCase.execute(parsed.data.imageUrl);
       sendSuccessResponse(res, 'Image deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);

@@ -1,6 +1,6 @@
-import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
+import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
 
 export interface IGetCompensationMeetingsUseCase {
-  execute(applicationId: string): Promise<ATSCompensationMeeting[]>;
+  execute(applicationId: string): Promise<ATSCompensationMeetingResponseDto[]>;
 }
 

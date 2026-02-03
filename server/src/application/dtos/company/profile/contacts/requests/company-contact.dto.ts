@@ -1,7 +1,11 @@
 import { z } from 'zod';
 
-const CreateCompanyContactDto = z.object({
-  companyId: z.string().optional(),
+const GetCompanyContactDto = z.object({
+  userId: z.string(),
+});
+
+const UpsertCompanyContactDto = z.object({
+  userId: z.string(),
   twitterLink: z.string().url().optional(),
   facebookLink: z.string().url().optional(),
   linkedin: z.string().url().optional(),
@@ -9,8 +13,10 @@ const CreateCompanyContactDto = z.object({
   phone: z.string().optional(),
 });
 
-const UpdateCompanyContactDto = CreateCompanyContactDto.partial();
+const UpdateCompanyContactDto = UpsertCompanyContactDto;
 
-export { UpdateCompanyContactDto };
+export { GetCompanyContactDto, UpsertCompanyContactDto, UpdateCompanyContactDto };
 
+export type GetCompanyContactRequestDto = z.infer<typeof GetCompanyContactDto>;
+export type UpsertCompanyContactRequestDto = z.infer<typeof UpsertCompanyContactDto>;
 export type UpdateCompanyContactDto = z.infer<typeof UpdateCompanyContactDto>;

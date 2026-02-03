@@ -2,25 +2,20 @@ import { Response, NextFunction } from 'express';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { UserRole } from 'src/domain/enums/user-role.enum';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendUnauthorizedResponse, sendForbiddenResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendUnauthorizedResponse, sendForbiddenResponse, validateUserId } from 'src/shared/utils/presentation/controller.utils';
 
 export class CompanyVerificationMiddleware {
-  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
+  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) { }
 
   checkCompanyVerified = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
       const userRole = req.user?.role;
 
       if (userRole !== UserRole.COMPANY) {
         return next();
       }
 
-      if (!userId) {
-        sendUnauthorizedResponse(res, 'User not authenticated');
-        return;
-      }
-
+      const userId = validateUserId(req);
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
@@ -38,7 +33,6 @@ export class CompanyVerificationMiddleware {
 
       next();
     } catch (error) {
-      console.error('Error in company verification middleware:', error);
       next(error);
     }
   };

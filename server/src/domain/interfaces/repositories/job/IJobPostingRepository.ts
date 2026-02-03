@@ -14,6 +14,7 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
       salaryMax?: number;
       location?: string;
       search?: string;
+      isFeatured?: boolean;
     }
   ): Promise<Partial<JobPosting>[]>;
   getJobsByCompany(companyId: string, projection: Record<string, 1 | 0>): Promise<Partial<JobPosting>[]>;
@@ -23,4 +24,5 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
   countActive(): Promise<number>;
   countExpired(): Promise<number>;
   findRecent(limit: number): Promise<JobPosting[]>;
+  countJobsCreatedAfter(companyId: string, date: Date): Promise<number>;
 }

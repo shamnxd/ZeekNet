@@ -4,23 +4,21 @@ import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/co
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { IMarkCandidateHiredUseCase, MarkCandidateHiredDto } from 'src/domain/interfaces/use-cases/company/hiring/IMarkCandidateHiredUseCase';
 
-export interface MarkCandidateHiredDto {
-  userId: string;
-  applicationId: string;
-}
-
-export class MarkCandidateHiredUseCase {
+export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
-  ) {}
+    private readonly _logger: ILogger,
+  ) { }
 
   async execute(dto: MarkCandidateHiredDto): Promise<void> {
     const { userId, applicationId } = dto;
@@ -44,22 +42,22 @@ export class MarkCandidateHiredUseCase {
       throw new ValidationError('You can only mark candidates as hired for your own job postings');
     }
 
-    
+
     if (application.stage === ATSStage.HIRED) {
       throw new ValidationError('Candidate is already marked as hired');
     }
 
-    
+
     if (job.status === JobStatus.CLOSED) {
       throw new ValidationError('Cannot mark candidate as hired for a closed job');
     }
 
-    
+
     await this._jobApplicationRepository.update(applicationId, {
       stage: ATSStage.HIRED,
     });
 
-    
+
     const currentFilled = job.filledVacancies ?? 0;
     const newFilled = currentFilled + 1;
     const totalVacancies = job.totalVacancies ?? 1;
@@ -68,7 +66,7 @@ export class MarkCandidateHiredUseCase {
       filledVacancies: newFilled,
     });
 
-    
+
     if (newFilled >= totalVacancies && job.status === JobStatus.ACTIVE) {
       await this.autoCloseJob(job.id, applicationId);
     }
@@ -80,29 +78,29 @@ export class MarkCandidateHiredUseCase {
       throw new NotFoundError('Job posting not found');
     }
 
-    
+
     await this._jobPostingRepository.update(jobId, {
       status: JobStatus.CLOSED,
       closureType: JobClosureType.AUTO_FILLED,
       closedAt: new Date(),
     });
 
-    
+
     const allApplications = await this._jobApplicationRepository.findByJobId(jobId);
     const nonHiredApplications = allApplications.filter(
       (app) => app.id !== hiredApplicationId && app.stage !== ATSStage.HIRED,
     );
 
-    
-    for (const application of nonHiredApplications) {
-      
-      
-      
 
-      
+    for (const application of nonHiredApplications) {
+
+
+
+
+
       const seeker = await this._userRepository.findById(application.seekerId);
       if (seeker && seeker.email) {
-        
+
         await this.sendRejectionEmail(seeker.email, job.title, seeker.name || 'Candidate');
       }
     }
@@ -146,8 +144,8 @@ export class MarkCandidateHiredUseCase {
     try {
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
-      
-      console.error(`Failed to send rejection email to ${email}:`, error);
+
+      this._logger.error(`Failed to send rejection email to ${email}:`, error);
     }
   }
 }

@@ -1,34 +1,19 @@
-import { IsString, IsEnum, IsDateString, IsOptional } from 'class-validator';
+import { z } from 'zod';
 
-export class ScheduleCompensationMeetingDto {
-  @IsEnum(['call', 'online', 'in-person'])
-    type: 'call' | 'online' | 'in-person';
+export const ScheduleCompensationMeetingSchema = z.object({
+  type: z.enum(['call', 'online', 'in-person']),
+  date: z.string(),
+  time: z.string(),
+  videoType: z.enum(['in-app', 'external']).optional(),
+  webrtcRoomId: z.string().optional(),
+  location: z.string().optional(),
+  meetingLink: z.string().url().optional(),
+  notes: z.string().optional(),
+});
 
-  @IsDateString()
-    date: string;
-
-  @IsString()
-    time: string;
-
-  @IsEnum(['in-app', 'external'])
-  @IsOptional()
-    videoType?: 'in-app' | 'external';
-
-  @IsString()
-  @IsOptional()
-    webrtcRoomId?: string;
-
-  @IsString()
-  @IsOptional()
-    location?: string;
-
-  @IsString()
-  @IsOptional()
-    meetingLink?: string;
-
-  @IsString()
-  @IsOptional()
-    notes?: string;
-}
+export type ScheduleCompensationMeetingRequestDto = z.infer<typeof ScheduleCompensationMeetingSchema> & {
+  applicationId: string;
+  performedBy: string;
+};
 
 

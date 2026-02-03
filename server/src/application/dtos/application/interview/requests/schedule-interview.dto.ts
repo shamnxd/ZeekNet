@@ -1,34 +1,20 @@
-import { IsString, IsNotEmpty, IsDateString, IsNumber, IsEnum, IsArray, IsOptional, Min, Max } from 'class-validator';
+import { z } from 'zod';
 
-export class ScheduleInterviewDto {
-  @IsString()
-  @IsNotEmpty()
-    applicationId!: string;
+export const ScheduleInterviewRequestDtoSchema = z.object({
+  applicationId: z.string().min(1, 'Application ID is required'),
+  title: z.string().min(1, 'Title is required'),
+  scheduledDate: z.union([z.string().datetime(), z.date()]),
+  type: z.enum(['online', 'offline']),
+  videoType: z.enum(['in-app', 'external']).optional(),
+  webrtcRoomId: z.string().optional(),
+  meetingLink: z.string().url().optional(),
+  location: z.string().optional(),
+});
 
-  @IsString()
-  @IsNotEmpty()
-    title!: string;
+export type ScheduleInterviewRequestDto = z.infer<typeof ScheduleInterviewRequestDtoSchema> & {
+  userId: string;
+};
 
-  @IsDateString()
-  @IsNotEmpty()
-    scheduledDate!: string;
-
-  @IsEnum(['online', 'offline'])
-    type!: 'online' | 'offline';
-
-  @IsEnum(['in-app', 'external'])
-  @IsOptional()
-    videoType?: 'in-app' | 'external';
-
-  @IsString()
-  @IsOptional()
-    webrtcRoomId?: string;
-
-  @IsString()
-  @IsOptional()
-    meetingLink?: string;
-
-  @IsString()
-  @IsOptional()
-    location?: string;
-}
+// Alias for backward compatibility with controllers
+export const ScheduleInterviewDtoSchema = ScheduleInterviewRequestDtoSchema;
+export type ScheduleInterviewDto = ScheduleInterviewRequestDto;

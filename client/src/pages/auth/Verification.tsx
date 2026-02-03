@@ -21,7 +21,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react'
-import { setUser } from '@/store/slices/auth.slice'
+import { setUser, fetchCompanyProfileThunk } from '@/store/slices/auth.slice'
 
 const useOtpInput = (length: number = 6) => {
   const [values, setValues] = useState<string[]>(Array(length).fill(''))
@@ -181,15 +181,19 @@ const Verification = () => {
           token: res.token
         }))
         
+        // Fetch company profile if company user
+        if (res.data.role === UserRole.COMPANY) {
+          dispatch(fetchCompanyProfileThunk()).catch(() => {})
+        }
+        
         setVerificationSuccess(true)
         toast.success('Email verified successfully!', {
           description: 'Your account has been verified. Redirecting...',
           duration: 3000,
         })
         
-        setTimeout(() => {
-          navigateByRole(res.data!.role, navigate)
-        }, 2000)
+        // Navigate immediately - token is in Redux state
+        navigateByRole(res.data.role, navigate)
       } else {
         const errorMsg = res.message || 'Invalid or expired OTP code'
         setError(errorMsg)

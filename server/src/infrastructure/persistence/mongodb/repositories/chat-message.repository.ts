@@ -7,8 +7,7 @@ import { ChatMessagePersistenceMapper } from 'src/infrastructure/mappers/persist
 
 export class ChatMessageRepository
   extends RepositoryBase<ChatMessage, ChatMessageDocument>
-  implements IMessageRepository
-{
+  implements IMessageRepository {
   constructor() {
     super(ChatMessageModel);
   }
@@ -98,6 +97,29 @@ export class ChatMessageRepository
     );
 
     return result ? this.mapToEntity(result) : null;
+  }
+
+  async countByReceiverId(receiverId: string, since?: Date): Promise<number> {
+    if (!Types.ObjectId.isValid(receiverId)) {
+      return 0;
+    }
+
+    interface FilterType {
+      receiver_id: Types.ObjectId;
+      isDeleted: { $ne: boolean };
+      createdAt?: { $gte: Date };
+    }
+
+    const filter: FilterType = {
+      receiver_id: new Types.ObjectId(receiverId),
+      isDeleted: { $ne: true },
+    };
+
+    if (since) {
+      filter.createdAt = { $gte: since };
+    }
+
+    return await ChatMessageModel.countDocuments(filter);
   }
 }
 

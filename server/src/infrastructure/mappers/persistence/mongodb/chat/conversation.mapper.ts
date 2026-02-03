@@ -3,23 +3,30 @@ import { Conversation } from 'src/domain/entities/conversation.entity';
 import { ConversationDocument } from 'src/infrastructure/persistence/mongodb/models/conversation.model';
 
 export class ConversationPersistenceMapper {
+  private static toIdString(id: Types.ObjectId | unknown): string {
+    if (id && typeof id === 'object' && '_id' in id) {
+      return String((id as { _id: unknown })._id);
+    }
+    return String(id);
+  }
+
   static toEntity(doc: ConversationDocument): Conversation {
     return Conversation.create({
       id: String(doc._id),
       participants: doc.participants.map((participant) => ({
-        userId: String(participant.user_id),
+        userId: this.toIdString(participant.user_id),
         role: participant.role,
         unreadCount: participant.unread_count,
         lastReadAt: participant.last_read_at ?? null,
-        name: 'Unknown', 
-        profileImage: null, 
+        name: 'Unknown',
+        profileImage: null,
       })),
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       lastMessage: doc.last_message
         ? {
-          messageId: String(doc.last_message.message_id),
-          senderId: String(doc.last_message.sender_id),
+          messageId: this.toIdString(doc.last_message.message_id),
+          senderId: this.toIdString(doc.last_message.sender_id),
           content: doc.last_message.content,
           createdAt: doc.last_message.created_at,
         }
@@ -34,9 +41,9 @@ export class ConversationPersistenceMapper {
     return Conversation.create({
       id: String(doc._id),
       participants: doc.participants.map((participant) => {
-        const userId = String(participant.user_id instanceof Types.ObjectId ? participant.user_id : (participant.user_id as Types.ObjectId));
+        const userId = this.toIdString(participant.user_id);
         const details = participantDetails.get(userId) || { name: 'Unknown', profileImage: null };
-        
+
         return {
           userId,
           role: participant.role,
@@ -50,8 +57,8 @@ export class ConversationPersistenceMapper {
       updatedAt: doc.updatedAt,
       lastMessage: doc.last_message
         ? {
-          messageId: String(doc.last_message.message_id),
-          senderId: String(doc.last_message.sender_id),
+          messageId: this.toIdString(doc.last_message.message_id),
+          senderId: this.toIdString(doc.last_message.sender_id),
           content: doc.last_message.content,
           createdAt: doc.last_message.created_at,
         }

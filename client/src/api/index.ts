@@ -19,7 +19,7 @@ export const setLogoutCallback = (callback: () => void) => {
 }
 
 export const clearAuthToken = () => {
-  getAuthToken = () => null
+  // Redux state is the source of truth; getAuthToken reads from state. No need to override.
 }
 
 export const api: AxiosInstance = axios.create({

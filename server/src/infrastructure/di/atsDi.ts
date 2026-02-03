@@ -1,4 +1,3 @@
-
 import { ATSPipelineController } from 'src/presentation/controllers/ats/pipeline/ats-pipeline.controller';
 import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
 import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
@@ -17,8 +16,8 @@ import { UpdateTechnicalTaskUseCase } from 'src/application/use-cases/applicatio
 import { DeleteTechnicalTaskUseCase } from 'src/application/use-cases/application/task/delete-technical-task.use-case';
 import { UploadOfferUseCase } from 'src/application/use-cases/application/offer/upload-offer.use-case';
 import { UpdateOfferStatusUseCase } from 'src/application/use-cases/application/offer/update-offer-status.use-case';
-import { AddCommentUseCase } from 'src/application/use-cases/application/activity/add-comment.use-case';
-import { GetApplicationActivitiesPaginatedUseCase } from 'src/application/use-cases/application/activity/get-application-activities-paginated.use-case';
+import { AddCommentUseCase } from 'src/application/use-cases/application/comments/add-comment.use-case';
+import { GetApplicationActivitiesUseCase } from 'src/application/use-cases/application/activity/get-application-activities.use-case';
 import { GetInterviewsByApplicationUseCase } from 'src/application/use-cases/application/interview/get-interviews-by-application.use-case';
 import { GetTechnicalTasksByApplicationUseCase } from 'src/application/use-cases/application/task/get-technical-tasks-by-application.use-case';
 import { GetOffersByApplicationUseCase } from 'src/application/use-cases/application/offer/get-offers-by-application.use-case';
@@ -32,10 +31,13 @@ import { GetCompensationUseCase } from 'src/application/use-cases/application/co
 import { ScheduleCompensationMeetingUseCase } from 'src/application/use-cases/application/compensation/schedule-compensation-meeting.use-case';
 import { GetCompensationMeetingsUseCase } from 'src/application/use-cases/application/compensation/get-compensation-meetings.use-case';
 import { UpdateCompensationMeetingStatusUseCase } from 'src/application/use-cases/application/compensation/update-compensation-meeting-status.use-case';
-import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/activity/get-comments-by-application.use-case';
+import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/comments/get-comments-by-application.use-case';
+import { GetCompensationNotesUseCase } from 'src/application/use-cases/application/comments/get-compensation-notes.use-case';
+import { AddCompensationNoteUseCase } from 'src/application/use-cases/application/comments/add-compensation-note.use-case';
 
 import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
-import { FileUrlService } from 'src/application/services/file-url.service';
+import { FileUploadService } from 'src/application/services/file-upload.service';
+import { LoggerService } from 'src/infrastructure/services/logger.service';
 
 import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
 import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-technical-task.repository';
@@ -49,6 +51,9 @@ import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/rep
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 import { getCompanyIdByUserIdUseCase } from 'src/infrastructure/di/companyDi';
+import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
+import { SeekerProfileRepository } from '../persistence/mongodb/repositories/seeker-profile.repository';
 
 const interviewRepository = new ATSInterviewRepository();
 const technicalTaskRepository = new ATSTechnicalTaskRepository();
@@ -61,15 +66,16 @@ const jobApplicationRepository = new JobApplicationRepository();
 const jobPostingRepository = new JobPostingRepository();
 const userRepository = new UserRepository();
 const s3Service = new S3Service();
+const seekerProfileRepository = new SeekerProfileRepository();
 
-import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+
 
 const mailerService = new NodemailerService();
 const emailTemplateService = new EmailTemplateService();
 
 const activityLoggerService = new ActivityLoggerService(activityRepository);
-const fileUrlService = new FileUrlService(s3Service);
+const fileUploadService = new FileUploadService(s3Service);
+const loggerService = new LoggerService();
 
 const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   interviewRepository,
@@ -79,8 +85,10 @@ const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, jobApplicationRepository, activityLoggerService);
+const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, jobApplicationRepository, activityLoggerService, userRepository);
+
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(interviewRepository);
 const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
   technicalTaskRepository,
@@ -90,17 +98,19 @@ const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService);
+const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const deleteTechnicalTaskUseCase = new DeleteTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, activityLoggerService);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository);
-const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, activityLoggerService);
+const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRepository);
 
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
   activityLoggerService,
+
 );
 const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   offerRepository,
@@ -111,9 +121,10 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const addCommentUseCase = new AddCommentUseCase(commentRepository, activityLoggerService);
-const getApplicationActivitiesPaginatedUseCase = new GetApplicationActivitiesPaginatedUseCase(activityRepository);
+const addCommentUseCase = new AddCommentUseCase(commentRepository, activityLoggerService, userRepository);
+const getApplicationActivitiesUseCase = new GetApplicationActivitiesUseCase(activityRepository);
 const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
@@ -121,12 +132,16 @@ const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   userRepository,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const getJobPipelineUseCase = new GetJobATSPipelineUseCase(jobPostingRepository);
+const getJobPipelineUseCase = new GetJobATSPipelineUseCase(jobPostingRepository, getCompanyIdByUserIdUseCase);
 const getJobApplicationsForKanbanUseCase = new GetJobApplicationsForKanbanUseCase(
   jobApplicationRepository,
   jobPostingRepository,
   userRepository,
+  seekerProfileRepository,
+  s3Service,
+  getCompanyIdByUserIdUseCase,
 );
 const initiateCompensationUseCase = new InitiateCompensationUseCase(
   compensationRepository,
@@ -137,19 +152,21 @@ const initiateCompensationUseCase = new InitiateCompensationUseCase(
   activityLoggerService,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
-const updateCompensationUseCase = new UpdateCompensationUseCase(compensationRepository, jobApplicationRepository, addCommentUseCase, activityLoggerService);
+const updateCompensationUseCase = new UpdateCompensationUseCase(compensationRepository, jobApplicationRepository, addCommentUseCase, activityLoggerService, userRepository);
 const getCompensationUseCase = new GetCompensationUseCase(compensationRepository);
-const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService);
+const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getCompensationMeetingsUseCase = new GetCompensationMeetingsUseCase(compensationMeetingRepository);
-const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService);
+const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, activityLoggerService, userRepository);
 const getCommentsByApplicationUseCase = new GetCommentsByApplicationUseCase(commentRepository);
+const getCompensationNotesUseCase = new GetCompensationNotesUseCase(commentRepository);
+const addCompensationNoteUseCase = new AddCompensationNoteUseCase(commentRepository, activityLoggerService, userRepository);
 
 export const atsInterviewController = new ATSInterviewController(
   scheduleInterviewUseCase,
   updateInterviewUseCase,
   getInterviewsByApplicationUseCase,
-  fileUrlService,
 );
 
 export const atsTechnicalTaskController = new ATSTechnicalTaskController(
@@ -157,21 +174,19 @@ export const atsTechnicalTaskController = new ATSTechnicalTaskController(
   updateTechnicalTaskUseCase,
   deleteTechnicalTaskUseCase,
   getTechnicalTasksByApplicationUseCase,
-  s3Service,
-  fileUrlService,
 );
 
 export const atsOfferController = new ATSOfferController(
   uploadOfferUseCase,
   updateOfferStatusUseCase,
   getOffersByApplicationUseCase,
-  s3Service,
-  fileUrlService,
 );
 
 export const atsCommentController = new ATSCommentController(
   addCommentUseCase,
+  addCompensationNoteUseCase,
   getCommentsByApplicationUseCase,
+  getCompensationNotesUseCase,
 );
 
 export const atsCompensationController = new ATSCompensationController(
@@ -184,7 +199,7 @@ export const atsCompensationController = new ATSCompensationController(
 );
 
 export const atsActivityController = new ATSActivityController(
-  getApplicationActivitiesPaginatedUseCase,
+  getApplicationActivitiesUseCase,
 );
 
 export const atsPipelineController = new ATSPipelineController(
@@ -192,7 +207,6 @@ export const atsPipelineController = new ATSPipelineController(
   getJobApplicationsForKanbanUseCase,
   moveApplicationStageUseCase,
   updateApplicationSubStageUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 logger.info('atsDi initialization complete');
 

@@ -69,8 +69,31 @@ const ATSPanel = () => {
           setEnabledStages(pipelineResponse.data.enabledStages as ATSStage[]);
         }
 
-        if (applicationsResponse.data) {
-          setApplicationsByStage(applicationsResponse.data);
+        if (applicationsResponse.data && applicationsResponse.data.applications) {
+          const applications = applicationsResponse.data.applications;
+
+          const groupedByStage: ApplicationsKanbanResponse = {};
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          applications.forEach((app: any) => {
+            const stage = app.stage;
+            if (!groupedByStage[stage]) {
+              groupedByStage[stage] = [];
+            }
+
+            groupedByStage[stage].push({
+              id: app.id,
+              seekerId: app.seeker_id,
+              seekerName: app.seeker_name,
+              seekerAvatar: app.seeker_avatar,
+              jobTitle: app.job_title,
+              atsScore: app.score,
+              subStage: app.sub_stage,
+              appliedDate: app.applied_date,
+            });
+          });
+
+          setApplicationsByStage(groupedByStage);
         }
       } catch (error) {
         console.error("Failed to fetch pipeline or applications", error);

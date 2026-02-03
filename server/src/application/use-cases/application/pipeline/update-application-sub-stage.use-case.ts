@@ -6,6 +6,9 @@ import { JobApplication } from 'src/domain/entities/job-application.entity';
 import { ATSSubStage, ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { isValidSubStageForStage } from 'src/domain/utils/ats-pipeline.util';
+import { UpdateSubStageDto } from 'src/application/dtos/application/requests/update-sub-stage.dto';
+import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
+import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 
 export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubStageUseCase {
   constructor(
@@ -14,12 +17,13 @@ export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubSt
     private activityLoggerService: IActivityLoggerService,
   ) {}
 
-  async execute(data: {
-    applicationId: string;
-    subStage: ATSSubStage;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<JobApplication> {
+  async execute(dto: UpdateSubStageDto): Promise<JobApplication> {
+    const data = {
+      applicationId: dto.applicationId,
+      subStage: dto.subStage as ATSSubStage,
+      performedBy: dto.userId,
+      performedByName: dto.userName,
+    };
     
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
@@ -65,7 +69,7 @@ export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubSt
       performedByName: data.performedByName,
     });
 
-    return updatedApplication;
+    return JobApplicationMapper.toResponse(updatedApplication);
   }
 }
 

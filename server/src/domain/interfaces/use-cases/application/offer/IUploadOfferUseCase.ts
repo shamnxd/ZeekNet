@@ -1,12 +1,6 @@
-import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
+import { UploadOfferRequestDto } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
+import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
 
 export interface IUploadOfferUseCase {
-  execute(data: {
-    applicationId: string;
-    documentUrl: string;
-    documentFilename: string;
-    offerAmount?: string;
-    uploadedBy: string;
-    uploadedByName: string;
-  }): Promise<ATSOffer>;
+  execute(dto: UploadOfferRequestDto): Promise<ATSOfferResponseDto>;
 }

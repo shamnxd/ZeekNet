@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -38,13 +38,13 @@ const JobListing = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await jobApi.getAllJobs({
         ...query,
         page,
         limit: pagination.limit,
       });
-      
+
       if (response.success && response.data) {
         const responseData = response.data;
         setJobs(responseData.jobs || []);
@@ -117,21 +117,20 @@ const JobListing = () => {
           >
             <ChevronLeft className="w-4 h-4 text-gray-400" />
           </button>
-          
+
           {pageNumbers.map((page) => (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                page === currentPage
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${page === currentPage
                   ? 'bg-[#3570E2] text-white'
                   : 'text-[#394047] hover:bg-gray-50'
-              }`}
+                }`}
             >
               {page.toString().padStart(2, '0')}
             </button>
           ))}
-          
+
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
@@ -177,8 +176,8 @@ const JobListing = () => {
         <p className="text-[#394047] max-w-md">
           We couldn't find any jobs matching your criteria. Try adjusting your filters.
         </p>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => fetchJobs({})}
           className="mt-4"
         >
@@ -198,7 +197,7 @@ const JobListing = () => {
           }
         `}
       </style>
-      
+
       <div className="flex flex-col items-center text-sm bg-[url('https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/hero/bg-with-grid.png')] bg-cover bg-center bg-no-repeat">
         <PublicHeader />
       </div>
@@ -239,10 +238,10 @@ const JobListing = () => {
                       />
                     </div>
                   </div>
-                  
+
 
                   <div className="w-px h-12 bg-gray-200 hidden md:block"></div>
-                  
+
 
                   <div className="flex-1 w-full">
                     <div className="flex items-center bg-white border border-gray-200 rounded-lg">
@@ -262,8 +261,8 @@ const JobListing = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  <Button 
+
+                  <Button
                     onClick={handleTextSearch}
                     disabled={loading}
                     className="w-full md:w-auto bg-[#3570E2] hover:bg-[#3570E2]/90 text-white px-6"
@@ -283,7 +282,7 @@ const JobListing = () => {
             {loading && renderLoadingState()}
             {error && !loading && renderErrorState()}
             {!loading && !error && jobs.length === 0 && renderEmptyState()}
-            
+
             {!loading && !error && jobs.length > 0 && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

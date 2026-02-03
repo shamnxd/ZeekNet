@@ -18,6 +18,7 @@ export class CompanySubscription {
     public readonly planName?: string,
     public readonly jobPostLimit?: number,
     public readonly featuredJobLimit?: number,
+    public readonly applicantAccessLimit?: number,
     public readonly isDefault?: boolean,
     public readonly stripeCustomerId?: string,
     public readonly stripeSubscriptionId?: string,
@@ -43,6 +44,7 @@ export class CompanySubscription {
     planName?: string;
     jobPostLimit?: number;
     featuredJobLimit?: number;
+    applicantAccessLimit?: number;
     isDefault?: boolean;
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
@@ -68,6 +70,7 @@ export class CompanySubscription {
       data.planName,
       data.jobPostLimit,
       data.featuredJobLimit,
+      data.applicantAccessLimit,
       data.isDefault,
       data.stripeCustomerId,
       data.stripeSubscriptionId,
@@ -95,6 +98,13 @@ export class CompanySubscription {
     if (!this.isActive || this.isExpired()) return false;
     if (this.featuredJobLimit === undefined || this.featuredJobLimit === -1) return true;
     return this.featuredJobsUsed < this.featuredJobLimit;
+  }
+
+  canViewCandidate(applicantAccessLimit?: number): boolean {
+    if (!this.isActive) return false;
+    if (this.isExpired() && !this.isDefault) return false;
+    if (applicantAccessLimit === undefined || applicantAccessLimit === -1) return true;
+    return this.applicantAccessUsed < applicantAccessLimit;
   }
 
   isStripeManaged(): boolean {

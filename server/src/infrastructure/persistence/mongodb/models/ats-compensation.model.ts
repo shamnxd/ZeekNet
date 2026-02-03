@@ -21,7 +21,7 @@ const ATSCompensationSchema = new Schema<IATSCompensationDocument>(
       ref: 'JobApplication',
       required: true,
       index: true,
-      unique: true, 
+      unique: true,
     },
     candidateExpected: {
       type: String,
@@ -57,7 +57,7 @@ const ATSCompensationSchema = new Schema<IATSCompensationDocument>(
 );
 
 
-ATSCompensationSchema.index({ applicationId: 1 });
+
 ATSCompensationSchema.index({ approvedAt: -1 });
 
 export const ATSCompensationModel = mongoose.model<IATSCompensationDocument>('ATSCompensation', ATSCompensationSchema);

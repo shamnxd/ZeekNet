@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { webrtcService } from '@/services/webrtc.service';
 import type { WebRTCCallbacks } from '@/services/webrtc.service';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '@/hooks/useRedux';
+import { UserRole } from '@/constants/enums';
 
 interface WebRTCVideoCallProps {
   roomId: string;
@@ -21,8 +23,13 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
   const [connectionState, setConnectionState] = useState<RTCPeerConnectionState>('new');
   const [isConnecting, setIsConnecting] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { name, companyName, role } = useAppSelector((state) => state.auth);
+  const localDisplayName = role === UserRole.COMPANY ? (companyName || name) : name;
   const screenShareStreamRef = useRef<MediaStream | null>(null);
   const [remoteUserId, setRemoteUserId] = useState<string | null>(null);
+  const [remoteUserName, setRemoteUserName] = useState<string | null>(null);
+  const [isRemoteVideoEnabled, setIsRemoteVideoEnabled] = useState(true);
+  const [isRemoteAudioEnabled, setIsRemoteAudioEnabled] = useState(true);
 
   useEffect(() => {
     const callbacks: WebRTCCallbacks = {
@@ -43,15 +50,26 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         setError(err.message);
         setIsConnecting(false);
       },
-      onUserJoined: (userId) => {
+      onUserJoined: (userId, userName) => {
         setRemoteUserId(userId);
+        if (userName) setRemoteUserName(userName);
       },
       onUserLeft: () => {
         setRemoteUserId(null);
+        setRemoteUserName(null);
+        setIsRemoteVideoEnabled(true);
+        setIsRemoteAudioEnabled(true);
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = null;
         }
         setConnectionState('disconnected');
+      },
+      onMediaToggle: ({ type, enabled }) => {
+        if (type === 'video') {
+          setIsRemoteVideoEnabled(enabled);
+        } else if (type === 'audio') {
+          setIsRemoteAudioEnabled(enabled);
+        }
       }
     };
 
@@ -60,8 +78,8 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         setIsConnecting(true);
         setError(null);
 
-        
-        await webrtcService.initialize(roomId, callbacks);
+        console.log('Initializing call with name:', localDisplayName);
+        await webrtcService.initialize(roomId, callbacks, localDisplayName || undefined);
         const localStream = webrtcService.getLocalStream();
 
         if (localStream && localVideoRef.current) {
@@ -79,11 +97,26 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
     return () => {
       webrtcService.disconnect();
     };
-  }, [roomId]);
+  }, [roomId, localDisplayName]);
+
+  useEffect(() => {
+    if (isVideoEnabled && localVideoRef.current) {
+      localVideoRef.current.play().catch(e => console.log('Local video play catch:', e.message));
+    }
+  }, [isVideoEnabled]);
+
+  useEffect(() => {
+    if (isRemoteVideoEnabled && remoteVideoRef.current) {
+      remoteVideoRef.current.play().catch(e => console.log('Remote video play catch:', e.message));
+    }
+  }, [isRemoteVideoEnabled, connectionState]);
 
   const handleToggleVideo = async () => {
     const enabled = await webrtcService.toggleVideo();
     setIsVideoEnabled(enabled);
+    if (enabled && localVideoRef.current) {
+      localVideoRef.current.play().catch(console.error);
+    }
   };
 
   const handleToggleAudio = async () => {
@@ -105,7 +138,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         screenShareStreamRef.current = stream;
         setIsScreenSharing(true);
 
-        
+
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
@@ -137,9 +170,10 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white overflow-hidden relative">
+    <div className="flex flex-col h-screen bg-slate-950 text-white overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 opacity-50" />
 
-      {}
+      { }
       <div className="absolute top-6 right-6 z-20">
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border ${connectionState === 'connected'
           ? 'bg-green-500/10 border-green-500/20 text-green-400'
@@ -151,7 +185,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
         </div>
       </div>
 
-      {}
+      { }
       <div className="flex-1 relative flex items-center justify-center p-4">
         {isConnecting && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm z-10 transition-all duration-500">
@@ -168,21 +202,53 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
           </div>
         )}
 
-        {}
-        <div className="w-full h-full relative rounded-2xl overflow-hidden bg-slate-900 shadow-2xl ring-1 ring-slate-800/50">
+        { }
+        <div className="w-full h-full max-w-6xl max-h-[calc(100vh-160px)] relative rounded-2xl overflow-hidden bg-slate-900 shadow-2xl ring-1 ring-slate-800/50 mx-auto">
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-full h-full object-cover"
+            onCanPlay={() => {
+              console.log('Remote video can play');
+              remoteVideoRef.current?.play().catch(e => console.error('Error playing remote video:', e));
+            }}
+            className="w-full h-full object-contain bg-black"
           />
 
-          {}
-          {connectionState === 'connected' && remoteUserId && (
+          {!isRemoteVideoEnabled && connectionState === 'connected' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/90 backdrop-blur-md z-10">
+              <div className="text-center space-y-4">
+                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto ring-1 ring-white/10 shadow-xl">
+                  <VideoOff className="w-10 h-10 text-slate-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-lg font-medium text-slate-200">
+                    {remoteUserName || 'Participant'} has turned off video
+                  </p>
+                  <p className="text-sm text-slate-500 flex items-center justify-center gap-1.5">
+                    {!isRemoteAudioEnabled && <MicOff className="w-3.5 h-3.5 text-red-400" />}
+                    {isRemoteAudioEnabled ? 'You can still hear them' : 'Microphone is also muted'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {connectionState === 'connected' && !isRemoteAudioEnabled && (
+            <div className="absolute top-6 right-6 z-30">
+              <div className="bg-red-500/10 backdrop-blur-md border border-red-500/20 px-3 py-1.5 rounded-full flex items-center gap-2 text-red-400">
+                <MicOff className="w-4 h-4" />
+                <span className="text-xs font-medium">Muted</span>
+              </div>
+            </div>
+          )}
+
+          { }
+          {connectionState === 'connected' && (remoteUserId || remoteUserName) && (
             <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="text-sm font-medium text-white/90 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                {remoteUserId}
+                {remoteUserName || 'Participant'}
               </div>
             </div>
           )}
@@ -194,7 +260,7 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
                   <div className="w-16 h-16 rounded-full border-2 border-slate-600 border-t-primary animate-spin" />
                 </div>
                 <h3 className="text-xl font-medium text-slate-200">
-                  {remoteUserId ? `Connecting to ${remoteUserId}...` : 'Waiting for participant...'}
+                  {remoteUserName ? `Connecting to ${remoteUserName}...` : (remoteUserId ? 'Connecting...' : 'Waiting for participant...')}
                 </h3>
                 <p className="text-slate-500 text-sm">
                   {remoteUserId
@@ -206,29 +272,43 @@ export const WebRTCVideoCall = ({ roomId, onEndCall }: Omit<WebRTCVideoCallProps
           )}
         </div>
 
-        {}
+        { }
         <div className="absolute top-6 left-6 w-72 aspect-video rounded-xl overflow-hidden bg-slate-800 ring-1 ring-white/10 shadow-2xl transition-all hover:scale-105 hover:ring-white/20 z-20 group">
           <video
             ref={localVideoRef}
             autoPlay
             playsInline
             muted
+            onCanPlay={() => {
+              localVideoRef.current?.play().catch(e => console.log('Local video play suppressed (expected):', e.message));
+            }}
             className="w-full h-full object-cover transform"
           />
-          {!isVideoEnabled && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-              <div className="p-3 bg-slate-700/50 rounded-full">
-                <VideoOff className="w-6 h-6 text-slate-400" />
-              </div>
+          {!isAudioEnabled && isVideoEnabled && (
+            <div className="absolute top-3 right-3 p-1.5 bg-red-500 rounded-full shadow-lg z-30 animate-in fade-in zoom-in duration-300">
+              <MicOff className="w-3.5 h-3.5 text-white" />
             </div>
           )}
-          <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-[10px] px-2 py-0.5 rounded font-medium text-white/80 opacity-0 group-hover:opacity-100 transition-opacity">
+          {!isVideoEnabled && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 z-10">
+              <div className="p-3 bg-slate-700/50 rounded-full mb-2">
+                <VideoOff className="w-6 h-6 text-slate-400" />
+              </div>
+              {!isAudioEnabled && (
+                <div className="flex items-center gap-1.5 text-red-400 text-[10px] font-medium">
+                  <MicOff className="w-3 h-3" />
+                  <span>Muted</span>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-[10px] px-2 py-0.5 rounded font-medium text-white/80 opacity-0 group-hover:opacity-100 transition-opacity z-20">
             You
           </div>
         </div>
       </div>
 
-      {}
+      { }
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30">
         <div className="flex items-center gap-4 bg-slate-900/60 backdrop-blur-xl border border-white/10 p-3 rounded-full shadow-2xl">
           <Button

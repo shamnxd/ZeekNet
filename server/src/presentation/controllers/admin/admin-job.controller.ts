@@ -1,14 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
-import { GetAllJobsQueryDtoType } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
-import { AdminUpdateJobStatusDto } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
-import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IAdminGetJobStatsUseCase';
+import { NextFunction, Request, Response } from 'express';
 import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminDeleteJobUseCase';
-import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminUpdateJobStatusUseCase';
-import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetJobByIdUseCase';
 import { IAdminGetAllJobsUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetAllJobsUseCase';
-import { handleValidationError } from 'src/shared/utils/presentation/controller.utils';
-import { handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { IAdminGetJobByIdUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminGetJobByIdUseCase';
+import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IAdminGetJobStatsUseCase';
+import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminUpdateJobStatusUseCase';
+import { UpdateJobStatusRequestDtoSchema } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
+import { GetAllJobsQueryDto } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminJobController {
   constructor(
@@ -17,13 +16,16 @@ export class AdminJobController {
     private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
     private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
     private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
-  ) {}
+  ) { }
 
   getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const parsed = GetAllJobsQueryDto.safeParse(req.query);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
+
     try {
-      
-      const query = req.query as unknown as GetAllJobsQueryDtoType;
-      const result = await this._getAllJobsUseCase.execute(query);
+      const result = await this._getAllJobsUseCase.execute(parsed.data);
       sendSuccessResponse(res, 'Jobs retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -31,12 +33,8 @@ export class AdminJobController {
   };
 
   getJobById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Job ID is required', next);
-    }
-
     try {
+      const { id } = req.params;
       const job = await this._getJobByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Job retrieved successfully', job);
     } catch (error) {
@@ -45,19 +43,15 @@ export class AdminJobController {
   };
 
   updateJobStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Job ID is required', next);
-    }
-
-    const parsed = AdminUpdateJobStatusDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError('Invalid status data', next);
+    const parsedBody = UpdateJobStatusRequestDtoSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
 
     try {
-      await this._updateJobStatusUseCase.execute(id, parsed.data.status, parsed.data.unpublish_reason);
-      const message = `Job status updated to '${parsed.data.status}' successfully`;
+      const { id } = req.params;
+      await this._updateJobStatusUseCase.execute(id, parsedBody.data);
+      const message = `Job status updated to '${parsedBody.data.status}' successfully`;
       sendSuccessResponse(res, message, null);
     } catch (error) {
       handleAsyncError(error, next);
@@ -65,12 +59,8 @@ export class AdminJobController {
   };
 
   deleteJob = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Job ID is required', next);
-    }
-
     try {
+      const { id } = req.params;
       await this._deleteJobUseCase.execute(id);
       sendSuccessResponse(res, 'Job deleted successfully', null);
     } catch (error) {
@@ -87,4 +77,3 @@ export class AdminJobController {
     }
   };
 }
-

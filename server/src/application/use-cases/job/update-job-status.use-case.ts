@@ -1,20 +1,25 @@
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { AuthorizationError, InternalServerError, NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { IUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/job/IUpdateJobStatusUseCase';
 import { UpdateJobStatusDto } from 'src/application/dtos/job/requests/update-job-status.dto';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
+import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
+import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
-  ) {}
+    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+  ) { }
 
-  async execute(dto: UpdateJobStatusDto): Promise<JobPosting> {
+  async execute(dto: UpdateJobStatusDto): Promise<JobPostingResponseDto> {
     const { jobId, status, userId } = dto;
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
@@ -26,7 +31,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new AuthorizationError('This job has been blocked by admin and cannot be modified');
     }
 
-    
+
     if (existingJob.status === JobStatus.CLOSED) {
       throw new ValidationError('Closed jobs cannot be reopened. They remain permanently closed for consistency and audit safety.');
     }
@@ -40,9 +45,40 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
         throw new NotFoundError('Company profile not found');
       }
 
-      const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
-      if (!subscription) {
-        throw new ValidationError('You need an active subscription to list jobs');
+      let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
+      
+      // If subscription is expired, fall back to default plan
+      if (!subscription || (subscription && subscription.isExpired() && !subscription.isDefault)) {
+        const defaultPlan = await this._subscriptionPlanRepository.findDefault();
+        if (defaultPlan) {
+          // If subscription exists but is expired, update it to default plan
+          if (subscription && subscription.isExpired()) {
+            await this._companySubscriptionRepository.update(subscription.id, {
+              planId: defaultPlan.id,
+              startDate: null,
+              expiryDate: null,
+              isActive: true,
+            });
+          }
+          subscription = CompanySubscription.create({
+            id: subscription?.id || '',
+            companyId: companyProfile.id,
+            planId: defaultPlan.id,
+            startDate: null,
+            expiryDate: null,
+            isActive: true,
+            jobPostsUsed: subscription?.jobPostsUsed || 0,
+            featuredJobsUsed: subscription?.featuredJobsUsed || 0,
+            applicantAccessUsed: subscription?.applicantAccessUsed || 0,
+            planName: defaultPlan.name,
+            jobPostLimit: defaultPlan.jobPostLimit,
+            featuredJobLimit: defaultPlan.featuredJobLimit,
+            applicantAccessLimit: defaultPlan.applicantAccessLimit,
+            isDefault: true,
+          });
+        } else {
+          throw new ValidationError('You need an active subscription to list jobs');
+        }
       }
 
       if (existingJob.isFeatured) {
@@ -52,7 +88,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
           );
         }
       }
-      
+
       if (!subscription.canPostJob()) {
         throw new ValidationError(
           `You have reached your active job limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan or unlist other jobs.`,
@@ -84,9 +120,6 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
       throw new InternalServerError('Failed to update job status');
     }
 
-    return updatedJob;
+    return JobPostingMapper.toResponse(updatedJob);
   }
 }
-
-
-

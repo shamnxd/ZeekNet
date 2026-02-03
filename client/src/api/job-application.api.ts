@@ -41,6 +41,11 @@ export const jobApplicationApi = {
     return api.get(CompanyRoutes.APPLICATIONS, { params })
   },
 
+  async getJobApplications(jobId: string, params?: GetCompanyApplicationsParams) {
+    if (!jobId) throw new Error('Job ID is required');
+    return api.get(CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':job_id', jobId), { params })
+  },
+
   async getCompanyApplicationById(id: string) {
     return api.get(CompanyRoutes.APPLICATIONS_ID.replace(':id', id))
   },

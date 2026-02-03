@@ -2,11 +2,11 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Loading } from '@/components/ui/loading'
-import { 
-  Building2, 
-  Mail, 
-  MapPin, 
-  Users, 
+import {
+  Building2,
+  Mail,
+  MapPin,
+  Users,
   Edit3,
   Plus,
   ArrowRight,
@@ -39,6 +39,7 @@ import EditBenefitsDialog from '@/components/company/dialogs/EditBenefitsDialog'
 import EditOfficeLocationDialog from '@/components/company/dialogs/EditOfficeLocationDialog'
 import EditAboutDialog from '@/components/company/dialogs/EditAboutDialog'
 import EditWorkplacePicturesDialog from '@/components/company/dialogs/EditWorkplacePicturesDialog'
+import { useNavigate } from 'react-router-dom'
 
 
 const CompanyProfile = () => {
@@ -49,10 +50,10 @@ const CompanyProfile = () => {
   const [officeLocations, setOfficeLocations] = useState<OfficeLocation[]>([])
   const [workplacePictures, setWorkplacePictures] = useState<WorkplacePicture[]>([])
   const [jobPostings, setJobPostings] = useState<CompanyProfileJobPosting[]>([])
-  
+
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  
+
   const [editContactDialog, setEditContactDialog] = useState(false)
   const [editTechStackDialog, setEditTechStackDialog] = useState(false)
   const [editBenefitsDialog, setEditBenefitsDialog] = useState(false)
@@ -61,49 +62,51 @@ const CompanyProfile = () => {
   const [editWorkplacePicturesDialog, setEditWorkplacePicturesDialog] = useState(false)
   const fetchedRef = useRef(false)
 
+  const navigate = useNavigate()
+
   const fetchCompanyData = useCallback(async () => {
     try {
       setLoading(true)
-      
+
       const response = await companyApi.getCompleteProfile()
 
       if (response.success && response.data) {
         const { profile, contact, locations, techStack, benefits, workplacePictures, jobPostings } = response.data
-        
+
         setCompanyProfile(profile)
         if (contact) {
-            setContact(contact)
+          setContact(contact)
         }
         const mappedLocations = locations.map((location: OfficeLocation) => ({
           ...location,
-          location: location.location || location.city, 
+          location: location.location || location.city,
           officeName: location.officeName || 'Office',
           isHeadquarters: location.isPrimary
         }))
         setOfficeLocations(mappedLocations)
 
-        
+
         const mappedTechStack = techStack.map((item: TechStackItem) => ({
           ...item,
           techStack: item.name || item.techStack
         }))
         setTechStack(mappedTechStack)
 
-        
+
         const mappedBenefits = benefits.map((item: Benefit) => ({
           ...item,
           perk: item.title || item.perk
         }))
         setBenefits(mappedBenefits)
 
-        
+
         const mappedPictures = workplacePictures.map((item: WorkplacePicture) => ({
           ...item,
           pictureUrl: item.url || item.pictureUrl
         }))
         setWorkplacePictures(mappedPictures)
-        
-        
+
+
         const mappedJobs: CompanyProfileJobPosting[] = (jobPostings || []).map((job: JobPostingResponse) => ({
           ...job,
           employmentType: job.employment_types?.[0] || 'Full-time',
@@ -113,13 +116,13 @@ const CompanyProfile = () => {
         }))
         setJobPostings(mappedJobs)
       }
-      
+
     } catch {
       toast.error('Failed to load company data')
     } finally {
       setLoading(false)
     }
-  }, []) 
+  }, [])
 
   useEffect(() => {
     if (fetchedRef.current) return
@@ -142,10 +145,10 @@ const CompanyProfile = () => {
       if (response.success) {
         setContact(contactData)
         toast.success('Contact information updated successfully')
-        } else {
+      } else {
         toast.error('Failed to update contact information')
-        }
-      } catch {
+      }
+    } catch {
       toast.error('Failed to update contact information')
     } finally {
       setSaving(false)
@@ -155,35 +158,35 @@ const CompanyProfile = () => {
   const handleSaveTechStack = async (techStackData: TechStackItem[]) => {
     try {
       setSaving(true)
-      
-      const itemsToDelete = techStack.filter(existingItem => 
+
+      const itemsToDelete = techStack.filter(existingItem =>
         existingItem.id && !techStackData.some(newItem => newItem.id === existingItem.id)
       )
-      
+
       for (const item of itemsToDelete) {
         if (item.id) {
           await companyApi.deleteTechStack(item.id)
         }
       }
-      
+
       const itemsToCreate = techStackData.filter(item => !item.id)
-      
+
       for (const item of itemsToCreate) {
         await companyApi.createTechStack({ name: item.techStack })
       }
-      
-      const itemsToUpdate = techStackData.filter(item => 
-        item.id && techStack.some(existingItem => 
+
+      const itemsToUpdate = techStackData.filter(item =>
+        item.id && techStack.some(existingItem =>
           existingItem.id === item.id && existingItem.techStack !== item.techStack
         )
       )
-      
+
       for (const item of itemsToUpdate) {
         if (item.id) {
           await companyApi.updateTechStack(item.id, { name: item.techStack })
         }
       }
-      
+
       setTechStack(techStackData)
       toast.success('Tech stack updated successfully')
     } catch {
@@ -196,42 +199,42 @@ const CompanyProfile = () => {
   const handleSaveBenefits = async (benefitsData: Benefit[]) => {
     try {
       setSaving(true)
-      
-      const benefitsToDelete = benefits.filter(existingBenefit => 
+
+      const benefitsToDelete = benefits.filter(existingBenefit =>
         existingBenefit.id && !benefitsData.some(newBenefit => newBenefit.id === existingBenefit.id)
       )
-      
+
       for (const benefit of benefitsToDelete) {
         if (benefit.id) {
           await companyApi.deleteBenefit(benefit.id)
         }
       }
-      
+
       const benefitsToCreate = benefitsData.filter(benefit => !benefit.id)
-      
+
       for (const benefit of benefitsToCreate) {
         await companyApi.createBenefit({
-          title: benefit.perk,
-          description: benefit.description
+          perk: benefit.perk || benefit.title || '',
+          description: benefit.description || ''
         })
       }
-      
-      const benefitsToUpdate = benefitsData.filter(benefit => 
-        benefit.id && benefits.some(existingBenefit => 
-          existingBenefit.id === benefit.id && 
+
+      const benefitsToUpdate = benefitsData.filter(benefit =>
+        benefit.id && benefits.some(existingBenefit =>
+          existingBenefit.id === benefit.id &&
           (existingBenefit.perk !== benefit.perk || existingBenefit.description !== benefit.description)
         )
       )
-      
+
       for (const benefit of benefitsToUpdate) {
         if (benefit.id) {
           await companyApi.updateBenefit(benefit.id, {
-            title: benefit.perk,
-            description: benefit.description
+            perk: benefit.perk || benefit.title || '',
+            description: benefit.description || ''
           })
         }
       }
-      
+
       setBenefits(benefitsData)
       toast.success('Benefits updated successfully')
     } catch {
@@ -244,19 +247,19 @@ const CompanyProfile = () => {
   const handleSaveOfficeLocations = async (locationsData: OfficeLocation[]) => {
     try {
       setSaving(true)
-      
-      const locationsToDelete = officeLocations.filter(existingLocation => 
+
+      const locationsToDelete = officeLocations.filter(existingLocation =>
         existingLocation.id && !locationsData.some(newLocation => newLocation.id === existingLocation.id)
       )
-      
+
       for (const location of locationsToDelete) {
         if (location.id) {
           await companyApi.deleteOfficeLocation(location.id)
         }
       }
-      
+
       const locationsToCreate = locationsData.filter(location => !location.id)
-      
+
       for (const location of locationsToCreate) {
         await companyApi.createOfficeLocation({
           location: location.location,
@@ -265,17 +268,17 @@ const CompanyProfile = () => {
           isPrimary: location.isHeadquarters
         })
       }
-      
-      const locationsToUpdate = locationsData.filter(location => 
-        location.id && officeLocations.some(existingLocation => 
-          existingLocation.id === location.id && 
-          (existingLocation.location !== location.location || 
-           existingLocation.officeName !== location.officeName ||
-           existingLocation.address !== location.address ||
-           existingLocation.isHeadquarters !== location.isHeadquarters)
+
+      const locationsToUpdate = locationsData.filter(location =>
+        location.id && officeLocations.some(existingLocation =>
+          existingLocation.id === location.id &&
+          (existingLocation.location !== location.location ||
+            existingLocation.officeName !== location.officeName ||
+            existingLocation.address !== location.address ||
+            existingLocation.isHeadquarters !== location.isHeadquarters)
         )
       )
-      
+
       for (const location of locationsToUpdate) {
         if (location.id) {
           await companyApi.updateOfficeLocation(location.id, {
@@ -286,7 +289,7 @@ const CompanyProfile = () => {
           })
         }
       }
-      
+
       setOfficeLocations(locationsData)
       toast.success('Office locations updated successfully')
     } catch {
@@ -316,44 +319,45 @@ const CompanyProfile = () => {
   const handleSaveWorkplacePictures = async (pictures: WorkplacePicture[]) => {
     try {
       setSaving(true)
-      
-      const picturesToDelete = workplacePictures.filter(existingPicture => 
+
+      const picturesToDelete = workplacePictures.filter(existingPicture =>
         existingPicture.id && !pictures.some(newPicture => newPicture.id === existingPicture.id)
       )
-      
+
       for (const picture of picturesToDelete) {
         if (picture.id) {
           await companyApi.deleteWorkplacePicture(picture.id)
         }
       }
-      
+
       const picturesToCreate = pictures.filter(picture => !picture.id)
-      
+
       for (const picture of picturesToCreate) {
         await companyApi.createWorkplacePicture({
-          url: picture.pictureUrl,
-          caption: picture.caption
+          pictureUrl: picture.pictureUrl || picture.url || '',
+          caption: picture.caption || ''
         })
       }
-      
-      const picturesToUpdate = pictures.filter(picture => 
-        picture.id && workplacePictures.some(existingPicture => 
-          existingPicture.id === picture.id && 
+
+      const picturesToUpdate = pictures.filter(picture =>
+        picture.id && workplacePictures.some(existingPicture =>
+          existingPicture.id === picture.id &&
           (existingPicture.pictureUrl !== picture.pictureUrl || existingPicture.caption !== picture.caption)
         )
       )
-      
+
       for (const picture of picturesToUpdate) {
-        if (picture.id) {
+        if (picture.id && picture.pictureUrl) {
           await companyApi.updateWorkplacePicture(picture.id, {
-            url: picture.pictureUrl,
-            caption: picture.caption
+            pictureUrl: picture.pictureUrl || picture.url || '',
+            caption: picture.caption || ''
           })
         }
       }
-      
+
       setWorkplacePictures(pictures)
       toast.success('Workplace pictures updated successfully')
+      await fetchCompanyData()
     } catch {
       toast.error('Failed to update workplace pictures')
     } finally {
@@ -392,22 +396,22 @@ const CompanyProfile = () => {
             <div className="relative">
               <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center">
                 {companyProfile.logo ? (
-                  <img src={companyProfile.logo} alt="Company Logo" className="w-24 h-24 rounded-full object-cover" />  
+                  <img src={companyProfile.logo} alt="Company Logo" className="w-24 h-24 rounded-full object-cover" />
                 ) : (
                   <span className="text-3xl font-bold text-white">{companyProfile.company_name.charAt(0).toUpperCase()}</span>
-                )}  
+                )}
               </div>
               <Button variant="outline" size="sm" className="absolute -top-1.5 -left-1.5 w-7 h-7 p-0 bg-white border-purple-200">
                 <ArrowLeft className="h-3.5 w-3.5 text-purple-500" />
               </Button>
             </div>
-            
+
             <div className="space-y-3.5">
               <div>
                 <div className="text-2xl font-bold text-gray-900 mb-1">{companyProfile.company_name}</div>
                 <div className="text-base font-semibold text-purple-500">{companyProfile.website_link || 'No website'}</div>
               </div>
-              
+
               <div className="flex items-center gap-7">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center">
@@ -418,7 +422,7 @@ const CompanyProfile = () => {
                     <div className="font-semibold text-gray-900 text-sm">{companyProfile.created_at ? new Date(companyProfile.created_at).getFullYear() : 'Not specified'}</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center">
                     <Users className="h-4 w-4 text-blue-500" />
@@ -428,7 +432,7 @@ const CompanyProfile = () => {
                     <div className="font-semibold text-gray-900 text-sm">{companyProfile.employee_count || 'Not specified'}</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center">
                     <MapPin className="h-4 w-4 text-blue-500" />
@@ -438,7 +442,7 @@ const CompanyProfile = () => {
                     <div className="font-semibold text-gray-900 text-sm">{officeLocations.length > 0 ? officeLocations[0].location : 'Not specified'}</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center">
                     <Building2 className="h-4 w-4 text-blue-500" />
@@ -451,10 +455,11 @@ const CompanyProfile = () => {
               </div>
             </div>
           </div>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             className="bg-purple-50 border-purple-200 text-purple-600 hover:bg-purple-100 px-3.5 py-1.5 text-sm"
+            onClick={() => navigate('/company/settings')}
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
             Profile Settings
@@ -467,9 +472,9 @@ const CompanyProfile = () => {
           <div className="bg-white rounded-lg p-4">
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">About us</h3>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="p-1.5"
                 onClick={() => setEditAboutDialog(true)}
                 disabled={saving}
@@ -480,52 +485,52 @@ const CompanyProfile = () => {
             <p className="text-gray-600 leading-relaxed text-sm">
               {companyProfile.about_us || 'No description available. Click edit to add one.'}
             </p>
-                    </div>
-                    
+          </div>
+
           <div className="border-t border-gray-200"></div>
 
           <div className="bg-white rounded-lg p-4">
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">Contact</h3>
               <div className="flex gap-1.5">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1.5"
                   onClick={() => setEditContactDialog(true)}
                   disabled={saving}
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                 </Button>
-                  </div>
-                </div>
-                
+              </div>
+            </div>
+
             {contact ? (
-            <div className="space-y-2.5">
-              <div className="flex gap-2.5">
+              <div className="space-y-2.5">
+                <div className="flex gap-2.5">
                   {contact.twitter_link && (
-                <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
-                  <Twitter className="h-4 w-4" />
+                    <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
+                      <Twitter className="h-4 w-4" />
                       <span className="font-medium text-sm">{contact.twitter_link}</span>
-                </div>
+                    </div>
                   )}
                   {contact.facebook_link && (
-                <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
-                  <Facebook className="h-4 w-4" />
+                    <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
+                      <Facebook className="h-4 w-4" />
                       <span className="font-medium text-sm">{contact.facebook_link}</span>
-                </div>
+                    </div>
                   )}
-                  </div>
-              <div className="flex gap-2.5">
+                </div>
+                <div className="flex gap-2.5">
                   {contact.phone && (
-                <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
+                    <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
                       <Phone className="h-4 w-4" />
                       <span className="font-medium text-sm">{contact.phone}</span>
-                </div>
+                    </div>
                   )}
                   {contact.email && (
-                <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
-                  <Mail className="h-4 w-4" />
+                    <div className="flex items-center gap-3 px-2.5 py-1.5 border border-primary rounded-lg text-primary">
+                      <Mail className="h-4 w-4" />
                       <span className="font-medium text-sm">{contact.email}</span>
                     </div>
                   )}
@@ -542,7 +547,7 @@ const CompanyProfile = () => {
             ) : (
               <div className="text-gray-500 text-sm">
                 No contact information available. Click edit to add contact details.
-            </div>
+              </div>
             )}
           </div>
 
@@ -552,9 +557,9 @@ const CompanyProfile = () => {
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">Workplace Pictures</h3>
               <div className="flex gap-1.5">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1.5"
                   onClick={() => setEditWorkplacePicturesDialog(true)}
                   disabled={saving}
@@ -562,36 +567,36 @@ const CompanyProfile = () => {
                   <Edit3 className="h-3.5 w-3.5" />
                 </Button>
               </div>
-                </div>
-                
+            </div>
+
             {workplacePictures.length > 0 ? (
-            <div className="flex gap-2.5">
+              <div className="flex gap-2.5">
                 {workplacePictures.slice(0, 1).map((picture, index) => (
                   <div key={picture.id || index} className="w-64 h-72 bg-gray-200 rounded-lg overflow-hidden">
                     <img src={picture.pictureUrl} alt={picture.caption || "Workplace"} className="w-full h-full object-cover" />
-              </div>
+                  </div>
                 ))}
-              <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-2.5">
                   {workplacePictures.slice(1, 4).map((picture, index) => (
                     <div key={picture.id || index} className="w-48 h-44 bg-gray-200 rounded-lg overflow-hidden">
                       <img src={picture.pictureUrl} alt={picture.caption || "Workplace"} className="w-full h-full object-cover" />
-                </div>
+                    </div>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="text-center py-8">
                 <div className="text-gray-500 text-sm mb-2">No workplace pictures added yet</div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setEditWorkplacePicturesDialog(true)}
                   disabled={saving}
                 >
                   <Plus className="h-3.5 w-3.5 mr-1.5" />
                   Add Pictures
                 </Button>
-            </div>
+              </div>
             )}
           </div>
 
@@ -601,38 +606,38 @@ const CompanyProfile = () => {
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">Benefits</h3>
               <div className="flex gap-1.5">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1.5"
                   onClick={() => setEditBenefitsDialog(true)}
                   disabled={saving}
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                 </Button>
-                    </div>
-                  </div>
-                  
+              </div>
+            </div>
+
             {benefits.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-2 gap-3.5">
                 {benefits.map((benefit, index) => (
                   <div key={benefit.id || index} className="bg-gray-50 p-5 rounded-lg">
-                <div className="flex items-center gap-3.5 mb-3.5">
-                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Heart className="h-5 w-5 text-white" />
-                  </div>
-                    <div>
+                    <div className="flex items-center gap-3.5 mb-3.5">
+                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <Heart className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
                         <h4 className="font-semibold text-sm">{benefit.perk}</h4>
                         <p className="text-xs text-gray-600">{benefit.description}</p>
-                  </div>
-                </div>
+                      </div>
                     </div>
-                ))}
                   </div>
+                ))}
+              </div>
             ) : (
               <div className="text-gray-500 text-sm">
                 No benefits added yet. Click edit to add benefits and perks.
-                  </div>
+              </div>
             )}
           </div>
 
@@ -646,7 +651,7 @@ const CompanyProfile = () => {
                 <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
               </Button>
             </div>
-            
+
             {jobPostings.length > 0 ? (
               <div className="space-y-3">
                 {jobPostings.map((job) => (
@@ -688,9 +693,9 @@ const CompanyProfile = () => {
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">Tech Stack</h3>
               <div className="flex gap-1.5">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1.5"
                   onClick={() => setEditTechStackDialog(true)}
                   disabled={saving}
@@ -699,29 +704,29 @@ const CompanyProfile = () => {
                 </Button>
               </div>
             </div>
-            
+
             {techStack.length > 0 ? (
-                      <div>
+              <div>
                 {Array.from({ length: Math.ceil(techStack.length / 3) }).map((_, rowIndex) => (
                   <div key={rowIndex} className="flex gap-2.5 mb-2.5">
                     {techStack.slice(rowIndex * 3, (rowIndex + 1) * 3).map((tech, index) => (
                       <div key={tech.id || index} className="flex flex-col items-center gap-1.5 p-2.5">
-                  <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
                           <span className="text-xs font-semibold">{(tech.techStack || tech.name || '').charAt(0).toUpperCase()}</span>
-                  </div>
+                        </div>
                         <span className="text-xs">{tech.techStack || tech.name}</span>
-                </div>
+                      </div>
                     ))}
                   </div>
                 ))}
-              
-              <div className="border-t border-gray-200 pt-3.5">
-                <Button variant="ghost" className="text-primary text-sm">
-                  View tech stack
-                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                </Button>
+
+                <div className="border-t border-gray-200 pt-3.5">
+                  <Button variant="ghost" className="text-primary text-sm">
+                    View tech stack
+                    <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </Button>
+                </div>
               </div>
-            </div>
             ) : (
               <div className="text-gray-500 text-sm">
                 No tech stack added yet. Click edit to add technologies.
@@ -733,40 +738,40 @@ const CompanyProfile = () => {
             <div className="flex items-center justify-between mb-3.5">
               <h3 className="text-lg font-semibold">Office Locations</h3>
               <div className="flex gap-1.5">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="p-1.5"
                   onClick={() => setEditOfficeLocationDialog(true)}
                   disabled={saving}
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                 </Button>
-                      </div>
-                    </div>
-            
+              </div>
+            </div>
+
             {officeLocations.length > 0 ? (
-            <div className="space-y-2.5 mb-3.5">
+              <div className="space-y-2.5 mb-3.5">
                 {officeLocations.map((location, index) => (
                   <div key={location.id || index} className="flex items-center gap-2.5">
                     <div className="text-xl">🏢</div>
-                  <div className="flex-1">
+                    <div className="flex-1">
                       <div className="font-semibold text-xs">{location.location}</div>
                       {location.isHeadquarters && (
-                      <Badge className="bg-blue-100 text-blue-700 text-xs mt-1 px-2 py-0.5">
+                        <Badge className="bg-blue-100 text-blue-700 text-xs mt-1 px-2 py-0.5">
                           Headquarters
-                      </Badge>
-                    )}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             ) : (
               <div className="text-gray-500 text-sm mb-3.5">
                 No office locations added yet. Click edit to add locations.
               </div>
             )}
-            
+
             <Button variant="ghost" className="text-primary text-sm">
               View countries
               <ArrowRight className="h-3.5 w-3.5 ml-1.5" />

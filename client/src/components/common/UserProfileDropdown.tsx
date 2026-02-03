@@ -12,22 +12,34 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { seekerApi } from '@/api/seeker.api';
+import { useEffect, useState } from 'react';
 
 const UserProfileDropdown: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { name, email, role } = useAppSelector((state) => state.auth);
+  const { name, email, role, companyLogo } = useAppSelector((state) => state.auth);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (role === 'seeker') {
+      seekerApi.getProfile().then((res) => {
+        if (res.success && res.data?.avatarUrl) setAvatarUrl(res.data.avatarUrl);
+      }).catch(() => {});
+    }
+  }, [role]);
+
+  const profileImage = role === 'company' ? companyLogo : avatarUrl;
 
   const handleLogout = async () => {
-
-    dispatch(logout());
-    navigate('/');
-    
     try {
       await dispatch(logoutThunk()).unwrap();
     } catch {
+      dispatch(logout());
     }
+    dispatch(logout());
+    navigate('/');
   };
 
   const getDashboardPath = () => {
@@ -56,6 +68,19 @@ const UserProfileDropdown: React.FC = () => {
     }
   };
 
+  const getSettingsPath = () => {
+    switch (role) {
+      case UserRole.ADMIN:
+        return '/admin/settings';
+      case UserRole.COMPANY:
+        return '/company/settings';
+      case UserRole.SEEKER:
+        return '/seeker/settings';
+      default:
+        return '/settings';
+    }
+  };
+
   const getInitials = () => {
     if (name) {
       return name
@@ -73,6 +98,7 @@ const UserProfileDropdown: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
+            {profileImage && <AvatarImage src={profileImage} alt={name || 'Profile'} />}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {getInitials()}
             </AvatarFallback>
@@ -95,7 +121,7 @@ const UserProfileDropdown: React.FC = () => {
         <DropdownMenuItem onClick={() => navigate(getProfilePath())}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/settings')}>
+        <DropdownMenuItem onClick={() => navigate(getSettingsPath())}>
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />

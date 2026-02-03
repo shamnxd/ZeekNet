@@ -1,20 +1,7 @@
 import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
+import { UpdateTechnicalTaskRequestDto } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
+import { ATSTechnicalTaskResponseDto } from 'src/application/dtos/application/task/responses/ats-technical-task-response.dto';
 
 export interface IUpdateTechnicalTaskUseCase {
-  execute(data: {
-    taskId: string;
-    title?: string;
-    description?: string;
-    deadline?: Date;
-    documentUrl?: string;
-    documentFilename?: string;
-    submissionUrl?: string;
-    submissionFilename?: string;
-    status?: 'assigned' | 'submitted' | 'under_review' | 'completed' | 'cancelled';
-    rating?: number;
-    feedback?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSTechnicalTask>;
+  execute(dto: UpdateTechnicalTaskRequestDto): Promise<ATSTechnicalTaskResponseDto>;
 }
-

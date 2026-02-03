@@ -11,6 +11,7 @@ import { CompanyProfileMapper } from 'src/application/mappers/company/profile/co
 import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 import { CompanyContact } from 'src/domain/entities/company-contact.entity';
+import { CompanyProfileResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
 
 export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase {
   constructor(
@@ -20,9 +21,9 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-  ) {}
+  ) { }
 
-  async execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfile> {
+  async execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfileResponseDto> {
     const { userId, ...profileData } = data;
     if (!userId) throw new Error('User ID is required');
     const profile = await this._companyProfileRepository.create(
@@ -40,8 +41,9 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
       }),
     );
 
+    let verification = null;
     if (profileData.taxId || profileData.businessLicenseUrl) {
-      await this._companyVerificationRepository.create({
+      verification = await this._companyVerificationRepository.create({
         companyId: profile.id,
         taxId: profileData.taxId || '',
         businessLicenseUrl: profileData.businessLicenseUrl || '',
@@ -81,7 +83,7 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
       );
     }
 
-    return profile;
+    return CompanyProfileMapper.toResponse(profile, verification);
   }
 }
 

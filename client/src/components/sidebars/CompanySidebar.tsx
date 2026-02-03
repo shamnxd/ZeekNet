@@ -1,12 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { 
-  Home, 
-  MessageSquare, 
-  Building2, 
-  Users, 
-  ClipboardList, 
-  Calendar,
+import {
+  Home,
+  MessageSquare,
+  Building2,
+  Users,
+  ClipboardList,
   CreditCard,
   Settings,
   HelpCircle,
@@ -24,8 +23,10 @@ const CompanySidebar = () => {
   const location = useLocation()
   const dispatch = useAppDispatch()
   const { companyVerificationStatus } = useAppSelector((state) => state.auth)
-  
+
   const isVerified = companyVerificationStatus === 'verified'
+  const canAccessSettings = isVerified
+  const canAccessHelpCenter = true
 
   const navigationItems = [
     {
@@ -70,11 +71,6 @@ const CompanySidebar = () => {
       icon: ClipboardList
     },
     {
-      title: 'My Schedule',
-      href: '/company/schedule',
-      icon: Calendar
-    },
-    {
       title: 'Plans & Billing',
       href: '/company/billing',
       icon: CreditCard
@@ -95,7 +91,33 @@ const CompanySidebar = () => {
   ]
 
   const handleNavigation = (path: string) => {
-    
+    // Allow dashboard always
+    if (path === '/company/dashboard') {
+      navigate(path)
+      return
+    }
+
+    // Block all other pages if profile not created
+    if (companyVerificationStatus === 'not_created') {
+      toast.error('Complete Registration Required', {
+        description: 'Please complete your company profile setup first.',
+      })
+      navigate('/company/dashboard')
+      return
+    }
+
+    // Block all other pages if profile is pending or rejected
+    if (companyVerificationStatus === 'pending' || companyVerificationStatus === 'rejected') {
+      toast.error('Verification Required', {
+        description: companyVerificationStatus === 'pending'
+          ? 'Your company profile is under review. Please wait for verification.'
+          : 'Your company profile was rejected. Please reverify from the dashboard.',
+      })
+      navigate('/company/dashboard')
+      return
+    }
+
+    // Additional check for post-job (only verified companies)
     if (path === '/company/post-job' && !isVerified) {
       toast.error('Profile Verification Required', {
         description: 'Please complete and verify your company profile before posting jobs.',
@@ -103,6 +125,14 @@ const CompanySidebar = () => {
       navigate('/company/profile')
       return
     }
+
+    if (path === '/company/help') {
+      toast.info('Coming Soon', {
+        description: 'Help center is under development.',
+      })
+      return
+    }
+
     navigate(path)
   }
 
@@ -117,11 +147,11 @@ const CompanySidebar = () => {
 
   return (
     <div className="flex h-full w-[235px] flex-col bg-[#F8F8FD] border-r border-[#D3D6DB]">
-      {}
+      { }
       <div className="flex-1 overflow-y-auto">
-        {}
+        { }
         <div className="flex flex-col items-center gap-6 px-0 py-6">
-          {}
+          { }
           <div className="flex items-center gap-1.5 pr-12">
             <div className="w-[28px] h-[28px]">
               <img src="/blue.png" alt="ZeekNet Logo" className="w-full h-full object-cover" />
@@ -129,40 +159,37 @@ const CompanySidebar = () => {
             <h1 className="text-xl font-bold text-[#202430] leading-5 tracking-[-0.01em]">ZeekNet</h1>
           </div>
 
-          {}
+          { }
           <div className="flex flex-col justify-center gap-6 w-full">
-            {}
+            { }
             <div className="flex flex-col">
               {navigationItems.map((item) => {
-                const isActive = location.pathname === item.href 
+                const isActive = location.pathname === item.href
+                const isDisabled = item.href !== '/company/dashboard' && !isVerified
                 return (
                   <div key={item.href} className="flex items-center gap-2.5">
                     {isActive && (
                       <div className="w-1 h-6 bg-[#4640DE] rounded-sm"></div>
                     )}
-                    
-                    {}
-                    <div 
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg w-full ${
-                        item.href === '/company/post-job' && !isVerified
-                          ? 'cursor-not-allowed opacity-60'
-                          : 'cursor-pointer'
-                      } ${
-                        isActive 
-                          ? "bg-[#E9EBFD]" 
+
+                    { }
+                    <div
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg w-full ${isDisabled
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'cursor-pointer'
+                        } ${isActive
+                          ? "bg-[#E9EBFD]"
                           : "hover:bg-gray-100"
-                      }`}
+                        }`}
                       style={{ width: isActive ? '204px' : '217px', paddingLeft: isActive ? '14px' : '27px' }}
                       onClick={() => handleNavigation(item.href)}
                     >
                       <div className="w-5 h-5 flex items-center justify-center">
-                        <item.icon className={`w-5 h-5 ${
-                          isActive ? "text-[#4640DE]" : item.href === '/company/post-job' && !isVerified ? "text-[#9CA3AF]" : "text-[#7C8493]"
-                        }`} />
+                        <item.icon className={`w-5 h-5 ${isActive ? "text-[#4640DE]" : isDisabled ? "text-[#9CA3AF]" : "text-[#7C8493]"
+                          }`} />
                       </div>
-                      <span className={`text-sm font-medium ${
-                        isActive ? "text-[#4640DE]" : item.href === '/company/post-job' && !isVerified ? "text-[#9CA3AF]" : "text-[#7C8493]"
-                      }`}>
+                      <span className={`text-sm font-medium ${isActive ? "text-[#4640DE]" : isDisabled ? "text-[#9CA3AF]" : "text-[#7C8493]"
+                        }`}>
                         {item.title}
                       </span>
                       {item.badge && (
@@ -176,37 +203,43 @@ const CompanySidebar = () => {
               })}
             </div>
 
-            {}
+            { }
             <div className="w-full h-px bg-[#CCCCF5]"></div>
 
-            {}
+            { }
             <div className="flex flex-col gap-5">
-              {}
+              { }
               <div className="flex gap-2 pl-7">
                 <h3 className="text-xs font-semibold text-[#202430] uppercase tracking-[0.04em] opacity-50">SETTINGS</h3>
               </div>
 
-              {}
+              { }
               <div className="flex flex-col">
-                {settingsItems.map((item) => (
-                  <div 
-                    key={item.href} 
-                    className="flex items-center gap-3 px-3 py-2.5 pl-7 hover:bg-gray-100 rounded-lg cursor-pointer"
-                    onClick={() => handleNavigation(item.href)}
-                  >
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      <item.icon className="w-5 h-5 text-[#7C8493]" />
+                {settingsItems.map((item) => {
+                  const isItemDisabled = item.href === '/company/settings' ? !canAccessSettings : !canAccessHelpCenter
+                  return (
+                    <div
+                      key={item.href}
+                      className={`flex items-center gap-3 px-3 py-2.5 pl-7 rounded-lg ${isItemDisabled
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'cursor-pointer hover:bg-gray-100'
+                        }`}
+                      onClick={() => !isItemDisabled && handleNavigation(item.href)}
+                    >
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <item.icon className={`w-5 h-5 ${isItemDisabled ? 'text-[#9CA3AF]' : 'text-[#7C8493]'}`} />
+                      </div>
+                      <span className={`text-sm font-medium ${isItemDisabled ? 'text-[#9CA3AF]' : 'text-[#7C8493]'}`}>{item.title}</span>
                     </div>
-                    <span className="text-sm font-medium text-[#7C8493]">{item.title}</span>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {}
+      { }
       <div className="flex-shrink-0 px-7 py-4 border-t border-gray-200">
         <Button
           variant="ghost"

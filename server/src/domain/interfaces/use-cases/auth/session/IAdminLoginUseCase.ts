@@ -1,7 +1,7 @@
-import { LoginResponseDto } from 'src/application/dtos/auth/session/responses/login-response.dto';
-
+import { LoginRequestDto } from 'src/application/dtos/auth/session/login.dto';
+import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
 
 export interface IAdminLoginUseCase {
-  execute(email: string, password: string): Promise<LoginResponseDto>;
+  execute(params: LoginRequestDto): Promise<LoginResponseDto>;
 }
 

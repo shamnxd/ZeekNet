@@ -8,12 +8,12 @@ export class ATSActivity {
     public readonly title: string,
     public readonly description: string,
     public readonly performedBy: string,
-    public readonly performedByName: string,
+    public readonly performedByName?: string,
     public readonly stage?: ATSStage,
     public readonly subStage?: ATSSubStage,
     public readonly metadata?: Record<string, unknown>,
     public readonly createdAt: Date = new Date(),
-  ) {}
+  ) { }
 
   static create(data: {
     id: string;
@@ -22,7 +22,7 @@ export class ATSActivity {
     title: string;
     description: string;
     performedBy: string;
-    performedByName: string;
+    performedByName?: string;
     stage?: ATSStage;
     subStage?: ATSSubStage;
     metadata?: Record<string, unknown>;

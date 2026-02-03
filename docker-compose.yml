@@ -1,0 +1,44 @@
+
+version: '3.8'
+
+services:
+  server:
+    image: ${DOCKER_USERNAME}/zeeknet-server:latest
+    container_name: zeeknet-server
+    restart: always
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./server/.env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017" # Exposed to host but protected by firewall usually
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data:

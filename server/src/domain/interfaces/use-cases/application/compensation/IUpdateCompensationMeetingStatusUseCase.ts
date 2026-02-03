@@ -1,12 +1,7 @@
-import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
+import { UpdateCompensationMeetingStatusRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
+import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
 
 export interface IUpdateCompensationMeetingStatusUseCase {
-  execute(data: {
-    meetingId: string;
-    applicationId: string;
-    status: 'scheduled' | 'completed' | 'cancelled';
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensationMeeting>;
+  execute(dto: UpdateCompensationMeetingStatusRequestDto): Promise<ATSCompensationMeetingResponseDto>;
 }
 

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus } from 'lucide-react';
 import type { OfficeLocation } from '@/interfaces/company/company-data.interface';
 import type { EditOfficeLocationDialogProps } from '@/interfaces/company/dialogs/edit-office-location-dialog-props.interface';
@@ -30,9 +29,9 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validItems = items.filter(item => 
-      typeof item.location === 'string' && item.location.trim() !== '' && 
-      typeof item.officeName === 'string' && item.officeName.trim() !== '' && 
+    const validItems = items.filter(item =>
+      typeof item.location === 'string' && item.location.trim() !== '' &&
+      typeof item.officeName === 'string' && item.officeName.trim() !== '' &&
       typeof item.address === 'string' && item.address.trim() !== ''
     );
     onSave(validItems);
@@ -53,7 +52,7 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
   };
 
   const updateItem = (index: number, field: keyof OfficeLocation, value: string | boolean) => {
-    setItems(prev => prev.map((item, i) => 
+    setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
   };
@@ -64,7 +63,7 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Office Locations</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-6">
             {items.map((item, index) => (
@@ -93,7 +92,7 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
                       placeholder="e.g., Main Office, Branch Office"
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor={`location-${index}`}>Location *</Label>
                     <Input
@@ -114,17 +113,6 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
                     placeholder="Full address of the office"
                     rows={2}
                   />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`headquarters-${index}`}
-                    checked={item.isHeadquarters}
-                    onCheckedChange={(checked) => updateItem(index, 'isHeadquarters', checked as boolean)}
-                  />
-                  <Label htmlFor={`headquarters-${index}`} className="text-sm">
-                    This is the headquarters
-                  </Label>
                 </div>
               </div>
             ))}

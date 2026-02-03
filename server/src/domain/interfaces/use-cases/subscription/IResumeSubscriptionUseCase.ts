@@ -1,6 +1,5 @@
-import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
-
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
 
 export interface IResumeSubscriptionUseCase {
-  execute(userId: string): Promise<CompanySubscription>;
+  execute(userId: string): Promise<CompanySubscriptionResponseDto>;
 }

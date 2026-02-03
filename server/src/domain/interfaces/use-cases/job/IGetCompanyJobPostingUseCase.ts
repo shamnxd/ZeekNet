@@ -1,6 +1,6 @@
-import { JobPosting } from 'src/domain/entities/job-posting.entity';
-
+import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
+import { GetCompanyJobPostingDto } from 'src/application/dtos/company/job/requests/get-company-job-posting.dto';
 
 export interface IGetCompanyJobPostingUseCase {
-  execute(jobId: string, companyId: string): Promise<JobPosting>;
+  execute(dto: GetCompanyJobPostingDto): Promise<JobPostingResponseDto>;
 }

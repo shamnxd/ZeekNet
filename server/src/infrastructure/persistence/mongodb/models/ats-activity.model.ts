@@ -7,7 +7,7 @@ export interface IATSActivityDocument extends Document {
   title: string;
   description: string;
   performedBy: mongoose.Types.ObjectId;
-  performedByName: string;
+  performedByName?: string;
   stage?: ATSStage;
   subStage?: ATSSubStage;
   metadata?: Record<string, unknown>;
@@ -42,7 +42,7 @@ const ATSActivitySchema = new Schema<IATSActivityDocument>(
     },
     performedByName: {
       type: String,
-      required: true,
+      required: false,
     },
     stage: {
       type: String,

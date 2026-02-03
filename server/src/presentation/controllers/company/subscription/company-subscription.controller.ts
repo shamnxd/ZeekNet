@@ -6,12 +6,9 @@ import { ICancelSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subs
 import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IResumeSubscriptionUseCase';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscription/IChangeSubscriptionPlanUseCase';
 import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetBillingPortalUseCase';
-import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
-import { AuthenticationError, ValidationError } from 'src/domain/errors/errors';
+import { ValidationError } from 'src/domain/errors/errors';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { PaymentMapper } from 'src/application/mappers/payment/payment.mapper';
-import { sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
-import { HttpStatus } from 'src/domain/enums/http-status.enum';
+import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
 
 export class CompanySubscriptionController {
   constructor(
@@ -22,14 +19,11 @@ export class CompanySubscriptionController {
     private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
     private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
     private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
-  ) {}
+  ) { }
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const subscription = await this._getActiveSubscriptionUseCase.execute(userId);
 
@@ -39,34 +33,28 @@ export class CompanySubscriptionController {
         subscription,
       );
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   getPaymentHistory = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const paymentOrders = await this._getPaymentHistoryUseCase.execute(userId);
 
-      sendSuccessResponse(res, 'Payment history retrieved successfully', PaymentMapper.toResponseList(paymentOrders));
+      sendSuccessResponse(res, 'Payment history retrieved successfully', paymentOrders);
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   createCheckoutSession = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const { planId, billingCycle, successUrl, cancelUrl } = req.body;
-      
+
       if (!planId) {
         throw new ValidationError('Plan ID is required');
       }
@@ -85,53 +73,44 @@ export class CompanySubscriptionController {
 
       sendSuccessResponse(res, 'Checkout session created', result);
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   cancelSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const subscription = await this._cancelSubscriptionUseCase.execute(userId);
 
       sendSuccessResponse(
         res,
         'Subscription will be canceled at the end of the billing period',
-        CompanySubscriptionResponseMapper.toDto(subscription),
+        subscription,
       );
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   resumeSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const subscription = await this._resumeSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(res, 'Subscription resumed successfully', CompanySubscriptionResponseMapper.toDto(subscription));
+      sendSuccessResponse(res, 'Subscription resumed successfully', subscription);
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   changeSubscriptionPlan = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const { planId, billingCycle } = req.body;
-      
+
       if (!planId) {
         throw new ValidationError('New plan ID is required');
       }
@@ -144,19 +123,16 @@ export class CompanySubscriptionController {
 
       sendSuccessResponse(res, 'Subscription plan changed successfully', result);
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 
   getBillingPortal = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
-        throw new AuthenticationError();
-      }
+      const userId = validateUserId(req);
 
       const { returnUrl } = req.body;
-      
+
       if (!returnUrl) {
         throw new ValidationError('Return URL is required');
       }
@@ -168,7 +144,7 @@ export class CompanySubscriptionController {
 
       sendSuccessResponse(res, 'Billing portal session created', result);
     } catch (error) {
-      next(error);
+      handleAsyncError(error, next);
     }
   };
 }

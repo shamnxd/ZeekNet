@@ -19,7 +19,7 @@ import { PublicRouter } from 'src/presentation/routes/public-router';
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
 import { errorHandler } from 'src/presentation/middleware/error-handler';
 import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
-import { userRepository } from 'src/infrastructure/di/authDi';
+import { getUserByIdUseCase } from 'src/infrastructure/di/authDi';
 import { notificationRouter } from 'src/infrastructure/di/notificationDi';
 import { chatRouter } from 'src/infrastructure/di/chatDi';
 import { DateTimeUtil } from 'src/shared/utils/core/datetime.utils';
@@ -27,7 +27,7 @@ import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
   private _app: express.Application;
-  
+
   static {
     logger.info('AppServer class definition loading...');
   }
@@ -52,7 +52,7 @@ export class AppServer {
 
     this._app.use(
       cors({
-        origin: env.FRONTEND_URL || 'http://localhost:5173',
+        origin: env.FRONTEND_URL || 'http://localhost:5174',
         credentials: true,
       }),
     );
@@ -67,7 +67,7 @@ export class AppServer {
   }
 
   private _setLoggingMiddleware(): void {
-    
+
     const morganStream = {
       write: (message: string) => {
         logger.info(message.trim());
@@ -82,7 +82,7 @@ export class AppServer {
   }
 
   private configureRoutes(): void {
-    const userBlockedMiddleware = new UserBlockedMiddleware(userRepository);
+    const userBlockedMiddleware = new UserBlockedMiddleware(getUserByIdUseCase);
 
     this._app.get('/health', (req, res) =>
       res.json({
@@ -144,5 +144,3 @@ export class AppServer {
     }
   }
 }
-
-

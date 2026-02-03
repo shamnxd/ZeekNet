@@ -22,14 +22,14 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
 
   async create(data: CreateInput<CompanySubscription>): Promise<CompanySubscription> {
     const created = await super.create(data);
-    const populated = await CompanySubscriptionModel.findById(created.id).populate('planId', 'name jobPostLimit featuredJobLimit');
+    const populated = await CompanySubscriptionModel.findById(created.id).populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit');
     return CompanySubscriptionMapper.toEntity(populated!);
   }
 
   async findById(id: string): Promise<CompanySubscription | null> {
     if (!Types.ObjectId.isValid(id)) return null;
     
-    const doc = await CompanySubscriptionModel.findById(id).populate('planId', 'name jobPostLimit featuredJobLimit');
+    const doc = await CompanySubscriptionModel.findById(id).populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit');
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
   }
 
@@ -45,7 +45,7 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
         { expiryDate: { $gte: new Date('2099-01-01') } },
       ],
     })
-      .populate('planId', 'name jobPostLimit featuredJobLimit isDefault')
+      .populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit isDefault')
       .sort({ expiryDate: -1 });
     
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
@@ -57,7 +57,7 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
     const docs = await CompanySubscriptionModel.find({
       companyId: new Types.ObjectId(companyId),
     })
-      .populate('planId', 'name jobPostLimit featuredJobLimit')
+      .populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit')
       .sort({ createdAt: -1 });
     
     return docs.map(doc => CompanySubscriptionMapper.toEntity(doc));
@@ -71,7 +71,7 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
       id,
       { $set: updateData },
       { new: true },
-    ).populate('planId', 'name jobPostLimit featuredJobLimit');
+    ).populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit');
     
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
   }
@@ -123,10 +123,18 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
     });
   }
 
+  async incrementApplicantAccessUsed(subscriptionId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(subscriptionId)) return;
+    
+    await CompanySubscriptionModel.findByIdAndUpdate(subscriptionId, {
+      $inc: { applicantAccessUsed: 1 },
+    });
+  }
+
   async findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<CompanySubscription | null> {
     const doc = await CompanySubscriptionModel.findOne({
       stripeSubscriptionId,
-    }).populate('planId', 'name jobPostLimit featuredJobLimit');
+    }).populate('planId', 'name jobPostLimit featuredJobLimit applicantAccessLimit');
     
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
   }

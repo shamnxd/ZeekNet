@@ -4,28 +4,25 @@ import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJ
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
+import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { GetJobApplicationsKanbanDto } from 'src/application/dtos/application/requests/get-job-applications-kanban.dto';
+import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
+import { JobApplicationsKanbanResponseDto } from 'src/application/dtos/application/pipeline/responses/job-applications-kanban-response.dto';
 
 export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsForKanbanUseCase {
   constructor(
-    private jobApplicationRepository: IJobApplicationRepository,
-    private jobPostingRepository: IJobPostingRepository,
-    private userRepository: IUserRepository,
+    private _jobApplicationRepository: IJobApplicationRepository,
+    private _jobPostingRepository: IJobPostingRepository,
+    private _userRepository: IUserRepository,
+    private _seekerProfileRepository: ISeekerProfileRepository,
+    private _s3Service: IS3Service,
+    private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
-  async execute(jobId: string, companyId: string): Promise<{
-    [stage: string]: Array<{
-      id: string;
-      seekerId: string;
-      seekerName?: string;
-      seekerAvatar?: string;
-      jobTitle?: string;
-      atsScore?: number;
-      subStage: string;
-      appliedDate: Date;
-    }>;
-  }> {
-    
-    const job = await this.jobPostingRepository.findById(jobId);
+  async execute(dto: GetJobApplicationsKanbanDto): Promise<JobApplicationsKanbanResponseDto> {
+    const companyId = await this._getCompanyIdByUserIdUseCase.execute(dto.userId);
+    const job = await this._jobPostingRepository.findById(dto.jobId);
     if (!job) {
       throw new NotFoundError('Job not found');
     }
@@ -34,26 +31,13 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
       throw new ValidationError('Job does not belong to this company');
     }
 
-    
-    
-    const applications = await this.jobApplicationRepository.findMany({
-      job_id: jobId,
+    const applications = await this._jobApplicationRepository.findMany({
+      job_id: dto.jobId,
       company_id: companyId,
     });
 
     
-    const grouped: {
-      [stage: string]: Array<{
-        id: string;
-        seekerId: string;
-        seekerName?: string;
-        seekerAvatar?: string;
-        jobTitle?: string;
-        atsScore?: number;
-        subStage: string;
-        appliedDate: Date;
-      }>;
-    } = {};
+    const grouped: JobApplicationsKanbanResponseDto = {};
 
     
     job.enabledStages.forEach((stage) => {
@@ -65,8 +49,15 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
     const seekers = await Promise.all(
       seekerIds.map(async (seekerId: string) => {
         try {
-          const seeker = await this.userRepository.findById(seekerId);
-          return { id: seekerId, seeker };
+          const [user, profile] = await Promise.all([
+            this._userRepository.findById(seekerId),
+            this._seekerProfileRepository.findOne({ userId:seekerId }),
+          ]);
+
+          const avatarUrl = profile?.avatarFileName 
+            ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
+            : undefined;
+          return { id: seekerId, seeker: user, avatarUrl };
         } catch {
           return { id: seekerId, seeker: null };
         }
@@ -74,7 +65,7 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
     );
 
     const seekerMap = new Map(
-      seekers.map(({ id, seeker }) => [id, seeker]),
+      seekers.map((data) => [data.id, data]),
     );
 
     
@@ -84,13 +75,13 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
         grouped[stage] = [];
       }
 
-      const seeker = seekerMap.get(application.seekerId);
+      const seekerData = seekerMap.get(application.seekerId);
 
       grouped[stage].push({
         id: application.id,
         seekerId: application.seekerId,
-        seekerName: seeker?.name || 'Unknown',
-        seekerAvatar: undefined, 
+        seekerName: seekerData?.seeker?.name || 'Unknown',
+        seekerAvatar: seekerData?.avatarUrl, 
         jobTitle: job.title,
         atsScore: application.atsScore,
         subStage: application.subStage,

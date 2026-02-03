@@ -1,12 +1,6 @@
-import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
+import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
+import { UpdateOfferStatusRequestDto } from 'src/application/dtos/application/offer/requests/update-offer-status-request.dto';
 
 export interface IUpdateOfferStatusUseCase {
-  execute(data: {
-    offerId: string;
-    status: 'draft' | 'sent' | 'signed' | 'declined';
-    withdrawalReason?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSOffer>;
+  execute(data: UpdateOfferStatusRequestDto): Promise<ATSOfferResponseDto>;
 }
-

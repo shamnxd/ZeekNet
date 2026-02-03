@@ -4,11 +4,13 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { GetAllJobsQueryDtoType } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 import { AdminJobListResponseDto } from 'src/application/dtos/admin/job/responses/admin-job-response.dto';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
-  ) {}
+    private readonly _s3Service: IS3Service,
+  ) { }
 
   async execute(query: GetAllJobsQueryDtoType): Promise<AdminJobListResponseDto> {
     let jobs = await this._jobPostingRepository.getAllJobsForAdmin();
@@ -17,13 +19,13 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
       jobs = jobs.filter(job => job.status === query.status);
     }
     if (query.category_ids && query.category_ids.length > 0) {
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.categoryIds.some(cat => query.category_ids!.includes(cat)),
       );
     }
 
     if (query.employment_types && query.employment_types.length > 0) {
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.employmentTypes.some(type => query.employment_types!.includes(type)),
       );
     }
@@ -37,17 +39,17 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
     }
 
     if (query.location) {
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.location.toLowerCase().includes(query.location!.toLowerCase()),
       );
     }
 
     if (query.search) {
       const searchLower = query.search.toLowerCase();
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.title.toLowerCase().includes(searchLower) ||
-          job.description.toLowerCase().includes(searchLower) ||
-          job.location.toLowerCase().includes(searchLower),
+        job.description.toLowerCase().includes(searchLower) ||
+        job.location.toLowerCase().includes(searchLower),
       );
     }
 
@@ -71,8 +73,21 @@ export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
 
     const jobDtos = JobPostingMapper.toAdminListItemResponseList(paginatedJobs);
 
+    const jobDtosWithSignedUrls = await Promise.all(
+      jobDtos.map(async (job) => {
+        if (job.companyLogo && !job.companyLogo.startsWith('http')) {
+          try {
+            job.companyLogo = await this._s3Service.getSignedUrl(job.companyLogo);
+          } catch (error) {
+            console.error(`Failed to sign logo for job ${job.id}:`, error);
+          }
+        }
+        return job;
+      }),
+    );
+
     return {
-      jobs: jobDtos,
+      jobs: jobDtosWithSignedUrls,
       pagination: {
         page,
         limit,

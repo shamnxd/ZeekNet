@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const GetApplicationsByJobDto = z.object({
   userId: z.string().min(1, 'User ID is required'),
   jobId: z.string().min(1, 'Job ID is required'),
-  stage: z.enum(['applied', 'shortlisted', 'interview', 'rejected', 'hired']).optional(),
+  stage: z.enum(['applied', 'in_review', 'shortlisted', 'interview', 'technical_task', 'compensation', 'offer', 'rejected', 'hired']).optional(),
   search: z.string().optional(),
   min_score: z.coerce.number().int().min(0).max(100).optional(),
   max_score: z.coerce.number().int().min(0).max(100).optional(),

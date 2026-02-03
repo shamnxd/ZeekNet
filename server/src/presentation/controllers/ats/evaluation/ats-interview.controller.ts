@@ -1,90 +1,66 @@
-import { Response } from 'express';
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { Response, NextFunction } from 'express';
+
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/interview/IGetInterviewsByApplicationUseCase';
-import { IFileUrlService } from 'src/domain/interfaces/services/IFileUrlService';
-import { sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { ScheduleInterviewDto } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
-import { UpdateInterviewDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
+
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
+import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { HttpStatus } from 'src/domain/enums/http-status.enum';
+import { ScheduleInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
+import { UpdateInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 
 export class ATSInterviewController {
   constructor(
     private scheduleInterviewUseCase: IScheduleInterviewUseCase,
     private updateInterviewUseCase: IUpdateInterviewUseCase,
     private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
-    private fileUrlService: IFileUrlService,
-  ) {}
+  ) { }
 
-  scheduleInterview = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  scheduleInterview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = ScheduleInterviewDtoSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
-      const dto: ScheduleInterviewDto = req.body;
-      const userId = req.user?.id;
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendInternalServerErrorResponse(res, 'User not authenticated');
-        return;
-      }
-
-      
-      const scheduledDate = typeof dto.scheduledDate === 'string' 
-        ? new Date(dto.scheduledDate) 
-        : dto.scheduledDate;
+      const userId = validateUserId(req);
 
       const interview = await this.scheduleInterviewUseCase.execute({
-        applicationId: dto.applicationId,
-        title: dto.title,
-        scheduledDate,
-        type: dto.type,
-        videoType: dto.videoType,
-        webrtcRoomId: dto.webrtcRoomId,
-        meetingLink: dto.meetingLink,
-        location: dto.location,
-        performedBy: userId,
-        performedByName: userName,
+        ...validation.data,
+        userId,
       });
 
       sendCreatedResponse(res, 'Interview scheduled successfully', interview);
     } catch (error) {
-      console.error('Error scheduling interview:', error);
-      sendInternalServerErrorResponse(res, 'Failed to schedule interview');
+      handleAsyncError(error, next);
     }
   };
 
-  updateInterview = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  updateInterview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const validation = UpdateInterviewDtoSchema.safeParse(req.body);
+    if (!validation.success) {
+      return handleValidationError(formatZodErrors(validation.error), next);
+    }
+
     try {
       const { id } = req.params;
-      const dto: UpdateInterviewDto = req.body;
-      const userId = req.user?.id;
-      const userName = req.user?.email || 'Unknown User';
-
-      if (!userId) {
-        sendInternalServerErrorResponse(res, 'User not authenticated');
-        return;
-      }
+      const userId = validateUserId(req);
 
       const interview = await this.updateInterviewUseCase.execute({
+        ...validation.data,
         interviewId: id,
-        status: dto.status,
-        rating: dto.rating,
-        feedback: dto.feedback,
-        performedBy: userId,
-        performedByName: userName,
+        userId,
       });
 
       sendSuccessResponse(res, 'Interview updated successfully', interview);
     } catch (error) {
-      console.error('Error updating interview:', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        sendNotFoundResponse(res, error.message);
-        return;
-      }
-      sendInternalServerErrorResponse(res, 'Failed to update interview');
+      handleAsyncError(error, next);
     }
   };
 
-  getInterviewsByApplication = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getInterviewsByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { applicationId } = req.params;
 
@@ -92,11 +68,7 @@ export class ATSInterviewController {
 
       sendSuccessResponse(res, 'Interviews retrieved successfully', interviews);
     } catch (error) {
-      console.error('Error fetching interviews:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch interviews');
+      handleAsyncError(error, next);
     }
   };
 }
-
-
-

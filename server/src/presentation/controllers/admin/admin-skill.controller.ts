@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import { CreateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
-import { UpdateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
-import { GetAllSkillsDto } from 'src/application/dtos/admin/attributes/skills/requests/get-all-skills-query.dto';
-import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IDeleteSkillUseCase';
-import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IUpdateSkillUseCase';
-import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IGetSkillByIdUseCase';
+import { NextFunction, Request, Response } from 'express';
 import { ICreateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/ICreateSkillUseCase';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IDeleteSkillUseCase';
 import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IGetAllSkillsUseCase';
+import { IGetSkillByIdUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IGetSkillByIdUseCase';
+import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IUpdateSkillUseCase';
+import { CreateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
+import { GetAllSkillsDto } from 'src/application/dtos/admin/attributes/skills/requests/get-all-skills-query.dto';
+import { UpdateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class AdminSkillController {
   constructor(
@@ -16,19 +17,16 @@ export class AdminSkillController {
     private readonly _getSkillByIdUseCase: IGetSkillByIdUseCase,
     private readonly _updateSkillUseCase: IUpdateSkillUseCase,
     private readonly _deleteSkillUseCase: IDeleteSkillUseCase,
-  ) {}
+  ) { }
 
   createSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = CreateSkillDto.safeParse(req.body);
     if (!parsed.success) {
-      return handleValidationError(
-        `Invalid skill data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-        next,
-      );
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
-      const skill = await this._createSkillUseCase.execute(parsed.data.name);
+      const skill = await this._createSkillUseCase.execute(parsed.data);
       sendSuccessResponse(res, 'Skill created successfully', skill);
     } catch (error) {
       handleAsyncError(error, next);
@@ -36,16 +34,13 @@ export class AdminSkillController {
   };
 
   getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const query = GetAllSkillsDto.safeParse(req.query);
-      if (!query.success) {
-        return handleValidationError(
-          `Invalid query parameters: ${query.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-          next,
-        );
-      }
+    const parsed = GetAllSkillsDto.safeParse(req.query);
+    if (!parsed.success) {
+      return handleValidationError(formatZodErrors(parsed.error), next);
+    }
 
-      const result = await this._getAllSkillsUseCase.execute(query.data);
+    try {
+      const result = await this._getAllSkillsUseCase.execute(parsed.data);
       sendSuccessResponse(res, 'Skills retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -53,12 +48,8 @@ export class AdminSkillController {
   };
 
   getSkillById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Skill ID is required', next);
-    }
-
     try {
+      const { id } = req.params;
       const skill = await this._getSkillByIdUseCase.execute(id);
       sendSuccessResponse(res, 'Skill retrieved successfully', skill);
     } catch (error) {
@@ -67,21 +58,14 @@ export class AdminSkillController {
   };
 
   updateSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Skill ID is required', next);
-    }
-
-    const parsed = UpdateSkillDto.safeParse(req.body);
-    if (!parsed.success) {
-      return handleValidationError(
-        `Invalid skill data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`,
-        next,
-      );
+    const parsedBody = UpdateSkillDto.safeParse(req.body);
+    if (!parsedBody.success) {
+      return handleValidationError(formatZodErrors(parsedBody.error), next);
     }
 
     try {
-      const skill = await this._updateSkillUseCase.execute(id, parsed.data.name);
+      const { id } = req.params;
+      const skill = await this._updateSkillUseCase.execute(id, parsedBody.data);
       sendSuccessResponse(res, 'Skill updated successfully', skill);
     } catch (error) {
       handleAsyncError(error, next);
@@ -89,12 +73,8 @@ export class AdminSkillController {
   };
 
   deleteSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    if (!id) {
-      return handleValidationError('Skill ID is required', next);
-    }
-
     try {
+      const { id } = req.params;
       await this._deleteSkillUseCase.execute(id);
       sendSuccessResponse(res, 'Skill deleted successfully', null);
     } catch (error) {
@@ -102,4 +82,3 @@ export class AdminSkillController {
     }
   };
 }
-

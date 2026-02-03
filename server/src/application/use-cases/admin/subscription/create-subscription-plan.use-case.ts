@@ -8,6 +8,8 @@ import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { PriceType } from 'src/domain/entities/price-history.entity';
 import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan.dto';
 import { CreateInput } from 'src/domain/types/common.types';
+import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
+import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/subscription-plan.mapper';
 
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
@@ -154,14 +156,14 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
 
         if (updatedPlan) {
           this._logger.info(`Subscription plan ${normalizedName} synced with Stripe: ${product.id}`);
-          return updatedPlan;
+          return SubscriptionPlanMapper.toResponse(updatedPlan)!;
         }
       } catch (error) {
         this._logger.error(`Failed to sync plan ${normalizedName} with Stripe`, error);
       }
     }
 
-    return plan;
+    return SubscriptionPlanMapper.toResponse(plan)!;
   }
 }
 

@@ -19,15 +19,15 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     readOnly = false,
 }) => {
     const allStages = Object.values(ATSStage);
-    type NonHiredStage = Exclude<ATSStage, typeof ATSStage.HIRED>;
+    type NonHiredStage = Exclude<ATSStage, typeof ATSStage.HIRED | typeof ATSStage.REJECTED>;
     const availableStages: NonHiredStage[] = allStages.filter(
-        (stage): stage is NonHiredStage => stage !== ATSStage.HIRED
+        (stage): stage is NonHiredStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED
     );
     const requiredStages: NonHiredStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
 
-    
+
     const selectedStages = data.enabledStages && data.enabledStages.length > 0
-        ? data.enabledStages.filter((stage): stage is NonHiredStage => stage !== ATSStage.HIRED)
+        ? data.enabledStages.filter((stage): stage is NonHiredStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED)
         : availableStages;
 
     const handleStageToggle = (stage: NonHiredStage) => {
@@ -35,8 +35,8 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             return;
         }
 
-        
-        
+
+
 
         let newStages: NonHiredStage[];
 
@@ -46,7 +46,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             newStages = [...selectedStages, stage];
         }
 
-        
+
         newStages.sort((a, b) => {
             return availableStages.indexOf(a) - availableStages.indexOf(b);
         });
@@ -56,10 +56,10 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
 
     const handleNextAction = () => {
         if (selectedStages.length === 0) {
-            
+
             return;
         }
-        
+
         if (!data.enabledStages || data.enabledStages.length === 0) {
             onDataChange({ enabledStages: selectedStages });
         }
@@ -82,7 +82,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
             <div className="flex flex-col gap-1 w-full">
                 <h2 className="text-base font-semibold text-[#25324B]">Hiring Pipeline</h2>
                 <p className="text-sm text-[#7C8493]">
-                    {readOnly 
+                    {readOnly
                         ? "View the hiring stages for this job position. Stages are automatically configured and cannot be modified."
                         : "Customize the hiring stages for this job position."}
                 </p>
@@ -102,7 +102,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
                             onClick={readOnly ? undefined : () => handleStageToggle(stage)}
                             className={cn(
                                 "group relative flex items-start gap-4 p-4 rounded-xl border-2 transition-all",
-                                readOnly 
+                                readOnly
                                     ? "cursor-default bg-gray-50"
                                     : "cursor-pointer hover:shadow-md",
                                 isSelected

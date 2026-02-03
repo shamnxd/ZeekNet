@@ -1,15 +1,9 @@
 import { z } from 'zod';
-
-export const GetAllJobCategoriesQueryDtoSchema = z.object({
-  page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).optional().default(10),
+export const GetAllJobCategoriesQueryDto = z.object({
+  page: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
+  limit: z.string().optional().transform(val => val ? parseInt(val, 10) : 10),
   search: z.string().optional(),
+  sortBy: z.enum(['name', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
-
-export type GetAllJobCategoriesQueryDto = z.infer<typeof GetAllJobCategoriesQueryDtoSchema>;
-
-
-export const GetAllJobCategoriesDto = GetAllJobCategoriesQueryDtoSchema;
-
-export type GetAllJobCategoriesRequestDto = GetAllJobCategoriesQueryDto;
-
+export type GetAllJobCategoriesQueryDto = z.infer<typeof GetAllJobCategoriesQueryDto>;

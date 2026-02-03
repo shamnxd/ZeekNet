@@ -51,6 +51,8 @@ interface ProfileExperiencesProps {
     handleEditExperience: () => Promise<void>;
     handleRemoveExperience: (id: string) => void;
     confirmRemoveExperience: () => Promise<void>;
+    experienceError: string;
+    setExperienceError: (msg: string) => void;
     saving: boolean;
     isoToDateInput: (isoDate: string) => string;
     formatPeriod: (startDate: string, endDate?: string, isCurrent?: boolean) => string;
@@ -75,6 +77,8 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
     handleEditExperience,
     handleRemoveExperience,
     confirmRemoveExperience,
+    experienceError,
+    setExperienceError,
     saving,
     isoToDateInput,
     formatPeriod,
@@ -102,6 +106,7 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                 technologies: [],
                                 isCurrent: false,
                             });
+                            setExperienceError('');
                             setAddExperienceOpen(true);
                         }}
                     >
@@ -160,6 +165,7 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                                             isCurrent: expData.isCurrent,
                                                         });
                                                         setEditingExperienceId(exp.id);
+                                                        setExperienceError('');
                                                         setEditExperienceOpen(true);
                                                     }
                                                 }}
@@ -204,6 +210,9 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Add Experience</DialogTitle>
                     </DialogHeader>
+                    {experienceError && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceError}</p>
+                    )}
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="exp-title">Job Title</Label>
@@ -312,7 +321,22 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                         <Button variant="outline" onClick={() => setAddExperienceOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleAddExperience} className="bg-cyan-600 hover:bg-cyan-700" disabled={saving}>
+                        <Button
+                            onClick={() => {
+                                if (experienceData.isCurrent && experienceData.endDate) {
+                                    setExperienceError('Current experience cannot have an end date');
+                                    return;
+                                }
+                                if (!experienceData.isCurrent && experienceData.startDate && experienceData.endDate && new Date(experienceData.endDate) <= new Date(experienceData.startDate)) {
+                                    setExperienceError('End date must be after start date');
+                                    return;
+                                }
+                                setExperienceError('');
+                                handleAddExperience();
+                            }}
+                            className="bg-cyan-600 hover:bg-cyan-700"
+                            disabled={saving}
+                        >
                             {saving ? 'Adding...' : 'Add Experience'}
                         </Button>
                     </DialogFooter>
@@ -324,6 +348,9 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Edit Experience</DialogTitle>
                     </DialogHeader>
+                    {experienceError && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceError}</p>
+                    )}
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="edit-exp-title">Job Title</Label>
@@ -432,7 +459,22 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                         <Button variant="outline" onClick={() => setEditExperienceOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleEditExperience} className="bg-cyan-600 hover:bg-cyan-700" disabled={saving}>
+                        <Button
+                            onClick={() => {
+                                if (experienceData.isCurrent && experienceData.endDate) {
+                                    setExperienceError('Current experience cannot have an end date');
+                                    return;
+                                }
+                                if (!experienceData.isCurrent && experienceData.startDate && experienceData.endDate && new Date(experienceData.endDate) <= new Date(experienceData.startDate)) {
+                                    setExperienceError('End date must be after start date');
+                                    return;
+                                }
+                                setExperienceError('');
+                                handleEditExperience();
+                            }}
+                            className="bg-cyan-600 hover:bg-cyan-700"
+                            disabled={saving}
+                        >
                             {saving ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </DialogFooter>

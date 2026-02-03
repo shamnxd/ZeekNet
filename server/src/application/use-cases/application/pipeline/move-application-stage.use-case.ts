@@ -6,10 +6,13 @@ import { JobApplication } from 'src/domain/entities/job-application.entity';
 import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { getDefaultSubStage, isValidSubStageForStage } from 'src/domain/utils/ats-pipeline.util';
-
+import { MoveApplicationStageDto } from 'src/application/dtos/application/requests/move-application-stage.dto';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
+import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
 export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase {
   constructor(
@@ -19,16 +22,18 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
     private userRepository: IUserRepository,
     private mailerService: IMailerService,
     private emailTemplateService: IEmailTemplateService,
-  ) {}
+    private logger: ILogger,
+  ) { }
 
-  async execute(data: {
-    applicationId: string;
-    nextStage: ATSStage;
-    subStage?: ATSSubStage;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<JobApplication> {
-    
+  async execute(dto: MoveApplicationStageDto): Promise<JobApplication> {
+    const data = {
+      applicationId: dto.applicationId,
+      nextStage: dto.nextStage as ATSStage,
+      subStage: dto.subStage as ATSSubStage | undefined,
+      performedBy: dto.userId,
+      performedByName: dto.userName,
+    };
+
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
@@ -45,9 +50,9 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
 
     const currentStageIndex = job.enabledStages.indexOf(application.stage);
     const nextStageIndex = job.enabledStages.indexOf(data.nextStage);
-    
+
     if (currentStageIndex === -1) {
-      
+
     } else if (nextStageIndex !== -1 && nextStageIndex < currentStageIndex) {
       throw new ValidationError(`Cannot move to stage '${data.nextStage}' as it is before the current stage '${application.stage}'. Stage changes can only be made from the current stage.`);
     }
@@ -99,7 +104,7 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
       await this._sendStageChangeEmail(application.seekerId, job.title, job.companyName || 'ZeekNet', data.nextStage);
     }
 
-    return updatedApplication;
+    return JobApplicationMapper.toResponse(updatedApplication);
   }
 
   private async _sendStageChangeEmail(
@@ -121,7 +126,7 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
 
       await this.mailerService.sendMail(user.email, emailContent.subject, emailContent.html);
     } catch (error) {
-      console.error('Failed to send stage change email:', error);
+      this.logger.error('Failed to send stage change email:', error);
     }
   }
 }

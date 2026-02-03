@@ -5,67 +5,68 @@ import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivity
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
+import { UpdateCompensationMeetingStatusRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
+import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
+import { ATSCompensationMeetingMapper } from 'src/application/mappers/ats/ats-compensation-meeting.mapper';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
 export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensationMeetingStatusUseCase {
   constructor(
-    private compensationMeetingRepository: IATSCompensationMeetingRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-    private activityLoggerService: IActivityLoggerService,
-  ) {}
+    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
+    private readonly _jobApplicationRepository: IJobApplicationRepository,
+    private readonly _activityLoggerService: IActivityLoggerService,
+    private readonly _userRepository: IUserRepository,
+  ) { }
 
-  async execute(data: {
-    meetingId: string;
-    applicationId: string;
-    status: 'scheduled' | 'completed' | 'cancelled';
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSCompensationMeeting> {
-    if (!['scheduled', 'completed', 'cancelled'].includes(data.status)) {
+  async execute(dto: UpdateCompensationMeetingStatusRequestDto): Promise<ATSCompensationMeetingResponseDto> {
+    if (!['scheduled', 'completed', 'cancelled'].includes(dto.status)) {
       throw new ValidationError('Invalid status. Must be scheduled, completed, or cancelled');
     }
 
-    const meeting = await this.compensationMeetingRepository.findById(data.meetingId);
+    const meeting = await this._compensationMeetingRepository.findById(dto.meetingId);
     if (!meeting) {
       throw new NotFoundError('Meeting not found');
     }
 
-    if (meeting.applicationId !== data.applicationId) {
+    if (meeting.applicationId !== dto.applicationId) {
       throw new ValidationError('Meeting does not belong to this application');
     }
 
-    
-    const application = await this.jobApplicationRepository.findById(data.applicationId);
+
+    const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
 
+    const currentUser = await this._userRepository.findById(dto.performedBy);
+    const performedByName = currentUser ? currentUser.name : 'Unknown';
+
     const updateData: Partial<ATSCompensationMeeting> & { status: 'scheduled' | 'completed' | 'cancelled'; completedAt?: Date } = {
-      status: data.status,
+      status: dto.status,
     };
 
-    if (data.status === 'completed') {
+    if (dto.status === 'completed') {
       updateData.completedAt = new Date();
     }
 
-    const updated = await this.compensationMeetingRepository.update(data.meetingId, updateData);
+    const updated = await this._compensationMeetingRepository.update(dto.meetingId, updateData);
 
     if (!updated) {
       throw new NotFoundError('Failed to update meeting status');
     }
 
-    
-    await this.activityLoggerService.logCompensationMeetingActivity({
-      applicationId: data.applicationId,
+
+    await this._activityLoggerService.logCompensationMeetingActivity({
+      applicationId: dto.applicationId,
       meetingId: updated.id,
       type: 'status_updated',
-      status: data.status,
+      status: dto.status,
       stage: ATSStage.COMPENSATION,
       subStage: application.subStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
+      performedBy: dto.performedBy,
+      performedByName: performedByName,
     });
 
-    return updated;
+    return ATSCompensationMeetingMapper.toResponse(updated);
   }
 }
-

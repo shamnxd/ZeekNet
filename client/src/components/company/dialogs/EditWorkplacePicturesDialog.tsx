@@ -9,13 +9,17 @@ import { companyApi } from '@/api/company.api';
 import type { WorkplacePicture } from '@/interfaces/company/company-data.interface';
 import type { EditWorkplacePicturesDialogProps } from '@/interfaces/company/dialogs/edit-workplace-pictures-dialog-props.interface';
 
+interface WorkplacePictureWithPreview extends WorkplacePicture {
+  previewUrl?: string;
+}
+
 const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = ({
   isOpen,
   onClose,
   onSave,
   pictures
 }) => {
-  const [picturesList, setPicturesList] = useState<WorkplacePicture[]>([]);
+  const [picturesList, setPicturesList] = useState<WorkplacePictureWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -40,12 +44,16 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
     setUploading(true);
     try {
       const result = await companyApi.uploadWorkplacePicture(file);
-      
+
       if (result.success && result.data) {
         const updatedPictures = [...picturesList];
+        // Create a local preview URL
+        const previewUrl = URL.createObjectURL(file);
+
         updatedPictures[index] = {
           ...updatedPictures[index],
-          pictureUrl: result.data.url
+          pictureUrl: result.data.url,
+          previewUrl: previewUrl
         };
         setPicturesList(updatedPictures);
         toast.success('Image uploaded successfully');
@@ -59,17 +67,9 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
     }
   };
 
-  const handleCaptionChange = (index: number, caption: string) => {
-    const updatedPictures = [...picturesList];
-    updatedPictures[index] = {
-      ...updatedPictures[index],
-      caption: caption || ''
-    };
-    setPicturesList(updatedPictures);
-  };
 
   const addNewPicture = () => {
-    setPicturesList([...picturesList, { pictureUrl: '', caption: '' }]);
+    setPicturesList([...picturesList, { pictureUrl: '' }]);
   };
 
   const removePicture = (index: number) => {
@@ -79,15 +79,18 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validPictures = picturesList.filter(picture => (picture.pictureUrl || picture.url || '').trim() !== '');
-    
+
     if (validPictures.length === 0) {
       toast.error('Please add at least one picture');
       return;
     }
 
-    onSave(validPictures);
+    // Clean up preview URLs before saving
+    const picturesToSave = validPictures.map(({ previewUrl: _previewUrl, ...rest }) => rest);
+
+    onSave(picturesToSave);
     onClose();
   };
 
@@ -97,7 +100,7 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
         <DialogHeader>
           <DialogTitle>Edit Workplace Pictures</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             {picturesList.map((picture, index) => (
@@ -121,34 +124,13 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
                   <div>
                     <Label htmlFor={`image-${index}`}>Upload Image</Label>
                     <div className="mt-2">
-                      {picture.pictureUrl ? (
+                      {picture.pictureUrl || picture.previewUrl ? (
                         <div className="relative">
                           <img
-                            src={picture.pictureUrl}
+                            src={picture.previewUrl || picture.pictureUrl}
                             alt={`Workplace ${index + 1}`}
                             className="w-full h-48 object-cover rounded-lg border"
                           />
-                          <div className="absolute top-2 right-2">
-                            <Input
-                              id={`image-${index}`}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFileUpload(file, index);
-                              }}
-                              className="hidden"
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => document.getElementById(`image-${index}`)?.click()}
-                              disabled={uploading}
-                            >
-                              Change
-                            </Button>
-                          </div>
                         </div>
                       ) : (
                         <div className="border-2 border-dashed rounded-lg p-8 text-center">
@@ -175,17 +157,6 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor={`caption-${index}`}>Caption</Label>
-                    <Input
-                      id={`caption-${index}`}
-                      value={picture.caption || ''}
-                      onChange={(e) => handleCaptionChange(index, e.target.value)}
-                      placeholder="Describe this workplace area..."
-                      className="mt-2"
-                    />
                   </div>
                 </div>
               </div>

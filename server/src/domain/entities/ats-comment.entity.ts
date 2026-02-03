@@ -10,7 +10,8 @@ export class ATSComment {
     public readonly stage: ATSStage,
     public readonly subStage?: ATSSubStage,
     public readonly createdAt: Date = new Date(),
-  ) {}
+    public readonly updatedAt: Date = new Date(),
+  ) { }
 
   static create(data: {
     id: string;
@@ -21,6 +22,7 @@ export class ATSComment {
     stage: ATSStage;
     subStage?: ATSSubStage;
     createdAt?: Date;
+    updatedAt?: Date;
   }): ATSComment {
     return new ATSComment(
       data.id,
@@ -31,6 +33,7 @@ export class ATSComment {
       data.stage,
       data.subStage,
       data.createdAt ?? new Date(),
+      data.updatedAt ?? new Date(),
     );
   }
 }

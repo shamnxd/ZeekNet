@@ -145,12 +145,12 @@ function App() {
               <SubscriptionPlanManagement />
             </ProtectedRoute>
           } />
-          <Route path="/admin/company-profile-view" element={
+          <Route path="/admin/company-profile-view/:id" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <CompanyProfileView />
             </ProtectedRoute>
           } />
-          <Route path="/admin/seeker-profile-view" element={
+          <Route path="/admin/seeker-profile-view/:id" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <SeekerProfileView />
             </ProtectedRoute>

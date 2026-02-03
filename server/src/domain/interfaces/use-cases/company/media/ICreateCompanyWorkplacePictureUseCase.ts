@@ -1,7 +1,10 @@
-import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
-import { CreateCompanyWorkplacePicturesRequestDto } from 'src/application/dtos/company/media/requests/company-workplace-pictures.dto';
+import { CompanyWorkplacePictureResponseDto } from 'src/application/dtos/company/media/responses/company-workplace-picture-response.dto';
 
 export interface ICreateCompanyWorkplacePictureUseCase {
-  execute(data: CreateCompanyWorkplacePicturesRequestDto): Promise<CompanyWorkplacePictures>;
+  execute(data: {
+    userId: string;
+    pictureUrl: string;
+    caption?: string;
+  }): Promise<CompanyWorkplacePictureResponseDto>;
 }
 

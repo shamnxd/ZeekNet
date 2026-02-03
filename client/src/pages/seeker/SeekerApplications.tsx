@@ -1,4 +1,4 @@
-import { Calendar, ChevronLeft, ChevronRight, MoreHorizontal, Search, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Eye } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -8,16 +8,23 @@ import type { ApiError } from '@/types/api-error.type'
 import { useNavigate } from 'react-router-dom'
 
 import { ApplicationStage } from '@/constants/enums'
-
-import type { Stage } from '@/interfaces/application/stage.type';
 import type { Application } from '@/interfaces/application/application.interface';
 
-const stageStyles: Record<Stage, string> = {
+const stageStyles: Record<string, string> = {
   [ApplicationStage.APPLIED]: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',
   [ApplicationStage.SHORTLISTED]: 'border-[#34d39933] text-[#047857] bg-[#dcfce7]/70',
   [ApplicationStage.INTERVIEW]: 'border-[#fb923c33] text-[#c2410c] bg-[#ffedd5]/70',
   [ApplicationStage.REJECTED]: 'border-[#f8717133] text-[#b91c1c] bg-[#fee2e2]/70',
   [ApplicationStage.HIRED]: 'border-[#4f46e533] text-[#4338ca] bg-[#e0e7ff]/70',
+  APPLIED: 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70',
+  IN_REVIEW: 'border-[#9ca3af] text-[#4b5563] bg-[#f3f4f6]/70',
+  SHORTLISTED: 'border-[#34d39933] text-[#047857] bg-[#dcfce7]/70',
+  INTERVIEW: 'border-[#fb923c33] text-[#c2410c] bg-[#ffedd5]/70',
+  TECHNICAL_TASK: 'border-[#ec489933] text-[#be185d] bg-[#fce7f3]/70',
+  COMPENSATION: 'border-[#f59e0b33] text-[#b45309] bg-[#fffbeb]/70',
+  OFFER: 'border-[#10b98133] text-[#047857] bg-[#d1fae5]/70',
+  HIRED: 'border-[#4f46e533] text-[#4338ca] bg-[#e0e7ff]/70',
+  REJECTED: 'border-[#f8717133] text-[#b91c1c] bg-[#fee2e2]/70',
 }
 
 function SeekerApplications() {
@@ -25,7 +32,8 @@ function SeekerApplications() {
   const [items, setItems] = useState<Application[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [stage, setStage] = useState<Stage | undefined>(undefined)
+  const [stage, setStage] = useState<string | undefined>(undefined)
+  const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
   const [limit] = useState(10)
   const [total, setTotal] = useState(0)
@@ -37,7 +45,7 @@ function SeekerApplications() {
       try {
         setLoading(true)
         setError(null)
-        const res = await jobApplicationApi.getSeekerApplications({ stage, page, limit })
+        const res = await jobApplicationApi.getSeekerApplications({ stage, search: searchQuery || undefined, page, limit })
         const data = res?.data?.data || res?.data
         setItems(data?.applications || [])
         setTotal(data?.pagination?.total || 0)
@@ -51,16 +59,17 @@ function SeekerApplications() {
       }
     }
     fetchData()
-  }, [stage, page, limit])
+  }, [stage, searchQuery, page, limit])
 
   const tabs = [
     { label: 'All', key: undefined },
+    { label: 'In Review', key: 'in_review' },
     { label: 'Applied', key: ApplicationStage.APPLIED },
     { label: 'Shortlisted', key: ApplicationStage.SHORTLISTED },
     { label: 'Interview', key: ApplicationStage.INTERVIEW },
     { label: 'Rejected', key: ApplicationStage.REJECTED },
     { label: 'Hired', key: ApplicationStage.HIRED },
-  ] as { label: string; key: Stage | undefined }[]
+  ] as { label: string; key: string | undefined }[]
 
   return (
     <div className="px-8 xl:px-11 py-9 space-y-6 bg-[#f8f9ff] min-h-screen">
@@ -70,10 +79,6 @@ function SeekerApplications() {
           <p className="text-[14px] text-[#6b7280]">Track your application progress</p>
         </div>
 
-        <button className="inline-flex items-center gap-2 rounded-xl border border-[#e5e7eb] bg-white px-4 py-3 text-[13px] font-semibold text-[#374151] shadow-sm transition-all duration-200 hover:border-[#c7d2fe] hover:bg-[#f0f4ff]">
-          <Calendar className="h-4 w-4 text-[#4640de]" />
-          {new Date().toLocaleDateString()}
-        </button>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white shadow-sm">
@@ -88,6 +93,8 @@ function SeekerApplications() {
                   className="w-full bg-transparent text-[#1f2937] placeholder:text-[#9ca3af] focus:outline-none"
                   type="search"
                   placeholder="Search applications"
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                 />
               </div>
             </div>
@@ -164,29 +171,24 @@ function SeekerApplications() {
                     {application?.stage ? (
                       <Badge
                         variant="outline"
-                        className={cn('rounded-full border px-3 py-1 text-[12px] font-semibold', stageStyles[application.stage as Stage])}
+                        className={cn('rounded-full border px-3 py-1 text-[12px] font-semibold', stageStyles[String(application.stage ?? '')] ?? 'border-[#d1d5db] text-[#374151] bg-[#f3f4f6]/70')}
                       >
-                        {(application.stage as string).charAt(0).toUpperCase() + (application.stage as string).slice(1)}
+                        {(String(application.stage || '') === 'IN_REVIEW' || String(application.stage || '') === 'in_review') ? 'IN_REVIEW' : (String(application.stage || '').charAt(0).toUpperCase() + String(application.stage || '').slice(1).toLowerCase().replace(/_/g, ' '))}
                       </Badge>
                     ) : (
                       '-'
                     )}
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {appId && (
-                        <button
-                          onClick={() => navigate(`/seeker/applications/${appId}`)}
-                          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-[13px] font-medium text-[#4640de] transition-all hover:bg-[#eef2ff] hover:border-[#4640de]"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View Details
-                        </button>
-                      )}
-                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#6b7280] transition-all hover:bg-[#eef2ff] hover:text-[#4640de]">
-                        <MoreHorizontal className="h-5 w-5" />
+                    {appId && (
+                      <button
+                        onClick={() => navigate(`/seeker/applications/${appId}`)}
+                        className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white px-3 text-[13px] font-medium text-[#4640de] transition-all hover:bg-[#eef2ff] hover:border-[#4640de]"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View Details
                       </button>
-                    </div>
+                    )}
                   </td>
                 </tr>
               )})}

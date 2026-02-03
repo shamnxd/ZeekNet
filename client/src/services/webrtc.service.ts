@@ -4,8 +4,9 @@ export interface WebRTCCallbacks {
   onRemoteStream?: (stream: MediaStream) => void;
   onConnectionStateChange?: (state: RTCPeerConnectionState) => void;
   onError?: (error: Error) => void;
-  onUserJoined?: (userId: string) => void;
+  onUserJoined?: (userId: string, userName?: string) => void;
   onUserLeft?: () => void;
+  onMediaToggle?: (data: { type: 'video' | 'audio'; enabled: boolean }) => void;
 }
 
 export class WebRTCService {
@@ -15,9 +16,9 @@ export class WebRTCService {
   private roomId: string | null = null;
   private callbacks: WebRTCCallbacks = {};
   private socket: ReturnType<typeof socketService.getSocket> | null = null;
+  private userName: string | null = null;
 
   constructor() {
-    
   }
 
 
@@ -38,6 +39,10 @@ export class WebRTCService {
     socket.on('webrtc:ice-candidate', this.handleIceCandidate);
     socket.on('webrtc:user-joined', this.handleUserJoined);
     socket.on('webrtc:user-left', this.handleUserLeftData);
+    socket.on('webrtc:media-toggle', (data: { type: 'video' | 'audio'; enabled: boolean }) => {
+      console.log('Remote media toggle:', data);
+      this.callbacks.onMediaToggle?.(data);
+    });
   }
 
   private cleanupSocketListeners(): void {
@@ -48,10 +53,11 @@ export class WebRTCService {
     this.socket.off('webrtc:ice-candidate', this.handleIceCandidate);
     this.socket.off('webrtc:user-joined', this.handleUserJoined);
     this.socket.off('webrtc:user-left', this.handleUserLeftData);
+    this.socket.off('webrtc:media-toggle');
   }
 
   
-  private async handleOffer(data: { offer: RTCSessionDescriptionInit; socketId: string }) {
+  private async handleOffer(data: { offer: RTCSessionDescriptionInit; socketId: string; userName?: string }) {
       if (!this.peerConnection) return;
       
       console.log('Received Offer from', data.socketId);
@@ -60,6 +66,9 @@ export class WebRTCService {
 
       try {
         console.log('Setting Remote Description (Offer)...');
+        if (data.userName) {
+          this.callbacks.onUserJoined?.('', data.userName);
+        }
         await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
         
         console.log('Creating Answer...');
@@ -74,6 +83,7 @@ export class WebRTCService {
           roomId: this.roomId,
           answer: answer,
           targetSocketId: data.socketId,
+          userName: this.userName,
         });
       } catch (error) {
         console.error('Error handling offer:', error);
@@ -81,7 +91,7 @@ export class WebRTCService {
       }
   }
 
-  private async handleAnswer(data: { answer: RTCSessionDescriptionInit; socketId: string }) {
+  private async handleAnswer(data: { answer: RTCSessionDescriptionInit; socketId: string; userName?: string }) {
       if (!this.peerConnection) return;
       
       console.log('Received Answer from', data.socketId);
@@ -97,6 +107,9 @@ export class WebRTCService {
 
       try {
         console.log('Setting Remote Description (Answer)...');
+        if (data.userName) {
+          this.callbacks.onUserJoined?.('', data.userName);
+        }
         await this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
         console.log('Remote Description Set. Connection should be stable.');
       } catch (error) {
@@ -116,9 +129,9 @@ export class WebRTCService {
       }
   }
 
-  private handleUserJoined(data: { socketId: string; userId: string }) {
+  private handleUserJoined(data: { socketId: string; userId: string; userName?: string }) {
       console.log('User joined room:', data);
-      this.callbacks.onUserJoined?.(data.userId);
+      this.callbacks.onUserJoined?.(data.userId, data.userName);
   }
 
   private handleUserLeftData(data: { socketId: string }) {
@@ -131,7 +144,7 @@ export class WebRTCService {
 
   private initializationId: number = 0;
 
-  async initialize(roomId: string, callbacks: WebRTCCallbacks): Promise<void> {
+  async initialize(roomId: string, callbacks: WebRTCCallbacks, userName?: string): Promise<void> {
     
     this.disconnect(); 
     
@@ -140,6 +153,8 @@ export class WebRTCService {
 
     this.roomId = roomId;
     this.callbacks = callbacks;
+    this.userName = userName || null;
+    this.remoteStream = null; // Reset remote stream on new initialization
     
     
     this.socket = socketService.getSocket();
@@ -173,15 +188,33 @@ export class WebRTCService {
 
     
     this.peerConnection.ontrack = (event) => {
-      if (event.streams[0]) {
-        this.remoteStream = event.streams[0];
-        this.callbacks.onRemoteStream?.(event.streams[0]);
+      console.log('Remote track received:', event.track.kind, 'streams:', event.streams.length);
+      
+      if (!this.remoteStream) {
+        this.remoteStream = new MediaStream();
+        this.remoteStream.addTrack(event.track);
+        this.callbacks.onRemoteStream?.(this.remoteStream);
+      } else {
+        this.remoteStream.addTrack(event.track);
       }
+
+      event.track.onmute = () => {
+        console.log('Remote track muted:', event.track.kind);
+        this.callbacks.onMediaToggle?.({ type: event.track.kind as 'video' | 'audio', enabled: false });
+      };
+      
+      event.track.onunmute = () => {
+        console.log('Remote track unmuted:', event.track.kind);
+        this.callbacks.onMediaToggle?.({ type: event.track.kind as 'video' | 'audio', enabled: true });
+      };
+
+      console.log('Track added to remote stream. Total tracks:', this.remoteStream.getTracks().length);
     };
 
     
     this.peerConnection.onconnectionstatechange = () => {
       if (this.peerConnection) {
+        console.log('Peer Connection State changed:', this.peerConnection.connectionState);
         this.callbacks.onConnectionStateChange?.(this.peerConnection.connectionState);
       }
     };
@@ -202,25 +235,11 @@ export class WebRTCService {
 
       this.localStream = stream;
 
-      
-      
       if (this.peerConnection) {
-        const audioTrack = this.localStream.getAudioTracks()[0];
-        const videoTrack = this.localStream.getVideoTracks()[0];
-
-        
-        if (audioTrack) {
-          this.peerConnection.addTransceiver(audioTrack, { direction: 'sendrecv', streams: [this.localStream] });
-        } else {
-          this.peerConnection.addTransceiver('audio', { direction: 'sendrecv' });
-        }
-
-        
-        if (videoTrack) {
-          this.peerConnection.addTransceiver(videoTrack, { direction: 'sendrecv', streams: [this.localStream] });
-        } else {
-          this.peerConnection.addTransceiver('video', { direction: 'sendrecv' });
-        }
+        this.localStream.getTracks().forEach(track => {
+          console.log('Adding local track to peer connection:', track.kind);
+          this.peerConnection?.addTrack(track, this.localStream!);
+        });
       }
 
     } catch (error) {
@@ -231,21 +250,26 @@ export class WebRTCService {
 
     
     if (this.socket) {
-      this.socket.emit('webrtc:join-room', { roomId }, (response: { success: boolean; participants?: number }) => {
+      this.socket.emit('webrtc:join-room', { roomId, userName }, (response: { success: boolean; participants?: number; message?: string }) => {
         
         if (this.initializationId !== currentInitId) return;
 
         if (response.success) {
           console.log(`Joined room ${roomId}, participants: ${response.participants || 0}`);
           
-          
-          
           if (response.participants && response.participants > 0) {
-            console.log('Other participants found, initiating call...');
-            this.createOffer();
+            console.log('Other participants found, initiating call in 1 second...');
+            setTimeout(() => {
+              if (this.initializationId === currentInitId) {
+                this.createOffer();
+              }
+            }, 1000);
           } else {
             console.log('No other participants, waiting for connection...');
           }
+        } else {
+          console.error('Failed to join room:', response.message);
+          this.callbacks.onError?.(new Error(response.message || 'Failed to join room'));
         }
       });
     }
@@ -266,6 +290,7 @@ export class WebRTCService {
       this.socket.emit('webrtc:offer', {
         roomId: this.roomId,
         offer: offer,
+        userName: this.userName,
       });
     } catch (error) {
       console.error('Error creating offer:', error);
@@ -282,6 +307,15 @@ export class WebRTCService {
     const videoTrack = this.localStream.getVideoTracks()[0];
     if (videoTrack) {
       videoTrack.enabled = !videoTrack.enabled;
+      
+      if (this.socket && this.roomId) {
+        this.socket.emit('webrtc:media-toggle', {
+          roomId: this.roomId,
+          type: 'video',
+          enabled: videoTrack.enabled
+        });
+      }
+      
       return videoTrack.enabled;
     }
     return false;
@@ -293,6 +327,15 @@ export class WebRTCService {
     const audioTrack = this.localStream.getAudioTracks()[0];
     if (audioTrack) {
       audioTrack.enabled = !audioTrack.enabled;
+
+      if (this.socket && this.roomId) {
+        this.socket.emit('webrtc:media-toggle', {
+          roomId: this.roomId,
+          type: 'audio',
+          enabled: audioTrack.enabled
+        });
+      }
+
       return audioTrack.enabled;
     }
     return false;

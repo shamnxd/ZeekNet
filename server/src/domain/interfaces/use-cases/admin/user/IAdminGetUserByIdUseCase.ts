@@ -1,5 +1,5 @@
-import { User } from 'src/domain/entities/user.entity';
+import { UserResponseDto } from 'src/application/dtos/auth/user/user-response.dto';
 
 export interface IAdminGetUserByIdUseCase {
-  execute(userId: string): Promise<User>;
+  execute(userId: string): Promise<UserResponseDto>;
 }

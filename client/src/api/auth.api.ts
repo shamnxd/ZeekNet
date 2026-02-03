@@ -26,6 +26,13 @@ export const authApi = {
     })).data;
   },
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<ApiEnvelope<void>> {
+    return (await api.post<ApiEnvelope<void>>(AuthRoutes.CHANGE_PASSWORD, {
+      currentPassword,
+      newPassword,
+    })).data;
+  },
+
   async requestOtp(email: string): Promise<ApiEnvelope<void>> {
     return (await api.post<ApiEnvelope<void>>(AuthRoutes.OTP_REQUEST, { email })).data;
   },

@@ -15,7 +15,7 @@ export const useJobDetails = () => {
     const [loading, setLoading] = useState(true);
     const [applications, setApplications] = useState<CompanySideApplication[]>([]);
     const [applicationsLoading, setApplicationsLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'applicants' | 'details' | 'analytics'>('details');
+    const [activeTab, setActiveTab] = useState<'applicants' | 'details'>('details');
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [stageFilter, setStageFilter] = useState<StageFilter>('all');
@@ -56,8 +56,7 @@ export const useJobDetails = () => {
 
             try {
                 setApplicationsLoading(true);
-                const response = await jobApplicationApi.getCompanyApplications({
-                    job_id: id,
+                const response = await jobApplicationApi.getJobApplications(id, {
                     limit: 100,
                 });
 
@@ -140,7 +139,7 @@ export const useJobDetails = () => {
         }
     );
 
-    
+
     const analyticsDefaults: AnalyticsData = {
         totalViews: 23564,
         totalViewsChange: 6.4,
@@ -264,23 +263,23 @@ export const useJobDetails = () => {
         loading,
         activeTab,
         setActiveTab,
-        
-        
+
+
         searchTerm,
         setSearchTerm,
         stageFilter,
         setStageFilter,
         applicationsLoading,
         filteredApplicants,
-        normalizeStage, 
-        
-        
+        normalizeStage,
+
+
         stageCounts,
         getEmploymentType,
         formatSalary,
         formatDate,
 
-        
+
         viewRange,
         setViewRange,
         analyticsData,

@@ -3,21 +3,27 @@ import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/see
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IPaymentOrderRepository } from 'src/domain/interfaces/repositories/payment/IPaymentOrderRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { AdminDashboardStatsDto } from './dto/get-admin-dashboard-stats.dto';
+import { AdminDashboardStatsResponseDto } from 'src/application/dtos/admin/analytics/responses/admin-dashboard-stats-response.dto';
+import { IGetAdminDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IGetAdminDashboardStatsUseCase';
+import { GetAdminDashboardStatsQueryDto } from 'src/application/dtos/admin/analytics/requests/get-admin-dashboard-stats-query.dto';
 
-export class GetAdminDashboardStatsUseCase {
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+
+export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUseCase {
   constructor(
-    private companyRepository: ICompanyProfileRepository,
-    private seekerRepository: ISeekerProfileRepository,
-    private jobRepository: IJobPostingRepository,
-    private paymentRepository: IPaymentOrderRepository,
-    private userRepository: IUserRepository,
-  ) {}
+    private _companyRepository: ICompanyProfileRepository,
+    private _seekerRepository: ISeekerProfileRepository,
+    private _jobRepository: IJobPostingRepository,
+    private _paymentRepository: IPaymentOrderRepository,
+    private _userRepository: IUserRepository,
+    private _s3Service: IS3Service,
+  ) { }
 
-  async execute(period: 'day' | 'week' | 'month' | 'year' = 'month', startDate?: Date, endDate?: Date): Promise<AdminDashboardStatsDto> {
+  async execute(query: GetAdminDashboardStatsQueryDto): Promise<AdminDashboardStatsResponseDto> {
+    const { period, startDate, endDate } = query;
     const [
       totalCompanies,
-      pendingCompanies,
+      pendingCompaniesCount,
       totalCandidates,
       totalJobs,
       activeJobs,
@@ -26,29 +32,22 @@ export class GetAdminDashboardStatsUseCase {
       earningsOverview,
       recentJobs,
       recentOrders,
-      totalVerifiedUsers
+      totalVerifiedUsers,
+      pendingCompaniesData,
     ] = await Promise.all([
-      this.companyRepository.countTotal(),
-      this.companyRepository.countByVerificationStatus('pending'),
-      this.userRepository.countByRole('seeker'),
-      this.jobRepository.countTotal(),
-      this.jobRepository.countActive(),
-      this.jobRepository.countExpired(),
-      this.paymentRepository.sumTotalEarnings(),
-      this.paymentRepository.getEarningsByPeriod(period, startDate, endDate),
-      this.jobRepository.findRecent(5),
-      this.paymentRepository.findRecent(5),
-      this.userRepository.countVerified()
+      this._companyRepository.countTotal(),
+      this._companyRepository.countByVerificationStatus('pending'),
+      this._userRepository.countByRole('seeker'),
+      this._jobRepository.countTotal(),
+      this._jobRepository.countActive(),
+      this._jobRepository.countExpired(),
+      this._paymentRepository.sumTotalEarnings(),
+      this._paymentRepository.getEarningsByPeriod(period, startDate, endDate),
+      this._jobRepository.findRecent(5),
+      this._paymentRepository.findRecent(5),
+      this._userRepository.countVerified(),
+      this._companyRepository.getAllCompanies({ page: 1, limit: 5, isVerified: 'pending' }),
     ]);
-
-    // Mock Location Data (since we don't have real location aggregation yet)
-    const popularLocation = [
-      { name: 'United States', percentage: 25 },
-      { name: 'United Kingdom', percentage: 18 },
-      { name: 'India', percentage: 15 },
-      { name: 'Canada', percentage: 12 },
-      { name: 'Germany', percentage: 10 }
-    ];
 
     return {
       stats: {
@@ -58,19 +57,37 @@ export class GetAdminDashboardStatsUseCase {
         totalVerifiedUsers,
         activeJobs,
         expiredJobs,
-        pendingCompanies,
-        allJobs: totalJobs
+        pendingCompanies: pendingCompaniesCount,
+        allJobs: totalJobs,
       },
       charts: {
         earningsOverview,
-        popularLocation
       },
+      pendingCompanies: await Promise.all(
+        pendingCompaniesData.companies.map(async (c) => {
+          let logo = c.logo || '';
+          if (logo && !logo.startsWith('http')) {
+            try {
+              logo = await this._s3Service.getSignedUrl(logo);
+            } catch (error) {
+              console.error(`Failed to sign logo for company ${c.id}:`, error);
+            }
+          }
+          return {
+            id: c.id,
+            companyName: c.companyName,
+            logo,
+            industry: c.industry || 'Other',
+          };
+        }),
+      ),
       recentJobs: recentJobs.map(job => ({
+        id: job.id,
         title: job.title,
-        experience: 'Not specified', 
+        experience: 'Not specified',
         jobType: job.employmentTypes?.[0] || 'Full-time',
         companyName: job.companyName || 'Unknown',
-        postedAt: job.createdAt || new Date()
+        postedAt: job.createdAt || new Date(),
       })),
       recentOrders: recentOrders.map(order => ({
         orderNo: `#${(order.id || '').slice(0, 8)}`,
@@ -78,8 +95,8 @@ export class GetAdminDashboardStatsUseCase {
         planName: 'Standard Plan',
         paymentProvider: 'Stripe',
         paymentStatus: order.status,
-        createdTime: order.createdAt || new Date()
-      }))
+        createdTime: order.createdAt || new Date(),
+      })),
     };
   }
 }

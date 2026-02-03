@@ -1,3 +1,5 @@
+import { BlockUserRequestDto } from 'src/application/dtos/admin/user/requests/block-user-request.dto';
+
 export interface IBlockUserUseCase {
-  execute(userId: string, isBlocked: boolean): Promise<void>;
+  execute(params: BlockUserRequestDto): Promise<void>;
 }

@@ -22,7 +22,7 @@ export const ApplicationProgressTab: React.FC<ApplicationProgressTabProps> = ({
 }) => {
     return (
         <div className="space-y-6">
-            {}
+            { }
             <div>
                 <div className="flex items-center justify-between mb-5">
                     <h3 className="text-lg font-semibold text-[#25324B]">Current Stage</h3>
@@ -38,7 +38,7 @@ export const ApplicationProgressTab: React.FC<ApplicationProgressTabProps> = ({
                     )}
                 </div>
 
-                {}
+                { }
                 {(() => {
                     const stageOrder = ['in-review', 'shortlisted', 'interview', 'hired/declined'] as const;
                     const mapStageToIndex: Record<string, number> = {
@@ -64,7 +64,7 @@ export const ApplicationProgressTab: React.FC<ApplicationProgressTabProps> = ({
                     );
                 })()}
 
-                {}
+                { }
                 {application.stage !== 'hired' && application.stage !== 'rejected' && (
                     <div className="bg-white border border-[#D6DDEB] rounded-lg p-5">
                         <h4 className="text-base font-semibold text-[#25324B] mb-4">Stage Info</h4>
@@ -151,7 +151,7 @@ export const ApplicationProgressTab: React.FC<ApplicationProgressTabProps> = ({
 
             <div className="h-px bg-[#D6DDEB]"></div>
 
-            {}
+            { }
             <div>
                 <div className="space-y-4">
                     {application.hiring_progress?.notes && application.hiring_progress.notes.length > 0 ? (

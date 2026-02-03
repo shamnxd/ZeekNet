@@ -37,16 +37,16 @@ export class JobPostingMapper {
       ATSStage.OFFER,
     ];
     let enabledStages = data.enabledStages || defaultEnabledStages;
-    
-    
+
+
     if (!enabledStages.includes(ATSStage.OFFER)) {
       enabledStages = [...enabledStages, ATSStage.OFFER];
     }
-    
-    
+
+
     const atsPipelineConfig: ATSPipelineConfig = {};
     enabledStages.forEach((stage) => {
-      
+
       if (STAGE_TO_SUB_STAGES[stage]) {
         atsPipelineConfig[stage] = [...STAGE_TO_SUB_STAGES[stage]];
       }
@@ -83,8 +83,8 @@ export class JobPostingMapper {
     return {
       id: jobPosting.id,
       company_id: jobPosting.companyId,
-      company_name: companyData?.companyName,
-      company_logo: companyData?.logo,
+      company_name: companyData?.companyName || jobPosting.companyName,
+      company_logo: companyData?.logo || jobPosting.companyLogo,
       title: jobPosting.title,
       description: jobPosting.description,
       responsibilities: jobPosting.responsibilities,
@@ -113,14 +113,14 @@ export class JobPostingMapper {
 
   static toDetailedResponse(
     jobPosting: JobPosting,
-    companyData?: { 
-      companyName: string; 
-      logo: string; 
+    companyData?: {
+      companyName: string;
+      logo: string;
       organisation: string;
       employeeCount: number;
       websiteLink: string;
-      aboutUs?: string; 
-      workplacePictures?: Array<{ pictureUrl: string; caption?: string }> 
+      aboutUs?: string;
+      workplacePictures?: Array<{ pictureUrl: string; caption?: string }>
     },
   ): JobPostingDetailResponseDto {
     const baseDto = this.toResponse(jobPosting, companyData);
@@ -150,8 +150,8 @@ export class JobPostingMapper {
       createdAt: baseDto.createdAt instanceof Date ? baseDto.createdAt.toISOString() : baseDto.createdAt,
       updatedAt: baseDto.updatedAt instanceof Date ? baseDto.updatedAt.toISOString() : baseDto.updatedAt,
       company: {
-        companyName: companyData?.companyName || '',
-        logo: companyData?.logo || '',
+        companyName: companyData?.companyName || jobPosting.companyName || '',
+        logo: companyData?.logo || jobPosting.companyLogo || '',
         organisation: companyData?.organisation || 'Unknown',
         employeeCount: companyData?.employeeCount || 0,
         websiteLink: companyData?.websiteLink || '',
@@ -183,6 +183,7 @@ export class JobPostingMapper {
       createdAt: jobPosting.createdAt,
       employmentTypes: jobPosting.employmentTypes,
       categoryIds: jobPosting.categoryIds,
+      companyLogo: jobPosting.companyLogo,
     };
   }
 

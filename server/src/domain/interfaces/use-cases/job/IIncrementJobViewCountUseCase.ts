@@ -1,4 +1,5 @@
+import { IncrementJobViewCountDto } from 'src/application/dtos/job/requests/increment-view.dto';
 
 export interface IIncrementJobViewCountUseCase {
-  execute(id: string, userRole?: string): Promise<void>;
+  execute(dto: IncrementJobViewCountDto): Promise<void>;
 }

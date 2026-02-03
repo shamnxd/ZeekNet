@@ -12,7 +12,13 @@ import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mo
 import { PaymentOrderRepository } from 'src/infrastructure/persistence/mongodb/repositories/payment-order.repository';
 import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
 import { PriceHistoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/price-history.repository';
+import { CompanyContactRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-contact.repository';
+import { CompanyOfficeLocationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyTechStackRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
 import { stripeService } from 'src/infrastructure/di/companyDi';
+import { getSeekerProfileUseCase } from 'src/infrastructure/di/seekerDi';
 import { GetAllUsersUseCase } from 'src/application/use-cases/admin/user/get-all-users.use-case';
 import { BlockUserUseCase } from 'src/application/use-cases/admin/user/block-user.use-case';
 import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
@@ -46,7 +52,8 @@ import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/s
 import { MigratePlanSubscribersUseCase } from 'src/application/use-cases/admin/subscription/migrate-plan-subscribers.use-case';
 import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
-import { AdminController } from 'src/presentation/controllers/admin/admin.controller';
+import { AdminUserController } from 'src/presentation/controllers/admin/admin-user.controller';
+import { AdminCompanyController } from 'src/presentation/controllers/admin/admin-company.controller';
 import { AdminJobController } from 'src/presentation/controllers/admin/admin-job.controller';
 import { AdminJobCategoryController } from 'src/presentation/controllers/admin/admin-job-category.controller';
 import { AdminSkillController } from 'src/presentation/controllers/admin/admin-skill.controller';
@@ -57,7 +64,7 @@ import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companie
 import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
 import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
 import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
-import { AdminDashboardController } from 'src/interface-adapters/controllers/admin/dashboard.controller';
+import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
 
 logger.info('Initializing adminDi...');
 const userRepository = new UserRepository();
@@ -73,10 +80,15 @@ const companySubscriptionRepository = new CompanySubscriptionRepository();
 const paymentOrderRepository = new PaymentOrderRepository();
 const priceHistoryRepository = new PriceHistoryRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
+const companyContactRepository = new CompanyContactRepository();
+const companyOfficeLocationRepository = new CompanyOfficeLocationRepository();
+const companyTechStackRepository = new CompanyTechStackRepository();
+const companyBenefitsRepository = new CompanyBenefitsRepository();
+const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
 
 const s3Service = new S3Service();
 
-const getAllUsersUseCase = new GetAllUsersUseCase(userRepository);
+const getAllUsersUseCase = new GetAllUsersUseCase(userRepository, seekerProfileRepository, s3Service);
 
 import { notificationService } from 'src/infrastructure/di/notificationDi';
 
@@ -86,7 +98,7 @@ import { notificationService } from 'src/infrastructure/di/notificationDi';
 
 const blockUserUseCase = new BlockUserUseCase(userRepository, notificationService);
 
-const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository);
+const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository, getSeekerProfileUseCase);
 
 const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileRepository, s3Service);
 
@@ -96,11 +108,21 @@ const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationReposit
 
 const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
 
-const getCompanyByIdUseCase = new GetCompanyByIdUseCase(getCompaniesWithVerificationUseCase);
+const getCompanyByIdUseCase = new GetCompanyByIdUseCase(
+  companyProfileRepository,
+  companyVerificationRepository,
+  jobPostingRepository,
+  companyContactRepository,
+  companyOfficeLocationRepository,
+  companyTechStackRepository,
+  companyBenefitsRepository,
+  companyWorkplacePicturesRepository,
+  s3Service,
+);
 
-const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository);
+const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository, s3Service);
 
-const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository);
+const adminGetJobByIdUseCase = new AdminGetJobByIdUseCase(jobPostingRepository, s3Service);
 
 const adminUpdateJobStatusUseCase = new AdminUpdateJobStatusUseCase(jobPostingRepository);
 
@@ -114,7 +136,9 @@ const getJobCategoryByIdUseCase = new GetJobCategoryByIdUseCase(jobCategoryRepos
 const updateJobCategoryUseCase = new UpdateJobCategoryUseCase(jobCategoryRepository);
 const deleteJobCategoryUseCase = new DeleteJobCategoryUseCase(jobCategoryRepository);
 
-const adminController = new AdminController(getAllUsersUseCase, blockUserUseCase, adminGetUserByIdUseCase, getAllCompaniesUseCase, getCompaniesWithVerificationUseCase, verifyCompanyUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase);
+const adminUserController = new AdminUserController(getAllUsersUseCase, adminGetUserByIdUseCase, blockUserUseCase);
+
+const adminCompanyController = new AdminCompanyController(getAllCompaniesUseCase, getPendingCompaniesUseCase, getCompanyByIdUseCase, verifyCompanyUseCase);
 
 const adminJobController = new AdminJobController(adminGetAllJobsUseCase, adminGetJobByIdUseCase, adminUpdateJobStatusUseCase, adminDeleteJobUseCase, adminGetJobStatsUseCase);
 
@@ -141,7 +165,7 @@ const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscr
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
 const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const mailerService = new NodemailerService();
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 
 const emailTemplateService = new EmailTemplateService();
 
@@ -173,13 +197,15 @@ const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(
   seekerProfileRepository,
   jobPostingRepository,
   paymentOrderRepository,
-  userRepository
+  userRepository,
+  s3Service,
 );
 
 const adminDashboardController = new AdminDashboardController(getAdminDashboardStatsUseCase);
 
 export {
-  adminController,
+  adminUserController,
+  adminCompanyController,
   adminJobController,
   adminJobCategoryController,
   adminSkillController,

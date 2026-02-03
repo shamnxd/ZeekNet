@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import CompanyLayout from '@/components/layouts/CompanyLayout'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Loader2, Search, MapPin } from 'lucide-react'
+import { Loader2, Search, MapPin, Lock, Crown } from 'lucide-react'
 import { companyApi } from '@/api/company.api'
 import type { Candidate } from '@/api/company.api'
 import { useDebounce } from '@/hooks/useDebounce'
@@ -16,6 +16,7 @@ const FindCandidates = () => {
   const [location, setLocation] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [limitReached, setLimitReached] = useState(false)
   const navigate = useNavigate()
 
   const debouncedSearch = useDebounce(search, 500)
@@ -24,6 +25,7 @@ const FindCandidates = () => {
   const fetchCandidates = useCallback(async () => {
     try {
       setLoading(true)
+      setLimitReached(false)
       const response = await companyApi.getCandidates({
         page,
         limit: 12,
@@ -32,8 +34,13 @@ const FindCandidates = () => {
       })
       setCandidates(response.data?.candidates || [])
       setTotalPages(response.data?.totalPages || 1)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error)
+      const err = error as { response?: { data?: { message?: string } } };
+      if (err?.response?.data?.message?.includes('limit') || err?.response?.data?.message?.includes('subscription')) {
+        setLimitReached(true)
+        setCandidates([])
+      }
     } finally {
       setLoading(false)
     }
@@ -54,8 +61,8 @@ const FindCandidates = () => {
         <div className="flex gap-4 flex-col md:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input 
-              placeholder="Search by name, skills, or headline..." 
+            <Input
+              placeholder="Search by name, skills, or headline..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 bg-white"
@@ -63,8 +70,8 @@ const FindCandidates = () => {
           </div>
           <div className="relative w-full md:w-64">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input 
-              placeholder="Location..." 
+            <Input
+              placeholder="Location..."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="pl-9 bg-white"
@@ -75,6 +82,29 @@ const FindCandidates = () => {
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : limitReached ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 max-w-md w-full border-2 border-amber-200 shadow-lg">
+              <div className="flex justify-center mb-4">
+                <div className="bg-amber-100 p-4 rounded-full">
+                  <Lock className="h-8 w-8 text-amber-600" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
+                Candidate View Limit Reached
+              </h2>
+              <p className="text-gray-600 text-center mb-6">
+                You've reached your monthly candidate view limit. Upgrade your subscription to continue discovering talented professionals.
+              </p>
+              <Button
+                onClick={() => navigate('/company/subscription')}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-6 text-lg shadow-md"
+              >
+                <Crown className="h-5 w-5 mr-2" />
+                Upgrade Subscription
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -122,33 +152,33 @@ const FindCandidates = () => {
                 </div>
               </div>
             ))}
-            
-            {candidates.length === 0 && (
-                <div className="col-span-full text-center py-12 text-gray-500">
-                    No candidates found matching your criteria.
-                </div>
+
+            {candidates.length === 0 && !limitReached && (
+              <div className="col-span-full text-center py-12 text-gray-500">
+                No candidates found matching your criteria.
+              </div>
             )}
-            
+
             {candidates.length > 0 && (
-                <div className="col-span-full flex justify-center gap-2 mt-8">
-                    <Button 
-                        variant="outline" 
-                        disabled={page === 1} 
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                    >
-                        Previous
-                    </Button>
-                    <span className="flex items-center px-4 text-sm text-gray-600">
-                        Page {page} of {totalPages}
-                    </span>
-                    <Button 
-                        variant="outline" 
-                        disabled={page >= totalPages} 
-                        onClick={() => setPage(p => p + 1)}
-                    >
-                        Next
-                    </Button>
-                </div>
+              <div className="col-span-full flex justify-center gap-2 mt-8">
+                <Button
+                  variant="outline"
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >
+                  Previous
+                </Button>
+                <span className="flex items-center px-4 text-sm text-gray-600">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(p => p + 1)}
+                >
+                  Next
+                </Button>
+              </div>
             )}
           </div>
         )}

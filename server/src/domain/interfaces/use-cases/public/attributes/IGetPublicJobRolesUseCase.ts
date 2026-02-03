@@ -1,4 +1,4 @@
 
 export interface IGetPublicJobRolesUseCase {
-  execute(): Promise<string[]>;
+  execute(search?: string, limit?: number): Promise<string[]>;
 }

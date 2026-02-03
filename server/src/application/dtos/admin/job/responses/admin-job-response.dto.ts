@@ -10,6 +10,7 @@ export interface AdminJobListItem {
   createdAt: Date;
   employmentTypes: string[];
   categoryIds: string[];
+  companyLogo?: string;
 }
 
 export interface AdminJobListResponseDto {

@@ -4,8 +4,6 @@ import { JobPostingModel, JobPostingDocument } from 'src/infrastructure/persiste
 import { Types } from 'mongoose';
 import { JobPostingMapper } from 'src/infrastructure/mappers/persistence/mongodb/job/job-posting.mapper';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
-import { CreateInput } from 'src/domain/types/common.types';
-
 
 
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
@@ -28,13 +26,13 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
 
     const document = await JobPostingModel.findById(id)
       .populate('company_id', 'companyName logo');
-    
+
     return document ? this.mapToEntity(document) : null;
   }
 
   async findByIds(ids: string[]): Promise<JobPosting[]> {
     const validIds = ids.filter(id => Types.ObjectId.isValid(id));
-    
+
     if (validIds.length === 0) {
       return [];
     }
@@ -49,7 +47,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   async postJob(job: JobPosting): Promise<JobPosting> {
     const document = new JobPostingModel({
       ...this.mapToDocument(job),
-      _id: new Types.ObjectId(job.id), 
+      _id: new Types.ObjectId(job.id),
     });
 
     const savedDoc = await document.save();
@@ -65,36 +63,27 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       salaryMax?: number;
       location?: string;
       search?: string;
+      isFeatured?: boolean;
     },
   ): Promise<Partial<JobPosting>[]> {
     const { CompanyProfileModel } = await import('../models/company-profile.model');
     const { UserModel } = await import('../models/user.model');
-    const { CompanySubscriptionModel } = await import('../models/company-subcription.model');
-    
+
+
     const blockedUsers = await UserModel.find({ isBlocked: true }).select('_id').lean();
     const blockedUserIds = blockedUsers.map(u => String(u._id));
-    
-    const blockedCompanies = await CompanyProfileModel.find({ 
+
+    const blockedCompanies = await CompanyProfileModel.find({
       userId: { $in: blockedUserIds },
     }).select('_id').lean();
     const blockedCompanyIds = blockedCompanies.map(c => c._id);
 
-    const expiredSubscriptions = await CompanySubscriptionModel.find({
-      isActive: true,
-      expiryDate: { $lt: new Date(), $gte: new Date('1900-01-01') },
-    }).select('companyId').lean();
-    const expiredCompanyIds = expiredSubscriptions.map(s => s.companyId);
-
     const andConditions: Record<string, unknown>[] = [
-      { status: { $in: ['active'] } }, 
+      { status: { $in: ['active'] } },
     ];
 
     if (blockedCompanyIds.length > 0) {
       andConditions.push({ company_id: { $nin: blockedCompanyIds } });
-    }
-
-    if (expiredCompanyIds.length > 0) {
-      andConditions.push({ company_id: { $nin: expiredCompanyIds } });
     }
 
     if (filters?.categoryIds && filters.categoryIds.length > 0) {
@@ -122,6 +111,10 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       andConditions.push({ location: { $regex: filters.location, $options: 'i' } });
     }
 
+    if (filters?.isFeatured !== undefined) {
+      andConditions.push({ is_featured: filters.isFeatured });
+    }
+
     if (filters?.search) {
       andConditions.push({
         $or: [
@@ -140,7 +133,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       ...projection,
       company_id: 1,
     }).populate('company_id', 'companyName logo');
-    
+
     let validJobs = documents.filter(doc => doc.company_id !== null);
 
     if (filters?.search && validJobs.length > 0) {
@@ -148,7 +141,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       validJobs = validJobs.filter(doc => {
         const plainDoc = doc.toObject();
         const companyData = plainDoc.company_id as { companyName?: string; logo?: string } | null;
-        
+
         return (
           plainDoc.title?.toLowerCase().includes(searchLower) ||
           plainDoc.description?.toLowerCase().includes(searchLower) ||
@@ -157,7 +150,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
         );
       });
     }
-    
+
     return validJobs.map((doc) => {
       const entity = this.mapToEntity(doc);
       return entity;
@@ -178,7 +171,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     if (documents.length === 0) {
       documents = await JobPostingModel.find(criteria);
     }
-    
+
     return documents.map((doc) => this.mapToEntity(doc));
   }
 
@@ -194,6 +187,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       category_ids: 1,
       createdAt: 1,
       company_id: 1,
+      is_featured: 1,
     };
 
     const documents = await JobPostingModel.find({}, projection)
@@ -225,11 +219,11 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
   }
 
   async countExpired(): Promise<number> {
-    return JobPostingModel.countDocuments({ 
+    return JobPostingModel.countDocuments({
       $or: [
         { status: 'expired' },
-        { closingDate: { $lt: new Date() } }
-      ]
+        { closingDate: { $lt: new Date() } },
+      ],
     });
   }
 
@@ -238,7 +232,20 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate('company_id', 'companyName logo');
-      
+
     return docs.map(doc => this.mapToEntity(doc));
+  }
+
+  async countJobsCreatedAfter(companyId: string, date: Date): Promise<number> {
+    if (!Types.ObjectId.isValid(companyId)) {
+      return 0;
+    }
+
+    const count = await JobPostingModel.countDocuments({
+      company_id: new Types.ObjectId(companyId),
+      createdAt: { $gte: date },
+    });
+
+    return count;
   }
 }

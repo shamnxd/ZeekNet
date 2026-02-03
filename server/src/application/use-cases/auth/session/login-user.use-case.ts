@@ -1,14 +1,15 @@
-import { LoginResponseDto } from 'src/application/dtos/auth/session/responses/login-response.dto';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
-import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
-import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
-import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
-import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/session/ILoginUserUseCase';
-import { AuthenticationError, AuthorizationError } from 'src/domain/errors/errors';
 import { UserRole } from 'src/domain/enums/user-role.enum';
-import { UserMapper } from 'src/application/mappers/auth/user.mapper';
+import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
+import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { AuthenticationError, AuthorizationError } from 'src/domain/errors/errors';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/session/ILoginUserUseCase';
+import { UserMapper } from 'src/application/mappers/auth/user.mapper';
+import { LoginRequestDto } from 'src/application/dtos/auth/session/login.dto';
+import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
 
 export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
@@ -18,9 +19,10 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+  ) { }
 
-  async execute(email: string, password: string): Promise<LoginResponseDto> {
+  async execute(params: LoginRequestDto): Promise<LoginResponseDto> {
+    const { email, password } = params;
     const user = await this._userRepository.findOne({ email });
     if (!user) {
       throw new AuthenticationError('Invalid credentials');

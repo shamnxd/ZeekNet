@@ -290,7 +290,15 @@ const CompanyChat: React.FC = () => {
         conversationId: selectedConversation.id,
         replyToMessageId: replyingTo?.id,
       })
-      .then(({ conversation }) => {
+      .then(({ conversation, message }) => {
+        // Optimistically add message to local state immediately
+        if (selectedConversationRef.current?.id === conversation.id) {
+          setMessages((prev) => {
+            const exists = prev.some((m) => m.id === message.id);
+            if (exists) return prev;
+            return [...prev, { ...message, conversationId: conversation.id } as UiMessage];
+          });
+        }
 
         setConversations((prev) => {
           const merged = prev.some((c) => c.id === conversation.id)

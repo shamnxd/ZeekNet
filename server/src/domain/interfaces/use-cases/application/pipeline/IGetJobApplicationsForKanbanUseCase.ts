@@ -1,18 +1,8 @@
-import { JobApplication } from 'src/domain/entities/job-application.entity';
+import { JobApplicationsKanbanResponseDto } from 'src/application/dtos/application/pipeline/responses/job-applications-kanban-response.dto';
+import { GetJobApplicationsKanbanDto } from 'src/application/dtos/application/requests/get-job-applications-kanban.dto';
 
 export interface IGetJobApplicationsForKanbanUseCase {
-  execute(jobId: string, companyId: string): Promise<{
-    [stage: string]: Array<{
-      id: string;
-      seekerId: string;
-      seekerName?: string;
-      seekerAvatar?: string;
-      jobTitle?: string;
-      atsScore?: number;
-      subStage: string;
-      appliedDate: Date;
-    }>;
-  }>;
+  execute(dto: GetJobApplicationsKanbanDto): Promise<JobApplicationsKanbanResponseDto>;
 }
 
 

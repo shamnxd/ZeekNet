@@ -8,6 +8,7 @@ export interface ICompanySubscriptionRepository extends IBaseRepository<CompanyS
   findExpiredSubscriptions(): Promise<CompanySubscription[]>;
   incrementJobPostsUsed(subscriptionId: string): Promise<void>;
   incrementFeaturedJobsUsed(subscriptionId: string): Promise<void>;
+  incrementApplicantAccessUsed(subscriptionId: string): Promise<void>;
   decrementJobPostsUsed(subscriptionId: string): Promise<void>;
   decrementFeaturedJobsUsed(subscriptionId: string): Promise<void>;
   findByStripeSubscriptionId(stripeSubscriptionId: string): Promise<CompanySubscription | null>;

@@ -1,16 +1,16 @@
-import { LoginResponseDto } from 'src/application/dtos/auth/session/responses/login-response.dto';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
-import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
-import { IGoogleTokenVerifier } from 'src/domain/interfaces/services/IGoogleTokenVerifier';
-import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
-import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
-import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IGoogleLoginUseCase';
-import { UserRole } from 'src/domain/enums/user-role.enum';
+import crypto from 'crypto';
 import { AuthorizationError } from 'src/domain/errors/errors';
+import { IOtpService } from 'src/domain/interfaces/services/IOtpService';
+import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IPasswordHasher } from 'src/domain/interfaces/services/IPasswordHasher';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { IGoogleTokenVerifier } from 'src/domain/interfaces/services/IGoogleTokenVerifier';
+import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IGoogleLoginUseCase';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
-import { User } from 'src/domain/entities/user.entity';
+import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
+import { GoogleLoginRequestDto } from 'src/application/dtos/auth/session/google-login.dto';
 
 export class GoogleLoginUseCase implements IGoogleLoginUseCase {
   constructor(
@@ -21,23 +21,18 @@ export class GoogleLoginUseCase implements IGoogleLoginUseCase {
     private readonly _otpService: IOtpService,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+  ) { }
 
-  async execute(idToken: string): Promise<LoginResponseDto> {
+  async execute(params: GoogleLoginRequestDto): Promise<LoginResponseDto> {
+    const { idToken } = params;
     const profile = await this._googleVerifier.verifyIdToken(idToken);
     let user = await this._userRepository.findOne({ email: profile.email });
 
     if (!user) {
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await this._passwordHasher.hash(randomPassword);
       user = await this._userRepository.create(
-        UserMapper.toEntity({
-          name: profile.name,
-          email: profile.email,
-          password: await this._passwordHasher.hash('oauth-google'),
-          role: UserRole.SEEKER,
-          isVerified: profile.emailVerified,
-          isBlocked: false,
-          refreshToken: undefined,
-        }),
+        UserMapper.fromGoogleProfile(profile, hashedPassword),
       );
     }
 

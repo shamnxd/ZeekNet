@@ -13,4 +13,3 @@ export const GetCompaniesQueryDtoSchema = z.object({
 
 export type GetCompaniesQueryDto = z.infer<typeof GetCompaniesQueryDtoSchema>;
 
-

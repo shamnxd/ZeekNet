@@ -1,21 +1,23 @@
 import { Router } from 'express';
-import { NotificationController } from 'src/presentation/controllers/notification/notification.controller';
+import { notificationController } from 'src/infrastructure/di/notificationDi';
 
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
 
 export class NotificationRouter {
   public router: Router;
 
-  constructor(controller: NotificationController) {
+  constructor() {
     this.router = Router();
-    this.setupRoutes(controller);
+    this._initializeRoutes();
   }
 
-  private setupRoutes(controller: NotificationController): void {
-    this.router.get('/', authenticateToken, controller.getNotifications);
-    this.router.get('/unread-count', authenticateToken, controller.getUnreadCount);
-    this.router.patch('/:id/read', authenticateToken, controller.markAsRead);
-    this.router.patch('/read-all', authenticateToken, controller.markAllAsRead);
+  private _initializeRoutes(): void {
+    this.router.use(authenticateToken);
+
+    this.router.get('/', notificationController.getNotifications);
+    this.router.get('/unread-count', notificationController.getUnreadCount);
+    this.router.patch('/:id/read', notificationController.markAsRead);
+    this.router.patch('/read-all', notificationController.markAllAsRead);
   }
 }
 

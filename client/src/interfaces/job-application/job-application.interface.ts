@@ -1,27 +1,29 @@
 import { ApplicationStage } from '@/constants/enums';
+import { ATSStage } from '@/constants/ats-stages';
 
 export interface GetSeekerApplicationsParams {
-  stage?: ApplicationStage;
-  page?: number;
-  limit?: number;
-}
-
-export interface GetCompanyApplicationsParams {
-  job_id?: string;
-  stage?: ApplicationStage;
+  stage?: string;
   search?: string;
   page?: number;
   limit?: number;
 }
 
+export interface GetCompanyApplicationsParams {
+  stage?: ApplicationStage | ATSStage | string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  job_id?: string;
+}
+
 export interface UpdateApplicationStageRequest {
-  stage: ApplicationStage;
+  stage: ApplicationStage | ATSStage | string;
   rejection_reason?: string;
 }
 
 export interface BulkUpdateApplicationStageRequest {
   application_ids: string[];
-  stage: ApplicationStage;
+  stage: ApplicationStage | ATSStage | string;
 }
 
 export interface UpdateApplicationScoreRequest {

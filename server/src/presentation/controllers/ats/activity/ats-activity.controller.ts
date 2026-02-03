@@ -1,56 +1,32 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
+import { IGetApplicationActivitiesUseCase } from 'src/domain/interfaces/use-cases/application/activity/IGetApplicationActivitiesUseCase';
+import { GetActivitiesQueryDtoSchema } from 'src/application/dtos/application/activity/requests/get-activities-query.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { IGetApplicationActivitiesPaginatedUseCase } from 'src/domain/interfaces/use-cases/application/activity/IGetApplicationActivitiesPaginatedUseCase';
-import { sendSuccessResponse, sendInternalServerErrorResponse } from 'src/shared/utils/presentation/controller.utils';
+import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class ATSActivityController {
   constructor(
-    private getApplicationActivitiesPaginatedUseCase: IGetApplicationActivitiesPaginatedUseCase,
-  ) {}
+    private readonly getApplicationActivitiesUseCase: IGetApplicationActivitiesUseCase,
+  ) { }
 
-  getActivitiesByApplication = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  getActivitiesByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    const parsedQuery = GetActivitiesQueryDtoSchema.safeParse(req.query);
+    if (!parsedQuery.success) {
+      return handleValidationError(formatZodErrors(parsedQuery.error), next);
+    }
+
     try {
-      const { applicationId } = req.params;
-      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
-      const cursor = req.query.cursor as string | undefined;
-
-      
-      let parsedCursor: { createdAt: Date; _id: string } | undefined;
-      if (cursor) {
-        try {
-          const [createdAtStr, id] = cursor.split('_');
-          if (createdAtStr && id) {
-            parsedCursor = {
-              createdAt: new Date(parseInt(createdAtStr, 10)),
-              _id: id,
-            };
-          }
-        } catch (err) {
-          
-        }
-      }
-
-      const result = await this.getApplicationActivitiesPaginatedUseCase.execute({
-        applicationId,
-        limit: Math.min(limit, 100), 
-        cursor: parsedCursor,
+      const { id } = req.params;
+      const result = await this.getApplicationActivitiesUseCase.execute({
+        applicationId: id,
+        ...parsedQuery.data,
       });
 
-      
-      const nextCursor = result.nextCursor
-        ? `${result.nextCursor.createdAt.getTime()}_${result.nextCursor._id}`
-        : null;
-
-      sendSuccessResponse(res, 'Activities retrieved successfully', {
-        activities: result.activities,
-        nextCursor,
-        hasMore: result.hasMore,
-      });
+      sendSuccessResponse(res, 'Activities retrieved successfully', result);
     } catch (error) {
-      console.error('Error fetching activities:', error);
-      sendInternalServerErrorResponse(res, 'Failed to fetch activities');
+      handleAsyncError(error, next);
     }
   };
 }
-
 

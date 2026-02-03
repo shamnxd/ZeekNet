@@ -5,11 +5,14 @@ import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/jo
 import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
 import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
-
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { ScheduleInterviewRequestDto } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
+import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
+import { ATSInterviewMapper } from 'src/application/mappers/ats/ats-interview.mapper';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
 export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
   constructor(
@@ -20,32 +23,33 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     private activityLoggerService: IActivityLoggerService,
     private mailerService: IMailerService,
     private emailTemplateService: IEmailTemplateService,
-  ) {}
+    private logger: ILogger,
+  ) { }
 
-  async execute(data: {
-    applicationId: string;
-    title: string;
-    scheduledDate: Date;
-    type: 'online' | 'offline';
-    videoType?: 'in-app' | 'external';
-    webrtcRoomId?: string;
-    meetingLink?: string;
-    location?: string;
-    performedBy: string;
-    performedByName: string;
-  }): Promise<ATSInterview> {
-    
+  async execute(data: ScheduleInterviewRequestDto): Promise<ATSInterviewResponseDto> {
+    // Convert date if needed
+    const scheduledDate = typeof data.scheduledDate === 'string'
+      ? new Date(data.scheduledDate)
+      : data.scheduledDate;
+
+    // Get user info for audit fields
+    const user = await this.userRepository.findById(data.userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+    const performedBy = data.userId;
+    const performedByName = user.email || user.name || 'Unknown User';
+
     let webrtcRoomId = data.webrtcRoomId;
     if (data.type === 'online' && data.videoType === 'in-app' && !webrtcRoomId) {
       webrtcRoomId = uuidv4();
     }
 
-    
     const interview = ATSInterview.create({
       id: uuidv4(),
       applicationId: data.applicationId,
       title: data.title,
-      scheduledDate: data.scheduledDate,
+      scheduledDate,
       type: data.type,
       videoType: data.videoType,
       webrtcRoomId,
@@ -56,7 +60,6 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
 
     const savedInterview = await this.interviewRepository.create(interview);
 
-    
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
@@ -64,29 +67,28 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
 
     const job = await this.jobPostingRepository.findById(application.jobId);
     if (job && application.seekerId) {
-        await this._sendInterviewScheduledEmail(
-            application.seekerId, 
-            job.title, 
-            job.companyName || 'ZeekNet', 
-            data.scheduledDate, 
-            data.type
-        );
+      await this._sendInterviewScheduledEmail(
+        application.seekerId,
+        job.title,
+        job.companyName || 'ZeekNet',
+        scheduledDate,
+        data.type,
+      );
     }
 
-    
     await this.activityLoggerService.logInterviewScheduledActivity({
       applicationId: data.applicationId,
       interviewId: savedInterview.id,
       interviewTitle: data.title,
       interviewType: data.type,
-      scheduledDate: data.scheduledDate,
+      scheduledDate,
       stage: application.stage,
       subStage: application.subStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
+      performedBy,
+      performedByName,
     });
 
-    return savedInterview;
+    return ATSInterviewMapper.toResponse(savedInterview);
   }
 
   private async _sendInterviewScheduledEmail(
@@ -113,7 +115,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       );
       await this.mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      console.error('Failed to send interview scheduled email:', error);
+      this.logger.error('Failed to send interview scheduled email:', error);
     }
   }
 }

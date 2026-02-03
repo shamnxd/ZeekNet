@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Benefit } from '@/interfaces/company/company-data.interface';
 import type { EditBenefitsDialogProps } from '@/interfaces/company/dialogs/edit-benefits-dialog-props.interface';
 
@@ -27,10 +28,26 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validItems = items.filter(item => 
-      typeof item.perk === 'string' && item.perk.trim() !== '' && 
+
+    const hasEmptyFields = items.some(item =>
+      !item.perk?.trim() || !item.description?.trim()
+    );
+
+    if (hasEmptyFields) {
+      toast.error('Please fill in all benefit fields before saving.');
+      return;
+    }
+
+    const validItems = items.filter(item =>
+      typeof item.perk === 'string' && item.perk.trim() !== '' &&
       typeof item.description === 'string' && item.description.trim() !== ''
     );
+
+    if (validItems.length === 0) {
+      toast.error('Please add at least one benefit with all fields filled.');
+      return;
+    }
+
     onSave(validItems);
     onClose();
   };
@@ -44,7 +61,7 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
   };
 
   const updateItem = (index: number, field: keyof Benefit, value: string) => {
-    setItems(prev => prev.map((item, i) => 
+    setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
   };
@@ -55,7 +72,7 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Benefits & Perks</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-6">
             {items.map((item, index) => (

@@ -4,15 +4,15 @@ import {
   handleValidationError,
   handleAsyncError,
   sendSuccessResponse,
+  sendCreatedResponse,
   validateUserId,
-  sendNotFoundResponse,
 } from 'src/shared/utils/presentation/controller.utils';
 import { ICreateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/ICreateCompanyBenefitUseCase';
 import { IUpdateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/IUpdateCompanyBenefitUseCase';
 import { IDeleteCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/IDeleteCompanyBenefitUseCase';
 import { IGetCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/IGetCompanyBenefitUseCase';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from 'src/application/dtos/company/profile/benefits/requests/company-benefits.dto';
-import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 
 export class CompanyBenefitController {
   constructor(
@@ -20,15 +20,12 @@ export class CompanyBenefitController {
     private readonly _updateCompanyBenefitUseCase: IUpdateCompanyBenefitUseCase,
     private readonly _deleteCompanyBenefitUseCase: IDeleteCompanyBenefitUseCase,
     private readonly _getCompanyBenefitUseCase: IGetCompanyBenefitUseCase,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
-  ) {}
+  ) { }
 
   getCompanyBenefits = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
-
-      const benefits = await this._getCompanyBenefitUseCase.execute(companyId);
+      const benefits = await this._getCompanyBenefitUseCase.execute({ userId });
       sendSuccessResponse(res, 'Company benefits retrieved successfully', benefits);
     } catch (error) {
       handleAsyncError(error, next);
@@ -38,32 +35,28 @@ export class CompanyBenefitController {
   createCompanyBenefit = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = CreateCompanyBenefitsDto.safeParse(req.body);
     if (!parsed.success) {
-      return handleValidationError(`Invalid benefit data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
       const userId = validateUserId(req);
-      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
-
-      const benefit = await this._createCompanyBenefitUseCase.execute({ ...parsed.data, companyId });
-      sendSuccessResponse(res, 'Benefit created successfully', benefit, undefined, 201);
+      const benefit = await this._createCompanyBenefitUseCase.execute({ userId, ...parsed.data });
+      sendCreatedResponse(res, 'Benefit created successfully', benefit);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 
   updateCompanyBenefit = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const parsed = UpdateCompanyBenefitsDto.safeParse(req.body);
+    const { id } = req.params;
+    const parsed = UpdateCompanyBenefitsDto.safeParse({ ...req.body, benefitId: id });
     if (!parsed.success) {
-      return handleValidationError(`Invalid benefit data: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`, next);
+      return handleValidationError(formatZodErrors(parsed.error), next);
     }
 
     try {
       const userId = validateUserId(req);
-      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
-      const { id } = req.params;
-
-      const benefit = await this._updateCompanyBenefitUseCase.execute({ ...parsed.data, companyId, benefitId: id });
+      const benefit = await this._updateCompanyBenefitUseCase.execute({ userId, ...parsed.data });
       sendSuccessResponse(res, 'Benefit updated successfully', benefit);
     } catch (error) {
       handleAsyncError(error, next);
@@ -73,15 +66,11 @@ export class CompanyBenefitController {
   deleteCompanyBenefit = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
-      const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
       const { id } = req.params;
-
-      await this._deleteCompanyBenefitUseCase.execute(companyId, id);
+      await this._deleteCompanyBenefitUseCase.execute({ userId, benefitId: id });
       sendSuccessResponse(res, 'Benefit deleted successfully', null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
-
-

@@ -8,13 +8,12 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
-export interface CloseJobManuallyDto {
-  userId: string;
-  jobId: string;
-}
+import { CloseJobDto } from 'src/application/dtos/company/job/requests/close-job.dto';
+import { ICloseJobManuallyUseCase } from 'src/domain/interfaces/use-cases/job/ICloseJobManuallyUseCase';
 
-export class CloseJobManuallyUseCase {
+export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
@@ -22,9 +21,10 @@ export class CloseJobManuallyUseCase {
     private readonly _userRepository: IUserRepository,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+    private readonly _logger: ILogger,
+  ) { }
 
-  async execute(dto: CloseJobManuallyDto): Promise<void> {
+  async execute(dto: CloseJobDto): Promise<void> {
     const { userId, jobId } = dto;
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
@@ -41,30 +41,30 @@ export class CloseJobManuallyUseCase {
       throw new ValidationError('You can only close your own job postings');
     }
 
-    
+
     if (job.status === JobStatus.CLOSED) {
       throw new ValidationError('Job is already closed');
     }
 
-    
+
     await this._jobPostingRepository.update(jobId, {
       status: JobStatus.CLOSED,
       closureType: JobClosureType.MANUAL,
       closedAt: new Date(),
     });
 
-    
+
     const allApplications = await this._jobApplicationRepository.findByJobId(jobId);
     const nonHiredApplications = allApplications.filter(
       (app) => app.stage !== ATSStage.HIRED,
     );
 
-    
+
     for (const application of nonHiredApplications) {
-      
+
       const seeker = await this._userRepository.findById(application.seekerId);
       if (seeker && seeker.email) {
-        
+
         await this.sendJobClosedEmail(seeker.email, job.title, seeker.name || 'Candidate', job.companyName || 'ZeekNet');
       }
     }
@@ -79,8 +79,8 @@ export class CloseJobManuallyUseCase {
       );
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
-      
-      console.error(`Failed to send job closed email to ${email}:`, error);
+
+      this._logger.error(`Failed to send job closed email to ${email}:`, error);
     }
   }
 }

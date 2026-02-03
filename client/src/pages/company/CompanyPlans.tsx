@@ -133,7 +133,8 @@ const CompanyPlans = () => {
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
-  }, [fetchPlans, fetchActiveSubscription])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const sessionId = searchParams.get('session_id')
   
@@ -366,7 +367,7 @@ const CompanyPlans = () => {
         })
       : null,
     isDefault: activeSubscription.plan?.isDefault || false,
-    status: activeSubscription.isActive ? 'Active' : 'Expired',
+    status: (activeSubscription.plan?.isDefault || !activeSubscription.expiryDate || new Date(activeSubscription.expiryDate) > new Date()) ? 'Active' : 'Expired',
     benefits: [
       `${activeSubscription.plan?.jobPostLimit || 0} Active Jobs`,
       `${activeSubscription.plan?.featuredJobLimit || 0} Featured Jobs`,
@@ -467,6 +468,26 @@ const CompanyPlans = () => {
                       />
                     </div>
                   </div>
+                  {activeSubscription && activeSubscription.plan && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Candidate Views</span>
+                        <span className="font-medium text-gray-900">
+                          {activeSubscription.applicantAccessUsed || 0} / {activeSubscription.plan.applicantAccessLimit || 0}
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-[#4640DE] rounded-full transition-all duration-500" 
+                          style={{ 
+                            width: `${(activeSubscription.plan.applicantAccessLimit || 0) > 0 
+                              ? ((activeSubscription.applicantAccessUsed || 0) / (activeSubscription.plan.applicantAccessLimit || 0)) * 100 
+                              : 0}%` 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

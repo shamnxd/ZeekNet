@@ -5,10 +5,10 @@ import { sendBadRequestResponse } from 'src/shared/utils/presentation/controller
 const storage = multer.memoryStorage();
 
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  if (file.mimetype.startsWith('image/')) {
+  if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'));
+    cb(new Error('Only image and PDF files are allowed!'));
   }
 };
 

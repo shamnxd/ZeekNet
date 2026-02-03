@@ -11,7 +11,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
   constructor(
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _companyProfileRepository: ICompanyProfileRepository,
-  ) {}
+  ) { }
 
   async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostingsDto> {
     const { userId, ...query } = data;
@@ -38,6 +38,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
       unpublish_reason: 1 as const,
       createdAt: 1 as const,
       enabled_stages: 1 as const,
+      is_featured: 1 as const,
     };
 
     let jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, projection);
@@ -51,14 +52,14 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     }
 
     if (query.employment_types && query.employment_types.length > 0) {
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.employmentTypes?.some(type => (query.employment_types as string[]).includes(type)),
       );
     }
 
     if (query.search) {
       const searchLower = query.search.toLowerCase();
-      jobs = jobs.filter(job => 
+      jobs = jobs.filter(job =>
         job.title?.toLowerCase().includes(searchLower),
       );
     }

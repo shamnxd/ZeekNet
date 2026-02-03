@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,10 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { 
-  Eye, 
-  Trash2, 
-  Search, 
+import {
+  Eye,
+  Search,
   MoreHorizontal,
   CheckCircle,
   XCircle,
@@ -26,13 +25,12 @@ import {
   Building2,
   IndianRupee
 } from 'lucide-react'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { toast } from 'sonner'
 import { adminApi } from '@/api/admin.api'
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
@@ -50,7 +48,7 @@ const unpublishReasons = [
 
 const JobManagement = () => {
   const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
-  const [reasonJob, setReasonJob] = useState<JobPostingResponse|null>(null);
+  const [reasonJob, setReasonJob] = useState<JobPostingResponse | null>(null);
   const [jobs, setJobs] = useState<JobPostingResponse[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
@@ -69,15 +67,7 @@ const JobManagement = () => {
     search: '',
     status: 'all'
   })
-  const [deleteDialog, setDeleteDialog] = useState<{
-    isOpen: boolean
-    jobId: string | null
-    jobTitle: string
-  }>({
-    isOpen: false,
-    jobId: null,
-    jobTitle: ''
-  })
+
 
   useEffect(() => {
     setFilters(prev => ({ ...prev, search: debouncedSearchTerm }))
@@ -93,7 +83,7 @@ const JobManagement = () => {
         search: filters.search,
         ...(filters.status !== 'all' && filters.status !== 'inactive' && { status: filters.status }),
       })
-      
+
       if (response.success && response.data && Array.isArray(response.data.jobs)) {
         setJobs(response.data.jobs)
         setPagination(prev => ({
@@ -124,10 +114,10 @@ const JobManagement = () => {
     try {
       const newStatus = currentStatus === 'active' ? 'unlisted' : 'active'
       const response = await adminApi.updateJobStatus(jobId, newStatus, undefined)
-      
+
       if (response.success) {
-        setJobs(jobs.map(job => 
-          (job.id || job._id) === jobId 
+        setJobs(jobs.map(job =>
+          (job.id || job._id) === jobId
             ? { ...job, status: newStatus }
             : job
         ))
@@ -140,28 +130,7 @@ const JobManagement = () => {
     }
   }
 
-  const handleDeleteJob = async () => {
-    if (!deleteDialog.jobId) return
 
-    try {
-      const response = await adminApi.deleteJob(deleteDialog.jobId)
-      
-      if (response.success) {
-        setJobs(jobs.filter(job => (job.id || job._id) !== deleteDialog.jobId))
-        setPagination(prev => ({
-          ...prev,
-          total: prev.total - 1,
-          totalPages: Math.ceil((prev.total - 1) / prev.limit)
-        }))
-        setDeleteDialog({ isOpen: false, jobId: null, jobTitle: '' })
-        toast.success('Job deleted successfully')
-      } else {
-        toast.error(response.message || 'Failed to delete job')
-      }
-    } catch {
-      toast.error('Failed to delete job')
-    }
-  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -178,7 +147,7 @@ const JobManagement = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {}
+        { }
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Job Management</h1>
           <div className="flex items-center space-x-2">
@@ -191,7 +160,7 @@ const JobManagement = () => {
           </div>
         </div>
 
-        {}
+        { }
         <Card>
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
@@ -225,7 +194,7 @@ const JobManagement = () => {
           </CardContent>
         </Card>
 
-        {}
+        { }
         <Card>
           <CardHeader>
             <CardTitle>All Jobs</CardTitle>
@@ -256,9 +225,9 @@ const JobManagement = () => {
                         <TableCell>
                           <div>
                             <div className="font-medium text-gray-900">{job.title}</div>
-                              <div className="text-sm text-gray-500">
-                                {(job.employmentTypes || []).join(', ')}
-                              </div>
+                            <div className="text-sm text-gray-500">
+                              {(job.employmentTypes || []).join(', ')}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -280,25 +249,26 @@ const JobManagement = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             variant={job.status === 'active' ? "default" : "secondary"}
                             className={
                               job.status === 'active' ? "bg-green-100 text-green-800 border-green-200" :
-                              job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
-                              job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
-                              "bg-gray-100 text-gray-800 border-gray-200"
+                                job.status === 'blocked' ? "bg-red-100 text-red-800 border-red-200" :
+                                  job.status === 'expired' ? "bg-orange-100 text-orange-800 border-orange-200" :
+                                    job.status === 'closed' ? "bg-gray-100 text-gray-800 border-gray-200" :
+                                      "bg-gray-100 text-gray-800 border-gray-200"
                             }
                           >
                             {job.status === 'active' ? 'Active' :
-                             job.status === 'blocked' ? 'Blocked' :
-                             job.status === 'expired' ? 'Expired' :
-                             job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
+                              job.status === 'blocked' ? 'Blocked' :
+                                job.status === 'expired' ? 'Expired' :
+                                  job.status === 'closed' ? 'Closed' :
+                                    job.status === 'unlisted' ? 'Unlisted' : 'Unknown'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <div>{job.applications ?? 0} applications</div>
-                            <div className="text-gray-500">{job.viewCount ?? 0} views</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -320,7 +290,7 @@ const JobManagement = () => {
                                 View Details
                               </DropdownMenuItem>
                               {job.status === 'active' ? (
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   onClick={() => {
                                     setReasonJob(job);
                                     setReasonDialogOpen(true);
@@ -329,25 +299,15 @@ const JobManagement = () => {
                                   <XCircle className="h-4 w-4 mr-2" />
                                   Unpublish
                                 </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem 
+                              ) : job.status !== 'closed' ? (
+                                <DropdownMenuItem
                                   onClick={() => handleToggleStatus(job.id || job._id || '', (job.status === 'closed' ? 'active' : job.status) ?? 'unlisted')}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   Publish
                                 </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
-                                onClick={() => setDeleteDialog({
-                                  isOpen: true,
-                                  jobId: job.id || job._id || null,
-                                  jobTitle: job.title
-                                })}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
+                              ) : null}
+                              {/* Delete option removed */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -366,7 +326,7 @@ const JobManagement = () => {
           </CardContent>
         </Card>
 
-        {}
+        { }
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-500">
@@ -399,17 +359,8 @@ const JobManagement = () => {
         )}
       </div>
 
-      {}
-      <ConfirmationDialog
-        isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, jobId: null, jobTitle: '' })}
-        onConfirm={handleDeleteJob}
-        title="Delete Job"
-        description={`Are you sure you want to delete "${deleteDialog.jobTitle}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-      />
+      { }
+
       <ReasonActionDialog
         open={reasonDialogOpen}
         onOpenChange={setReasonDialogOpen}
@@ -418,12 +369,12 @@ const JobManagement = () => {
         reasonOptions={unpublishReasons}
         onConfirm={async reason => {
           if (!reasonJob) return;
-          
+
           try {
             const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id || '', 'blocked', reason);
-            
+
             if (response.success) {
-              setJobs(jobs.map(job => 
+              setJobs(jobs.map(job =>
                 (job.id || job._id) === (reasonJob.id || reasonJob._id)
                   ? { ...job, status: 'blocked', unpublish_reason: reason }
                   : job

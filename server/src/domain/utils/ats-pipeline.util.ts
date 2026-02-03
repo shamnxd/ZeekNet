@@ -11,6 +11,7 @@ import {
 
 
 export const STAGE_TO_SUB_STAGES: Record<ATSStage, readonly ATSSubStage[]> = {
+  [ATSStage.APPLIED]: [],
   [ATSStage.IN_REVIEW]: Object.values(InReviewSubStage),
   [ATSStage.SHORTLISTED]: Object.values(ShortlistedSubStage),
   [ATSStage.INTERVIEW]: Object.values(InterviewSubStage),

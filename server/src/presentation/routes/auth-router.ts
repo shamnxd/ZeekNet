@@ -2,9 +2,6 @@ import { Router } from 'express';
 import { registrationController, loginController, tokenController, passwordController, otpController } from 'src/infrastructure/di/authDi';
 
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
-import { validateBody } from 'src/presentation/middleware/validation.middleware';
-import { RegisterDto } from 'src/application/dtos/auth/registration/requests/register.dto';
-import { LoginDto } from 'src/application/dtos/auth/session/requests/login.dto';
 
 export class AuthRouter {
   public router: Router;
@@ -15,7 +12,7 @@ export class AuthRouter {
   }
 
   private _initializeRoutes(): void {
-    this.router.post('/register', validateBody(RegisterDto), registrationController.register);
+    this.router.post('/register', registrationController.register);
     this.router.post('/login', loginController.login);
     this.router.post('/admin-login', loginController.adminLogin);
     this.router.post('/login/google', loginController.googleLogin);
@@ -23,7 +20,8 @@ export class AuthRouter {
     this.router.get('/check-auth', authenticateToken, tokenController.checkAuth);
     this.router.post('/forgot-password', passwordController.forgotPassword);
     this.router.post('/reset-password', passwordController.resetPassword);
-    this.router.post('/logout', passwordController.logout);
+    this.router.post('/change-password', authenticateToken, passwordController.changePassword);
+    this.router.post('/logout', authenticateToken, passwordController.logout);
     this.router.post('/otp-request', otpController.request);
     this.router.post('/otp-verify', otpController.verify);
   }

@@ -1,6 +1,4 @@
-import { CompanySubscriptionDto } from 'src/application/dtos/admin/subscription/common/company-subscription.dto';
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
 
-export interface ActiveSubscriptionResponseDto extends CompanySubscriptionDto {
-  activeJobCount?: number;
-}
+export type ActiveSubscriptionResponseDto = CompanySubscriptionResponseDto;
 

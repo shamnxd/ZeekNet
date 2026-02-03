@@ -7,6 +7,8 @@ import { BadRequestError, ConflictError, InternalServerError, NotFoundError } fr
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/update-subscription-plan.dto';
 import { PriceType } from 'src/domain/entities/price-history.entity';
+import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
+import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/subscription-plan.mapper';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
@@ -240,7 +242,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       }
     }
 
-    return updatedPlan;
+    return SubscriptionPlanMapper.toResponse(updatedPlan)!;
   }
 }
 

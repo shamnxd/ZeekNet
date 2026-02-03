@@ -5,6 +5,8 @@ import { CompanySubscription } from 'src/domain/entities/company-subscription.en
 import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { ICancelSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/ICancelSubscriptionUseCase';
+import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
+import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
 
 export class CancelSubscriptionUseCase implements ICancelSubscriptionUseCase {
   constructor(
@@ -13,7 +15,7 @@ export class CancelSubscriptionUseCase implements ICancelSubscriptionUseCase {
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) {}
 
-  async execute(userId: string): Promise<CompanySubscription> {
+  async execute(userId: string): Promise<CompanySubscriptionResponseDto> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
       throw new NotFoundError('Company profile not found');
@@ -46,7 +48,7 @@ export class CancelSubscriptionUseCase implements ICancelSubscriptionUseCase {
       throw new Error('Failed to update subscription');
     }
 
-    return updatedSubscription;
+    return CompanySubscriptionResponseMapper.toResponse(updatedSubscription);
   }
 }
 

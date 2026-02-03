@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import { GetSeekerCompaniesDtoSchema } from 'src/application/dtos/public/requests/get-seeker-companies.dto';
+import { handleValidationError } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobRolesUseCase';
 import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobCategoriesUseCase';
 import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicSkillsUseCase';
 import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetSeekerCompaniesUseCase';
 import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetPublicCompanyProfileUseCase';
-import { IGetPublicCompanyJobsUseCase } from 'src/presentation/interfaces/IGetPublicCompanyJobsUseCase';
 import { handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
 
 export class PublicDataController {
@@ -14,8 +16,7 @@ export class PublicDataController {
     private readonly _getPublicJobRolesUseCase: IGetPublicJobRolesUseCase,
     private readonly _getSeekerCompaniesUseCase: IGetSeekerCompaniesUseCase,
     private readonly _getPublicCompanyProfileUseCase: IGetPublicCompanyProfileUseCase,
-    private readonly _getPublicCompanyJobsUseCase: IGetPublicCompanyJobsUseCase,
-  ) {}
+  ) { }
 
 
 
@@ -39,7 +40,9 @@ export class PublicDataController {
 
   getAllJobRoles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const jobRoles = await this._getPublicJobRolesUseCase.execute();
+      const search = (req.query.search as string) || '';
+      const limit = parseInt(req.query.limit as string) || 1000;
+      const jobRoles = await this._getPublicJobRolesUseCase.execute(search, limit);
       sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoles);
     } catch (error) {
       handleAsyncError(error, next);
@@ -48,15 +51,13 @@ export class PublicDataController {
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { page, limit, search, industry } = req.query;
-      
-      const result = await this._getSeekerCompaniesUseCase.execute({
-        page: page ? parseInt(page as string) : undefined,
-        limit: limit ? parseInt(limit as string) : undefined,
-        search: search as string,
-        industry: industry as string,
-      });
-      
+      const parsed = GetSeekerCompaniesDtoSchema.safeParse(req.query);
+      if (!parsed.success) {
+        return handleValidationError(formatZodErrors(parsed.error), next);
+      }
+
+      const result = await this._getSeekerCompaniesUseCase.execute(parsed.data);
+
       sendSuccessResponse(res, 'Companies retrieved successfully', result);
     } catch (error) {
       handleAsyncError(error, next);
@@ -72,23 +73,4 @@ export class PublicDataController {
       handleAsyncError(error, next);
     }
   };
-
-  getCompanyJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { id } = req.params;
-      const { page, limit } = req.query;
-      
-      const result = await this._getPublicCompanyJobsUseCase.execute(
-        id,
-        page ? parseInt(page as string) : 1,
-        limit ? parseInt(limit as string) : 5,
-      );
-      
-      sendSuccessResponse(res, 'Company jobs retrieved successfully', result);
-    } catch (error) {
-      handleAsyncError(error, next);
-    }
-  };
 }
-
-

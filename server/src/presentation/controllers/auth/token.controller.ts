@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/user/IAuthGetUserByIdUseCase';
 import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/session/IRefreshTokenUseCase';
 import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
-import { ICookieService } from 'src/presentation/interfaces/services/ICookieService';
+import { ICookieService } from 'src/presentation/services/ICookieService';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
 import { UserRole } from 'src/domain/enums/user-role.enum';
@@ -14,7 +14,7 @@ export class TokenController {
     private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
     private readonly _tokenService: ITokenService,
     private readonly _cookieService: ICookieService,
-  ) {}
+  ) { }
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const cookieName = env.COOKIE_NAME_REFRESH;

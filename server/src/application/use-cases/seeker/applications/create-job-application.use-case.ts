@@ -17,6 +17,10 @@ import { User } from 'src/domain/entities/user.entity';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
+
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
     private readonly _jobApplicationRepository: IJobApplicationRepository,
@@ -28,45 +32,69 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     private readonly _calculateATSScoreUseCase: ICalculateATSScoreUseCase,
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
-  ) {}
+    private readonly _fileUploadService: IFileUploadService,
+    private readonly _logger: ILogger,
+  ) { }
 
   async execute(
-    data: z.infer<typeof CreateJobApplicationDto> & { seekerId?: string },
-    resumeBuffer?: Buffer,
-    mimeType?: string,
+    data: Omit<z.infer<typeof CreateJobApplicationDto>, 'resume_url' | 'resume_filename'> & {
+      seekerId?: string;
+      resume_url?: string;
+      resume_filename?: string;
+    },
+    resumeFile?: UploadedFile,
   ): Promise<{ id: string }> {
     const { seekerId, ...applicationData } = data;
-    
-    
+
+
     const seeker = await this._validateSeeker(seekerId);
-    
-    
+
+
     const job = await this._validateJobPosting(applicationData.job_id);
-    
-    
+
+
     await this._checkDuplicateApplication(seekerId!, applicationData.job_id);
-    
-    
-    const application = await this._createApplication(seekerId!, applicationData, job);
-    
-    
-    const resumeText = await this._parseResume(resumeBuffer, mimeType);
-    
-    
+
+    let resumeUrl = applicationData.resume_url;
+    let resumeFilename = applicationData.resume_filename;
+
+    if (resumeFile) {
+      const uploadResult = await this._fileUploadService.uploadResume(resumeFile, 'resume');
+      resumeUrl = uploadResult.url;
+      resumeFilename = uploadResult.filename;
+    }
+
+    if (!resumeUrl || !resumeFilename) {
+      throw new ValidationError('Resume is required');
+    }
+
+    const application = await this._createApplication(seekerId!, {
+      ...applicationData,
+      resume_url: resumeUrl,
+      resume_filename: resumeFilename,
+    }, job);
+
+
+    let resumeText = '';
+    if (resumeFile && resumeFile.buffer && resumeFile.mimetype) {
+      resumeText = await this._parseResume(resumeFile.buffer, resumeFile.mimetype);
+    }
+
+
     this._triggerATSCalculation(application.id, job, applicationData.cover_letter, resumeText);
-    
-    
+
+
     await this._incrementApplicationCount(applicationData.job_id, job.applicationCount);
-    
-    
+
+
     await this._notifyCompany(job, application.id);
 
     await this._sendApplicationReceivedEmail(seeker.email, seeker.name, job.title, job.companyName || 'ZeekNet');
-    
+
     return { id: application.id };
   }
 
-  
+
   private async _validateSeeker(seekerId?: string): Promise<User> {
     if (!seekerId) {
       throw new Error('Seeker ID is required');
@@ -84,10 +112,10 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     return user;
   }
 
-  
+
   private async _validateJobPosting(jobId: string) {
     const job = await this._jobPostingRepository.findById(jobId);
-    
+
     if (!job) {
       throw new NotFoundError('Job posting not found');
     }
@@ -103,7 +131,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     return job;
   }
 
-  
+
   private async _checkDuplicateApplication(seekerId: string, jobId: string): Promise<void> {
     const existingApplication = await this._jobApplicationRepository.findOne({
       seeker_id: seekerId,
@@ -115,7 +143,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
   }
 
-  
+
   private async _createApplication(seekerId: string, applicationData: z.infer<typeof CreateJobApplicationDto>, job: JobPosting) {
     return await this._jobApplicationRepository.create(
       JobApplicationMapper.toEntity({
@@ -127,12 +155,12 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
         resumeFilename: applicationData.resume_filename,
         stage: ATSStage.IN_REVIEW,
         appliedDate: new Date(),
-        score: -1, 
+        score: -1,
       }),
     );
   }
 
-  
+
   private async _parseResume(resumeBuffer?: Buffer, mimeType?: string): Promise<string> {
     if (!resumeBuffer || !mimeType) {
       return '';
@@ -141,12 +169,12 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     try {
       return await this._resumeParserService.parse(resumeBuffer, mimeType);
     } catch (error) {
-      console.error('Failed to parse resume for ATS scoring:', error);
+      this._logger.error('Failed to parse resume for ATS scoring:', error);
       return '';
     }
   }
 
-  
+
   private _triggerATSCalculation(
     applicationId: string,
     job: JobPosting,
@@ -167,24 +195,24 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
         resumeText,
       },
     }).catch(error => {
-      
-      
+
+
     });
   }
 
-  
+
   private async _incrementApplicationCount(jobId: string, currentCount: number): Promise<void> {
     await this._jobPostingRepository.update(jobId, {
       applicationCount: currentCount + 1,
     });
   }
 
-  
+
   private async _notifyCompany(job: JobPosting, applicationId: string): Promise<void> {
     const companyProfile = await this._companyProfileRepository.findById(job.companyId);
-    
+
     if (!companyProfile) {
-      return; 
+      return;
     }
 
     try {
@@ -200,8 +228,8 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
         },
       });
     } catch (error) {
-      
-      console.error('Failed to send notification to company:', error);
+
+      this._logger.error('Failed to send notification to company:', error);
     }
   }
 
@@ -219,7 +247,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       );
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
-      console.error('Failed to send application received email to candidate:', error);
+      this._logger.error('Failed to send application received email to candidate:', error);
     }
   }
 }

@@ -7,6 +7,8 @@ import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongod
 import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
 import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
 import { JobApplicationRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-application.repository';
+import { ATSInterviewRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-interview.repository';
+import { ChatMessageRepository } from 'src/infrastructure/persistence/mongodb/repositories/chat-message.repository';
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
 import { SeekerExperienceRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-experience.repository';
@@ -15,12 +17,12 @@ import { notificationRepository } from 'src/infrastructure/di/notificationDi';
 import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 import { StripeService } from 'src/infrastructure/external-services/stripe/stripe.service';
 import { logger } from 'src/infrastructure/config/logger';
+import { LoggerService } from 'src/infrastructure/services/logger.service';
 import { CreateCompanyProfileUseCase } from 'src/application/use-cases/company/profile/info/create-company-profile.use-case';
 import { CreateCompanyProfileFromDtoUseCase } from 'src/application/use-cases/company/profile/info/create-company-profile-from-dto.use-case';
 import { UpdateCompanyProfileUseCase } from 'src/application/use-cases/company/profile/info/update-company-profile.use-case';
 import { GetCompanyProfileUseCase } from 'src/application/use-cases/company/profile/info/get-company-profile.use-case';
 import { GetCompanyProfileWithJobPostingsUseCase } from 'src/application/use-cases/admin/companies/get-company-profile-with-job-postings.use-case';
-import { GetCompanyDashboardUseCase } from 'src/application/use-cases/company/analytics/get-company-dashboard.use-case';
 import { ReapplyCompanyVerificationUseCase } from 'src/application/use-cases/company/profile/verification/reapply-company-verification.use-case';
 import { GetCompanyContactUseCase } from 'src/application/use-cases/company/profile/contacts/get-company-contact.use-case';
 import { UpsertCompanyContactUseCase } from 'src/application/use-cases/company/profile/contacts/upsert-company-contact.use-case';
@@ -41,13 +43,11 @@ import { UpdateCompanyWorkplacePictureUseCase } from 'src/application/use-cases/
 import { DeleteCompanyWorkplacePictureUseCase } from 'src/application/use-cases/company/media/delete-company-workplace-picture.use-case';
 import { GetCompanyWorkplacePictureUseCase } from 'src/application/use-cases/company/media/get-company-workplace-picture.use-case';
 import { CreateJobPostingUseCase } from 'src/application/use-cases/job/create-job-posting.use-case';
-import { GetJobPostingUseCase } from 'src/application/use-cases/job/get-job-posting.use-case';
 import { GetCompanyJobPostingUseCase } from 'src/application/use-cases/job/get-company-job-posting.use-case';
 import { GetCompanyProfileByUserIdUseCase } from 'src/application/use-cases/company/profile/info/get-company-profile-by-user-id.use-case';
 import { GetCompanyJobPostingsUseCase } from 'src/application/use-cases/job/get-company-job-postings.use-case';
 import { UpdateJobPostingUseCase } from 'src/application/use-cases/job/update-job-posting.use-case';
 import { DeleteJobPostingUseCase } from 'src/application/use-cases/job/delete-job-posting.use-case';
-import { IncrementJobViewCountUseCase } from 'src/application/use-cases/job/increment-job-view-count.use-case';
 import { AdminUpdateJobStatusUseCase } from 'src/application/use-cases/admin/job/update-job-status.use-case';
 import { UpdateJobStatusUseCase } from 'src/application/use-cases/job/update-job-status.use-case';
 import { CompanyProfileController } from 'src/presentation/controllers/company/profile/company-profile.controller';
@@ -94,6 +94,9 @@ import { MarkCandidateHiredUseCase } from 'src/application/use-cases/company/hir
 import { CloseJobManuallyUseCase } from 'src/application/use-cases/job/close-job-manually.use-case';
 import { ReopenJobUseCase } from 'src/application/use-cases/job/reopen-job.use-case';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
+import { GetCompanyDashboardStatsUseCase } from 'src/application/use-cases/company/dashboard/get-company-dashboard-stats.use-case';
+import { CompanyDashboardController } from 'src/presentation/controllers/company/dashboard/company-dashboard.controller';
+import { ToggleFeaturedJobUseCase } from 'src/application/use-cases/job/toggle-featured-job.use-case';
 
 const companyProfileRepository = new CompanyProfileRepository();
 const companyContactRepository = new CompanyContactRepository();
@@ -104,6 +107,8 @@ const companyBenefitsRepository = new CompanyBenefitsRepository();
 const companyWorkplacePicturesRepository = new CompanyWorkplacePicturesRepository();
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
+const atsInterviewRepository = new ATSInterviewRepository();
+const chatMessageRepository = new ChatMessageRepository();
 const userRepository = new UserRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
 const seekerExperienceRepository = new SeekerExperienceRepository();
@@ -115,6 +120,7 @@ const paymentOrderRepository = new PaymentOrderRepository();
 const s3Service = new S3Service();
 
 const stripeService = new StripeService();
+const loggerService = new LoggerService();
 logger.info('Stripe service initialized');
 logger.info('Starting UseCase initialization...');
 
@@ -123,39 +129,38 @@ const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfi
 const updateCompanyProfileUseCase = new UpdateCompanyProfileUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
 const getCompanyProfileUseCase = new GetCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyTechStackRepository, companyOfficeLocationRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, companyVerificationRepository);
-const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository);
-const getCompanyContactUseCase = new GetCompanyContactUseCase(companyContactRepository);
-const upsertCompanyContactUseCase = new UpsertCompanyContactUseCase(companyContactRepository);
+const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
 
-const createCompanyTechStackUseCase = new CreateCompanyTechStackUseCase(companyTechStackRepository);
-const updateCompanyTechStackUseCase = new UpdateCompanyTechStackUseCase(companyTechStackRepository);
-const deleteCompanyTechStackUseCase = new DeleteCompanyTechStackUseCase(companyTechStackRepository);
-const getCompanyTechStackUseCase = new GetCompanyTechStackUseCase(companyTechStackRepository);
-
-const createCompanyOfficeLocationUseCase = new CreateCompanyOfficeLocationUseCase(companyOfficeLocationRepository);
-const updateCompanyOfficeLocationUseCase = new UpdateCompanyOfficeLocationUseCase(companyOfficeLocationRepository);
-const deleteCompanyOfficeLocationUseCase = new DeleteCompanyOfficeLocationUseCase(companyOfficeLocationRepository);
-const getCompanyOfficeLocationUseCase = new GetCompanyOfficeLocationUseCase(companyOfficeLocationRepository);
-
-const createCompanyBenefitUseCase = new CreateCompanyBenefitUseCase(companyBenefitsRepository);
-const updateCompanyBenefitUseCase = new UpdateCompanyBenefitUseCase(companyBenefitsRepository);
-const deleteCompanyBenefitUseCase = new DeleteCompanyBenefitUseCase(companyBenefitsRepository);
-const getCompanyBenefitUseCase = new GetCompanyBenefitUseCase(companyBenefitsRepository);
-
-const createCompanyWorkplacePictureUseCase = new CreateCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
-const updateCompanyWorkplacePictureUseCase = new UpdateCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
-const deleteCompanyWorkplacePictureUseCase = new DeleteCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
-const getCompanyWorkplacePictureUseCase = new GetCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository);
+const reapplyCompanyVerificationUseCase = new ReapplyCompanyVerificationUseCase(companyProfileRepository, companyVerificationRepository, companyOfficeLocationRepository);
+const getCompanyContactUseCase = new GetCompanyContactUseCase(companyContactRepository, getCompanyIdByUserIdUseCase);
+const upsertCompanyContactUseCase = new UpsertCompanyContactUseCase(companyContactRepository, getCompanyIdByUserIdUseCase);
 
 const getCompanyProfileByUserIdUseCase = new GetCompanyProfileByUserIdUseCase(companyProfileRepository);
 
-const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase, companySubscriptionRepository);
+const createJobPostingUseCase = new CreateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase, companySubscriptionRepository, subscriptionPlanRepository);
 
-const getJobPostingUseCase = new GetJobPostingUseCase(jobPostingRepository);
+const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase);
 
-const getCompanyJobPostingUseCase = new GetCompanyJobPostingUseCase(jobPostingRepository);
 
-const getCompanyIdByUserIdUseCase = new GetCompanyIdByUserIdUseCase(getCompanyProfileUseCase);
+const createCompanyTechStackUseCase = new CreateCompanyTechStackUseCase(companyTechStackRepository, getCompanyIdByUserIdUseCase);
+const updateCompanyTechStackUseCase = new UpdateCompanyTechStackUseCase(companyTechStackRepository, getCompanyIdByUserIdUseCase);
+const deleteCompanyTechStackUseCase = new DeleteCompanyTechStackUseCase(companyTechStackRepository, getCompanyIdByUserIdUseCase);
+const getCompanyTechStackUseCase = new GetCompanyTechStackUseCase(companyTechStackRepository, getCompanyIdByUserIdUseCase);
+
+const createCompanyOfficeLocationUseCase = new CreateCompanyOfficeLocationUseCase(companyOfficeLocationRepository, getCompanyIdByUserIdUseCase);
+const updateCompanyOfficeLocationUseCase = new UpdateCompanyOfficeLocationUseCase(companyOfficeLocationRepository, getCompanyIdByUserIdUseCase);
+const deleteCompanyOfficeLocationUseCase = new DeleteCompanyOfficeLocationUseCase(companyOfficeLocationRepository, getCompanyIdByUserIdUseCase);
+const getCompanyOfficeLocationUseCase = new GetCompanyOfficeLocationUseCase(companyOfficeLocationRepository, getCompanyIdByUserIdUseCase);
+
+const createCompanyBenefitUseCase = new CreateCompanyBenefitUseCase(companyBenefitsRepository, getCompanyIdByUserIdUseCase);
+const updateCompanyBenefitUseCase = new UpdateCompanyBenefitUseCase(companyBenefitsRepository, getCompanyIdByUserIdUseCase);
+const deleteCompanyBenefitUseCase = new DeleteCompanyBenefitUseCase(companyBenefitsRepository, getCompanyIdByUserIdUseCase);
+const getCompanyBenefitUseCase = new GetCompanyBenefitUseCase(companyBenefitsRepository, getCompanyIdByUserIdUseCase);
+
+const createCompanyWorkplacePictureUseCase = new CreateCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository, getCompanyIdByUserIdUseCase);
+const updateCompanyWorkplacePictureUseCase = new UpdateCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository, getCompanyIdByUserIdUseCase);
+const deleteCompanyWorkplacePictureUseCase = new DeleteCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository, getCompanyIdByUserIdUseCase);
+const getCompanyWorkplacePictureUseCase = new GetCompanyWorkplacePictureUseCase(companyWorkplacePicturesRepository, getCompanyIdByUserIdUseCase);
 
 const uploadLogoUseCase = new UploadLogoUseCase(s3Service, companyProfileRepository);
 const uploadBusinessLicenseUseCase = new UploadBusinessLicenseUseCase(s3Service);
@@ -168,20 +173,17 @@ const createCompanyProfileFromDtoUseCase = new CreateCompanyProfileFromDtoUseCas
 
 const getCompanyProfileWithJobPostingsUseCase = new GetCompanyProfileWithJobPostingsUseCase(getCompanyProfileUseCase, getCompanyJobPostingsUseCase, s3Service);
 
-const getCompanyDashboardUseCase = new GetCompanyDashboardUseCase(getCompanyProfileUseCase);
 
-const updateJobPostingUseCase = new UpdateJobPostingUseCase(jobPostingRepository);
+const updateJobPostingUseCase = new UpdateJobPostingUseCase(jobPostingRepository, getCompanyProfileByUserIdUseCase);
 
 const deleteJobPostingUseCase = new DeleteJobPostingUseCase(jobPostingRepository, companyProfileRepository);
 
-const incrementJobViewCountUseCase = new IncrementJobViewCountUseCase(jobPostingRepository);
-
-const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, companySubscriptionRepository, companyProfileRepository);
+const updateJobStatusUseCase = new UpdateJobStatusUseCase(jobPostingRepository, companySubscriptionRepository, companyProfileRepository, subscriptionPlanRepository);
 
 const getApplicationsByJobUseCase = new GetApplicationsByJobUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, s3Service);
 const getApplicationsByCompanyUseCase = new GetApplicationsByCompanyUseCase(jobApplicationRepository, companyProfileRepository, userRepository, seekerProfileRepository, jobPostingRepository, s3Service);
 const getApplicationDetailsUseCase = new GetApplicationDetailsUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository, userRepository, seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, s3Service);
-import { notificationService } from 'src/infrastructure/di/notificationDi'; 
+import { notificationService } from 'src/infrastructure/di/notificationDi';
 
 
 
@@ -190,7 +192,7 @@ const updateApplicationStageUseCase = new UpdateApplicationStageUseCase(jobAppli
 const updateApplicationScoreUseCase = new UpdateApplicationScoreUseCase(jobApplicationRepository, jobPostingRepository, companyProfileRepository);
 const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobApplicationRepository, companyProfileRepository);
 
-const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository);
+const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository, subscriptionPlanRepository);
 const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
 
 logger.info('Creating Stripe related UseCases...');
@@ -208,13 +210,13 @@ const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeSe
 
 const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
-const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository);
+const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository, subscriptionPlanRepository);
 
 const getCandidatesUseCase = new GetCandidatesUseCase(seekerProfileRepository, s3Service);
-const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service);
+const getCandidateDetailsUseCase = new GetCandidateDetailsUseCase(seekerProfileRepository, seekerExperienceRepository, seekerEducationRepository, userRepository, s3Service, loggerService);
 
 const mailerService = new NodemailerService();
-import { EmailTemplateService } from 'src/infrastructure/services/email-template.service';
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 const emailTemplateService = new EmailTemplateService();
 
 const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
@@ -223,6 +225,7 @@ const markCandidateHiredUseCase = new MarkCandidateHiredUseCase(
   companyProfileRepository,
   userRepository,
   mailerService,
+  loggerService,
 );
 
 const closeJobManuallyUseCase = new CloseJobManuallyUseCase(
@@ -232,6 +235,7 @@ const closeJobManuallyUseCase = new CloseJobManuallyUseCase(
   userRepository,
   mailerService,
   emailTemplateService,
+  loggerService,
 );
 
 const reopenJobUseCase = new ReopenJobUseCase(
@@ -239,19 +243,31 @@ const reopenJobUseCase = new ReopenJobUseCase(
   companyProfileRepository,
 );
 
+const toggleFeaturedJobUseCase = new ToggleFeaturedJobUseCase(
+  jobPostingRepository,
+  companyProfileRepository,
+  companySubscriptionRepository,
+);
+
+const getCompanyDashboardStatsUseCase = new GetCompanyDashboardStatsUseCase(
+  jobPostingRepository,
+  jobApplicationRepository,
+  atsInterviewRepository,
+  chatMessageRepository,
+  getCompanyIdByUserIdUseCase,
+);
+
 const companyProfileController = new CompanyProfileController(
   createCompanyProfileFromDtoUseCase,
   updateCompanyProfileUseCase,
   getCompanyProfileWithJobPostingsUseCase,
   reapplyCompanyVerificationUseCase,
-  getCompanyDashboardUseCase,
   uploadLogoUseCase,
 );
 
 const companyContactController = new CompanyContactController(
   getCompanyContactUseCase,
   upsertCompanyContactUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 
 const companyTechStackController = new CompanyTechStackController(
@@ -259,7 +275,6 @@ const companyTechStackController = new CompanyTechStackController(
   updateCompanyTechStackUseCase,
   deleteCompanyTechStackUseCase,
   getCompanyTechStackUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 
 const companyOfficeLocationController = new CompanyOfficeLocationController(
@@ -267,7 +282,6 @@ const companyOfficeLocationController = new CompanyOfficeLocationController(
   updateCompanyOfficeLocationUseCase,
   deleteCompanyOfficeLocationUseCase,
   getCompanyOfficeLocationUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 
 const companyBenefitController = new CompanyBenefitController(
@@ -275,7 +289,6 @@ const companyBenefitController = new CompanyBenefitController(
   updateCompanyBenefitUseCase,
   deleteCompanyBenefitUseCase,
   getCompanyBenefitUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 
 const companyWorkplacePictureController = new CompanyWorkplacePictureController(
@@ -283,7 +296,6 @@ const companyWorkplacePictureController = new CompanyWorkplacePictureController(
   updateCompanyWorkplacePictureUseCase,
   deleteCompanyWorkplacePictureUseCase,
   getCompanyWorkplacePictureUseCase,
-  getCompanyIdByUserIdUseCase,
 );
 
 const companyUploadController = new CompanyUploadController(
@@ -292,7 +304,7 @@ const companyUploadController = new CompanyUploadController(
   deleteImageUseCase,
 );
 
-const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, incrementJobViewCountUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, getCompanyProfileByUserIdUseCase, closeJobManuallyUseCase, reopenJobUseCase);
+const companyJobPostingController = new CompanyJobPostingController(createJobPostingUseCase, getCompanyJobPostingsUseCase, updateJobPostingUseCase, deleteJobPostingUseCase, updateJobStatusUseCase, getCompanyJobPostingUseCase, closeJobManuallyUseCase, reopenJobUseCase, toggleFeaturedJobUseCase);
 
 const companyJobApplicationController = new CompanyJobApplicationController(
   getApplicationsByJobUseCase,
@@ -319,6 +331,8 @@ const companySubscriptionController = new CompanySubscriptionController(
 
 const companyCandidatesController = new CompanyCandidatesController(getCandidatesUseCase, getCandidateDetailsUseCase);
 
+const companyDashboardController = new CompanyDashboardController(getCompanyDashboardStatsUseCase);
+
 logger.info('Creating Controllers...');
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
@@ -336,6 +350,7 @@ export {
   companySubscriptionController,
   stripeWebhookController,
   companyCandidatesController,
+  companyDashboardController,
   companyProfileRepository,
   subscriptionMiddleware,
   stripeService,

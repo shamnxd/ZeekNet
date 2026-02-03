@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,9 +23,8 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
     formatDate,
 }) => {
     const navigate = useNavigate();
-    const stageValue = typeof application?.stage === 'string' ? application.stage : 'APPLIED';
+    const stageValue = typeof application?.stage === 'string' ? application.stage : 'IN_REVIEW';
     const currentStage = stageValue as ATSStageType;
-    const currentSubStage = (typeof application?.sub_stage === 'string' ? application.sub_stage : typeof application?.subStage === 'string' ? application.subStage : undefined) as string | undefined;
 
     const renderInterviewActions = () => {
         const stageStr: string = String(currentStage);
@@ -79,29 +77,31 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
         );
     };
 
+    const subStage = typeof application?.sub_stage === 'string' ? application.sub_stage : undefined;
+
     return (
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
             <h2 className="text-[20px] font-bold text-[#1f2937] mb-6">Hiring Progress</h2>
 
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <p className="text-[14px] text-[#6b7280] mb-1">Current Stage</p>
-                        <p className="text-[18px] font-semibold text-[#1f2937]">
-                            {ATSStageDisplayNames[currentStage] || currentStage}
-                        </p>
-                    </div>
-                    <Badge className="px-4 py-2 text-[14px] font-semibold bg-[#eef2ff] text-[#4640de] border-[#4640de]">
+            <div className="mb-6 space-y-3">
+                <div>
+                    <p className="text-[12px] font-semibold uppercase tracking-wide text-[#6b7280] mb-1">Current Stage</p>
+                    <Badge
+                        variant="outline"
+                        className="px-3 py-1 text-[13px] font-semibold bg-[#eef2ff] text-[#4640de] border-[#4640de]"
+                    >
                         {ATSStageDisplayNames[currentStage] || currentStage}
                     </Badge>
                 </div>
-
-                {currentSubStage && (
-                    <div className="mt-4 pt-4 border-t border-[#e5e7eb]">
-                        <p className="text-[14px] text-[#6b7280] mb-1">Sub-stage</p>
-                        <p className="text-[16px] font-medium text-[#1f2937]">
-                            {SubStageDisplayNames[currentSubStage as keyof typeof SubStageDisplayNames] || (typeof currentSubStage === 'string' ? currentSubStage.replace(/_/g, ' ') : '')}
-                        </p>
+                {subStage && (
+                    <div>
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-[#6b7280] mb-1">Sub-stage</p>
+                        <Badge
+                            variant="outline"
+                            className="px-3 py-1 text-[12px] font-medium bg-[#f8f9ff] text-[#374151] border-[#e5e7eb]"
+                        >
+                            {SubStageDisplayNames[subStage] || subStage}
+                        </Badge>
                     </div>
                 )}
             </div>
