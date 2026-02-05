@@ -98,7 +98,9 @@ jobs:
           # Pull latest images
           docker-compose pull
           
-          # Start services
+          # Force clean restart (Fixes ContainerConfig error)
+          docker-compose stop server
+          docker-compose rm -f server
           docker-compose up -d
           
           # Clean up
