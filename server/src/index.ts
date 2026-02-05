@@ -7,6 +7,7 @@ async function start() {
   try {
     const server = new AppServer();
     logger.info('Server initialization started');
+    logger.info('CI/CD Deployment Verified v1.0');
     await server.start();
   } catch (error) {
     logger.error('❌ Failed to start server:', error);
