@@ -7,19 +7,19 @@ import { companyApi } from "@/api/company.api";
 import { ATSStage, CompensationSubStage, SubStageDisplayNames } from "@/constants/ats-stages";
 import type { CompensationStageProps } from "@/components/company/ats/stages/compensation/compensation-stage.types";
 import type { CompensationMeeting } from "@/types/ats-profile";
- 
+
 
 export const useCompensationStage = (props: CompensationStageProps) => {
     const {
         atsApplication,
         atsJob,
         compensationData,
-        compensationNotes,
         currentId,
         candidateData,
         setAtsApplication,
         setCompensationData,
         setCompensationMeetings,
+        comments,
     } = props;
 
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ export const useCompensationStage = (props: CompensationStageProps) => {
     const currentSubStage = atsApplication?.subStage || CompensationSubStage.NOT_INITIATED;
     const currentSubStageDisplayName = SubStageDisplayNames[currentSubStage] || currentSubStage;
 
-    
+
     const jobSalaryMin = atsJob?.salary?.min || 0;
     const jobSalaryMax = atsJob?.salary?.max || 0;
     const jobSalaryRange =
@@ -37,16 +37,18 @@ export const useCompensationStage = (props: CompensationStageProps) => {
 
     const candidateExpected = compensationData?.candidateExpected || "";
     const companyProposed = compensationData?.companyProposed || "";
-    
-    
+
+
     const hasExpectedSalary = !!candidateExpected;
+    const compensationComments = comments.filter((c) => c.stage === ATSStage.COMPENSATION);
     const hasNotesOrUpdates =
-        compensationNotes.length > 0 ||
+        compensationComments.length > 0 ||
         !!companyProposed ||
         (compensationData?.updatedAt &&
             compensationData?.createdAt &&
             new Date(compensationData.updatedAt) > new Date(compensationData.createdAt));
     const canApprove = hasExpectedSalary && hasNotesOrUpdates;
+
 
     const handleChat = async () => {
         if (!currentId || !candidateData?.user?._id) return;
@@ -54,10 +56,10 @@ export const useCompensationStage = (props: CompensationStageProps) => {
             const conversation = await chatApi.createConversation({
                 participantId: candidateData.user._id,
             });
-            
-             const conversationId = (conversation as { _id?: string; id?: string })?._id || conversation?.id || "";
-             if (conversationId) {
-                 navigate(`/company/messages?chat=${conversationId}`);
+
+            const conversationId = (conversation as { _id?: string; id?: string })?._id || conversation?.id || "";
+            if (conversationId) {
+                navigate(`/company/messages?chat=${conversationId}`);
             } else {
                 toast({
                     title: "Error",
@@ -78,20 +80,20 @@ export const useCompensationStage = (props: CompensationStageProps) => {
     const handleApproveCompensation = async () => {
         if (!currentId) return;
         try {
-            
+
             await atsService.updateCompensation(currentId, {
                 finalAgreed: compensationData?.companyProposed || compensationData?.candidateExpected,
                 approvedAt: new Date().toISOString(),
             });
 
-            
+
             await companyApi.moveApplicationStage(currentId, {
                 nextStage: ATSStage.COMPENSATION,
                 subStage: CompensationSubStage.APPROVED,
                 comment: "Compensation approved",
             });
 
-            
+
             if (atsApplication) {
                 setAtsApplication({
                     ...atsApplication,
@@ -99,7 +101,7 @@ export const useCompensationStage = (props: CompensationStageProps) => {
                 });
             }
 
-            
+
             const compensationRes = await atsService.getCompensation(currentId);
             setCompensationData(compensationRes.data);
 

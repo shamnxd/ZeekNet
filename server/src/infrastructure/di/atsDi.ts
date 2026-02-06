@@ -32,8 +32,6 @@ import { ScheduleCompensationMeetingUseCase } from 'src/application/use-cases/ap
 import { GetCompensationMeetingsUseCase } from 'src/application/use-cases/application/compensation/get-compensation-meetings.use-case';
 import { UpdateCompensationMeetingStatusUseCase } from 'src/application/use-cases/application/compensation/update-compensation-meeting-status.use-case';
 import { GetCommentsByApplicationUseCase } from 'src/application/use-cases/application/comments/get-comments-by-application.use-case';
-import { GetCompensationNotesUseCase } from 'src/application/use-cases/application/comments/get-compensation-notes.use-case';
-import { AddCompensationNoteUseCase } from 'src/application/use-cases/application/comments/add-compensation-note.use-case';
 
 
 import { FileUploadService } from 'src/application/services/file-upload.service';
@@ -153,8 +151,6 @@ const scheduleCompensationMeetingUseCase = new ScheduleCompensationMeetingUseCas
 const getCompensationMeetingsUseCase = new GetCompensationMeetingsUseCase(compensationMeetingRepository);
 const updateCompensationMeetingStatusUseCase = new UpdateCompensationMeetingStatusUseCase(compensationMeetingRepository, jobApplicationRepository, userRepository);
 const getCommentsByApplicationUseCase = new GetCommentsByApplicationUseCase(commentRepository);
-const getCompensationNotesUseCase = new GetCompensationNotesUseCase(commentRepository);
-const addCompensationNoteUseCase = new AddCompensationNoteUseCase(commentRepository, userRepository);
 
 export const atsInterviewController = new ATSInterviewController(
   scheduleInterviewUseCase,
@@ -177,9 +173,7 @@ export const atsOfferController = new ATSOfferController(
 
 export const atsCommentController = new ATSCommentController(
   addCommentUseCase,
-  addCompensationNoteUseCase,
   getCommentsByApplicationUseCase,
-  getCompensationNotesUseCase,
 );
 
 export const atsCompensationController = new ATSCompensationController(

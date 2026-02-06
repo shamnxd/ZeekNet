@@ -15,7 +15,6 @@ export const CompensationStage = (props: CompensationStageProps) => {
         isCurrentStage,
         compensationData,
         candidateData,
-        compensationNotes,
         setShowCompensationInitModal,
         setShowCompensationUpdateModal,
         setShowRevokeConfirmDialog,
@@ -95,7 +94,6 @@ export const CompensationStage = (props: CompensationStageProps) => {
             />
 
             <CompensationNotes
-                compensationNotes={compensationNotes}
                 comments={comments}
                 showActions={showActions}
                 setShowCommentModal={setShowCommentModal}

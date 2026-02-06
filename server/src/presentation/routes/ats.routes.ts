@@ -47,7 +47,5 @@ export class ATSRouter {
     this.router.post('/:applicationId/compensation/meetings', atsCompensationController.scheduleCompensationMeeting);
     this.router.get('/:applicationId/compensation/meetings', atsCompensationController.getCompensationMeetings);
     this.router.put('/:applicationId/compensation/meetings/:meetingId/status', atsCompensationController.updateCompensationMeetingStatus);
-    this.router.post('/:applicationId/compensation/notes', atsCommentController.addCompensationNote);
-    this.router.get('/:applicationId/compensation/notes', atsCommentController.getCompensationNotes);
   }
 }

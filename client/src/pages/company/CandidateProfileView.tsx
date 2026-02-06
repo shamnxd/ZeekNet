@@ -417,10 +417,6 @@ const CandidateProfileView = () => {
               atsService.getCompensationMeetings(currentId).catch((err) => {
                 console.error("Failed to fetch meetings:", err);
                 return [];
-              }),
-              atsService.getCompensationNotes(currentId).catch((err) => {
-                console.error("Failed to fetch notes:", err);
-                return [];
               })
             );
           }
@@ -1220,9 +1216,13 @@ const CandidateProfileView = () => {
       setCompensationData(updatedCompensation);
 
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
 
       // Update application state
@@ -1291,9 +1291,13 @@ const CandidateProfileView = () => {
       }
 
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
 
       toast({

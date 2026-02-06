@@ -247,10 +247,6 @@ export const useCandidateProfile = () => {
               atsService.getCompensationMeetings(currentId).catch((err) => {
                 console.error("Failed to fetch meetings:", err);
                 return [];
-              }),
-              atsService.getCompensationNotes(currentId).catch((err) => {
-                console.error("Failed to fetch notes:", err);
-                return [];
               })
             );
           }
@@ -810,9 +806,13 @@ export const useCandidateProfile = () => {
 
       setCompensationData(compensationRes.data || compensationRes);
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
       if (atsApplication) {
         setAtsApplication({ ...atsApplication, subStage: CompensationSubStage.INITIATED });
@@ -844,9 +844,13 @@ export const useCandidateProfile = () => {
         if (atsApplication) setAtsApplication({ ...atsApplication, subStage: CompensationSubStage.NEGOTIATION_ONGOING });
       }
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
       toast({ title: "Success", description: "Compensation updated." });
     } catch (error) {

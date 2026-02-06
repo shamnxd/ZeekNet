@@ -315,17 +315,6 @@ class ATSService {
     return response.data?.data || response.data;
   }
 
-  async addCompensationNote(applicationId: string, data: { note: string }) {
-    const response = await api.post(`/api/company/applications/${applicationId}/compensation/notes`, data);
-
-    return response.data?.data || response.data;
-  }
-
-  async getCompensationNotes(applicationId: string) {
-    const response = await api.get(`/api/company/applications/${applicationId}/compensation/notes`);
-
-    return response.data?.data || response.data || [];
-  }
 }
 
 export const atsService = new ATSService();
