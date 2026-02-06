@@ -1,5 +1,5 @@
 import { logger } from 'src/infrastructure/config/logger';
-logger.info('Entering adminDi.ts - starting imports');
+
 import { UserRepository } from 'src/infrastructure/persistence/mongodb/repositories/user.repository';
 import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
 import { CompanyVerificationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-verification.repository';
@@ -66,9 +66,9 @@ import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies
 import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
 import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
 
-logger.info('Initializing adminDi...');
+
 const userRepository = new UserRepository();
-logger.info('adminDi: Repositories instantiated');
+
 const companyProfileRepository = new CompanyProfileRepository();
 const companyVerificationRepository = new CompanyVerificationRepository();
 const jobPostingRepository = new JobPostingRepository();
@@ -214,5 +214,5 @@ export {
   adminPaymentOrderController,
   adminDashboardController,
 };
-logger.info('adminDi initialization complete');
+
 

@@ -27,16 +27,11 @@ import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
   private _app: express.Application;
-
-  static {
-    logger.info('AppServer class definition loading...');
-  }
   private _port: number;
   private _httpServer: ReturnType<typeof createServer>;
   private _socketServer: SocketServer | null = null;
 
   constructor() {
-    logger.info('AppServer constructor start');
     this._app = express();
     this._port = Number(env.PORT ?? 4000);
     this._httpServer = createServer(this._app);
@@ -82,7 +77,6 @@ export class AppServer {
   }
 
   private configureRoutes(): void {
-    const userBlockedMiddleware = new UserBlockedMiddleware(getUserByIdUseCase);
 
     this._app.get('/health', (req, res) =>
       res.json({
@@ -91,8 +85,6 @@ export class AppServer {
         uptime: process.uptime(),
       }),
     );
-
-    this._app.get('/home', authenticateToken, userBlockedMiddleware.checkUserBlocked, (req, res) => res.json({ message: 'Welcome to ZeekNet Job Portal API' }));
 
     this._app.use('/api/auth', new AuthRouter().router);
     this._app.use('/api/admin', new AdminRouter().router);
