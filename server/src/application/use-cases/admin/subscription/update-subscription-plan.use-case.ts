@@ -9,6 +9,9 @@ import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscripti
 import { PriceType } from 'src/domain/entities/price-history.entity';
 import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
 import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/subscription-plan.mapper';
+import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
+import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
+import { PaymentSubscription } from 'src/domain/types/payment/payment-types';
 
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
@@ -16,12 +19,14 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     private readonly _logger: ILogger,
     private readonly _stripeService?: IStripeService,
     private readonly _priceHistoryRepository?: IPriceHistoryRepository,
-  ) {}
+    private readonly _mailerService?: IMailerService,
+    private readonly _emailTemplateService?: IEmailTemplateService,
+  ) { }
 
   async execute(dto: UpdateSubscriptionPlanDto): Promise<SubscriptionPlan> {
     const { planId, ...data } = dto;
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
-    
+
     if (!existingPlan) {
       throw new NotFoundError('Subscription plan not found');
     }
@@ -85,12 +90,12 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       await this._subscriptionPlanRepository.unmarkAllAsPopular();
     }
 
-    const priceChanged = data.price !== undefined && 
-                         existingPlan.stripeProductId && 
-                         data.price !== existingPlan.price;
-    
-    const yearlyDiscountChanged = data.yearlyDiscount !== undefined && 
-                                  data.yearlyDiscount !== existingPlan.yearlyDiscount;
+    const priceChanged = data.price !== undefined &&
+      existingPlan.stripeProductId &&
+      data.price !== existingPlan.price;
+
+    const yearlyDiscountChanged = data.yearlyDiscount !== undefined &&
+      data.yearlyDiscount !== existingPlan.yearlyDiscount;
 
     let newMonthlyPriceId: string | undefined;
     let newYearlyPriceId: string | undefined;
@@ -101,6 +106,12 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
       if (this._stripeService && existingPlan.stripeProductId) {
         try {
           if (existingPlan.stripePriceIdMonthly) {
+            await this._processPriceChange(
+              existingPlan.name,
+              existingPlan.stripePriceIdMonthly,
+              finalPrice,
+              'monthly',
+            );
             await this._stripeService.archivePrice(existingPlan.stripePriceIdMonthly);
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(existingPlan.stripePriceIdMonthly);
@@ -109,6 +120,13 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           }
 
           if (existingPlan.stripePriceIdYearly) {
+            const yearlyPrice = finalPrice * (1 - finalYearlyDiscount / 100) * 12;
+            await this._processPriceChange(
+              existingPlan.name,
+              existingPlan.stripePriceIdYearly,
+              yearlyPrice,
+              'yearly',
+            );
             await this._stripeService.archivePrice(existingPlan.stripePriceIdYearly);
             if (this._priceHistoryRepository) {
               await this._priceHistoryRepository.archivePrice(existingPlan.stripePriceIdYearly);
@@ -142,7 +160,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           if (finalYearlyDiscount > 0) {
             const yearlyPricePerMonth = finalPrice * (1 - finalYearlyDiscount / 100);
             const yearlyPriceInCents = Math.round(yearlyPricePerMonth * 12 * 100);
-            
+
             const yearlyPrice = await this._stripeService.createPrice({
               productId: existingPlan.stripeProductId,
               unitAmount: yearlyPriceInCents,
@@ -191,7 +209,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     }
 
     const updatedPlan = await this._subscriptionPlanRepository.update(planId, data as Partial<SubscriptionPlan>);
-    
+
     if (!updatedPlan) {
       throw new NotFoundError('Subscription plan not found after update');
     }
@@ -215,13 +233,13 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           }
           await this._stripeService.archiveProduct(updatedPlan.stripeProductId);
           this._logger.info(`Archived Stripe product: ${updatedPlan.stripeProductId}`);
-          
+
           await this._subscriptionPlanRepository.update(planId, {
             stripeProductId: undefined,
             stripePriceIdMonthly: undefined,
             stripePriceIdYearly: undefined,
           } as Partial<SubscriptionPlan>);
-          
+
           this._logger.info(`Subscription plan ${updatedPlan.name} unlisted and archived in Stripe`);
         } else if (!priceChanged && !yearlyDiscountChanged) {
           await this._stripeService.updateProduct(updatedPlan.stripeProductId, {
@@ -243,6 +261,123 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     }
 
     return SubscriptionPlanMapper.toResponse(updatedPlan)!;
+  }
+
+  private async _processPriceChange(
+    planName: string,
+    oldPriceId: string,
+    newPriceAmount: number,
+    billingCycle: 'monthly' | 'yearly',
+  ): Promise<void> {
+    if (!this._stripeService || !this._mailerService || !this._emailTemplateService) {
+      this._logger.warn('Missing services required for price change notification');
+      return;
+    }
+
+    this._logger.info(`Processing ${billingCycle} subscriptions from ${oldPriceId} (will cancel at period end)`);
+
+    let startingAfter: string | undefined;
+
+    do {
+      try {
+        const { data: subscriptions, hasMore, lastId } = await this._stripeService.listSubscriptionsByPrice(
+          oldPriceId,
+          100,
+          startingAfter,
+        );
+
+        for (const subscription of subscriptions) {
+          try {
+            const subscriptionItem = subscription.items.data[0];
+            if (!subscriptionItem) continue;
+
+            const priceAmount = typeof subscriptionItem.price.unitAmount === 'number'
+              ? subscriptionItem.price.unitAmount
+              : 0;
+            const oldPrice = priceAmount / 100;
+            const newPrice = newPriceAmount; // Assuming newPriceAmount is passed in full currency units (not cents) or is it?
+            // Wait, finalPrice in execute is plain number (e.g. 10), so it is correct.
+
+            // Cancel subscription at period end
+            await this._stripeService.cancelSubscription(subscription.id, true);
+
+            // Send notification email
+            await this._sendPriceChangeNotificationEmail(
+              subscription,
+              planName,
+              oldPrice,
+              newPrice,
+              billingCycle,
+            );
+          } catch (error) {
+            this._logger.error(`Failed to process subscription ${subscription.id} for price change`, error);
+          }
+        }
+
+        startingAfter = hasMore ? lastId : undefined;
+      } catch (error) {
+        this._logger.error(`Failed to list subscriptions for price ${oldPriceId}`, error);
+        break;
+      }
+    } while (startingAfter);
+  }
+
+  private async _sendPriceChangeNotificationEmail(
+    subscription: PaymentSubscription,
+    planName: string,
+    oldPrice: number,
+    newPrice: number,
+    billingCycle: 'monthly' | 'yearly',
+  ): Promise<void> {
+    try {
+      if (!this._stripeService || !this._mailerService || !this._emailTemplateService) return;
+
+      let customerEmail: string | undefined;
+      let companyName: string | undefined;
+      let periodEnd: Date | undefined;
+
+      if (typeof subscription.customerId === 'string') {
+        const customer = await this._stripeService.getCustomer(subscription.customerId);
+        if (customer && !customer.deleted) {
+          customerEmail = customer.email || undefined;
+          companyName = customer.name || undefined;
+        }
+      } else if (subscription.customerId && typeof subscription.customerId === 'object') {
+        const customer = subscription.customerId;
+        if (!customer.deleted) {
+          customerEmail = customer.email || undefined;
+          companyName = customer.name || undefined;
+        }
+      }
+
+      if (subscription.currentPeriodEnd) {
+        periodEnd = new Date(
+          typeof subscription.currentPeriodEnd === 'number'
+            ? subscription.currentPeriodEnd * 1000
+            : subscription.currentPeriodEnd,
+        );
+      }
+
+      if (!customerEmail) {
+        return;
+      }
+
+      const { subject, html } = this._emailTemplateService.getPriceChangeNotificationEmail(
+        planName,
+        oldPrice,
+        newPrice,
+        billingCycle,
+        periodEnd,
+        companyName,
+      );
+
+      await this._mailerService.sendMail(customerEmail, subject, html);
+    } catch (error) {
+      this._logger.error(
+        `Failed to send notification email for subscription ${subscription.id}`,
+        error,
+      );
+    }
   }
 }
 

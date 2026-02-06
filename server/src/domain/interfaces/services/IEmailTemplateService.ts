@@ -1,9 +1,10 @@
 export interface IEmailTemplateService {
-  getSubscriptionMigrationEmail(
+  getPriceChangeNotificationEmail(
     planName: string,
     oldPrice: number,
     newPrice: number,
     billingCycle: 'monthly' | 'yearly',
+    periodEnd: Date | undefined,
     companyName?: string,
   ): { subject: string; html: string };
 
