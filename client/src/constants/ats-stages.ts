@@ -67,38 +67,38 @@ export const OfferSubStage = {
 
 
 export const SubStageDisplayNames: Record<string, string> = {
-  
+
   [InReviewSubStage.PROFILE_REVIEW]: 'Profile Review',
   [InReviewSubStage.PENDING_DECISION]: 'Pending Decision',
-  
+
   [ShortlistedSubStage.READY_FOR_INTERVIEW]: 'Ready for Interview',
   [ShortlistedSubStage.CONTACTED]: 'Contacted',
   [ShortlistedSubStage.AWAITING_RESPONSE]: 'Awaiting Response',
-  
+
   [InterviewSubStage.NOT_SCHEDULED]: 'Not Scheduled',
   [InterviewSubStage.SCHEDULED]: 'Scheduled',
-  
+
   [InterviewSubStage.COMPLETED]: 'Completed',
   [InterviewSubStage.EVALUATION_PENDING]: 'Evaluation Pending',
-  
+
   [TechnicalTaskSubStage.NOT_ASSIGNED]: 'Not Assigned',
   [TechnicalTaskSubStage.ASSIGNED]: 'Assigned',
   [TechnicalTaskSubStage.SUBMITTED]: 'Submitted',
   [TechnicalTaskSubStage.UNDER_REVIEW]: 'Under Review',
-  
-  
+
+
   [CompensationSubStage.NOT_INITIATED]: 'Not Initiated',
   [CompensationSubStage.INITIATED]: 'Initiated',
   [CompensationSubStage.NEGOTIATION_ONGOING]: 'Negotiation Ongoing',
   [CompensationSubStage.APPROVED]: 'Approved',
-  
+
   [OfferSubStage.NOT_SENT]: 'Not Sent',
   [OfferSubStage.OFFER_SENT]: 'Offer Sent',
   [OfferSubStage.OFFER_ACCEPTED]: 'Offer Accepted',
   [OfferSubStage.OFFER_DECLINED]: 'Offer Declined'
 };
 
-export type ATSSubStage = 
+export type ATSSubStage =
   | typeof InterviewSubStage[keyof typeof InterviewSubStage]
   | typeof TechnicalTaskSubStage[keyof typeof TechnicalTaskSubStage]
   | typeof CompensationSubStage[keyof typeof CompensationSubStage]
@@ -218,24 +218,4 @@ export const STAGE_COLORS: Record<ATSStage, string> = {
   [ATSStage.REJECTED]: '#EF4444'
 };
 
-export const ActivityType = {
-  STAGE_CHANGE: 'STAGE_CHANGE',
-  SUBSTAGE_CHANGE: 'SUBSTAGE_CHANGE',
-  INTERVIEW_SCHEDULED: 'INTERVIEW_SCHEDULED',
-  INTERVIEW_COMPLETED: 'INTERVIEW_COMPLETED',
-  INTERVIEW_CANCELLED: 'INTERVIEW_CANCELLED',
-  TASK_ASSIGNED: 'TASK_ASSIGNED',
-  TASK_SUBMITTED: 'TASK_SUBMITTED',
-  TASK_COMPLETED: 'TASK_COMPLETED',
-  COMPENSATION_INITIATED: 'COMPENSATION_INITIATED',
-  COMPENSATION_UPDATED: 'COMPENSATION_UPDATED',
-  COMPENSATION_APPROVED: 'COMPENSATION_APPROVED',
-  COMPENSATION_MEETING_SCHEDULED: 'COMPENSATION_MEETING_SCHEDULED',
-  OFFER_SENT: 'OFFER_SENT',
-  OFFER_ACCEPTED: 'OFFER_ACCEPTED',
-  OFFER_DECLINED: 'OFFER_DECLINED',
-  COMMENT_ADDED: 'COMMENT_ADDED',
-  NOTE_ADDED: 'NOTE_ADDED'
-} as const;
 
-export type ActivityType = typeof ActivityType[keyof typeof ActivityType];

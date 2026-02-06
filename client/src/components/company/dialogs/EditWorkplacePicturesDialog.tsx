@@ -88,7 +88,8 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
     }
 
     // Clean up preview URLs before saving
-    const picturesToSave = validPictures.map(({ previewUrl: _previewUrl, ...rest }) => rest);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const picturesToSave = validPictures.map(({ previewUrl, ...rest }) => rest);
 
     onSave(picturesToSave);
     onClose();

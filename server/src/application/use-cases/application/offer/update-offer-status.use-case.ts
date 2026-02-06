@@ -2,7 +2,7 @@ import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/appli
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IUpdateApplicationSubStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IUpdateApplicationSubStageUseCase';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSStage, OfferSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -21,7 +21,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
     private readonly _logger: ILogger,
@@ -86,18 +86,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       });
     }
 
-    if (data.status === 'signed' || data.status === 'declined') {
-      await this._activityLoggerService.logOfferActivity({
-        applicationId: existingOffer.applicationId,
-        offerId: offer.id,
-        status: data.status,
-        withdrawalReason: data.withdrawalReason,
-        stage: application.stage,
-        subStage: application.subStage,
-        performedBy: data.performedBy,
-        performedByName: data.performedByName,
-      });
-    }
+
 
     return ATSOfferMapper.toResponse(offer);
   }

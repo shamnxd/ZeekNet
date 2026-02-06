@@ -60,7 +60,7 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
     const featuredJobsResult = await this._jobPostingRepository.paginate({
       companyId: companyProfile.id,
       isFeatured: true,
-      status: 'active'
+      status: 'active',
     }, { page: 1, limit: 1 });
 
     // Update local subscription object for response

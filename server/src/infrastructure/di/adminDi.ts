@@ -49,7 +49,7 @@ import { CreateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/s
 import { GetAllSubscriptionPlansUseCase } from 'src/application/use-cases/admin/subscription/get-all-subscription-plans.use-case';
 import { GetSubscriptionPlanByIdUseCase } from 'src/application/use-cases/admin/subscription/get-subscription-plan-by-id.use-case';
 import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/subscription/update-subscription-plan.use-case';
-import { MigratePlanSubscribersUseCase } from 'src/application/use-cases/admin/subscription/migrate-plan-subscribers.use-case';
+
 import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
 import { NodemailerService } from 'src/infrastructure/messaging/mailer';
 import { AdminUserController } from 'src/presentation/controllers/admin/admin-user.controller';
@@ -160,23 +160,21 @@ const deleteJobRoleUseCase = new DeleteJobRoleUseCase(jobRoleRepository);
 
 const adminJobRoleController = new AdminJobRoleController(createJobRoleUseCase, getAllJobRolesUseCase, getJobRoleByIdUseCase, updateJobRoleUseCase, deleteJobRoleUseCase);
 
+
+const mailerService = new NodemailerService();
+import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
+const emailTemplateService = new EmailTemplateService();
+
 const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
-const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository);
-const mailerService = new NodemailerService();
-import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 
-const emailTemplateService = new EmailTemplateService();
-
-
-const migratePlanSubscribersUseCase = new MigratePlanSubscribersUseCase(
+const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(
   subscriptionPlanRepository,
+  logger,
   stripeService,
   priceHistoryRepository,
-  companySubscriptionRepository,
   mailerService,
-  logger,
   emailTemplateService,
 );
 
@@ -185,7 +183,6 @@ const adminSubscriptionPlanController = new AdminSubscriptionPlanController(
   getAllSubscriptionPlansUseCase,
   getSubscriptionPlanByIdUseCase,
   updateSubscriptionPlanUseCase,
-  migratePlanSubscribersUseCase,
 );
 
 const getAllPaymentOrdersUseCase = new GetAllPaymentOrdersUseCase(paymentOrderRepository, companyProfileRepository, subscriptionPlanRepository);

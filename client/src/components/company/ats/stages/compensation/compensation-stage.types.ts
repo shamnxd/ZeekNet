@@ -6,14 +6,6 @@ import type { ATSComment, ATSCompensation } from "@/types/ats";
 import type { ATSStage } from "@/constants/ats-stages";
 import type { CompensationMeeting } from "@/types/ats-profile";
 
-export interface CompensationNote {
-    comment?: string;
-    note?: string;
-    recruiterName?: string;
-    createdAt: string;
-    [key: string]: unknown;
-}
-
 export interface CompensationStageProps {
     atsApplication: CompanySideApplication | null;
     selectedStage: string;
@@ -21,7 +13,6 @@ export interface CompensationStageProps {
     atsJob: JobPostingResponse | null;
     compensationData: ATSCompensation | null;
     candidateData: CandidateDetailsResponse | null;
-    compensationNotes: CompensationNote[];
     currentId: string | undefined;
     setShowCompensationInitModal: (show: boolean) => void;
     setShowCompensationUpdateModal: (show: boolean) => void;

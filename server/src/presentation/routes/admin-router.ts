@@ -55,7 +55,6 @@ export class AdminRouter {
     this.router.post('/subscription-plans', adminSubscriptionPlanController.createSubscriptionPlan);
     this.router.get('/subscription-plans/:id', adminSubscriptionPlanController.getSubscriptionPlanById);
     this.router.put('/subscription-plans/:id', adminSubscriptionPlanController.updateSubscriptionPlan);
-    this.router.post('/subscription-plans/:id/migrate-subscribers', adminSubscriptionPlanController.migratePlanSubscribers);
 
     this.router.get('/payment-orders', adminPaymentOrderController.getAllPaymentOrders);
   }

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IAssignTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IAssignTechnicalTaskUseCase';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
@@ -21,7 +21,7 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _userRepository: IUserRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
     private readonly _logger: ILogger,
@@ -62,16 +62,7 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       );
     }
 
-    await this._activityLoggerService.logTaskAssignedActivity({
-      applicationId: dto.applicationId,
-      taskId: savedTask.id,
-      taskTitle: dto.title,
-      deadline: dto.deadline,
-      stage: application.stage,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     return ATSTechnicalTaskMapper.toResponse(savedTask);
   }

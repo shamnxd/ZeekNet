@@ -5,7 +5,7 @@ import {
   atsOfferController,
   atsCommentController,
   atsCompensationController,
-  atsActivityController,
+
 } from 'src/infrastructure/di/atsDi';
 
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
@@ -39,7 +39,7 @@ export class ATSRouter {
     this.router.post('/comments', atsCommentController.addComment);
     this.router.get('/:applicationId/comments', atsCommentController.getCommentsByApplication);
 
-    this.router.get('/:applicationId/activities', atsActivityController.getActivitiesByApplication);
+
 
     this.router.post('/:applicationId/compensation/initiate', atsCompensationController.initiateCompensation);
     this.router.put('/:applicationId/compensation', atsCompensationController.updateCompensation);
@@ -47,7 +47,5 @@ export class ATSRouter {
     this.router.post('/:applicationId/compensation/meetings', atsCompensationController.scheduleCompensationMeeting);
     this.router.get('/:applicationId/compensation/meetings', atsCompensationController.getCompensationMeetings);
     this.router.put('/:applicationId/compensation/meetings/:meetingId/status', atsCompensationController.updateCompensationMeetingStatus);
-    this.router.post('/:applicationId/compensation/notes', atsCommentController.addCompensationNote);
-    this.router.get('/:applicationId/compensation/notes', atsCommentController.getCompensationNotes);
   }
 }

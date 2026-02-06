@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUploadOfferUseCase';
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
@@ -14,7 +14,7 @@ export class UploadOfferUseCase implements IUploadOfferUseCase {
   constructor(
     private readonly _offerRepository: IATSOfferRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _userRepository: IUserRepository,
   ) { }
 
@@ -44,15 +44,7 @@ export class UploadOfferUseCase implements IUploadOfferUseCase {
     }
 
 
-    await this._activityLoggerService.logOfferSentActivity({
-      applicationId: dto.applicationId,
-      offerId: savedOffer.id,
-      offerAmount: dto.offerAmount,
-      stage: application.stage,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     return ATSOfferMapper.toResponse(savedOffer);
   }

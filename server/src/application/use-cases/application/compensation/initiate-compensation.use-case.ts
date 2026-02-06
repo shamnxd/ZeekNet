@@ -3,7 +3,7 @@ import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/ap
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
@@ -24,7 +24,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _addCommentUseCase: IAddCommentUseCase,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
     private readonly _logger: ILogger,
@@ -65,15 +65,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     const currentUser = await this._userRepository.findById(dto.performedBy);
     const performedByName = currentUser ? currentUser.name : 'Unknown';
 
-    await this._activityLoggerService.logCompensationActivity({
-      applicationId: dto.applicationId,
-      type: 'initiated',
-      candidateExpected: dto.candidateExpected,
-      stage: ATSStage.COMPENSATION,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     if (dto.notes) {
       await this._addCommentUseCase.execute({

@@ -1,7 +1,7 @@
 import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
 import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
@@ -14,7 +14,7 @@ export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensati
   constructor(
     private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _userRepository: IUserRepository,
   ) { }
 
@@ -56,16 +56,7 @@ export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensati
     }
 
 
-    await this._activityLoggerService.logCompensationMeetingActivity({
-      applicationId: dto.applicationId,
-      meetingId: updated.id,
-      type: 'status_updated',
-      status: dto.status,
-      stage: ATSStage.COMPENSATION,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     return ATSCompensationMeetingMapper.toResponse(updated);
   }

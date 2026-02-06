@@ -55,7 +55,7 @@ import { CompensationInitModal } from "@/components/company/ats/CompensationInit
 import { CompensationUpdateModal } from "@/components/company/ats/CompensationUpdateModal";
 import { CompensationMeetingModal } from "@/components/company/ats/CompensationMeetingModal";
 import { CreateOfferModal } from "@/components/company/ats/CreateOfferModal";
-import { StageBasedActivityView } from "@/components/company/ats/StageBasedActivityView";
+
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   Dialog,
@@ -120,19 +120,7 @@ import {
   SubStageDisplayNames,
 } from "@/constants/ats-stages";
 
-interface ATSActivity {
-  id: string;
-  applicationId: string;
-  type: string;
-  title: string;
-  description: string;
-  performedBy: string;
-  performedByName: string;
-  stage?: ATSStage;
-  subStage?: string;
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-}
+
 
 interface CompensationMeeting {
   id?: string;
@@ -174,15 +162,10 @@ const CandidateProfileView = () => {
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "resume" | "hiring" | "activity"
+    "profile" | "resume" | "hiring"
   >("profile");
   const [selectedStage, setSelectedStage] = useState<string>("");
-  const [activities, setActivities] = useState<ATSActivity[]>([]);
-  const [activitiesNextCursor, setActivitiesNextCursor] = useState<
-    string | null
-  >(null);
-  const [activitiesHasMore, setActivitiesHasMore] = useState(false);
-  const [loadingMoreActivities, setLoadingMoreActivities] = useState(false);
+
 
   // Modals
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -421,14 +404,7 @@ const CandidateProfileView = () => {
             atsService
               .getCommentsByApplication(currentId)
               .catch(() => ({ data: [] })),
-            // Activity Logs - use paginated API
-            atsService
-              .getActivitiesByApplicationPaginated(currentId, 20)
-              .catch(() => ({
-                activities: [],
-                nextCursor: null,
-                hasMore: false,
-              })),
+
           ];
 
           // Add compensation-related fetches if in COMPENSATION stage
@@ -440,10 +416,6 @@ const CandidateProfileView = () => {
               }),
               atsService.getCompensationMeetings(currentId).catch((err) => {
                 console.error("Failed to fetch meetings:", err);
-                return [];
-              }),
-              atsService.getCompensationNotes(currentId).catch((err) => {
-                console.error("Failed to fetch notes:", err);
                 return [];
               })
             );
@@ -457,7 +429,7 @@ const CandidateProfileView = () => {
             tasksRes,
             offersRes,
             commentsRes,
-            activitiesRes,
+
             ...compensationResults
           ] = results;
 
@@ -566,19 +538,7 @@ const CandidateProfileView = () => {
             setCurrentOffer(null);
           }
           setComments(commentsRes.data || []);
-          // Handle paginated activities response
-          // The service returns response.data?.data || response.data, so activitiesRes is already the inner data
-          const activitiesData = activitiesRes || {
-            activities: [],
-            nextCursor: null,
-            hasMore: false,
-          };
-          // Backend now returns newest first, but we want chronological order (oldest first) for timeline
-          // So we reverse the array to get oldest first
-          const initialActivities = (activitiesData.activities || []).reverse();
-          setActivities(initialActivities);
-          setActivitiesNextCursor(activitiesData.nextCursor || null);
-          setActivitiesHasMore(activitiesData.hasMore || false);
+
 
           // Handle compensation data if in compensation stage
           if (
@@ -1256,9 +1216,13 @@ const CandidateProfileView = () => {
       setCompensationData(updatedCompensation);
 
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
 
       // Update application state
@@ -1327,9 +1291,13 @@ const CandidateProfileView = () => {
       }
 
       if (data.notes) {
-        await atsService.addCompensationNote(currentId, { note: data.notes });
-        const notesRes = await atsService.getCompensationNotes(currentId);
-        setCompensationNotes(notesRes.data || []);
+        await atsService.addComment({
+          applicationId: currentId,
+          comment: data.notes,
+          stage: ATSStage.COMPENSATION,
+        });
+        const commentsRes = await atsService.getCommentsByApplication(currentId);
+        setComments(commentsRes.data || []);
       }
 
       toast({
@@ -4480,15 +4448,7 @@ const CandidateProfileView = () => {
                       >
                         Hiring Progress
                       </button>
-                      <button
-                        onClick={() => setActiveTab("activity")}
-                        className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === "activity"
-                          ? "border-[#4640DE] text-[#4640DE]"
-                          : "border-transparent text-gray-600 hover:text-gray-900"
-                          }`}
-                      >
-                        Activity Log
-                      </button>
+
                     </>
                   )}
                 </div>
@@ -4860,82 +4820,7 @@ const CandidateProfileView = () => {
                   </div>
                 )}
 
-                {/* Activity Log Tab */}
-                {activeTab === "activity" && isATSMode && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-gray-900">
-                        Activity Log
-                      </h2>
-                    </div>
 
-                    {loading ? (
-                      <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                      </div>
-                    ) : (
-                      <StageBasedActivityView
-                        activities={activities}
-                        currentStage={atsApplication?.stage}
-                        enabledStages={atsJob?.enabled_stages as string[]}
-                        onLoadMore={async () => {
-                          if (!id && !candidateId) return;
-                          const currentId = id || candidateId;
-                          if (
-                            !currentId ||
-                            !activitiesNextCursor ||
-                            loadingMoreActivities
-                          )
-                            return;
-
-                          setLoadingMoreActivities(true);
-                          try {
-                            const response =
-                              await atsService.getActivitiesByApplicationPaginated(
-                                currentId,
-                                20,
-                                activitiesNextCursor
-                              );
-                            const newActivities = response.activities || [];
-                            // Backend returns newest first, but we need oldest first for chronological timeline
-                            // Reverse new activities, then append to existing (which are already oldest first)
-                            const reversedNewActivities = [
-                              ...newActivities,
-                            ].reverse();
-                            setActivities((prev) => {
-                              // Merge and sort to ensure correct chronological order
-                              const merged = [
-                                ...prev,
-                                ...reversedNewActivities,
-                              ];
-                              merged.sort((a, b) => {
-                                const dateA = new Date(a.createdAt).getTime();
-                                const dateB = new Date(b.createdAt).getTime();
-                                return dateA - dateB; // Oldest first (chronological)
-                              });
-                              return merged;
-                            });
-                            setActivitiesNextCursor(
-                              response.nextCursor || null
-                            );
-                            setActivitiesHasMore(response.hasMore || false);
-                          } catch (error) {
-                            console.error(
-                              "Failed to load more activities:",
-                              error
-                            );
-                          } finally {
-                            setLoadingMoreActivities(false);
-                          }
-                        }}
-                        applicationId={id || candidateId}
-                        isLoadingMore={loadingMoreActivities}
-                        hasMore={activitiesHasMore}
-                        formatDateTime={formatDateTime}
-                      />
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>
