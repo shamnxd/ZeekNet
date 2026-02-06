@@ -7,7 +7,7 @@ import { ATSCompensationController } from 'src/presentation/controllers/ats/offe
 import { ATSActivityController } from 'src/presentation/controllers/ats/activity/ats-activity.controller';
 import { logger } from 'src/infrastructure/config/logger';
 
-logger.info('Initializing atsDi...');
+
 
 import { ScheduleInterviewUseCase } from 'src/application/use-cases/application/interview/schedule-interview.use-case';
 import { UpdateInterviewUseCase } from 'src/application/use-cases/application/interview/update-interview.use-case';
@@ -208,5 +208,5 @@ export const atsPipelineController = new ATSPipelineController(
   moveApplicationStageUseCase,
   updateApplicationSubStageUseCase,
 );
-logger.info('atsDi initialization complete');
+
 

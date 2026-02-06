@@ -121,8 +121,8 @@ const s3Service = new S3Service();
 
 const stripeService = new StripeService();
 const loggerService = new LoggerService();
-logger.info('Stripe service initialized');
-logger.info('Starting UseCase initialization...');
+
+
 
 const createCompanyProfileUseCase = new CreateCompanyProfileUseCase(companyProfileRepository, companyContactRepository, companyOfficeLocationRepository, companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
 
@@ -195,7 +195,7 @@ const bulkUpdateApplicationsUseCase = new BulkUpdateApplicationsUseCase(jobAppli
 const getActiveSubscriptionUseCase = new GetActiveSubscriptionUseCase(companySubscriptionRepository, companyProfileRepository, jobPostingRepository, subscriptionPlanRepository);
 const getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(paymentOrderRepository, companyProfileRepository);
 
-logger.info('Creating Stripe related UseCases...');
+
 const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, userRepository);
 
 const revertToDefaultPlanUseCase = new RevertToDefaultPlanUseCase(companySubscriptionRepository, subscriptionPlanRepository, jobPostingRepository, companyProfileRepository, notificationRepository, logger);
@@ -333,7 +333,7 @@ const companyCandidatesController = new CompanyCandidatesController(getCandidate
 
 const companyDashboardController = new CompanyDashboardController(getCompanyDashboardStatsUseCase);
 
-logger.info('Creating Controllers...');
+
 const stripeWebhookController = new StripeWebhookController(handleStripeWebhookUseCase);
 
 export {
@@ -356,4 +356,4 @@ export {
   stripeService,
   getCompanyIdByUserIdUseCase,
 };
-logger.info('companyDi initialization complete');
+

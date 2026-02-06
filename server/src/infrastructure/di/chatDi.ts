@@ -14,7 +14,7 @@ import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
 
 import { logger } from 'src/infrastructure/config/logger';
 
-logger.info('Initializing chatDi...');
+
 
 const s3Service = new S3Service();
 const conversationRepository = new ConversationRepository(s3Service);
@@ -65,7 +65,7 @@ export {
   userRepository as chatUserRepository,
 };
 
-logger.info('chatDi initialization complete');
+
 
 
 

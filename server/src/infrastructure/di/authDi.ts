@@ -33,7 +33,7 @@ import { RegistrationController } from 'src/presentation/controllers/auth/regist
 
 import { logger } from 'src/infrastructure/config/logger';
 
-logger.info('Initializing authDi...');
+
 const userRepository = new UserRepository();
 
 const passwordHasher = new BcryptPasswordHasher();
@@ -70,7 +70,7 @@ export const passwordController = new PasswordController(forgotPasswordUseCase, 
 export const otpController = new OtpController(requestOtpUseCase, verifyOtpUseCase, cookieService);
 export { userRepository };
 
-logger.info('authDi initialization complete');
+
 
 
 

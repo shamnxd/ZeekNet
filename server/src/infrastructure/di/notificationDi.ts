@@ -10,7 +10,7 @@ import { GetUnreadNotificationCountUseCase } from 'src/application/use-cases/not
 
 import { logger } from 'src/infrastructure/config/logger';
 
-logger.info('Initializing notificationDi...');
+
 const notificationRepository = new NotificationRepository();
 
 const createNotificationUseCase = new CreateNotificationUseCase(notificationRepository);
@@ -30,5 +30,5 @@ export const notificationController = new NotificationController(
 
 export const notificationRouter = new NotificationRouter();
 export { notificationRepository };
-logger.info('notificationDi initialization complete');
+
 

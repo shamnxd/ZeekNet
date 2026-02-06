@@ -56,7 +56,7 @@ import { LoggerService } from 'src/infrastructure/services/logger.service';
 
 import { logger } from 'src/infrastructure/config/logger';
 
-logger.info('Initializing seekerDi...');
+
 const jobPostingRepository = new JobPostingRepository();
 const jobApplicationRepository = new JobApplicationRepository();
 const seekerProfileRepository = new SeekerProfileRepository();
@@ -185,4 +185,4 @@ const seekerJobApplicationController = new SeekerJobApplicationController(
 );
 
 export { seekerJobApplicationController, seekerProfileController, getSeekerProfileUseCase };
-logger.info('seekerDi initialization complete');
+
