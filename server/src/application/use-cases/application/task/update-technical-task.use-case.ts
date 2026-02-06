@@ -1,7 +1,7 @@
 import { IUpdateTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IUpdateTechnicalTaskUseCase';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
 import { NotFoundError }
   from 'src/domain/errors/errors';
@@ -14,7 +14,7 @@ export class UpdateTechnicalTaskUseCase implements IUpdateTechnicalTaskUseCase {
   constructor(
     private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _userRepository: IUserRepository,
   ) { }
 
@@ -60,19 +60,7 @@ export class UpdateTechnicalTaskUseCase implements IUpdateTechnicalTaskUseCase {
 
     const application = await this._jobApplicationRepository.findById(existingTask.applicationId);
     if (application) {
-      await this._activityLoggerService.logTechnicalTaskActivity({
-        applicationId: existingTask.applicationId,
-        taskId: task.id,
-        taskTitle: task.title,
-        status: dto.status === 'assigned' ? undefined : dto.status,
-        rating: dto.rating,
-        deadline: dto.deadline?.toISOString(),
-        title: dto.title,
-        stage: application.stage,
-        subStage: application.subStage,
-        performedBy: dto.performedBy,
-        performedByName: performedByName,
-      });
+
     }
 
     return ATSTechnicalTaskMapper.toResponse(task);

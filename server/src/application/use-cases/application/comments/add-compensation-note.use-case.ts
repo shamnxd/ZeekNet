@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { IAddCompensationNoteUseCase, AddCompensationNoteParamsDto } from 'src/domain/interfaces/use-cases/application/comments/IAddCompensationNoteUseCase';
 import { IATSCommentRepository } from 'src/domain/interfaces/repositories/ats/IATSCommentRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { ATSComment } from 'src/domain/entities/ats-comment.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
@@ -11,9 +11,9 @@ import { ATSCommentMapper } from 'src/application/mappers/ats/ats-comment.mapper
 
 export class AddCompensationNoteUseCase implements IAddCompensationNoteUseCase {
   constructor(
-        private commentRepository: IATSCommentRepository,
-        private activityLoggerService: IActivityLoggerService,
-        private userRepository: IUserRepository,
+    private commentRepository: IATSCommentRepository,
+
+    private userRepository: IUserRepository,
   ) { }
 
   async execute(params: AddCompensationNoteParamsDto): Promise<ATSComment> {
@@ -35,14 +35,7 @@ export class AddCompensationNoteUseCase implements IAddCompensationNoteUseCase {
 
     const savedComment = await this.commentRepository.create(comment);
 
-    await this.activityLoggerService.logCommentAddedActivity({
-      applicationId: params.applicationId,
-      commentId: savedComment.id,
-      comment: params.note,
-      stage: ATSStage.COMPENSATION,
-      performedBy: params.userId,
-      performedByName: userName,
-    });
+
 
     return ATSCommentMapper.toResponse(savedComment);
   }

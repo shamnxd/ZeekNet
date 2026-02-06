@@ -1,7 +1,7 @@
 import { IMoveApplicationStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IMoveApplicationStageUseCase';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { JobApplication } from 'src/domain/entities/job-application.entity';
 import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
@@ -18,7 +18,7 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
   constructor(
     private jobApplicationRepository: IJobApplicationRepository,
     private jobPostingRepository: IJobPostingRepository,
-    private activityLoggerService: IActivityLoggerService,
+
     private userRepository: IUserRepository,
     private mailerService: IMailerService,
     private emailTemplateService: IEmailTemplateService,
@@ -90,15 +90,7 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
       throw new NotFoundError('Failed to update application');
     }
 
-    await this.activityLoggerService.logStageChangeActivity({
-      applicationId: data.applicationId,
-      previousStage,
-      previousSubStage,
-      nextStage: data.nextStage,
-      nextSubStage: targetSubStage,
-      performedBy: data.performedBy,
-      performedByName: data.performedByName,
-    });
+
 
     if (previousStage !== data.nextStage && application.seekerId) {
       await this._sendStageChangeEmail(application.seekerId, job.title, job.companyName || 'ZeekNet', data.nextStage);

@@ -5,7 +5,7 @@ import {
   atsOfferController,
   atsCommentController,
   atsCompensationController,
-  atsActivityController,
+
 } from 'src/infrastructure/di/atsDi';
 
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
@@ -39,7 +39,7 @@ export class ATSRouter {
     this.router.post('/comments', atsCommentController.addComment);
     this.router.get('/:applicationId/comments', atsCommentController.getCommentsByApplication);
 
-    this.router.get('/:applicationId/activities', atsActivityController.getActivitiesByApplication);
+
 
     this.router.post('/:applicationId/compensation/initiate', atsCompensationController.initiateCompensation);
     this.router.put('/:applicationId/compensation', atsCompensationController.updateCompensation);

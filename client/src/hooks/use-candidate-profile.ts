@@ -10,7 +10,7 @@ import type { ATSInterview, ATSComment } from "@/types/ats";
 import type {
   ExtendedATSTechnicalTask,
   ExtendedATSOfferDocument,
-  ATSActivity,
+
   CompensationMeeting,
 } from "@/types/ats-profile";
 import {
@@ -36,11 +36,11 @@ export const useCandidateProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  
+
   const [candidateData, setCandidateData] =
     useState<CandidateDetailsResponse | null>(null);
 
-  
+
   const [atsApplication, setAtsApplication] =
     useState<CompanySideApplication | null>(null);
   const [atsJob, setAtsJob] = useState<JobPostingResponse | null>(null);
@@ -55,17 +55,12 @@ export const useCandidateProfile = () => {
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "resume" | "hiring" | "activity"
+    "profile" | "resume" | "hiring"
   >("profile");
   const [selectedStage, setSelectedStage] = useState<string>("");
-  const [activities, setActivities] = useState<ATSActivity[]>([]);
-  const [activitiesNextCursor, setActivitiesNextCursor] = useState<
-    string | null
-  >(null);
-  const [activitiesHasMore, setActivitiesHasMore] = useState(false);
-  const [loadingMoreActivities, setLoadingMoreActivities] = useState(false);
 
-  
+
+
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [showMoveToStageModal, setShowMoveToStageModal] = useState(false);
@@ -82,7 +77,7 @@ export const useCandidateProfile = () => {
   const [showRevokeConfirmDialog, setShowRevokeConfirmDialog] = useState(false);
   const [taskToRevoke, setTaskToRevoke] = useState<string | null>(null);
 
-  
+
   const [compensationData, setCompensationData] = useState<{
     candidateExpected?: string;
     companyProposed?: string;
@@ -114,11 +109,11 @@ export const useCandidateProfile = () => {
   const [selectedMeetingForEdit, setSelectedMeetingForEdit] =
     useState<CompensationMeeting | null>(null);
 
-  
+
   const [currentOffer, setCurrentOffer] =
     useState<ExtendedATSOfferDocument | null>(null);
   const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
-  const [showEditOfferModal, setShowEditOfferModal] = useState(false); 
+  const [showEditOfferModal, setShowEditOfferModal] = useState(false);
   const [showWithdrawOfferModal, setShowWithdrawOfferModal] = useState(false);
   const [withdrawReason, setWithdrawReason] = useState<string>("");
   const [withdrawOtherNote, setWithdrawOtherNote] = useState<string>("");
@@ -185,21 +180,21 @@ export const useCandidateProfile = () => {
               applicationData.resume_data as CompanySideApplication["resume_data"],
             seeker: applicationData.seeker_id
               ? {
-                  id: getString(applicationData.seeker_id) || "",
-                  name: getString(applicationData.seeker_name) || "",
-                  email: getString(applicationData.email) || "",
-                  avatar: getString(applicationData.seeker_avatar),
-                }
+                id: getString(applicationData.seeker_id) || "",
+                name: getString(applicationData.seeker_name) || "",
+                email: getString(applicationData.email) || "",
+                avatar: getString(applicationData.seeker_avatar),
+              }
               : undefined,
             job: applicationData.job_id
               ? {
-                  id: getString(applicationData.job_id) || "",
-                  title: getString(applicationData.job_title) || "",
-                  job_title: getString(applicationData.job_title),
-                  job_company: getString(applicationData.job_company),
-                  job_location: getString(applicationData.job_location),
-                  job_type: getString(applicationData.job_type),
-                }
+                id: getString(applicationData.job_id) || "",
+                title: getString(applicationData.job_title) || "",
+                job_title: getString(applicationData.job_title),
+                job_company: getString(applicationData.job_company),
+                job_location: getString(applicationData.job_location),
+                job_type: getString(applicationData.job_type),
+              }
               : undefined,
           };
 
@@ -218,15 +213,15 @@ export const useCandidateProfile = () => {
           const fetchPromises = [
             jobId
               ? companyApi.getJobPosting(jobId).catch((e) => {
-                  console.error("Failed to fetch job", e);
-                  return { data: null };
-                })
+                console.error("Failed to fetch job", e);
+                return { data: null };
+              })
               : Promise.resolve({ data: null }),
             seekerId
               ? companyApi.getCandidateDetails(seekerId).catch((e) => {
-                  console.error("Failed to fetch candidate details", e);
-                  return { data: null };
-                })
+                console.error("Failed to fetch candidate details", e);
+                return { data: null };
+              })
               : Promise.resolve({ data: null }),
             atsService
               .getInterviewsByApplication(currentId)
@@ -240,13 +235,7 @@ export const useCandidateProfile = () => {
             atsService
               .getCommentsByApplication(currentId)
               .catch(() => ({ data: [] })),
-            atsService
-              .getActivitiesByApplicationPaginated(currentId, 20)
-              .catch(() => ({
-                activities: [],
-                nextCursor: null,
-                hasMore: false,
-              })),
+
           ];
 
           if (currentStage === ATSStage.COMPENSATION) {
@@ -274,7 +263,6 @@ export const useCandidateProfile = () => {
             tasksRes,
             offersRes,
             commentsRes,
-            activitiesRes,
             ...compensationResults
           ] = results;
 
@@ -309,39 +297,39 @@ export const useCandidateProfile = () => {
                 email: getString(applicationData.email) || "",
               },
               experiences: (resumeData?.experience as Record<string, unknown>[] | undefined)?.map((exp) => {
-                  const period = typeof exp.period === "string" ? exp.period : "";
-                  return {
-                    id: "",
-                    title: typeof exp.title === "string" ? exp.title : "",
-                    company: typeof exp.company === "string" ? exp.company : "",
-                    startDate: period.split(" - ")[0] || "",
-                    endDate: period.includes("Present") ? undefined : period.split(" - ")[1],
-                    location: typeof exp.location === "string" ? exp.location : undefined,
-                    description: typeof exp.description === "string" ? exp.description : undefined,
-                    employmentType: "full-time",
-                    technologies: [],
-                    isCurrent: period.includes("Present") || false,
-                  };
-                }) || [],
+                const period = typeof exp.period === "string" ? exp.period : "";
+                return {
+                  id: "",
+                  title: typeof exp.title === "string" ? exp.title : "",
+                  company: typeof exp.company === "string" ? exp.company : "",
+                  startDate: period.split(" - ")[0] || "",
+                  endDate: period.includes("Present") ? undefined : period.split(" - ")[1],
+                  location: typeof exp.location === "string" ? exp.location : undefined,
+                  description: typeof exp.description === "string" ? exp.description : undefined,
+                  employmentType: "full-time",
+                  technologies: [],
+                  isCurrent: period.includes("Present") || false,
+                };
+              }) || [],
               educations: (resumeData?.education as Record<string, unknown>[] | undefined)?.map((edu) => {
-                  const period = typeof edu.period === "string" ? edu.period : "";
-                  return {
-                    id: "",
-                    school: typeof edu.school === "string" ? edu.school : "",
-                    degree: typeof edu.degree === "string" ? edu.degree : undefined,
-                    startDate: period.split(" - ")[0] || "",
-                    endDate: period.includes("Present") ? undefined : period.split(" - ")[1],
-                    fieldOfStudy: "",
-                    grade: undefined,
-                  };
-                }) || [],
+                const period = typeof edu.period === "string" ? edu.period : "";
+                return {
+                  id: "",
+                  school: typeof edu.school === "string" ? edu.school : "",
+                  degree: typeof edu.degree === "string" ? edu.degree : undefined,
+                  startDate: period.split(" - ")[0] || "",
+                  endDate: period.includes("Present") ? undefined : period.split(" - ")[1],
+                  fieldOfStudy: "",
+                  grade: undefined,
+                };
+              }) || [],
             } as CandidateDetailsResponse);
           }
 
           setInterviews(interviewsRes.data || []);
           setTechnicalTasks(tasksRes.data || []);
           setOfferDocuments(offersRes.data || []);
-          
+
           const applicationStage = mappedApplication.stage;
           if (
             applicationStage === ATSStage.OFFER &&
@@ -353,16 +341,8 @@ export const useCandidateProfile = () => {
             setCurrentOffer(null);
           }
           setComments(commentsRes.data || []);
-          
-          const activitiesData = activitiesRes || {
-            activities: [],
-            nextCursor: null,
-            hasMore: false,
-          };
-          const initialActivities = (activitiesData.activities || []).reverse();
-          setActivities(initialActivities);
-          setActivitiesNextCursor(activitiesData.nextCursor || null);
-          setActivitiesHasMore(activitiesData.hasMore || false);
+
+
 
           if (
             currentStage === ATSStage.COMPENSATION &&
@@ -370,21 +350,21 @@ export const useCandidateProfile = () => {
           ) {
             const [compensationRes, meetingsRes, notesRes] = compensationResults;
             setCompensationData(compensationRes || null);
-            
-            
+
+
             const meetingsData: CompensationMeeting[] = Array.isArray(meetingsRes)
               ? meetingsRes.filter((m): m is Record<string, unknown> => m != null).map((m: Record<string, unknown>) => ({
-                    id: String(m.id),
-                    type: (typeof m.type === "string" && ["call", "online", "in-person"].includes(m.type)) ? (m.type as 'call' | 'online' | 'in-person') : "call",
-                    scheduledDate: String(m.scheduledDate),
-                    location: typeof m.location === "string" ? m.location : undefined,
-                    meetingLink: typeof m.meetingLink === "string" ? m.meetingLink : undefined,
-                    notes: typeof m.notes === "string" ? m.notes : undefined,
-                    status: (typeof m.status === "string" && ["scheduled", "completed", "cancelled"].includes(m.status)) ? (m.status as 'scheduled' | 'completed' | 'cancelled') : undefined,
-                    completedAt: typeof m.completedAt === "string" ? m.completedAt : undefined,
-                    createdAt: typeof m.createdAt === "string" ? m.createdAt : new Date().toISOString(),
-                    updatedAt: typeof m.updatedAt === "string" ? m.updatedAt : undefined,
-                  }))
+                id: String(m.id),
+                type: (typeof m.type === "string" && ["call", "online", "in-person"].includes(m.type)) ? (m.type as 'call' | 'online' | 'in-person') : "call",
+                scheduledDate: String(m.scheduledDate),
+                location: typeof m.location === "string" ? m.location : undefined,
+                meetingLink: typeof m.meetingLink === "string" ? m.meetingLink : undefined,
+                notes: typeof m.notes === "string" ? m.notes : undefined,
+                status: (typeof m.status === "string" && ["scheduled", "completed", "cancelled"].includes(m.status)) ? (m.status as 'scheduled' | 'completed' | 'cancelled') : undefined,
+                completedAt: typeof m.completedAt === "string" ? m.completedAt : undefined,
+                createdAt: typeof m.createdAt === "string" ? m.createdAt : new Date().toISOString(),
+                updatedAt: typeof m.updatedAt === "string" ? m.updatedAt : undefined,
+              }))
               : [];
             setCompensationMeetings(meetingsData);
             setCompensationNotes(Array.isArray(notesRes) ? notesRes : []);
@@ -506,9 +486,9 @@ export const useCandidateProfile = () => {
     } catch (error) {
       console.error("Failed to add comment:", error);
       toast({
-         title: "Error",
-         description: "Failed to add comment.",
-         variant: "destructive",
+        title: "Error",
+        description: "Failed to add comment.",
+        variant: "destructive",
       });
     }
   };
@@ -517,17 +497,17 @@ export const useCandidateProfile = () => {
     if (!currentId) return;
     try {
       let subStage = undefined;
-      
+
       if (targetStage === ATSStage.SHORTLISTED) {
-         subStage = ShortlistedSubStage.READY_FOR_INTERVIEW;
+        subStage = ShortlistedSubStage.READY_FOR_INTERVIEW;
       } else if (targetStage === ATSStage.INTERVIEW) {
-         subStage = InterviewSubStage.SCHEDULED;
+        subStage = InterviewSubStage.SCHEDULED;
       } else if (targetStage === ATSStage.TECHNICAL_TASK) {
-         subStage = TechnicalTaskSubStage.NOT_ASSIGNED;
+        subStage = TechnicalTaskSubStage.NOT_ASSIGNED;
       } else if (targetStage === ATSStage.COMPENSATION) {
-         subStage = CompensationSubStage.NOT_INITIATED;
+        subStage = CompensationSubStage.NOT_INITIATED;
       } else if (targetStage === ATSStage.OFFER) {
-         subStage = OfferSubStage.NOT_SENT;
+        subStage = OfferSubStage.NOT_SENT;
       }
 
       await companyApi.moveApplicationStage(currentId, {
@@ -636,12 +616,12 @@ export const useCandidateProfile = () => {
             comment: "Interview scheduled",
           });
         } else {
-           if (atsApplication.subStage !== InterviewSubStage.SCHEDULED && atsApplication.subStage !== InterviewSubStage.EVALUATION_PENDING) {
-             await companyApi.updateApplicationSubStage(currentId, {
-               subStage: InterviewSubStage.SCHEDULED,
-               comment: "Interview scheduled",
-             });
-           }
+          if (atsApplication.subStage !== InterviewSubStage.SCHEDULED && atsApplication.subStage !== InterviewSubStage.EVALUATION_PENDING) {
+            await companyApi.updateApplicationSubStage(currentId, {
+              subStage: InterviewSubStage.SCHEDULED,
+              comment: "Interview scheduled",
+            });
+          }
         }
       }
       await reloadData();
@@ -767,11 +747,11 @@ export const useCandidateProfile = () => {
       await atsService.updateTechnicalTask(taskToRevoke, { status: "cancelled" });
       toast({ title: "Success", description: "Task revoked successfully." });
       await reloadData();
-      
+
       const tasksRes = await atsService.getTechnicalTasksByApplication(currentId);
       const allTasks = tasksRes.data || [];
       const activeTasks = allTasks.filter((t: ExtendedATSTechnicalTask) => t.status !== "completed");
-      
+
       if (activeTasks.length === 0 && atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
         await companyApi.moveApplicationStage(currentId, {
           nextStage: ATSStage.TECHNICAL_TASK,
@@ -819,7 +799,7 @@ export const useCandidateProfile = () => {
           });
         }
       }
-      
+
       if (atsApplication?.subStage === CompensationSubStage.NOT_INITIATED) {
         await companyApi.moveApplicationStage(currentId, {
           nextStage: ATSStage.COMPENSATION,
@@ -827,7 +807,7 @@ export const useCandidateProfile = () => {
           comment: `Compensation discussion initiated - Expects ${data.candidateExpected}`,
         });
       }
-      
+
       setCompensationData(compensationRes.data || compensationRes);
       if (data.notes) {
         await atsService.addCompensationNote(currentId, { note: data.notes });
@@ -839,8 +819,8 @@ export const useCandidateProfile = () => {
       }
       toast({ title: "Success", description: "Compensation saved." });
     } catch (error) {
-       console.error("Failed to initiate/update compensation:", error);
-       toast({ title: "Error", description: "Failed to save compensation.", variant: "destructive" });
+      console.error("Failed to initiate/update compensation:", error);
+      toast({ title: "Error", description: "Failed to save compensation.", variant: "destructive" });
     }
   };
 
@@ -887,8 +867,8 @@ export const useCandidateProfile = () => {
     if (!currentId) return;
     try {
       const meetingRes = await atsService.scheduleCompensationMeeting(currentId, {
-         ...data,
-         meetingLink: data.videoType === "external" ? data.meetingLink : undefined
+        ...data,
+        meetingLink: data.videoType === "external" ? data.meetingLink : undefined
       });
       setCompensationMeetings((prev) => [...(prev || []), meetingRes.data]);
       toast({ title: "Success", description: "Meeting scheduled." });
@@ -956,15 +936,15 @@ export const useCandidateProfile = () => {
   };
 
   const handleMarkAsHired = async () => {
-     if (!currentId) return;
-     try {
-       await companyApi.markApplicationAsHired(currentId);
-       toast({ title: "Success", description: "Candidate marked as hired." });
-       await reloadData();
-     } catch (error) {
-       console.error("Failed to mark as hired:", error);
-       toast({ title: "Error", description: "Failed to mark as hired.", variant: "destructive" });
-     }
+    if (!currentId) return;
+    try {
+      await companyApi.markApplicationAsHired(currentId);
+      toast({ title: "Success", description: "Candidate marked as hired." });
+      await reloadData();
+    } catch (error) {
+      console.error("Failed to mark as hired:", error);
+      toast({ title: "Error", description: "Failed to mark as hired.", variant: "destructive" });
+    }
   };
 
   const handleReviewTask = async (taskId: string) => {
@@ -998,11 +978,11 @@ export const useCandidateProfile = () => {
       await atsService.updateTechnicalTask(taskId, { status: "completed", rating, feedback });
       toast({ title: "Success", description: "Feedback submitted." });
       await reloadData();
-      
+
       const updatedTasksRes = await atsService.getTechnicalTasksByApplication(currentId);
       const updatedTasks = updatedTasksRes.data || [];
       const allTasksCompleted = updatedTasks.length > 0 && updatedTasks.every((t: ExtendedATSTechnicalTask) => t.status === "completed");
-      
+
       if (allTasksCompleted && atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
         await companyApi.moveApplicationStage(currentId, {
           nextStage: ATSStage.TECHNICAL_TASK,
@@ -1097,7 +1077,7 @@ export const useCandidateProfile = () => {
   };
 
   return {
-    
+
     id, candidateId, navigate, location, currentId, isATSMode,
     candidateData, setCandidateData,
     atsApplication, setAtsApplication,
@@ -1108,17 +1088,14 @@ export const useCandidateProfile = () => {
     comments, setComments,
     loading, setLoading,
     activeTab, setActiveTab,
-    selectedStage, setSelectedStage, 
-    activities, setActivities,
-    activitiesNextCursor, setActivitiesNextCursor,
-    activitiesHasMore, setActivitiesHasMore,
-    loadingMoreActivities, setLoadingMoreActivities,
-    
-    
+    selectedStage, setSelectedStage,
+
+
+
     hiringStages, interviewSummary,
     isCurrentStage, hasNextStages, getNextStage,
 
-    
+
     showScheduleModal, setShowScheduleModal,
     showCommentModal, setShowCommentModal,
     showMoveToStageModal, setShowMoveToStageModal,
@@ -1131,7 +1108,7 @@ export const useCandidateProfile = () => {
     showRevokeConfirmDialog, setShowRevokeConfirmDialog,
     taskToRevoke, setTaskToRevoke,
 
-    
+
     compensationData, setCompensationData,
     compensationNotes, setCompensationNotes,
     compensationMeetings, setCompensationMeetings,
@@ -1140,7 +1117,7 @@ export const useCandidateProfile = () => {
     showCompensationMeetingModal, setShowCompensationMeetingModal,
     selectedMeetingForEdit, setSelectedMeetingForEdit,
 
-    
+
     currentOffer, setCurrentOffer,
     showCreateOfferModal, setShowCreateOfferModal,
     showEditOfferModal, setShowEditOfferModal,
@@ -1149,7 +1126,7 @@ export const useCandidateProfile = () => {
     withdrawOtherNote, setWithdrawOtherNote,
     withdrawing, setWithdrawing,
 
-    
+
     reloadData,
     handleUpdateStage, handleAddComment, handleMoveToStage,
     handleScheduleInterview, handleMarkInterviewComplete, handleCancelInterview, handleSubmitFeedback,

@@ -66,7 +66,7 @@ export interface UpdateApplicationStageRequest {
 }
 
 class ATSService {
-  
+
   async scheduleInterview(data: ScheduleInterviewRequest) {
     const response = await api.post('/api/company/applications/interviews', data);
     return response.data;
@@ -82,54 +82,54 @@ class ATSService {
     return response.data;
   }
 
-  
+
   async assignTechnicalTask(data: AssignTechnicalTaskRequest & { document?: File }) {
     const formData = new FormData();
     formData.append('applicationId', data.applicationId);
     formData.append('title', data.title);
     formData.append('description', data.description);
     formData.append('deadline', data.deadline);
-    
+
     if (data.document) {
       formData.append('document', data.document);
     } else if (data.documentUrl && data.documentFilename) {
       formData.append('documentUrl', data.documentUrl);
       formData.append('documentFilename', data.documentFilename);
     }
-    
+
     const response = await api.post('/api/company/applications/tasks', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   }
 
-  async updateTechnicalTask(id: string, data: { 
-    title?: string; 
-    description?: string; 
-    deadline?: string; 
+  async updateTechnicalTask(id: string, data: {
+    title?: string;
+    description?: string;
+    deadline?: string;
     document?: File;
-    documentUrl?: string; 
-    documentFilename?: string; 
-    status?: string; 
-    rating?: number; 
-    feedback?: string 
+    documentUrl?: string;
+    documentFilename?: string;
+    status?: string;
+    rating?: number;
+    feedback?: string
   }) {
     const formData = new FormData();
-    
+
     if (data.title) formData.append('title', data.title);
     if (data.description) formData.append('description', data.description);
     if (data.deadline) formData.append('deadline', data.deadline);
     if (data.status) formData.append('status', data.status);
     if (data.rating !== undefined) formData.append('rating', data.rating.toString());
     if (data.feedback) formData.append('feedback', data.feedback);
-    
+
     if (data.document) {
       formData.append('document', data.document);
     } else if (data.documentUrl && data.documentFilename) {
       formData.append('documentUrl', data.documentUrl);
       formData.append('documentFilename', data.documentFilename);
     }
-    
+
     const response = await api.put(`/api/company/applications/tasks/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
@@ -146,7 +146,7 @@ class ATSService {
     return response.data;
   }
 
-  
+
   async uploadOffer(data: UploadOfferRequest) {
     const formData = new FormData();
     formData.append('applicationId', data.applicationId);
@@ -197,7 +197,7 @@ class ATSService {
   async uploadSignedOfferDocument(applicationId: string, offerId: string, document: File) {
     const formData = new FormData();
     formData.append('document', document);
-    
+
     const response = await api.post(`/api/seeker/applications/${applicationId}/offers/${offerId}/signed-document`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
@@ -214,7 +214,7 @@ class ATSService {
     return response.data?.data || response.data || [];
   }
 
-  
+
   async addComment(data: AddCommentRequest) {
     const response = await api.post('/api/company/applications/comments', data);
     return response.data;
@@ -225,29 +225,16 @@ class ATSService {
     return response.data;
   }
 
-  
-  async getActivitiesByApplication(applicationId: string) {
-    const response = await api.get(`/api/company/applications/${applicationId}/activities`);
-    return response.data;
-  }
 
-  async getActivitiesByApplicationPaginated(applicationId: string, limit: number = 20, cursor?: string) {
-    const params = new URLSearchParams();
-    params.append('limit', limit.toString());
-    if (cursor) {
-      params.append('cursor', cursor);
-    }
-    const response = await api.get(`/api/company/applications/${applicationId}/activities?${params.toString()}`);
-    return response.data?.data || response.data;
-  }
 
-  
+
+
   async updateApplicationStage(applicationId: string, data: UpdateApplicationStageRequest) {
     const response = await api.patch(`/api/company/applications/${applicationId}/stage`, data);
     return response.data;
   }
 
-  
+
   async getInterviewsByApplicationForSeeker(applicationId: string) {
     const response = await api.get(`/api/seeker/applications/${applicationId}/interviews`);
     return response.data;
@@ -260,7 +247,7 @@ class ATSService {
 
   async submitTechnicalTask(applicationId: string, taskId: string, data: { document?: File; submissionLink?: string; submissionNote?: string; submissionUrl?: string; submissionFilename?: string }) {
     const formData = new FormData();
-    
+
     if (data.document) {
       formData.append('document', data.document);
     }
@@ -270,36 +257,36 @@ class ATSService {
     if (data.submissionNote) {
       formData.append('submissionNote', data.submissionNote);
     }
-    
+
     if (data.submissionUrl && !data.document) {
       formData.append('submissionUrl', data.submissionUrl);
     }
     if (data.submissionFilename && !data.document) {
       formData.append('submissionFilename', data.submissionFilename);
     }
-    
+
     const response = await api.put(`/api/seeker/applications/${applicationId}/tasks/${taskId}/submit`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   }
 
-  
+
   async initiateCompensation(applicationId: string, data: { candidateExpected: string; notes?: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/initiate`, data);
     return response.data;
   }
 
-  async updateCompensation(applicationId: string, data: { 
+  async updateCompensation(applicationId: string, data: {
     candidateExpected?: string;
-    companyProposed?: string; 
-    expectedJoining?: string; 
-    benefits?: string[]; 
+    companyProposed?: string;
+    expectedJoining?: string;
+    benefits?: string[];
     finalAgreed?: string;
     approvedAt?: string;
     approvedBy?: string;
     approvedByName?: string;
-    notes?: string 
+    notes?: string
   }) {
     const response = await api.put(`/api/company/applications/${applicationId}/compensation`, data);
     return response.data;
@@ -307,19 +294,19 @@ class ATSService {
 
   async getCompensation(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation`);
-    
+
     return response.data?.data || response.data || null;
   }
 
   async scheduleCompensationMeeting(applicationId: string, data: { type: string; videoType?: 'in-app' | 'external'; date: string; time: string; location?: string; meetingLink?: string; notes?: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/meetings`, data);
-    
+
     return response.data?.data || response.data;
   }
 
   async getCompensationMeetings(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation/meetings`);
-    
+
     return response.data?.data || response.data || [];
   }
 
@@ -330,13 +317,13 @@ class ATSService {
 
   async addCompensationNote(applicationId: string, data: { note: string }) {
     const response = await api.post(`/api/company/applications/${applicationId}/compensation/notes`, data);
-    
+
     return response.data?.data || response.data;
   }
 
   async getCompensationNotes(applicationId: string) {
     const response = await api.get(`/api/company/applications/${applicationId}/compensation/notes`);
-    
+
     return response.data?.data || response.data || [];
   }
 }
