@@ -50,23 +50,23 @@ const Landing = () => {
   const companiesLogo = [
     {
       name: "Framer",
-      logo: "https://saasly.prebuiltui.com/assets/companies-logo/framer.svg",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/framer.svg",
     },
     {
       name: "Huawei",
-      logo: "https://saasly.prebuiltui.com/assets/companies-logo/huawei.svg",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/google.svg",
     },
     {
       name: "Instagram",
-      logo: "https://saasly.prebuiltui.com/assets/companies-logo/instagram.svg",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/linkedin.svg",
     },
     {
       name: "Microsoft",
-      logo: "https://saasly.prebuiltui.com/assets/companies-logo/microsoft.svg",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/instagram.svg",
     },
     {
       name: "Walmart",
-      logo: "https://saasly.prebuiltui.com/assets/companies-logo/walmart.svg",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/facebook.svg",
     },
   ];
 
@@ -165,7 +165,7 @@ const Landing = () => {
             `}
           </style>
           <h3 className="text-base text-center text-slate-400 pb-14 pt-14 font-medium">
-            Trusting by leading brands, including ΓÇö
+            Trusting by leading brands, including.
           </h3>
           <div className="overflow-hidden w-full relative max-w-5xl mx-auto select-none">
             <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
