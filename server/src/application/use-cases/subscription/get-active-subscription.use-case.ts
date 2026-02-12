@@ -58,8 +58,8 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
 
     // Sync featured jobs count
     const featuredJobsResult = await this._jobPostingRepository.paginate({
-      companyId: companyProfile.id,
-      isFeatured: true,
+      company_id: companyProfile.id,
+      is_featured: true,
       status: 'active',
     }, { page: 1, limit: 1 });
 

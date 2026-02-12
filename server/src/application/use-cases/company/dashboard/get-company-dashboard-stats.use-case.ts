@@ -17,22 +17,22 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
     private readonly _atsInterviewRepository: IATSInterviewRepository,
     private readonly _messageRepository: IMessageRepository,
     private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
-  ) {}
+  ) { }
 
   async execute(userId: string): Promise<CompanyDashboardStats> {
     const companyId = await this._getCompanyIdByUserIdUseCase.execute(userId);
 
     const activeJobs = await this._jobPostingRepository.countDocuments({
-      companyId: companyId,
+      company_id: companyId,
       status: JobStatus.ACTIVE,
     });
 
     const totalJobs = await this._jobPostingRepository.countDocuments({
-      companyId: companyId,
+      company_id: companyId,
     });
 
     const totalApplications = await this._jobApplicationRepository.countDocuments({
-      companyId: companyId,
+      company_id: companyId,
     });
 
     // Count new candidates (applications in IN_REVIEW or APPLIED stage)
@@ -65,8 +65,8 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
 
     // Unread messages for the user
     const unreadMessages = await this._messageRepository.countDocuments({
-      receiverId: userId,
-      readAt: null,
+      receiver_id: userId,
+      read_at: null,
     });
 
     return {
