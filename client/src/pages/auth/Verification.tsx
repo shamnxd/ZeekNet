@@ -10,13 +10,13 @@ import { UserRole } from '@/constants/enums'
 import { toast } from 'sonner'
 import { useAppDispatch } from '@/hooks/useRedux'
 
-import { 
-  ArrowLeft, 
-  Briefcase, 
-  Sparkles, 
-  Shield, 
-  CheckCircle, 
-  Clock, 
+import {
+  ArrowLeft,
+  Briefcase,
+  Sparkles,
+  Shield,
+  CheckCircle,
+  Clock,
   Loader2,
   RefreshCw,
   AlertCircle
@@ -29,11 +29,11 @@ const useOtpInput = (length: number = 6) => {
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1 || !/^\d*$/.test(value)) return
-    
+
     const newValues = [...values]
     newValues[index] = value
     setValues(newValues)
-    
+
     if (value && index < length - 1) {
       setTimeout(() => {
         inputRefs.current[index + 1]?.focus()
@@ -44,7 +44,7 @@ const useOtpInput = (length: number = 6) => {
   const handleInput = (index: number, e: React.FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement
     const value = target.value
-    
+
     if (value === '' && values[index] !== '') {
       setTimeout(() => {
         inputRefs.current[index]?.focus()
@@ -56,7 +56,7 @@ const useOtpInput = (length: number = 6) => {
     if (e.key === 'Backspace' && !values[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }
-    
+
     if (e.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }
@@ -68,14 +68,14 @@ const useOtpInput = (length: number = 6) => {
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault()
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
-    
+
     if (pastedData.length > 0) {
       const newValues = Array(length).fill('')
       for (let i = 0; i < pastedData.length && i < length; i++) {
         newValues[i] = pastedData[i]
       }
       setValues(newValues)
-      
+
       const nextEmptyIndex = newValues.findIndex((val, idx) => idx >= 0 && val === '')
       const focusIndex = nextEmptyIndex !== -1 ? nextEmptyIndex : length - 1
       setTimeout(() => {
@@ -169,29 +169,33 @@ const Verification = () => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!otp.isComplete()) return
-    
+
     setIsVerifying(true)
     setError(null)
-    
+
     try {
       const res = await authApi.verifyOtp(email, otp.getOtp())
       if (res.success && res.data && res.token) {
+        // Ensure isVerified is true locally since the backend might return the pre-verification state
+        // or the state might not be fully consistent yet.
+        const updatedUser = { ...res.data, isVerified: true }
+
         dispatch(setUser({
-          data: res.data,
+          data: updatedUser,
           token: res.token
         }))
-        
+
         // Fetch company profile if company user
         if (res.data.role === UserRole.COMPANY) {
-          dispatch(fetchCompanyProfileThunk()).catch(() => {})
+          dispatch(fetchCompanyProfileThunk()).catch(() => { })
         }
-        
+
         setVerificationSuccess(true)
         toast.success('Email verified successfully!', {
           description: 'Your account has been verified. Redirecting...',
           duration: 3000,
         })
-        
+
         // Navigate immediately - token is in Redux state
         navigateByRole(res.data.role, navigate)
       } else {
@@ -210,10 +214,10 @@ const Verification = () => {
 
   const handleResendOTP = async () => {
     if (countdown.countdown > 0) return
-    
+
     setIsResending(true)
     setError(null)
-    
+
     try {
       const res = await authApi.requestOtp(email)
       if (res.success) {
@@ -232,7 +236,7 @@ const Verification = () => {
       const errorMsg = extractErrorMessage(err, 'Failed to send OTP')
       setError(errorMsg)
       toast.error('Failed to Send OTP', { description: errorMsg })
-      
+
       if (err && typeof err === 'object' && 'response' in err) {
         const response = (err as { response: { status: number } }).response;
         if (response.status === 429) {
@@ -291,7 +295,7 @@ const Verification = () => {
       error: 'border-destructive/50 bg-destructive/10 text-destructive',
       info: 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200'
     }
-    
+
     const icons = {
       success: <CheckCircle className="h-4 w-4" />,
       error: <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />,
@@ -334,11 +338,11 @@ const Verification = () => {
 
   return (
     <div className="min-h-screen flex">
-      {}
+      { }
       <div className="fixed top-4 left-4 z-50">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/')} 
+        <Button
+          variant="outline"
+          onClick={() => navigate('/')}
           className="flex items-center space-x-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -346,13 +350,13 @@ const Verification = () => {
         </Button>
       </div>
 
-      {}
+      { }
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25"></div>
-        
+
         <div className="relative z-10 flex flex-col justify-center px-12 py-12">
           <LogoSection />
-          
+
           <div className="max-w-md">
             <h2 className="text-4xl font-bold text-foreground mb-4">
               Verify your email
@@ -371,7 +375,7 @@ const Verification = () => {
                   <p className="text-sm text-muted-foreground">Your account security is our priority</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                   <CheckCircle className="h-4 w-4 text-primary" />
@@ -386,31 +390,31 @@ const Verification = () => {
         </div>
       </div>
 
-      {}
+      { }
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
-          {}
+          { }
           <div className="lg:hidden text-center">
             <LogoSection />
           </div>
 
-          {}
-            <Card className="shadow-lg">
-              <CardHeader className="text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
+          { }
+          <Card className="shadow-lg">
+            <CardHeader className="text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
-                <CardDescription>
+              </div>
+              <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
+              <CardDescription>
                 Please verify your email to continue. A 6-digit verification code has been sent to{' '}
                 <span className="font-medium text-foreground">{email}</span>
-                </CardDescription>
-              </CardHeader>
-            
+              </CardDescription>
+            </CardHeader>
+
             <CardContent className="space-y-6">
-              {}
+              { }
               {otpSent && !error && (
                 <StatusMessage type="success" message="OTP sent" />
               )}
@@ -419,18 +423,18 @@ const Verification = () => {
                 <StatusMessage type="error" message={error} />
               )}
 
-               {}
-               {verificationSuccess && (
+              { }
+              {verificationSuccess && (
                 <StatusMessage type="success" message="Email verified successfully! Redirecting..." />
               )}
 
-              {}
+              { }
               <form onSubmit={handleVerifyOTP} className="space-y-4">
                 <OtpInputs />
-                
-                <Button 
-                  type="submit" 
-                  disabled={isVerifying || isResending || !otp.isComplete()} 
+
+                <Button
+                  type="submit"
+                  disabled={isVerifying || isResending || !otp.isComplete()}
                   className="w-full"
                 >
                   {isVerifying ? (
@@ -444,7 +448,7 @@ const Verification = () => {
                 </Button>
               </form>
 
-              {}
+              { }
               <div className="text-center space-y-2">
                 <p className="text-sm text-muted-foreground">Didn't receive the code?</p>
                 <ResendButton />
