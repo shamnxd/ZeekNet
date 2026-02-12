@@ -12,6 +12,7 @@ import { companyApi } from '@/api/company.api'
 import { toast } from 'sonner'
 import FormDialog from '@/components/common/FormDialog'
 import { Input } from '@/components/ui/input'
+import { z } from 'zod'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,8 +26,9 @@ const CompanyDashboard = () => {
   const navigate = useNavigate()
   const { companyVerificationStatus, name } = useAppSelector((state) => state.auth)
   const [rejectionReason, setRejectionReason] = useState<string | null>(null)
-  const [reverifyOpen, setReverifyOpen] = useState(false)
-  const [reverifyStep, setReverifyStep] = useState<1 | 2 | 3>(1)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [profileStep, setProfileStep] = useState<1 | 2 | 3>(1)
+  const [profileMode, setProfileMode] = useState<'create' | 'reverify'>('create')
   const [stats, setStats] = useState<{
     activeJobs: number;
     totalJobs: number;
@@ -57,6 +59,33 @@ const CompanyDashboard = () => {
   const [uploading, setUploading] = useState<{ logo: boolean; business_license: boolean }>({ logo: false, business_license: false })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
+  const step1Schema = z.object({
+    company_name: z.string().min(1, 'Company name is required').min(2, 'Company name must be at least 2 characters'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+    website: z.string().min(1, 'Website is required').refine((val) => {
+      try {
+        new URL(val.startsWith('http') ? val : `https://${val}`)
+        return true
+      } catch {
+        return false
+      }
+    }, 'Please enter a valid website URL'),
+    industry: z.string().min(1, 'Industry is required'),
+    organisation: z.string().min(1, 'Organisation type is required'),
+  })
+
+  const step2Schema = z.object({
+    location: z.string().min(1, 'Location is required').min(2, 'Location must be at least 2 characters'),
+    employees: z.string().min(1, 'Number of employees is required'),
+    description: z.string().min(1, 'Company description is required').min(10, 'Description must be at least 10 characters'),
+  })
+
+  const step3Schema = z.object({
+    tax_id: z.string().min(1, 'Tax ID is required').min(3, 'Tax ID must be at least 3 characters'),
+    business_license: z.string().optional() // Made optional based on previous code but can be required if needed
+  })
+
+
   // Helper function to convert employee count number to range
   const convertEmployeeCountToRange = (count: string | number): string => {
     const num = typeof count === 'string' ? parseInt(count) : count;
@@ -70,7 +99,7 @@ const CompanyDashboard = () => {
   }
 
   const loadProfileForReverify = useCallback(async () => {
-    if (reverifyOpen) {
+    if (isProfileModalOpen && profileMode === 'reverify') {
       try {
         const resp = await companyApi.getCompleteProfile()
         if (resp.success && resp.data) {
@@ -111,7 +140,7 @@ const CompanyDashboard = () => {
         toast.error('Failed to load profile data')
       }
     }
-  }, [reverifyOpen])
+  }, [isProfileModalOpen, profileMode])
 
 
   useEffect(() => {
@@ -129,10 +158,10 @@ const CompanyDashboard = () => {
   }, [companyVerificationStatus, rejectionReason])
 
   useEffect(() => {
-    if (reverifyOpen) {
+    if (isProfileModalOpen) {
       loadProfileForReverify()
     }
-  }, [reverifyOpen, loadProfileForReverify])
+  }, [isProfileModalOpen, loadProfileForReverify])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -249,7 +278,27 @@ const CompanyDashboard = () => {
                 <Button
                   size="sm"
                   className="ml-4 bg-[#4640DE] hover:bg-[#3a35c7] text-white"
-                  onClick={() => navigate('/company/profile-setup')}
+                  onClick={() => {
+                    setProfileMode('create')
+                    setProfileStep(1)
+                    setValidationErrors({})
+                    setForm({
+                      company_name: '',
+                      email: '',
+                      website: '',
+                      website_link: '',
+                      industry: '',
+                      organisation: '',
+                      location: '',
+                      employees: '',
+                      description: '',
+                      about_us: '',
+                      logo: '',
+                      business_license: '',
+                      tax_id: ''
+                    })
+                    setIsProfileModalOpen(true)
+                  }}
                 >
                   Complete Registration
                 </Button>
@@ -274,9 +323,10 @@ const CompanyDashboard = () => {
                 </div>
                 {companyVerificationStatus === 'rejected' && (
                   <Button size="sm" variant="destructive" onClick={() => {
-                    setReverifyStep(1);
+                    setProfileMode('reverify')
+                    setProfileStep(1);
                     setValidationErrors({});
-                    setReverifyOpen(true);
+                    setIsProfileModalOpen(true);
                   }}>
                     Reverify
                   </Button>
@@ -466,63 +516,119 @@ const CompanyDashboard = () => {
       </div>
 
       <FormDialog
-        open={reverifyOpen}
+        disableOutsideClick={true}
+        open={isProfileModalOpen}
         onOpenChange={(open) => {
-          setReverifyOpen(open)
+          setIsProfileModalOpen(open)
           if (!open) {
             setValidationErrors({})
-            setReverifyStep(1)
+            setProfileStep(1)
           }
         }}
-        title="Reverify Company"
-        description="Update required details and resubmit for verification."
-        submitLabel={reverifyStep === 3 ? 'Submit Reapplication' : 'Next'}
+        title={profileMode === 'reverify' ? "Reverify Company" : "Complete Registration"}
+        description={profileMode === 'reverify' ? "Update required details and resubmit for verification." : "Enter your company details to complete registration."}
+        submitLabel={profileStep === 3 ? (profileMode === 'reverify' ? 'Submit Reapplication' : 'Create Profile') : 'Next'}
         onSubmit={async () => {
-          if (reverifyStep === 1) {
-            setReverifyStep(2)
-            return
-          }
-          if (reverifyStep === 2) {
-            setReverifyStep(3)
-            return
-          }
+          setValidationErrors({})
           try {
-            setValidationErrors({})
-            const resp = await companyApi.reapplyVerification({
-              company_name: form.company_name,
-              email: form.email,
-              website: form.website || form.website_link || '',
-              industry: form.industry,
-              organisation: form.organisation,
-              location: form.location,
-              employees: convertEmployeeCountToRange(form.employees),
-              description: form.description,
-              logo: form.logo || '',
-              business_license: form.business_license || '',
-              tax_id: form.tax_id,
-            })
-            if (resp.success) {
+            if (profileStep === 1) {
+              const result = step1Schema.safeParse({
+                company_name: form.company_name,
+                email: form.email,
+                website: form.website,
+                industry: form.industry,
+                organisation: form.organisation
+              })
 
-              dispatch(fetchCompanyProfileThunk()).catch(() => { })
-
-              toast.success('Reverification submitted. Status set to pending.')
-              setReverifyOpen(false)
-              setValidationErrors({})
-              setReverifyStep(1)
-            } else {
-              if (resp.errors && resp.errors.length > 0) {
-                const errorMap: Record<string, string> = {}
-                resp.errors.forEach(err => {
-                  errorMap[err.field] = err.message
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
                 })
-                setValidationErrors(errorMap)
-                toast.error(resp.message || 'Validation failed')
+                setValidationErrors(fieldErrors)
+                return
+              }
+              setProfileStep(2)
+              return
+            }
+            if (profileStep === 2) {
+              const result = step2Schema.safeParse({
+                location: form.location,
+                employees: form.employees,
+                description: form.description
+              })
+
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
+                })
+                setValidationErrors(fieldErrors)
+                return
+              }
+              setProfileStep(3)
+              return
+            }
+            if (profileStep === 3) {
+              const result = step3Schema.safeParse({
+                tax_id: form.tax_id,
+                business_license: form.business_license
+              })
+
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
+                })
+                setValidationErrors(fieldErrors)
+                return
+              }
+
+              // Proceed with backend submission
+              const profileData = {
+                company_name: form.company_name,
+                email: form.email,
+                website: form.website || form.website_link || '',
+                industry: form.industry,
+                organisation: form.organisation,
+                location: form.location,
+                employees: convertEmployeeCountToRange(form.employees),
+                description: form.description,
+                logo: form.logo || '',
+                business_license: form.business_license || '',
+                tax_id: form.tax_id,
+              }
+
+              let resp;
+              if (profileMode === 'reverify') {
+                resp = await companyApi.reapplyVerification(profileData)
               } else {
-                toast.error(resp.message || 'Failed to submit reverification')
+                resp = await companyApi.createProfile(profileData)
+              }
+
+              if (resp.success) {
+
+                dispatch(fetchCompanyProfileThunk()).catch(() => { })
+
+                toast.success(profileMode === 'reverify' ? 'Reverification submitted. Status set to pending.' : 'Profile created successfully!')
+                setIsProfileModalOpen(false)
+                setValidationErrors({})
+                setProfileStep(1)
+              } else {
+                if (resp.errors && resp.errors.length > 0) {
+                  const errorMap: Record<string, string> = {}
+                  resp.errors.forEach(err => {
+                    errorMap[err.field] = err.message
+                  })
+                  setValidationErrors(errorMap)
+                  toast.error(resp.message || 'Validation failed')
+                } else {
+                  toast.error(resp.message || (profileMode === 'reverify' ? 'Failed to submit reverification' : 'Failed to create profile'))
+                }
               }
             }
           } catch {
-            toast.error('Failed to submit reverification')
+            toast.error(profileMode === 'reverify' ? 'Failed to submit reverification' : 'Failed to create profile')
           }
         }}
 
@@ -530,8 +636,36 @@ const CompanyDashboard = () => {
         maxWidth="lg"
       >
         <div className="space-y-4">
+          {/* Step Indicator */}
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 1 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">1</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 1 ? 'text-gray-900' : 'text-gray-500'}`}>Basic Info</span>
+            </div>
+
+            <div className={`w-12 h-0.5 ${profileStep >= 2 ? 'bg-[#4640DE]' : 'bg-gray-200'}`}></div>
+
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 2 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">2</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 2 ? 'text-gray-900' : 'text-gray-500'}`}>Details</span>
+            </div>
+
+            <div className={`w-12 h-0.5 ${profileStep >= 3 ? 'bg-[#4640DE]' : 'bg-gray-200'}`}></div>
+
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 3 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">3</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 3 ? 'text-gray-900' : 'text-gray-500'}`}>Documents</span>
+            </div>
+          </div>
+
           {/* Step 1: Basic Information */}
-          {reverifyStep === 1 && (
+          {profileStep === 1 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="company_name" className="text-sm mb-3 font-semibold">Company Name *</Label>
@@ -595,7 +729,7 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step 2: Company Details */}
-          {reverifyStep === 2 && (
+          {profileStep === 2 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -668,7 +802,7 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step 3: Documents */}
-          {reverifyStep === 3 && (
+          {profileStep === 3 && (
             <>
               <div>
                 <Label htmlFor="tax_id" className="text-sm mb-3 font-semibold">Tax ID / Registration Number *</Label>
@@ -731,13 +865,13 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step indicator */}
-          {reverifyStep > 1 && (
+          {profileStep > 1 && (
             <div className="flex justify-center pt-2">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setReverifyStep((prev) => (prev - 1) as 1 | 2 | 3)}
+                onClick={() => setProfileStep((prev) => (prev - 1) as 1 | 2 | 3)}
                 className="text-sm"
               >
                 ← Previous Step
