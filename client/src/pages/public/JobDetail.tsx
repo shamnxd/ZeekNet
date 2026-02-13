@@ -3,17 +3,6 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   ArrowRight,
   CheckCircle,
@@ -22,19 +11,13 @@ import {
   Globe,
   Loader2,
   AlertCircle,
-  Upload,
-  FileText,
-  X,
-  Sparkles
 } from "lucide-react";
 import PublicHeader from "@/components/layouts/PublicHeader";
 import PublicFooter from "@/components/layouts/PublicFooter";
-import ResumeAnalyzerModal from "@/components/jobs/ResumeAnalyzerModal";
+import JobApplyModal from "@/components/jobs/JobApplyModal";
 import { jobApi } from "@/api/job.api";
-import { jobApplicationApi } from "@/api";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import { toast } from "sonner";
-import type { ApiError } from '@/types/api-error.type';
 import { useAppSelector } from "@/hooks/useRedux";
 import { UserRole } from "@/constants/enums";
 
@@ -48,12 +31,6 @@ const JobDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeFileName, setResumeFileName] = useState("");
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAnalyzerOpen, setIsAnalyzerOpen] = useState(false);
 
   const canApply = isAuthenticated && role === UserRole.SEEKER;
 
@@ -103,82 +80,12 @@ const JobDetail = () => {
     }
   }, [canApply, isInitialized, location.search, location.pathname, navigate]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please upload a PDF, DOC, or DOCX file');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB');
-        return;
-      }
-      setResumeFile(file);
-      setResumeFileName(file.name);
-    }
+  const handleCloseApplyModal = () => {
+    setIsApplyModalOpen(false);
   };
 
-  const handleRemoveResume = () => {
-    setResumeFile(null);
-    setResumeFileName("");
-  };
-
-  const handleResumeVerified = (file: File) => {
-    setResumeFile(file);
-    setResumeFileName(file.name);
-    setIsApplyModalOpen(true);
-
-  };
-
-  const handleApply = async () => {
-    if (!coverLetter.trim()) {
-      toast.error('Please provide a cover letter');
-      return;
-    }
-
-    if (!resumeFile) {
-      toast.error('Please upload your resume');
-      return;
-    }
-
-    if (!id) {
-      toast.error('Invalid job');
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-
-      const formData = new FormData();
-      formData.append('job_id', id);
-      formData.append('cover_letter', coverLetter.trim());
-      formData.append('resume', resumeFile);
-
-      await jobApplicationApi.createApplication(formData);
-
-
-      setJob((prevJob) => (prevJob ? { ...prevJob, has_applied: true } : null));
-
-      setIsApplyModalOpen(false);
-      setCoverLetter("");
-      setResumeFile(null);
-      setResumeFileName("");
-
-      toast.success('Application submitted successfully');
-
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      const message =
-        apiError?.response?.data?.message ||
-        (Array.isArray((apiError?.response?.data as { errors?: { message: string }[] })?.errors) && (apiError.response?.data as { errors: { message: string }[] }).errors[0]?.message) ||
-        'Failed to submit application';
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleApplySuccess = () => {
+    setJob((prevJob) => (prevJob ? { ...prevJob, has_applied: true } : null));
   };
 
   const handleOpenApplyModal = () => {
@@ -197,15 +104,6 @@ const JobDetail = () => {
     }
 
     setIsApplyModalOpen(true);
-  };
-
-  const handleCloseApplyModal = () => {
-    if (!isSubmitting) {
-      setIsApplyModalOpen(false);
-      setCoverLetter("");
-      setResumeFile(null);
-      setResumeFileName("");
-    }
   };
 
   if (loading) {
@@ -298,8 +196,8 @@ const JobDetail = () => {
                   </h1>
                 </div>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-lg text-[#474C54]">at {job.company?.companyName}</span>
-                  <span className="px-3 py-1 !bg-primary/90 text-white text-sm font-semibold rounded-full">
+                  <span className="text-base text-[#474C54]">at {job.company?.companyName}</span>
+                  <span className="px-3 py-1 !bg-primary/90 text-white text-xs font-semibold rounded-full">
                     {job.employment_types?.[0]?.toUpperCase() || 'FULL-TIME'}
                   </span>
                 </div>
@@ -308,12 +206,12 @@ const JobDetail = () => {
 
             {(!isAuthenticated || canApply) && isInitialized && (
               <Button
-                className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-8 h-14 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="!bg-primary hover:bg-primary/50 text-white px-8 h-10 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed rounded-full"
                 onClick={handleOpenApplyModal}
                 disabled={job.has_applied}
               >
                 {job.has_applied ? 'Already Applied' : 'Apply now'}
-                {!job.has_applied && <ArrowRight className="ml-2 w-5 h-5" />}
+                {!job.has_applied && <ArrowRight className="ml-2 w-4 h-4" />}
               </Button>
             )}
           </div>
@@ -586,7 +484,6 @@ const JobDetail = () => {
                     className="bg-white border border-gray-200 rounded-lg p-5 cursor-pointer hover:shadow-lg hover:border-[#3570E2]/20 transition-all duration-200"
                     onClick={() => navigate(`/jobs/${similarJob.id || similarJob._id}`)}
                   >
-                    { }
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
                         {companyLogo ? (
@@ -609,7 +506,6 @@ const JobDetail = () => {
                       </div>
                     </div>
 
-                    { }
                     <div className="flex items-center gap-2 mb-3 text-xs text-[#6B7280] flex-wrap">
                       <div className="flex items-center gap-1">
                         <span className="truncate">{similarJob.location}</span>
@@ -632,14 +528,12 @@ const JobDetail = () => {
                       )}
                     </div>
 
-                    { }
                     {similarJob.description && (
                       <p className="text-sm text-[#6B7280] line-clamp-2 mb-3 leading-relaxed">
                         {similarJob.description}
                       </p>
                     )}
 
-                    { }
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
                       <div className="flex items-center gap-1.5 text-[#6B7280]">
                         <Users className="w-4 h-4" />
@@ -661,182 +555,11 @@ const JobDetail = () => {
 
       <PublicFooter />
 
-      { }
-      <Dialog open={isApplyModalOpen} onOpenChange={handleCloseApplyModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#25324B]">
-              Apply for {job?.title}
-            </DialogTitle>
-            <DialogDescription className="text-base text-[#515B6F]">
-              Submit your application to {job?.company_name || job?.company?.companyName}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            { }
-            <div className="bg-[#F8F8FD] rounded-lg p-4 border border-[#D6DDEB]">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {(job?.company_logo || job?.company?.logo) ? (
-                    <img
-                      src={job?.company_logo || job?.company?.logo}
-                      alt={job?.company_name || job?.company?.companyName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xl font-bold text-blue-600">
-                      {(job?.company_name || job?.company?.companyName)?.charAt(0) || 'C'}
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-[#25324B] mb-1">
-                    {job?.title}
-                  </h3>
-                  <p className="text-sm text-[#515B6F] mb-2">
-                    {job?.company_name || job?.company?.companyName} • {job?.location}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-[rgba(86,205,173,0.1)] text-[#56CDAD] hover:bg-[rgba(86,205,173,0.1)]">
-                      {job?.employment_types?.[0]?.toUpperCase() || 'FULL-TIME'}
-                    </Badge>
-                    <span className="text-sm text-[#515B6F]">
-                      ₹{((job?.salary?.min || 0) / 1000)}k-₹{((job?.salary?.max || 0) / 1000)}k
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            { }
-            <div className="space-y-2">
-              <Label htmlFor="coverLetter" className="text-base font-semibold text-[#25324B]">
-                Cover Letter <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                id="coverLetter"
-                placeholder="Tell us why you're interested in this position and what makes you a great fit..."
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                className="min-h-[150px] text-base"
-                disabled={isSubmitting}
-              />
-              <p className="text-sm text-[#515B6F]">
-                {coverLetter.length} characters
-              </p>
-            </div>
-
-            { }
-            <div className="space-y-2">
-              <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="resume" className="text-base font-semibold text-[#25324B]">
-                  Resume <span className="text-red-500">*</span>
-                </Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 h-auto p-1 font-medium"
-                  onClick={() => setIsAnalyzerOpen(true)}
-                >
-                  <Sparkles className="w-3.5 h-3.5 mr-1" />
-                  Check Resume Score
-                </Button>
-              </div>
-              {!resumeFile ? (
-                <div className="relative">
-                  <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    disabled={isSubmitting}
-                  />
-                  <Label
-                    htmlFor="resume"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#D6DDEB] rounded-lg cursor-pointer bg-[#F8F8FD] hover:bg-[#F0F0F5] transition-colors"
-                  >
-                    <Upload className="w-8 h-8 text-[#4045DE] mb-2" />
-                    <p className="text-sm font-medium text-[#25324B] mb-1">
-                      Click to upload your resume
-                    </p>
-                    <p className="text-xs text-[#515B6F]">
-                      PDF, DOC, or DOCX (Max 5MB)
-                    </p>
-                  </Label>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between p-4 bg-[#F8F8FD] border border-[#D6DDEB] rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#4045DE]/10 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-[#4045DE]" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#25324B]">{resumeFileName}</p>
-                      <p className="text-xs text-[#515B6F]">
-                        {(resumeFile.size / 1024).toFixed(2)} KB
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleRemoveResume}
-                    disabled={isSubmitting}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            { }
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                <strong>Note:</strong> Make sure your resume is up-to-date and your cover letter highlights your relevant experience for this position.
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={handleCloseApplyModal}
-              disabled={isSubmitting}
-              className="px-6"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApply}
-              disabled={isSubmitting || !coverLetter.trim() || !resumeFile}
-              className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-6"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  Submit Application
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <ResumeAnalyzerModal
-        isOpen={isAnalyzerOpen}
-        onClose={() => setIsAnalyzerOpen(false)}
-        jobId={id || ''}
-        onResumeVerified={handleResumeVerified}
+      <JobApplyModal
+        isOpen={isApplyModalOpen}
+        onClose={handleCloseApplyModal}
+        job={job}
+        onSuccess={handleApplySuccess}
       />
     </div>
   );
