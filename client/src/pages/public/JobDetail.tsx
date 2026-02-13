@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { 
+import {
   ArrowRight,
   CheckCircle,
   Users,
@@ -60,20 +60,20 @@ const JobDetail = () => {
   useEffect(() => {
     const fetchJobDetails = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
         setError(null);
-        
+
         const jobResponse = await jobApi.getJobById(id);
         if (jobResponse.success && jobResponse.data) {
           setJob(jobResponse.data);
-          
+
           const similarResponse = await jobApi.getAllJobs({
             limit: 4,
             category_ids: jobResponse.data.category_ids
           });
-          
+
           if (similarResponse.success && similarResponse.data) {
             const filtered = similarResponse.data.jobs
               .filter((j: { id?: string; _id?: string }) => (j.id || j._id) !== id)
@@ -129,8 +129,8 @@ const JobDetail = () => {
   const handleResumeVerified = (file: File) => {
     setResumeFile(file);
     setResumeFileName(file.name);
-    setIsApplyModalOpen(true); 
-    
+    setIsApplyModalOpen(true);
+
   };
 
   const handleApply = async () => {
@@ -159,7 +159,7 @@ const JobDetail = () => {
 
       await jobApplicationApi.createApplication(formData);
 
-      
+
       setJob((prevJob) => (prevJob ? { ...prevJob, has_applied: true } : null));
 
       setIsApplyModalOpen(false);
@@ -183,9 +183,9 @@ const JobDetail = () => {
 
   const handleOpenApplyModal = () => {
     if (!isAuthenticated) {
-      navigate('/auth/login', { 
+      navigate('/auth/login', {
         state: { from: `${location.pathname}?apply=true` },
-        replace: false 
+        replace: false
       });
       toast.info('Please login to apply for this job');
       return;
@@ -225,8 +225,8 @@ const JobDetail = () => {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
           <p className="mt-4 text-gray-600">{error || 'Job not found'}</p>
-          <Button 
-            onClick={() => navigate('/jobs')} 
+          <Button
+            onClick={() => navigate('/jobs')}
             className="mt-4"
             variant="outline"
           >
@@ -243,32 +243,50 @@ const JobDetail = () => {
 
       <div className="max-w-[1152px] mx-auto">
         <div className="px-[96px] pt-[58px]">
-          <div className="mb-6 flex items-center gap-2 text-sm">
-            <button onClick={() => navigate('/')} className="text-gray-500 hover:text-gray-700">
+          <div className="mb-6 flex items-center gap-2 text-sm overflow-hidden">
+            <button
+              onClick={() => navigate('/')}
+              className="text-gray-500 hover:text-[#4045DE] whitespace-nowrap transition-colors"
+            >
               Home
             </button>
-            <span className="text-gray-500">/</span>
-            <button onClick={() => navigate('/jobs')} className="text-gray-500 hover:text-gray-700">
+            <span className="text-gray-400">/</span>
+            <button
+              onClick={() => navigate('/jobs')}
+              className="text-gray-500 hover:text-[#4045DE] whitespace-nowrap transition-colors"
+            >
               Find Job
             </button>
-            <span className="text-gray-500">/</span>
-            <span className="text-gray-500">Graphics & Design</span>
-            <span className="text-gray-500">/</span>
-            <span className="text-gray-900 font-medium">Job Details</span>
+            {job.category_ids && job.category_ids.length > 0 && (
+              <>
+                <span className="text-gray-400">/</span>
+                <span className="text-gray-500 capitalize whitespace-nowrap truncate max-w-[150px]">
+                  {job.category_ids[0]}
+                </span>
+              </>
+            )}
+            <span className="text-gray-400">/</span>
+            <span className="text-[#18191C] font-semibold truncate">
+              {job.title}
+            </span>
           </div>
 
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-start gap-6">
               <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                {(job.company_logo || job.company?.logo) ? (
-                  <img 
-                    src={job.company_logo || job.company?.logo} 
-                    alt={job.company_name || job.company?.companyName}
+                {(job.company?.logo) ? (
+                  <img
+                    src={job.company?.logo}
+                    alt={job.company?.companyName}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.parentElement!.innerHTML = `<span class="text-3xl font-bold text-blue-600">${(job.company?.companyName)?.charAt(0)}</span>`;
+                    }}
                   />
                 ) : (
                   <span className="text-3xl font-bold text-blue-600">
-                    {(job.company_name || job.company?.companyName)?.charAt(0) || job.title.charAt(0)}
+                    {(job.company?.companyName)?.charAt(0)}
                   </span>
                 )}
               </div>
@@ -280,8 +298,8 @@ const JobDetail = () => {
                   </h1>
                 </div>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-lg text-[#474C54]">at {job.company_name || job.company?.companyName}</span>
-                  <span className="px-3 py-1 bg-[#0BA02C] text-white text-sm font-semibold rounded">
+                  <span className="text-lg text-[#474C54]">at {job.company?.companyName}</span>
+                  <span className="px-3 py-1 !bg-primary/90 text-white text-sm font-semibold rounded-full">
                     {job.employment_types?.[0]?.toUpperCase() || 'FULL-TIME'}
                   </span>
                 </div>
@@ -289,7 +307,7 @@ const JobDetail = () => {
             </div>
 
             {(!isAuthenticated || canApply) && isInitialized && (
-              <Button 
+              <Button
                 className="bg-[#4045DE] hover:bg-[#3338C0] text-white px-8 h-14 text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleOpenApplyModal}
                 disabled={job.has_applied}
@@ -356,7 +374,7 @@ const JobDetail = () => {
           <div className="w-[301px] flex-shrink-0 space-y-8">
             <div>
               <h3 className="text-[26px] font-bold text-[#25324B] mb-5">About this role</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-base text-[#515B6F]">Location</span>
@@ -392,26 +410,10 @@ const JobDetail = () => {
             <Separator />
 
             <div>
-              <h3 className="text-[26px] font-bold text-[#25324B] mb-3">Categories</h3>
-              <div className="flex flex-wrap gap-2">
-                {job.category_ids?.map((category: string) => (
-                  <Badge 
-                    key={category}
-                    className="bg-[rgba(86,205,173,0.1)] text-[#56CDAD] hover:bg-[rgba(86,205,173,0.1)] px-3 py-1.5"
-                  >
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            <div>
               <h3 className="text-[26px] font-bold text-[#25324B] mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
                 {job.skills_required?.map((skill: string) => (
-                  <Badge 
+                  <Badge
                     key={skill}
                     variant="outline"
                     className="bg-[#F8F8FD] text-[#4045DE] border-0 px-3 py-2 text-base font-normal"
@@ -421,6 +423,23 @@ const JobDetail = () => {
                 ))}
               </div>
             </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-[26px] font-bold text-[#25324B] mb-3">Categories</h3>
+              <div className="flex flex-wrap gap-2">
+                {job.category_ids?.map((category: string) => (
+                  <Badge
+                    key={category}
+                    className="!bg-[rgba(86,205,173,0.1)] !text-[#56CDAD] !hover:bg-[rgba(86,205,173,0.1)] px-3 py-1.5"
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -452,8 +471,8 @@ const JobDetail = () => {
               <div className="flex items-center gap-6 mb-6">
                 <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
                   {(job.company_logo || job.company?.logo) ? (
-                    <img 
-                      src={job.company_logo || job.company?.logo}  
+                    <img
+                      src={job.company_logo || job.company?.logo}
                       alt={job.company_name || job.company?.companyName}
                       className="w-full h-full object-cover"
                     />
@@ -484,7 +503,7 @@ const JobDetail = () => {
                 </div>
               </div>
               <p className="text-base text-[#515B6F] leading-relaxed">
-                {job.company_name || job.company?.companyName} is a leading technology company that builds innovative solutions for the modern world. 
+                {job.company_name || job.company?.companyName} is a leading technology company that builds innovative solutions for the modern world.
                 We are committed to creating a diverse and inclusive workplace where talented individuals can thrive and make a meaningful impact.
               </p>
             </div>
@@ -493,18 +512,18 @@ const JobDetail = () => {
               {job.company?.workplacePictures && job.company.workplacePictures.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-2 h-[221px] bg-gray-200 rounded overflow-hidden">
-                    <img 
-                      src={job.company.workplacePictures[0].pictureUrl} 
-                      alt={job.company.workplacePictures[0].caption || "Office"} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={job.company.workplacePictures[0].pictureUrl}
+                      alt={job.company.workplacePictures[0].caption || "Office"}
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   {job.company.workplacePictures.slice(1, 3).map((picture: { pictureUrl: string; caption?: string }, index: number) => (
                     <div key={index} className="h-[104px] bg-gray-200 rounded overflow-hidden">
-                      <img 
-                        src={picture.pictureUrl} 
-                        alt={picture.caption || "Office"} 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={picture.pictureUrl}
+                        alt={picture.caption || "Office"}
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   ))}
@@ -535,7 +554,7 @@ const JobDetail = () => {
           <div className="bg-[#F8F8FD] px-[96px] py-[58px]">
             <div className="flex items-center justify-between mb-10">
               <h2 className="text-[26px] font-bold text-[#25324B]">Similar Jobs</h2>
-              <button 
+              <button
                 onClick={() => navigate('/jobs')}
                 className="text-sm font-semibold text-[#4045DE] flex items-center gap-2 hover:underline"
               >
@@ -554,7 +573,7 @@ const JobDetail = () => {
                   skillsRequired?: string[];
                   employmentTypes?: string[];
                 };
-                
+
                 const companyLogo = jobData.companyLogo || jobData.company_logo || jobData.company?.logo;
                 const companyName = jobData.companyName || jobData.company_name || jobData.company?.companyName || 'Company';
                 const applicationCount = jobData.applicationCount || 0;
@@ -562,17 +581,17 @@ const JobDetail = () => {
                 const salary = jobData.salary || { min: 0, max: 0 };
 
                 return (
-                  <div 
-                    key={similarJob.id || similarJob._id} 
+                  <div
+                    key={similarJob.id || similarJob._id}
                     className="bg-white border border-gray-200 rounded-lg p-5 cursor-pointer hover:shadow-lg hover:border-[#3570E2]/20 transition-all duration-200"
                     onClick={() => navigate(`/jobs/${similarJob.id || similarJob._id}`)}
                   >
-                    {}
+                    { }
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
                         {companyLogo ? (
-                          <img 
-                            src={companyLogo} 
+                          <img
+                            src={companyLogo}
                             alt={companyName}
                             className="w-9 h-9 rounded-lg object-cover"
                           />
@@ -590,7 +609,7 @@ const JobDetail = () => {
                       </div>
                     </div>
 
-                    {}
+                    { }
                     <div className="flex items-center gap-2 mb-3 text-xs text-[#6B7280] flex-wrap">
                       <div className="flex items-center gap-1">
                         <span className="truncate">{similarJob.location}</span>
@@ -613,14 +632,14 @@ const JobDetail = () => {
                       )}
                     </div>
 
-                    {}
+                    { }
                     {similarJob.description && (
                       <p className="text-sm text-[#6B7280] line-clamp-2 mb-3 leading-relaxed">
                         {similarJob.description}
                       </p>
                     )}
 
-                    {}
+                    { }
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
                       <div className="flex items-center gap-1.5 text-[#6B7280]">
                         <Users className="w-4 h-4" />
@@ -642,7 +661,7 @@ const JobDetail = () => {
 
       <PublicFooter />
 
-      {}
+      { }
       <Dialog open={isApplyModalOpen} onOpenChange={handleCloseApplyModal}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -655,13 +674,13 @@ const JobDetail = () => {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {}
+            { }
             <div className="bg-[#F8F8FD] rounded-lg p-4 border border-[#D6DDEB]">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {(job?.company_logo || job?.company?.logo) ? (
-                    <img 
-                      src={job?.company_logo || job?.company?.logo} 
+                    <img
+                      src={job?.company_logo || job?.company?.logo}
                       alt={job?.company_name || job?.company?.companyName}
                       className="w-full h-full object-cover"
                     />
@@ -690,7 +709,7 @@ const JobDetail = () => {
               </div>
             </div>
 
-            {}
+            { }
             <div className="space-y-2">
               <Label htmlFor="coverLetter" className="text-base font-semibold text-[#25324B]">
                 Cover Letter <span className="text-red-500">*</span>
@@ -708,7 +727,7 @@ const JobDetail = () => {
               </p>
             </div>
 
-            {}
+            { }
             <div className="space-y-2">
               <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="resume" className="text-base font-semibold text-[#25324B]">
@@ -775,7 +794,7 @@ const JobDetail = () => {
               )}
             </div>
 
-            {}
+            { }
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
                 <strong>Note:</strong> Make sure your resume is up-to-date and your cover letter highlights your relevant experience for this position.
@@ -813,7 +832,7 @@ const JobDetail = () => {
         </DialogContent>
       </Dialog>
 
-      <ResumeAnalyzerModal 
+      <ResumeAnalyzerModal
         isOpen={isAnalyzerOpen}
         onClose={() => setIsAnalyzerOpen(false)}
         jobId={id || ''}
