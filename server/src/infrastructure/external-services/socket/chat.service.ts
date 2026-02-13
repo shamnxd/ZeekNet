@@ -82,6 +82,20 @@ export class ChatSocketService implements IChatSocketService, ISocketConnectionM
     this.io.to(this.getUserRoom(receiverId)).emit('typing_indicator', payload);
   }
 
+  emitUserOnline(userId: string): void {
+    if (!this.io) return;
+    this.io.emit('user_online', { userId });
+  }
+
+  emitUserOffline(userId: string): void {
+    if (!this.io) return;
+    this.io.emit('user_offline', { userId });
+  }
+
+  getOnlineUsers(): string[] {
+    return Array.from(this._userSockets.keys());
+  }
+
   private getUserRoom(userId: string): string {
     return `user:${userId}`;
   }
