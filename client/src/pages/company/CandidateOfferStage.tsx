@@ -95,17 +95,6 @@ export const CandidateOfferStage = ({
                     </div>
                 </div>
 
-                {showActions && (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white transition-all shadow-sm"
-                        onClick={() => onSetShowMoveToStageModal(true)}
-                    >
-                        <Zap className="h-4 w-4 fill-current" />
-                        Quick Action
-                    </Button>
-                )}
             </div>
 
             {/* Offer Summary Section */}

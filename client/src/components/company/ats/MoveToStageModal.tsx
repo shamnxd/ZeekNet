@@ -48,8 +48,43 @@ export const MoveToStageModal = ({
   }, [availableStages])
 
 
-  // When forcefully changing stage, show all enabled stages except the current one
-  const allAvailableStages = normalizedStages.filter((stage) => stage && stage !== currentStage)
+  // When forcefully changing stage, show all enabled stages except the current one and previous stages
+  const allAvailableStages = useMemo(() => {
+    // Define the order of stages
+    const stageOrder = [
+      ATSStage.IN_REVIEW,
+      ATSStage.SHORTLISTED,
+      ATSStage.INTERVIEW,
+      ATSStage.TECHNICAL_TASK,
+      ATSStage.COMPENSATION,
+      ATSStage.OFFER,
+      ATSStage.HIRED,
+      ATSStage.REJECTED
+    ];
+
+    const currentStageIndex = stageOrder.indexOf(currentStage);
+
+    if (currentStageIndex === -1) {
+      // If current stage is not in the predefined order, fallback to showing all other stages
+      return normalizedStages.filter((stage) => stage && stage !== currentStage);
+    }
+
+    return normalizedStages.filter((stage) => {
+      // Always exclude current stage
+      if (!stage || stage === currentStage) return false;
+
+      const stageIndex = stageOrder.indexOf(stage);
+
+      // If target stage is REJECTED, always allow it (unless it's already rejected)
+      if (stage === ATSStage.REJECTED) return true;
+
+      // If target stage is HIRED, always allow it (usually only from Offer, but flexible)
+      if (stage === ATSStage.HIRED) return true;
+
+      // Only allow moving forward
+      return stageIndex > currentStageIndex;
+    });
+  }, [normalizedStages, currentStage]);
 
   useEffect(() => {
     if (!isOpen) {
