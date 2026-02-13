@@ -12,6 +12,7 @@ export interface ResumeMeta {
 
 export interface Experience {
   id: string;
+  _id?: string;
   title: string;
   company: string;
   startDate: string;
@@ -25,6 +26,7 @@ export interface Experience {
 
 export interface Education {
   id: string;
+  _id?: string;
   school: string;
   degree?: string;
   fieldOfStudy?: string;
@@ -42,8 +44,8 @@ export interface SeekerProfile {
   location: string | null;
   phone: string | null;
   email: string;
-  avatarUrl: string | null; 
-  bannerUrl: string | null; 
+  avatarUrl: string | null;
+  bannerUrl: string | null;
   dateOfBirth: string | null;
   gender: string | null;
   skills: string[];

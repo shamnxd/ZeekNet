@@ -17,7 +17,7 @@ interface ProfileHeaderProps {
     bannerImage: string;
     profilePhoto: string;
 
-    
+
     editBannerOpen: boolean;
     setEditBannerOpen: (open: boolean) => void;
     bannerCropperOpen: boolean;
@@ -28,7 +28,7 @@ interface ProfileHeaderProps {
     handleEditBanner: () => void;
     handleBannerCropComplete: (croppedAreaPixels: Area, croppedImage: string) => Promise<void>;
 
-    
+
     editProfileOpen: boolean;
     setEditProfileOpen: (open: boolean) => void;
     profileCropperOpen: boolean;
@@ -39,7 +39,7 @@ interface ProfileHeaderProps {
     handleProfileCropComplete: (croppedAreaPixels: Area, croppedImage: string) => Promise<void>;
     handleEditProfile: () => Promise<void>;
 
-    
+
     profileData: {
         name: string;
         headline: string;
@@ -158,11 +158,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <div className="flex flex-col items-center gap-4 pb-4 border-b border-[#e5e7eb]">
                     <div className="w-full max-w-md">
                         <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-[#e5e7eb] bg-gradient-to-br from-[#f8f9ff] to-[#e5e7eb]">
-                            <img
-                                src={bannerImage}
-                                alt="Banner Preview"
-                                className="w-full h-full object-cover"
-                            />
+                            {bannerImage ? (
+                                <img
+                                    src={bannerImage}
+                                    alt="Banner Preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.parentElement?.querySelector('.fallback-banner')?.classList.remove('hidden');
+                                    }}
+                                />
+                            ) : null}
+                            <div className={`fallback-banner absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400 ${bannerImage ? 'hidden' : ''}`}>
+                                <div className="text-center">
+                                    <p className="text-sm font-medium">No Banner Selected</p>
+                                </div>
+                            </div>
                             <div className="absolute inset-0 bg-black/10"></div>
                         </div>
                         <div className="mt-4 text-center">

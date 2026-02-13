@@ -10,8 +10,6 @@ import type { ComboboxOption } from '@/components/ui/combobox';
 export const useSeekerProfile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
-
     const [editBannerOpen, setEditBannerOpen] = useState(false);
     const [bannerCropperOpen, setBannerCropperOpen] = useState(false);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
@@ -33,16 +31,11 @@ export const useSeekerProfile = () => {
     const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
     const [editDetailsOpen, setEditDetailsOpen] = useState(false);
     const [editSocialOpen, setEditSocialOpen] = useState(false);
-
-
     const [profile, setProfile] = useState<SeekerProfileType | null>(null);
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [education, setEducation] = useState<Education[]>([]);
-
-
     const [tempBannerImage, setTempBannerImage] = useState<string>('');
     const [tempProfileImage, setTempProfileImage] = useState<string>('');
-
     const [bannerImage, setBannerImage] = useState<string>('');
     const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
     const [profilePhoto, setProfilePhoto] = useState<string>('');
@@ -188,9 +181,12 @@ export const useSeekerProfile = () => {
             const file = dataURLtoFile(croppedImage, `banner-${Date.now()}.png`);
             const response = await seekerApi.uploadBanner(file);
             if (response.success && response.data) {
-                setBannerImage(response.data.bannerUrl || croppedImage);
+                const newBannerUrl = response.data.bannerUrl || croppedImage;
+                setBannerImage(newBannerUrl);
+                if (profile) {
+                    setProfile({ ...profile, bannerUrl: newBannerUrl });
+                }
                 toast.success('Banner updated successfully');
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update banner');
             }
@@ -229,9 +225,12 @@ export const useSeekerProfile = () => {
             const file = dataURLtoFile(croppedImage, `avatar-${Date.now()}.png`);
             const response = await seekerApi.uploadAvatar(file);
             if (response.success && response.data) {
-                setProfilePhoto(response.data.avatarUrl || croppedImage);
+                const newAvatarUrl = response.data.avatarUrl || croppedImage;
+                setProfilePhoto(newAvatarUrl);
+                if (profile) {
+                    setProfile({ ...profile, avatarUrl: newAvatarUrl });
+                }
                 toast.success('Profile photo updated successfully');
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update profile photo');
             }
@@ -248,17 +247,28 @@ export const useSeekerProfile = () => {
         try {
             setSaving(true);
 
-            const response = await seekerApi.updateProfile({
+            const updatedProfileData = {
                 name: profileData.name,
                 headline: profileData.headline,
                 location: profileData.location,
-                dateOfBirth: profileData.dateOfBirth || undefined,
+                dateOfBirth: profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : undefined,
                 gender: profileData.gender || undefined,
-            });
+            };
+
+            const response = await seekerApi.updateProfile(updatedProfileData);
             if (response.success) {
+                if (profile) {
+                    const newProfile = { ...profile };
+                    if (updatedProfileData.name) newProfile.name = updatedProfileData.name;
+                    if (updatedProfileData.headline) newProfile.headline = updatedProfileData.headline;
+                    if (updatedProfileData.location) newProfile.location = updatedProfileData.location;
+                    if (updatedProfileData.gender) newProfile.gender = updatedProfileData.gender;
+                    if (updatedProfileData.dateOfBirth !== undefined) newProfile.dateOfBirth = updatedProfileData.dateOfBirth || null;
+
+                    setProfile(newProfile);
+                }
                 toast.success('Profile updated successfully');
                 setEditProfileOpen(false);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update profile');
             }
@@ -276,9 +286,11 @@ export const useSeekerProfile = () => {
                 summary: aboutData,
             });
             if (response.success) {
+                if (profile) {
+                    setProfile({ ...profile, summary: aboutData });
+                }
                 toast.success('About section updated successfully');
                 setEditAboutOpen(false);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update about section');
             }
@@ -349,11 +361,11 @@ export const useSeekerProfile = () => {
                 technologies: experienceData.technologies,
                 isCurrent: experienceData.isCurrent,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Experience updated successfully');
                 setEditExperienceOpen(false);
+                setExperiences(prev => prev.map(exp => (exp.id === editingExperienceId || exp._id === editingExperienceId) ? response.data as Experience : exp));
                 setEditingExperienceId(null);
-                fetchProfileData();
             } else {
                 const msg = response.message || 'Failed to update experience';
                 setExperienceError(msg);
@@ -380,7 +392,7 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.removeExperience(experienceToDelete);
             if (response.success) {
                 toast.success('Experience removed successfully');
-                fetchProfileData();
+                setExperiences(prev => prev.filter(exp => exp.id !== experienceToDelete && exp._id !== experienceToDelete));
             } else {
                 toast.error(response.message || 'Failed to remove experience');
             }
@@ -404,9 +416,10 @@ export const useSeekerProfile = () => {
                 endDate: educationData.endDate || undefined,
                 grade: educationData.grade || undefined,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Education added successfully');
                 setAddEducationOpen(false);
+                setEducation(prev => [response.data!, ...prev]);
                 setEducationData({
                     school: '',
                     degree: '',
@@ -415,7 +428,6 @@ export const useSeekerProfile = () => {
                     endDate: '',
                     grade: '',
                 });
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to add education');
             }
@@ -438,11 +450,11 @@ export const useSeekerProfile = () => {
                 endDate: educationData.endDate || undefined,
                 grade: educationData.grade || undefined,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Education updated successfully');
                 setEditEducationOpen(false);
+                setEducation(prev => prev.map(edu => (edu.id === editingEducationId || edu._id === editingEducationId) ? response.data as Education : edu));
                 setEditingEducationId(null);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update education');
             }
@@ -465,7 +477,7 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.removeEducation(educationToDelete);
             if (response.success) {
                 toast.success('Education removed successfully');
-                fetchProfileData();
+                setEducation(prev => prev.filter(edu => edu.id !== educationToDelete && edu._id !== educationToDelete));
             } else {
                 toast.error(response.message || 'Failed to remove education');
             }
@@ -550,8 +562,10 @@ export const useSeekerProfile = () => {
             if (response.success) {
                 toast.success('Skills updated successfully');
                 setAddSkillOpen(false);
+                if (profile) {
+                    setProfile({ ...profile, skills: response.data || selectedSkills });
+                }
                 setSelectedSkills([]);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update skills');
             }
@@ -575,7 +589,9 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.updateSkills(updatedSkills);
             if (response.success) {
                 toast.success('Skill removed successfully');
-                fetchProfileData();
+                if (profile) {
+                    setProfile({ ...profile, skills: updatedSkills });
+                }
             } else {
                 toast.error(response.message || 'Failed to remove skill');
             }
@@ -689,7 +705,14 @@ export const useSeekerProfile = () => {
                 toast.success('Contact details updated successfully');
                 setDetailsError('');
                 setEditDetailsOpen(false);
-                fetchProfileData();
+
+                if (profile) {
+                    const newProfile = { ...profile };
+                    if (updateData.phone) newProfile.phone = updateData.phone;
+                    if (updateData.email) newProfile.email = updateData.email;
+                    if (languagesChanged) newProfile.languages = editingLanguages;
+                    setProfile(newProfile);
+                }
             } else {
                 setEditDetailsOpen(false);
             }
@@ -739,9 +762,11 @@ export const useSeekerProfile = () => {
                 socialLinks: validLinks,
             });
             if (response.success) {
+                if (profile) {
+                    setProfile({ ...profile, socialLinks: validLinks });
+                }
                 toast.success('Social links updated successfully');
                 setEditSocialOpen(false);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update social links');
             }
