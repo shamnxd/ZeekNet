@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Briefcase,
   Search,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import JobCard from "@/components/jobs/JobCard";
 import SidebarFilters from "@/components/jobs/SidebarFilters";
+import { JobListingSkeleton } from "@/components/jobs/JobListingSkeleton";
 import { jobApi } from "@/api/job.api";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type { JobPostingQuery } from "@/interfaces/job/job-posting-query.interface";
@@ -21,41 +21,46 @@ import PublicFooter from "@/components/layouts/PublicFooter";
 
 const JobListing = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState<JobPostingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [pagination, setPagination] = useState({
-    page: 1,
     limit: 12,
     total: 0,
     totalPages: 0,
   });
-  const [currentQuery, setCurrentQuery] = useState<JobPostingQuery>({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState("");
 
-  const fetchJobs = useCallback(async (query: JobPostingQuery = {}, page: number = 1) => {
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [location, setLocation] = useState(searchParams.get("location") || "");
+
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await jobApi.getAllJobs({
-        ...query,
-        page,
+      const query: JobPostingQuery = {
+        page: parseInt(searchParams.get("page") || "1"),
         limit: pagination.limit,
-      });
+        search: searchParams.get("search") || undefined,
+        location: searchParams.get("location") || undefined,
+        employment_types: searchParams.get("employment_types")?.split(",") || undefined,
+        salary_min: searchParams.get("salary_min") ? parseInt(searchParams.get("salary_min")!) : undefined,
+        salary_max: searchParams.get("salary_max") ? parseInt(searchParams.get("salary_max")!) : undefined,
+        category_ids: searchParams.get("category_ids")?.split(",") || undefined,
+      };
+
+      const response = await jobApi.getAllJobs(query);
 
       if (response.success && response.data) {
         const responseData = response.data;
         setJobs(responseData.jobs || []);
         setPagination((prev) => ({
           ...prev,
-          page: responseData.pagination?.page || page,
-          limit: responseData.pagination?.limit || prev.limit,
           total: responseData.pagination?.total || 0,
           totalPages: responseData.pagination?.totalPages || 0,
         }));
-        setCurrentQuery(query);
       } else {
         setError(response.message || 'Failed to fetch jobs');
         setJobs([]);
@@ -65,30 +70,56 @@ const JobListing = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.limit]);
+  }, [searchParams, pagination.limit]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+    setLocation(searchParams.get("location") || "");
+  }, [searchParams]);
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
 
-  const handleSearch = async (filterQuery: JobPostingQuery) => {
-    await fetchJobs({
-      ...filterQuery,
-      search: searchQuery.trim() || undefined,
-      location: location.trim() || undefined,
-    }, 1);
+  const handleSearch = (filterQuery: JobPostingQuery) => {
+    setSearchParams(prev => {
+      prev.set("page", "1");
+
+      if (searchQuery.trim()) prev.set("search", searchQuery.trim());
+      else prev.delete("search");
+
+      if (location.trim()) prev.set("location", location.trim());
+      else prev.delete("location");
+
+      if (filterQuery.employment_types?.length) prev.set("employment_types", filterQuery.employment_types.join(","));
+      else prev.delete("employment_types");
+
+      if (filterQuery.salary_min !== undefined) prev.set("salary_min", filterQuery.salary_min.toString());
+      else prev.delete("salary_min");
+
+      if (filterQuery.salary_max !== undefined) prev.set("salary_max", filterQuery.salary_max.toString());
+      else prev.delete("salary_max");
+
+      return prev;
+    });
   };
 
-  const handleTextSearch = async () => {
-    await fetchJobs({
-      ...currentQuery,
-      search: searchQuery.trim() || undefined,
-      location: location.trim() || undefined,
-    }, 1);
+  const handleTextSearch = () => {
+    setSearchParams(prev => {
+      prev.set("page", "1");
+      if (searchQuery.trim()) prev.set("search", searchQuery.trim());
+      else prev.delete("search");
+      if (location.trim()) prev.set("location", location.trim());
+      else prev.delete("location");
+      return prev;
+    });
   };
 
   const handlePageChange = (page: number) => {
-    fetchJobs(currentQuery, page);
+    setSearchParams(prev => {
+      prev.set("page", page.toString());
+      return prev;
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -97,7 +128,7 @@ const JobListing = () => {
       return null;
     }
 
-    const currentPage = pagination.page || 1;
+    const currentPage = parseInt(searchParams.get("page") || "1");
     const totalPages = pagination.totalPages || 1;
     const startPage = Math.max(1, currentPage - 1);
     const endPage = Math.min(totalPages, currentPage + 1);
@@ -123,8 +154,8 @@ const JobListing = () => {
               key={page}
               onClick={() => handlePageChange(page)}
               className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${page === currentPage
-                  ? 'bg-[#3570E2] text-white'
-                  : 'text-[#394047] hover:bg-gray-50'
+                ? 'bg-[#3570E2] text-white'
+                : 'text-[#394047] hover:bg-gray-50'
                 }`}
             >
               {page.toString().padStart(2, '0')}
@@ -147,12 +178,7 @@ const JobListing = () => {
   };
 
   const renderLoadingState = () => (
-    <div className="flex items-center justify-center py-12">
-      <div className="flex flex-col items-center space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#3570E2]" />
-        <p className="text-[#394047]">Loading jobs...</p>
-      </div>
-    </div>
+    <JobListingSkeleton limit={pagination.limit} />
   );
 
   const renderErrorState = () => (
@@ -178,7 +204,7 @@ const JobListing = () => {
         </p>
         <Button
           variant="outline"
-          onClick={() => fetchJobs({})}
+          onClick={() => setSearchParams({})}
           className="mt-4"
         >
           Clear Filters
@@ -212,7 +238,15 @@ const JobListing = () => {
                 Filters
               </h2>
 
-              <SidebarFilters onSearch={handleSearch} loading={loading} />
+              <SidebarFilters
+                onSearch={handleSearch}
+                loading={loading}
+                initialFilters={{
+                  employment_types: searchParams.get("employment_types")?.split(",") || undefined,
+                  salary_min: searchParams.get("salary_min") ? parseInt(searchParams.get("salary_min")!) : undefined,
+                  salary_max: searchParams.get("salary_max") ? parseInt(searchParams.get("salary_max")!) : undefined,
+                }}
+              />
             </div>
           </aside>
 
