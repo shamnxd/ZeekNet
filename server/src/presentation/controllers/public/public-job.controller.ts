@@ -25,6 +25,7 @@ export class PublicJobController {
         salaryMax: query.salary_max,
         location: query.location,
         search: query.search,
+        companyId: query.company_id,
         page: query.page,
         limit: query.limit,
       };
