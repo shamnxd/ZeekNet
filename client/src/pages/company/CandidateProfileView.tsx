@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import CompanyLayout from "@/components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, CheckCircle2, X } from "lucide-react";
 import { companyApi } from "@/api/company.api";
 import { chatApi } from "@/api/chat.api";
 import { atsService } from "@/services/ats.service";
@@ -309,13 +309,43 @@ const CandidateProfileView = () => {
           onSetShowCreateOfferModal={setShowCreateOfferModal}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowWithdrawOfferModal={setShowWithdrawOfferModal}
-          onSendReminder={actions.handleSendReminder}
+          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onMarkAsHired={actions.handleMarkAsHired}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
 
           isUpdating={actions.isUpdating}
         />
+      );
+    } else if (selectedStage === ATSStage.HIRED) {
+      return (
+        <div className="bg-emerald-50 rounded-lg p-8 text-center border border-emerald-100">
+          <div className="inline-flex items-center justify-center p-3 bg-emerald-100 rounded-full mb-4">
+            <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+          </div>
+          <h3 className="text-xl font-bold text-emerald-900 mb-1">Candidate Hired</h3>
+          <p className="text-emerald-700 max-w-sm mx-auto text-sm">
+            This candidate has successfully completed the hiring process and has been marked as hired.
+          </p>
+        </div>
+      );
+    } else if (selectedStage === ATSStage.REJECTED) {
+      return (
+        <div className="bg-red-50 rounded-lg p-8 text-center border border-red-100">
+          <div className="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
+            <X className="h-8 w-8 text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-red-900 mb-1">Candidate Rejected</h3>
+          <p className="text-red-700 max-w-sm mx-auto text-sm mb-4">
+            This candidate has been rejected for this position.
+          </p>
+          {((atsApplication as any)?.withdrawalReason || (atsApplication as any)?.rejection_reason) && (
+            <div className="mt-2 p-3 bg-white rounded-lg border border-red-200 inline-block text-left shadow-sm">
+              <p className="text-[10px] font-bold text-red-800 uppercase tracking-wider mb-1">Rejection Reason:</p>
+              <p className="text-xs text-red-700">{(atsApplication as any)?.withdrawalReason || (atsApplication as any)?.rejection_reason}</p>
+            </div>
+          )}
+        </div>
       );
     }
 

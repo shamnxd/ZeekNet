@@ -9,6 +9,7 @@ import {
   User,
   Download,
   Briefcase,
+  GraduationCap,
 } from "lucide-react";
 import type { CandidateDetailsResponse } from "@/api/company.api";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
@@ -62,32 +63,29 @@ const CandidateProfileTabs = ({
         <div className="flex gap-8">
           <button
             onClick={() => onChangeTab("profile")}
-            className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "profile"
-                ? "border-[#4640DE] text-[#4640DE]"
-                : "border-transparent text-gray-600 hover:text-gray-900"
-            }`}
+            className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === "profile"
+              ? "border-[#4640DE] text-[#4640DE]"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
           >
             Applicant Profile
           </button>
           <button
             onClick={() => onChangeTab("resume")}
-            className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === "resume"
-                ? "border-[#4640DE] text-[#4640DE]"
-                : "border-transparent text-gray-600 hover:text-gray-900"
-            }`}
+            className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === "resume"
+              ? "border-[#4640DE] text-[#4640DE]"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
           >
             Resume
           </button>
           {isATSMode && (
             <button
               onClick={() => onChangeTab("hiring")}
-              className={`py-4 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "hiring"
-                  ? "border-[#4640DE] text-[#4640DE]"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
+              className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === "hiring"
+                ? "border-[#4640DE] text-[#4640DE]"
+                : "border-transparent text-gray-600 hover:text-gray-900"
+                }`}
             >
               Hiring Progress
             </button>
@@ -120,17 +118,16 @@ const CandidateProfileTabs = ({
                         }
                       }}
                       disabled={isDisabled}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        isSelected
-                          ? "bg-[#4640DE] text-white shadow-md"
-                          : isDisabled
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isSelected
+                        ? "bg-[#4640DE] text-white shadow-md"
+                        : isDisabled
                           ? "bg-gray-50 text-gray-400 cursor-not-allowed opacity-50"
                           : stage.completed
-                          ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer"
-                          : stage.current
-                          ? "bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200 cursor-pointer"
-                      }`}
+                            ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer"
+                            : stage.current
+                              ? "bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200 cursor-pointer"
+                        }`}
                     >
                       {stage.completed && (
                         <CheckCircle2 className="h-4 w-4 inline mr-1" />
@@ -319,28 +316,40 @@ const CandidateProfileTabs = ({
               {(atsApplication?.resumeUrl ||
                 atsApplication?.resume_url ||
                 candidateData?.profile?.resume?.url) && (
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                  onClick={() =>
-                    window.open(
-                      atsApplication?.resumeUrl ||
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() =>
+                      window.open(
+                        atsApplication?.resumeUrl ||
                         atsApplication?.resume_url ||
                         candidateData?.profile?.resume?.url,
-                      "_blank"
-                    )
-                  }
-                >
-                  <Download className="h-4 w-4" />
-                  View Resume
-                </Button>
-              )}
+                        "_blank"
+                      )
+                    }
+                  >
+                    <Download className="h-4 w-4" />
+                    View Resume
+                  </Button>
+                )}
             </div>
+
+            {/* Summary */}
+            {candidateData?.profile?.summary && (
+              <div className="mt-8 pt-8 border-t border-[#D6DDEB]">
+                <h3 className="text-lg font-semibold text-[#25324B] mb-3 uppercase">
+                  Summary
+                </h3>
+                <p className="text-sm text-[#25324B] leading-relaxed">
+                  {candidateData.profile.summary}
+                </p>
+              </div>
+            )}
 
             {/* Cover Letter */}
             {(atsApplication?.coverLetter || atsApplication?.cover_letter) && (
-              <div>
-                <h3 className="text-lg font-semibold text-[#25324B] mb-3">
+              <div className="mt-8 pt-8 border-t border-[#D6DDEB]">
+                <h3 className="text-lg font-semibold text-[#25324B] mb-3 uppercase">
                   Cover Letter
                 </h3>
                 <p className="text-sm text-[#25324B] whitespace-pre-wrap leading-relaxed">
@@ -352,8 +361,8 @@ const CandidateProfileTabs = ({
             {/* Languages */}
             {candidateData?.profile?.languages &&
               candidateData.profile.languages.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-[#25324B] mb-3">
+                <div className="mt-8 pt-8 border-t border-[#D6DDEB]">
+                  <h3 className="text-lg font-semibold text-[#25324B] mb-3 uppercase">
                     Languages
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -365,7 +374,7 @@ const CandidateProfileTabs = ({
                         >
                           {lang}
                           {i <
-                          (candidateData.profile.languages?.length || 0) - 1
+                            (candidateData.profile.languages?.length || 0) - 1
                             ? ", "
                             : ""}
                         </span>
@@ -378,7 +387,7 @@ const CandidateProfileTabs = ({
             {/* Experience */}
             {candidateData?.experiences &&
               candidateData.experiences.length > 0 && (
-                <div>
+                <div className="mt-8 pt-8 border-t border-[#D6DDEB]">
                   <h3 className="text-lg font-semibold text-[#25324B] mb-3 uppercase">
                     Experience
                   </h3>
@@ -404,11 +413,11 @@ const CandidateProfileTabs = ({
                             -{" "}
                             {exp.endDate
                               ? new Date(
-                                  exp.endDate
-                                ).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  year: "numeric",
-                                })
+                                exp.endDate
+                              ).toLocaleDateString("en-US", {
+                                month: "short",
+                                year: "numeric",
+                              })
                               : "Present"}
                           </p>
                           {exp.location && (
@@ -437,6 +446,54 @@ const CandidateProfileTabs = ({
                                 )}
                               </div>
                             )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {/* Education */}
+            {candidateData?.educations &&
+              candidateData.educations.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-[#D6DDEB]">
+                  <h3 className="text-lg font-semibold text-[#25324B] mb-3 uppercase">
+                    Education
+                  </h3>
+                  <div className="space-y-4">
+                    {candidateData.educations.map((edu, i: number) => (
+                      <div key={i} className="flex gap-4">
+                        <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          <GraduationCap className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-[#25324B]">
+                            {edu.school}
+                          </h4>
+                          <p className="text-sm text-[#7C8493]">
+                            {edu.degree}
+                            {edu.fieldOfStudy ? ` • ${edu.fieldOfStudy}` : ""}
+                          </p>
+                          <p className="text-sm text-[#7C8493] mt-1">
+                            {new Date(edu.startDate).toLocaleDateString(
+                              "en-US",
+                              { month: "short", year: "numeric" }
+                            )}{" "}
+                            -{" "}
+                            {edu.endDate
+                              ? new Date(
+                                edu.endDate
+                              ).toLocaleDateString("en-US", {
+                                month: "short",
+                                year: "numeric",
+                              })
+                              : "Present"}
+                          </p>
+                          {edu.grade && (
+                            <p className="text-sm text-[#25324B] mt-1">
+                              Grade: {edu.grade}
+                            </p>
+                          )}
                         </div>
                       </div>
                     ))}

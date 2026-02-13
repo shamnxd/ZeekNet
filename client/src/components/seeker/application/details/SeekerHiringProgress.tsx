@@ -81,7 +81,7 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
                         {ATSStageDisplayNames[currentStage] || currentStage}
                     </Badge>
                 </div>
-                {subStage && (
+                {subStage && currentStage !== 'HIRED' && (
                     <div>
                         <p className="text-[12px] font-semibold uppercase tracking-wide text-[#6b7280] mb-1">Sub-stage</p>
                         <Badge

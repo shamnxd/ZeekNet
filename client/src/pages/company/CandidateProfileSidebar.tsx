@@ -68,7 +68,7 @@ const CandidateProfileSidebar = ({
       }
     }
 
-    if (atsApplication.stage === ATSStage.REJECTED) {
+    if (atsApplication.stage === ATSStage.REJECTED || atsApplication.stage === ATSStage.HIRED) {
       return false;
     }
 
@@ -187,7 +187,7 @@ const CandidateProfileSidebar = ({
               <Badge className="!bg-[#4640DE] !rounded-full !hover:bg-[#3730A3] text-white border-none py-1">
                 {formatATSStage(atsApplication?.stage || "Applied")}
               </Badge>
-              {atsApplication?.stage !== "APPLIED" && (
+              {atsApplication?.stage !== "APPLIED" && atsApplication?.stage !== ATSStage.HIRED && (
                 <p className="text-xs text-gray-500 mt-2">
                   Sub Stage: {formatATSSubStage(atsApplication?.subStage || atsApplication?.sub_stage || "") || "-"}
                 </p>

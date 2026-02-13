@@ -14,8 +14,16 @@ export const useHiringStages = (
         const allStages =
             (atsJob?.enabled_stages as string[]) || Object.values(ATSStage);
 
-        // Always include APPLIED as the first stage
-        const stagesWithApplied = ["APPLIED", ...allStages];
+        // Always include APPLIED as the first stage and HIRED as the last stage
+        let stagesWithApplied = ["APPLIED", ...allStages];
+
+        // Remove duplicates and special states that shouldn't be in the progress flow
+        stagesWithApplied = stagesWithApplied.filter((s, i) =>
+            stagesWithApplied.indexOf(s) === i &&
+            s !== ATSStage.HIRED &&
+            s !== ATSStage.REJECTED
+        );
+        stagesWithApplied.push(ATSStage.HIRED);
 
         // Determine current stage - applications start in IN_REVIEW, so APPLIED is always completed for active applications
         const currentStage = atsApplication?.stage || ATSStage.IN_REVIEW;

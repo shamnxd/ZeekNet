@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
     FileText,
     CheckCircle,
-    Bell,
     UserCheck,
     File as FileIcon,
     Download,
@@ -31,7 +30,8 @@ interface CandidateOfferStageProps {
     onSetShowCreateOfferModal: (show: boolean) => void;
     onSetShowCommentModal: (show: boolean) => void;
     onSetShowWithdrawOfferModal: (show: boolean) => void;
-    onSendReminder: () => Promise<void>;
+    onSetShowRejectConfirmDialog?: (show: boolean) => void;
+
     onMarkAsHired: () => Promise<void>;
     formatDateTime: (dateString: string) => string;
     isCurrentStage: (stage: string) => boolean;
@@ -47,7 +47,8 @@ export const CandidateOfferStage = ({
     onSetShowCreateOfferModal,
     onSetShowCommentModal,
     onSetShowWithdrawOfferModal,
-    onSendReminder,
+    onSetShowRejectConfirmDialog,
+
     onMarkAsHired,
     formatDateTime,
     isCurrentStage,
@@ -60,11 +61,11 @@ export const CandidateOfferStage = ({
     const offer = currentOffer || offerDocuments[0] || null;
     let currentSubStage: OfferSubStage = OfferSubStage.NOT_SENT;
     if (offer) {
-        if (offer.signedAt) {
+        if (offer.status === 'signed') {
             currentSubStage = OfferSubStage.OFFER_ACCEPTED;
-        } else if (offer.declinedAt) {
+        } else if (offer.status === 'declined') {
             currentSubStage = OfferSubStage.OFFER_DECLINED;
-        } else {
+        } else if (offer.status === 'sent') {
             currentSubStage = OfferSubStage.OFFER_SENT;
         }
     }
@@ -74,7 +75,7 @@ export const CandidateOfferStage = ({
     const sentAt = offer?.sentAt || offer?.createdAt;
     const acceptedAt = offer?.signedAt;
     const declinedAt = offer?.declinedAt;
-    const declineReason = offer?.declineReason || "";
+    const declineReason = offer?.withdrawalReason || offer?.declineReason || "";
 
     const jobTitle = atsJob?.title || "N/A";
 
@@ -151,7 +152,6 @@ export const CandidateOfferStage = ({
             {/* OFFER_SENT State */}
             {currentSubStage === OfferSubStage.OFFER_SENT && offer && (
                 <div className="bg-white rounded-lg p-6 border space-y-4">
-                    <h4 className="font-semibold text-gray-900">Pending Response</h4>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Job Title</p>
@@ -167,12 +167,20 @@ export const CandidateOfferStage = ({
                     {showActions && (
                         <div className="flex gap-2 pt-4 border-t">
                             <Button
-                                variant="outline"
-                                onClick={onSendReminder}
-                                className="gap-2"
+                                onClick={onMarkAsHired}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                                disabled={isUpdating}
                             >
-                                <Bell className="h-4 w-4" />
-                                Send Reminder
+                                <UserCheck className="h-4 w-4" />
+                                Mark as Hired
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => onSetShowRejectConfirmDialog?.(true)}
+                                className="text-red-600 hover:text-red-700 border-red-200 gap-2"
+                            >
+                                <XCircle className="h-4 w-4" />
+                                Reject candidate
                             </Button>
                         </div>
                     )}
@@ -223,9 +231,36 @@ export const CandidateOfferStage = ({
                         Offer Declined
                     </h4>
                     <div className="p-4 bg-red-50 rounded-lg border border-red-100">
-                        <p className="text-sm text-red-800 font-medium">Decline Reason:</p>
+                        <p className="text-sm text-red-800 font-medium">Decline / Withdrawal Reason:</p>
                         <p className="text-sm text-red-700 mt-1">{declineReason || "No reason provided"}</p>
                     </div>
+                    {showActions && (
+                        <div className="flex flex-wrap gap-2 pt-4 border-t">
+                            <Button
+                                onClick={() => onSetShowCreateOfferModal(true)}
+                                className="bg-[#4640DE] hover:bg-[#3730A3] gap-2"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Create New Offer
+                            </Button>
+                            <Button
+                                onClick={onMarkAsHired}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                                disabled={isUpdating}
+                            >
+                                <UserCheck className="h-4 w-4" />
+                                Mark as Hired
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => onSetShowRejectConfirmDialog?.(true)}
+                                className="text-red-600 hover:text-red-700 border-red-200 gap-2"
+                            >
+                                <XCircle className="h-4 w-4" />
+                                Reject Candidate
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
 

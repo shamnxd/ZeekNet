@@ -403,17 +403,7 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         }
     }, [currentId, reloadData]);
 
-    const handleSendReminder = useCallback(async () => {
-        if (!currentId) return;
-        try {
-            toast({ title: "Success", description: "Reminder sent to candidate." });
-            await atsService.addComment({ applicationId: currentId, comment: "Reminder sent to candidate about pending offer", stage: ATSStage.OFFER });
-            await reloadData();
-        } catch (error) {
-            console.error("Failed to send reminder:", error);
-            toast({ title: "Error", description: "Failed to send reminder.", variant: "destructive" });
-        }
-    }, [currentId, reloadData]);
+
 
     const handleMarkAsHired = useCallback(async () => {
         if (!currentId) return;
@@ -498,7 +488,7 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         handleUpdateCompensation,
         handleScheduleCompensationMeeting,
         handleCreateOffer,
-        handleSendReminder,
+
         handleMarkAsHired,
         handleReviewTask,
         handleSubmitTaskFeedback,

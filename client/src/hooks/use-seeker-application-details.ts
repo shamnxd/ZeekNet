@@ -137,11 +137,11 @@ export const useSeekerApplicationDetails = () => {
         }
     };
 
-    const handleDeclineOffer = async () => {
+    const handleDeclineOffer = async (reason?: string) => {
         if (!offerToDecline) return;
         try {
             setDeclining(true);
-            await atsService.declineOffer(offerToDecline.applicationId, offerToDecline.offerId);
+            await atsService.declineOffer(offerToDecline.applicationId, offerToDecline.offerId, reason);
             toast.success('Offer declined');
             const offersResponse = await atsService.getOffersByApplicationForSeeker(offerToDecline.applicationId).catch(() => ({ data: [] }));
             const offersData = offersResponse?.data?.data || offersResponse?.data || offersResponse || [];

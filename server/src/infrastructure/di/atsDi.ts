@@ -99,7 +99,7 @@ const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
 const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, userRepository);
 const deleteTechnicalTaskUseCase = new DeleteTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository);
-const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, userRepository);
+const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, userRepository, fileUploadService);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRepository);
 
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
