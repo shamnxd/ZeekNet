@@ -67,58 +67,60 @@ export interface WorkplacePicture {
   pictureUrl?: string;
 }
 
+// Interface for company side application list view
 export interface CompanySideApplication {
-
-  id?: string;
-  _id?: string;
-  jobId?: string;
-  job_id?: string;
-  seekerId?: string;
+  id: string;
   seeker_id?: string;
-  companyId?: string;
-  company_id?: string;
-
-  status?: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
-  stage?: string;
-  subStage?: string;
-  sub_stage?: string;
-  employmentType?: string;
-
-
-  resumeUrl?: string;
-  resume_url?: string;
-  resume_filename?: string;
-  coverLetter?: string;
-  cover_letter?: string;
-
-
-  createdAt?: string;
-  created_at?: string;
-  updatedAt?: string;
-  updated_at?: string;
-  applied_date?: string;
-  appliedAt?: string;
-
-
   seeker_name?: string;
   seeker_avatar?: string;
-  seeker_headline?: string;
-  name?: string;
-  full_name?: string;
-  email?: string;
-  phone?: string;
+  job_id: string;
+  job_title: string;
+  company_name?: string;
+  company_logo?: string;
   score?: number;
-  avatar?: string;
-  experience?: string;
-  match_percentage?: number;
+  stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+  sub_stage?: string;
+  applied_date: string;
+  is_blocked?: boolean;
+}
 
-
-  date_of_birth?: string | Date;
+// Interface for company side application detail view
+export interface CompanySideApplicationDetail extends CompanySideApplication {
+  seeker_headline?: string;
+  job_company?: string;
+  job_location?: string;
+  job_type?: string;
+  cover_letter?: string;
+  resume_url?: string;
+  resume_filename?: string;
+  rejection_reason?: string;
+  interviews?: Array<{
+    id: string;
+    date: string;
+    time: string;
+    interview_type: string;
+    location: string;
+    status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no-show';
+    feedback?: {
+      reviewer_name: string;
+      rating?: number;
+      comment: string;
+      reviewed_at: string;
+    };
+  }>;
+  // Personal Info
+  full_name?: string;
+  date_of_birth?: string | Date; // Date string or Date object
   gender?: string;
   languages?: string[];
   address?: string;
   about_me?: string;
+  current_job?: string;
+  highest_qualification?: string;
+  experience_years?: number;
   skills?: string[];
+  email?: string;
+  phone?: string;
   resume_data?: {
     experience?: Array<{
       title: string;
@@ -133,24 +135,7 @@ export interface CompanySideApplication {
       period: string;
       location?: string;
     }>;
-    industry_knowledge?: string[];
     tools_technologies?: string[];
     other_skills?: string[];
-  };
-
-
-  seeker?: {
-    id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-  job?: {
-    id: string;
-    title: string;
-    job_title?: string;
-    job_company?: string;
-    job_location?: string;
-    job_type?: string;
   };
 }

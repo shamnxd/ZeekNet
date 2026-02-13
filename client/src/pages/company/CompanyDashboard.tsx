@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CompanyLayout from '../../components/layouts/CompanyLayout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
   ArrowRight,
@@ -36,11 +36,21 @@ const CompanyDashboard = () => {
     upcomingInterviews: number;
     unreadMessages: number;
     newCandidatesCount?: number;
+    todayInterviews?: Array<{
+      id: string;
+      candidateName: string;
+      jobTitle: string;
+      interviewTitle: string;
+      interviewType: string;
+      scheduledTime: string;
+      status: string;
+      seekerProfileImage?: string;
+    }>;
   } | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
   const [applications, setApplications] = useState<CompanySideApplication[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(true)
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
+  const [selectedPeriod] = useState<'week' | 'month' | 'year'>('week')
   const [form, setForm] = useState({
     company_name: '',
     email: '',
@@ -371,86 +381,103 @@ const CompanyDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             { }
             <div className="lg:col-span-2">
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-bold text-gray-900">Application Summary</CardTitle>
-                      <CardDescription className="text-sm text-gray-600">Overview of your job applications</CardDescription>
-                    </div>
-                    <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'week' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('week')}
-                      >
-                        Week
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'month' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('month')}
-                      >
-                        Month
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'year' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('year')}
-                      >
-                        Year
-                      </Button>
-                    </div>
-                  </div>
+              {/* Recent Applications Table */}
+              <Card className="bg-white border border-gray-200 rounded-lg h-full">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-gray-900">Recent Applications</CardTitle>
+                  <Button variant="ghost" className="text-sm text-[#4640DE]" onClick={() => navigate('/company/applicants')}>
+                    View All <ArrowRight className="ml-1 h-3 w-3" />
+                  </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    { }
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-1">Total Applications</p>
-                          <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-1">Active Jobs</p>
-                          <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-gray-500 uppercase bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3">Candidate</th>
+                          <th className="px-4 py-3">Role</th>
+                          <th className="px-4 py-3">Date</th>
+                          <th className="px-4 py-3">Stage</th>
+                          <th className="px-4 py-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {applicationsLoading ? (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading...</td>
+                          </tr>
+                        ) : applications.slice(0, 8).map((app) => (
+                          <tr key={app.id || app._id} className="border-b hover:bg-gray-50">
+                            <td className="px-4 py-4 font-medium text-gray-900 flex items-center gap-3">
+                              {app.seeker_avatar ? (
+                                <img src={app.seeker_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">{(app.seeker_name?.[0] || app.name?.[0] || '?')}</div>
+                              )}
+                              <div>
+                                <p className="font-semibold">{app.seeker_name || app.name || 'Unknown User'}</p>
+                                {app.is_blocked && <span className="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded font-medium">Blocked User</span>}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 text-gray-600 max-w-[150px] truncate" title={app.job_title || app.job?.title}>{app.job_title || app.job?.title || 'Unknown Role'}</td>
+                            <td className="px-4 py-4 text-gray-600">
+                              {app.applied_date ? new Date(app.applied_date).toLocaleDateString() :
+                                app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '-'}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize
+                              ${app.stage === 'hired' ? 'bg-green-100 text-green-800' :
+                                  app.stage === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-blue-100 text-blue-800'}`}>
+                                {(app.stage || 'Applied').replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-[#4640DE] hover:text-[#3a35c7] hover:bg-blue-50"
+                                onClick={() => navigate(`/company/applicants/${app.id || app._id}`)}
+                              >
+                                View
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                        {!applicationsLoading && applications.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                              No recent applications found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            { }
+            {/* Right Column: Job Statistics */}
             <div className="space-y-4">
-              { }
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-gray-900">Open Jobs</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900">Job Statistics</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
-                    <p className="text-sm text-gray-600">Active Job Postings</p>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="p-3 bg-gray-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
+                      <p className="text-xs text-gray-500">Applications</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
+                      <p className="text-xs text-gray-500">Active Jobs</p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-gray-900">Application Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
-                    <p className="text-sm text-gray-600">Total Applications</p>
+                  <div className="mb-2">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Employment Type</p>
                   </div>
-
                   {!applicationsLoading && (
                     <>
                       <div className="flex items-center justify-center space-x-1 mb-4">
@@ -485,8 +512,54 @@ const CompanyDashboard = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Today's Schedule */}
+              <Card className="bg-white border border-gray-200 rounded-lg">
+                <CardHeader className="pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-bold text-gray-900">Today's Schedule</CardTitle>
+                    <span className="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
+                      {new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  {stats?.todayInterviews && stats.todayInterviews.length > 0 ? (
+                    <div className="space-y-3">
+                      {stats.todayInterviews.map((interview) => (
+                        <div key={interview.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
+                          {interview.seekerProfileImage ? (
+                            <img src={interview.seekerProfileImage} alt={interview.candidateName} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-200">
+                              {interview.candidateName?.charAt(0) || '?'}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate" title={interview.interviewTitle}>{interview.interviewTitle}</p>
+                            <p className="text-xs text-gray-600 truncate">{interview.candidateName} • <span className="text-gray-500">{interview.jobTitle}</span></p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize ${interview.interviewType === 'online' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                }`}>
+                                {interview.interviewType}
+                              </span> • <p className="text-xs text-gray-500">{new Date(interview.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Calendar className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">No interviews scheduled for today</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
+
+
 
           {stats && (stats.newCandidatesCount || 0) > 0 && (
             <div className="mt-6">

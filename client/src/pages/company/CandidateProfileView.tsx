@@ -348,7 +348,7 @@ const CandidateProfileView = () => {
     );
   }
 
-  if (isATSMode && !atsApplication) {
+  if (isATSMode && (!atsApplication || atsApplication.is_blocked)) {
     return (
       <CompanyLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">

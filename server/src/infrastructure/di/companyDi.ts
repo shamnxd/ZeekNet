@@ -255,6 +255,7 @@ const getCompanyDashboardStatsUseCase = new GetCompanyDashboardStatsUseCase(
   atsInterviewRepository,
   chatMessageRepository,
   getCompanyIdByUserIdUseCase,
+  s3Service,
 );
 
 const companyProfileController = new CompanyProfileController(

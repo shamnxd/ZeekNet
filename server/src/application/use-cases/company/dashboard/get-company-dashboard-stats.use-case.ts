@@ -8,6 +8,8 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { ATSInterviewModel } from 'src/infrastructure/persistence/mongodb/models/ats-interview.model';
 import { JobApplicationModel } from 'src/infrastructure/persistence/mongodb/models/job-application.model';
+import { SeekerProfileModel } from 'src/infrastructure/persistence/mongodb/models/seeker-profile.model';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { Types } from 'mongoose';
 
 export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStatsUseCase {
@@ -17,6 +19,7 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
     private readonly _atsInterviewRepository: IATSInterviewRepository,
     private readonly _messageRepository: IMessageRepository,
     private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(userId: string): Promise<CompanyDashboardStats> {
@@ -69,6 +72,57 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       read_at: null,
     });
 
+    // 1. Fetch interviews
+    // 2. Populate application -> job and seeker
+    const interviews = await ATSInterviewModel.find({
+      applicationId: { $in: applicationIds },
+      status: 'scheduled',
+      scheduledDate: {
+        $gte: todayStart,
+        $lte: todayEnd,
+      },
+    }).populate({
+      path: 'applicationId',
+      select: 'job_id seeker_id',
+      populate: [
+        { path: 'job_id', select: 'title' },
+        { path: 'seeker_id', select: 'name' }
+      ]
+    }).sort({ scheduledDate: 1 }).lean();
+
+    const finalInterviews = await Promise.all(interviews.map(async (interview) => {
+      interface PopulatedApplication {
+        job_id?: { title: string };
+        seeker_id?: { _id: Types.ObjectId; name: string };
+      }
+
+      const app = interview.applicationId as unknown as PopulatedApplication;
+
+      const candidateName = app?.seeker_id?.name || 'Unknown Candidate';
+      const jobTitle = app?.job_id?.title || 'Unknown Job';
+      const interviewTitle = interview.title || 'Interview';
+
+      let seekerProfileImage: string | undefined = undefined;
+
+      if (app?.seeker_id?._id) {
+        const profile = await SeekerProfileModel.findOne({ userId: app.seeker_id._id }).select('avatarFileName').lean();
+        if (profile?.avatarFileName) {
+          seekerProfileImage = await this._s3Service.getSignedUrl(profile.avatarFileName);
+        }
+      }
+
+      return {
+        id: interview._id.toString(),
+        candidateName,
+        jobTitle,
+        interviewTitle,
+        interviewType: interview.type,
+        scheduledTime: interview.scheduledDate.toISOString(),
+        status: interview.status,
+        seekerProfileImage,
+      };
+    }));
+
     return {
       activeJobs,
       totalJobs,
@@ -76,6 +130,7 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       upcomingInterviews,
       unreadMessages,
       newCandidatesCount,
+      todayInterviews: finalInterviews,
     };
   }
 }
