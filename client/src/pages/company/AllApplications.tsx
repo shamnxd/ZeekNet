@@ -101,7 +101,7 @@ const AllApplications = () => {
 
       const res = await jobApplicationApi.getCompanyApplications(params)
       const data = res?.data?.data || res?.data
-      const list = (data?.applications || []).map((a: { id: string; seeker_id: string; seeker_name?: string; seeker_full_name?: string; seeker_avatar?: string; job_id: string; job_title: string; score: number; stage: string; applied_date: string }) => ({
+      const list = (data?.applications || []).map((a: { id: string; seeker_id: string; seeker_name?: string; seeker_full_name?: string; seeker_avatar?: string; job_id: string; job_title: string; score: number; stage: string; applied_date: string; is_blocked?: boolean }) => ({
         _id: a.id,
         seeker_id: a.seeker_id,
         seeker_name: a.seeker_name || a.seeker_full_name || 'Candidate',
@@ -111,6 +111,7 @@ const AllApplications = () => {
         score: a.score,
         stage: a.stage,
         applied_date: a.applied_date,
+        is_blocked: a.is_blocked,
         resume_url: undefined,
       })) as Application[]
 
@@ -533,15 +534,17 @@ const AllApplications = () => {
                       }`}
                     style={{ gridTemplateColumns: '40px minmax(200px, 2fr) 100px minmax(120px, 1fr) minmax(130px, 1fr) minmax(150px, 1.5fr) 200px' }}
                   >
-                    { }
+                    {/* Checkbox Column */}
                     <div>
-                      <Checkbox
-                        checked={application._id ? selectedApplications.has(application._id) : false}
-                        onCheckedChange={() => application._id && handleSelectApplication(application._id)}
-                      />
+                      {!application.is_blocked && (
+                        <Checkbox
+                          checked={application._id ? selectedApplications.has(application._id) : false}
+                          onCheckedChange={() => application._id && handleSelectApplication(application._id)}
+                        />
+                      )}
                     </div>
 
-                    { }
+                    {/* Candidate Name Column */}
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
                         {application.seeker_avatar ? (
@@ -551,51 +554,62 @@ const AllApplications = () => {
                           {getInitials(application.seeker_name || '')}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm font-medium text-[#25324B]">
-                        {application.seeker_name}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-[#25324B]">
+                          {application.seeker_name}
+                        </span>
+                        {application.is_blocked && (
+                          <span className="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded font-medium w-fit mt-0.5">
+                            Blocked User
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    { }
+                    {/* Score Column */}
                     <div className="flex items-center">
                       <ScoreBadge score={application.score} />
                     </div>
 
-                    { }
+                    {/* Stage Column */}
                     <div>
                       {getStageBadge(application.stage || ATSStage.IN_REVIEW)}
                     </div>
 
-                    { }
+                    {/* Applied Date Column */}
                     <span className="text-sm font-medium text-[#25324B]">
                       {formatDate(application.applied_date)}
                     </span>
 
-                    { }
+                    {/* Job Role Column */}
                     <span className="text-sm font-medium text-[#25324B]">
                       {application.job_title}
                     </span>
 
-                    { }
+                    {/* Action Column */}
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#4640DE] text-[#4640DE] bg-white hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
-                        onClick={() => application.seeker_id && handleChatWithApplicant(application.seeker_id)}
-                        title="Chat with applicant"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#4640DE] text-[#4640DE] bg-[#CCCCF5] hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
-                        onClick={() => application._id && handleSeeApplication(application._id)}
-                      >
-                        <Eye className="w-4 h-4 mr-1.5" />
-                        See Application
-                      </Button>
+                      {!application.is_blocked && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-[#4640DE] text-[#4640DE] bg-white hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
+                            onClick={() => application.seeker_id && handleChatWithApplicant(application.seeker_id)}
+                            title="Chat with applicant"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-[#4640DE] text-[#4640DE] bg-[#CCCCF5] hover:bg-[#4640DE] hover:text-white rounded-lg text-xs px-3 py-1.5"
+                            onClick={() => application._id && handleSeeApplication(application._id)}
+                          >
+                            <Eye className="w-4 h-4 mr-1.5" />
+                            See Application
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))
