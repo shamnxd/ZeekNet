@@ -1,16 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { companyApi } from "@/api/company.api";
 import { atsService } from "@/services/ats.service";
 import { toast } from "@/hooks/use-toast";
 import {
     ATSStage,
-    ATSStageDisplayNames,
-    ShortlistedSubStage,
-    InterviewSubStage,
-    TechnicalTaskSubStage,
-    CompensationSubStage,
-    OfferSubStage,
 } from "@/constants/ats-stages";
+import { formatATSSubStage } from "@/utils/formatters";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSInterview, ATSComment } from "@/types/ats";
 import type {
@@ -73,34 +68,52 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         setters
     } = context;
 
+    const [isUpdating, setIsUpdating] = useState(false);
+
     const handleUpdateStage = useCallback(async (stage: string, subStage?: string) => {
         if (!currentId) return;
         try {
+            setIsUpdating(true);
             await atsService.updateApplicationStage(currentId, {
                 stage,
-                ...(subStage && subStage !== "" ? { subStage } : {}),
+                subStage
             });
+
+            // Automatically add a comment if a sub-stage was explicitly provided
+            if (subStage) {
+                const subStageLabel = formatATSSubStage(subStage);
+                await atsService.addComment({
+                    applicationId: currentId,
+                    comment: `Moved to ${subStageLabel}`,
+                    stage: stage as ATSStage,
+                    subStage: subStage
+                });
+            }
+
             toast({ title: "Success", description: "Stage updated successfully." });
             await reloadData();
         } catch (error) {
             console.error("Failed to update stage:", error);
             toast({ title: "Error", description: "Failed to update stage.", variant: "destructive" });
+        } finally {
+            setIsUpdating(false);
         }
     }, [currentId, reloadData]);
 
     const handleAddComment = useCallback(async (comment: string) => {
         if (!currentId || !atsApplication) return;
         try {
+            setIsUpdating(true);
             const validStage =
-                selectedStage === "APPLIED" || selectedStage === "Applied"
+                selectedStage === "APPLIED" || selectedStage === "applied"
                     ? atsApplication.stage || ATSStage.IN_REVIEW
-                    : atsApplication.stage || selectedStage || ATSStage.IN_REVIEW;
+                    : selectedStage || ATSStage.IN_REVIEW;
 
             await atsService.addComment({
                 applicationId: currentId,
                 comment,
                 stage: validStage as ATSStage,
-                subStage: atsApplication.subStage,
+                subStage: atsApplication.subStage || atsApplication.sub_stage
             });
             toast({ title: "Success", description: "Comment added successfully." });
             await reloadData();
@@ -108,23 +121,18 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         } catch (error) {
             console.error("Failed to add comment:", error);
             toast({ title: "Error", description: "Failed to add comment.", variant: "destructive" });
+        } finally {
+            setIsUpdating(false);
         }
     }, [currentId, atsApplication, selectedStage, reloadData, modals]);
 
     const handleMoveToStage = useCallback(async (targetStage: ATSStage, reason?: string) => {
         if (!currentId || !atsApplication) return;
         try {
-            let subStage: string | undefined;
-            if (targetStage === ATSStage.SHORTLISTED) subStage = ShortlistedSubStage.READY_FOR_INTERVIEW;
-            else if (targetStage === ATSStage.INTERVIEW) subStage = InterviewSubStage.NOT_SCHEDULED;
-            else if (targetStage === ATSStage.TECHNICAL_TASK) subStage = TechnicalTaskSubStage.NOT_ASSIGNED;
-            else if (targetStage === ATSStage.COMPENSATION) subStage = CompensationSubStage.NOT_INITIATED;
-            else if (targetStage === ATSStage.OFFER) subStage = OfferSubStage.NOT_SENT;
-
+            setIsUpdating(true);
             await companyApi.moveApplicationStage(currentId, {
                 nextStage: targetStage,
-                subStage: subStage,
-                comment: reason || `Moved to ${ATSStageDisplayNames[targetStage] || targetStage}`,
+                comment: reason,
             });
             toast({ title: "Success", description: "Candidate moved to new stage successfully." });
             await reloadData();
@@ -132,36 +140,10 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         } catch (error) {
             console.error("Failed to move stage:", error);
             toast({ title: "Error", description: "Failed to move stage.", variant: "destructive" });
+        } finally {
+            setIsUpdating(false);
         }
     }, [currentId, atsApplication, reloadData, modals]);
-
-    // Helper for interview status updates
-    const updateInterviewSubStageBasedOnStatus = useCallback(async () => {
-        if (!currentId || !atsApplication || atsApplication.stage !== ATSStage.INTERVIEW) return;
-        try {
-            const interviewsRes = await atsService.getInterviewsByApplication(currentId);
-            const activeInterviews = (interviewsRes.data || []).filter((i: ATSInterview) => i.status !== "cancelled");
-            const hasScheduledInterviews = activeInterviews.some((i: ATSInterview) => i.status === "scheduled");
-            const allCompleted = activeInterviews.length > 0 && activeInterviews.every((i: ATSInterview) => i.status === "completed");
-
-            let targetSubStage: string | undefined = undefined;
-            if (allCompleted && activeInterviews.length > 0 && !hasScheduledInterviews) {
-                targetSubStage = InterviewSubStage.EVALUATION_PENDING;
-            } else if (hasScheduledInterviews) {
-                targetSubStage = InterviewSubStage.SCHEDULED;
-            }
-
-            if (targetSubStage && atsApplication.subStage !== targetSubStage) {
-                await companyApi.updateApplicationSubStage(currentId, {
-                    subStage: targetSubStage,
-                    comment: allCompleted ? "All interviews completed" : "Interview status updated",
-                });
-                await reloadData();
-            }
-        } catch (error) {
-            console.error("Failed to update interview substage:", error);
-        }
-    }, [currentId, atsApplication, reloadData]);
 
     const handleScheduleInterview = useCallback(async (data: InterviewFormData, interviewId?: string) => {
         if (!currentId) return;
@@ -188,22 +170,8 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
                     meetingLink: data.videoType === "external" ? data.meetingLink : undefined,
                     location: data.location,
                 });
-
-                if (atsApplication?.stage !== ATSStage.INTERVIEW) {
-                    await companyApi.moveApplicationStage(currentId, {
-                        nextStage: ATSStage.INTERVIEW,
-                        subStage: InterviewSubStage.SCHEDULED,
-                        comment: "Interview scheduled",
-                    });
-                } else if (atsApplication.subStage !== InterviewSubStage.SCHEDULED && atsApplication.subStage !== InterviewSubStage.EVALUATION_PENDING) {
-                    await companyApi.updateApplicationSubStage(currentId, {
-                        subStage: InterviewSubStage.SCHEDULED,
-                        comment: "Interview scheduled",
-                    });
-                }
             }
             await reloadData();
-            await updateInterviewSubStageBasedOnStatus();
             toast({ title: "Success", description: interviewId ? "Interview rescheduled successfully." : "Interview scheduled successfully." });
             modals.setShowScheduleModal(false);
             modals.setSelectedInterviewForReschedule(null);
@@ -211,33 +179,29 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             console.error("Failed to schedule interview:", error);
             toast({ title: "Error", description: "Failed to schedule interview.", variant: "destructive" });
         }
-    }, [currentId, atsApplication, reloadData, updateInterviewSubStageBasedOnStatus, modals]);
+    }, [currentId, reloadData, modals]);
 
-    const handleMarkInterviewComplete = useCallback(async (interviewId: string) => {
+    const handleMarkInterviewComplete = useCallback(async () => {
         if (!currentId) return;
         try {
-            await atsService.updateInterview(interviewId, { status: "completed" });
             await reloadData();
-            await updateInterviewSubStageBasedOnStatus();
             toast({ title: "Success", description: "Interview marked as completed." });
         } catch (error) {
             console.error("Failed to mark interview as completed:", error);
             toast({ title: "Error", description: "Failed to mark interview as completed.", variant: "destructive" });
         }
-    }, [currentId, reloadData, updateInterviewSubStageBasedOnStatus]);
+    }, [currentId, reloadData]);
 
-    const handleCancelInterview = useCallback(async (interviewId: string) => {
+    const handleCancelInterview = useCallback(async () => {
         if (!currentId) return;
         try {
-            await atsService.updateInterview(interviewId, { status: "cancelled" });
             await reloadData();
-            await updateInterviewSubStageBasedOnStatus();
             toast({ title: "Success", description: "Interview cancelled." });
         } catch (error) {
             console.error("Failed to cancel interview:", error);
             toast({ title: "Error", description: "Failed to cancel interview.", variant: "destructive" });
         }
-    }, [currentId, reloadData, updateInterviewSubStageBasedOnStatus]);
+    }, [currentId, reloadData]);
 
     const handleSubmitFeedback = useCallback(async (interviewId: string, rating: number, feedback: string) => {
         if (!currentId) return;
@@ -265,7 +229,6 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
                 if (atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
                     await companyApi.moveApplicationStage(currentId, {
                         nextStage: ATSStage.TECHNICAL_TASK,
-                        subStage: TechnicalTaskSubStage.ASSIGNED,
                         comment: `Technical task assigned`,
                     });
                 }
@@ -297,7 +260,6 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             if (activeTasks.length === 0 && atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
                 await companyApi.moveApplicationStage(currentId, {
                     nextStage: ATSStage.TECHNICAL_TASK,
-                    subStage: TechnicalTaskSubStage.NOT_ASSIGNED,
                     comment: "All active tasks revoked",
                 });
                 await reloadData();
@@ -335,10 +297,9 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
                 }
             }
 
-            if (atsApplication?.subStage === CompensationSubStage.NOT_INITIATED) {
+            if (atsApplication?.stage === ATSStage.COMPENSATION) {
                 await companyApi.moveApplicationStage(currentId, {
                     nextStage: ATSStage.COMPENSATION,
-                    subStage: CompensationSubStage.INITIATED,
                     comment: `Compensation discussion initiated`,
                 });
             }
@@ -356,7 +317,7 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             }
 
             if (atsApplication) {
-                setters.setAtsApplication({ ...atsApplication, subStage: CompensationSubStage.INITIATED });
+                setters.setAtsApplication({ ...atsApplication });
             }
 
             toast({ title: "Success", description: "Compensation saved successfully." });
@@ -375,13 +336,12 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             const updatedRes = await atsService.updateCompensation(currentId, data);
             setters.setCompensationData(updatedRes.data);
 
-            if (isSubsequentUpdate && atsApplication?.subStage === CompensationSubStage.INITIATED) {
+            if (isSubsequentUpdate && atsApplication?.stage === ATSStage.COMPENSATION) {
                 await companyApi.moveApplicationStage(currentId, {
                     nextStage: ATSStage.COMPENSATION,
-                    subStage: CompensationSubStage.NEGOTIATION_ONGOING,
                     comment: "Negotiation started",
                 });
-                if (atsApplication) setters.setAtsApplication({ ...atsApplication, subStage: CompensationSubStage.NEGOTIATION_ONGOING });
+                if (atsApplication) setters.setAtsApplication({ ...atsApplication });
             }
 
             if (data.notes) {
@@ -425,8 +385,6 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             });
             await companyApi.moveApplicationStage(currentId, {
                 nextStage: ATSStage.OFFER,
-                subStage: OfferSubStage.OFFER_SENT,
-                comment: `Offer created and sent - ${data.offerAmount}`,
             });
             if (data.notes && data.notes.trim()) {
                 await atsService.addComment({
@@ -471,11 +429,9 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         if (!currentId) return;
         try {
             await atsService.updateTechnicalTask(taskId, { status: "under_review" });
-            if (atsApplication?.stage === ATSStage.TECHNICAL_TASK && atsApplication.subStage !== TechnicalTaskSubStage.UNDER_REVIEW) {
+            if (atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
                 await companyApi.moveApplicationStage(currentId, {
                     nextStage: ATSStage.TECHNICAL_TASK,
-                    subStage: TechnicalTaskSubStage.UNDER_REVIEW,
-                    comment: "Task review started",
                 });
             }
             await reloadData();
@@ -505,8 +461,6 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
             if (allTasksCompleted && atsApplication?.stage === ATSStage.TECHNICAL_TASK) {
                 await companyApi.moveApplicationStage(currentId, {
                     nextStage: ATSStage.TECHNICAL_TASK,
-                    subStage: TechnicalTaskSubStage.COMPLETED,
-                    comment: "Task feedback added",
                 });
                 await reloadData();
             }
@@ -526,6 +480,7 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
     }, [modals]);
 
     return {
+        isUpdating,
         handleUpdateStage,
         handleAddComment,
         handleMoveToStage,

@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ATSStage } from "@/constants/ats-stages";
 
 type SelectableStage = Exclude<ATSStage, typeof ATSStage.HIRED | typeof ATSStage.REJECTED>;
-const REQUIRED_STAGES: SelectableStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
+const REQUIRED_STAGES: SelectableStage[] = [ATSStage.IN_REVIEW, ATSStage.SHORTLISTED, ATSStage.OFFER];
 const SELECTABLE_STAGES_DEFAULT: SelectableStage[] = Object.values(ATSStage).filter(
   (stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED
 );
@@ -120,7 +120,7 @@ const PostJob = () => {
         !REQUIRED_STAGES.every(stage => uniqueEnabledStages.includes(stage))
       ) {
         toast.error("Validation failed", {
-          description: "Select required hiring stages (Shortlisted & Offer)",
+          description: "Select required hiring stages (In Review, Shortlisted & Offer)",
         });
         return;
       }

@@ -30,11 +30,15 @@ export const InReviewSubStage = {
   PENDING_DECISION: 'PENDING_DECISION'
 } as const;
 
+export type InReviewSubStage = typeof InReviewSubStage[keyof typeof InReviewSubStage];
+
 export const ShortlistedSubStage = {
   READY_FOR_INTERVIEW: 'READY_FOR_INTERVIEW',
   CONTACTED: 'CONTACTED',
   AWAITING_RESPONSE: 'AWAITING_RESPONSE'
 } as const;
+
+export type ShortlistedSubStage = typeof ShortlistedSubStage[keyof typeof ShortlistedSubStage];
 
 export const InterviewSubStage = {
   NOT_SCHEDULED: 'NOT_SCHEDULED',
@@ -42,6 +46,8 @@ export const InterviewSubStage = {
   COMPLETED: 'COMPLETED',
   EVALUATION_PENDING: 'EVALUATION_PENDING'
 } as const;
+
+export type InterviewSubStage = typeof InterviewSubStage[keyof typeof InterviewSubStage];
 
 export const TechnicalTaskSubStage = {
   NOT_ASSIGNED: 'NOT_ASSIGNED',
@@ -51,6 +57,8 @@ export const TechnicalTaskSubStage = {
   COMPLETED: 'COMPLETED'
 } as const;
 
+export type TechnicalTaskSubStage = typeof TechnicalTaskSubStage[keyof typeof TechnicalTaskSubStage];
+
 export const CompensationSubStage = {
   NOT_INITIATED: 'NOT_INITIATED',
   INITIATED: 'INITIATED',
@@ -58,12 +66,16 @@ export const CompensationSubStage = {
   APPROVED: 'APPROVED'
 } as const;
 
+export type CompensationSubStage = typeof CompensationSubStage[keyof typeof CompensationSubStage];
+
 export const OfferSubStage = {
   NOT_SENT: 'NOT_SENT',
   OFFER_SENT: 'OFFER_SENT',
   OFFER_ACCEPTED: 'OFFER_ACCEPTED',
   OFFER_DECLINED: 'OFFER_DECLINED'
 } as const;
+
+export type OfferSubStage = typeof OfferSubStage[keyof typeof OfferSubStage];
 
 
 export const SubStageDisplayNames: Record<string, string> = {

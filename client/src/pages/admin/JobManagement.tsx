@@ -187,7 +187,7 @@ const JobManagement = () => {
               <Select
                 value={filters.status}
                 onValueChange={(value) => {
-                  setFilters(prev => ({ ...prev, status: value as any }))
+                  setFilters(prev => ({ ...prev, status: value as 'all' | 'active' | 'inactive' | 'blocked' | 'unlisted' | 'expired' }))
                   setSearchParams(prev => {
                     prev.set('page', '1')
                     return prev

@@ -60,21 +60,21 @@ const PendingCompanies = () => {
     }
   }, [])
 
-  const fetchCategories = async () => {
-    try {
-      const response = await publicApi.getAllJobCategories({ limit: 100 })
-      if (response && response.data) {
-        setCategories(response.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch categories:', error)
-    }
-  }
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await publicApi.getAllJobCategories({ limit: 100 })
+        if (response && response.data) {
+          setCategories(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
     fetchPendingCompanies()
     fetchCategories()
-  }, [])
+  }, [fetchPendingCompanies])
 
   const filteredCompanies = companies.filter(company => {
     const matchesSearch = !searchTerm ||
@@ -370,7 +370,7 @@ const PendingCompanies = () => {
                     <div>
                       <label className="text-sm font-medium text-gray-700">Status</label>
                       <span className={`text-xs px-2 py-1 rounded-full ${selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                        'bg-red-100 text-red-700'
                         }`}>
                         {selectedCompany.isVerified === 'pending' ? 'Pending' : 'Rejected'}
                       </span>
@@ -386,8 +386,8 @@ const PendingCompanies = () => {
                     <label className="text-sm font-medium text-gray-700">Verification Status</label>
                     <div className="mt-2">
                       <span className={`text-sm px-3 py-1 rounded-full ${selectedCompany.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
-                          selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                        selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
                         }`}>
                         {selectedCompany.isVerified.charAt(0).toUpperCase() + selectedCompany.isVerified.slice(1)}
                       </span>

@@ -29,36 +29,31 @@ export const MoveToStageModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  
+
   const normalizedStages = useMemo(() => {
-    
+
     const displayNameToEnum = Object.entries(ATSStageDisplayNames).reduce((acc, [enumValue, displayName]) => {
       acc[displayName] = enumValue
       return acc
     }, {} as Record<string, string>)
-    
+
     return availableStages.map((stage: string) => {
-      
+
       if (Object.values(ATSStage).includes(stage as ATSStage)) {
         return stage
       }
-      
+
       return displayNameToEnum[stage] || stage
     }) as ATSStage[]
   }, [availableStages])
-  
-  
-  const currentIndex = normalizedStages.indexOf(currentStage)
-  
-  const nextStages = normalizedStages.filter((stage) => {
-    const stageIndex = normalizedStages.indexOf(stage)
-    const isNext = stageIndex > currentIndex
-    return isNext
-  })
+
+
+  // When forcefully changing stage, show all enabled stages except the current one
+  const allAvailableStages = normalizedStages.filter((stage) => stage && stage !== currentStage)
 
   useEffect(() => {
     if (!isOpen) {
-      
+
       setTargetStage('')
       setReason('')
       setError('')
@@ -68,7 +63,7 @@ export const MoveToStageModal = ({
   const handleConfirm = async () => {
     setError('')
 
-    
+
     if (!targetStage) {
       setError('Please select a target stage')
       return
@@ -87,7 +82,7 @@ export const MoveToStageModal = ({
     try {
       setIsSubmitting(true)
       await onConfirm(targetStage as ATSStage, reason.trim())
-      
+
       setTargetStage('')
       setReason('')
       onClose()
@@ -127,12 +122,12 @@ export const MoveToStageModal = ({
                 <SelectValue placeholder="Select a stage" />
               </SelectTrigger>
               <SelectContent>
-                {nextStages.length === 0 ? (
-                  <SelectItem value="" disabled>
-                    No next stages available
-                  </SelectItem>
+                {allAvailableStages.length === 0 ? (
+                  <div className="p-2 text-sm text-gray-500">
+                    No other stages available
+                  </div>
                 ) : (
-                  nextStages.map((stage) => (
+                  allAvailableStages.map((stage) => (
                     <SelectItem key={stage} value={stage}>
                       {ATSStageDisplayNames[stage]}
                     </SelectItem>
@@ -140,9 +135,9 @@ export const MoveToStageModal = ({
                 )}
               </SelectContent>
             </Select>
-            {nextStages.length === 0 && (
+            {allAvailableStages.length === 0 && (
               <p className="text-xs text-gray-500 mt-1">
-                This candidate is already in the final stage. No further stages available.
+                No other stages are enabled for this job posting.
               </p>
             )}
           </div>
@@ -178,7 +173,7 @@ export const MoveToStageModal = ({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isSubmitting || !targetStage || !reason.trim() || nextStages.length === 0}
+            disabled={isSubmitting || !targetStage || !reason.trim() || allAvailableStages.length === 0}
             className="bg-[#4640DE] hover:bg-[#3730A3]"
           >
             {isSubmitting ? (

@@ -60,13 +60,12 @@ const ATSPanel = () => {
         setLoadingApps(true);
 
 
-        const [pipelineResponse, applicationsResponse] = await Promise.all([
-          companyApi.getJobATSPipeline(selectedJobId),
+        const [applicationsResponse] = await Promise.all([
           companyApi.getJobApplicationsForKanban(selectedJobId),
         ]);
 
-        if (pipelineResponse.data) {
-          setEnabledStages(pipelineResponse.data.enabledStages as ATSStage[]);
+        if (selectedJob) {
+          setEnabledStages((selectedJob.enabled_stages || selectedJob.enabledStages || []) as ATSStage[]);
         }
 
         if (applicationsResponse.data && applicationsResponse.data.applications) {
@@ -109,7 +108,7 @@ const ATSPanel = () => {
       setSearchParams({ jobId: selectedJobId });
       fetchPipelineAndApps();
     }
-  }, [selectedJobId, setSearchParams]);
+  }, [selectedJobId, setSearchParams, selectedJob]);
 
 
   const getCandidatesByStage = (stage: ATSStage): ApplicationKanbanItem[] => {

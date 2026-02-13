@@ -68,20 +68,77 @@ export interface WorkplacePicture {
 }
 
 // Interface for company side application list view
+// Interface for company side application list view
 export interface CompanySideApplication {
   id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  skills?: string[];
+  _id?: string;
   seeker_id?: string;
+  seekerId?: string;
   seeker_name?: string;
+  seekerName?: string;
   seeker_avatar?: string;
+  seekerAvatar?: string;
+  seeker_headline?: string;
   job_id: string;
+  jobId?: string;
   job_title: string;
+  jobTitle?: string;
   company_name?: string;
+  companyName?: string;
+  company_id?: string;
+  companyId?: string;
   company_logo?: string;
+  companyLogo?: string;
+  updatedAt?: string;
+  updated_at?: string;
   score?: number;
-  stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
+  stage: 'applied' | 'in_review' | 'shortlisted' | 'interview' | 'technical_task' | 'compensation' | 'offer' | 'hired' | 'rejected' | 'APPLIED' | 'IN_REVIEW' | 'SHORTLISTED' | 'INTERVIEW' | 'TECHNICAL_TASK' | 'COMPENSATION' | 'OFFER' | 'HIRED' | 'REJECTED';
   sub_stage?: string;
+  subStage?: string;
   applied_date: string;
+  appliedDate?: string;
   is_blocked?: boolean;
+
+  // Additional fields used in UI
+  job?: {
+    id: string;
+    title: string;
+    [key: string]: unknown;
+  };
+  seeker?: {
+    id: string;
+    name?: string;
+    [key: string]: unknown;
+  };
+  user?: {
+    email?: string;
+    [key: string]: unknown;
+  };
+  profile?: {
+    phone?: string;
+    [key: string]: unknown;
+  };
+  resume_url?: string;
+  resume_filename?: string;
+  resumeUrl?: string;
+  cover_letter?: string;
+  coverLetter?: string;
+  employmentType?: string;
+  appliedAt?: string;
+  createdAt?: string;
+  created_at?: string;
+  avatar?: string;
+  experience?: unknown[];
+  full_name?: string;
+  match_percentage?: number;
+  resume_data?: {
+    [key: string]: unknown;
+  };
 }
 
 // Interface for company side application detail view
@@ -121,6 +178,7 @@ export interface CompanySideApplicationDetail extends CompanySideApplication {
   skills?: string[];
   email?: string;
   phone?: string;
+  expectedSalary?: string;
   resume_data?: {
     experience?: Array<{
       title: string;

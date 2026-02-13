@@ -105,6 +105,7 @@ const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRep
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
+  commentRepository,
 );
 const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   offerRepository,
@@ -116,11 +117,12 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   emailTemplateService,
   loggerService,
 );
-const addCommentUseCase = new AddCommentUseCase(commentRepository, userRepository);
+const addCommentUseCase = new AddCommentUseCase(commentRepository);
 
 const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
+  commentRepository,
   userRepository,
   mailerService,
   emailTemplateService,

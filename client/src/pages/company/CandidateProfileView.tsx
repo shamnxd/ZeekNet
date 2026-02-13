@@ -21,7 +21,7 @@ import { CandidateCompensationStage } from "./CandidateCompensationStage";
 import { CandidateOfferStage } from "./CandidateOfferStage";
 
 // Constants & Types
-import { ATSStage, CompensationSubStage } from "@/constants/ats-stages";
+import { ATSStage } from "@/constants/ats-stages";
 
 // Hooks
 import { useCandidateData } from "./hooks/useCandidateData";
@@ -143,7 +143,7 @@ const CandidateProfileView = () => {
       // Simple Render Logic for Applied Stage
       const actualStage = atsApplication?.stage;
       const isViewingApplied = selectedStage === "APPLIED" || selectedStage === "Applied";
-      const isInAppliedStage = actualStage === "APPLIED" || !actualStage;
+      const isInAppliedStage = actualStage === "applied" || !actualStage;
       const showActions = isViewingApplied && isInAppliedStage;
 
       return (
@@ -160,7 +160,7 @@ const CandidateProfileView = () => {
               <Button
                 type="button"
                 className="gap-2 bg-[#4640DE] hover:bg-[#3730A3]"
-                onClick={() => actions.handleUpdateStage(ATSStage.IN_REVIEW, "PROFILE_REVIEW")}
+                onClick={() => actions.handleUpdateStage(ATSStage.IN_REVIEW)}
               >
                 <ChevronRight className="h-4 w-4" />
                 Move to In Review
@@ -188,41 +188,40 @@ const CandidateProfileView = () => {
       return (
         <CandidateInReviewStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
           comments={comments}
-          currentId={currentId}
-          onReload={reloadData}
+          onMoveToStage={actions.handleMoveToStage}
+          onUpdateStage={actions.handleUpdateStage}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
           onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
-          onUpdateStage={actions.handleUpdateStage}
+          getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.SHORTLISTED) {
       return (
         <CandidateShortlistedStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
           comments={comments}
-          currentId={currentId}
-          onReload={reloadData}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
           onSetShowScheduleModal={setShowScheduleModal}
+          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
+          onMoveToStage={actions.handleMoveToStage}
+          onUpdateStage={actions.handleUpdateStage}
+          getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.INTERVIEW) {
       return (
         <CandidateInterviewStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
-          currentId={currentId}
           interviews={interviews}
           comments={comments}
-          onReload={reloadData}
           onSetShowScheduleModal={setShowScheduleModal}
           onSetShowCommentModal={setShowCommentModal}
           onSetSelectedInterviewForReschedule={setSelectedInterviewForReschedule}
@@ -235,7 +234,7 @@ const CandidateProfileView = () => {
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
-          hasNextStages={hasNextStages}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.TECHNICAL_TASK) {
@@ -243,7 +242,6 @@ const CandidateProfileView = () => {
         <CandidateTechnicalTaskStage
           atsApplication={atsApplication}
           selectedStage={selectedStage}
-          currentId={currentId}
           technicalTasks={technicalTasks}
           comments={comments}
           onSetShowAssignTaskModal={setShowAssignTaskModal}
@@ -252,24 +250,21 @@ const CandidateProfileView = () => {
           onSetSelectedTaskForReview={setSelectedTaskForReview}
           onSetShowFeedbackModal={setShowFeedbackModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
-          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onRevokeTask={actions.handleRevokeTaskClick}
           onReviewTask={actions.handleReviewTask}
           onMoveToStage={actions.handleMoveToStage}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
-          hasNextStages={hasNextStages}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.COMPENSATION) {
       return (
         <CandidateCompensationStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           candidateData={candidateData}
           selectedStage={selectedStage}
-          currentId={currentId}
           compensationData={compensationData}
           compensationMeetings={compensationMeetings}
           onSetShowCompensationInitModal={setShowCompensationInitModal}
@@ -278,18 +273,9 @@ const CandidateProfileView = () => {
           onSetSelectedMeetingForEdit={setSelectedMeetingForEdit}
           onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onApproveCompensation={async () => {
-            // Basic approval logic if simple enough or move to actions
-            // The original code passed `onApproveCompensation`.
-            // I missed `handleApproveCompensation` in actions? 
-            // Let's stick with basic impl if missing or check actions.
-            // Actually, `handleApproveCompensation` was NOT in my actions list above?
-            // Checking... I missed it! 
-            // Logic: Update stage to APPROVED.
             if (!currentId) return;
             await companyApi.moveApplicationStage(currentId, {
               nextStage: ATSStage.COMPENSATION,
-              subStage: CompensationSubStage.APPROVED,
-              comment: "Compensation Approved"
             });
             reloadData();
           }}
@@ -304,10 +290,12 @@ const CandidateProfileView = () => {
             reloadData();
           }}
           onMoveToStage={actions.handleMoveToStage}
+          onSetShowMoveToStageModal={setShowMoveToStageModal}
           onOpenChat={() => handleOpenChat()}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.OFFER) {
@@ -326,7 +314,8 @@ const CandidateProfileView = () => {
           onMarkAsHired={actions.handleMarkAsHired}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
-
+          onSetShowMoveToStageModal={setShowMoveToStageModal}
+          isUpdating={actions.isUpdating}
         />
       );
     }
@@ -373,19 +362,19 @@ const CandidateProfileView = () => {
   }
 
   const candidateName = isATSMode
-    ? atsApplication?.seeker_name || atsApplication?.name || atsApplication?.full_name || atsApplication?.seeker?.name || "Candidate"
+    ? atsApplication?.seeker_name || atsApplication?.name || atsApplication?.full_name || "Candidate"
     : candidateData?.user.name || "Candidate";
   const candidateRole = isATSMode
-    ? atsApplication?.job?.title || atsApplication?.job?.job_title || atsJob?.title || "Applicant"
+    ? atsApplication?.job_title || atsJob?.title || "Applicant"
     : candidateData?.profile.headline;
   const candidateEmail = isATSMode
-    ? atsApplication?.email || atsApplication?.seeker?.email
+    ? atsApplication?.email
     : candidateData?.user.email;
   const candidatePhone = isATSMode
     ? atsApplication?.phone || candidateData?.profile?.phone || "-"
     : candidateData?.profile.phone;
   const candidateAvatar = isATSMode
-    ? atsApplication?.seeker_avatar || atsApplication?.seeker?.avatar
+    ? atsApplication?.seeker_avatar
     : candidateData?.profile.avatarFileName || candidateData?.profile.avatarUrl;
   const candidateScore = isATSMode ? atsApplication?.score || 0 : 0;
 
@@ -517,6 +506,7 @@ const CandidateProfileView = () => {
         handleScheduleCompensationMeeting={actions.handleScheduleCompensationMeeting}
         handleCreateOffer={actions.handleCreateOffer}
         reloadData={reloadData}
+        isUpdating={actions.isUpdating}
       />
     </CompanyLayout>
   );

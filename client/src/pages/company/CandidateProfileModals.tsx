@@ -113,6 +113,7 @@ interface CandidateProfileModalsProps {
   handleScheduleCompensationMeeting: (data: CompensationMeetingFormData) => Promise<void>;
   handleCreateOffer: (data: OfferFormData) => Promise<void>;
   reloadData: () => Promise<void>;
+  isUpdating?: boolean;
 }
 
 export function CandidateProfileModals(props: CandidateProfileModalsProps) {
@@ -181,6 +182,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
     handleScheduleCompensationMeeting,
     handleCreateOffer,
     reloadData,
+    isUpdating = false,
   } = props;
 
   const navigate = useNavigate();
@@ -268,6 +270,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
           return (stage || ATSStage.IN_REVIEW) as ATSStage;
         })()}
         onAdd={handleAddComment}
+        isLoading={isUpdating}
       />
 
       {/* Move To Stage Modal */}

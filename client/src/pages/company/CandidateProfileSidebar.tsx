@@ -1,3 +1,4 @@
+import { getInitials, getTimeAgo, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,31 +35,7 @@ interface CandidateProfileSidebarProps {
   onReject?: () => void;
 }
 
-const getInitials = (name: string) => {
-  return (
-    name
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .substring(0, 2)
-      .toUpperCase() || "CN"
-  );
-};
 
-const getTimeAgo = (dateString: string) => {
-  if (!dateString) return "Recent";
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400)
-    return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  return date.toLocaleDateString();
-};
 
 const CandidateProfileSidebar = ({
   isATSMode,
@@ -89,6 +66,10 @@ const CandidateProfileSidebar = ({
       ) {
         return false;
       }
+    }
+
+    if (atsApplication.stage === ATSStage.REJECTED) {
+      return false;
     }
 
     return true;
@@ -149,13 +130,12 @@ const CandidateProfileSidebar = ({
                   ) : (
                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${
-                          candidateScore >= 70
-                            ? "bg-green-500"
-                            : candidateScore >= 40
+                        className={`h-full rounded-full ${candidateScore >= 70
+                          ? "bg-green-500"
+                          : candidateScore >= 40
                             ? "bg-yellow-500"
                             : "bg-red-500"
-                        }`}
+                          }`}
                         style={{ width: `${candidateScore}%` }}
                       ></div>
                     </div>
@@ -171,7 +151,7 @@ const CandidateProfileSidebar = ({
             <div className="bg-[#F8F8FD] rounded-lg p-4 mb-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-[#25324B]">
-                  Applied Jobs
+                  Applied Job
                 </span>
                 <span className="text-sm text-[#7C8493]">
                   {getTimeAgo(atsApplication?.applied_date || "")}
@@ -203,14 +183,13 @@ const CandidateProfileSidebar = ({
                   Stage
                 </span>
               </div>
-              <div className="h-px bg-[#D6DDEB] mb-3"></div>
-              <Badge className="bg-[#4640DE] hover:bg-[#3730A3] text-white border-none py-1">
-                {atsApplication?.stage || "Applied"}
+              <div className="!h-px !bg-[#D6DDEB] mb-3"></div>
+              <Badge className="!bg-[#4640DE] !rounded-full !hover:bg-[#3730A3] text-white border-none py-1">
+                {formatATSStage(atsApplication?.stage || "Applied")}
               </Badge>
               {atsApplication?.stage !== "APPLIED" && (
                 <p className="text-xs text-gray-500 mt-2">
-                  Sub-stage:{" "}
-                  {atsApplication?.subStage?.replace(/_/g, " ") || "-"}
+                  Sub Stage: {formatATSSubStage(atsApplication?.subStage || atsApplication?.sub_stage || "") || "-"}
                 </p>
               )}
             </div>

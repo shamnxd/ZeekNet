@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Plus } from "lucide-react";
 import type { ATSComment } from "@/types/ats";
 import { ATSStage } from "@/constants/ats-stages";
-import { formatDateTime } from "@/utils/formatters";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface CompensationNotesProps {
     comments: ATSComment[];
@@ -43,13 +43,10 @@ export const CompensationNotes: React.FC<CompensationNotesProps> = ({
                     {compensationComments.map((comment, idx) => (
                         <div key={idx} className="border rounded-lg p-4">
                             <p className="text-sm text-gray-700">{comment.comment}</p>
-                            <p className="text-xs text-gray-500 mt-2">
-                                by{" "}
-                                {comment.recruiterName ||
-                                    comment.addedByName ||
-                                    comment.addedBy ||
-                                    "Recruiter"}{" "}
-                                •{" "}
+                            <p className="text-xs text-blue-600 font-medium mt-1">
+                                {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
                                 {formatDateTime(
                                     comment.createdAt || comment.timestamp || ""
                                 )}

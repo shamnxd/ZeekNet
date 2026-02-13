@@ -82,7 +82,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         // IDs - preserve both formats
                         id: getString(applicationData.id || applicationData._id) || '',
                         job_id: getString(applicationData.job_id) || getString(applicationData.jobId) || '',
-                        job_title: getString(applicationData.job_title) || getString((applicationData.job as any)?.title) || '',
+                        job_title: getString(applicationData.job_title) || getString((applicationData.job as Record<string, unknown>)?.title) || '',
                         seeker_id: getString(applicationData.seeker_id) || getString(applicationData.seekerId),
                         company_name: getString(applicationData.company_name),
                         company_logo: getString(applicationData.company_logo),
@@ -90,6 +90,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         // Stage info
                         stage: (getString(applicationData.stage) as CompanySideApplication['stage']) || 'applied',
                         sub_stage: getString(applicationData.sub_stage),
+                        subStage: getString(applicationData.sub_stage),
 
                         // Dates - preserve both formats
                         applied_date: getString(applicationData.applied_date) || getString(applicationData.appliedAt) || new Date().toISOString(),
@@ -121,6 +122,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         skills: getStringArray(applicationData.skills),
                         email: getString(applicationData.email),
                         phone: getString(applicationData.phone),
+                        expectedSalary: getString(applicationData.expectedSalary),
                         resume_data: applicationData.resume_data as CompanySideApplicationDetail["resume_data"],
                     };
 
@@ -258,7 +260,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     } else {
                         setCurrentOffer(null);
                     }
-                    setComments(commentsRes.data || []);
+                    setComments(Array.isArray(commentsRes) ? commentsRes : (commentsRes.data || []));
 
                     if (
                         (currentStage as string) === ATSStage.COMPENSATION &&

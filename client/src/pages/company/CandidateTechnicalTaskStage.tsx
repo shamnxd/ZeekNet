@@ -10,20 +10,23 @@ import {
     Edit,
     XCircle,
     Star,
+    Zap,
+    Loader2,
 } from "lucide-react";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment } from "@/types/ats";
+import { formatATSStage, formatATSSubStage } from "@/utils/formatters";
 import {
     ATSStage,
     ATSStageDisplayNames,
     TechnicalTaskSubStage,
+    STAGE_SUB_STAGES,
 } from "@/constants/ats-stages";
 import type { ExtendedATSTechnicalTask } from "./CandidateProfileTypes";
 
 interface CandidateTechnicalTaskStageProps {
     atsApplication: CompanySideApplication | null;
     selectedStage: string;
-    currentId?: string;
     technicalTasks: ExtendedATSTechnicalTask[];
     comments: ATSComment[];
     onSetShowAssignTaskModal: (show: boolean) => void;
@@ -32,14 +35,13 @@ interface CandidateTechnicalTaskStageProps {
     onSetSelectedTaskForReview: (task: ExtendedATSTechnicalTask | null) => void;
     onSetShowFeedbackModal: (show: boolean) => void;
     onSetShowMoveToStageModal: (show: boolean) => void;
-    onSetShowRejectConfirmDialog: (show: boolean) => void;
     onRevokeTask: (taskId: string) => void;
     onReviewTask: (taskId: string) => Promise<void>;
     onMoveToStage: (targetStage: ATSStage, reason?: string) => Promise<void>;
     formatDateTime: (dateString: string) => string;
     isCurrentStage: (stage: string) => boolean;
     getNextStage: (currentStage: string) => ATSStage | null;
-    hasNextStages: (currentStage: ATSStage) => boolean;
+    isUpdating?: boolean;
 }
 
 export const CandidateTechnicalTaskStage = ({
@@ -59,16 +61,14 @@ export const CandidateTechnicalTaskStage = ({
     formatDateTime,
     isCurrentStage,
     getNextStage,
-    hasNextStages,
+    isUpdating = false,
 }: CandidateTechnicalTaskStageProps) => {
     const showActions = isCurrentStage(selectedStage);
 
-    // Calculate Technical Task Summary
+    // Calculate Technical Task Summary & Derive Sub-Stage
     const technicalTaskSummary = useMemo(() => {
-        const currentSubStage =
-            atsApplication?.subStage || TechnicalTaskSubStage.NOT_ASSIGNED;
         const activeTasks = technicalTasks.filter(
-            (t: ExtendedATSTechnicalTask) => t.status !== "completed"
+            (t: ExtendedATSTechnicalTask) => t.status !== "revoked"
         );
         const assignedTasks = activeTasks.filter(
             (t: ExtendedATSTechnicalTask) => t.status === "assigned"
@@ -83,7 +83,7 @@ export const CandidateTechnicalTaskStage = ({
             (t: ExtendedATSTechnicalTask) => t.status === "completed"
         );
 
-        let calculatedSubStage = currentSubStage;
+        let calculatedSubStage: TechnicalTaskSubStage = TechnicalTaskSubStage.NOT_ASSIGNED;
         if (activeTasks.length === 0) {
             calculatedSubStage = TechnicalTaskSubStage.NOT_ASSIGNED;
         } else if (underReviewTasks.length > 0) {
@@ -94,12 +94,10 @@ export const CandidateTechnicalTaskStage = ({
         ) {
             calculatedSubStage = TechnicalTaskSubStage.COMPLETED;
         } else if (
-            submittedTasks.length === activeTasks.length &&
-            submittedTasks.length > 0 &&
-            completedTasks.length === 0
+            submittedTasks.length > 0
         ) {
             calculatedSubStage = TechnicalTaskSubStage.SUBMITTED;
-        } else {
+        } else if (assignedTasks.length > 0) {
             calculatedSubStage = TechnicalTaskSubStage.ASSIGNED;
         }
 
@@ -111,17 +109,48 @@ export const CandidateTechnicalTaskStage = ({
             completedTasks,
             totalTasks: activeTasks.length,
         };
-    }, [technicalTasks, atsApplication?.subStage]);
+    }, [technicalTasks]);
 
     const { currentSubStage } = technicalTaskSummary;
+    const subStages = STAGE_SUB_STAGES[ATSStage.TECHNICAL_TASK] || [];
 
     return (
         <div className="bg-gray-50 rounded-lg p-6 space-y-6">
             {/* Header */}
-            <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Technical Task Stage
-                </h3>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                        Technical Task Stage
+                    </h3>
+                    <div className="flex gap-1 mt-2">
+                    </div>
+                </div>
+
+                {showActions && (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white transition-all shadow-sm"
+                        onClick={() => onSetShowMoveToStageModal(true)}
+                    >
+                        <Zap className="h-4 w-4 fill-current" />
+                        Quick Action
+                    </Button>
+                )}
+
+                <Badge
+                    className={
+                        currentSubStage === TechnicalTaskSubStage.COMPLETED
+                            ? "bg-green-100 text-green-700"
+                            : currentSubStage === TechnicalTaskSubStage.UNDER_REVIEW
+                                ? "bg-purple-100 text-purple-700"
+                                : currentSubStage === TechnicalTaskSubStage.NOT_ASSIGNED
+                                    ? "bg-gray-100 text-gray-700"
+                                    : "bg-blue-100 text-blue-700"
+                    }
+                >
+                    {subStages.find(s => s.key === currentSubStage)?.label || (currentSubStage as string)}
+                </Badge>
             </div>
 
             {/* NOT_ASSIGNED: Show "No task assigned" message and Assign Task button */}
@@ -139,7 +168,7 @@ export const CandidateTechnicalTaskStage = ({
                 </div>
             )}
 
-            {/* ASSIGNED, SUBMITTED, UNDER_REVIEW, COMPLETED: Show task list */}
+            {/* Task list for other sub-stages */}
             {currentSubStage !== TechnicalTaskSubStage.NOT_ASSIGNED && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -165,7 +194,7 @@ export const CandidateTechnicalTaskStage = ({
                                 const isSubmitted = taskStatus === "submitted";
                                 const isUnderReview = taskStatus === "under_review";
                                 const isCompleted = taskStatus === "completed";
-                                const isCancelled = false;
+                                const isCancelled = taskStatus === "revoked";
 
                                 return (
                                     <div
@@ -197,15 +226,7 @@ export const CandidateTechnicalTaskStage = ({
                                                                             : "bg-green-100 text-green-700"
                                                         }
                                                     >
-                                                        {isCancelled
-                                                            ? "Cancelled"
-                                                            : isAssigned
-                                                                ? "Assigned"
-                                                                : isSubmitted
-                                                                    ? "Submitted"
-                                                                    : isUnderReview
-                                                                        ? "Under Review"
-                                                                        : "Completed"}
+                                                        {taskStatus}
                                                     </Badge>
                                                 </div>
                                             </div>
@@ -226,7 +247,7 @@ export const CandidateTechnicalTaskStage = ({
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
                                                     <FileIcon className="h-4 w-4" />
                                                     <a
-                                                        href={task.documentUrl}
+                                                        href={task.documentUrl as string}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-[#4640DE] hover:underline flex items-center gap-1"
@@ -248,7 +269,7 @@ export const CandidateTechnicalTaskStage = ({
                                                     <div className="flex items-center gap-2 text-sm text-gray-600">
                                                         <FileIcon className="h-4 w-4" />
                                                         <a
-                                                            href={task.submissionUrl}
+                                                            href={task.submissionUrl as string}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="text-[#4640DE] hover:underline flex items-center gap-1"
@@ -369,39 +390,28 @@ export const CandidateTechnicalTaskStage = ({
                         if (!nextStage) return null;
                         const nextStageDisplayName =
                             ATSStageDisplayNames[nextStage] || nextStage;
-                        const isCompleted =
-                            currentSubStage === TechnicalTaskSubStage.COMPLETED ||
-                            currentSubStage === "COMPLETED";
                         return (
                             <Button
                                 variant="outline"
                                 className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
                                 onClick={() => onMoveToStage(nextStage)}
-                                disabled={!isCompleted}
+                                disabled={isUpdating}
                             >
-                                <ChevronRight className="h-4 w-4" />
+                                {isUpdating ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <ChevronRight className="h-4 w-4" />
+                                )}
                                 Move to {nextStageDisplayName}
                             </Button>
                         );
                     })()}
-
-                    {/* Move to Another Stage button */}
-                    {atsApplication?.stage &&
-                        hasNextStages(atsApplication.stage as ATSStage) && (
-                            <Button
-                                variant="outline"
-                                className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
-                                onClick={() => onSetShowMoveToStageModal(true)}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                                Move to Another Stage
-                            </Button>
-                        )}
                 </div>
             )}
 
             {/* Show comments */}
-            {showActions &&
+            {
+                showActions &&
                 comments.filter((c) => c.stage === ATSStage.TECHNICAL_TASK).length >
                 0 && (
                     <div className="space-y-3 pt-4 border-t">
@@ -411,13 +421,10 @@ export const CandidateTechnicalTaskStage = ({
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}
@@ -425,8 +432,8 @@ export const CandidateTechnicalTaskStage = ({
                                 </div>
                             ))}
                     </div>
-                )}
-        </div>
+                )
+            }
+        </div >
     );
 };
-

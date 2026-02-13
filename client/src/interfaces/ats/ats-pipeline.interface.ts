@@ -1,11 +1,5 @@
 import { ATSStage } from '@/constants/ats-stages';
 
-export interface ATSPipelineConfig {
-  jobId: string;
-  enabledStages: ATSStage[];
-  pipelineConfig: Record<string, string[]>;
-}
-
 export interface ApplicationKanbanItem {
   id: string;
   seekerId: string;
@@ -13,7 +7,7 @@ export interface ApplicationKanbanItem {
   seekerAvatar?: string;
   jobTitle?: string;
   atsScore?: number;
-  subStage: string;
+  subStage?: string;
   appliedDate: string;
 }
 
@@ -31,6 +25,3 @@ export interface UpdateSubStageRequest {
   subStage: string;
   comment?: string;
 }
-
-
-

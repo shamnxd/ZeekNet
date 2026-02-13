@@ -11,24 +11,24 @@ import {
     X,
     MessageSquare,
     ChevronRight,
+    Zap,
+    Loader2,
 } from "lucide-react";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
-import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type { ATSInterview, ATSComment } from "@/types/ats";
+import { formatATSStage, formatATSSubStage } from "@/utils/formatters";
 import {
     ATSStage,
     ATSStageDisplayNames,
     InterviewSubStage,
+    STAGE_SUB_STAGES,
 } from "@/constants/ats-stages";
 
 interface CandidateInterviewStageProps {
     atsApplication: CompanySideApplication | null;
-    atsJob: JobPostingResponse | null;
     selectedStage: string;
     interviews: ATSInterview[];
     comments: ATSComment[];
-    currentId?: string;
-    onReload: () => Promise<void>;
     onSetShowScheduleModal: (show: boolean) => void;
     onSetShowCommentModal: (show: boolean) => void;
     onSetShowMoveToStageModal: (show: boolean) => void;
@@ -41,7 +41,7 @@ interface CandidateInterviewStageProps {
     formatDateTime: (dateString: string) => string;
     isCurrentStage: (stage: string) => boolean;
     getNextStage: (currentStage: string) => ATSStage | null;
-    hasNextStages: (currentStage: ATSStage) => boolean;
+    isUpdating?: boolean;
 }
 
 export const CandidateInterviewStage = ({
@@ -61,30 +61,26 @@ export const CandidateInterviewStage = ({
     formatDateTime,
     isCurrentStage,
     getNextStage,
-    hasNextStages,
+    isUpdating = false,
 }: CandidateInterviewStageProps) => {
     const navigate = useNavigate();
     const showActions = isCurrentStage(selectedStage);
-    const currentSubStage =
-        atsApplication?.subStage || InterviewSubStage.NOT_SCHEDULED;
 
-    // Calculate interview summary
-    const scheduledInterviews = interviews.filter(
-        (i) => i.status === "scheduled"
-    );
-    const completedInterviews = interviews.filter(
-        (i) => i.status === "completed"
-    );
+    // Derive sub-stage from interview data with explicit typing
+    const scheduledInterviews = interviews.filter((i) => i.status === "scheduled");
+    const completedInterviews = interviews.filter((i) => i.status === "completed");
+
+    let currentSubStage: InterviewSubStage = InterviewSubStage.NOT_SCHEDULED;
+    if (scheduledInterviews.length > 0) {
+        currentSubStage = InterviewSubStage.SCHEDULED;
+    } else if (completedInterviews.length > 0) {
+        const hasPendingFeedback = completedInterviews.some(i => !i.feedback || !i.rating);
+        currentSubStage = hasPendingFeedback ? InterviewSubStage.EVALUATION_PENDING : InterviewSubStage.COMPLETED;
+    }
+
+    const subStages = STAGE_SUB_STAGES[ATSStage.INTERVIEW] || [];
     const interviewsConducted = completedInterviews.length;
     const upcomingInterview = scheduledInterviews[0];
-
-    // Determine overall status
-    let overallStatus = "Not Scheduled";
-    if (currentSubStage === InterviewSubStage.EVALUATION_PENDING) {
-        overallStatus = "Evaluation Pending";
-    } else if (currentSubStage === InterviewSubStage.SCHEDULED) {
-        overallStatus = "Interview Scheduled";
-    }
 
     return (
         <div className="bg-gray-50 rounded-lg p-6 space-y-6">
@@ -95,20 +91,41 @@ export const CandidateInterviewStage = ({
                         <h3 className="text-lg font-semibold text-gray-900">
                             Interview Summary
                         </h3>
-                        <p className="text-sm text-gray-600">Stage: Interview</p>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-gray-600">Stage: Interview</span>
+                            <div className="flex gap-1 ml-4">
+                            </div>
+                        </div>
                     </div>
                     <Badge
                         className={
-                            overallStatus === "Ready for Decision"
+                            currentSubStage === InterviewSubStage.COMPLETED
                                 ? "bg-green-100 text-green-700"
-                                : overallStatus === "Evaluation Pending"
+                                : currentSubStage === InterviewSubStage.EVALUATION_PENDING
                                     ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-blue-100 text-blue-700"
+                                    : currentSubStage === InterviewSubStage.SCHEDULED
+                                        ? "bg-blue-100 text-blue-700"
+                                        : "bg-gray-100 text-gray-700"
                         }
                     >
-                        {overallStatus}
+                        {subStages.find(s => s.key === currentSubStage)?.label || (currentSubStage as string)}
                     </Badge>
                 </div>
+
+                {showActions && (
+                    <div className="flex justify-end mt-4">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white transition-all shadow-sm"
+                            onClick={() => onSetShowMoveToStageModal(true)}
+                        >
+                            <Zap className="h-4 w-4 fill-current" />
+                            Quick Action
+                        </Button>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4 mt-4">
                     <div>
                         <p className="text-sm text-gray-600">Interviews Conducted</p>
@@ -219,7 +236,7 @@ export const CandidateInterviewStage = ({
                                                     {[1, 2, 3, 4, 5].map((star) => (
                                                         <Star
                                                             key={star}
-                                                            className={`h-4 w-4 ${interview.rating && star <= interview.rating
+                                                            className={`h-4 w-4 ${interview.rating && star <= (interview.rating || 0)
                                                                 ? "fill-yellow-400 text-yellow-400"
                                                                 : "text-gray-300"
                                                                 }`}
@@ -268,7 +285,7 @@ export const CandidateInterviewStage = ({
                                                         size="sm"
                                                         variant="outline"
                                                         onClick={() =>
-                                                            window.open(interview.meetingLink, "_blank")
+                                                            window.open(interview.meetingLink as string, "_blank")
                                                         }
                                                     >
                                                         <Video className="h-3.5 w-3.5 mr-1" />
@@ -339,58 +356,47 @@ export const CandidateInterviewStage = ({
                     </Button>
 
                     {/* Move to Next Stage button */}
-                    {currentSubStage === InterviewSubStage.EVALUATION_PENDING &&
-                        (() => {
-                            const nextStage = atsApplication?.stage
-                                ? getNextStage(atsApplication.stage)
-                                : null;
-                            if (!nextStage) return null;
-                            const nextStageDisplayName =
-                                ATSStageDisplayNames[nextStage] || nextStage;
-                            return (
-                                <Button
-                                    variant="outline"
-                                    className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
-                                    onClick={() => onMoveToStage(nextStage)}
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                    Move to {nextStageDisplayName}
-                                </Button>
-                            );
-                        })()}
-
-                    {/* Move to Another Stage button */}
-                    {atsApplication?.stage &&
-                        hasNextStages(atsApplication.stage as ATSStage) && (
+                    {(() => {
+                        const nextStage = atsApplication?.stage
+                            ? getNextStage(atsApplication.stage)
+                            : null;
+                        if (!nextStage) return null;
+                        const nextStageDisplayName =
+                            ATSStageDisplayNames[nextStage] || nextStage;
+                        return (
                             <Button
                                 variant="outline"
                                 className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
-                                onClick={() => onSetShowMoveToStageModal(true)}
+                                onClick={() => onMoveToStage(nextStage)}
+                                disabled={isUpdating}
                             >
-                                <ChevronRight className="h-4 w-4" />
-                                Move to Another Stage
+                                {isUpdating ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <ChevronRight className="h-4 w-4" />
+                                )}
+                                Move to {nextStageDisplayName}
                             </Button>
-                        )}
+                        );
+                    })()}
+
                 </div>
             )}
 
             {/* Show comments */}
             {showActions &&
-                comments.filter((c) => c.stage === ATSStage.INTERVIEW).length > 0 && (
+                comments.filter((c) => String(c.stage).toUpperCase() === ATSStage.INTERVIEW).length > 0 && (
                     <div className="space-y-3 pt-4 border-t">
                         <h4 className="font-medium text-gray-900">Comments</h4>
                         {comments
-                            .filter((c) => c.stage === ATSStage.INTERVIEW)
+                            .filter((c) => String(c.stage).toUpperCase() === ATSStage.INTERVIEW)
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

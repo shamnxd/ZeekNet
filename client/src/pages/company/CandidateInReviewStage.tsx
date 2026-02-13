@@ -1,254 +1,188 @@
-
 import { Button } from "@/components/ui/button";
-import { MessageSquare, ChevronRight, X, FileX } from "lucide-react";
-import { companyApi } from "@/api/company.api";
-import { toast } from "@/hooks/use-toast";
+import { ChevronRight, X, FileX, Loader2, Zap } from "lucide-react";
 import {
   ATSStage,
-  STAGE_SUB_STAGES,
-  OfferSubStage,
   ATSStageDisplayNames,
+  InReviewSubStage,
+  STAGE_SUB_STAGES,
 } from "@/constants/ats-stages";
 import type { ATSComment } from "@/types/ats";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
-import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface CandidateInReviewStageProps {
   atsApplication: CompanySideApplication | null;
-  atsJob: JobPostingResponse | null;
   selectedStage: string;
   comments: ATSComment[];
-  currentId?: string;
-  onReload: () => Promise<void>;
-  onSetShowCommentModal: (open: boolean) => void;
-  onSetShowMoveToStageModal: (open: boolean) => void;
-  onSetShowRejectConfirmDialog: (open: boolean) => void;
+  onMoveToStage: (targetStage: ATSStage, reason?: string) => Promise<void>;
+  getNextStage: (currentStage: string) => ATSStage | null;
   onUpdateStage: (stage: string, subStage?: string) => Promise<void>;
+  onSetShowCommentModal: (show: boolean) => void;
+  onSetShowMoveToStageModal: (show: boolean) => void;
+  onSetShowRejectConfirmDialog: (show: boolean) => void;
+  isUpdating?: boolean;
 }
 
-const formatDateTime = (dateString: string) => {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  return date.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
 const isCurrentStage = (
   selectedStage: string,
   atsApplication: CompanySideApplication | null
 ): boolean => {
   const actualStage = atsApplication?.stage || ATSStage.IN_REVIEW;
-  if (selectedStage === "APPLIED" || selectedStage === "Applied") {
+  if (selectedStage === "APPLIED" || selectedStage === "applied") {
     return actualStage === ATSStage.IN_REVIEW;
   }
   return selectedStage === actualStage;
 };
 
-const hasNextStages = (
-  currentStage: ATSStage | string,
-  atsJob: JobPostingResponse | null
-): boolean => {
-  const enabledStagesRaw = atsJob?.enabled_stages || atsJob?.enabledStages || [];
-  if (!Array.isArray(enabledStagesRaw) || enabledStagesRaw.length === 0) {
-    return false;
-  }
-
-  const displayNameToEnum = Object.entries(ATSStageDisplayNames).reduce(
-    (acc, [enumValue, displayName]) => {
-      acc[displayName] = enumValue;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
-
-  const allStages = enabledStagesRaw.map((stage: string) => {
-    if (Object.values(ATSStage).includes(stage as ATSStage)) {
-      return stage;
-    }
-    return displayNameToEnum[stage] || stage;
-  }) as ATSStage[];
-
-  if (currentStage === "APPLIED" || currentStage === "Applied") {
-    return allStages.length > 0;
-  }
-
-  if (!currentStage) {
-    return false;
-  }
-  const currentIndex = allStages.indexOf(currentStage as ATSStage);
-  return currentIndex >= 0 && currentIndex < allStages.length - 1;
-};
-
 export function CandidateInReviewStage({
   atsApplication,
-  atsJob,
   selectedStage,
   comments,
-  currentId,
-  onReload,
+  onMoveToStage,
+  getNextStage,
+  onUpdateStage,
   onSetShowCommentModal,
   onSetShowMoveToStageModal,
   onSetShowRejectConfirmDialog,
-  onUpdateStage,
+  isUpdating = false,
 }: CandidateInReviewStageProps) {
-  const currentSubStage = atsApplication?.subStage || "PROFILE_REVIEW";
-  const subStages = STAGE_SUB_STAGES[ATSStage.IN_REVIEW] || [];
   const showActions = isCurrentStage(selectedStage, atsApplication);
+  const currentStage = (atsApplication?.stage || ATSStage.IN_REVIEW);
+
+  // Client-side derived sub-stage if not provided by backend
+  // But preferably use atsApplication.subStage if available
+  const currentSubStage = atsApplication?.subStage || atsApplication?.sub_stage || InReviewSubStage.PROFILE_REVIEW;
+
+  const subStages = STAGE_SUB_STAGES[ATSStage.IN_REVIEW] || [];
+  const nextStage = getNextStage(currentStage);
+
+  // Filter comments (case-insensitive) - showing both Applied and In Review comments here
+  const stageComments = comments.filter((c) => {
+    const s = String(c.stage).toUpperCase();
+    return s === ATSStage.IN_REVIEW || s === "APPLIED";
+  });
 
   return (
     <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          In Review Stage
-        </h3>
-        {showActions && (
-          <p className="text-sm text-gray-600 mb-4">
-            Current sub-stage:{" "}
-            <span className="font-medium text-gray-900">
-              {subStages.find((s) => s.key === currentSubStage)?.label ||
-                currentSubStage}
-            </span>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            In Review Stage
+          </h3>
+          <p className="text-sm text-gray-600">
+            {currentSubStage === InReviewSubStage.PROFILE_REVIEW
+              ? "Initial profile review in progress."
+              : "Feedback received, awaiting decision."}
           </p>
-        )}
+        </div>
+        <div className="flex items-center gap-3">
+
+          {showActions && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white transition-all shadow-sm"
+              onClick={() => onSetShowMoveToStageModal(true)}
+            >
+              <Zap className="h-4 w-4 fill-current" />
+              Quick Action
+            </Button>
+          )}
+        </div>
       </div>
 
-      {comments.filter((c) => c.stage === ATSStage.IN_REVIEW).length > 0 && (
+      {stageComments.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-medium text-gray-900">Comments</h4>
-          {comments
-            .filter((c) => c.stage === ATSStage.IN_REVIEW)
-            .map((comment, idx) => (
-              <div key={idx} className="bg-white rounded-lg p-4 border">
-                <p className="text-sm text-gray-700">{comment.comment}</p>
-                <p className="text-xs text-gray-500 mt-2">
-                  by{" "}
-                  {comment.recruiterName ||
-                    comment.addedByName ||
-                    comment.addedBy ||
-                    "Recruiter"}{" "}
-                  •{" "}
-                  {formatDateTime(
-                    comment.createdAt || comment.timestamp || ""
-                  )}
-                </p>
-              </div>
-            ))}
+          {stageComments.map((comment, idx) => (
+            <div key={idx} className="bg-white rounded-lg p-4 border">
+              <p className="text-sm text-gray-700">{comment.comment}</p>
+              <p className="text-xs text-blue-600 font-medium mt-1">
+                {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                {formatDateTime(
+                  comment.createdAt || comment.timestamp || ""
+                )}
+              </p>
+            </div>
+          ))}
         </div>
       )}
 
       {showActions && (
         <div className="flex flex-col gap-3">
-          {subStages.map((subStage, idx) => {
-            if (subStage.key === currentSubStage) return null;
+          {/* Sub-stage navigation buttons */}
+          <div className="flex gap-3 pt-2">
+            {subStages.map((subStage) => {
+              if (subStage.key === currentSubStage) return null;
 
-            if (
-              currentSubStage === "PENDING_DECISION" &&
-              subStage.key === "PROFILE_REVIEW"
-            )
-              return null;
+              // Don't show "Move to Profile Review" if we are already in "PENDING_DECISION"
+              if (currentSubStage === InReviewSubStage.PENDING_DECISION && subStage.key === InReviewSubStage.PROFILE_REVIEW) {
+                return null;
+              }
 
-            return (
-              <Button
-                key={subStage.key}
-                variant={idx === subStages.length - 1 ? "default" : "outline"}
-                className={`gap-2 ${idx === subStages.length - 1
-                  ? "bg-[#4640DE] hover:bg-[#3730A3]"
-                  : ""
-                  }`}
-                onClick={async () => {
-                  if (!currentId) return;
-                  try {
-                    await companyApi.updateApplicationSubStage(currentId, {
-                      subStage: subStage.key,
-                      comment: `Moved to ${subStage.label}`,
-                    });
-                    toast({
-                      title: "Success",
-                      description: `Moved to ${subStage.label}`,
-                    });
-                    await onReload();
-                  } catch (error: unknown) {
-                    console.error("Failed to update sub-stage:", error);
-                    toast({
-                      title: "Error",
-                      description:
-                        (
-                          error as {
-                            response?: { data?: { message?: string } };
-                          }
-                        )?.response?.data?.message ||
-                        "Failed to update sub-stage.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                <ChevronRight className="h-4 w-4" />
-                Move to {subStage.label}
-              </Button>
-            );
-          })}
+              return (
+                <Button
+                  key={subStage.key}
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={() => onUpdateStage(ATSStage.IN_REVIEW, subStage.key)}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  Move to {subStage.label}
+                </Button>
+              );
+            })}
+          </div>
 
-          {currentSubStage === "PENDING_DECISION" && (
-            <div className="flex gap-3 pt-2 border-t">
+          <div className="flex gap-3 pt-2">
+            {nextStage && (
               <Button
                 className="flex-1 gap-2 bg-[#4640DE] hover:bg-[#3730A3]"
-                onClick={() =>
-                  onUpdateStage(ATSStage.SHORTLISTED, "READY_FOR_INTERVIEW")
-                }
+                onClick={() => onMoveToStage(nextStage as ATSStage)}
+                disabled={isUpdating}
               >
-                <ChevronRight className="h-4 w-4" />
-                Move to Shortlisted
-              </Button>
-              {!(
-                selectedStage === ATSStage.OFFER &&
-                String(currentSubStage) === String(OfferSubStage.OFFER_SENT)
-              ) && (
-                  <Button
-                    variant="destructive"
-                    className="flex-1 gap-2"
-                    onClick={() => onSetShowRejectConfirmDialog(true)}
-                  >
-                    <X className="h-4 w-4" />
-                    Reject
-                  </Button>
+                {isUpdating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
                 )}
-            </div>
-          )}
+                Move to {ATSStageDisplayNames[nextStage] || nextStage}
+              </Button>
+            )}
+            <Button
+              variant="destructive"
+              className="flex-1 gap-2"
+              onClick={() => onSetShowRejectConfirmDialog(true)}
+              disabled={isUpdating}
+            >
+              <X className="h-4 w-4" />
+              Reject
+            </Button>
+          </div>
 
-          <div className="flex flex-col gap-3 mt-2">
+          <div className="flex justify-start pt-2">
             <Button
               variant="outline"
+              size="sm"
               className="gap-2"
               onClick={() => onSetShowCommentModal(true)}
+              disabled={isUpdating}
             >
-              <MessageSquare className="h-4 w-4" />
               Add Comment
             </Button>
-
-            {(() => {
-              const currentStage = atsApplication?.stage as ATSStage;
-              if (!currentStage) return false;
-              return hasNextStages(currentStage, atsJob);
-            })() && (
-                <Button
-                  variant="outline"
-                  className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
-                  onClick={() => onSetShowMoveToStageModal(true)}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                  Move to Another Stage
-                </Button>
-              )}
           </div>
         </div>
       )}
-      {!showActions && comments.filter((c) => c.stage === ATSStage.IN_REVIEW).length === 0 && (
+
+      {!showActions && stageComments.length === 0 && (
         <div className="flex flex-col items-center justify-center py-10 bg-white/50 rounded-lg border border-dashed border-gray-200">
           <div className="bg-white p-3 rounded-full mb-3 shadow-sm">
             <FileX className="h-6 w-6 text-gray-400" />
@@ -262,4 +196,3 @@ export function CandidateInReviewStage({
     </div>
   );
 }
-

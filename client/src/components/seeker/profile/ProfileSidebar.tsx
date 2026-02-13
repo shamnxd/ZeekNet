@@ -186,8 +186,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                 onChange={(e) => {
                                     setEditingEmail(e.target.value);
                                     if (detailsErrors.email) {
-                                        const { email: _, ...rest } = detailsErrors;
-                                        setDetailsErrors(rest);
+                                        const newErrors = { ...detailsErrors };
+                                        delete newErrors.email;
+                                        setDetailsErrors(newErrors);
                                     }
                                 }}
                                 placeholder="e.g., contact@example.com"
@@ -206,8 +207,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                 onChange={(e) => {
                                     setEditingPhone(e.target.value);
                                     if (detailsErrors.phone) {
-                                        const { phone: _, ...rest } = detailsErrors;
-                                        setDetailsErrors(rest);
+                                        const newErrors = { ...detailsErrors };
+                                        delete newErrors.phone;
+                                        setDetailsErrors(newErrors);
                                     }
                                 }}
                                 placeholder="e.g., +1 234 567 8900"
@@ -225,8 +227,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                     onChange={(e) => {
                                         setNewLanguage(e.target.value);
                                         if (detailsErrors.language) {
-                                            const { language: _, ...rest } = detailsErrors;
-                                            setDetailsErrors(rest);
+                                            const newErrors = { ...detailsErrors };
+                                            delete newErrors.language;
+                                            setDetailsErrors(newErrors);
                                         }
                                     }}
                                     placeholder="Enter a language (e.g., English, French)"
@@ -309,8 +312,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                 } else {
                                                     newLinks[index].name = value;
                                                     if (socialErrors[`name-${index}`]) {
-                                                        const { [`name-${index}`]: _, ...rest } = socialErrors;
-                                                        setSocialErrors(rest);
+                                                        const newErrors = { ...socialErrors };
+                                                        delete newErrors[`name-${index}`];
+                                                        setSocialErrors(newErrors);
                                                     }
                                                 }
                                                 setEditingSocialLinks(newLinks);
@@ -339,8 +343,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                     newLinks[index].name = e.target.value;
                                                     setEditingSocialLinks(newLinks);
                                                     if (socialErrors[`name-${index}`]) {
-                                                        const { [`name-${index}`]: _, ...rest } = socialErrors;
-                                                        setSocialErrors(rest);
+                                                        const newErrors = { ...socialErrors };
+                                                        delete newErrors[`name-${index}`];
+                                                        setSocialErrors(newErrors);
                                                     }
                                                 }}
                                                 placeholder="Enter custom platform name"
@@ -360,8 +365,9 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                 newLinks[index].link = e.target.value;
                                                 setEditingSocialLinks(newLinks);
                                                 if (socialErrors[`link-${index}`]) {
-                                                    const { [`link-${index}`]: _, ...rest } = socialErrors;
-                                                    setSocialErrors(rest);
+                                                    const newErrors = { ...socialErrors };
+                                                    delete newErrors[`link-${index}`];
+                                                    setSocialErrors(newErrors);
                                                 }
                                             }}
                                             placeholder="https://example.com"

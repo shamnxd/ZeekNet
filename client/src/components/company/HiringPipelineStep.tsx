@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ATSStage, STAGE_DESCRIPTIONS } from "@/constants/ats-stages";
+import { ATSStage, STAGE_DESCRIPTIONS, ATSStageDisplayNames } from "@/constants/ats-stages";
 import type { JobPostingStepProps } from "@/interfaces/job/job-posting-step-props.interface";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     const availableStages: NonHiredStage[] = allStages.filter(
         (stage): stage is NonHiredStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED
     );
-    const requiredStages: NonHiredStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
+    const requiredStages: NonHiredStage[] = [ATSStage.IN_REVIEW, ATSStage.SHORTLISTED, ATSStage.OFFER];
 
 
     const selectedStages = data.enabledStages && data.enabledStages.length > 0
@@ -129,7 +129,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
                                     "text-sm font-semibold transition-colors",
                                     isSelected ? "text-[#4640DE]" : "text-[#25324B]"
                                 )}>
-                                    {stage}
+                                    {ATSStageDisplayNames[stage] || stage}
                                 </span>
                                 {isRequired && (
                                     <span className="text-xs font-medium text-[#4640DE]">Required</span>

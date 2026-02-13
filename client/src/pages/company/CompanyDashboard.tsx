@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatATSStage } from '@/utils/formatters';
 import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -425,11 +426,11 @@ const CompanyDashboard = () => {
                                 app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '-'}
                             </td>
                             <td className="px-4 py-4">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold
                               ${app.stage === 'hired' ? 'bg-green-100 text-green-800' :
                                   app.stage === 'rejected' ? 'bg-red-100 text-red-800' :
                                     'bg-blue-100 text-blue-800'}`}>
-                                {(app.stage || 'Applied').replace('_', ' ')}
+                                {formatATSStage(app.stage || 'Applied')}
                               </span>
                             </td>
                             <td className="px-4 py-4">

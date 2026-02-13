@@ -230,7 +230,11 @@ class ATSService {
 
 
   async updateApplicationStage(applicationId: string, data: UpdateApplicationStageRequest) {
-    const response = await api.patch(`/api/company/applications/${applicationId}/stage`, data);
+    const payload = {
+      ...data,
+      sub_stage: data.subStage
+    };
+    const response = await api.patch(`/api/company/applications/${applicationId}/stage`, payload);
     return response.data;
   }
 

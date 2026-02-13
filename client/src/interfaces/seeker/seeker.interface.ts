@@ -44,6 +44,7 @@ export interface SeekerProfile {
   location: string | null;
   phone: string | null;
   email: string;
+  expectedSalary?: string;
   avatarUrl: string | null;
   bannerUrl: string | null;
   dateOfBirth: string | null;

@@ -86,8 +86,8 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       select: 'job_id seeker_id',
       populate: [
         { path: 'job_id', select: 'title' },
-        { path: 'seeker_id', select: 'name' }
-      ]
+        { path: 'seeker_id', select: 'name' },
+      ],
     }).sort({ scheduledDate: 1 }).lean();
 
     const finalInterviews = await Promise.all(interviews.map(async (interview) => {
