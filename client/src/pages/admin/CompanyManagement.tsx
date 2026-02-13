@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,8 +16,6 @@ import {
   Search,
   Eye,
   UserX,
-  ChevronLeft,
-  ChevronRight
 } from 'lucide-react'
 import { adminApi } from '@/api/admin.api'
 import type { Company, GetAllCompaniesParams } from '@/interfaces/admin/admin-company.interface'
@@ -25,6 +23,8 @@ import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
+import { AdminPagination } from '@/components/common/AdminPagination'
+import { TableSkeleton } from '@/components/common/TableSkeleton'
 
 const CompanyManagement = () => {
   const navigate = useNavigate()
@@ -34,7 +34,8 @@ const CompanyManagement = () => {
   const [blockDialogOpen, setBlockDialogOpen] = useState(false)
   const [emailDialogOpen, setEmailDialogOpen] = useState(false)
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [totalPages, setTotalPages] = useState(1)
   const [totalCompanies, setTotalCompanies] = useState(0)
   const [searchInput, setSearchInput] = useState('')
@@ -76,8 +77,13 @@ const CompanyManagement = () => {
   }, [currentPage, debouncedSearchTerm, industryFilter, verificationFilter, blockedFilter])
 
   useEffect(() => {
-    setCurrentPage(1)
-  }, [debouncedSearchTerm])
+    if (debouncedSearchTerm) {
+      setSearchParams(prev => {
+        prev.set('page', '1')
+        return prev
+      })
+    }
+  }, [debouncedSearchTerm, setSearchParams])
 
   useEffect(() => {
     fetchCompanies()
@@ -97,12 +103,7 @@ const CompanyManagement = () => {
     fetchCategories()
   }, [])
 
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
 
 
   const handleBlockConfirm = async () => {
@@ -154,7 +155,10 @@ const CompanyManagement = () => {
 
   const handleSearch = (value: string) => {
     setSearchInput(value)
-    setCurrentPage(1)
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
   }
 
   const handleFilterChange = (filterType: string, value: string) => {
@@ -169,7 +173,10 @@ const CompanyManagement = () => {
         setBlockedFilter(value)
         break
     }
-    setCurrentPage(1)
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
   }
 
   const blockReasons = [
@@ -198,8 +205,8 @@ const CompanyManagement = () => {
 
       await adminApi.blockUser(reasonCompany.userId, newBlockedStatus);
 
-      setCompanies(prev =>
-        prev.map(c =>
+      setCompanies((prev: Company[]) =>
+        prev.map((c: Company) =>
           c.userId === reasonCompany.userId
             ? { ...c, isBlocked: newBlockedStatus }
             : c
@@ -282,20 +289,9 @@ const CompanyManagement = () => {
           </div>
         </div>
 
-        {loading && (
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500">Loading companies...</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {error && (
+        {loading ? (
+          <TableSkeleton columns={7} rows={itemsPerPage} />
+        ) : error ? (
           <Card className="border-0 shadow-md">
             <CardContent className="p-8">
               <div className="text-center">
@@ -306,139 +302,104 @@ const CompanyManagement = () => {
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {!loading && !error && (
+        ) : companies.length === 0 ? (
           <Card className="border-0 shadow-md">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border/50">
-                      <th className="text-left p-4 font-medium text-muted-foreground">Company</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Industry</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Organization</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Verification</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Created</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {companies.map((company) => (
-                      <tr key={company.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
-                        <td className="p-4">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')}
-                              alt={company.companyName || 'Company'}
-                              className="h-10 w-10 rounded-full object-cover"
-                            />
-                            <div>
-                              <p className="font-medium text-gray-800">{company.companyName}</p>
-                              <p className="text-sm text-gray-500">{company.websiteLink}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.industry}</span>
-                        </td>
-                        <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.organisation}</span>
-                        </td>
-                        <td className="p-4">
-                          <span className={`text-sm px-2 py-1 rounded-full ${company.isBlocked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                            }`}>
-                            {company.isBlocked ? 'Blocked' : 'Active'}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <span className={`text-xs px-2 py-1 rounded-full ${company.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
-                            company.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                            {company.isVerified}
-                          </span>
-                        </td>
-                        <td className="p-4 text-sm text-gray-700">
-                          {new Date(company.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
-                              onClick={() => navigate(`/admin/company-profile-view/${company.id}`)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            {/* Edit button removed */}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                              onClick={() => handleBlockAction(company)}
-                            >
-                              <UserX className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <CardContent className="p-8 text-center text-muted-foreground">
+              No companies found matching your criteria.
             </CardContent>
           </Card>
-        )}
+        ) : (
+          <>
+            <Card className="border-0 shadow-md overflow-hidden">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border/50 bg-muted/30">
+                        <th className="text-left p-4 font-medium text-muted-foreground">Company</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Industry</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Organization</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Verification</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Created</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {companies.map((company) => (
+                        <tr key={company.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                          <td className="p-4">
+                            <div className="flex items-center space-x-3">
+                              <img
+                                src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')}
+                                alt={company.companyName || 'Company'}
+                                className="h-10 w-10 rounded-full object-cover border border-border"
+                              />
+                              <div>
+                                <p className="font-medium text-foreground">{company.companyName}</p>
+                                <p className="text-sm text-muted-foreground">{company.websiteLink}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <span className="text-sm">{company.industry}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className="text-sm">{company.organisation}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${company.isBlocked ? 'bg-destructive/10 text-destructive' : 'bg-green-500/10 text-green-600'
+                              }`}>
+                              {company.isBlocked ? 'Blocked' : 'Active'}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${company.isVerified === 'verified' ? 'bg-green-500/10 text-green-600' :
+                              company.isVerified === 'pending' ? 'bg-yellow-500/10 text-yellow-600' :
+                                'bg-destructive/10 text-destructive'
+                              }`}>
+                              {company.isVerified}
+                            </span>
+                          </td>
+                          <td className="p-4 text-sm text-muted-foreground">
+                            {new Date(company.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-primary hover:text-primary hover:bg-primary/10"
+                                onClick={() => navigate(`/admin/company-profile-view/${company.id}`)}
+                                title="View Details"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleBlockAction(company)}
+                                title={company.isBlocked ? "Unblock Company" : "Block Company"}
+                              >
+                                <UserX className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
 
-        {!loading && !error && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Showing {startIndex + 1} to {Math.min(endIndex, totalCompanies)} of {totalCompanies} companies
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex items-center space-x-1"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Previous</span>
-              </Button>
-
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handlePageChange(page)}
-                    className={`w-8 h-8 p-0 ${currentPage === page
-                      ? 'bg-cyan-600 text-white hover:bg-cyan-700'
-                      : 'hover:bg-gray-50'
-                      }`}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex items-center space-x-1"
-              >
-                <span>Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            <AdminPagination
+              totalPages={totalPages}
+              totalItems={totalCompanies}
+              itemsPerPage={itemsPerPage}
+            />
+          </>
         )}
 
         <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>

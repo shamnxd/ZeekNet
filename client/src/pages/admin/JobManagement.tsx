@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,6 +36,8 @@ import { adminApi } from '@/api/admin.api'
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface'
 import ReasonActionDialog from '@/components/common/ReasonActionDialog'
 import { useDebounce } from '@/hooks/useDebounce'
+import { AdminPagination } from '@/components/common/AdminPagination'
+import { TableSkeleton } from '@/components/common/TableSkeleton'
 
 const unpublishReasons = [
   { value: 'expired', label: 'Position is filled or job expired' },
@@ -47,13 +49,9 @@ const unpublishReasons = [
 ];
 
 const JobManagement = () => {
-  const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
-  const [reasonJob, setReasonJob] = useState<JobPostingResponse | null>(null);
-  const [jobs, setJobs] = useState<JobPostingResponse[]>([])
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [pagination, setPagination] = useState({
-    page: 1,
     limit: 10,
     total: 0,
     totalPages: 0
@@ -68,17 +66,17 @@ const JobManagement = () => {
     status: 'all'
   })
 
-
-  useEffect(() => {
-    setFilters(prev => ({ ...prev, search: debouncedSearchTerm }))
-    setPagination(prev => ({ ...prev, page: 1 }))
-  }, [debouncedSearchTerm])
+  const [reasonDialogOpen, setReasonDialogOpen] = useState(false);
+  const [reasonJob, setReasonJob] = useState<JobPostingResponse | null>(null);
+  const [jobs, setJobs] = useState<JobPostingResponse[]>([])
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   const fetchJobs = useCallback(async () => {
     setLoading(true)
     try {
       const response = await adminApi.getAllJobs({
-        page: pagination.page,
+        page: currentPage,
         limit: pagination.limit,
         search: filters.search,
         ...(filters.status !== 'all' && filters.status !== 'inactive' && { status: filters.status }),
@@ -100,7 +98,16 @@ const JobManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [pagination.page, pagination.limit, filters.search, filters.status])
+  }, [currentPage, pagination.limit, filters.search, filters.status])
+
+
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: debouncedSearchTerm }))
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
+  }, [debouncedSearchTerm, setSearchParams])
 
   useEffect(() => {
     fetchJobs()
@@ -116,11 +123,13 @@ const JobManagement = () => {
       const response = await adminApi.updateJobStatus(jobId, newStatus, undefined)
 
       if (response.success) {
-        setJobs(jobs.map(job =>
-          (job.id || job._id) === jobId
-            ? { ...job, status: newStatus }
-            : job
-        ))
+        setJobs((prev: JobPostingResponse[]) =>
+          prev.map((job: JobPostingResponse) =>
+            (job.id || job._id) === jobId
+              ? { ...job, status: newStatus }
+              : job
+          )
+        )
         toast.success(`Job ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
       } else {
         toast.error(response.message || 'Failed to update job status')
@@ -177,7 +186,13 @@ const JobManagement = () => {
               </div>
               <Select
                 value={filters.status}
-                onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as typeof filters.status }))}
+                onValueChange={(value) => {
+                  setFilters(prev => ({ ...prev, status: value as any }))
+                  setSearchParams(prev => {
+                    prev.set('page', '1')
+                    return prev
+                  })
+                }}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
@@ -201,8 +216,10 @@ const JobManagement = () => {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <TableSkeleton columns={8} rows={pagination.limit} />
+            ) : jobs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No jobs found</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -307,7 +324,6 @@ const JobManagement = () => {
                                   Publish
                                 </DropdownMenuItem>
                               ) : null}
-                              {/* Delete option removed */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -317,45 +333,15 @@ const JobManagement = () => {
                 </Table>
               </div>
             )}
-
-            {jobs.length === 0 && !loading && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No jobs found</p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        { }
-        {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
-              {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-              {pagination.total} results
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                disabled={pagination.page === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-sm">
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                disabled={pagination.page === pagination.totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+        {!loading && (
+          <AdminPagination
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={pagination.limit}
+          />
         )}
       </div>
 
@@ -374,11 +360,13 @@ const JobManagement = () => {
             const response = await adminApi.updateJobStatus(reasonJob.id || reasonJob._id || '', 'blocked', reason);
 
             if (response.success) {
-              setJobs(jobs.map(job =>
-                (job.id || job._id) === (reasonJob.id || reasonJob._id)
-                  ? { ...job, status: 'blocked', unpublish_reason: reason }
-                  : job
-              ));
+              setJobs((prev: JobPostingResponse[]) =>
+                prev.map((job: JobPostingResponse) =>
+                  (job.id || job._id) === (reasonJob.id || reasonJob._id)
+                    ? { ...job, status: 'blocked', unpublish_reason: reason }
+                    : job
+                )
+              );
               toast.success(`Unpublished ${reasonJob?.title}`);
             } else {
               toast.error(response.message || 'Failed to unpublish job');
