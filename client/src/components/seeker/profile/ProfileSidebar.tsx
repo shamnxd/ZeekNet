@@ -13,7 +13,7 @@ import type { SeekerProfile } from '@/interfaces/seeker/seeker.interface';
 interface ProfileSidebarProps {
     profile: SeekerProfile | null;
 
-    
+
     editDetailsOpen: boolean;
     setEditDetailsOpen: (open: boolean) => void;
     editingEmail: string;
@@ -26,15 +26,17 @@ interface ProfileSidebarProps {
     handleAddLanguage: () => void;
     handleRemoveLanguage: (lang: string) => void;
     handleEditDetails: () => Promise<void>;
-    detailsError: string;
-    setDetailsError: (msg: string) => void;
+    detailsErrors: Record<string, string>;
+    setDetailsErrors: (errors: Record<string, string>) => void;
 
-    
+
     editSocialOpen: boolean;
     setEditSocialOpen: (open: boolean) => void;
     editingSocialLinks: Array<{ name: string; link: string }>;
     setEditingSocialLinks: (links: Array<{ name: string; link: string }>) => void;
     handleEditSocial: () => Promise<void>;
+    socialErrors: Record<string, string>;
+    setSocialErrors: (errors: Record<string, string>) => void;
 
     SOCIAL_PLATFORMS: Array<{ value: string; label: string }>;
     saving: boolean;
@@ -54,19 +56,21 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
     handleAddLanguage,
     handleRemoveLanguage,
     handleEditDetails,
-    detailsError,
-    setDetailsError,
+    detailsErrors,
+    setDetailsErrors,
     editSocialOpen,
     setEditSocialOpen,
     editingSocialLinks,
     setEditingSocialLinks,
     handleEditSocial,
+    socialErrors,
+    setSocialErrors,
     SOCIAL_PLATFORMS,
     saving,
 }) => {
     return (
         <div className="space-y-5">
-            {}
+            { }
             <Card className="p-5 !gap-0 border border-[#d6ddeb]">
                 <div className="flex items-center justify-between mb-5">
                     <p className="font-bold text-[16px] text-[#25324b]">
@@ -76,7 +80,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                         variant="seekerOutline"
                         size="sm"
                         className="h-8 w-8 !rounded-full"
-                        onClick={() => { setDetailsError(''); setEditDetailsOpen(true); }}
+                        onClick={() => { setDetailsErrors({}); setEditDetailsOpen(true); }}
                     >
                         <Pencil className="w-3 h-3" />
                     </Button>
@@ -121,7 +125,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 </div>
             </Card>
 
-            {}
+            { }
             <Card className="p-5 !gap-0 border border-[#d6ddeb]">
                 <div className="flex items-center justify-between mb-5">
                     <p className="font-bold text-[16px] text-[#25324b]">
@@ -162,14 +166,14 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 </div>
             </Card>
 
-            {}
+            { }
             <Dialog open={editDetailsOpen} onOpenChange={setEditDetailsOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Edit Additional Details</DialogTitle>
                     </DialogHeader>
-                    {detailsError && (
-                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{detailsError}</p>
+                    {detailsErrors.general && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{detailsErrors.general}</p>
                     )}
                     <div className="space-y-4">
 
@@ -179,9 +183,17 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                 id="email"
                                 type="email"
                                 value={editingEmail}
-                                onChange={(e) => setEditingEmail(e.target.value)}
+                                onChange={(e) => {
+                                    setEditingEmail(e.target.value);
+                                    if (detailsErrors.email) {
+                                        const { email: _, ...rest } = detailsErrors;
+                                        setDetailsErrors(rest);
+                                    }
+                                }}
                                 placeholder="e.g., contact@example.com"
+                                className={detailsErrors.email ? 'border-red-500' : ''}
                             />
+                            {detailsErrors.email && <p className="text-xs text-red-500">{detailsErrors.email}</p>}
                             <p className="text-xs text-[#7c8493]">This is your contact email for job applications</p>
                         </div>
 
@@ -191,9 +203,17 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                 id="phone"
                                 type="tel"
                                 value={editingPhone}
-                                onChange={(e) => setEditingPhone(e.target.value)}
+                                onChange={(e) => {
+                                    setEditingPhone(e.target.value);
+                                    if (detailsErrors.phone) {
+                                        const { phone: _, ...rest } = detailsErrors;
+                                        setDetailsErrors(rest);
+                                    }
+                                }}
                                 placeholder="e.g., +1 234 567 8900"
+                                className={detailsErrors.phone ? 'border-red-500' : ''}
                             />
+                            {detailsErrors.phone && <p className="text-xs text-red-500">{detailsErrors.phone}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -202,8 +222,15 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                 <Input
                                     id="languages"
                                     value={newLanguage}
-                                    onChange={(e) => setNewLanguage(e.target.value)}
+                                    onChange={(e) => {
+                                        setNewLanguage(e.target.value);
+                                        if (detailsErrors.language) {
+                                            const { language: _, ...rest } = detailsErrors;
+                                            setDetailsErrors(rest);
+                                        }
+                                    }}
                                     placeholder="Enter a language (e.g., English, French)"
+                                    className={detailsErrors.language ? 'border-red-500' : ''}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
@@ -221,6 +248,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                     Add
                                 </Button>
                             </div>
+                            {detailsErrors.language && <p className="text-xs text-red-500 mt-1">{detailsErrors.language}</p>}
                             {editingLanguages.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {editingLanguages.map((lang, idx) => (
@@ -253,12 +281,15 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                 </DialogContent>
             </Dialog>
 
-            {}
+            { }
             <Dialog open={editSocialOpen} onOpenChange={setEditSocialOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Edit Social Links</DialogTitle>
                     </DialogHeader>
+                    {socialErrors.general && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{socialErrors.general}</p>
+                    )}
                     <div className="space-y-4">
                         {editingSocialLinks.map((link, index) => (
                             <div key={index} className="flex gap-2 items-start p-3 border border-[#d6ddeb] rounded-lg">
@@ -277,6 +308,10 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                     newLinks[index].name = '';
                                                 } else {
                                                     newLinks[index].name = value;
+                                                    if (socialErrors[`name-${index}`]) {
+                                                        const { [`name-${index}`]: _, ...rest } = socialErrors;
+                                                        setSocialErrors(rest);
+                                                    }
                                                 }
                                                 setEditingSocialLinks(newLinks);
                                             }}
@@ -303,9 +338,15 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                     const newLinks = [...editingSocialLinks];
                                                     newLinks[index].name = e.target.value;
                                                     setEditingSocialLinks(newLinks);
+                                                    if (socialErrors[`name-${index}`]) {
+                                                        const { [`name-${index}`]: _, ...rest } = socialErrors;
+                                                        setSocialErrors(rest);
+                                                    }
                                                 }}
                                                 placeholder="Enter custom platform name"
+                                                className={socialErrors[`name-${index}`] ? 'border-red-500' : ''}
                                             />
+                                            {socialErrors[`name-${index}`] && <p className="text-xs text-red-500">{socialErrors[`name-${index}`]}</p>}
                                         </div>
                                     )}
                                     <div className={`space-y-2 ${(!link.name || !SOCIAL_PLATFORMS.find(p => p.value === link.name?.toLowerCase())) ? 'col-span-2' : ''}`}>
@@ -318,9 +359,15 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
                                                 const newLinks = [...editingSocialLinks];
                                                 newLinks[index].link = e.target.value;
                                                 setEditingSocialLinks(newLinks);
+                                                if (socialErrors[`link-${index}`]) {
+                                                    const { [`link-${index}`]: _, ...rest } = socialErrors;
+                                                    setSocialErrors(rest);
+                                                }
                                             }}
                                             placeholder="https://example.com"
+                                            className={socialErrors[`link-${index}`] ? 'border-red-500' : ''}
                                         />
+                                        {socialErrors[`link-${index}`] && <p className="text-xs text-red-500">{socialErrors[`link-${index}`]}</p>}
                                     </div>
                                 </div>
                                 <Button

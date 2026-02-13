@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { toast } from 'sonner';
 import type { SeekerProfile as SeekerProfileType, Experience, Education } from '@/interfaces/seeker/seeker.interface';
 import { seekerApi } from '@/api/seeker.api';
@@ -21,6 +22,11 @@ export const useSeekerProfile = () => {
     const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
     const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
     const [experienceErrors, setExperienceErrors] = useState<Record<string, string>>({});
+
+    const [techSearchTerm, setTechSearchTerm] = useState('');
+    const debouncedTechSearchTerm = useDebounce(techSearchTerm, 500);
+    const [skillsSearchTerm, setSkillsSearchTerm] = useState('');
+    const debouncedSkillsSearchTerm = useDebounce(skillsSearchTerm, 500);
     const [addEducationOpen, setAddEducationOpen] = useState(false);
     const [editEducationOpen, setEditEducationOpen] = useState(false);
     const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
@@ -84,7 +90,8 @@ export const useSeekerProfile = () => {
     const [newLanguage, setNewLanguage] = useState('');
     const [editingPhone, setEditingPhone] = useState<string>('');
     const [editingEmail, setEditingEmail] = useState<string>('');
-    const [detailsError, setDetailsError] = useState<string>('');
+    const [detailsErrors, setDetailsErrors] = useState<Record<string, string>>({});
+    const [socialErrors, setSocialErrors] = useState<Record<string, string>>({});
 
     const SOCIAL_PLATFORMS = [
         { value: 'github', label: 'GitHub' },
@@ -526,47 +533,68 @@ export const useSeekerProfile = () => {
         }
     };
 
-    const fetchSkills = async (searchTerm?: string) => {
-        try {
-            setSkillsLoading(true);
-            const response = await publicApi.getAllSkills({
-                limit: 20,
-                search: searchTerm,
-            });
-            if (response.success && response.data) {
-                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
-                    value: skillName,
-                    label: skillName,
-                }));
-                setSkillsOptions(options);
-            }
-        } catch (error) {
-            console.error('Failed to fetch skills:', error);
-        } finally {
-            setSkillsLoading(false);
-        }
+    const fetchSkills = (searchTerm: string = '') => {
+        setSkillsSearchTerm(searchTerm);
+        setSkillsLoading(true);
     };
 
-    const fetchTechnologies = async (searchTerm?: string) => {
-        try {
-            setTechnologyLoading(true);
-            const response = await publicApi.getAllSkills({
-                limit: 20,
-                search: searchTerm,
-            });
-            if (response.success && response.data) {
-                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
-                    value: skillName,
-                    label: skillName,
-                }));
-                setTechnologyOptions(options);
+    useEffect(() => {
+        if (!addSkillOpen) return;
+
+        const loadSkills = async () => {
+            try {
+                // If this runs because addSkillOpen became true, or debounced term changed
+                setSkillsLoading(true);
+                const response = await publicApi.getAllSkills({
+                    limit: 20,
+                    search: debouncedSkillsSearchTerm,
+                });
+                if (response.success && response.data) {
+                    const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                        value: skillName,
+                        label: skillName,
+                    }));
+                    setSkillsOptions(options);
+                }
+            } catch (error) {
+                console.error('Failed to fetch skills:', error);
+            } finally {
+                setSkillsLoading(false);
             }
-        } catch (error) {
-            console.error('Failed to fetch technologies:', error);
-        } finally {
-            setTechnologyLoading(false);
-        }
+        };
+        loadSkills();
+    }, [debouncedSkillsSearchTerm, addSkillOpen]);
+
+    const fetchTechnologies = (searchTerm: string = '') => {
+        setTechSearchTerm(searchTerm);
+        setTechnologyLoading(true);
     };
+
+    useEffect(() => {
+        if (!addExperienceOpen && !editExperienceOpen) return;
+
+        const loadTechnologies = async () => {
+            try {
+                setTechnologyLoading(true);
+                const response = await publicApi.getAllSkills({
+                    limit: 20,
+                    search: debouncedTechSearchTerm,
+                });
+                if (response.success && response.data) {
+                    const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                        value: skillName,
+                        label: skillName,
+                    }));
+                    setTechnologyOptions(options);
+                }
+            } catch (error) {
+                console.error('Failed to fetch technologies:', error);
+            } finally {
+                setTechnologyLoading(false);
+            }
+        };
+        loadTechnologies();
+    }, [debouncedTechSearchTerm, addExperienceOpen, editExperienceOpen]);
 
     useEffect(() => {
         if (addSkillOpen) {
@@ -647,15 +675,9 @@ export const useSeekerProfile = () => {
         }
         const trimmed = newLanguage.trim();
 
-        // Validate language - should not be just numbers
-        if (/^\d+$/.test(trimmed)) {
-            setDetailsError('Please enter a valid language name (numbers are not allowed)');
-            return;
-        }
-
-        // Validate language - should contain at least one letter
-        if (!/[a-zA-Z]/.test(trimmed)) {
-            setDetailsError('Please enter a valid language name');
+        // Validate language - should only contain letters and spaces
+        if (!/^[a-zA-Z\s]+$/.test(trimmed)) {
+            setDetailsErrors({ language: 'Language name can only contain letters and spaces' });
             return;
         }
 
@@ -665,7 +687,7 @@ export const useSeekerProfile = () => {
         }
         setEditingLanguages([...editingLanguages, trimmed]);
         setNewLanguage('');
-        setDetailsError('');
+        setDetailsErrors({});
     };
 
     const handleRemoveLanguage = (language: string) => {
@@ -674,29 +696,37 @@ export const useSeekerProfile = () => {
 
     const handleEditDetails = async () => {
         if (!profile) return;
-        setDetailsError('');
+        setDetailsErrors({});
+
+        const errors: Record<string, string> = {};
 
         // Validate email
-        if (editingEmail && editingEmail.trim()) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
-                setDetailsError('Please enter a valid email address');
-                return;
-            }
+        if (!editingEmail.trim()) {
+            errors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
+            errors.email = 'Please enter a valid email address';
         }
 
         // Validate phone number - must have at least 10 digits and should not be just special characters
         if (editingPhone && editingPhone.trim()) {
-            const digitsOnly = editingPhone.replace(/\D/g, '');
+            const trimmedPhone = editingPhone.trim();
+            const digitsOnly = trimmedPhone.replace(/\D/g, '');
+
             if (digitsOnly.length < 10) {
-                setDetailsError('Please enter a valid phone number (at least 10 digits)');
-                return;
-            }
-            // Check if phone contains valid characters (digits, spaces, dashes, parentheses, plus)
-            if (!/^[\d\s\-()+]+$/.test(editingPhone.trim())) {
-                setDetailsError('Please enter a valid phone number');
-                return;
+                errors.phone = 'Phone number must be at least 10 digits';
+            } else if (!/^[\d\s\-()+]+$/.test(trimmedPhone)) {
+                errors.phone = 'Please enter a valid phone number';
+            } else if (trimmedPhone.startsWith('-')) {
+                // Prevent numbers starting with minus (negative numbers)
+                errors.phone = 'Phone number cannot start with a minus sign';
             }
         }
+
+        if (Object.keys(errors).length > 0) {
+            setDetailsErrors(errors);
+            return;
+        }
+
         try {
             setSaving(true);
 
@@ -713,11 +743,6 @@ export const useSeekerProfile = () => {
             }
 
             if (editingEmail !== profile.email) {
-                if (!editingEmail.trim()) {
-                    toast.error('Email is required');
-                    setSaving(false);
-                    return;
-                }
                 updateData.email = editingEmail.trim();
                 hasChanges = true;
             }
@@ -739,7 +764,7 @@ export const useSeekerProfile = () => {
             if (hasChanges && updatePromises.length > 0) {
                 await Promise.all(updatePromises);
                 toast.success('Contact details updated successfully');
-                setDetailsError('');
+                setDetailsErrors({});
                 setEditDetailsOpen(false);
 
                 if (profile) {
@@ -763,21 +788,39 @@ export const useSeekerProfile = () => {
         if (!profile) return;
         try {
             setSaving(true);
+            setSocialErrors({});
 
-            // Validate URLs before processing
-            const invalidLinks = editingSocialLinks.filter(link => {
-                if (!link.name?.trim() || !link.link?.trim()) return false;
-                const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
-                try {
-                    new URL(urlToCheck);
-                    return false;
-                } catch {
-                    return true;
+            const newErrors: Record<string, string> = {};
+
+            // Validate links
+            editingSocialLinks.forEach((link, index) => {
+                if (!link.name?.trim() && !link.link?.trim()) {
+                    // Skip empty rows if there are multiple, but if only one it might be an error if user intended to add something
+                    return;
+                }
+
+                if (!link.name?.trim()) {
+                    newErrors[`name-${index}`] = 'Platform name is required';
+                }
+
+                if (!link.link?.trim()) {
+                    newErrors[`link-${index}`] = 'URL is required';
+                } else {
+                    const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
+                    try {
+                        const parsedUrl = new URL(urlToCheck);
+                        // Basic check for TLD-like structure (contains a dot and not at the end)
+                        if (!parsedUrl.hostname.includes('.') || parsedUrl.hostname.endsWith('.')) {
+                            newErrors[`link-${index}`] = 'Please enter a valid URL with a domain extension (e.g., .com)';
+                        }
+                    } catch {
+                        newErrors[`link-${index}`] = 'Please enter a valid URL';
+                    }
                 }
             });
 
-            if (invalidLinks.length > 0) {
-                toast.error('Please enter valid URLs for all social links');
+            if (Object.keys(newErrors).length > 0) {
+                setSocialErrors(newErrors);
                 setSaving(false);
                 return;
             }
@@ -804,10 +847,10 @@ export const useSeekerProfile = () => {
                 toast.success('Social links updated successfully');
                 setEditSocialOpen(false);
             } else {
-                toast.error(response.message || 'Failed to update social links');
+                setSocialErrors({ general: response.message || 'Failed to update social links' });
             }
         } catch {
-            toast.error('Failed to update social links');
+            setSocialErrors({ general: 'Failed to update social links' });
         } finally {
             setSaving(false);
         }
@@ -816,10 +859,11 @@ export const useSeekerProfile = () => {
     useEffect(() => {
         if (editSocialOpen && profile) {
             const links = profile.socialLinks || [];
-
+            setSocialErrors({});
             setEditingSocialLinks(links.length > 0 ? links : [{ name: '', link: '' }]);
         }
         if (editDetailsOpen && profile) {
+            setDetailsErrors({});
             setEditingPhone(profile.phone || '');
             setEditingEmail(profile.email || '');
             setEditingLanguages(profile.languages || []);
@@ -916,7 +960,8 @@ export const useSeekerProfile = () => {
         handleAddSkill, handleRemoveSkill, confirmRemoveSkill,
         handleAddLanguage, handleRemoveLanguage,
         handleEditDetails, handleEditSocial,
-        detailsError, setDetailsError,
+        detailsErrors, setDetailsErrors,
+        socialErrors, setSocialErrors,
 
 
         formatDate, formatPeriod, isoToDateInput,
