@@ -64,8 +64,8 @@ export default function SeekerProfile() {
     handleEditExperience,
     handleRemoveExperience,
     confirmRemoveExperience,
-    experienceError,
-    setExperienceError,
+    experienceErrors,
+    setExperienceErrors,
 
     educationData,
     setEducationData,
@@ -190,8 +190,8 @@ export default function SeekerProfile() {
             handleEditExperience={handleEditExperience}
             handleRemoveExperience={handleRemoveExperience}
             confirmRemoveExperience={confirmRemoveExperience}
-            experienceError={experienceError}
-            setExperienceError={setExperienceError}
+            experienceErrors={experienceErrors}
+            setExperienceErrors={setExperienceErrors}
             saving={saving}
             isoToDateInput={isoToDateInput}
             formatPeriod={formatPeriod}

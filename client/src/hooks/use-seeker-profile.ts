@@ -20,7 +20,7 @@ export const useSeekerProfile = () => {
     const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
     const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
     const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
-    const [experienceError, setExperienceError] = useState<string>('');
+    const [experienceErrors, setExperienceErrors] = useState<Record<string, string>>({});
     const [addEducationOpen, setAddEducationOpen] = useState(false);
     const [editEducationOpen, setEditEducationOpen] = useState(false);
     const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
@@ -301,8 +301,37 @@ export const useSeekerProfile = () => {
         }
     };
 
+    const validateExperience = (): Record<string, string> => {
+        const errors: Record<string, string> = {};
+        if (!experienceData.title.trim()) errors.title = 'Title is required';
+        if (!experienceData.company.trim()) errors.company = 'Company is required';
+        if (!experienceData.startDate) errors.startDate = 'Start date is required';
+        if (!experienceData.employmentType) errors.employmentType = 'Employment type is required';
+
+        if (!experienceData.isCurrent && experienceData.endDate) {
+            const start = new Date(experienceData.startDate);
+            const end = new Date(experienceData.endDate);
+            const today = new Date();
+            if (end < start) errors.endDate = 'End date cannot be before start date';
+            if (end > today) errors.endDate = 'End date cannot be in the future';
+        }
+
+        if (!experienceData.isCurrent && !experienceData.endDate) {
+            errors.endDate = 'End date is required for past experience';
+        }
+
+        return errors;
+    };
+
     const handleAddExperience = async () => {
-        setExperienceError('');
+        setExperienceErrors({});
+
+        const validationErrors = validateExperience();
+        if (Object.keys(validationErrors).length > 0) {
+            setExperienceErrors(validationErrors);
+            return;
+        }
+
         try {
             setSaving(true);
             const response = await seekerApi.addExperience({
@@ -316,9 +345,10 @@ export const useSeekerProfile = () => {
                 technologies: experienceData.technologies,
                 isCurrent: experienceData.isCurrent,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Experience added successfully');
                 setAddExperienceOpen(false);
+                setExperiences(prev => [response.data!, ...prev]);
                 setExperienceData({
                     title: '',
                     company: '',
@@ -330,15 +360,14 @@ export const useSeekerProfile = () => {
                     technologies: [],
                     isCurrent: false,
                 });
-                fetchProfileData();
             } else {
                 const msg = response.message || 'Failed to add experience';
-                setExperienceError(msg);
+                setExperienceErrors({ general: msg });
                 toast.error(msg);
             }
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add experience';
-            setExperienceError(msg);
+            setExperienceErrors({ general: msg });
             toast.error(msg);
         } finally {
             setSaving(false);
@@ -347,7 +376,14 @@ export const useSeekerProfile = () => {
 
     const handleEditExperience = async () => {
         if (!editingExperienceId) return;
-        setExperienceError('');
+        setExperienceErrors({});
+
+        const validationErrors = validateExperience();
+        if (Object.keys(validationErrors).length > 0) {
+            setExperienceErrors(validationErrors);
+            return;
+        }
+
         try {
             setSaving(true);
             const response = await seekerApi.updateExperience(editingExperienceId, {
@@ -368,12 +404,12 @@ export const useSeekerProfile = () => {
                 setEditingExperienceId(null);
             } else {
                 const msg = response.message || 'Failed to update experience';
-                setExperienceError(msg);
+                setExperienceErrors({ general: msg });
                 toast.error(msg);
             }
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update experience';
-            setExperienceError(msg);
+            setExperienceErrors({ general: msg });
             toast.error(msg);
         } finally {
             setSaving(false);
@@ -875,7 +911,7 @@ export const useSeekerProfile = () => {
         handleEditProfile,
         handleEditAbout,
         handleAddExperience, handleEditExperience, handleRemoveExperience, confirmRemoveExperience,
-        experienceError, setExperienceError,
+        experienceErrors, setExperienceErrors,
         handleAddEducation, handleEditEducation, handleRemoveEducation, confirmRemoveEducation,
         handleAddSkill, handleRemoveSkill, confirmRemoveSkill,
         handleAddLanguage, handleRemoveLanguage,
