@@ -12,7 +12,6 @@ interface InReviewStageProps {
     currentId: string | undefined;
     isCurrentStage: (stage: string) => boolean;
     onUpdateStage: (stage: string, subStage?: string) => Promise<void>;
-    reloadData: () => Promise<void>;
     setShowCommentModal: (show: boolean) => void;
     setShowMoveToStageModal: (show: boolean) => void;
     hasNextStages: (currentStage: ATSStage | string) => boolean;
@@ -25,7 +24,6 @@ export const InReviewStage = ({
     currentId,
     isCurrentStage,
     onUpdateStage,
-    reloadData,
     setShowCommentModal,
     setShowMoveToStageModal,
     hasNextStages,

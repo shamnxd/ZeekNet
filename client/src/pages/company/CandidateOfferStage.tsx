@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
     FileText,
     CheckCircle,
@@ -11,10 +10,8 @@ import {
     Plus,
     AlertTriangle,
     XCircle,
-    Zap,
     Loader2,
 } from "lucide-react";
-import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type { ATSComment } from "@/types/ats";
 import { formatATSStage, formatATSSubStage } from "@/utils/formatters";
@@ -26,7 +23,6 @@ import {
 import type { ExtendedATSOfferDocument } from "./CandidateProfileTypes";
 
 interface CandidateOfferStageProps {
-    atsApplication: CompanySideApplication | null;
     atsJob: JobPostingResponse | null;
     selectedStage: string;
     currentOffer: ExtendedATSOfferDocument | null;
@@ -39,7 +35,6 @@ interface CandidateOfferStageProps {
     onMarkAsHired: () => Promise<void>;
     formatDateTime: (dateString: string) => string;
     isCurrentStage: (stage: string) => boolean;
-    onSetShowMoveToStageModal: (show: boolean) => void;
     isUpdating?: boolean;
 }
 
@@ -56,10 +51,10 @@ export const CandidateOfferStage = ({
     onMarkAsHired,
     formatDateTime,
     isCurrentStage,
-    onSetShowMoveToStageModal,
     isUpdating = false,
 }: CandidateOfferStageProps) => {
     const showActions = isCurrentStage(selectedStage);
+
 
     // Derive sub-stage from offer data with explicit typing
     const offer = currentOffer || offerDocuments[0] || null;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Video } from 'lucide-react';
-import { ATSStage, ATSStageDisplayNames, SubStageDisplayNames } from '@/constants/ats-stages';
+import { ATSStageDisplayNames, SubStageDisplayNames } from '@/constants/ats-stages';
 import { ATSStage as ATSStageType } from '@/constants/ats-stages';
 import type { ATSInterview } from '@/types/ats';
 import { useNavigate } from 'react-router-dom';
@@ -10,16 +10,12 @@ import { useNavigate } from 'react-router-dom';
 interface SeekerHiringProgressProps {
     application: Record<string, unknown>;
     interviews: ATSInterview[];
-    setShowRescheduleInterviewModal: (show: boolean) => void;
-    setShowRescheduleMeetingModal: (show: boolean) => void;
     formatDate: (date: string) => string;
 }
 
 export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
     application,
     interviews,
-    setShowRescheduleInterviewModal,
-    setShowRescheduleMeetingModal,
     formatDate,
 }) => {
     const navigate = useNavigate();
@@ -64,14 +60,6 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
                                 : 'Join Interview'}
                         </Button>
                     ) : null}
-                    <Button
-                        variant="outline"
-                        onClick={() => setShowRescheduleInterviewModal(true)}
-                        className="gap-2"
-                    >
-                        <Calendar className="h-4 w-4" />
-                        Request to Reschedule
-                    </Button>
                 </div>
             </div>
         );
@@ -108,21 +96,6 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
 
             {renderInterviewActions()}
 
-            {currentStage === ATSStage.COMPENSATION && (
-                <div className="mt-6 pt-6 border-t border-[#e5e7eb]">
-                    <h3 className="text-[16px] font-semibold text-[#1f2937] mb-4">Actions</h3>
-                    <div className="flex flex-wrap gap-3">
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowRescheduleMeetingModal(true)}
-                            className="gap-2"
-                        >
-                            <Calendar className="h-4 w-4" />
-                            Reschedule Meeting
-                        </Button>
-                    </div>
-                </div>
-            )}
 
             {!!application.applied_date && (
                 <div className="pt-4 border-t border-[#e5e7eb]">

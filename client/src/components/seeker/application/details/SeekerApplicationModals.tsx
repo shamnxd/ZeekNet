@@ -8,22 +8,13 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import type { ExtendedATSOfferDocument, ExtendedATSTechnicalTask } from '@/interfaces/seeker/application-details.types';
 
 interface SeekerApplicationModalsProps {
-    
+
     selectedTask: ExtendedATSTechnicalTask | null;
     showSubmissionModal: boolean;
     setShowSubmissionModal: (show: boolean) => void;
     setSelectedTask: (task: ExtendedATSTechnicalTask | null) => void;
     onSubmitTask: (data: Record<string, unknown>) => Promise<void>;
 
-    
-    showRescheduleInterviewModal: boolean;
-    setShowRescheduleInterviewModal: (show: boolean) => void;
-
-    
-    showRescheduleMeetingModal: boolean;
-    setShowRescheduleMeetingModal: (show: boolean) => void;
-
-    
     showSignedDocumentModal: boolean;
     setShowSignedDocumentModal: (show: boolean) => void;
     selectedOffer: ExtendedATSOfferDocument | null;
@@ -33,7 +24,7 @@ interface SeekerApplicationModalsProps {
     uploading: boolean;
     onUploadSigned: () => Promise<void>;
 
-    
+
     showDeclineConfirmDialog: boolean;
     setShowDeclineConfirmDialog: (show: boolean) => void;
     setOfferToDecline: (offer: { applicationId: string; offerId: string } | null) => void;
@@ -47,12 +38,6 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
     setShowSubmissionModal,
     setSelectedTask,
     onSubmitTask,
-
-    showRescheduleInterviewModal,
-    setShowRescheduleInterviewModal,
-
-    showRescheduleMeetingModal,
-    setShowRescheduleMeetingModal,
 
     showSignedDocumentModal,
     setShowSignedDocumentModal,
@@ -71,7 +56,7 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
 }) => {
     return (
         <>
-            {}
+            { }
             {selectedTask && (
                 <TaskSubmissionModal
                     open={showSubmissionModal}
@@ -84,47 +69,6 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
                 />
             )}
 
-            {}
-            {showRescheduleInterviewModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h3 className="text-lg font-semibold text-[#1f2937] mb-4">Request to Reschedule Interview</h3>
-                        <p className="text-[14px] text-[#6b7280] mb-6">
-                            This feature will be available soon. You can contact the recruiter directly to request a reschedule.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowRescheduleInterviewModal(false)}
-                            >
-                                Close
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {}
-            {showRescheduleMeetingModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h3 className="text-lg font-semibold text-[#1f2937] mb-4">Reschedule Meeting</h3>
-                        <p className="text-[14px] text-[#6b7280] mb-6">
-                            This feature will be available soon. You can contact the recruiter directly to reschedule the meeting.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowRescheduleMeetingModal(false)}
-                            >
-                                Close
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {}
             {showSignedDocumentModal && selectedOffer && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
                     <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -219,7 +163,7 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
                 </div>
             )}
 
-            {}
+            { }
             <ConfirmationDialog
                 isOpen={showDeclineConfirmDialog}
                 onClose={() => {

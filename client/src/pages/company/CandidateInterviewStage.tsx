@@ -32,8 +32,8 @@ interface CandidateInterviewStageProps {
     onSetShowScheduleModal: (show: boolean) => void;
     onSetShowCommentModal: (show: boolean) => void;
     onSetShowMoveToStageModal: (show: boolean) => void;
-    onSetSelectedInterviewForReschedule: (interview: ATSInterview) => void;
-    onSetSelectedInterviewForFeedback: (interview: ATSInterview) => void;
+    onSetSelectedInterviewForReschedule: (interview: ATSInterview | null) => void;
+    onSetSelectedInterviewForFeedback: (interview: ATSInterview | null) => void;
     onSetShowFeedbackModal: (show: boolean) => void;
     onMarkInterviewComplete: (interviewId: string) => Promise<void>;
     onCancelInterview: (interviewId: string) => Promise<void>;
@@ -156,7 +156,10 @@ export const CandidateInterviewStage = ({
                             size="sm"
                             variant="outline"
                             className="gap-2"
-                            onClick={() => onSetShowScheduleModal(true)}
+                            onClick={() => {
+                                onSetSelectedInterviewForReschedule(null);
+                                onSetShowScheduleModal(true);
+                            }}
                         >
                             <Plus className="h-4 w-4" />
                             Schedule Another Interview

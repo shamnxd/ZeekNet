@@ -19,11 +19,9 @@ export const useSeekerApplicationDetails = () => {
     const [offers, setOffers] = useState<ExtendedATSOfferDocument[]>([]);
     const [compensationMeetings, setCompensationMeetings] = useState<CompensationMeeting[]>([]);
 
-    
+
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState<ExtendedATSTechnicalTask | null>(null);
-    const [showRescheduleInterviewModal, setShowRescheduleInterviewModal] = useState(false);
-    const [showRescheduleMeetingModal, setShowRescheduleMeetingModal] = useState(false);
     const [showSignedDocumentModal, setShowSignedDocumentModal] = useState(false);
     const [selectedOffer, setSelectedOffer] = useState<ExtendedATSOfferDocument | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -189,16 +187,12 @@ export const useSeekerApplicationDetails = () => {
         interviews,
         offers,
         compensationMeetings,
-        
-        
+
+
         showSubmissionModal,
         setShowSubmissionModal,
         selectedTask,
         setSelectedTask,
-        showRescheduleInterviewModal,
-        setShowRescheduleInterviewModal,
-        showRescheduleMeetingModal,
-        setShowRescheduleMeetingModal,
         showSignedDocumentModal,
         setShowSignedDocumentModal,
         selectedOffer,
@@ -212,12 +206,12 @@ export const useSeekerApplicationDetails = () => {
         setOfferToDecline,
         declining,
 
-        
+
         handleSubmitTask,
         handleUploadSignedDocument,
         handleDeclineOffer,
-        
-        
+
+
         formatDateTime,
         formatDate
     };

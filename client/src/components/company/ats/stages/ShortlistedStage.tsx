@@ -5,8 +5,6 @@ import { ATSStage } from "@/constants/ats-stages";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment } from "@/types/ats";
 import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
-import { companyApi } from "@/api/company.api";
-import { toast } from "@/hooks/use-toast";
 
 interface ShortlistedStageProps {
     atsApplication: CompanySideApplication | null;
@@ -14,7 +12,6 @@ interface ShortlistedStageProps {
     isCurrentStage: (stage: string) => boolean;
     setShowScheduleModal: (show: boolean) => void;
     currentId: string | undefined;
-    reloadData: () => Promise<void>;
     setShowCommentModal: (show: boolean) => void;
     setShowMoveToStageModal: (show: boolean) => void;
     hasNextStages: (currentStage: ATSStage | string) => boolean;
@@ -28,7 +25,6 @@ export const ShortlistedStage = ({
     isCurrentStage,
     setShowScheduleModal,
     currentId,
-    reloadData,
     setShowCommentModal,
     setShowMoveToStageModal,
     hasNextStages,

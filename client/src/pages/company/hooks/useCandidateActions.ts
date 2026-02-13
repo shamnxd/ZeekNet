@@ -181,9 +181,10 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         }
     }, [currentId, reloadData, modals]);
 
-    const handleMarkInterviewComplete = useCallback(async () => {
+    const handleMarkInterviewComplete = useCallback(async (interviewId: string) => {
         if (!currentId) return;
         try {
+            await atsService.updateInterview(interviewId, { status: "completed" });
             await reloadData();
             toast({ title: "Success", description: "Interview marked as completed." });
         } catch (error) {
@@ -192,9 +193,10 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         }
     }, [currentId, reloadData]);
 
-    const handleCancelInterview = useCallback(async () => {
+    const handleCancelInterview = useCallback(async (interviewId: string) => {
         if (!currentId) return;
         try {
+            await atsService.updateInterview(interviewId, { status: "cancelled" });
             await reloadData();
             toast({ title: "Success", description: "Interview cancelled." });
         } catch (error) {

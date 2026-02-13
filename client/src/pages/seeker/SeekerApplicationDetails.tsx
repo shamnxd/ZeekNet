@@ -24,15 +24,12 @@ const SeekerApplicationDetails = () => {
     offers,
     compensationMeetings,
 
-    
+
     showSubmissionModal,
     setShowSubmissionModal,
     selectedTask,
     setSelectedTask,
-    showRescheduleInterviewModal,
-    setShowRescheduleInterviewModal,
-    showRescheduleMeetingModal,
-    setShowRescheduleMeetingModal,
+
     showSignedDocumentModal,
     setShowSignedDocumentModal,
     selectedOffer,
@@ -45,12 +42,12 @@ const SeekerApplicationDetails = () => {
     setOfferToDecline,
     declining,
 
-    
+
     handleSubmitTask,
     handleUploadSignedDocument,
     handleDeclineOffer,
 
-    
+
     formatDateTime,
     formatDate
   } = useSeekerApplicationDetails();
@@ -98,8 +95,6 @@ const SeekerApplicationDetails = () => {
             <SeekerHiringProgress
               application={application}
               interviews={interviews}
-              setShowRescheduleInterviewModal={setShowRescheduleInterviewModal}
-              setShowRescheduleMeetingModal={setShowRescheduleMeetingModal}
               formatDate={formatDate}
             />
 
@@ -154,12 +149,6 @@ const SeekerApplicationDetails = () => {
         setShowSubmissionModal={setShowSubmissionModal}
         setSelectedTask={setSelectedTask}
         onSubmitTask={handleSubmitTask}
-
-        showRescheduleInterviewModal={showRescheduleInterviewModal}
-        setShowRescheduleInterviewModal={setShowRescheduleInterviewModal}
-
-        showRescheduleMeetingModal={showRescheduleMeetingModal}
-        setShowRescheduleMeetingModal={setShowRescheduleMeetingModal}
 
         showSignedDocumentModal={showSignedDocumentModal}
         setShowSignedDocumentModal={setShowSignedDocumentModal}

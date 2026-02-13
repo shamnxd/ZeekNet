@@ -301,7 +301,6 @@ const CandidateProfileView = () => {
     } else if (selectedStage === ATSStage.OFFER) {
       return (
         <CandidateOfferStage
-          atsApplication={atsApplication}
           atsJob={atsJob}
           selectedStage={selectedStage}
           currentOffer={currentOffer}
@@ -314,7 +313,7 @@ const CandidateProfileView = () => {
           onMarkAsHired={actions.handleMarkAsHired}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
-          onSetShowMoveToStageModal={setShowMoveToStageModal}
+
           isUpdating={actions.isUpdating}
         />
       );
