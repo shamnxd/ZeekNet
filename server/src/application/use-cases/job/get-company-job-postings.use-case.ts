@@ -39,6 +39,8 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
       createdAt: 1 as const,
       enabled_stages: 1 as const,
       is_featured: 1 as const,
+      total_vacancies: 1 as const,
+      filled_vacancies: 1 as const,
     };
 
     let jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, projection);

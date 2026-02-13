@@ -220,6 +220,8 @@ export class JobPostingMapper {
       unpublishReason: job.unpublishReason,
       createdAt: job.createdAt,
       enabled_stages: job.enabledStages,
+      totalVacancies: job.totalVacancies,
+      filledVacancies: job.filledVacancies,
     };
   }
 
