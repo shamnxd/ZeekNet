@@ -167,7 +167,7 @@ function SeekerDashboard() {
   ];
 
   return (
-    <div className="px-8 xl:px-11 py-9 space-y-6 bg-[#f8f9ff] min-h-screen">
+    <div className="px-8 xl:px-8 py-3 space-y-5 bg-[#f8f9ff] min-h-screen">
 
       <div className="flex items-center justify-between">
         <div className="space-y-1">
