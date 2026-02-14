@@ -123,6 +123,19 @@ export const CandidateTechnicalTaskStage = ({
                         Technical Task Stage
                     </h3>
                     <div className="flex gap-1 mt-2">
+                        <Badge
+                            className={
+                                currentSubStage === TechnicalTaskSubStage.COMPLETED
+                                    ? "!bg-green-100 !text-green-700"
+                                    : currentSubStage === TechnicalTaskSubStage.UNDER_REVIEW
+                                        ? "!bg-purple-100 !text-purple-700"
+                                        : currentSubStage === TechnicalTaskSubStage.NOT_ASSIGNED
+                                            ? "!bg-gray-100 !text-gray-700"
+                                            : "!bg-blue-100 !text-blue-700"
+                            }
+                        >
+                            {subStages.find(s => s.key === currentSubStage)?.label || (currentSubStage as string)}
+                        </Badge>
                     </div>
                 </div>
 
@@ -137,20 +150,6 @@ export const CandidateTechnicalTaskStage = ({
                         Quick Action
                     </Button>
                 )}
-
-                <Badge
-                    className={
-                        currentSubStage === TechnicalTaskSubStage.COMPLETED
-                            ? "bg-green-100 text-green-700"
-                            : currentSubStage === TechnicalTaskSubStage.UNDER_REVIEW
-                                ? "bg-purple-100 text-purple-700"
-                                : currentSubStage === TechnicalTaskSubStage.NOT_ASSIGNED
-                                    ? "bg-gray-100 text-gray-700"
-                                    : "bg-blue-100 text-blue-700"
-                    }
-                >
-                    {subStages.find(s => s.key === currentSubStage)?.label || (currentSubStage as string)}
-                </Badge>
             </div>
 
             {/* NOT_ASSIGNED: Show "No task assigned" message and Assign Task button */}
@@ -172,7 +171,7 @@ export const CandidateTechnicalTaskStage = ({
             {currentSubStage !== TechnicalTaskSubStage.NOT_ASSIGNED && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h4 className="font-semibold text-gray-900">Task List</h4>
+                        <h4 className="font-semibold !text-gray-900">Task List</h4>
                         {showActions && (
                             <Button
                                 size="sm"
@@ -216,14 +215,14 @@ export const CandidateTechnicalTaskStage = ({
                                                     <Badge
                                                         className={
                                                             isCancelled
-                                                                ? "bg-gray-100 text-gray-600"
+                                                                ? "!bg-gray-100 !text-gray-600"
                                                                 : isAssigned
-                                                                    ? "bg-blue-100 text-blue-700"
+                                                                    ? "!bg-blue-100 !text-blue-700"
                                                                     : isSubmitted
-                                                                        ? "bg-yellow-100 text-yellow-700"
+                                                                        ? "!bg-yellow-100 !text-yellow-700"
                                                                         : isUnderReview
-                                                                            ? "bg-purple-100 text-purple-700"
-                                                                            : "bg-green-100 text-green-700"
+                                                                            ? "!bg-purple-100 !text-purple-700"
+                                                                            : "!bg-green-100 !text-green-700"
                                                         }
                                                     >
                                                         {taskStatus}
@@ -261,25 +260,43 @@ export const CandidateTechnicalTaskStage = ({
 
                                         {/* Submission Files */}
                                         {(isSubmitted || isUnderReview || isCompleted) &&
-                                            task.submissionUrl && (
+                                            (task.submissionUrl || task.submissionLink) && (
                                                 <div className="mb-3 p-3 bg-gray-50 rounded border">
                                                     <p className="text-sm font-medium text-gray-900 mb-2">
-                                                        Submitted Files
+                                                        Submission Details
                                                     </p>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <FileIcon className="h-4 w-4" />
-                                                        <a
-                                                            href={task.submissionUrl as string}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-[#4640DE] hover:underline flex items-center gap-1"
-                                                        >
-                                                            {task.submissionFilename || "Submission"}
-                                                            <ExternalLink className="h-3 w-3" />
-                                                        </a>
+                                                    <div className="space-y-2">
+                                                        {task.submissionUrl && (
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <FileIcon className="h-4 w-4" />
+                                                                <a
+                                                                    href={task.submissionUrl as string}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[#4640DE] hover:underline flex items-center gap-1 font-medium"
+                                                                >
+                                                                    {task.submissionFilename || "View File"}
+                                                                    <ExternalLink className="h-3 w-3" />
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                        {task.submissionLink && (
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <ExternalLink className="h-4 w-4" />
+                                                                <a
+                                                                    href={task.submissionLink.startsWith('http') ? task.submissionLink : `https://${task.submissionLink}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[#4640DE] hover:underline flex items-center gap-1 font-medium"
+                                                                >
+                                                                    External Link
+                                                                    <ExternalLink className="h-3 w-3" />
+                                                                </a>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     {task.submittedAt && (
-                                                        <p className="text-xs text-gray-500 mt-1">
+                                                        <p className="text-xs text-gray-500 mt-2 italic">
                                                             Submitted: {formatDateTime(task.submittedAt)}
                                                         </p>
                                                     )}
@@ -393,7 +410,7 @@ export const CandidateTechnicalTaskStage = ({
                         return (
                             <Button
                                 variant="outline"
-                                className="gap-2 border-[#4640DE] text-[#4640DE] hover:bg-[#4640DE] hover:text-white"
+                                className="gap-2 !border-[#4640DE] !text-[#4640DE] !hover:bg-[#4640DE] !hover:text-white"
                                 onClick={() => onMoveToStage(nextStage)}
                                 disabled={isUpdating}
                             >
@@ -420,11 +437,11 @@ export const CandidateTechnicalTaskStage = ({
                             .filter((c) => c.stage === ATSStage.TECHNICAL_TASK)
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
-                                    <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                    <p className="text-sm !text-gray-700">{comment.comment}</p>
+                                    <p className="text-xs !text-blue-600 font-medium mt-1">
                                         {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
                                     </p>
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs !text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

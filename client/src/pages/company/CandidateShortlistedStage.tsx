@@ -49,10 +49,8 @@ export function CandidateShortlistedStage({
   const showActions = isCurrentStage(selectedStage, atsApplication);
   const currentStage = atsApplication?.stage || ATSStage.SHORTLISTED;
 
-  // Prioritize explicit sub-stage from application, fall back to comment-based derivation
   let currentSubStage = (atsApplication?.sub_stage || atsApplication?.subStage || ShortlistedSubStage.READY_FOR_INTERVIEW) as ShortlistedSubStage;
 
-  // If no explicit sub-stage, use the comment-based logic as fallback
   if (!atsApplication?.sub_stage && !atsApplication?.subStage) {
     const contactComments = comments.filter(c => String(c.stage).toUpperCase() === ATSStage.SHORTLISTED);
     if (contactComments.length > 1) {
@@ -137,11 +135,10 @@ export function CandidateShortlistedStage({
             {subStages.map((subStage, index) => {
               const currentIndex = subStages.findIndex(s => s.key === currentSubStage);
 
-              // Skip current stage and any stage that came before it
               if (index <= currentIndex) return null;
 
-              // Explicitly skip "Ready for Interview" as it's the default/entry sub-stage
               if (subStage.key === ShortlistedSubStage.READY_FOR_INTERVIEW) return null;
+              if (subStage.key === ShortlistedSubStage.AWAITING_RESPONSE && currentSubStage === ShortlistedSubStage.READY_FOR_INTERVIEW) return null;
 
               return (
                 <Button
@@ -170,7 +167,7 @@ export function CandidateShortlistedStage({
               disabled={isUpdating}
             >
               <Plus className="h-4 w-4" />
-              Add Contact Note
+              Add Comments
             </Button>
           </div>
 

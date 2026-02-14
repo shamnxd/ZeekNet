@@ -240,6 +240,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
           }}
           candidateName={candidateName}
           onAssign={handleAssignTask}
+          isLoading={isUpdating}
           taskToEdit={
             selectedTaskForEdit
               ? {

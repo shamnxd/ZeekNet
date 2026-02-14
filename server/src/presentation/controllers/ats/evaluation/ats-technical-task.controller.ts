@@ -35,7 +35,7 @@ export class ATSTechnicalTaskController {
         ...validation.data,
         applicationId,
         performedBy: userId,
-      });
+      }, req.file as any);
 
       sendCreatedResponse(res, 'Technical task assigned successfully', task);
     } catch (error) {
@@ -57,7 +57,7 @@ export class ATSTechnicalTaskController {
         taskId: id,
         ...validation.data,
         performedBy: userId,
-      });
+      }, req.file as any);
 
       sendSuccessResponse(res, 'Technical task updated successfully', task);
     } catch (error) {

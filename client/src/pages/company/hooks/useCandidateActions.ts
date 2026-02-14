@@ -223,6 +223,7 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
     const handleAssignTask = useCallback(async (taskData: TaskFormData) => {
         if (!currentId) return;
         try {
+            setIsUpdating(true);
             if (modals.selectedTaskForEdit?.id) {
                 await atsService.updateTechnicalTask(modals.selectedTaskForEdit.id, taskData);
                 toast({ title: "Success", description: "Technical task updated successfully." });
@@ -242,6 +243,8 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
         } catch (error) {
             console.error("Failed to assign/update task:", error);
             toast({ title: "Error", description: "Failed to assign task.", variant: "destructive" });
+        } finally {
+            setIsUpdating(false);
         }
     }, [currentId, atsApplication, modals, reloadData]);
 

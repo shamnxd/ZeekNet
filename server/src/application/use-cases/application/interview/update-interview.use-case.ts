@@ -1,18 +1,13 @@
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
-import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
-import { NotFoundError } from 'src/domain/errors/errors';
+import { NotFoundError, BadRequestError } from 'src/domain/errors/errors';
 import { UpdateInterviewRequestDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
     private _interviewRepository: IATSInterviewRepository,
-    private _jobApplicationRepository: IJobApplicationRepository,
-
     private _userRepository: IUserRepository,
   ) { }
 
@@ -25,6 +20,22 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     const existingInterview = await this._interviewRepository.findById(data.interviewId);
     if (!existingInterview) {
       throw new NotFoundError('Interview not found');
+    }
+
+    if (existingInterview.status === 'cancelled' && data.status === 'completed') {
+      throw new BadRequestError('Cannot mark a cancelled interview as completed');
+    }
+
+    if (existingInterview.status === 'completed' && data.status === 'cancelled') {
+      throw new BadRequestError('Cannot cancel a completed interview');
+    }
+
+    if (data.rating !== undefined && existingInterview.rating !== undefined) {
+      throw new BadRequestError('Interview rating has already been submitted');
+    }
+
+    if (data.feedback !== undefined && existingInterview.feedback !== undefined) {
+      throw new BadRequestError('Interview feedback has already been submitted');
     }
 
     const interview = await this._interviewRepository.update(data.interviewId, {

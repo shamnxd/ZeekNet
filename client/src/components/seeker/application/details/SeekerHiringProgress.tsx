@@ -69,24 +69,24 @@ export const SeekerHiringProgress: React.FC<SeekerHiringProgressProps> = ({
 
     return (
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
-            <h2 className="text-[20px] font-bold text-[#1f2937] mb-6">Hiring Progress</h2>
+            <h2 className="text-[20px] !font-bold !text-[#1f2937] mb-6">Hiring Progress</h2>
 
             <div className="mb-6 space-y-3">
                 <div>
-                    <p className="text-[12px] font-semibold uppercase tracking-wide text-[#6b7280] mb-1">Current Stage</p>
+                    <p className="text-[12px] font-semibold tracking-wide text-[#6b7280] mb-1">Current Stage</p>
                     <Badge
                         variant="outline"
-                        className="px-3 py-1 text-[13px] font-semibold bg-[#eef2ff] text-[#4640de] border-[#4640de]"
+                        className="px-3 py-1 text-[13px] font-semibold !bg-[#eef2ff] !text-[#4640de] !border-[#4640de]"
                     >
                         {ATSStageDisplayNames[currentStage] || currentStage}
                     </Badge>
                 </div>
                 {subStage && currentStage !== 'HIRED' && (
                     <div>
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-[#6b7280] mb-1">Sub-stage</p>
+                        <p className="text-[12px] font-semibold tracking-wide text-[#6b7280] mb-1">Sub stage</p>
                         <Badge
                             variant="outline"
-                            className="px-3 py-1 text-[12px] font-medium bg-[#f8f9ff] text-[#374151] border-[#e5e7eb]"
+                            className="px-3 py-1 text-[12px] !font-medium !bg-[#f8f9ff] !text-[#374151] !border-[#e5e7eb]"
                         >
                             {SubStageDisplayNames[subStage] || subStage}
                         </Badge>

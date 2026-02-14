@@ -100,12 +100,12 @@ export const CandidateInterviewStage = ({
                     <Badge
                         className={
                             currentSubStage === InterviewSubStage.COMPLETED
-                                ? "bg-green-100 text-green-700"
+                                ? "!bg-green-100 !text-green-700"
                                 : currentSubStage === InterviewSubStage.EVALUATION_PENDING
-                                    ? "bg-yellow-100 text-yellow-700"
+                                    ? "!bg-yellow-100 !text-yellow-700"
                                     : currentSubStage === InterviewSubStage.SCHEDULED
-                                        ? "bg-blue-100 text-blue-700"
-                                        : "bg-gray-100 text-gray-700"
+                                        ? "!bg-blue-100 !text-blue-700"
+                                        : "!bg-gray-100 !text-gray-700"
                         }
                     >
                         {subStages.find(s => s.key === currentSubStage)?.label || (currentSubStage as string)}
@@ -179,8 +179,8 @@ export const CandidateInterviewStage = ({
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`w-10 h-10 rounded-full flex items-center justify-center ${interview.status === "completed"
-                                                ? "bg-green-100"
-                                                : "bg-blue-100"
+                                                ? "!bg-green-100"
+                                                : "!bg-blue-100"
                                                 }`}
                                         >
                                             {interview.status === "completed" ? (
@@ -201,8 +201,8 @@ export const CandidateInterviewStage = ({
                                     <Badge
                                         className={
                                             interview.status === "completed"
-                                                ? "bg-green-100 text-green-700"
-                                                : "bg-blue-100 text-blue-700"
+                                                ? "!bg-green-100 !text-green-700"
+                                                : "!bg-blue-100 !text-blue-700"
                                         }
                                     >
                                         {interview.status}

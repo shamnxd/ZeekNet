@@ -14,6 +14,9 @@ import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemp
 import { AssignTechnicalTaskRequestDto } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
 import { ATSTechnicalTaskResponseDto } from 'src/application/dtos/application/task/responses/ats-technical-task-response.dto';
 import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technical-task.mapper';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
 
 export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
   constructor(
@@ -24,10 +27,19 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
 
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
+    private readonly _fileUploadService: IFileUploadService,
+    private readonly _s3Service: IS3Service,
     private readonly _logger: ILogger,
   ) { }
 
-  async execute(dto: AssignTechnicalTaskRequestDto): Promise<ATSTechnicalTaskResponseDto> {
+  async execute(dto: AssignTechnicalTaskRequestDto, file?: UploadedFile): Promise<ATSTechnicalTaskResponseDto> {
+    let { documentUrl, documentFilename } = dto;
+
+    if (file) {
+      const uploadResult = await this._fileUploadService.uploadTaskDocument(file);
+      documentUrl = uploadResult.url;
+      documentFilename = uploadResult.filename;
+    }
 
     const task = ATSTechnicalTask.create({
       id: uuidv4(),
@@ -35,13 +47,12 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       title: dto.title,
       description: dto.description,
       deadline: dto.deadline,
-      documentUrl: dto.documentUrl,
-      documentFilename: dto.documentFilename,
+      documentUrl,
+      documentFilename,
       status: 'assigned',
     });
 
     const savedTask = await this._taskRepository.create(task);
-
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
@@ -62,9 +73,12 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       );
     }
 
+    const response = ATSTechnicalTaskMapper.toResponse(savedTask);
+    if (response.documentUrl && !response.documentUrl.startsWith('http')) {
+      response.documentUrl = await this._s3Service.getSignedUrl(response.documentUrl);
+    }
 
-
-    return ATSTechnicalTaskMapper.toResponse(savedTask);
+    return response;
   }
 
   private async _sendTechnicalTaskAssignedEmail(
