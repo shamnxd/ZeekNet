@@ -144,7 +144,7 @@ const CompanyPlans = () => {
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
-  }, [])
+  }, [fetchActiveSubscription, fetchPlans])
 
   const sessionId = searchParams.get('session_id')
 

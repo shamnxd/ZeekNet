@@ -86,6 +86,7 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const picturesToSave = validPictures.map(({ previewUrl, ...rest }) => rest);
 
     onSave(picturesToSave);
