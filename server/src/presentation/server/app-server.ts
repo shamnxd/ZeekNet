@@ -47,7 +47,7 @@ export class AppServer {
 
     this._app.use(
       cors({
-        origin: env.FRONTEND_URL || 'http://localhost:5173',
+        origin: env.FRONTEND_URL || 'https://zeeknet.shamnadt.in',
         credentials: true,
       }),
     );
