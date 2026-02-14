@@ -30,21 +30,13 @@ const PublicHeader = () => {
       <nav className="z-30 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-32 backdrop-blur text-slate-800 text-sm">
         <Link to="/">
           <div className="flex items-center gap-2">
-            <div
-              className="w-7 h-7 bg-primary"
-              role="img"
-              aria-label="logo"
-              style={{
-                maskImage: "url(/blue.png)",
-                WebkitMaskImage: "url(/blue.png)",
-                maskSize: "contain",
-                WebkitMaskSize: "contain",
-                maskRepeat: "no-repeat",
-                WebkitMaskRepeat: "no-repeat",
-                maskPosition: "center",
-                WebkitMaskPosition: "center",
-              }}
-            />
+            <div className="w-8 h-8 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+              <img
+                src="/blue.png"
+                alt="ZeekNet Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <span className="text-xl font-bold text-gray-900">ZeekNet</span>
           </div>
         </Link>
@@ -112,9 +104,8 @@ const PublicHeader = () => {
 
 
       <div
-        className={`fixed inset-0 z-[100] bg-white/95 text-slate-800 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${
-          menuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-0 z-[100] bg-white/95 text-slate-800 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <Link to="/" onClick={() => setMenuOpen(false)} className={isActive('/') ? "text-primary font-medium" : ""}>
           Home

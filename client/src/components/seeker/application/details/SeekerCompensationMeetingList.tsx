@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign } from 'lucide-react';
 import type { CompensationMeeting } from '@/interfaces/seeker/application-details.types';
 
 interface SeekerCompensationMeetingListProps {
@@ -18,7 +17,6 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
     return (
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
             <h2 className="text-[20px] font-bold text-[#1f2937] mb-6 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-amber-600" />
                 Compensation Meetings
             </h2>
             <div className="space-y-3">
@@ -31,11 +29,11 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
 
                     let bgColor = '';
                     if (isCancelled) {
-                        bgColor = 'bg-gray-50 border-gray-200';
+                        bgColor = '!bg-gray-50 !border-gray-200';
                     } else if (isCompleted) {
-                        bgColor = 'bg-green-50 border-green-200';
+                        bgColor = '!bg-green-50 !border-green-200';
                     } else {
-                        bgColor = 'bg-white border-gray-200';
+                        bgColor = '!bg-white !border-gray-200';
                     }
 
                     return (
@@ -43,7 +41,7 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <Badge variant="outline" className="text-xs capitalize">{meetingType}</Badge>
+                                        <p className="text-sm font-bold capitalize">{meetingType}</p>
                                         {isCompleted && !isCancelled && (
                                             <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
                                                 Completed
