@@ -135,7 +135,7 @@ export default function SeekerProfile() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-[1100px]">
+    <div className="container mx-auto px-4 py-5 max-w-[1200px]">
       <div className="grid grid-cols-[1fr,320px] gap-6">
         <div className="space-y-6">
           <ProfileHeader
