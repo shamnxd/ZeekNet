@@ -33,13 +33,16 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
         facebook_link: contact?.facebook_link || '',
         linkedin: contact?.linkedin || ''
       });
+      setErrors({});
     }
   }, [isOpen, contact]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+    if (!formData.email?.trim()) {
+      newErrors.email = 'Email address is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
 
@@ -63,11 +66,22 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
     const urlFields = ['twitter_link', 'facebook_link', 'linkedin'] as const;
     urlFields.forEach(field => {
       if (formData[field] && formData[field].trim()) {
-        const urlToCheck = formData[field].startsWith('http')
-          ? formData[field]
-          : `https://${formData[field]}`;
+        const value = formData[field].trim();
+        const urlToCheck = value.startsWith('http')
+          ? value
+          : `https://${value}`;
         try {
           new URL(urlToCheck);
+
+          if (field === 'twitter_link' && !urlToCheck.includes('twitter.com') && !urlToCheck.includes('x.com')) {
+            newErrors.twitter_link = 'Please enter a valid Twitter/X URL';
+          }
+          if (field === 'facebook_link' && !urlToCheck.includes('facebook.com')) {
+            newErrors.facebook_link = 'Please enter a valid Facebook URL';
+          }
+          if (field === 'linkedin' && !urlToCheck.includes('linkedin.com')) {
+            newErrors.linkedin = 'Please enter a valid LinkedIn URL';
+          }
         } catch {
           newErrors[field] = 'Please enter a valid URL';
         }
@@ -90,6 +104,13 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
 
   const handleChange = (field: keyof CompanyContact, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
   };
 
   return (
@@ -108,11 +129,8 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => {
-                handleChange('email', e.target.value);
-                if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
-              }}
-              required
+              onChange={(e) => handleChange('email', e.target.value)}
+              placeholder="company@example.com"
               className={errors.email ? 'border-red-500' : ''}
             />
             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
@@ -123,10 +141,7 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => {
-                handleChange('phone', e.target.value);
-                if (errors.phone) setErrors(prev => ({ ...prev, phone: '' }));
-              }}
+              onChange={(e) => handleChange('phone', e.target.value)}
               placeholder="+1 (555) 123-4567"
               className={errors.phone ? 'border-red-500' : ''}
             />
@@ -134,15 +149,12 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="twitter_link">Twitter Link</Label>
+            <Label htmlFor="twitter_link">Twitter/X Link</Label>
             <Input
               id="twitter_link"
-              type="url"
+              type="text"
               value={formData.twitter_link}
-              onChange={(e) => {
-                handleChange('twitter_link', e.target.value);
-                if (errors.twitter_link) setErrors(prev => ({ ...prev, twitter_link: '' }));
-              }}
+              onChange={(e) => handleChange('twitter_link', e.target.value)}
               placeholder="https://twitter.com/yourcompany"
               className={errors.twitter_link ? 'border-red-500' : ''}
             />
@@ -153,12 +165,9 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
             <Label htmlFor="facebook_link">Facebook Link</Label>
             <Input
               id="facebook_link"
-              type="url"
+              type="text"
               value={formData.facebook_link}
-              onChange={(e) => {
-                handleChange('facebook_link', e.target.value);
-                if (errors.facebook_link) setErrors(prev => ({ ...prev, facebook_link: '' }));
-              }}
+              onChange={(e) => handleChange('facebook_link', e.target.value)}
               placeholder="https://facebook.com/yourcompany"
               className={errors.facebook_link ? 'border-red-500' : ''}
             />
@@ -169,12 +178,9 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
             <Label htmlFor="linkedin">LinkedIn Link</Label>
             <Input
               id="linkedin"
-              type="url"
+              type="text"
               value={formData.linkedin}
-              onChange={(e) => {
-                handleChange('linkedin', e.target.value);
-                if (errors.linkedin) setErrors(prev => ({ ...prev, linkedin: '' }));
-              }}
+              onChange={(e) => handleChange('linkedin', e.target.value)}
               placeholder="https://linkedin.com/company/yourcompany"
               className={errors.linkedin ? 'border-red-500' : ''}
             />
@@ -194,5 +200,6 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
     </Dialog>
   );
 };
+
 
 export default EditContactDialog;

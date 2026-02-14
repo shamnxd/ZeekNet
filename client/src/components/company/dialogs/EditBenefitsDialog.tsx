@@ -16,6 +16,7 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
   benefits
 }) => {
   const [items, setItems] = useState<Benefit[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -23,32 +24,36 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
         perk: '',
         description: ''
       }]);
+      setErrors({});
     }
   }, [isOpen, benefits]);
 
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    items.forEach((item, index) => {
+      if (!item.perk?.trim()) {
+        newErrors[`perk-${index}`] = 'Benefit name is required';
+        isValid = false;
+      }
+      if (!item.description?.trim()) {
+        newErrors[`description-${index}`] = 'Description is required';
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const hasEmptyFields = items.some(item =>
-      !item.perk?.trim() || !item.description?.trim()
-    );
-
-    if (hasEmptyFields) {
-      toast.error('Please fill in all benefit fields before saving.');
+    if (!validate()) {
+      toast.error('Please fill in all required fields');
       return;
     }
-
-    const validItems = items.filter(item =>
-      typeof item.perk === 'string' && item.perk.trim() !== '' &&
-      typeof item.description === 'string' && item.description.trim() !== ''
-    );
-
-    if (validItems.length === 0) {
-      toast.error('Please add at least one benefit with all fields filled.');
-      return;
-    }
-
-    onSave(validItems);
+    onSave(items);
     onClose();
   };
 
@@ -58,12 +63,23 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
 
   const removeItem = (index: number) => {
     setItems(prev => prev.filter((_, i) => i !== index));
+    const newErrors = { ...errors };
+    delete newErrors[`perk-${index}`];
+    delete newErrors[`description-${index}`];
+    setErrors(newErrors);
   };
 
   const updateItem = (index: number, field: keyof Benefit, value: string) => {
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
+    if (errors[`${field}-${index}`]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[`${field}-${index}`];
+        return next;
+      });
+    }
   };
 
   return (
@@ -98,7 +114,11 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
                     value={item.perk}
                     onChange={(e) => updateItem(index, 'perk', e.target.value)}
                     placeholder="e.g., Health Insurance, Flexible Hours"
+                    className={errors[`perk-${index}`] ? 'border-red-500' : ''}
                   />
+                  {errors[`perk-${index}`] && (
+                    <p className="text-xs text-red-500 mt-1">{errors[`perk-${index}`]}</p>
+                  )}
                 </div>
 
                 <div>
@@ -109,7 +129,11 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
                     onChange={(e) => updateItem(index, 'description', e.target.value)}
                     placeholder="Describe this benefit in detail..."
                     rows={3}
+                    className={errors[`description-${index}`] ? 'border-red-500' : ''}
                   />
+                  {errors[`description-${index}`] && (
+                    <p className="text-xs text-red-500 mt-1">{errors[`description-${index}`]}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -138,5 +162,6 @@ const EditBenefitsDialog: React.FC<EditBenefitsDialogProps> = ({
     </Dialog>
   );
 };
+
 
 export default EditBenefitsDialog;

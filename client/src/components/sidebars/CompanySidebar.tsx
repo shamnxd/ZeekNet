@@ -54,8 +54,7 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
     {
       title: 'Messages',
       href: '/company/messages',
-      icon: MessageSquare,
-      badge: 1
+      icon: MessageSquare
     },
     {
       title: 'Company Profile',
@@ -204,14 +203,6 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
                           }`}>
                           {item.title}
                         </span>
-                      )}
-                      {!isCollapsed && item.badge && (
-                        <div className="ml-auto w-5 h-5 bg-[#4640DE] rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-semibold">{item.badge}</span>
-                        </div>
-                      )}
-                      {isCollapsed && item.badge && (
-                        <div className="absolute top-1 right-1 w-2 h-2 bg-[#4640DE] rounded-full"></div>
                       )}
                     </div>
                   </div>

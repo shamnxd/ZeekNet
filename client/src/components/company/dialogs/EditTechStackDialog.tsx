@@ -18,6 +18,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   const [selectedStacks, setSelectedStacks] = useState<string[]>([]);
   const [skillsOptions, setSkillsOptions] = useState<ComboboxOption[]>([]);
   const [skillsLoading, setSkillsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchSkills = async (searchTerm?: string) => {
     try {
@@ -44,6 +45,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
     if (isOpen) {
       const currentStacks = techStack.map(item => item.techStack || item.name || '').filter(Boolean) as string[];
       setSelectedStacks(currentStacks);
+      setError(null);
       fetchSkills();
     }
   }, [isOpen, techStack]);
@@ -52,6 +54,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
     const newStacks = values.filter(v => !selectedStacks.includes(v));
     if (newStacks.length > 0) {
       setSelectedStacks(prev => [...prev, ...newStacks]);
+      setError(null);
     }
   };
 
@@ -60,11 +63,17 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   };
 
   const handleSave = () => {
+    if (selectedStacks.length === 0) {
+      setError('Please add at least one technology to your tech stack');
+      return;
+    }
+
     const techStackItems: TechStackItem[] = selectedStacks.map(stack => {
       const existingItem = techStack.find(item => (item.techStack || item.name) === stack);
       return existingItem ? { ...existingItem } : { techStack: stack, name: stack };
     });
-    
+
+    setError(null);
     onSave(techStackItems);
     onClose();
   };
@@ -72,6 +81,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
   const handleClose = () => {
     const currentStacks = techStack.map(item => item.techStack || item.name || '').filter(Boolean) as string[];
     setSelectedStacks(currentStacks);
+    setError(null);
     onClose();
   };
 
@@ -81,10 +91,10 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Tech Stack</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Add Technology</Label>
+            <Label>Add Technology *</Label>
             <Combobox
               options={skillsOptions}
               value={[]}
@@ -98,6 +108,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
                 }
               }}
             />
+            {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
             <p className="text-xs text-muted-foreground">
               Search and select technologies to add to your tech stack
             </p>
@@ -128,7 +139,7 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
             </div>
           )}
 
-          {selectedStacks.length === 0 && (
+          {selectedStacks.length === 0 && !error && (
             <div className="text-center py-8 text-muted-foreground text-sm">
               No technologies added yet. Use the search above to add technologies.
             </div>
@@ -147,5 +158,6 @@ const EditTechStackDialog: React.FC<EditTechStackDialogProps> = ({
     </Dialog>
   );
 };
+
 
 export default EditTechStackDialog;

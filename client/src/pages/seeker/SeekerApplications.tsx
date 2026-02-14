@@ -72,7 +72,7 @@ function SeekerApplications() {
   ] as { label: string; key: string | undefined }[]
 
   return (
-    <div className="px-8 xl:px-11 py-9 space-y-6 bg-[#f8f9ff] min-h-screen">
+    <div className="px-8 xl:px-7 py-4 space-y-6 bg-[#f8f9ff] min-h-screen">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
           <h1 className="text-[26px] font-bold text-[#1f2937]">My Applications</h1>
@@ -147,17 +147,17 @@ function SeekerApplications() {
                   </td>
                   <td className="py-5 pr-6">
                     <div className="flex items-center gap-3">
-                      <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl font-semibold bg-[#eef2ff] text-[#4338ca]')}>
-                        {application?.company_logo ? (
-                          <img src={application.company_logo} alt={(application?.company_name || 'Company') + ' Logo'} className="h-8 w-8 object-contain" />
-                        ) : (
-                          <span className="text-[16px]">
-                            {(application?.company_name || application?.companyName || 'C').charAt(0).toUpperCase()}
-                          </span>
-                        )}
+                      <div className={cn('flex h-8 w-8 items-center justify-center rounded-full overflow-hidden border border-[#e5e7eb]')}>
+                      {application?.company_logo ? (
+                      <img src={application.company_logo} alt={(application?.company_name || 'Company') + ' Logo'} className="h-full w-full object-cover rounded-full" />
+                      ) : (
+                      <span className="text-[16px] flex items-center justify-center h-full w-full bg-[#eef2ff] text-[#4338ca] rounded-full">
+                      {(application?.company_name || application?.companyName || 'C').charAt(0).toUpperCase()}
+                      </span>
+                      )}
                       </div>
                       <div>
-                        <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || 'Loading...'}</p>
+                      <p className="text-[14px] font-semibold text-[#1f2937]">{application?.company_name || application?.companyName || 'Loading...'}</p>
                       </div>
                     </div>
                   </td>
