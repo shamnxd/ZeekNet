@@ -6,10 +6,8 @@ import { useAppSelector } from "@/hooks/useRedux";
 import { UserRole } from "@/constants/enums";
 import { Link } from "react-router-dom";
 import {
-  Search,
   MapPin,
   Users,
-  Briefcase,
   Star,
   ArrowRight,
   CheckCircle,
@@ -47,77 +45,76 @@ const Landing = () => {
 
     fetchJobs();
   }, []);
+
   const companiesLogo = [
     {
       name: "Framer",
       logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/framer.svg",
     },
     {
-      name: "Huawei",
-      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/google.svg",
+      name: "Facebook",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/facebook.svg",
     },
     {
       name: "Instagram",
-      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/linkedin.svg",
-    },
-    {
-      name: "Microsoft",
       logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/instagram.svg",
     },
     {
-      name: "Walmart",
-      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/facebook.svg",
+      name: "Linkedin",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/linkedin.svg",
+    },
+    {
+      name: "Googl",
+      logo: "https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/companyLogo/google.svg",
     },
   ];
 
   return (
     <div className="min-h-screen bg-background font-poppins">
-      <style>
+      <section className="flex flex-col items-center text-sm bg-[url('https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/hero/bg-with-grid.png')] bg-cover bg-center bg-no-repeat">
+        <PublicHeader />
+        <style>
         {`
             @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
             .font-poppins {
                 font-family: 'Poppins', sans-serif;
             }
         `}
-      </style>
-
-      <section className="flex flex-col items-center text-sm bg-[url('https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/hero/bg-with-grid.png')] bg-cover bg-center bg-no-repeat">
-        <PublicHeader />
-
-        <main className="container max-w-[1440px] mx-auto px-4 lg:px-16 flex flex-col items-center pb-20">
-          <div className="flex flex-wrap items-center justify-center p-1 rounded-full bg-white border border-gray-300 text-sm mt-10">
+        </style>
+        <main className="container max-w-[1440px] mx-auto px-4 lg:px-16 flex flex-col items-center pb-12 sm:pb-20">
+          <div className="flex flex-wrap items-center justify-center p-1 rounded-full bg-white border border-gray-300 text-xs sm:text-sm mt-6 sm:mt-10">
             <div className="flex items-center">
               <img
-                className="w-[30px] rounded-full border-3 border-white"
+                className="w-[24px] sm:w-[30px] rounded-full border-2 sm:border-3 border-white"
                 src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=50"
                 alt="userImage1"
               />
               <img
-                className="w-[30px] rounded-full border-3 border-white -translate-x-2"
+                className="w-[24px] sm:w-[30px] rounded-full border-2 sm:border-3 border-white -translate-x-1 sm:-translate-x-2"
                 src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=50"
                 alt="userImage2"
               />
               <img
-                className="w-[30px] rounded-full border-3 border-white -translate-x-4"
+                className="w-[24px] sm:w-[30px] rounded-full border-2 sm:border-3 border-white -translate-x-2 sm:-translate-x-4"
                 src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=50&h=50&auto=format&fit=crop"
                 alt="userImage3"
               />
             </div>
-            <p className="-translate-x-2">Trusted by 10,000+ people</p>
+            <p className="-translate-x-1 sm:-translate-x-2">Trusted by 10,000+ people</p>
           </div>
 
-          <h1 className="text-center text-5xl leading-[60px] md:text-6xl md:leading-[80px] font-semibold max-w-4xl text-slate-900 mt-6">
+          <h1 className="text-center text-3xl leading-[40px] sm:text-4xl sm:leading-[50px] md:text-5xl md:leading-[60px] lg:text-6xl lg:leading-[80px] font-semibold max-w-4xl text-slate-900 mt-4 sm:mt-6">
             Find your dream job faster with{" "}
             <span className="text-primary">ZeekNet</span>
           </h1>
-          <p className="text-center text-base text-slate-700 max-w-lg mt-4">
+          <p className="text-center text-sm sm:text-base text-slate-700 max-w-lg mt-3 sm:mt-4 px-2">
             The most reliable job portal. Connect with top companies and build
             your career with confidence.
           </p>
-          <div className="flex items-center gap-4 mt-8">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto px-2 sm:px-0">
             <Link
               to="/jobs"
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white active:scale-95 rounded-lg px-7 h-11 transition-all"
+              className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white active:scale-95 rounded-lg px-6 sm:px-7 h-11 transition-all w-full sm:w-auto"
             >
               Find Jobs
               <svg
@@ -138,127 +135,59 @@ const Landing = () => {
             </Link>
             <Link
               to="/auth/register"
-              className="border border-slate-600 active:scale-95 hover:bg-white/10 transition text-slate-600 rounded-lg px-8 h-11 flex items-center"
+              className="flex items-center justify-center border border-slate-600 active:scale-95 hover:bg-white/10 transition text-slate-600 rounded-lg px-6 sm:px-8 h-11 w-full sm:w-auto"
             >
               Post a Job
             </Link>
           </div>
-          <style>
-            {`
-                .marquee-inner {
-                    animation: marqueeScroll 15s linear infinite;
-                }
-
-                .marquee-inner-testimonials {
-                    animation: marqueeScroll 35s linear infinite;
-                }
-
-                @keyframes marqueeScroll {
-                    0% {
-                        transform: translateX(0%);
-                    }
-
-                    100% {
-                        transform: translateX(-50%);
-                    }
-                }
-            `}
-          </style>
-          <h3 className="text-base text-center text-slate-400 pb-14 pt-14 font-medium">
+          <h3 className="text-sm sm:text-base text-center text-slate-400 pb-8 sm:pb-14 pt-8 sm:pt-14 font-medium px-2">
             Trusting by leading brands, including.
           </h3>
           <div className="overflow-hidden w-full relative max-w-5xl mx-auto select-none">
-            <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
+            <div className="absolute left-0 top-0 h-full w-12 sm:w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent" />
 
             <div className="flex marquee-inner will-change-transform max-w-5xl mx-auto">
               {[...companiesLogo, ...companiesLogo].map((company, index) => (
                 <img
                   key={index}
-                  className="mx-11 h-8 w-auto grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                  className="mx-6 sm:mx-11 h-8 sm:h-10 w-auto grayscale opacity-60 hover:opacity-100 transition-all duration-300"
                   src={company.logo}
                   alt={company.name}
                 />
               ))}
             </div>
 
-            <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
+            <div className="absolute right-0 top-0 h-full w-12 sm:w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent" />
           </div>
         </main>
       </section>
 
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-20 bg-primary/5">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-16 relative">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              How expert jobs work
-            </h2>
-            <div className="absolute right-20 mt-4 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
-              <div className="text-primary">Γ£ª</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Users,
-                title: "Create Account",
-                desc: "Sign up and create your professional profile",
-              },
-              {
-                icon: Search,
-                title: "Search Jobs",
-                desc: "Browse thousands of job opportunities",
-              },
-              {
-                icon: Briefcase,
-                title: "Apply Jobs",
-                desc: "Apply to jobs that match your skills",
-              },
-              {
-                icon: CheckCircle,
-                title: "Get Hired",
-                desc: "Connect with employers and get hired",
-              },
-            ].map((step, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25 group-hover:shadow-xl group-hover:shadow-primary/30 transition-all duration-300 group-hover:scale-105">
-                  <step.icon className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground text-pretty">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-primary/5">
-        <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-16 relative">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-12 sm:mb-16 relative">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
               Explore Featured Jobs
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-2">
               Discover the best job opportunities from top companies
             </p>
-            <div className="absolute right-10 top-0 w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
-              <div className="text-primary text-xl">+</div>
+            <div className="absolute right-6 sm:right-10 top-0 w-6 sm:w-8 h-6 sm:h-8 bg-primary/20 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+              <div className="text-primary text-lg sm:text-xl">+</div>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="bg-card border border-border">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <Skeleton className="w-12 h-12 rounded-lg" />
-                      <Skeleton className="w-20 h-6" />
+                      <Skeleton className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg" />
+                      <Skeleton className="w-16 sm:w-20 h-5 sm:h-6" />
                     </div>
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-1/2 mb-2" />
-                    <Skeleton className="h-4 w-1/3 mb-4" />
-                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-5 sm:h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-3 sm:h-4 w-1/2 mb-2" />
+                    <Skeleton className="h-3 sm:h-4 w-1/3 mb-4" />
+                    <Skeleton className="h-9 sm:h-10 w-full" />
                   </CardContent>
                 </Card>
               ))
@@ -269,9 +198,9 @@ const Landing = () => {
                   className="hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 bg-card border border-border group hover:scale-[1.02] cursor-pointer"
                   onClick={() => navigate(`/jobs/${job.id}`)}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-gray-200/50 group-hover:shadow-xl group-hover:shadow-gray-200/70 transition-all duration-300 overflow-hidden">
+                      <div className="w-10 sm:w-12 h-10 sm:h-12 bg-white rounded-lg flex items-center justify-center shadow-lg shadow-gray-200/50 group-hover:shadow-xl group-hover:shadow-gray-200/70 transition-all duration-300 overflow-hidden flex-shrink-0">
                         {job.companyLogo || job.company?.logo ? (
                           <img
                             src={job.companyLogo || job.company?.logo}
@@ -279,7 +208,7 @@ const Landing = () => {
                             className="w-full h-full object-contain"
                           />
                         ) : (
-                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base">
                             {(job.companyName || job.company?.companyName || "C")
                               .charAt(0)
                               .toUpperCase()}
@@ -288,33 +217,33 @@ const Landing = () => {
                       </div>
                       <Badge
                         variant="secondary"
-                        className="bg-primary text-primary-foreground shadow-sm"
+                        className="bg-primary text-primary-foreground shadow-sm text-xs sm:text-sm"
                       >
                         {(job.employmentTypes && job.employmentTypes[0]) ||
                           (job.employment_types && job.employment_types[0]) ||
                           "Full-time"}
                       </Badge>
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-1 line-clamp-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 line-clamp-2">
                       {job.title}
                     </h3>
-                    <p className="text-primary font-medium mb-2 truncate">
+                    <p className="text-primary font-medium mb-2 truncate text-sm sm:text-base">
                       {job.companyName || job.company?.companyName}
                     </p>
                     <div className="flex flex-col gap-1 mb-4">
-                      <p className="text-muted-foreground text-sm flex items-center">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {job.location || "Remote"}
+                      <p className="text-muted-foreground text-xs sm:text-sm flex items-center">
+                        <MapPin className="w-3 sm:w-4 h-3 sm:h-4 mr-1 flex-shrink-0" />
+                        <span className="line-clamp-1">{job.location || "Remote"}</span>
                       </p>
                       {job.salary && (
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-xs sm:text-sm font-medium text-foreground">
                           ${job.salary.min.toLocaleString()} - $
                           {job.salary.max.toLocaleString()}
                         </p>
                       )}
                     </div>
                     <Button
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base h-9 sm:h-10"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/jobs/${job.id}`);
@@ -326,7 +255,7 @@ const Landing = () => {
                 </Card>
               ))
             ) : (
-              <div className="col-span-full text-center py-10 text-muted-foreground">
+              <div className="col-span-full text-center py-8 sm:py-10 text-muted-foreground text-sm sm:text-base">
                 No featured jobs found at the moment.
               </div>
             )}
@@ -334,17 +263,17 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-20 bg-background">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4 px-2">
               Search desired job by categories
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground px-2">
               Find opportunities in your field of expertise
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
             {[
               "Accounting",
               "Creative",
@@ -358,7 +287,7 @@ const Landing = () => {
               <Button
                 key={category}
                 variant="outline"
-                className="rounded-full bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+                className="rounded-full bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 text-xs sm:text-sm h-9 sm:h-10"
               >
                 {category}
               </Button>
@@ -367,20 +296,20 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-primary/5">
+      <section className="py-12 sm:py-20 bg-primary/5">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 px-2">
               What our clients say
             </h2>
             <Button
               variant="outline"
-              className="mt-4 bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+              className="mt-4 bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base"
             >
               View All
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 rating: 5,
@@ -405,27 +334,27 @@ const Landing = () => {
                 key={index}
                 className="hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]"
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-5 h-5 fill-primary text-primary"
+                        className="w-4 sm:w-5 h-4 sm:h-5 fill-primary text-primary"
                       />
                     ))}
                   </div>
-                  <p className="text-foreground mb-4 text-pretty">
+                  <p className="text-foreground mb-4 text-pretty text-sm sm:text-base">
                     "{testimonial.text}"
                   </p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:shadow-md group-hover:shadow-primary/20 transition-all duration-300">
-                      <Users className="w-5 h-5 text-primary" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 sm:w-10 h-8 sm:h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow-md group-hover:shadow-primary/20 transition-all duration-300">
+                      <Users className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-semibold text-foreground">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm sm:text-base">
                         {testimonial.author}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {testimonial.role}
                       </p>
                     </div>
@@ -437,71 +366,71 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-20 bg-background">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
                 We Have the largest job Network all over the world
               </h2>
-              <p className="text-muted-foreground mb-8 text-pretty">
+              <p className="text-muted-foreground mb-6 sm:mb-8 text-pretty text-sm sm:text-base">
                 Connect with millions of job seekers and thousands of companies
                 worldwide. Our platform has helped countless professionals find
                 their perfect career match.
               </p>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-3" />
-                  <span className="text-foreground">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground text-sm sm:text-base">
                     Over 2 million active job seekers
                   </span>
                 </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-3" />
-                  <span className="text-foreground">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground text-sm sm:text-base">
                     50,000+ companies trust our platform
                   </span>
                 </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-primary mr-3" />
-                  <span className="text-foreground">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-primary flex-shrink-0" />
+                  <span className="text-foreground text-sm sm:text-base">
                     Available in 150+ countries worldwide
                   </span>
                 </div>
               </div>
-              <Button className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+              <Button className="mt-6 sm:mt-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base">
                 Learn More
               </Button>
             </div>
             <div className="relative">
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="text-center p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
-                  <div className="text-3xl font-bold text-primary mb-2">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <Card className="text-center p-4 sm:p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                     +102
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Job Categories
                   </div>
                 </Card>
-                <Card className="text-center p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
-                  <div className="text-3xl font-bold text-primary mb-2">
+                <Card className="text-center p-4 sm:p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                     2M+
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Active Users
                   </div>
                 </Card>
-                <Card className="text-center p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
-                  <div className="text-3xl font-bold text-primary mb-2">
+                <Card className="text-center p-4 sm:p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                     50K+
                   </div>
-                  <div className="text-sm text-muted-foreground">Companies</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Companies</div>
                 </Card>
-                <Card className="text-center p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
-                  <div className="text-3xl font-bold text-primary mb-2">
+                <Card className="text-center p-4 sm:p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-105">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                     98%
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Success Rate
                   </div>
                 </Card>
@@ -511,48 +440,48 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-muted/30">
+      <section className="py-12 sm:py-20 bg-muted/30">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
-              <TrendingUp className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <Card className="text-center p-6 sm:p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
+              <TrendingUp className="w-10 sm:w-12 h-10 sm:h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                 Recruiting?
               </h3>
-              <p className="text-muted-foreground mb-6 text-pretty">
+              <p className="text-muted-foreground mb-6 text-pretty text-sm sm:text-base">
                 Find the best talent for your company with our advanced
                 recruiting tools.
               </p>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base">
                 Start Recruiting
               </Button>
             </Card>
-            <Card className="text-center p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
-              <Globe className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-4">
+            <Card className="text-center p-6 sm:p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
+              <Globe className="w-10 sm:w-12 h-10 sm:h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                 Looking for Job?
               </h3>
-              <p className="text-muted-foreground mb-6 text-pretty">
+              <p className="text-muted-foreground mb-6 text-pretty text-sm sm:text-base">
                 Discover thousands of job opportunities that match your skills
                 and experience.
               </p>
               <Button
-                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base"
                 asChild
               >
                 <a href="/jobs">Find Jobs</a>
               </Button>
             </Card>
-            <Card className="text-center p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
-              <Award className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-foreground mb-4">
+            <Card className="text-center p-6 sm:p-8 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]">
+              <Award className="w-10 sm:w-12 h-10 sm:h-12 text-primary mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                 King Expert
               </h3>
-              <p className="text-muted-foreground mb-6 text-pretty">
+              <p className="text-muted-foreground mb-6 text-pretty text-sm sm:text-base">
                 Join our expert network and showcase your skills to top
                 companies worldwide.
               </p>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-sm sm:text-base">
                 Become Expert
               </Button>
             </Card>
@@ -560,14 +489,14 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-background">
+      <section className="py-12 sm:py-20 bg-background">
         <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 px-2">
               Recent Articles
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 image: "/person-typing.png",
@@ -596,33 +525,33 @@ const Landing = () => {
                 className="overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]"
               >
                 <div className="aspect-video bg-muted"></div>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-2 text-balance">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 text-balance">
                     {article.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm mb-4 text-pretty">
+                  <p className="text-muted-foreground text-xs sm:text-sm mb-4 text-pretty">
                     {article.excerpt}
                   </p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">
                       {article.date}
                     </span>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300 text-xs sm:text-sm"
                     >
-                      Read More <ArrowRight className="w-4 h-4 ml-1" />
+                      Read More <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4 ml-1" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-          <div className="text-center mt-12">
+          <div className="text-center mt-10 sm:mt-12">
             <Button
               variant="outline"
-              className="px-8 bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300"
+              className="px-6 sm:px-8 bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 text-sm sm:text-base"
             >
               View More
             </Button>
