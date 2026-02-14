@@ -10,17 +10,22 @@ import {
   Settings,
   Grid3X3,
   User,
-
   Globe,
   LogOut,
-  Menu,
+  ChevronLeft,
+  ChevronRight,
   Tag,
   PackageCheck,
 } from 'lucide-react'
 import { useAppDispatch } from '@/hooks/useRedux'
 import { logoutThunk } from '@/store/slices/auth.slice'
 
-const AdminSidebar = () => {
+interface AdminSidebarProps {
+  isCollapsed?: boolean;
+  onToggle?: () => void;
+}
+
+const AdminSidebar = ({ isCollapsed = false, onToggle }: AdminSidebarProps) => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
@@ -74,7 +79,6 @@ const AdminSidebar = () => {
       label: 'Subscription Plans',
       icon: PackageCheck,
     },
-
   ]
 
   const bottomItems = [
@@ -113,75 +117,81 @@ const AdminSidebar = () => {
   }
 
   return (
-    <div className="w-64 bg-slate-800 h-[100vh] relative">
-      { }
-      <div className="absolute top-4 right-4 z-10">
-        <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
-          <Menu className="h-5 w-5" />
-        </Button>
-      </div>
+    <div className={`bg-slate-800 h-full relative border-r border-slate-700 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+      {/* Toggle Button */}
+      {onToggle && (
+        <button
+          onClick={onToggle}
+          className="absolute -right-3 top-20 bg-slate-800 border border-slate-700 text-white rounded-full p-1 shadow-sm hover:bg-slate-700 z-50 hidden md:block"
+        >
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+      )}
 
-      { }
-      <div className="p-6 border-b border-slate-700">
+      {/* Header Container */}
+      <div className={`p-6 border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'px-4 flex justify-center' : ''}`}>
         <div className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
             <img src="/white.png" alt="ZeekNet Logo" className="h-8 w-8" />
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">ZeekNet</h2>
+          {!isCollapsed && (
+            <div>
+              <h2 className="text-lg font-bold text-white whitespace-nowrap">ZeekNet</h2>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto py-4">
+        <nav className="px-4 mb-6">
+          <div className="space-y-1">
+            {generalItems.map((item) => {
+              const isActive = location.pathname === item.path
+              const Icon = item.icon
+
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  title={isCollapsed ? item.label : ''}
+                  className={`w-full h-10 text-white hover:bg-slate-700 transition-all duration-300 ${isActive ? "bg-slate-600" : ""} ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'}`} />
+                  {!isCollapsed && <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>}
+                </Button>
+              )
+            })}
+          </div>
+        </nav>
+
+        <div className="px-4 mb-6">
+          {!isCollapsed && (
+            <p className="text-xs text-slate-400 uppercase tracking-wider font-medium mb-2 px-2">MANAGE JOBS</p>
+          )}
+          <div className="space-y-1">
+            {manageJobsItems.map((item) => {
+              const isActive = location.pathname === item.path
+              const Icon = item.icon
+
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  title={isCollapsed ? item.label : ''}
+                  className={`w-full h-10 text-white hover:bg-slate-700 transition-all duration-300 ${isActive ? "bg-slate-600" : ""} ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+                  onClick={() => handleNavigation(item.path)}
+                >
+                  <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'}`} />
+                  {!isCollapsed && <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>}
+                </Button>
+              )
+            })}
           </div>
         </div>
       </div>
 
-      { }
-      <nav className="p-4">
-        <div className="space-y-1">
-          {generalItems.map((item) => {
-            const isActive = location.pathname === item.path
-            const Icon = item.icon
-
-            return (
-              <Button
-                key={item.path}
-                variant="ghost"
-                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
-                  }`}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <Icon className="h-4 w-4 mr-3" />
-                <span className="flex-1 text-left">{item.label}</span>
-              </Button>
-            )
-          })}
-        </div>
-      </nav>
-
-      { }
-      <div className="px-4 pb-2">
-        <p className="text-xs text-slate-400 uppercase tracking-wider font-medium mb-2">MANAGE JOBS</p>
-        <div className="space-y-1">
-          {manageJobsItems.map((item) => {
-            const isActive = location.pathname === item.path
-            const Icon = item.icon
-
-            return (
-              <Button
-                key={item.path}
-                variant="ghost"
-                className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
-                  }`}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <Icon className="h-4 w-4 mr-3" />
-                <span className="flex-1 text-left">{item.label}</span>
-              </Button>
-            )
-          })}
-        </div>
-      </div>
-
-      { }
-      <div className="absolute bottom-0 w-64 p-4 space-y-1">
+      <div className="absolute bottom-4 left-0 right-0 px-4 space-y-1">
         {bottomItems.map((item) => {
           const isActive = location.pathname === item.path
           const Icon = item.icon
@@ -190,12 +200,12 @@ const AdminSidebar = () => {
             <Button
               key={item.path}
               variant="ghost"
-              className={`w-full justify-start h-10 text-white hover:bg-slate-700 ${isActive ? "bg-slate-600 text-white" : ""
-                }`}
+              title={isCollapsed ? item.label : ''}
+              className={`w-full h-10 text-white hover:bg-slate-700 transition-all duration-300 ${isActive ? "bg-slate-600" : ""} ${isCollapsed ? 'justify-center' : 'justify-start'}`}
               onClick={item.path === '/logout' ? handleLogout : () => handleNavigation(item.path)}
             >
-              <Icon className="h-4 w-4 mr-3" />
-              <span className="flex-1 text-left">{item.label}</span>
+              <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-3'}`} />
+              {!isCollapsed && <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>}
             </Button>
           )
         })}
