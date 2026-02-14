@@ -90,7 +90,6 @@ It’s built using **SOLID principles**, **dependency injection**, and a **clean
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 - **Nodemon** - Auto-reload for development
-- **Jest** - Testing framework
 
 ## 🧱 Clean Architecture
 
