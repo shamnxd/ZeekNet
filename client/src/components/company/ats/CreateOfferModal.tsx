@@ -122,19 +122,14 @@ export const CreateOfferModal = ({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Clear previous errors
         const newErrors: {
             offerAmount?: string;
             joiningDate?: string;
             validityDate?: string;
         } = {};
-
-        // Validate required fields
         if (!formData.offerAmount.trim()) {
             newErrors.offerAmount = 'Offer amount is required';
         } else {
-            // Validate offer amount is a positive number
             const amount = parseFloat(formData.offerAmount);
             if (isNaN(amount) || amount <= 0) {
                 newErrors.offerAmount = 'Must be a valid amount greater than 0';
@@ -149,37 +144,28 @@ export const CreateOfferModal = ({
             newErrors.validityDate = 'Offer validity date is required';
         }
 
-        // Validate dates if both are provided
         if (formData.joiningDate && formData.validityDate) {
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+            today.setHours(0, 0, 0, 0);
 
             const joiningDate = new Date(formData.joiningDate);
             const validityDate = new Date(formData.validityDate);
 
-            // Check if joining date is in the past
             if (joiningDate < today) {
                 newErrors.joiningDate = 'Joining date cannot be in the past';
             }
-
-            // Check if validity date is in the past
             if (validityDate < today) {
                 newErrors.validityDate = 'Offer validity date cannot be in the past';
             }
 
-            // Check if joining date is before or equal to validity date
             if (joiningDate <= validityDate && !newErrors.joiningDate && !newErrors.validityDate) {
                 newErrors.joiningDate = 'Joining date must be after the offer validity date';
             }
         }
-
-        // If there are errors, set them and return
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
-
-        // Clear errors if validation passes
         setErrors({});
 
         try {

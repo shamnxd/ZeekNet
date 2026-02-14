@@ -42,7 +42,7 @@ export const TaskSubmissionModal = ({ open, onClose, onSubmit, taskTitle }: Task
       } else {
         try {
           new URL(submissionLink.trim())
-        } catch (_) {
+        } catch {
           newErrors.link = 'Please provide a valid URL'
           isValid = false
         }

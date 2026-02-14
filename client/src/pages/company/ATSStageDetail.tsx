@@ -5,6 +5,7 @@ import { ATSStage, STAGE_COLORS, ATSStageDisplayNames, STAGE_SUB_STAGES } from '
 import { companyApi } from '@/api/company.api';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
 import type { ApplicationsKanbanResponse, ApplicationKanbanItem } from '@/interfaces/ats/ats-pipeline.interface';
+import type { CompanySideApplication } from '@/interfaces/company/company-data.interface';
 import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -50,8 +51,7 @@ const ATSStageDetail = () => {
 
           const groupedByStage: ApplicationsKanbanResponse = {};
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          applications.forEach((app: any) => {
+          applications.forEach((app: CompanySideApplication) => {
             const stage = app.stage;
             if (!groupedByStage[stage]) {
               groupedByStage[stage] = [];
@@ -59,13 +59,13 @@ const ATSStageDetail = () => {
 
             groupedByStage[stage].push({
               id: app.id,
-              seekerId: app.seeker_id,
+              seekerId: app.seeker_id || app.seekerId || '',
               seekerName: app.seeker_name,
               seekerAvatar: app.seeker_avatar,
               jobTitle: app.job_title,
               atsScore: app.score,
               subStage: app.sub_stage,
-              appliedDate: app.applied_date,
+              appliedDate: app.applied_date || '',
             });
           });
 

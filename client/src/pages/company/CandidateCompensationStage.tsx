@@ -79,11 +79,8 @@ export const CandidateCompensationStage = ({
 }: CandidateCompensationStageProps) => {
   const showActions = isCurrentStage(selectedStage);
 
-  // Derive sub-stage from compensation data and application state
-  // Derive sub-stage from compensation data and application state
   let currentSubStage: CompensationSubStage = CompensationSubStage.NOT_INITIATED;
 
-  // Normalize strings for comparison (handle both snake_case and camelCase, and potential undefined)
   const appSubStageRaw = atsApplication?.sub_stage || atsApplication?.subStage;
   const isApproved = String(appSubStageRaw || '').toLowerCase() === 'approved' || !!compensationData?.approvedAt;
 
@@ -109,7 +106,6 @@ export const CandidateCompensationStage = ({
 
   const expectedSalary = formatLPA(compensationData?.candidateExpected || candidateData?.profile.expectedSalary);
 
-  // Filter comments (case-insensitive)
   const stageComments = comments.filter((c) => {
     const s = String(c.stage).toUpperCase();
     return s === ATSStage.COMPENSATION;

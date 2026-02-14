@@ -10,6 +10,7 @@ import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidat
 import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { AssignTechnicalTaskSchema } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
 import { UpdateTechnicalTaskSchema } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
+import { UploadedFile } from 'src/domain/types/common.types';
 
 export class ATSTechnicalTaskController {
   constructor(
@@ -35,7 +36,7 @@ export class ATSTechnicalTaskController {
         ...validation.data,
         applicationId,
         performedBy: userId,
-      }, req.file as any);
+      }, req.file as unknown as UploadedFile);
 
       sendCreatedResponse(res, 'Technical task assigned successfully', task);
     } catch (error) {
@@ -57,7 +58,7 @@ export class ATSTechnicalTaskController {
         taskId: id,
         ...validation.data,
         performedBy: userId,
-      }, req.file as any);
+      }, req.file as unknown as UploadedFile);
 
       sendSuccessResponse(res, 'Technical task updated successfully', task);
     } catch (error) {
@@ -85,7 +86,7 @@ export class ATSTechnicalTaskController {
       await this._deleteTechnicalTaskUseCase.execute({
         taskId: id,
         performedBy: userId,
-        performedByName: 'Unknown', // TODO: Fetch user name
+        performedByName: 'Unknown', // TODO: ADD performedByName 
       });
 
       sendSuccessResponse(res, 'Technical task deleted successfully', { id });

@@ -11,10 +11,10 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 
 export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
   constructor(
-        private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-        private readonly _companyProfileRepository: ICompanyProfileRepository,
-        private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-        private readonly _jobPostingRepository: IJobPostingRepository,
+    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    private readonly _jobPostingRepository: IJobPostingRepository,
   ) { }
 
   async execute(data: PreviewPlanChangeRequestDto): Promise<PreviewPlanChangeResponseDto> {
@@ -27,10 +27,8 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
       throw new NotFoundError('Company profile not found');
     }
 
-    // Get current subscription (may be null for new subscriptions)
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
-    // Get new plan
     const newPlan = await this._subscriptionPlanRepository.findById(newPlanId);
     if (!newPlan) {
       throw new NotFoundError('New subscription plan not found');
@@ -40,9 +38,7 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
       throw new ValidationError('This subscription plan is not available');
     }
 
-    // Determine if this is a new subscription or a change
     if (!subscription) {
-      // New subscription
       return {
         success: true,
         impact: {
@@ -92,7 +88,6 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
       throw new ValidationError('You are already on this plan with this billing cycle');
     }
 
-    // Determine change type
     let changeType: PlanChangeType;
     if (isSamePlan && isBillingCycleChange) {
       changeType = 'lateral';
@@ -101,17 +96,14 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
     } else if (newPlan.jobPostLimit < currentPlan.jobPostLimit) {
       changeType = 'downgrade';
     } else {
-      // Same job limit but different features
       changeType = 'lateral';
     }
 
-    // Calculate impact
     let jobsToUnlist = 0;
     let jobsToUnlistDetails: JobToUnlistDetail[] = [];
     let featuredJobsToUnlist = 0;
 
     if (changeType === 'downgrade') {
-      // Get all active jobs
       const allJobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, {
         status: 1,
         isFeatured: 1,
@@ -121,7 +113,6 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
 
       const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
 
-      // Sort by creation date (newest first)
       activeJobs.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -135,7 +126,6 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
       jobsToUnlist = jobsToUnlistArray.length;
       featuredJobsToUnlist = jobsToUnlistArray.filter(job => job.isFeatured).length;
 
-      // Create details for jobs to unlist
       jobsToUnlistDetails = jobsToUnlistArray.map(job => ({
         id: job.id!,
         title: job.title || 'Untitled Job',
@@ -145,7 +135,6 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
       }));
     }
 
-    // Calculate changes
     const candidateViewsChange = newPlan.applicantAccessLimit - currentPlan.applicantAccessLimit;
     const jobPostLimitChange = newPlan.jobPostLimit - currentPlan.jobPostLimit;
     const featuredJobLimitChange = newPlan.featuredJobLimit - currentPlan.featuredJobLimit;

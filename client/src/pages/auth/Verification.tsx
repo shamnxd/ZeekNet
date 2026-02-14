@@ -176,8 +176,6 @@ const Verification = () => {
     try {
       const res = await authApi.verifyOtp(email, otp.getOtp())
       if (res.success && res.data && res.token) {
-        // Ensure isVerified is true locally since the backend might return the pre-verification state
-        // or the state might not be fully consistent yet.
         const updatedUser = { ...res.data, isVerified: true }
 
         dispatch(setUser({
@@ -185,7 +183,6 @@ const Verification = () => {
           token: res.token
         }))
 
-        // Fetch company profile if company user
         if (res.data.role === UserRole.COMPANY) {
           dispatch(fetchCompanyProfileThunk()).catch(() => { })
         }
@@ -196,7 +193,6 @@ const Verification = () => {
           duration: 3000,
         })
 
-        // Navigate immediately - token is in Redux state
         navigateByRole(res.data.role, navigate)
       } else {
         const errorMsg = res.message || 'Invalid or expired OTP code'

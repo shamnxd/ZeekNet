@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar, Loader2, Video, MapPin, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Define interfaces locally to match previous file structure
 interface Interview {
     id?: string;
     title?: string;
@@ -127,10 +126,9 @@ export const ScheduleInterviewModal = ({
             newErrors.meetingLink = 'Meeting link is required';
             isValid = false;
         } else if (formData.type === 'online' && formData.videoType === 'external' && formData.meetingLink) {
-            // Simple URL validation
             try {
                 new URL(formData.meetingLink);
-            } catch (e) {
+            } catch {
                 newErrors.meetingLink = 'Please enter a valid URL';
                 isValid = false;
             }
@@ -153,7 +151,6 @@ export const ScheduleInterviewModal = ({
             onClose();
         } catch (error) {
             console.error('Failed to schedule interview:', error);
-            // Optionally handle submission errors here
         } finally {
             setIsSubmitting(false);
         }
@@ -161,7 +158,6 @@ export const ScheduleInterviewModal = ({
 
     const handleInputChange = (field: keyof InterviewFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        // Clear error when user types
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: undefined }));
         }

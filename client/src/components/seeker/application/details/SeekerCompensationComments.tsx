@@ -12,7 +12,6 @@ export const SeekerCompensationComments: React.FC<SeekerCompensationCommentsProp
     comments,
     formatDateTime,
 }) => {
-    // Filter comments for COMPENSATION stage only
     const compensationComments = comments.filter(
         (c) => String(c.stage).toUpperCase() === ATSStage.COMPENSATION
     );

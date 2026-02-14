@@ -32,7 +32,6 @@ export function LateralChangeDialog({
     const isBillingCycleChange = impact.billingCycleChange;
     const isYearly = newPlan.billingCycle === 'yearly';
 
-    // Calculate savings for annual billing
     const monthlyCost = isYearly ? newPlan.price / 12 : newPlan.price;
     const yearlySavings = isYearly ? (monthlyCost * 12) - newPlan.price : 0;
 

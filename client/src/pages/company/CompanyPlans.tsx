@@ -76,7 +76,6 @@ const CompanyPlans = () => {
   const [changingPlan, setChangingPlan] = useState(false)
   const [isPollingSubscription, setIsPollingSubscription] = useState(false)
 
-  // Preview and enhanced dialog state
   const [previewData, setPreviewData] = useState<PreviewPlanChangeResponse | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
@@ -145,7 +144,6 @@ const CompanyPlans = () => {
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const sessionId = searchParams.get('session_id')
@@ -154,7 +152,6 @@ const CompanyPlans = () => {
   useEffect(() => {
     if (sessionId && !isPollingSubscription) {
       toast.success('Payment successful! Your subscription is being activated.')
-      // Use setSearchParams to clear the session_id from state and URL correctly
       const newParams = new URLSearchParams(searchParams)
       newParams.delete('session_id')
       setSearchParams(newParams)
@@ -169,11 +166,10 @@ const CompanyPlans = () => {
           const response = await companyApi.getActiveSubscription()
           const data = response.data
 
-          // Check if subscription is fully activated (has stripe ID and is not the default plan)
           const isActivated = response.success &&
             data &&
             data.stripeSubscriptionId &&
-            !data.plan?.isDefault // Mapper uses isDefault on the root too or check data.plan.isDefault
+            !data.plan?.isDefault
 
           if (isActivated && data) {
             setActiveSubscription(data)
@@ -191,7 +187,7 @@ const CompanyPlans = () => {
             setIsPollingSubscription(false)
             toast.info('Subscription is being processed. Please refresh the page in a moment.')
           }
-        } catch (error) {
+        } catch {
           retries++
           if (retries < maxRetries) {
             timeoutId = setTimeout(checkSubscription, 2000)
@@ -208,7 +204,7 @@ const CompanyPlans = () => {
         if (timeoutId) clearTimeout(timeoutId)
       }
     }
-  }, [sessionId, fetchBillingHistory, searchParams, setSearchParams])
+  }, [sessionId, fetchBillingHistory, searchParams, setSearchParams, isPollingSubscription])
 
 
   const handleSelectPlan = async (plan: SubscriptionPlan) => {
@@ -229,13 +225,10 @@ const CompanyPlans = () => {
 
     setSelectedPlan(plan)
 
-    // If no active paid subscription, show the old purchase dialog
     if (isOnDefaultPlan) {
       setShowConfirmDialog(true)
       return
     }
-
-    // Call preview API
     try {
       setPreviewLoading(true)
       const response = await companyApi.previewPlanChange(
@@ -246,7 +239,6 @@ const CompanyPlans = () => {
       if (response.success && response.data) {
         setPreviewData(response.data)
 
-        // Show appropriate dialog based on change type
         const changeType = response.data.impact.changeType
         if (changeType === 'upgrade') {
           setShowUpgradeDialog(true)
@@ -255,7 +247,6 @@ const CompanyPlans = () => {
         } else if (changeType === 'lateral') {
           setShowLateralDialog(true)
         } else {
-          // New subscription - shouldn't happen here but fallback
           setShowConfirmDialog(true)
         }
       } else {
@@ -264,7 +255,6 @@ const CompanyPlans = () => {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to preview plan change'
       toast.error(message)
-      // Fallback to old dialog
       setShowConfirmDialog(true)
     } finally {
       setPreviewLoading(false)
@@ -276,7 +266,6 @@ const CompanyPlans = () => {
 
     const isDowngradingToFree = selectedPlan.isDefault || selectedPlan.price === 0;
 
-    // Handle Downgrade to Free
     if (isDowngradingToFree) {
       if (activeSubscription && activeSubscription.stripeSubscriptionId) {
         try {
@@ -350,7 +339,6 @@ const CompanyPlans = () => {
       return
     }
 
-    // New Purchase path
     if (selectedPlan.isDefault || selectedPlan.price === 0) {
       toast.info('You are already on the Free Plan or are reverting to it.')
       return;

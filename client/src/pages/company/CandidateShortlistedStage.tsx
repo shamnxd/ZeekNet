@@ -40,7 +40,6 @@ export function CandidateShortlistedStage({
   comments,
   onSetShowCommentModal,
   onSetShowMoveToStageModal,
-  onSetShowScheduleModal: _onSetShowScheduleModal, // Keep in props but unused as per request
   onMoveToStage,
   onUpdateStage,
   getNextStage,

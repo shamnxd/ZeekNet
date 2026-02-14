@@ -51,7 +51,6 @@ export function Combobox({
       const option = options.find(opt => opt.value === selectedValue);
       setSearchTerm(option ? option.label : selectedValue);
     }
-    // setSearchTerm(""); // Removed for single select persistence
     if (multiple) setSearchTerm("");
     setOpen(false);
     inputRef.current?.focus();
@@ -69,7 +68,6 @@ export function Combobox({
       onChange([trimmed]);
       setSearchTerm(trimmed);
     }
-    // setSearchTerm("");
     if (multiple) setSearchTerm("");
     setOpen(false);
     inputRef.current?.focus();

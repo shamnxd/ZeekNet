@@ -93,11 +93,10 @@ const CompanyDashboard = () => {
 
   const step3Schema = z.object({
     tax_id: z.string().min(1, 'Tax ID is required').min(3, 'Tax ID must be at least 3 characters'),
-    business_license: z.string().optional() // Made optional based on previous code but can be required if needed
+    business_license: z.string().optional()
   })
 
 
-  // Helper function to convert employee count number to range
   const convertEmployeeCountToRange = (count: string | number): string => {
     const num = typeof count === 'string' ? parseInt(count) : count;
     if (isNaN(num)) return '1-10';
@@ -117,13 +116,11 @@ const CompanyDashboard = () => {
           const data = resp.data!
           const p = data.profile
 
-          // Extract location from locations array
           const locationValue = data.locations?.[0]?.location ||
             data.locations?.[0]?.city ||
             data.locations?.[0]?.address ||
             '';
 
-          // Extract employee count - convert number to string
           const employeeValue = p.employee_count ? String(p.employee_count) : '';
 
           setForm({
@@ -190,7 +187,6 @@ const CompanyDashboard = () => {
           setStats(response.data)
         }
       } catch {
-        // Silent fail - don't show toast for stats
       } finally {
         setStatsLoading(false)
       }

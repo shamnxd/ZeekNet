@@ -543,7 +543,6 @@ export const useSeekerProfile = () => {
 
         const loadSkills = async () => {
             try {
-                // If this runs because addSkillOpen became true, or debounced term changed
                 setSkillsLoading(true);
                 const response = await publicApi.getAllSkills({
                     limit: 20,
@@ -675,7 +674,6 @@ export const useSeekerProfile = () => {
         }
         const trimmed = newLanguage.trim();
 
-        // Validate language - should only contain letters and spaces
         if (!/^[a-zA-Z\s]+$/.test(trimmed)) {
             setDetailsErrors({ language: 'Language name can only contain letters and spaces' });
             return;
@@ -700,14 +698,12 @@ export const useSeekerProfile = () => {
 
         const errors: Record<string, string> = {};
 
-        // Validate email
         if (!editingEmail.trim()) {
             errors.email = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
             errors.email = 'Please enter a valid email address';
         }
 
-        // Validate phone number - must have at least 10 digits and should not be just special characters
         if (editingPhone && editingPhone.trim()) {
             const trimmedPhone = editingPhone.trim();
             const digitsOnly = trimmedPhone.replace(/\D/g, '');
@@ -717,7 +713,6 @@ export const useSeekerProfile = () => {
             } else if (!/^[\d\s\-()+]+$/.test(trimmedPhone)) {
                 errors.phone = 'Please enter a valid phone number';
             } else if (trimmedPhone.startsWith('-')) {
-                // Prevent numbers starting with minus (negative numbers)
                 errors.phone = 'Phone number cannot start with a minus sign';
             }
         }
@@ -792,10 +787,8 @@ export const useSeekerProfile = () => {
 
             const newErrors: Record<string, string> = {};
 
-            // Validate links
             editingSocialLinks.forEach((link, index) => {
                 if (!link.name?.trim() && !link.link?.trim()) {
-                    // Skip empty rows if there are multiple, but if only one it might be an error if user intended to add something
                     return;
                 }
 
@@ -809,7 +802,6 @@ export const useSeekerProfile = () => {
                     const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
                     try {
                         const parsedUrl = new URL(urlToCheck);
-                        // Basic check for TLD-like structure (contains a dot and not at the end)
                         if (!parsedUrl.hostname.includes('.') || parsedUrl.hostname.endsWith('.')) {
                             newErrors[`link-${index}`] = 'Please enter a valid URL with a domain extension (e.g., .com)';
                         }

@@ -50,14 +50,11 @@ export function CandidateInReviewStage({
   const showActions = isCurrentStage(selectedStage, atsApplication);
   const currentStage = (atsApplication?.stage || ATSStage.IN_REVIEW);
 
-  // Client-side derived sub-stage if not provided by backend
-  // But preferably use atsApplication.subStage if available
   const currentSubStage = atsApplication?.subStage || atsApplication?.sub_stage || InReviewSubStage.PROFILE_REVIEW;
 
   const subStages = STAGE_SUB_STAGES[ATSStage.IN_REVIEW] || [];
   const nextStage = getNextStage(currentStage);
 
-  // Filter comments (case-insensitive) - showing both Applied and In Review comments here
   const stageComments = comments.filter((c) => {
     const s = String(c.stage).toUpperCase();
     return s === ATSStage.IN_REVIEW || s === "APPLIED";
@@ -113,12 +110,10 @@ export function CandidateInReviewStage({
 
       {showActions && (
         <div className="flex flex-col gap-3">
-          {/* Sub-stage navigation buttons */}
           <div className="flex gap-3 pt-2">
             {subStages.map((subStage) => {
               if (subStage.key === currentSubStage) return null;
 
-              // Don't show "Move to Profile Review" if we are already in "PENDING_DECISION"
               if (currentSubStage === InReviewSubStage.PENDING_DECISION && subStage.key === InReviewSubStage.PROFILE_REVIEW) {
                 return null;
               }

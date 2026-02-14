@@ -32,7 +32,7 @@ const ATSCommentSchema = new Schema<IATSCommentDocument>(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
-    strict: false, // Allow reading old documents with addedBy/addedByName fields
+    strict: false,
   },
 );
 

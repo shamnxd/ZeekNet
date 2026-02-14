@@ -7,14 +7,11 @@ import { companyApi } from "@/api/company.api";
 import { chatApi } from "@/api/chat.api";
 import { atsService } from "@/services/ats.service";
 
-// Components
 import CandidateProfileSidebar from "./CandidateProfileSidebar";
 import CandidateProfileTabs from "./CandidateProfileTabs";
 import { LimitExceededDialog } from "@/components/company/dialogs/LimitExceededDialog";
 import { CandidateProfileModals } from "./CandidateProfileModals";
 import { CandidateInReviewStage } from "./CandidateInReviewStage";
-
-// ... existing imports ...
 
 import { CandidateShortlistedStage } from "./CandidateShortlistedStage";
 import { CandidateInterviewStage } from "./CandidateInterviewStage";
@@ -22,10 +19,8 @@ import { CandidateTechnicalTaskStage } from "./CandidateTechnicalTaskStage";
 import { CandidateCompensationStage } from "./CandidateCompensationStage";
 import { CandidateOfferStage } from "./CandidateOfferStage";
 
-// Constants & Types
 import { ATSStage, CompensationSubStage } from "@/constants/ats-stages";
 
-// Hooks
 import { useCandidateData } from "./hooks/useCandidateData";
 import { useCandidateModals } from "./hooks/useCandidateModals";
 import { useHiringStages } from "./hooks/useHiringStages";
@@ -47,7 +42,6 @@ const CandidateProfileView = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "resume" | "hiring">("profile");
   const [selectedStage, setSelectedStage] = useState<string>("");
 
-  // Use Custom Hooks
   const dataState = useCandidateData(currentId, isATSMode);
   const {
     candidateData, atsApplication, atsJob, interviews, technicalTasks,
@@ -75,7 +69,7 @@ const CandidateProfileView = () => {
     showCompensationMeetingModal, setShowCompensationMeetingModal,
     selectedMeetingForEdit, setSelectedMeetingForEdit,
     showCreateOfferModal, setShowCreateOfferModal,
-    showEditOfferModal, // Removed unused setShowEditOfferModal
+    showEditOfferModal,
     showWithdrawOfferModal, setShowWithdrawOfferModal,
     withdrawReason, setWithdrawReason,
     withdrawOtherNote, setWithdrawOtherNote,
@@ -100,7 +94,6 @@ const CandidateProfileView = () => {
     }
   });
 
-  // Effect to sync selectedStage with active application stage when tab is 'hiring'
   useEffect(() => {
     if (activeTab === "hiring") {
       if (atsApplication?.stage) {
@@ -137,12 +130,10 @@ const CandidateProfileView = () => {
     });
   };
 
-  // Render content
   const renderStageContent = () => {
     if (!selectedStage) return null;
 
     if (selectedStage === "Applied" || selectedStage === "APPLIED") {
-      // Simple Render Logic for Applied Stage
       const actualStage = atsApplication?.stage;
       const isViewingApplied = selectedStage === "APPLIED" || selectedStage === "Applied";
       const isInAppliedStage = actualStage === "applied" || !actualStage;
@@ -167,7 +158,6 @@ const CandidateProfileView = () => {
                 <ChevronRight className="h-4 w-4" />
                 Move to In Review
               </Button>
-              {/* Move to Another Stage button */}
               {(() => {
                 const currentStage = atsApplication?.stage as ATSStage;
                 if (!currentStage) return false;
@@ -344,10 +334,10 @@ const CandidateProfileView = () => {
           <p className="text-red-700 max-w-sm mx-auto text-sm mb-4">
             This candidate has been rejected for this position.
           </p>
-          {((atsApplication as any)?.withdrawalReason || (atsApplication as any)?.rejection_reason) && (
+          {(atsApplication?.withdrawalReason || atsApplication?.rejection_reason) && (
             <div className="mt-2 p-3 bg-white rounded-lg border border-red-200 inline-block text-left shadow-sm">
               <p className="text-[10px] font-bold text-red-800 uppercase tracking-wider mb-1">Rejection Reason:</p>
-              <p className="text-xs text-red-700">{(atsApplication as any)?.withdrawalReason || (atsApplication as any)?.rejection_reason}</p>
+              <p className="text-xs text-red-700">{atsApplication?.withdrawalReason || atsApplication?.rejection_reason}</p>
             </div>
           )}
         </div>
@@ -509,8 +499,6 @@ const CandidateProfileView = () => {
         currentId={currentId}
         atsApplication={atsApplication}
         atsJob={atsJob}
-        // ... pass all modal props ...
-        // Using spread for brevity in logic but explicit props for Component
         showScheduleModal={showScheduleModal}
         setShowScheduleModal={setShowScheduleModal}
         selectedInterviewForReschedule={selectedInterviewForReschedule}

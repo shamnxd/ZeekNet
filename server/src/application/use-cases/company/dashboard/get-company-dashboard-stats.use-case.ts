@@ -38,19 +38,14 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       company_id: companyId,
     });
 
-    // Count new candidates (applications in IN_REVIEW or APPLIED stage)
     const newCandidatesCount = await JobApplicationModel.countDocuments({
       company_id: new Types.ObjectId(companyId),
       stage: { $in: [ATSStage.IN_REVIEW, ATSStage.APPLIED] },
     });
-
-    // Count upcoming interviews/meetings for today
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-
-    // Get all applications for this company to find their interview IDs
     const companyApplications = await JobApplicationModel.find({
       company_id: new Types.ObjectId(companyId),
     }).select('_id').lean();
@@ -66,14 +61,11 @@ export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStat
       },
     });
 
-    // Unread messages for the user
     const unreadMessages = await this._messageRepository.countDocuments({
       receiver_id: userId,
       read_at: null,
     });
 
-    // 1. Fetch interviews
-    // 2. Populate application -> job and seeker
     const interviews = await ATSInterviewModel.find({
       applicationId: { $in: applicationIds },
       status: 'scheduled',

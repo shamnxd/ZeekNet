@@ -20,11 +20,9 @@ import type {
 } from "../CandidateProfileTypes";
 
 export const useCandidateData = (currentId: string | undefined, isATSMode: boolean) => {
-    // Non-ATS Data
     const [candidateData, setCandidateData] =
         useState<CandidateDetailsResponse | null>(null);
 
-    // ATS Data
     const [atsApplication, setAtsApplication] =
         useState<CompanySideApplicationDetail | null>(null);
     const [atsJob, setAtsJob] = useState<JobPostingResponse | null>(null);
@@ -39,17 +37,14 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
     const [loading, setLoading] = useState(true);
 
-    // Compensation state
     const [compensationData, setCompensationData] = useState<CompensationData | null>(null);
     const [compensationMeetings, setCompensationMeetings] = useState<
         CompensationMeeting[]
     >([]);
 
-    // Offer state
     const [currentOffer, setCurrentOffer] =
         useState<ExtendedATSOfferDocument | null>(null);
 
-    // Limit exceeded state
     const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
     const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number } | null>(null);
 
@@ -58,10 +53,8 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
         try {
             if (isATSMode) {
-                // ATS Mode: Fetch Application Details first
                 const appRes = await companyApi.getApplicationDetails(currentId);
                 if (appRes.data) {
-                    // Map server response (snake_case) to client interface (supports both naming conventions)
                     const applicationData = appRes.data as unknown as Record<string, unknown>;
                     const getString = (val: unknown): string | undefined =>
                         typeof val === "string" ? val : undefined;
@@ -72,30 +65,20 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                             ? (val as string[])
                             : undefined;
                     const mappedApplication: CompanySideApplicationDetail = {
-                        // IDs - preserve both formats
                         id: getString(applicationData.id || applicationData._id) || '',
                         job_id: getString(applicationData.job_id) || getString(applicationData.jobId) || '',
                         job_title: getString(applicationData.job_title) || getString((applicationData.job as Record<string, unknown>)?.title) || '',
                         seeker_id: getString(applicationData.seeker_id) || getString(applicationData.seekerId),
                         company_name: getString(applicationData.company_name),
                         company_logo: getString(applicationData.company_logo),
-
-                        // Stage info
                         stage: (getString(applicationData.stage) as CompanySideApplication['stage']) || 'applied',
                         sub_stage: getString(applicationData.sub_stage),
                         subStage: getString(applicationData.sub_stage),
-
-                        // Dates - preserve both formats
                         applied_date: getString(applicationData.applied_date) || getString(applicationData.appliedAt) || new Date().toISOString(),
-
-                        // Seeker info - preserve all fields
                         seeker_name: getString(applicationData.seeker_name),
                         seeker_avatar: getString(applicationData.seeker_avatar),
                         score: getNumber(applicationData.score),
-
                         is_blocked: applicationData.is_blocked as boolean | undefined,
-
-                        // Detail fields
                         seeker_headline: getString(applicationData.seeker_headline),
                         job_company: getString(applicationData.job_company),
                         job_location: getString(applicationData.job_location),
@@ -104,8 +87,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         resume_url: getString(applicationData.resume_url),
                         resume_filename: getString(applicationData.resume_filename),
                         rejection_reason: getString(applicationData.rejection_reason),
-
-                        // Personal Info
                         full_name: getString(applicationData.full_name || applicationData.seeker_name),
                         date_of_birth: getString(applicationData.date_of_birth),
                         gender: getString(applicationData.gender),
@@ -121,21 +102,17 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
                     setAtsApplication(mappedApplication);
 
-                    // Get IDs for parallel fetching
                     const jobId = getString(applicationData.job_id) || mappedApplication.job_id;
                     const seekerId = getString(applicationData.seeker_id) || mappedApplication.seeker_id;
-                    const currentStage = mappedApplication.stage as string; // Cast to string to allow comparison with ATSStage enums which might be distinct from 'stage' type union
+                    const currentStage = mappedApplication.stage as string;
 
-                    // Fetch Job Details, Candidate Details, and ATS Activities in parallel
                     const fetchPromises = [
-                        // Job Details
                         jobId
                             ? companyApi.getJobPosting(jobId).catch((e) => {
                                 console.error("Failed to fetch job", e);
                                 return { data: null };
                             })
                             : Promise.resolve({ data: null }),
-                        // Candidate Details
                         seekerId
                             ? companyApi.getCandidateDetails(seekerId).catch((e) => {
                                 console.error("Failed to fetch candidate details", e);
@@ -150,7 +127,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                                 return { data: null };
                             })
                             : Promise.resolve({ data: null }),
-                        // ATS Activities
                         atsService
                             .getInterviewsByApplication(currentId)
                             .catch(() => ({ data: [] })),
@@ -165,8 +141,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                             .catch(() => ({ data: [] })),
                     ];
 
-                    // Add compensation-related fetches if in COMPENSATION stage
-                    // Add compensation-related fetches if in COMPENSATION stage
                     if ((currentStage as string) === ATSStage.COMPENSATION) {
                         fetchPromises.push(
                             atsService.getCompensation(currentId).catch((err) => {
@@ -201,7 +175,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         getString(applicationData.seeker_name) ||
                         getString(applicationData.email)
                     ) {
-                        // Minimal candidate data fallback
                         const resumeData = applicationData.resume_data as
                             | {
                                 experience?: Array<Record<string, unknown>>;
@@ -286,7 +259,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     }
                 }
             } else {
-                // Non-ATS Mode
                 try {
                     const candRes = await companyApi.getCandidateDetails(currentId);
                     if (candRes.data) {
@@ -333,7 +305,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
     return {
         candidateData,
         atsApplication,
-        setAtsApplication, // Export setter to update local state
+        setAtsApplication,
         atsJob,
         interviews,
         technicalTasks,

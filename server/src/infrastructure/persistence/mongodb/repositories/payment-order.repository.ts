@@ -98,7 +98,6 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
       },
     ]);
 
-    // Format results to array of { month, amount }
     const earnings = result.map(item => ({
       month: item._id,
       amount: item.amount,
@@ -129,21 +128,21 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
       end = endDate;
     } else {
       switch (period) {
-      case 'day':
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-        break;
-      case 'week':
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 27);
-        break;
-      case 'month':
-        start = new Date(now.getFullYear(), 0, 1);
-        end = new Date(now.getFullYear(), 11, 31);
-        break;
-      case 'year':
-        start = new Date(now.getFullYear() - 4, 0, 1);
-        break;
-      default:
-        start = new Date(now.getFullYear(), 0, 1);
+        case 'day':
+          start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+          break;
+        case 'week':
+          start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 27);
+          break;
+        case 'month':
+          start = new Date(now.getFullYear(), 0, 1);
+          end = new Date(now.getFullYear(), 11, 31);
+          break;
+        case 'year':
+          start = new Date(now.getFullYear() - 4, 0, 1);
+          break;
+        default:
+          start = new Date(now.getFullYear(), 0, 1);
       }
     }
 
@@ -157,41 +156,41 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
     let labelFormat: (date: Date) => string;
 
     switch (period) {
-    case 'day':
-      groupFormat = {
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' },
-        day: { $dayOfMonth: '$createdAt' },
-      };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${monthNames[date.getMonth()]} ${date.getDate()}`;
-      };
-      break;
-    case 'week':
-      groupFormat = {
-        year: { $year: '$createdAt' },
-        week: { $week: '$createdAt' },
-      };
-      labelFormat = (date: Date) => `Week ${Math.ceil(date.getDate() / 7)}`;
-      break;
-    case 'month':
-      groupFormat = { $month: '$createdAt' };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return monthNames[date.getMonth()];
-      };
-      break;
-    case 'year':
-      groupFormat = { $year: '$createdAt' };
-      labelFormat = (date: Date) => date.getFullYear().toString();
-      break;
-    default:
-      groupFormat = { $month: '$createdAt' };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return monthNames[date.getMonth()];
-      };
+      case 'day':
+        groupFormat = {
+          year: { $year: '$createdAt' },
+          month: { $month: '$createdAt' },
+          day: { $dayOfMonth: '$createdAt' },
+        };
+        labelFormat = (date: Date) => {
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return `${monthNames[date.getMonth()]} ${date.getDate()}`;
+        };
+        break;
+      case 'week':
+        groupFormat = {
+          year: { $year: '$createdAt' },
+          week: { $week: '$createdAt' },
+        };
+        labelFormat = (date: Date) => `Week ${Math.ceil(date.getDate() / 7)}`;
+        break;
+      case 'month':
+        groupFormat = { $month: '$createdAt' };
+        labelFormat = (date: Date) => {
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return monthNames[date.getMonth()];
+        };
+        break;
+      case 'year':
+        groupFormat = { $year: '$createdAt' };
+        labelFormat = (date: Date) => date.getFullYear().toString();
+        break;
+      default:
+        groupFormat = { $month: '$createdAt' };
+        labelFormat = (date: Date) => {
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          return monthNames[date.getMonth()];
+        };
     }
 
     const result = await PaymentOrderModel.aggregate([

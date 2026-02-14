@@ -37,11 +37,9 @@ interface CandidateProfileModalsProps {
   candidateName: string;
   currentId?: string;
 
-  // ATS / job context
   atsApplication: CompanySideApplication | null;
   atsJob: JobPostingResponse | null;
 
-  // Interviews / tasks
   showScheduleModal: boolean;
   setShowScheduleModal: (open: boolean) => void;
   selectedInterviewForReschedule: ATSInterview | null;
@@ -56,7 +54,6 @@ interface CandidateProfileModalsProps {
   selectedTaskForEdit: ExtendedATSTechnicalTask | null;
   setSelectedTaskForEdit: (value: ExtendedATSTechnicalTask | null) => void;
 
-  // Stage / comments
   selectedStage: string;
   showCommentModal: boolean;
   setShowCommentModal: (open: boolean) => void;
@@ -67,7 +64,6 @@ interface CandidateProfileModalsProps {
   showRejectConfirmDialog: boolean;
   setShowRejectConfirmDialog: (open: boolean) => void;
 
-  // Compensation
   showCompensationInitModal: boolean;
   setShowCompensationInitModal: (open: boolean) => void;
   showCompensationUpdateModal: boolean;
@@ -93,12 +89,10 @@ interface CandidateProfileModalsProps {
   withdrawing: boolean;
   setWithdrawing: (value: boolean) => void;
 
-  // Limit exceeded
   showLimitExceededDialog: boolean;
   setShowLimitExceededDialog: (open: boolean) => void;
   limitExceededData: { currentLimit: number; used: number } | null;
 
-  // Handlers
   handleScheduleInterview: (data: InterviewFormData) => Promise<void>;
   handleSubmitFeedback: (id: string, rating: number, feedback: string) => Promise<void>;
   handleSubmitTaskFeedback: (id: string, rating: number, feedback: string) => Promise<void>;

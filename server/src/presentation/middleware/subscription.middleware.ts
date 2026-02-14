@@ -5,6 +5,7 @@ import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/
 import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { AuthenticatedRequest } from 'src/presentation/middleware/auth.middleware';
 import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from 'src/shared/utils/presentation/controller.utils';
+import { CreateInput } from 'src/domain/types/common.types';
 
 export class SubscriptionMiddleware {
   constructor(
@@ -29,11 +30,9 @@ export class SubscriptionMiddleware {
 
       let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
-      // If subscription is expired, fall back to default plan
       if (!subscription || (subscription && subscription.isExpired() && !subscription.isDefault)) {
         const defaultPlan = await this._subscriptionPlanRepository.findDefault();
         if (defaultPlan) {
-          // If subscription exists but is expired, update it to default plan in database
           if (subscription && subscription.isExpired()) {
             await this._companySubscriptionRepository.update(subscription.id, {
               planId: defaultPlan.id,
@@ -42,7 +41,6 @@ export class SubscriptionMiddleware {
               isActive: true,
             });
           }
-          // Create a subscription object representing the default plan
           subscription = CompanySubscription.create({
             id: subscription?.id || '',
             companyId: companyProfile.id,
@@ -139,7 +137,6 @@ export class SubscriptionMiddleware {
 
       let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
-      // If subscription is expired, fall back to default plan
       if (!subscription || (subscription && subscription.isExpired() && !subscription.isDefault)) {
         const defaultPlan = await this._subscriptionPlanRepository.findDefault();
         if (defaultPlan) {
@@ -176,14 +173,17 @@ export class SubscriptionMiddleware {
               jobPostsUsed: 0,
               featuredJobsUsed: 0,
               applicantAccessUsed: 0,
-            } as any);
+            } as unknown as CreateInput<CompanySubscription>);
           }
-        } else {
-          return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
         }
+      } else {
+        return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
       }
 
-      // Get the plan to check applicant access limit
+      if (!subscription) {
+        return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
+      }
+
       const plan = await this._subscriptionPlanRepository.findById(subscription.planId);
       const applicantAccessLimit = plan?.applicantAccessLimit || subscription.applicantAccessLimit || -1;
 
@@ -195,7 +195,6 @@ export class SubscriptionMiddleware {
         });
       }
 
-      // Increment the view count
       await this._companySubscriptionRepository.incrementApplicantAccessUsed(subscription.id);
 
       (req as AuthenticatedRequest & { subscription: typeof subscription }).subscription = subscription;

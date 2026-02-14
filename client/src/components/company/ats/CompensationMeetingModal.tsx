@@ -124,7 +124,7 @@ export const CompensationMeetingModal = ({
         } else if (formData.type === 'online' && formData.videoType === 'external' && formData.meetingLink) {
             try {
                 new URL(formData.meetingLink);
-            } catch (e) {
+            } catch {
                 newErrors.meetingLink = 'Please enter a valid URL';
                 isValid = false;
             }
@@ -195,7 +195,7 @@ export const CompensationMeetingModal = ({
                                 <button
                                     key={type.id}
                                     type="button"
-                                    onClick={() => handleInputChange('type', type.id as any)}
+                                    onClick={() => handleInputChange('type', type.id as CompensationMeetingData['type'])}
                                     className={cn(
                                         "flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 transition-all",
                                         formData.type === type.id

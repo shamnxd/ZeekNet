@@ -67,8 +67,6 @@ export interface WorkplacePicture {
   pictureUrl?: string;
 }
 
-// Interface for company side application list view
-// Interface for company side application list view
 export interface CompanySideApplication {
   id: string;
   name?: string;
@@ -104,7 +102,6 @@ export interface CompanySideApplication {
   appliedDate?: string;
   is_blocked?: boolean;
 
-  // Additional fields used in UI
   job?: {
     id: string;
     title: string;
@@ -141,7 +138,6 @@ export interface CompanySideApplication {
   };
 }
 
-// Interface for company side application detail view
 export interface CompanySideApplicationDetail extends CompanySideApplication {
   seeker_headline?: string;
   job_company?: string;
@@ -151,6 +147,7 @@ export interface CompanySideApplicationDetail extends CompanySideApplication {
   resume_url?: string;
   resume_filename?: string;
   rejection_reason?: string;
+  withdrawalReason?: string;
   interviews?: Array<{
     id: string;
     date: string;
@@ -165,9 +162,8 @@ export interface CompanySideApplicationDetail extends CompanySideApplication {
       reviewed_at: string;
     };
   }>;
-  // Personal Info
   full_name?: string;
-  date_of_birth?: string | Date; // Date string or Date object
+  date_of_birth?: string | Date;
   gender?: string;
   languages?: string[];
   address?: string;

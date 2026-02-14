@@ -295,13 +295,10 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
               ? subscriptionItem.price.unitAmount
               : 0;
             const oldPrice = priceAmount / 100;
-            const newPrice = newPriceAmount; // Assuming newPriceAmount is passed in full currency units (not cents) or is it?
-            // Wait, finalPrice in execute is plain number (e.g. 10), so it is correct.
+            const newPrice = newPriceAmount;
 
-            // Cancel subscription at period end
             await this._stripeService.cancelSubscription(subscription.id, true);
 
-            // Send notification email
             await this._sendPriceChangeNotificationEmail(
               subscription,
               planName,

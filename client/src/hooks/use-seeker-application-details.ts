@@ -6,7 +6,7 @@ import { jobApplicationApi } from '@/api';
 import { atsService } from '@/services/ats.service';
 
 import type { ApiError } from '@/types/api-error.type';
-import type { ATSInterview, ATSComment } from '@/types/ats'; // Added ATSComment
+import type { ATSInterview, ATSComment } from '@/types/ats';
 import type { ExtendedATSTechnicalTask, ExtendedATSOfferDocument, CompensationMeeting } from '@/interfaces/seeker/application-details.types';
 
 export const useSeekerApplicationDetails = () => {
@@ -18,7 +18,7 @@ export const useSeekerApplicationDetails = () => {
     const [interviews, setInterviews] = useState<ATSInterview[]>([]);
     const [offers, setOffers] = useState<ExtendedATSOfferDocument[]>([]);
     const [compensationMeetings, setCompensationMeetings] = useState<CompensationMeeting[]>([]);
-    const [comments, setComments] = useState<ATSComment[]>([]); // Added state
+    const [comments, setComments] = useState<ATSComment[]>([]);
 
 
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -190,7 +190,7 @@ export const useSeekerApplicationDetails = () => {
         interviews,
         offers,
         compensationMeetings,
-        comments, // Added to return
+        comments,
 
 
         showSubmissionModal,

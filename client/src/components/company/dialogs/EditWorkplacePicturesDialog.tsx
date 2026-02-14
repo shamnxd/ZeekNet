@@ -47,7 +47,6 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
 
       if (result.success && result.data) {
         const updatedPictures = [...picturesList];
-        // Create a local preview URL
         const previewUrl = URL.createObjectURL(file);
 
         updatedPictures[index] = {
@@ -87,8 +86,6 @@ const EditWorkplacePicturesDialog: React.FC<EditWorkplacePicturesDialogProps> = 
       return;
     }
 
-    // Clean up preview URLs before saving
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const picturesToSave = validPictures.map(({ previewUrl, ...rest }) => rest);
 
     onSave(picturesToSave);

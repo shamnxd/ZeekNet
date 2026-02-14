@@ -26,7 +26,6 @@ interface CandidateActionsContext {
     reloadData: () => Promise<void>;
     selectedStage: string;
 
-    // Modal State & Setters (from useCandidateModals)
     modals: {
         setShowScheduleModal: (show: boolean) => void;
         setShowCommentModal: (show: boolean) => void;
@@ -48,7 +47,6 @@ interface CandidateActionsContext {
         setShowRejectConfirmDialog: (show: boolean) => void;
     };
 
-    // Data Setters (from useCandidateData)
     setters: {
         setAtsApplication: (val: CompanySideApplication | null) => void;
         setCompensationData: (val: CompensationData | null) => void;
@@ -79,7 +77,6 @@ export const useCandidateActions = (context: CandidateActionsContext) => {
                 subStage
             });
 
-            // Automatically add a comment if a sub-stage was explicitly provided
             if (subStage) {
                 const subStageLabel = formatATSSubStage(subStage);
                 await atsService.addComment({

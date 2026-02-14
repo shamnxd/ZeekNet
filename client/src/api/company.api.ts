@@ -18,7 +18,7 @@ import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscripti
 import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
 import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
 import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
-import type { ApplicationsKanbanResponse, MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
+import type { MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
 
 export type {
   CompanyProfileData,
@@ -350,7 +350,7 @@ export const companyApi = {
 
 
 
-  async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<ApplicationsKanbanResponse>> {
+  async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<{ applications: CompanySideApplication[] }>> {
     const endpoint = CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':job_id', jobId);
     return (await api.get(endpoint)).data;
   },

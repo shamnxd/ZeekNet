@@ -23,8 +23,7 @@ export class ATSCommentRepository implements IATSCommentRepository {
       return [];
     }
 
-    // Mongoose handles string-to-ObjectId conversion, but let's be explicit
-    const query: any = { applicationId: new Types.ObjectId(applicationId) };
+    const query: Record<string, unknown> = { applicationId: new Types.ObjectId(applicationId) };
     if (stage) {
       query.stage = stage;
     }

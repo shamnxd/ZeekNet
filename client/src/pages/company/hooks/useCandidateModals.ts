@@ -21,14 +21,12 @@ export const useCandidateModals = () => {
     const [showRejectConfirmDialog, setShowRejectConfirmDialog] = useState(false);
     const [taskToRevoke, setTaskToRevoke] = useState<string | null>(null);
 
-    // Compensation Modals
     const [showCompensationInitModal, setShowCompensationInitModal] = useState(false);
     const [showCompensationUpdateModal, setShowCompensationUpdateModal] = useState(false);
     const [showCompensationMeetingModal, setShowCompensationMeetingModal] = useState(false);
     const [selectedMeetingForEdit, setSelectedMeetingForEdit] =
         useState<CompensationMeeting | null>(null);
 
-    // Offer Modals
     const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
     const [showEditOfferModal, setShowEditOfferModal] = useState(false);
     const [showWithdrawOfferModal, setShowWithdrawOfferModal] = useState(false);

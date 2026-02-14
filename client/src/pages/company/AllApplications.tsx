@@ -347,7 +347,6 @@ const AllApplications = () => {
       return job?.enabled_stages || Object.values(ATSStage)
     }
 
-    // Union of all enabled stages
     const allStages = new Set<string>()
     jobs.forEach(job => {
       job.enabled_stages?.forEach((s: string) => allStages.add(s))
@@ -355,7 +354,6 @@ const AllApplications = () => {
 
     if (allStages.size === 0) return Object.values(ATSStage)
 
-    // Return in correct order
     return Object.values(ATSStage).filter(s => allStages.has(s))
   }
 

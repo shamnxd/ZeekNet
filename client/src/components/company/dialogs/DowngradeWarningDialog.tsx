@@ -34,7 +34,6 @@ export function DowngradeWarningDialog({
     const { impact, currentPlan, newPlan } = previewData;
     const hasJobsToUnlist = impact.jobsToUnlist > 0;
 
-    // Reset checkbox when dialog opens/closes
     const handleOpenChange = (open: boolean) => {
         if (!open) {
             setUnderstood(false);

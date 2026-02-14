@@ -79,10 +79,11 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
       if (sortBy === 'activeJobCount') {
         const companyIds = allPopulatedDocs.map(d => d._id);
         const jobCounts = await JobPostingModel.aggregate([
-          { $match: { 
-            status: 'active', 
-            company_id: { $in: companyIds }, 
-          }, 
+          {
+            $match: {
+              status: 'active',
+              company_id: { $in: companyIds },
+            },
           },
           { $group: { _id: '$company_id', count: { $sum: 1 } } },
         ]);
@@ -98,7 +99,7 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
         allPopulatedDocs.sort((a, b) => {
           const valA = (a as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
           const valB = (b as unknown as Record<string, unknown>)[sortBy] as number | string || 0;
-           
+
           if (valA < valB) return -1 * sortDirection;
           if (valA > valB) return 1 * sortDirection;
           return 0;
@@ -221,18 +222,6 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
   }
 
   async getLocationStats(): Promise<{ country: string; count: number }[]> {
-    // Assuming location is typically stored in 'phone' (e.g., country code) or 'userId' meta?
-    // Or literally just aggregation on 'location' field if it exists?
-    // CompanyProfile has 'officeLocations' usually separate, but entity usually just has basics.
-    // Looking at schema/entity, I don't see a top level 'country'.
-    // Use 'industry' for now as placeholder or if 'officeLocations' exists use that?
-    // Wait, the client expects "Popular Location".
-    // I see 'ICompanyOfficeLocationRepository' earlier. Maybe I should aggregate there?
-    // But CompanyProfile might have it.
-    // For now, I will aggregate on 'industry' as a placeholder or return empty if no location field.
-    // Actually, let's return mock or implementation based on available data.
-    // If no country field, I can't aggregate.
-    // Let's check schema/model imports.
     return [];
   }
 }
