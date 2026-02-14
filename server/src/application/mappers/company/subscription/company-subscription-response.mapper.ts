@@ -13,6 +13,7 @@ export class CompanySubscriptionResponseMapper {
     return {
       id: entity.id,
       companyId: entity.companyId,
+      planId: entity.planId,
       plan: {
         id: entity.planId,
         name: entity.planName || '',
@@ -35,6 +36,8 @@ export class CompanySubscriptionResponseMapper {
       cancelAtPeriodEnd: entity.cancelAtPeriodEnd,
       currentPeriodStart: entity.currentPeriodStart,
       currentPeriodEnd: entity.currentPeriodEnd,
+      stripeSubscriptionId: entity.stripeSubscriptionId,
+      stripeCustomerId: entity.stripeCustomerId,
     };
   }
 

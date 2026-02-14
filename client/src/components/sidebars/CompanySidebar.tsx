@@ -91,13 +91,11 @@ const CompanySidebar = () => {
   ]
 
   const handleNavigation = (path: string) => {
-    // Allow dashboard always
     if (path === '/company/dashboard') {
       navigate(path)
       return
     }
 
-    // Block all other pages if profile not created
     if (companyVerificationStatus === 'not_created') {
       toast.error('Complete Registration Required', {
         description: 'Please complete your company profile setup first.',
@@ -106,7 +104,6 @@ const CompanySidebar = () => {
       return
     }
 
-    // Block all other pages if profile is pending or rejected
     if (companyVerificationStatus === 'pending' || companyVerificationStatus === 'rejected') {
       toast.error('Verification Required', {
         description: companyVerificationStatus === 'pending'
@@ -117,7 +114,6 @@ const CompanySidebar = () => {
       return
     }
 
-    // Additional check for post-job (only verified companies)
     if (path === '/company/post-job' && !isVerified) {
       toast.error('Profile Verification Required', {
         description: 'Please complete and verify your company profile before posting jobs.',

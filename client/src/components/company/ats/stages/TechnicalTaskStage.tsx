@@ -19,7 +19,7 @@ import {
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment } from "@/types/ats";
 import type { ExtendedATSTechnicalTask } from "@/types/ats-profile";
-import { formatDateTime } from "@/utils/formatters";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface TechnicalTaskStageProps {
     technicalTasks: ExtendedATSTechnicalTask[];
@@ -66,7 +66,7 @@ export const TechnicalTaskStage = ({
 
     return (
         <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-            {}
+            { }
             <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Technical Task Stage
@@ -78,7 +78,7 @@ export const TechnicalTaskStage = ({
                 )}
             </div>
 
-            {}
+            { }
             {currentSubStage === TechnicalTaskSubStage.NOT_ASSIGNED && (
                 <div className="bg-white rounded-lg p-6 border text-center">
                     <p className="text-gray-600 mb-4">No technical task assigned yet</p>
@@ -93,7 +93,7 @@ export const TechnicalTaskStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {currentSubStage !== TechnicalTaskSubStage.NOT_ASSIGNED && (
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ export const TechnicalTaskStage = ({
                                 const isSubmitted = taskStatus === "submitted";
                                 const isUnderReview = taskStatus === "under_review";
                                 const isCompleted = taskStatus === "completed";
-                                const isCancelled = false; 
+                                const isCancelled = false;
 
                                 return (
                                     <div key={task.id} className="bg-white rounded-lg p-4 border">
@@ -162,7 +162,7 @@ export const TechnicalTaskStage = ({
                                             </div>
                                         </div>
 
-                                        {}
+                                        { }
                                         {task.description && (
                                             <div className="mb-3">
                                                 <p className="text-sm text-gray-700 whitespace-pre-wrap">
@@ -171,7 +171,7 @@ export const TechnicalTaskStage = ({
                                             </div>
                                         )}
 
-                                        {}
+                                        { }
                                         {task.documentUrl && task.documentFilename && (
                                             <div className="mb-3">
                                                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -189,7 +189,7 @@ export const TechnicalTaskStage = ({
                                             </div>
                                         )}
 
-                                        {}
+                                        { }
                                         {(isSubmitted || isUnderReview || isCompleted) &&
                                             task.submissionUrl && (
                                                 <div className="mb-3 p-3 bg-gray-50 rounded border">
@@ -216,7 +216,7 @@ export const TechnicalTaskStage = ({
                                                 </div>
                                             )}
 
-                                        {}
+                                        { }
                                         {isCompleted && (task.feedback || task.rating) && (
                                             <div className="mb-3 p-3 bg-green-50 rounded border">
                                                 <div className="flex items-center gap-2 mb-2">
@@ -233,7 +233,7 @@ export const TechnicalTaskStage = ({
                                             </div>
                                         )}
 
-                                        {}
+                                        { }
                                         {showActions && !isCancelled && (
                                             <div className="flex gap-2 mt-4 pt-4 border-t justify-between items-center">
                                                 <div className="flex gap-2">
@@ -260,7 +260,7 @@ export const TechnicalTaskStage = ({
                                                     )}
                                                 </div>
 
-                                                {}
+                                                { }
                                                 {isAssigned && (
                                                     <div className="flex gap-2">
                                                         <Button
@@ -285,7 +285,7 @@ export const TechnicalTaskStage = ({
                                                 )}
                                             </div>
                                         )}
-                                        {}
+                                        { }
                                         {isCancelled && (
                                             <div className="mt-4 pt-4 border-t">
                                                 <p className="text-sm text-gray-500 italic">
@@ -301,7 +301,7 @@ export const TechnicalTaskStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions && (
                 <div className="flex flex-col gap-3">
                     <Button
@@ -313,7 +313,7 @@ export const TechnicalTaskStage = ({
                         Add Comment
                     </Button>
 
-                    {}
+                    { }
                     {(() => {
                         const nextStage = atsApplication?.stage
                             ? getNextStage(atsApplication.stage)
@@ -337,7 +337,7 @@ export const TechnicalTaskStage = ({
                         );
                     })()}
 
-                    {}
+                    { }
                     {atsApplication?.stage &&
                         hasNextStages(atsApplication.stage as ATSStage) && (
                             <Button
@@ -352,7 +352,7 @@ export const TechnicalTaskStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions &&
                 comments.filter((c) => c.stage === ATSStage.TECHNICAL_TASK).length >
                 0 && (
@@ -363,13 +363,10 @@ export const TechnicalTaskStage = ({
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

@@ -5,8 +5,6 @@ export class ATSComment {
     public readonly id: string,
     public readonly applicationId: string,
     public readonly comment: string,
-    public readonly addedBy: string,
-    public readonly addedByName: string,
     public readonly stage: ATSStage,
     public readonly subStage?: ATSSubStage,
     public readonly createdAt: Date = new Date(),
@@ -17,8 +15,6 @@ export class ATSComment {
     id: string;
     applicationId: string;
     comment: string;
-    addedBy: string;
-    addedByName: string;
     stage: ATSStage;
     subStage?: ATSSubStage;
     createdAt?: Date;
@@ -28,8 +24,6 @@ export class ATSComment {
       data.id,
       data.applicationId,
       data.comment,
-      data.addedBy,
-      data.addedByName,
       data.stage,
       data.subStage,
       data.createdAt ?? new Date(),

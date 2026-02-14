@@ -4,10 +4,10 @@ import CompanyLayout from '../../components/layouts/CompanyLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Check, 
-  Loader2, 
-  CreditCard, 
+import {
+  Check,
+  Loader2,
+  CreditCard,
   Download,
   FileText,
   ArrowRight,
@@ -19,28 +19,33 @@ import {
   AlertCircle,
   XCircle
 } from 'lucide-react'
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table'
 import { companyApi } from '@/api/company.api'
 import type { SubscriptionPlan } from '@/interfaces/company/subscription/subscription-plan.interface'
 import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscription/active-subscription-response.interface'
+import type { PreviewPlanChangeResponse } from '@/interfaces/company/subscription/preview-plan-change.interface'
 import { toast } from 'sonner'
 import { PurchaseConfirmationDialog, PurchaseResultDialog } from '@/components/company/dialogs/PurchaseSubscriptionDialog'
+import { UpgradeConfirmationDialog } from '@/components/company/dialogs/UpgradeConfirmationDialog'
+import { DowngradeWarningDialog } from '@/components/company/dialogs/DowngradeWarningDialog'
+import { LateralChangeDialog } from '@/components/company/dialogs/LateralChangeDialog'
 
 const CompanyPlans = () => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<'dashboard' | 'plans'>('dashboard')
+  const isPlansTab = searchParams.get('tab') === 'plans'
+  const [view, setView] = useState<'dashboard' | 'plans'>(isPlansTab ? 'plans' : 'dashboard')
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [activeSubscription, setActiveSubscription] = useState<ActiveSubscriptionResponse | null>(null)
-  
+
   interface BillingHistoryView {
     id: string;
     date: string;
@@ -54,27 +59,33 @@ const CompanyPlans = () => {
   }
 
   const [billingHistory, setBillingHistory] = useState<BillingHistoryView[]>([])
-  
+
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showResultDialog, setShowResultDialog] = useState(false)
   const [purchaseLoading, setPurchaseLoading] = useState(false)
   const [purchaseResult, setPurchaseResult] = useState<{
-      success: boolean
-      message: string
-      invoiceId?: string
-      transactionId?: string
-    } | null>(null)
+    success: boolean
+    message: string
+    invoiceId?: string
+    transactionId?: string
+  } | null>(null)
   const [cancelLoading, setCancelLoading] = useState(false)
   const [resumeLoading, setResumeLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [changingPlan, setChangingPlan] = useState(false)
   const [isPollingSubscription, setIsPollingSubscription] = useState(false)
 
+  const [previewData, setPreviewData] = useState<PreviewPlanChangeResponse | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
+  const [showDowngradeDialog, setShowDowngradeDialog] = useState(false)
+  const [showLateralDialog, setShowLateralDialog] = useState(false)
+
   const fetchBillingHistory = useCallback(async () => {
     try {
       const response = await companyApi.getPaymentHistory()
-      
+
       if (response.success && response.data) {
         const formattedHistory: BillingHistoryView[] = response.data.map((payment) => ({
           id: payment.invoiceId || payment.id,
@@ -94,7 +105,7 @@ const CompanyPlans = () => {
         setBillingHistory(formattedHistory)
       }
     } catch {
-      
+
     }
   }, [])
 
@@ -102,7 +113,7 @@ const CompanyPlans = () => {
     try {
       setLoading(true)
       const response = await companyApi.getSubscriptionPlans()
-      
+
       if (response.success && response.data?.plans) {
         const activePlans = response.data.plans.filter(plan => plan.isActive)
         setPlans(activePlans)
@@ -120,60 +131,61 @@ const CompanyPlans = () => {
   const fetchActiveSubscription = useCallback(async () => {
     try {
       const response = await companyApi.getActiveSubscription()
-      
+
       if (response.success && response.data) {
         setActiveSubscription(response.data)
         await fetchBillingHistory()
       }
     } catch {
-      
+
     }
   }, [fetchBillingHistory])
 
   useEffect(() => {
     fetchPlans()
     fetchActiveSubscription()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchActiveSubscription, fetchPlans])
 
   const sessionId = searchParams.get('session_id')
-  
-  
+
+
   useEffect(() => {
     if (sessionId && !isPollingSubscription) {
-      
       toast.success('Payment successful! Your subscription is being activated.')
-      
-      window.history.replaceState({}, '', window.location.pathname)
-      
-      
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('session_id')
+      setSearchParams(newParams)
+
       setIsPollingSubscription(true)
       let retries = 0
-      const maxRetries = 3 
+      const maxRetries = 15
       let timeoutId: NodeJS.Timeout | null = null
-      
+
       const checkSubscription = async () => {
         try {
           const response = await companyApi.getActiveSubscription()
-          
-          if (response.success && response.data) {
-            
-            setActiveSubscription(response.data)
+          const data = response.data
+
+          const isActivated = response.success &&
+            data &&
+            data.stripeSubscriptionId &&
+            !data.plan?.isDefault
+
+          if (isActivated && data) {
+            setActiveSubscription(data)
             await fetchBillingHistory()
             setIsPollingSubscription(false)
             toast.success('Subscription activated successfully!')
             if (timeoutId) clearTimeout(timeoutId)
             return
           }
-          
+
           retries++
           if (retries < maxRetries) {
-            
             timeoutId = setTimeout(checkSubscription, 2000)
           } else {
-            
             setIsPollingSubscription(false)
-            toast.info('Subscription is being processed. Please refresh the page in a moment if it doesn\'t appear.')
+            toast.info('Subscription is being processed. Please refresh the page in a moment.')
           }
         } catch {
           retries++
@@ -181,52 +193,139 @@ const CompanyPlans = () => {
             timeoutId = setTimeout(checkSubscription, 2000)
           } else {
             setIsPollingSubscription(false)
-            toast.error('Failed to fetch subscription. Please refresh the page.')
+            toast.error('Failed to fetch subscription status.')
           }
         }
       }
-      
-      
+
       timeoutId = setTimeout(checkSubscription, 2000)
-      
-      
+
       return () => {
         if (timeoutId) clearTimeout(timeoutId)
-        setIsPollingSubscription(false)
       }
     }
-  }, [sessionId, isPollingSubscription, fetchBillingHistory]) 
+  }, [sessionId, fetchBillingHistory, searchParams, setSearchParams, isPollingSubscription])
 
 
+  const handleSelectPlan = async (plan: SubscriptionPlan) => {
 
-  const handleSelectPlan = (plan: SubscriptionPlan) => {
-    
-    if (plan.isDefault || plan.price === 0) {
+    const isOnDefaultPlan = !activeSubscription || activeSubscription.plan?.isDefault || activeSubscription.planId === '' || activeSubscription.cancelAtPeriodEnd;
+    const isSelectingDefault = plan.isDefault || plan.price === 0;
+
+    if (isSelectingDefault && isOnDefaultPlan) {
       toast.info('Default plan is automatically assigned to your account')
       return
     }
-    
-    
+
+    const currentBillingCycle = activeSubscription?.billingCycle === 'yearly' ? 'annual' : 'monthly'
+    if (activeSubscription?.planId === plan.id && currentBillingCycle === billingCycle) {
+      toast.info('You are already subscribed to this plan')
+      return
+    }
+
     setSelectedPlan(plan)
-    setShowConfirmDialog(true)
+
+    if (isOnDefaultPlan) {
+      setShowConfirmDialog(true)
+      return
+    }
+    try {
+      setPreviewLoading(true)
+      const response = await companyApi.previewPlanChange(
+        plan.id,
+        billingCycle === 'annual' ? 'yearly' : billingCycle
+      )
+
+      if (response.success && response.data) {
+        setPreviewData(response.data)
+
+        const changeType = response.data.impact.changeType
+        if (changeType === 'upgrade') {
+          setShowUpgradeDialog(true)
+        } else if (changeType === 'downgrade') {
+          setShowDowngradeDialog(true)
+        } else if (changeType === 'lateral') {
+          setShowLateralDialog(true)
+        } else {
+          setShowConfirmDialog(true)
+        }
+      } else {
+        throw new Error(response.message || 'Failed to preview plan change')
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to preview plan change'
+      toast.error(message)
+      setShowConfirmDialog(true)
+    } finally {
+      setPreviewLoading(false)
+    }
   }
 
   const handleConfirmPurchase = async () => {
     if (!selectedPlan) return
 
-    
+    const isDowngradingToFree = selectedPlan.isDefault || selectedPlan.price === 0;
+
+    if (isDowngradingToFree) {
+      if (activeSubscription && activeSubscription.stripeSubscriptionId) {
+        try {
+          setChangingPlan(true)
+          if (activeSubscription.cancelAtPeriodEnd) {
+            toast.success('Your subscription is already set to revert to the Free Plan at the end of the billing period.')
+            setShowConfirmDialog(false)
+            setShowDowngradeDialog(false)
+            setSelectedPlan(null)
+            return;
+          }
+          const response = await companyApi.cancelSubscription();
+          if (response.success) {
+            toast.success('Your subscription will be canceled at the end of the billing period and revert to the Free Plan.')
+            setShowConfirmDialog(false)
+            setShowDowngradeDialog(false)
+            setSelectedPlan(null)
+            await fetchActiveSubscription()
+          } else {
+            throw new Error(response.message || 'Failed to cancel subscription')
+          }
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Failed to cancel subscription'
+          toast.error(message)
+        } finally {
+          setChangingPlan(false)
+        }
+      } else {
+        toast.info('You are transitioning to the Free Plan.')
+        setShowConfirmDialog(false)
+        setShowDowngradeDialog(false)
+        setSelectedPlan(null)
+        await fetchActiveSubscription()
+      }
+      return
+    }
+
     if (activeSubscription && activeSubscription.stripeSubscriptionId) {
       try {
         setChangingPlan(true)
         const response = await companyApi.changeSubscriptionPlan(
           selectedPlan.id,
           billingCycle === 'annual' ? 'yearly' : billingCycle
-        )
+        );
 
-        if (response.success && response.data) {
-          toast.success('Plan changed successfully! Your subscription has been updated.')
+        if (response.success) {
+          const changeType = previewData?.impact.changeType
+          let successMessage = 'Plan changed successfully! Your subscription has been updated.'
+
+          if (changeType === 'downgrade' && previewData?.impact?.jobsToUnlist && previewData.impact.jobsToUnlist > 0) {
+            successMessage += ` ${previewData.impact.jobsToUnlist} job${previewData.impact.jobsToUnlist > 1 ? 's were' : ' was'} unlisted.`
+          }
+
+          toast.success(successMessage)
           setShowConfirmDialog(false)
+          setShowUpgradeDialog(false)
+          setShowDowngradeDialog(false)
+          setShowLateralDialog(false)
           setSelectedPlan(null)
+          setPreviewData(null)
           await fetchActiveSubscription()
         } else {
           throw new Error(response.message || 'Failed to change plan')
@@ -240,14 +339,16 @@ const CompanyPlans = () => {
       return
     }
 
-    
+    if (selectedPlan.isDefault || selectedPlan.price === 0) {
+      toast.info('You are already on the Free Plan or are reverting to it.')
+      return;
+    }
+
     try {
       setPurchaseLoading(true)
-      
-      
       const successUrl = `${window.location.origin}/company/billing`
       const cancelUrl = `${window.location.origin}/company/billing`
-      
+
       const response = await companyApi.createCheckoutSession(
         selectedPlan.id,
         billingCycle === 'annual' ? 'yearly' : billingCycle,
@@ -256,7 +357,6 @@ const CompanyPlans = () => {
       )
 
       if (response.success && response.data?.sessionUrl) {
-        
         window.location.href = response.data.sessionUrl
       } else {
         throw new Error(response.message || 'Failed to create checkout session')
@@ -277,7 +377,7 @@ const CompanyPlans = () => {
     try {
       setCancelLoading(true)
       const response = await companyApi.cancelSubscription()
-      
+
       if (response.success) {
         toast.success('Your subscription will be canceled at the end of the billing period')
         fetchActiveSubscription()
@@ -296,7 +396,7 @@ const CompanyPlans = () => {
     try {
       setResumeLoading(true)
       const response = await companyApi.resumeSubscription()
-      
+
       if (response.success) {
         toast.success('Your subscription has been resumed')
         fetchActiveSubscription()
@@ -316,7 +416,7 @@ const CompanyPlans = () => {
       setPortalLoading(true)
       const returnUrl = `${window.location.origin}/company/billing`
       const response = await companyApi.getBillingPortalUrl(returnUrl)
-      
+
       if (response.success && response.data?.url) {
         window.location.href = response.data.url
       } else {
@@ -351,20 +451,20 @@ const CompanyPlans = () => {
   const currentPlan = activeSubscription ? {
     name: activeSubscription.plan?.name || 'Subscription Plan',
     description: 'Your current active subscription plan.',
-    price: 0, 
-    startDate: activeSubscription.startDate 
-      ? new Date(activeSubscription.startDate).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
-        })
+    price: 0,
+    startDate: activeSubscription.startDate
+      ? new Date(activeSubscription.startDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
       : null,
-    expiryDate: activeSubscription.expiryDate 
-      ? new Date(activeSubscription.expiryDate).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
-        })
+    expiryDate: activeSubscription.expiryDate
+      ? new Date(activeSubscription.expiryDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
       : null,
     isDefault: activeSubscription.plan?.isDefault || false,
     status: (activeSubscription.plan?.isDefault || !activeSubscription.expiryDate || new Date(activeSubscription.expiryDate) > new Date()) ? 'Active' : 'Expired',
@@ -375,15 +475,15 @@ const CompanyPlans = () => {
       'Advanced Analytics'
     ],
     usage: {
-      activeJobs: { 
-        used: activeSubscription.activeJobCount || activeSubscription.jobPostsUsed || 0, 
-        total: activeSubscription.plan?.jobPostLimit || 0, 
-        label: 'Active Jobs' 
+      activeJobs: {
+        used: activeSubscription.activeJobCount || activeSubscription.jobPostsUsed || 0,
+        total: activeSubscription.plan?.jobPostLimit || 0,
+        label: 'Active Jobs'
       },
-      featuredJobs: { 
-        used: activeSubscription.featuredJobsUsed || 0, 
-        total: activeSubscription.plan?.featuredJobLimit || 0, 
-        label: 'Featured Jobs' 
+      featuredJobs: {
+        used: activeSubscription.featuredJobsUsed || 0,
+        total: activeSubscription.plan?.featuredJobLimit || 0,
+        label: 'Featured Jobs'
       },
     }
   } : {
@@ -411,7 +511,7 @@ const CompanyPlans = () => {
           <h1 className="text-3xl font-bold text-gray-900">Plans & Billing</h1>
           <p className="text-gray-500 mt-1">Manage your subscription and billing details.</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setView('plans')}
           className="bg-[#4640DE] hover:bg-[#3b35b9] text-white shadow-md transition-all hover:scale-105"
         >
@@ -420,7 +520,7 @@ const CompanyPlans = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        {}
+        { }
         <Card className="lg:col-span-2 border border-gray-200 shadow-sm flex flex-col">
           <CardHeader className="pb-4">
             <div className="flex justify-between items-start">
@@ -450,8 +550,8 @@ const CompanyPlans = () => {
                       <span className="font-medium text-gray-900">{currentPlan.usage.activeJobs.used} / {currentPlan.usage.activeJobs.total}</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-[#4640DE] rounded-full transition-all duration-500" 
+                      <div
+                        className="h-full bg-[#4640DE] rounded-full transition-all duration-500"
                         style={{ width: `${(currentPlan.usage.activeJobs.used / currentPlan.usage.activeJobs.total) * 100}%` }}
                       />
                     </div>
@@ -462,8 +562,8 @@ const CompanyPlans = () => {
                       <span className="font-medium text-gray-900">{currentPlan.usage.featuredJobs.used} / {currentPlan.usage.featuredJobs.total}</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-[#4640DE] rounded-full transition-all duration-500" 
+                      <div
+                        className="h-full bg-[#4640DE] rounded-full transition-all duration-500"
                         style={{ width: `${currentPlan.usage.featuredJobs.total > 0 ? (currentPlan.usage.featuredJobs.used / currentPlan.usage.featuredJobs.total) * 100 : 0}%` }}
                       />
                     </div>
@@ -477,12 +577,12 @@ const CompanyPlans = () => {
                         </span>
                       </div>
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-[#4640DE] rounded-full transition-all duration-500" 
-                          style={{ 
-                            width: `${(activeSubscription.plan.applicantAccessLimit || 0) > 0 
-                              ? ((activeSubscription.applicantAccessUsed || 0) / (activeSubscription.plan.applicantAccessLimit || 0)) * 100 
-                              : 0}%` 
+                        <div
+                          className="h-full bg-[#4640DE] rounded-full transition-all duration-500"
+                          style={{
+                            width: `${(activeSubscription.plan.applicantAccessLimit || 0) > 0
+                              ? ((activeSubscription.applicantAccessUsed || 0) / (activeSubscription.plan.applicantAccessLimit || 0)) * 100
+                              : 0}%`
                           }}
                         />
                       </div>
@@ -509,7 +609,7 @@ const CompanyPlans = () => {
           </CardContent>
         </Card>
 
-        {}
+        { }
         <Card className="border border-gray-200 shadow-sm flex flex-col h-full">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-bold text-gray-900">Billing Summary</CardTitle>
@@ -533,7 +633,7 @@ const CompanyPlans = () => {
                   <p className="text-xs text-gray-400">Free Forever Plan</p>
                 )}
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <CreditCard className="h-4 w-4 text-gray-400" />
@@ -549,8 +649,8 @@ const CompanyPlans = () => {
                   <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded">
                     <XCircle className="h-4 w-4" />
                     <span>
-                      {currentPlan.isDefault || !currentPlan.expiryDate 
-                        ? 'Cancels at period end' 
+                      {currentPlan.isDefault || !currentPlan.expiryDate
+                        ? 'Cancels at period end'
                         : `Cancels on ${currentPlan.expiryDate}`}
                     </span>
                   </div>
@@ -561,7 +661,7 @@ const CompanyPlans = () => {
             <div className="pt-4 border-t border-gray-100 space-y-3">
               {activeSubscription?.stripeStatus && (
                 <>
-                  <Button 
+                  <Button
                     onClick={handleOpenBillingPortal}
                     variant="outline"
                     className="w-full"
@@ -574,9 +674,9 @@ const CompanyPlans = () => {
                     )}
                     Manage Payment Method
                   </Button>
-                  
+
                   {activeSubscription?.cancelAtPeriodEnd ? (
-                    <Button 
+                    <Button
                       onClick={handleResumeSubscription}
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
                       disabled={resumeLoading}
@@ -587,7 +687,7 @@ const CompanyPlans = () => {
                       Resume Subscription
                     </Button>
                   ) : (
-                    <Button 
+                    <Button
                       onClick={handleCancelSubscription}
                       variant="destructive"
                       className="w-full"
@@ -601,11 +701,11 @@ const CompanyPlans = () => {
                   )}
                 </>
               )}
-              
+
               {!activeSubscription && (
                 <>
                   <p className="text-sm text-gray-500">Want more features?</p>
-                  <Button 
+                  <Button
                     onClick={() => setView('plans')}
                     className="w-full bg-gradient-to-r from-[#4640DE] to-[#7069fa] hover:from-[#3b35b9] hover:to-[#5e56e8] text-white border-0"
                   >
@@ -619,7 +719,7 @@ const CompanyPlans = () => {
         </Card>
       </div>
 
-      {}
+      { }
       <Card className="border border-gray-200 shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-gray-900">Billing History</CardTitle>
@@ -645,7 +745,7 @@ const CompanyPlans = () => {
                       ${invoice.amount.toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Badge 
+                      <Badge
                         variant={invoice.status === 'Completed' ? 'default' : 'secondary'}
                         className={invoice.status === 'Completed' ? '!bg-green-100 !text-green-700' : ''}
                       >
@@ -654,8 +754,8 @@ const CompanyPlans = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       {invoice.hasStripeInvoice ? (
-                        <Button 
-                          variant="ghost" 
+                        <Button
+                          variant="ghost"
                           size="sm"
                           className="text-[#4640DE] hover:text-[#3730b8] hover:bg-[#4640DE]/10"
                           onClick={() => window.open(invoice.invoiceUrl, '_blank')}
@@ -690,8 +790,8 @@ const CompanyPlans = () => {
   const renderPlans = () => (
     <div className="space-y-12 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => setView('dashboard')}
           className="absolute left-4 top-4 md:left-8 md:top-8 text-gray-500 hover:text-gray-900"
         >
@@ -704,26 +804,24 @@ const CompanyPlans = () => {
           Choose the plan that fits your needs. All plans include essential features to get you started, with options to scale as you grow. No hidden fees and the flexibility to change anytime.
         </p>
 
-        {}
+        { }
         <div className="flex justify-center pt-4">
           <div className="bg-gray-100 p-1 rounded-full flex items-center">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-                billingCycle === 'monthly' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${billingCycle === 'monthly'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-900'
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingCycle('annual')}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-                billingCycle === 'annual' 
-                  ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${billingCycle === 'annual'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-900'
+                }`}
             >
               Annual
             </button>
@@ -734,30 +832,21 @@ const CompanyPlans = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
         {plans.map((plan) => {
           const isPopular = plan.isPopular
-          const isCurrentPlan = activeSubscription?.planId === plan.id
-          
+
           return (
-            <Card 
-              key={plan.id} 
-              className={`relative flex flex-col transition-all duration-300 h-full border-2 ${
-                isCurrentPlan
-                  ? 'border-green-500 shadow-lg ring-2 ring-green-200'
-                  : isPopular 
-                  ? 'border-[#4640DE] shadow-xl scale-105 z-10' 
-                  : 'border-gray-100 hover:border-[#CCCCF5] hover:shadow-lg'
-              }`}
+            <Card
+              key={plan.id}
+              className={`relative flex flex-col transition-all duration-300 h-full border-2 ${isPopular
+                ? 'border-[#4640DE] shadow-xl scale-105 z-10'
+                : 'border-gray-100 hover:border-[#CCCCF5] hover:shadow-lg'
+                }`}
             >
-              {isCurrentPlan && (
-                <div className="bg-green-500 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
-                  Current Plan
-                </div>
-              )}
-              {!isCurrentPlan && isPopular && (
+              {isPopular && (
                 <div className="bg-[#4640DE] !mt-4 text-white text-center py-1.5 text-xs font-bold uppercase tracking-wider rounded-t-lg absolute w-full -top-8 left-0 h-8 flex items-center justify-center">
                   Most Popular Plan
                 </div>
               )}
-              
+
               <CardHeader className="pb-4  !mt-4">
                 <CardTitle className="text-xl font-bold text-gray-900">{plan.name}</CardTitle>
                 <CardDescription className="text-gray-500">{plan.description}</CardDescription>
@@ -773,10 +862,10 @@ const CompanyPlans = () => {
                   ) : (
                     <>
                       <span className="text-4xl font-bold text-gray-900">
-                        {billingCycle === 'annual' 
-                          ? (plan.yearlyDiscount > 0 
-                              ? `${Math.round(plan.price * (1 - plan.yearlyDiscount / 100))}rs`
-                              : `${plan.price}rs`)
+                        {billingCycle === 'annual'
+                          ? (plan.yearlyDiscount > 0
+                            ? `${Math.round(plan.price * (1 - plan.yearlyDiscount / 100))}rs`
+                            : `${plan.price}rs`)
                           : `${plan.price}rs`
                         }
                       </span>
@@ -799,7 +888,7 @@ const CompanyPlans = () => {
                 )}
 
                 <div className="space-y-4 flex-1">
-                  {}
+                  { }
                   <div className="space-y-3 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <div className="flex items-center gap-3 text-sm text-gray-700">
                       <Briefcase className="h-4 w-4 text-[#4640DE]" />
@@ -815,12 +904,12 @@ const CompanyPlans = () => {
                     </div>
                   </div>
 
-                  {}
+                  { }
                   <div className="space-y-3">
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-3">
                         <div className="mt-1 bg-[#4640DE] rounded-full p-0.5">
-                           <Check className="h-3 w-3 text-white" />
+                          <Check className="h-3 w-3 text-white" />
                         </div>
                         <span className="text-sm text-gray-600 leading-tight">
                           {feature}
@@ -834,18 +923,35 @@ const CompanyPlans = () => {
                   className="w-full h-12 text-base font-bold shadow-sm mt-4"
                   variant={isPopular ? 'company' : 'companyOutline'}
                   onClick={() => handleSelectPlan(plan)}
-                  disabled={changingPlan || plan.isDefault || plan.price === 0}
+                  disabled={
+                    changingPlan ||
+                    previewLoading ||
+                    (activeSubscription?.planId === plan.id && (activeSubscription.billingCycle === 'yearly' ? 'annual' : 'monthly') === billingCycle) ||
+                    ((!activeSubscription || activeSubscription.plan?.isDefault || activeSubscription.cancelAtPeriodEnd) && (plan.isDefault || plan.price === 0))
+                  }
                 >
                   {(() => {
                     if (changingPlan) return 'Changing...'
-                    if (activeSubscription?.planId === plan.id) {
-                      const currentBillingCycle = activeSubscription.billingCycle === 'yearly' ? 'annual' : 'monthly'
-                      return currentBillingCycle === billingCycle
+                    if (previewLoading) return 'Loading...'
+
+                    const isDefaultPlanCard = plan.isDefault || plan.price === 0
+                    const userIsOnDefault = !activeSubscription || activeSubscription.plan?.isDefault || !activeSubscription.planId || activeSubscription.cancelAtPeriodEnd
+
+                    if (activeSubscription?.planId === plan.id || (userIsOnDefault && isDefaultPlanCard)) {
+                      const currentBillingCycle = activeSubscription?.billingCycle === 'yearly' ? 'annual' : 'monthly'
+                      return (currentBillingCycle === billingCycle || (isDefaultPlanCard && userIsOnDefault))
                         ? 'Current Plan'
                         : 'Change Billing'
                     }
-                    if (activeSubscription && activeSubscription.stripeSubscriptionId) {
-                      return plan.price > (activeSubscription.plan?.price || 0) ? 'Upgrade' : 'Downgrade'
+                    if (activeSubscription) {
+                      const currentPlanPrice = plans.find(p => p.id === activeSubscription.planId)?.price || 0
+
+                      // If it's the free plan card but we are on a paid plan, it's a downgrade
+                      if (plan.isDefault || plan.price === 0) {
+                        return 'Downgrade'
+                      }
+
+                      return plan.price > currentPlanPrice ? 'Upgrade' : 'Downgrade'
                     }
                     if (plan.isDefault || plan.price === 0) {
                       return 'Default Plan'
@@ -867,7 +973,7 @@ const CompanyPlans = () => {
         {view === 'dashboard' ? renderDashboard() : renderPlans()}
       </div>
 
-      {}
+      { }
       <PurchaseConfirmationDialog
         open={showConfirmDialog}
         onClose={() => {
@@ -881,7 +987,7 @@ const CompanyPlans = () => {
         isUpgrade={!!(activeSubscription && activeSubscription.stripeSubscriptionId)}
       />
 
-      {}
+      { }
       <PurchaseResultDialog
         open={showResultDialog}
         onClose={handleCloseResultDialog}
@@ -889,6 +995,49 @@ const CompanyPlans = () => {
         message={purchaseResult?.message ?? ''}
         invoiceId={purchaseResult?.invoiceId}
         transactionId={purchaseResult?.transactionId}
+      />
+
+      {/* Enhanced Plan Change Dialogs */}
+      <UpgradeConfirmationDialog
+        open={showUpgradeDialog}
+        onOpenChange={(open) => {
+          setShowUpgradeDialog(open)
+          if (!open) {
+            setSelectedPlan(null)
+            setPreviewData(null)
+          }
+        }}
+        previewData={previewData}
+        onConfirm={handleConfirmPurchase}
+        loading={changingPlan}
+      />
+
+      <DowngradeWarningDialog
+        open={showDowngradeDialog}
+        onOpenChange={(open) => {
+          setShowDowngradeDialog(open)
+          if (!open) {
+            setSelectedPlan(null)
+            setPreviewData(null)
+          }
+        }}
+        previewData={previewData}
+        onConfirm={handleConfirmPurchase}
+        loading={changingPlan}
+      />
+
+      <LateralChangeDialog
+        open={showLateralDialog}
+        onOpenChange={(open) => {
+          setShowLateralDialog(open)
+          if (!open) {
+            setSelectedPlan(null)
+            setPreviewData(null)
+          }
+        }}
+        previewData={previewData}
+        onConfirm={handleConfirmPurchase}
+        loading={changingPlan}
       />
     </CompanyLayout>
   )

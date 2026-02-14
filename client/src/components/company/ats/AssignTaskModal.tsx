@@ -1,23 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, Upload, File as FileIcon, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { FileText, Upload, File as FileIcon, Trash2, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { TaskFormData } from '@/pages/company/CandidateProfileTypes';
 
 interface AssignTaskModalProps {
     isOpen: boolean;
     onClose: () => void;
     candidateName: string;
-    onAssign: (data: TaskFormData) => void;
-    taskToEdit?: TaskFormData & { id?: string }; 
-}
-
-interface TaskFormData {
-    title: string;
-    description: string;
-    deadline: string;
-    documentUrl?: string;
-    documentFilename?: string;
-    document?: File;
+    onAssign: (data: TaskFormData) => Promise<void>;
+    taskToEdit?: TaskFormData & { id?: string };
+    isLoading?: boolean;
 }
 
 export const AssignTaskModal = ({
@@ -25,66 +22,99 @@ export const AssignTaskModal = ({
     onClose,
     candidateName,
     onAssign,
-    taskToEdit
+    taskToEdit,
+    isLoading: externalIsLoading = false
 }: AssignTaskModalProps) => {
     const isEditMode = !!taskToEdit;
     const [formData, setFormData] = useState<TaskFormData>({
-        title: taskToEdit?.title || '',
-        description: taskToEdit?.description || '',
-        deadline: taskToEdit?.deadline || '',
-        documentUrl: taskToEdit?.documentUrl,
-        documentFilename: taskToEdit?.documentFilename
+        title: '',
+        description: '',
+        deadline: '',
+        documentUrl: undefined,
+        documentFilename: undefined
     });
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [existingDocumentUrl, setExistingDocumentUrl] = useState<string | undefined>(taskToEdit?.documentUrl);
+    const [errors, setErrors] = useState<Partial<Record<keyof TaskFormData, string>>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    
-    useEffect(() => {
-        if (taskToEdit) {
-            setFormData({
-                title: taskToEdit.title || '',
-                description: taskToEdit.description || '',
-                deadline: taskToEdit.deadline || '',
-                documentUrl: taskToEdit.documentUrl,
-                documentFilename: taskToEdit.documentFilename
-            });
-            setExistingDocumentUrl(taskToEdit.documentUrl);
-        } else {
-            setFormData({
-                title: '',
-                description: '',
-                deadline: '',
-                documentUrl: undefined,
-                documentFilename: undefined
-            });
-            setExistingDocumentUrl(undefined);
-        }
-        setSelectedFile(null);
-    }, [taskToEdit]);
+    const isLoading = externalIsLoading || isSubmitting;
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    useEffect(() => {
+        if (isOpen) {
+            setErrors({});
+            setIsSubmitting(false);
+            if (taskToEdit) {
+                setFormData({
+                    title: taskToEdit.title || '',
+                    description: taskToEdit.description || '',
+                    deadline: taskToEdit.deadline ? new Date(taskToEdit.deadline).toISOString().split('T')[0] : '',
+                    documentUrl: taskToEdit.documentUrl,
+                    documentFilename: taskToEdit.documentFilename
+                });
+            } else {
+                setFormData({
+                    title: '',
+                    description: '',
+                    deadline: '',
+                    documentUrl: undefined,
+                    documentFilename: undefined
+                });
+            }
+            setSelectedFile(null);
+        }
+    }, [taskToEdit, isOpen]);
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent | File) => {
+        let file: File | undefined;
+
+        if (e instanceof File) {
+            file = e;
+        } else if ('target' in e && (e.target as HTMLInputElement).files?.[0]) {
+            file = (e.target as HTMLInputElement).files![0];
+        } else if ('dataTransfer' in e && e.dataTransfer.files?.[0]) {
+            file = e.dataTransfer.files[0];
+        }
+
         if (file) {
-            
             const validTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (!validTypes.some(type => file.type.includes(type.split('/')[1]) || file.type === type)) {
-                alert('Please select a valid file (PDF, DOC, DOCX, or ZIP)');
+            const fileExt = file.name.split('.').pop()?.toLowerCase();
+            const allowedExts = ['pdf', 'doc', 'docx', 'zip'];
+
+            if (!validTypes.some(type => file.type === type) && !allowedExts.includes(fileExt || '')) {
+                setErrors(prev => ({ ...prev, document: 'Please select a valid file (PDF, DOC, DOCX, or ZIP)' }));
                 return;
             }
-            
+
             if (file.size > 10 * 1024 * 1024) {
-                alert('File size must be less than 10MB');
+                setErrors(prev => ({ ...prev, document: 'File size must be less than 10MB' }));
                 return;
             }
+
+            setErrors(prev => ({ ...prev, document: undefined }));
             setSelectedFile(file);
-            
             setFormData(prev => ({
                 ...prev,
-                documentFilename: file.name,
-                documentUrl: URL.createObjectURL(file) 
+                documentFilename: file!.name
             }));
         }
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        if (!isLoading) setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (!isLoading) handleFileSelect(e);
     };
 
     const handleRemoveFile = () => {
@@ -99,212 +129,212 @@ export const AssignTaskModal = ({
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const validate = (): boolean => {
+        const newErrors: Partial<Record<keyof TaskFormData, string>> = {};
+        let isValid = true;
+
+        if (!formData.title.trim()) {
+            newErrors.title = 'Task title is required';
+            isValid = false;
+        }
+
+        if (!formData.description.trim()) {
+            newErrors.description = 'Task description is required';
+            isValid = false;
+        }
+
+        if (!formData.deadline) {
+            newErrors.deadline = 'Deadline is required';
+            isValid = false;
+        } else {
+            const selectedDate = new Date(formData.deadline);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedDate < today) {
+                newErrors.deadline = 'Deadline cannot be in the past';
+                isValid = false;
+            }
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        onAssign({
-            ...formData,
-            document: selectedFile || undefined
-        });
-        
-        setFormData({
-            title: '',
-            description: '',
-            deadline: '',
-            documentUrl: undefined,
-            documentFilename: undefined
-        });
-        setSelectedFile(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        onClose();
-    };
 
-    const handleClose = () => {
-        if (!taskToEdit) {
-            setFormData({
-                title: '',
-                description: '',
-                deadline: '',
-                documentUrl: undefined,
-                documentFilename: undefined
+        if (!validate()) {
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            await onAssign({
+                ...formData,
+                document: selectedFile || undefined
             });
-            setSelectedFile(null);
-            setExistingDocumentUrl(undefined);
+            onClose();
+        } catch (error) {
+            console.error('Failed to assign task:', error);
+        } finally {
+            setIsSubmitting(false);
         }
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        onClose();
     };
 
-    if (!isOpen) return null;
+    const handleInputChange = (field: keyof TaskFormData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-                <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={handleClose} />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
-                >
-                    {}
-                    <div className="flex items-center justify-between p-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-stage-task/20 flex items-center justify-center">
-                                <FileText className="w-5 h-5 text-stage-task" />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-semibold text-foreground">{isEditMode ? 'Edit Technical Task' : 'Assign Technical Task'}</h2>
-                                {!isEditMode && <p className="text-sm text-muted-foreground">For {candidateName}</p>}
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-muted-foreground" />
-                        </button>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader className="space-y-1">
+                    <DialogTitle className="flex items-center gap-2 text-lg">
+                        <FileText className="w-5 h-5 text-[#4640DE]" />
+                        {isEditMode ? 'Edit Technical Task' : 'Assign Technical Task'}
+                    </DialogTitle>
+                    <DialogDescription className="text-sm">
+                        Assign a technical evaluation task for <span className="font-medium text-foreground">{candidateName}</span>
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="py-2 space-y-4">
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="title" className="text-sm">
+                            Task Title <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="title"
+                            value={formData.title}
+                            onChange={(e) => handleInputChange('title', e.target.value)}
+                            placeholder="e.g., React Dashboard Component"
+                            className={cn("h-9", errors.title && "border-red-500 focus-visible:ring-red-500")}
+                            disabled={isLoading}
+                        />
+                        {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                     </div>
 
-                    {}
-                    <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        {}
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Task Title
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="e.g., React Dashboard Component"
-                                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                required
-                            />
-                        </div>
+                    {/* Description */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="description" className="text-sm">
+                            Description <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                            id="description"
+                            value={formData.description}
+                            onChange={(e) => handleInputChange('description', e.target.value)}
+                            placeholder="Describe the task requirements and expectations..."
+                            rows={4}
+                            className={cn("resize-none", errors.description && "border-red-500 focus-visible:ring-red-500")}
+                            disabled={isLoading}
+                        />
+                        {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
+                    </div>
 
-                        {}
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Task Description
-                            </label>
-                            <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="Describe the task requirements and expectations..."
-                                rows={5}
-                                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
-                                required
-                            />
-                        </div>
+                    {/* Deadline */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="deadline" className="text-sm">
+                            Deadline <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="deadline"
+                            type="date"
+                            value={formData.deadline}
+                            onChange={(e) => handleInputChange('deadline', e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                            className={cn("h-9", errors.deadline && "border-red-500 focus-visible:ring-red-500")}
+                            disabled={isLoading}
+                        />
+                        {errors.deadline && <p className="text-xs text-red-500">{errors.deadline}</p>}
+                    </div>
 
-                        {}
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Deadline
-                            </label>
-                            <input
-                                type="date"
-                                value={formData.deadline}
-                                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                required
-                            />
-                        </div>
-
-                        {}
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Attach Documents (Optional)
-                            </label>
-                            {existingDocumentUrl && !selectedFile && (
-                                <div className="border border-border rounded-lg p-4 bg-muted/50 flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <FileIcon className="w-5 h-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">{formData.documentFilename || 'Current Document'}</p>
-                                        </div>
+                    {/* File Attachment */}
+                    <div className="space-y-1.5">
+                        <Label className="text-sm">Attachment (Optional)</Label>
+                        {(formData.documentUrl || selectedFile) ? (
+                            <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="p-2 bg-white rounded border">
+                                        <FileIcon className="w-4 h-4 text-muted-foreground" />
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setExistingDocumentUrl(undefined);
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                documentUrl: undefined,
-                                                documentFilename: undefined
-                                            }));
-                                        }}
-                                        className="text-destructive hover:text-destructive/80 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            )}
-                            {!selectedFile && !existingDocumentUrl && (
-                                <div 
-                                    className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept=".pdf,.doc,.docx,.zip"
-                                        onChange={handleFileSelect}
-                                        className="hidden"
-                                    />
-                                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">
-                                        Click to upload or drag and drop
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        PDF, DOC, DOCX, ZIP up to 10MB
-                                    </p>
-                                </div>
-                            )}
-                            {selectedFile && (
-                                <div className="border border-border rounded-lg p-4 bg-muted/50 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <FileIcon className="w-5 h-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
-                                            <p className="text-xs text-muted-foreground">
+                                    <div className="overflow-hidden">
+                                        <p className="text-sm font-medium truncate">
+                                            {selectedFile ? selectedFile.name : formData.documentFilename}
+                                        </p>
+                                        {selectedFile && (
+                                            <p className="text-[10px] text-muted-foreground">
                                                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                                             </p>
-                                        </div>
+                                        )}
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveFile}
-                                        className="text-destructive hover:text-destructive/80 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
                                 </div>
-                            )}
-                        </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                    onClick={handleRemoveFile}
+                                    disabled={isLoading}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <div
+                                className={cn(
+                                    "border-2 border-dashed rounded-md p-4 transition-colors cursor-pointer text-center",
+                                    "hover:bg-muted/50 hover:border-primary/50",
+                                    isDragging ? "border-primary bg-primary/5" : "border-muted",
+                                    errors.document ? "border-red-500 bg-red-50/50" : ""
+                                )}
+                                onClick={() => !isLoading && fileInputRef.current?.click()}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.zip"
+                                    onChange={handleFileSelect}
+                                    className="hidden"
+                                />
+                                <Upload className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
+                                <div className="space-y-1">
+                                    <p className="text-xs font-medium">Click to upload or drag and drop</p>
+                                    <p className="text-[10px] text-muted-foreground">PDF, DOC, DOCX, ZIP (MAX. 10MB)</p>
+                                </div>
+                            </div>
+                        )}
+                        {errors.document && <p className="text-xs text-red-500">{errors.document}</p>}
+                    </div>
+                </div>
 
-                        {}
-                        <div className="flex gap-3 pt-2">
-                            <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
-                                Cancel
-                            </Button>
-                            <Button type="submit" className="flex-1 gradient-primary text-primary-foreground hover:opacity-90">
-                                {isEditMode ? 'Update Task' : 'Assign Task'}
-                            </Button>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                <DialogFooter className="gap-2 sm:gap-0 pt-2">
+                    <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="bg-[#4640DE] hover:bg-[#3730A3]"
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                {isEditMode ? 'Saving...' : 'Assigning...'}
+                            </>
+                        ) : (
+                            isEditMode ? 'Update Task' : 'Assign Task'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };

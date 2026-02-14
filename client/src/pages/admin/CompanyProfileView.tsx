@@ -107,7 +107,6 @@ const CompanyProfileView = () => {
     )
   }
 
-  // Mapping actual data from the company object
   const displayData = {
     profile: {
       company_name: company.companyName,

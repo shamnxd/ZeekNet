@@ -51,8 +51,8 @@ interface ProfileExperiencesProps {
     handleEditExperience: () => Promise<void>;
     handleRemoveExperience: (id: string) => void;
     confirmRemoveExperience: () => Promise<void>;
-    experienceError: string;
-    setExperienceError: (msg: string) => void;
+    experienceErrors: Record<string, string>;
+    setExperienceErrors: (errors: Record<string, string>) => void;
     saving: boolean;
     isoToDateInput: (isoDate: string) => string;
     formatPeriod: (startDate: string, endDate?: string, isCurrent?: boolean) => string;
@@ -77,8 +77,8 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
     handleEditExperience,
     handleRemoveExperience,
     confirmRemoveExperience,
-    experienceError,
-    setExperienceError,
+    experienceErrors,
+    setExperienceErrors,
     saving,
     isoToDateInput,
     formatPeriod,
@@ -106,7 +106,7 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                 technologies: [],
                                 isCurrent: false,
                             });
-                            setExperienceError('');
+                            setExperienceErrors({});
                             setAddExperienceOpen(true);
                         }}
                     >
@@ -165,7 +165,8 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                                             isCurrent: expData.isCurrent,
                                                         });
                                                         setEditingExperienceId(exp.id);
-                                                        setExperienceError('');
+                                                        setEditingExperienceId(exp.id);
+                                                        setExperienceErrors({});
                                                         setEditExperienceOpen(true);
                                                     }
                                                 }}
@@ -203,15 +204,15 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                         ))
                     )}
                 </div>
-            </Card>
+            </Card >
 
             <Dialog open={addExperienceOpen} onOpenChange={setAddExperienceOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Add Experience</DialogTitle>
                     </DialogHeader>
-                    {experienceError && (
-                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceError}</p>
+                    {experienceErrors.general && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceErrors.general}</p>
                     )}
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -219,18 +220,28 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                             <Input
                                 id="exp-title"
                                 value={experienceData.title}
-                                onChange={(e) => setExperienceData({ ...experienceData, title: e.target.value })}
+                                onChange={(e) => {
+                                    setExperienceData({ ...experienceData, title: e.target.value });
+                                    if (experienceErrors.title) setExperienceErrors({ ...experienceErrors, title: '' });
+                                }}
                                 placeholder="e.g., Software Engineer"
+                                className={experienceErrors.title ? 'border-red-500' : ''}
                             />
+                            {experienceErrors.title && <p className="text-xs text-red-500">{experienceErrors.title}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="exp-company">Company</Label>
                             <Input
                                 id="exp-company"
                                 value={experienceData.company}
-                                onChange={(e) => setExperienceData({ ...experienceData, company: e.target.value })}
+                                onChange={(e) => {
+                                    setExperienceData({ ...experienceData, company: e.target.value });
+                                    if (experienceErrors.company) setExperienceErrors({ ...experienceErrors, company: '' });
+                                }}
                                 placeholder="e.g., Google"
+                                className={experienceErrors.company ? 'border-red-500' : ''}
                             />
+                            {experienceErrors.company && <p className="text-xs text-red-500">{experienceErrors.company}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="exp-description">Description</Label>
@@ -248,9 +259,14 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                 <Input
                                     id="exp-type"
                                     value={experienceData.employmentType}
-                                    onChange={(e) => setExperienceData({ ...experienceData, employmentType: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, employmentType: e.target.value });
+                                        if (experienceErrors.employmentType) setExperienceErrors({ ...experienceErrors, employmentType: '' });
+                                    }}
                                     placeholder="e.g., full-time, part-time"
+                                    className={experienceErrors.employmentType ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.employmentType && <p className="text-xs text-red-500">{experienceErrors.employmentType}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="exp-location">Location</Label>
@@ -269,8 +285,13 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                     id="exp-start"
                                     type="date"
                                     value={experienceData.startDate}
-                                    onChange={(e) => setExperienceData({ ...experienceData, startDate: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, startDate: e.target.value });
+                                        if (experienceErrors.startDate) setExperienceErrors({ ...experienceErrors, startDate: '' });
+                                    }}
+                                    className={experienceErrors.startDate ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.startDate && <p className="text-xs text-red-500">{experienceErrors.startDate}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="exp-end">End Date</Label>
@@ -278,9 +299,14 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                     id="exp-end"
                                     type="date"
                                     value={experienceData.endDate}
-                                    onChange={(e) => setExperienceData({ ...experienceData, endDate: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, endDate: e.target.value });
+                                        if (experienceErrors.endDate) setExperienceErrors({ ...experienceErrors, endDate: '' });
+                                    }}
                                     disabled={experienceData.isCurrent}
+                                    className={experienceErrors.endDate ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.endDate && <p className="text-xs text-red-500">{experienceErrors.endDate}</p>}
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -322,18 +348,7 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                             Cancel
                         </Button>
                         <Button
-                            onClick={() => {
-                                if (experienceData.isCurrent && experienceData.endDate) {
-                                    setExperienceError('Current experience cannot have an end date');
-                                    return;
-                                }
-                                if (!experienceData.isCurrent && experienceData.startDate && experienceData.endDate && new Date(experienceData.endDate) <= new Date(experienceData.startDate)) {
-                                    setExperienceError('End date must be after start date');
-                                    return;
-                                }
-                                setExperienceError('');
-                                handleAddExperience();
-                            }}
+                            onClick={handleAddExperience}
                             className="bg-cyan-600 hover:bg-cyan-700"
                             disabled={saving}
                         >
@@ -348,8 +363,8 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                     <DialogHeader>
                         <DialogTitle className="!text-lg !font-bold">Edit Experience</DialogTitle>
                     </DialogHeader>
-                    {experienceError && (
-                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceError}</p>
+                    {experienceErrors.general && (
+                        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{experienceErrors.general}</p>
                     )}
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -357,18 +372,28 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                             <Input
                                 id="edit-exp-title"
                                 value={experienceData.title}
-                                onChange={(e) => setExperienceData({ ...experienceData, title: e.target.value })}
+                                onChange={(e) => {
+                                    setExperienceData({ ...experienceData, title: e.target.value });
+                                    if (experienceErrors.title) setExperienceErrors({ ...experienceErrors, title: '' });
+                                }}
                                 placeholder="e.g., Software Engineer"
+                                className={experienceErrors.title ? 'border-red-500' : ''}
                             />
+                            {experienceErrors.title && <p className="text-xs text-red-500">{experienceErrors.title}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-exp-company">Company</Label>
                             <Input
                                 id="edit-exp-company"
                                 value={experienceData.company}
-                                onChange={(e) => setExperienceData({ ...experienceData, company: e.target.value })}
+                                onChange={(e) => {
+                                    setExperienceData({ ...experienceData, company: e.target.value });
+                                    if (experienceErrors.company) setExperienceErrors({ ...experienceErrors, company: '' });
+                                }}
                                 placeholder="e.g., Google"
+                                className={experienceErrors.company ? 'border-red-500' : ''}
                             />
+                            {experienceErrors.company && <p className="text-xs text-red-500">{experienceErrors.company}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="edit-exp-description">Description</Label>
@@ -386,9 +411,14 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                 <Input
                                     id="edit-exp-type"
                                     value={experienceData.employmentType}
-                                    onChange={(e) => setExperienceData({ ...experienceData, employmentType: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, employmentType: e.target.value });
+                                        if (experienceErrors.employmentType) setExperienceErrors({ ...experienceErrors, employmentType: '' });
+                                    }}
                                     placeholder="e.g., full-time, part-time"
+                                    className={experienceErrors.employmentType ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.employmentType && <p className="text-xs text-red-500">{experienceErrors.employmentType}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="edit-exp-location">Location</Label>
@@ -407,8 +437,13 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                     id="edit-exp-start"
                                     type="date"
                                     value={experienceData.startDate}
-                                    onChange={(e) => setExperienceData({ ...experienceData, startDate: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, startDate: e.target.value });
+                                        if (experienceErrors.startDate) setExperienceErrors({ ...experienceErrors, startDate: '' });
+                                    }}
+                                    className={experienceErrors.startDate ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.startDate && <p className="text-xs text-red-500">{experienceErrors.startDate}</p>}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="edit-exp-end">End Date</Label>
@@ -416,9 +451,14 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                                     id="edit-exp-end"
                                     type="date"
                                     value={experienceData.endDate}
-                                    onChange={(e) => setExperienceData({ ...experienceData, endDate: e.target.value })}
+                                    onChange={(e) => {
+                                        setExperienceData({ ...experienceData, endDate: e.target.value });
+                                        if (experienceErrors.endDate) setExperienceErrors({ ...experienceErrors, endDate: '' });
+                                    }}
                                     disabled={experienceData.isCurrent}
+                                    className={experienceErrors.endDate ? 'border-red-500' : ''}
                                 />
+                                {experienceErrors.endDate && <p className="text-xs text-red-500">{experienceErrors.endDate}</p>}
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -460,18 +500,7 @@ export const ProfileExperiences: React.FC<ProfileExperiencesProps> = ({
                             Cancel
                         </Button>
                         <Button
-                            onClick={() => {
-                                if (experienceData.isCurrent && experienceData.endDate) {
-                                    setExperienceError('Current experience cannot have an end date');
-                                    return;
-                                }
-                                if (!experienceData.isCurrent && experienceData.startDate && experienceData.endDate && new Date(experienceData.endDate) <= new Date(experienceData.startDate)) {
-                                    setExperienceError('End date must be after start date');
-                                    return;
-                                }
-                                setExperienceError('');
-                                handleEditExperience();
-                            }}
+                            onClick={handleEditExperience}
                             className="bg-cyan-600 hover:bg-cyan-700"
                             disabled={saving}
                         >

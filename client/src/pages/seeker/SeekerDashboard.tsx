@@ -11,6 +11,7 @@ import { atsService } from '@/services/ats.service';
 import JobCard from '@/components/jobs/JobCard';
 import type { Application } from '@/interfaces/application/application.interface';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
+import { formatATSStage } from '@/utils/formatters';
 
 type ScheduleItem = {
   id: string;
@@ -167,7 +168,7 @@ function SeekerDashboard() {
 
   return (
     <div className="px-8 xl:px-11 py-9 space-y-6 bg-[#f8f9ff] min-h-screen">
-      
+
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-[26px] font-bold text-[#1f2937]">
@@ -188,10 +189,10 @@ function SeekerDashboard() {
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <Icon className={`w-7 h-7 ${stat.iconColor}`} />
                 </div>
-              <div>
-                <p className="text-[13px] font-medium text-[#6b7280] mb-1">{stat.label}</p>
-                <p className="text-[28px] font-bold text-[#1f2937] leading-none">{stat.value}</p>
-              </div>
+                <div>
+                  <p className="text-[13px] font-medium text-[#6b7280] mb-1">{stat.label}</p>
+                  <p className="text-[28px] font-bold text-[#1f2937] leading-none">{stat.value}</p>
+                </div>
               </div>
             </Card>
           );
@@ -199,7 +200,7 @@ function SeekerDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        
+
         <Card className="lg:col-span-2 bg-white border border-[#e5e7eb] rounded-lg shadow-sm !p-0 !gap-0 overflow-hidden">
           <div className="p-5 border-b border-[#e5e7eb] bg-gradient-to-r from-[#f8f9ff] to-white">
             <div className="flex items-center justify-between">
@@ -210,7 +211,7 @@ function SeekerDashboard() {
               </button>
             </div>
           </div>
-          
+
           <div className="divide-y divide-[#e5e7eb]">
             {loading ? (
               <div className="p-8 text-center text-[#6b7280] text-sm">Loading...</div>
@@ -246,8 +247,8 @@ function SeekerDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="px-3 py-1 rounded-full text-[11px] font-bold capitalize">
-                        {(app?.stage as string) || 'Applied'}
+                      <Badge variant="outline" className="px-3 py-1 rounded-full text-[11px] font-bold">
+                        {formatATSStage((app?.stage as string) || 'Applied')}
                       </Badge>
                     </div>
                   </div>

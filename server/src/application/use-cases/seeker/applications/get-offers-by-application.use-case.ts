@@ -32,11 +32,14 @@ export class GetOffersByApplicationUseCase implements IGetOffersByApplicationUse
     return Promise.all(
       offers.map(async (offer) => {
         try {
-          const signedUrl = await this._s3Service.getSignedUrl(offer.documentUrl);
           const offerDto: OfferForSeekerDto = {
             ...offer,
-            documentUrl: signedUrl,
           };
+
+          if (offer.documentUrl) {
+            const signedUrl = await this._s3Service.getSignedUrl(offer.documentUrl);
+            offerDto.documentUrl = signedUrl;
+          }
 
           if (offer.signedDocumentUrl) {
             const signedDocUrl = await this._s3Service.getSignedUrl(offer.signedDocumentUrl);

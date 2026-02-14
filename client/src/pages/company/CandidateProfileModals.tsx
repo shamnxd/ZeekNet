@@ -37,11 +37,9 @@ interface CandidateProfileModalsProps {
   candidateName: string;
   currentId?: string;
 
-  // ATS / job context
   atsApplication: CompanySideApplication | null;
   atsJob: JobPostingResponse | null;
 
-  // Interviews / tasks
   showScheduleModal: boolean;
   setShowScheduleModal: (open: boolean) => void;
   selectedInterviewForReschedule: ATSInterview | null;
@@ -56,7 +54,6 @@ interface CandidateProfileModalsProps {
   selectedTaskForEdit: ExtendedATSTechnicalTask | null;
   setSelectedTaskForEdit: (value: ExtendedATSTechnicalTask | null) => void;
 
-  // Stage / comments
   selectedStage: string;
   showCommentModal: boolean;
   setShowCommentModal: (open: boolean) => void;
@@ -67,7 +64,6 @@ interface CandidateProfileModalsProps {
   showRejectConfirmDialog: boolean;
   setShowRejectConfirmDialog: (open: boolean) => void;
 
-  // Compensation
   showCompensationInitModal: boolean;
   setShowCompensationInitModal: (open: boolean) => void;
   showCompensationUpdateModal: boolean;
@@ -77,7 +73,6 @@ interface CandidateProfileModalsProps {
   selectedMeetingForEdit: CompensationMeeting | null;
   setSelectedMeetingForEdit: (value: CompensationMeeting | null) => void;
   compensationData: CompensationData | null;
-  compensationNotes: Array<{ comment: string; note?: string; recruiterName?: string; createdAt: string; }>;
   compensationMeetings: CompensationMeeting[];
 
   // Offer
@@ -94,12 +89,10 @@ interface CandidateProfileModalsProps {
   withdrawing: boolean;
   setWithdrawing: (value: boolean) => void;
 
-  // Limit exceeded
   showLimitExceededDialog: boolean;
   setShowLimitExceededDialog: (open: boolean) => void;
   limitExceededData: { currentLimit: number; used: number } | null;
 
-  // Handlers
   handleScheduleInterview: (data: InterviewFormData) => Promise<void>;
   handleSubmitFeedback: (id: string, rating: number, feedback: string) => Promise<void>;
   handleSubmitTaskFeedback: (id: string, rating: number, feedback: string) => Promise<void>;
@@ -113,6 +106,7 @@ interface CandidateProfileModalsProps {
   handleScheduleCompensationMeeting: (data: CompensationMeetingFormData) => Promise<void>;
   handleCreateOffer: (data: OfferFormData) => Promise<void>;
   reloadData: () => Promise<void>;
+  isUpdating?: boolean;
 }
 
 export function CandidateProfileModals(props: CandidateProfileModalsProps) {
@@ -152,7 +146,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
     selectedMeetingForEdit,
     setSelectedMeetingForEdit,
     compensationData,
-    compensationNotes,
     showCreateOfferModal,
     setShowCreateOfferModal,
     showEditOfferModal,
@@ -181,6 +174,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
     handleScheduleCompensationMeeting,
     handleCreateOffer,
     reloadData,
+    isUpdating = false,
   } = props;
 
   const navigate = useNavigate();
@@ -238,6 +232,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
           }}
           candidateName={candidateName}
           onAssign={handleAssignTask}
+          isLoading={isUpdating}
           taskToEdit={
             selectedTaskForEdit
               ? {
@@ -268,6 +263,7 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
           return (stage || ATSStage.IN_REVIEW) as ATSStage;
         })()}
         onAdd={handleAddComment}
+        isLoading={isUpdating}
       />
 
       {/* Move To Stage Modal */}
@@ -331,12 +327,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
               companyProposed: compensationData.companyProposed,
               benefits: compensationData.benefits,
               expectedJoining: compensationData.expectedJoining,
-              notes:
-                compensationNotes.length > 0
-                  ? compensationNotes[0].comment ||
-                  compensationNotes[0].note ||
-                  ""
-                  : undefined,
             }
             : undefined
         }
@@ -350,14 +340,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
         candidateExpected={compensationData?.candidateExpected}
         existingBenefits={compensationData?.benefits}
         existingExpectedJoining={compensationData?.expectedJoining}
-        existingNotes={
-          compensationNotes.length > 0
-            ? compensationNotes[0].comment ||
-            compensationNotes[0].note ||
-            "" ||
-            undefined
-            : undefined
-        }
         onUpdate={handleUpdateCompensation}
       />
 

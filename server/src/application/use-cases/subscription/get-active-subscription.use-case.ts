@@ -53,17 +53,13 @@ export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCa
     const jobs = await this._jobPostingRepository.getJobsByCompany(companyProfile.id, { status: 1 });
     const activeJobCount = jobs.filter(job => job.status === 'active').length;
 
-    // Get the plan to include applicantAccessLimit in response
     const plan = await this._subscriptionPlanRepository.findById(subscription.planId);
-
-    // Sync featured jobs count
     const featuredJobsResult = await this._jobPostingRepository.paginate({
-      companyId: companyProfile.id,
-      isFeatured: true,
+      company_id: companyProfile.id,
+      is_featured: true,
       status: 'active',
     }, { page: 1, limit: 1 });
 
-    // Update local subscription object for response
     subscription = CompanySubscription.create({
       ...subscription,
       featuredJobsUsed: featuredJobsResult.total,

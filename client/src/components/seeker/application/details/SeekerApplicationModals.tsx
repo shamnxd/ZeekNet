@@ -4,26 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Upload, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { TaskSubmissionModal } from '@/components/seeker/TaskSubmissionModal';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import type { ExtendedATSOfferDocument, ExtendedATSTechnicalTask } from '@/interfaces/seeker/application-details.types';
 
 interface SeekerApplicationModalsProps {
-    
+
     selectedTask: ExtendedATSTechnicalTask | null;
     showSubmissionModal: boolean;
     setShowSubmissionModal: (show: boolean) => void;
     setSelectedTask: (task: ExtendedATSTechnicalTask | null) => void;
     onSubmitTask: (data: Record<string, unknown>) => Promise<void>;
 
-    
-    showRescheduleInterviewModal: boolean;
-    setShowRescheduleInterviewModal: (show: boolean) => void;
-
-    
-    showRescheduleMeetingModal: boolean;
-    setShowRescheduleMeetingModal: (show: boolean) => void;
-
-    
     showSignedDocumentModal: boolean;
     setShowSignedDocumentModal: (show: boolean) => void;
     selectedOffer: ExtendedATSOfferDocument | null;
@@ -33,12 +23,12 @@ interface SeekerApplicationModalsProps {
     uploading: boolean;
     onUploadSigned: () => Promise<void>;
 
-    
+
     showDeclineConfirmDialog: boolean;
     setShowDeclineConfirmDialog: (show: boolean) => void;
     setOfferToDecline: (offer: { applicationId: string; offerId: string } | null) => void;
     declining: boolean;
-    onDeclineConfirm: () => Promise<void>;
+    onDeclineConfirm: (reason: string) => Promise<void>;
 }
 
 export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = ({
@@ -47,12 +37,6 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
     setShowSubmissionModal,
     setSelectedTask,
     onSubmitTask,
-
-    showRescheduleInterviewModal,
-    setShowRescheduleInterviewModal,
-
-    showRescheduleMeetingModal,
-    setShowRescheduleMeetingModal,
 
     showSignedDocumentModal,
     setShowSignedDocumentModal,
@@ -69,9 +53,12 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
     declining,
     onDeclineConfirm,
 }) => {
+    const [declineReason, setDeclineReason] = React.useState('');
+    const [otherDeclineReason, setOtherDeclineReason] = React.useState('');
+
     return (
         <>
-            {}
+            { }
             {selectedTask && (
                 <TaskSubmissionModal
                     open={showSubmissionModal}
@@ -84,47 +71,6 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
                 />
             )}
 
-            {}
-            {showRescheduleInterviewModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h3 className="text-lg font-semibold text-[#1f2937] mb-4">Request to Reschedule Interview</h3>
-                        <p className="text-[14px] text-[#6b7280] mb-6">
-                            This feature will be available soon. You can contact the recruiter directly to request a reschedule.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowRescheduleInterviewModal(false)}
-                            >
-                                Close
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {}
-            {showRescheduleMeetingModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h3 className="text-lg font-semibold text-[#1f2937] mb-4">Reschedule Meeting</h3>
-                        <p className="text-[14px] text-[#6b7280] mb-6">
-                            This feature will be available soon. You can contact the recruiter directly to reschedule the meeting.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowRescheduleMeetingModal(false)}
-                            >
-                                Close
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {}
             {showSignedDocumentModal && selectedOffer && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
                     <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -219,21 +165,78 @@ export const SeekerApplicationModals: React.FC<SeekerApplicationModalsProps> = (
                 </div>
             )}
 
-            {}
-            <ConfirmationDialog
-                isOpen={showDeclineConfirmDialog}
-                onClose={() => {
-                    setShowDeclineConfirmDialog(false);
-                    setOfferToDecline(null);
-                }}
-                onConfirm={onDeclineConfirm}
-                title="Decline Offer"
-                description="Are you sure you want to decline this offer? This action cannot be undone."
-                confirmText="Decline Offer"
-                cancelText="Cancel"
-                variant="danger"
-                isLoading={declining}
-            />
+            { }
+            {showDeclineConfirmDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                        <h3 className="text-lg font-semibold text-[#1f2937] mb-2">Decline Offer</h3>
+                        <p className="text-[14px] text-[#6b7280] mb-4">
+                            Are you sure you want to decline this offer? Please provide a reason below.
+                        </p>
+
+                        <div className="space-y-4 mb-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Reason for Declining <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4640de]"
+                                    value={declineReason}
+                                    onChange={(e) => setDeclineReason(e.target.value)}
+                                >
+                                    <option value="">Select a reason</option>
+                                    <option value="Better offer from another company">Better offer from another company</option>
+                                    <option value="Salary not meeting expectations">Salary not meeting expectations</option>
+                                    <option value="Role responsibilities different than expected">Role responsibilities different than expected</option>
+                                    <option value="Personal / Family reasons">Personal / Family reasons</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            {declineReason === 'Other' && (
+                                <div>
+                                    <textarea
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4640de]"
+                                        placeholder="Please specify your reason..."
+                                        rows={3}
+                                        value={otherDeclineReason}
+                                        onChange={(e) => setOtherDeclineReason(e.target.value)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setShowDeclineConfirmDialog(false);
+                                    setOfferToDecline(null);
+                                    setDeclineReason('');
+                                    setOtherDeclineReason('');
+                                }}
+                                disabled={declining}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    const finalReason = declineReason === 'Other' ? otherDeclineReason : declineReason;
+                                    if (!finalReason) {
+                                        toast.error('Please provide a reason');
+                                        return;
+                                    }
+                                    onDeclineConfirm(finalReason);
+                                }}
+                                disabled={declining || !declineReason || (declineReason === 'Other' && !otherDeclineReason)}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                            >
+                                {declining ? 'Declining...' : 'Decline Offer'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

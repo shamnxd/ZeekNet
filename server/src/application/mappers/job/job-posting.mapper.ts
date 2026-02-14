@@ -1,12 +1,10 @@
-import { JobPosting, ATSPipelineConfig } from 'src/domain/entities/job-posting.entity';
+import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { EmploymentType } from 'src/domain/enums/employment-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { Salary } from 'src/domain/interfaces/salary.interface';
-import { STAGE_TO_SUB_STAGES } from 'src/domain/utils/ats-pipeline.util';
 import { JobPostingResponseDto, JobPostingDetailResponseDto, CompanyJobPostingListItemDto, PublicJobListItemDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 import { AdminJobListItem, AdminJobStatsResponseDto } from 'src/application/dtos/admin/job/responses/admin-job-response.dto';
-import { CreateInput } from 'src/domain/types/common.types';
 
 export class JobPostingMapper {
   static toDomain(data: {
@@ -38,19 +36,9 @@ export class JobPostingMapper {
     ];
     let enabledStages = data.enabledStages || defaultEnabledStages;
 
-
     if (!enabledStages.includes(ATSStage.OFFER)) {
       enabledStages = [...enabledStages, ATSStage.OFFER];
     }
-
-
-    const atsPipelineConfig: ATSPipelineConfig = {};
-    enabledStages.forEach((stage) => {
-
-      if (STAGE_TO_SUB_STAGES[stage]) {
-        atsPipelineConfig[stage] = [...STAGE_TO_SUB_STAGES[stage]];
-      }
-    });
 
     return JobPosting.create({
       id: data.id,
@@ -67,7 +55,6 @@ export class JobPostingMapper {
       skillsRequired: data.skillsRequired,
       categoryIds: data.categoryIds,
       enabledStages,
-      atsPipelineConfig,
       isFeatured: data.isFeatured || false,
       status: JobStatus.ACTIVE,
       viewCount: 0,
@@ -76,6 +63,7 @@ export class JobPostingMapper {
       filledVacancies: 0,
     });
   }
+
   static toResponse(
     jobPosting: JobPosting,
     companyData?: { companyName: string; logo: string },
@@ -232,6 +220,8 @@ export class JobPostingMapper {
       unpublishReason: job.unpublishReason,
       createdAt: job.createdAt,
       enabled_stages: job.enabledStages,
+      totalVacancies: job.totalVacancies,
+      filledVacancies: job.filledVacancies,
     };
   }
 
@@ -261,5 +251,3 @@ export class JobPostingMapper {
     return jobs.map((job) => this.toPublicJobListItem(job));
   }
 }
-
-

@@ -64,8 +64,8 @@ export default function SeekerProfile() {
     handleEditExperience,
     handleRemoveExperience,
     confirmRemoveExperience,
-    experienceError,
-    setExperienceError,
+    experienceErrors,
+    setExperienceErrors,
 
     educationData,
     setEducationData,
@@ -109,8 +109,11 @@ export default function SeekerProfile() {
     handleAddLanguage,
     handleRemoveLanguage,
     handleEditDetails,
-    detailsError,
-    setDetailsError,
+    detailsErrors,
+    setDetailsErrors,
+
+    socialErrors,
+    setSocialErrors,
 
     editSocialOpen,
     setEditSocialOpen,
@@ -190,8 +193,8 @@ export default function SeekerProfile() {
             handleEditExperience={handleEditExperience}
             handleRemoveExperience={handleRemoveExperience}
             confirmRemoveExperience={confirmRemoveExperience}
-            experienceError={experienceError}
-            setExperienceError={setExperienceError}
+            experienceErrors={experienceErrors}
+            setExperienceErrors={setExperienceErrors}
             saving={saving}
             isoToDateInput={isoToDateInput}
             formatPeriod={formatPeriod}
@@ -252,13 +255,15 @@ export default function SeekerProfile() {
           handleAddLanguage={handleAddLanguage}
           handleRemoveLanguage={handleRemoveLanguage}
           handleEditDetails={handleEditDetails}
-          detailsError={detailsError}
-          setDetailsError={setDetailsError}
+          detailsErrors={detailsErrors}
+          setDetailsErrors={setDetailsErrors}
           editSocialOpen={editSocialOpen}
           setEditSocialOpen={setEditSocialOpen}
           editingSocialLinks={editingSocialLinks}
           setEditingSocialLinks={setEditingSocialLinks}
           handleEditSocial={handleEditSocial}
+          socialErrors={socialErrors}
+          setSocialErrors={setSocialErrors}
           SOCIAL_PLATFORMS={SOCIAL_PLATFORMS}
           saving={saving}
         />

@@ -21,11 +21,11 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      
+
     });
 
     this.socket.on('disconnect', () => {
-      
+
     });
 
     this.socket.on('connect_error', (error) => {
@@ -46,7 +46,7 @@ class SocketService {
     }
   }
 
-  
+
   onNotification(callback: (notification: NotificationSocketData) => void): void {
     this.socket?.on('notification', callback);
   }
@@ -55,7 +55,7 @@ class SocketService {
     this.socket?.off('notification', callback);
   }
 
-  
+
   emitSendMessage(payload: { receiverId: string; content: string; conversationId: string }, cb?: (resp: unknown) => void) {
     this.socket?.emit('send_message', payload, cb);
   }
@@ -102,6 +102,34 @@ class SocketService {
 
   offMessageDeleted(callback?: (data: import('@/types/socket.types').MessageDeletedPayload) => void) {
     this.socket?.off('message_deleted', callback);
+  }
+
+  onUserOnline(callback: (data: { userId: string }) => void) {
+    this.socket?.on('user_online', callback);
+  }
+
+  offUserOnline(callback?: (data: { userId: string }) => void) {
+    this.socket?.off('user_online', callback);
+  }
+
+  onUserOffline(callback: (data: { userId: string }) => void) {
+    this.socket?.on('user_offline', callback);
+  }
+
+  offUserOffline(callback?: (data: { userId: string }) => void) {
+    this.socket?.off('user_offline', callback);
+  }
+
+  onOnlineUsers(callback: (userIds: string[]) => void) {
+    this.socket?.on('get_online_users', callback);
+  }
+
+  offOnlineUsers(callback?: (userIds: string[]) => void) {
+    this.socket?.off('get_online_users', callback);
+  }
+
+  requestOnlineUsers() {
+    this.socket?.emit('request_online_users');
   }
 
   onUserBlocked(callback: (data: UserBlockedData) => void): void {

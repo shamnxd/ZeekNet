@@ -6,7 +6,7 @@ import {
     ATSStage,
 } from "@/constants/ats-stages";
 import type { CandidateDetailsResponse } from "@/api/company.api";
-import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
+import type { CompanySideApplication, CompanySideApplicationDetail } from "@/interfaces/company/company-data.interface";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type {
     ATSInterview,
@@ -20,13 +20,11 @@ import type {
 } from "../CandidateProfileTypes";
 
 export const useCandidateData = (currentId: string | undefined, isATSMode: boolean) => {
-    // Non-ATS Data
     const [candidateData, setCandidateData] =
         useState<CandidateDetailsResponse | null>(null);
 
-    // ATS Data
     const [atsApplication, setAtsApplication] =
-        useState<CompanySideApplication | null>(null);
+        useState<CompanySideApplicationDetail | null>(null);
     const [atsJob, setAtsJob] = useState<JobPostingResponse | null>(null);
     const [interviews, setInterviews] = useState<ATSInterview[]>([]);
     const [technicalTasks, setTechnicalTasks] = useState<
@@ -39,24 +37,14 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
     const [loading, setLoading] = useState(true);
 
-    // Compensation state
     const [compensationData, setCompensationData] = useState<CompensationData | null>(null);
-    const [compensationNotes, setCompensationNotes] = useState<
-        Array<{
-            comment: string;
-            recruiterName?: string;
-            createdAt: string;
-        }>
-    >([]);
     const [compensationMeetings, setCompensationMeetings] = useState<
         CompensationMeeting[]
     >([]);
 
-    // Offer state
     const [currentOffer, setCurrentOffer] =
         useState<ExtendedATSOfferDocument | null>(null);
 
-    // Limit exceeded state
     const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
     const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number } | null>(null);
 
@@ -65,11 +53,9 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
         try {
             if (isATSMode) {
-                // ATS Mode: Fetch Application Details first
                 const appRes = await companyApi.getApplicationDetails(currentId);
                 if (appRes.data) {
-                    // Map server response (snake_case) to client interface (supports both naming conventions)
-                    const applicationData = appRes.data as Record<string, unknown>;
+                    const applicationData = appRes.data as unknown as Record<string, unknown>;
                     const getString = (val: unknown): string | undefined =>
                         typeof val === "string" ? val : undefined;
                     const getNumber = (val: unknown): number | undefined =>
@@ -78,115 +64,69 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         Array.isArray(val) && val.every((v) => typeof v === "string")
                             ? (val as string[])
                             : undefined;
-                    const mappedApplication: CompanySideApplication = {
-                        // IDs - preserve both formats
-                        id: getString(applicationData.id || applicationData._id),
-                        _id: getString(applicationData.id || applicationData._id),
-                        jobId: getString(applicationData.job_id),
-                        job_id: getString(applicationData.job_id),
-                        seekerId: getString(applicationData.seeker_id),
-                        seeker_id: getString(applicationData.seeker_id),
-                        companyId: getString(applicationData.company_id),
-                        company_id: getString(applicationData.company_id),
-
-                        // Stage info
-                        stage: getString(applicationData.stage),
-                        subStage: getString(applicationData.sub_stage),
+                    const mappedApplication: CompanySideApplicationDetail = {
+                        id: getString(applicationData.id || applicationData._id) || '',
+                        job_id: getString(applicationData.job_id) || getString(applicationData.jobId) || '',
+                        job_title: getString(applicationData.job_title) || getString((applicationData.job as Record<string, unknown>)?.title) || '',
+                        seeker_id: getString(applicationData.seeker_id) || getString(applicationData.seekerId),
+                        company_name: getString(applicationData.company_name),
+                        company_logo: getString(applicationData.company_logo),
+                        stage: (getString(applicationData.stage) as CompanySideApplication['stage']) || 'applied',
                         sub_stage: getString(applicationData.sub_stage),
-
-                        // Resume and cover letter - preserve both formats
-                        resumeUrl: getString(applicationData.resume_url),
-                        resume_url: getString(applicationData.resume_url),
-                        resume_filename: getString(applicationData.resume_filename),
-                        coverLetter: getString(applicationData.cover_letter),
-                        cover_letter: getString(applicationData.cover_letter),
-
-                        // Dates - preserve both formats
-                        createdAt: getString(applicationData.created_at),
-                        created_at: getString(applicationData.created_at),
-                        updatedAt: getString(applicationData.updated_at),
-                        updated_at: getString(applicationData.updated_at),
-                        applied_date: getString(applicationData.applied_date),
-                        appliedAt: getString(applicationData.applied_date),
-
-                        // Seeker info - preserve all fields
+                        subStage: getString(applicationData.sub_stage),
+                        applied_date: getString(applicationData.applied_date) || getString(applicationData.appliedAt) || new Date().toISOString(),
                         seeker_name: getString(applicationData.seeker_name),
                         seeker_avatar: getString(applicationData.seeker_avatar),
-                        seeker_headline: getString(applicationData.seeker_headline),
-                        name: getString(
-                            applicationData.seeker_name || applicationData.full_name
-                        ),
-                        full_name: getString(
-                            applicationData.full_name || applicationData.seeker_name
-                        ),
-                        email: getString(applicationData.email),
-                        phone: getString(applicationData.phone),
                         score: getNumber(applicationData.score),
-                        avatar: getString(applicationData.seeker_avatar),
-
-                        // Profile details from server
-                        date_of_birth:
-                            getString(applicationData.date_of_birth) ||
-                            (applicationData.date_of_birth as Date | undefined),
+                        is_blocked: applicationData.is_blocked as boolean | undefined,
+                        seeker_headline: getString(applicationData.seeker_headline),
+                        job_company: getString(applicationData.job_company),
+                        job_location: getString(applicationData.job_location),
+                        job_type: getString(applicationData.job_type),
+                        cover_letter: getString(applicationData.cover_letter),
+                        resume_url: getString(applicationData.resume_url),
+                        resume_filename: getString(applicationData.resume_filename),
+                        rejection_reason: getString(applicationData.rejection_reason),
+                        full_name: getString(applicationData.full_name || applicationData.seeker_name),
+                        date_of_birth: getString(applicationData.date_of_birth),
                         gender: getString(applicationData.gender),
                         languages: getStringArray(applicationData.languages),
                         address: getString(applicationData.address),
                         about_me: getString(applicationData.about_me),
                         skills: getStringArray(applicationData.skills),
-                        resume_data:
-                            applicationData.resume_data as CompanySideApplication["resume_data"],
-
-                        // Nested objects
-                        seeker: applicationData.seeker_id
-                            ? {
-                                id: getString(applicationData.seeker_id) || "",
-                                name: getString(applicationData.seeker_name) || "",
-                                email: getString(applicationData.email) || "",
-                                avatar: getString(applicationData.seeker_avatar),
-                            }
-                            : undefined,
-                        job: applicationData.job_id
-                            ? {
-                                id: getString(applicationData.job_id) || "",
-                                title: getString(applicationData.job_title) || "",
-                                job_title: getString(applicationData.job_title),
-                                job_company: getString(applicationData.job_company),
-                                job_location: getString(applicationData.job_location),
-                                job_type: getString(applicationData.job_type),
-                            }
-                            : undefined,
+                        email: getString(applicationData.email),
+                        phone: getString(applicationData.phone),
+                        expectedSalary: getString(applicationData.expectedSalary),
+                        resume_data: applicationData.resume_data as CompanySideApplicationDetail["resume_data"],
                     };
 
                     setAtsApplication(mappedApplication);
 
-                    // Get IDs for parallel fetching
-                    const jobId =
-                        getString(applicationData.job_id) ||
-                        mappedApplication.jobId ||
-                        mappedApplication.job?.id;
-                    const seekerId =
-                        getString(applicationData.seeker_id) ||
-                        mappedApplication.seekerId ||
-                        mappedApplication.seeker?.id;
-                    const currentStage = mappedApplication.stage;
+                    const jobId = getString(applicationData.job_id) || mappedApplication.job_id;
+                    const seekerId = getString(applicationData.seeker_id) || mappedApplication.seeker_id;
+                    const currentStage = mappedApplication.stage as string;
 
-                    // Fetch Job Details, Candidate Details, and ATS Activities in parallel
                     const fetchPromises = [
-                        // Job Details
                         jobId
                             ? companyApi.getJobPosting(jobId).catch((e) => {
                                 console.error("Failed to fetch job", e);
                                 return { data: null };
                             })
                             : Promise.resolve({ data: null }),
-                        // Candidate Details
                         seekerId
                             ? companyApi.getCandidateDetails(seekerId).catch((e) => {
                                 console.error("Failed to fetch candidate details", e);
+                                const error = e as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number } } } };
+                                if (error.response?.status === 403 && error.response.data?.data?.limitExceeded) {
+                                    setShowLimitExceededDialog(true);
+                                    setLimitExceededData({
+                                        currentLimit: error.response.data.data.currentLimit || 0,
+                                        used: error.response.data.data.used || 0,
+                                    });
+                                }
                                 return { data: null };
                             })
                             : Promise.resolve({ data: null }),
-                        // ATS Activities
                         atsService
                             .getInterviewsByApplication(currentId)
                             .catch(() => ({ data: [] })),
@@ -201,8 +141,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                             .catch(() => ({ data: [] })),
                     ];
 
-                    // Add compensation-related fetches if in COMPENSATION stage
-                    if (currentStage === ATSStage.COMPENSATION) {
+                    if ((currentStage as string) === ATSStage.COMPENSATION) {
                         fetchPromises.push(
                             atsService.getCompensation(currentId).catch((err) => {
                                 console.error("Failed to fetch compensation:", err);
@@ -236,7 +175,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         getString(applicationData.seeker_name) ||
                         getString(applicationData.email)
                     ) {
-                        // Minimal candidate data fallback
                         const resumeData = applicationData.resume_data as
                             | {
                                 experience?: Array<Record<string, unknown>>;
@@ -286,7 +224,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     setTechnicalTasks(tasksRes.data || []);
                     setOfferDocuments(offersRes.data || []);
 
-                    const applicationStage = mappedApplication.stage;
+                    const applicationStage = mappedApplication.stage as string;
                     if (
                         applicationStage === ATSStage.OFFER &&
                         offersRes.data &&
@@ -296,10 +234,10 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     } else {
                         setCurrentOffer(null);
                     }
-                    setComments(commentsRes.data || []);
+                    setComments(Array.isArray(commentsRes) ? commentsRes : (commentsRes.data || []));
 
                     if (
-                        currentStage === ATSStage.COMPENSATION &&
+                        (currentStage as string) === ATSStage.COMPENSATION &&
                         compensationResults.length >= 2
                     ) {
                         const [compensationRes, meetingsRes] = compensationResults;
@@ -318,11 +256,9 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     } else {
                         setCompensationData(null);
                         setCompensationMeetings([]);
-                        setCompensationNotes([]);
                     }
                 }
             } else {
-                // Non-ATS Mode
                 try {
                     const candRes = await companyApi.getCandidateDetails(currentId);
                     if (candRes.data) {
@@ -369,7 +305,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
     return {
         candidateData,
         atsApplication,
-        setAtsApplication, // Export setter to update local state
+        setAtsApplication,
         atsJob,
         interviews,
         technicalTasks,
@@ -379,7 +315,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
         loading,
         compensationData,
         setCompensationData,
-        compensationNotes,
         compensationMeetings,
         setCompensationMeetings,
         currentOffer,

@@ -39,12 +39,10 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validate email
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Validate phone number
     if (formData.phone && formData.phone.trim()) {
       const phoneValue = formData.phone.trim();
 
@@ -62,7 +60,6 @@ const EditContactDialog: React.FC<EditContactDialogProps> = ({
       }
     }
 
-    // Validate URLs
     const urlFields = ['twitter_link', 'facebook_link', 'linkedin'] as const;
     urlFields.forEach(field => {
       if (formData[field] && formData[field].trim()) {

@@ -12,10 +12,6 @@ export interface PopulatedCompany {
 }
 
 
-export interface ATSPipelineConfig {
-  [stage: string]: ATSSubStage[];
-}
-
 export class JobPosting {
   constructor(
     public readonly id: string,
@@ -32,7 +28,6 @@ export class JobPosting {
     public readonly skillsRequired: string[],
     public readonly categoryIds: string[],
     public readonly enabledStages: ATSStage[],
-    public readonly atsPipelineConfig: ATSPipelineConfig,
     public readonly status: JobStatus,
     public readonly isFeatured: boolean,
     public readonly viewCount: number,
@@ -46,7 +41,7 @@ export class JobPosting {
     public readonly companyName?: string,
     public readonly companyLogo?: string,
     public readonly unpublishReason?: string,
-  ) {}
+  ) { }
 
   static create(data: {
     id: string;
@@ -63,7 +58,6 @@ export class JobPosting {
     skillsRequired: string[];
     categoryIds: string[];
     enabledStages?: ATSStage[];
-    atsPipelineConfig?: ATSPipelineConfig;
     status?: JobStatus;
     isFeatured?: boolean;
     viewCount?: number;
@@ -87,26 +81,14 @@ export class JobPosting {
       ATSStage.COMPENSATION,
       ATSStage.OFFER,
     ];
-    
+
     let enabledStages = (data.enabledStages && data.enabledStages.length > 0) ? data.enabledStages : defaultEnabledStages;
-    
-    
+
+
     if (!enabledStages.includes(ATSStage.OFFER)) {
       enabledStages = [...enabledStages, ATSStage.OFFER];
     }
-    
-    
-    let pipelineConfig = data.atsPipelineConfig;
-    if (!pipelineConfig) {
-      pipelineConfig = {};
-      enabledStages.forEach((stage) => {
-        
-        if (STAGE_TO_SUB_STAGES[stage]) {
-          pipelineConfig![stage] = [...STAGE_TO_SUB_STAGES[stage]];
-        }
-      });
-    }
-    
+
     return new JobPosting(
       data.id,
       data.companyId,
@@ -122,7 +104,6 @@ export class JobPosting {
       data.skillsRequired,
       data.categoryIds,
       enabledStages,
-      pipelineConfig,
       data.status ?? JobStatus.ACTIVE,
       data.isFeatured ?? false,
       data.viewCount ?? 0,

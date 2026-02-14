@@ -9,18 +9,21 @@ export const useHiringStages = (
 
 ) => {
 
-    // Derived State for Hiring Stages
     const hiringStages = useMemo(() => {
         const allStages =
             (atsJob?.enabled_stages as string[]) || Object.values(ATSStage);
 
-        // Always include APPLIED as the first stage
-        const stagesWithApplied = ["APPLIED", ...allStages];
+        let stagesWithApplied = ["APPLIED", ...allStages];
 
-        // Determine current stage - applications start in IN_REVIEW, so APPLIED is always completed for active applications
+        stagesWithApplied = stagesWithApplied.filter((s, i) =>
+            stagesWithApplied.indexOf(s) === i &&
+            s !== ATSStage.HIRED &&
+            s !== ATSStage.REJECTED
+        );
+        stagesWithApplied.push(ATSStage.HIRED);
+
         const currentStage = atsApplication?.stage || ATSStage.IN_REVIEW;
 
-        // Find the index of current stage
         const currentStageIndex = stagesWithApplied.indexOf(currentStage);
         const finalCurrentStageIndex = currentStageIndex >= 0 ? currentStageIndex : 1;
 
@@ -44,7 +47,6 @@ export const useHiringStages = (
         });
     }, [atsApplication, atsJob]);
 
-    // Helper function to check if the selected stage is the current application stage
     const isCurrentStage = (checkStage: string): boolean => {
         const actualStage = atsApplication?.stage || ATSStage.IN_REVIEW;
         if (checkStage === "APPLIED" || checkStage === "Applied") {
@@ -53,7 +55,6 @@ export const useHiringStages = (
         return checkStage === actualStage;
     };
 
-    // Helper function to check if there are next stages available
     const hasNextStages = (currentStage: ATSStage | string): boolean => {
         const enabledStagesRaw = atsJob?.enabled_stages || atsJob?.enabledStages || [];
         if (!Array.isArray(enabledStagesRaw) || enabledStagesRaw.length === 0) {
@@ -85,7 +86,6 @@ export const useHiringStages = (
         return currentIndex >= 0 && currentIndex < allStages.length - 1;
     };
 
-    // Helper function to get the next stage after current stage
     const getNextStage = (currentStage: ATSStage | string): ATSStage | null => {
         const enabledStagesRaw = atsJob?.enabled_stages || atsJob?.enabledStages || [];
         if (!Array.isArray(enabledStagesRaw) || enabledStagesRaw.length === 0) {

@@ -101,12 +101,12 @@ export const useJobDetails = () => {
         ? applications.map((applicant, index: number) => ({
             id: applicant.id || applicant._id || `applicant-${index}`,
             name: applicant.seeker_name || applicant.name || applicant.full_name || 'Unknown Applicant',
-            email: applicant.email,
+            email: applicant.user?.email || applicant.email || '',
             stage: applicant.stage || 'applied',
             appliedDate: applicant.applied_date || applicant.appliedAt || applicant.created_at || applicant.createdAt || new Date().toISOString(),
-            score: applicant.score,
-            avatar: applicant.seeker_avatar || applicant.avatar,
-            experience: applicant.experience,
+            score: applicant.score || 0,
+            avatar: applicant.seeker_avatar || applicant.avatar || '',
+            experience: Array.isArray(applicant.experience) ? (applicant.experience[0] as Record<string, unknown>)?.title as string : typeof applicant.experience === 'string' ? applicant.experience : undefined,
             matchPercentage: applicant.match_percentage,
         }))
         : [];

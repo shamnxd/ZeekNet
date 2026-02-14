@@ -10,41 +10,38 @@ import { UploadOfferRequestDto } from 'src/application/dtos/application/offer/re
 import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
 import { ATSOfferMapper } from 'src/application/mappers/ats/ats-offer.mapper';
 
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+
 export class UploadOfferUseCase implements IUploadOfferUseCase {
   constructor(
     private readonly _offerRepository: IATSOfferRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
-
     private readonly _userRepository: IUserRepository,
+    private readonly _fileUploadService: IFileUploadService,
   ) { }
 
   async execute(dto: UploadOfferRequestDto): Promise<ATSOfferResponseDto> {
+    let documentUrl = dto.documentUrl;
 
-    const currentUser = await this._userRepository.findById(dto.performedBy);
-    const performedByName = currentUser ? currentUser.name : 'Unknown';
+    if (dto.file) {
+      const uploadResult = await this._fileUploadService.uploadOfferLetter(dto.file);
+      documentUrl = uploadResult.url; // This is the S3 key
+    }
 
     const offer = ATSOffer.create({
       id: uuidv4(),
       applicationId: dto.applicationId,
-      documentUrl: dto.documentUrl || '', // Handling optional/required mapping
-      documentFilename: dto.documentFilename || '',
+      documentUrl,
       offerAmount: dto.offerAmount,
       status: 'sent',
-      uploadedBy: dto.performedBy,
-      uploadedByName: performedByName,
-      sentAt: new Date(),
     });
 
     const savedOffer = await this._offerRepository.create(offer);
-
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
       throw new NotFoundError('Application not found');
     }
-
-
-
 
     return ATSOfferMapper.toResponse(savedOffer);
   }

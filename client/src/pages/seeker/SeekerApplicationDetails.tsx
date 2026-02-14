@@ -8,6 +8,7 @@ import { SeekerOfferList } from '@/components/seeker/application/details/SeekerO
 import { SeekerTaskList } from '@/components/seeker/application/details/SeekerTaskList';
 import { SeekerInterviewList } from '@/components/seeker/application/details/SeekerInterviewList';
 import { SeekerCompensationMeetingList } from '@/components/seeker/application/details/SeekerCompensationMeetingList';
+import { SeekerCompensationComments } from '@/components/seeker/application/details/SeekerCompensationComments';
 import { SeekerApplicationSidebar } from '@/components/seeker/application/details/SeekerApplicationSidebar';
 import { SeekerApplicationModals } from '@/components/seeker/application/details/SeekerApplicationModals';
 import { ATSStage } from '@/constants/ats-stages';
@@ -23,16 +24,14 @@ const SeekerApplicationDetails = () => {
     interviews,
     offers,
     compensationMeetings,
+    comments,
 
-    
+
     showSubmissionModal,
     setShowSubmissionModal,
     selectedTask,
     setSelectedTask,
-    showRescheduleInterviewModal,
-    setShowRescheduleInterviewModal,
-    showRescheduleMeetingModal,
-    setShowRescheduleMeetingModal,
+
     showSignedDocumentModal,
     setShowSignedDocumentModal,
     selectedOffer,
@@ -45,12 +44,12 @@ const SeekerApplicationDetails = () => {
     setOfferToDecline,
     declining,
 
-    
+
     handleSubmitTask,
     handleUploadSignedDocument,
     handleDeclineOffer,
 
-    
+
     formatDateTime,
     formatDate
   } = useSeekerApplicationDetails();
@@ -98,8 +97,6 @@ const SeekerApplicationDetails = () => {
             <SeekerHiringProgress
               application={application}
               interviews={interviews}
-              setShowRescheduleInterviewModal={setShowRescheduleInterviewModal}
-              setShowRescheduleMeetingModal={setShowRescheduleMeetingModal}
               formatDate={formatDate}
             />
 
@@ -123,6 +120,16 @@ const SeekerApplicationDetails = () => {
               />
             )}
 
+            <SeekerCompensationComments
+              comments={comments}
+              formatDateTime={formatDateTime}
+            />
+
+            <SeekerCompensationMeetingList
+              compensationMeetings={compensationMeetings}
+              formatDateTime={formatDateTime}
+            />
+
             <SeekerTaskList
               technicalTasks={technicalTasks}
               onTaskSubmit={(task) => {
@@ -137,11 +144,6 @@ const SeekerApplicationDetails = () => {
               interviews={interviews}
               formatDateTime={formatDateTime}
             />
-
-            <SeekerCompensationMeetingList
-              compensationMeetings={compensationMeetings}
-              formatDateTime={formatDateTime}
-            />
           </div>
 
           <SeekerApplicationSidebar application={application} />
@@ -154,12 +156,6 @@ const SeekerApplicationDetails = () => {
         setShowSubmissionModal={setShowSubmissionModal}
         setSelectedTask={setSelectedTask}
         onSubmitTask={handleSubmitTask}
-
-        showRescheduleInterviewModal={showRescheduleInterviewModal}
-        setShowRescheduleInterviewModal={setShowRescheduleInterviewModal}
-
-        showRescheduleMeetingModal={showRescheduleMeetingModal}
-        setShowRescheduleMeetingModal={setShowRescheduleMeetingModal}
 
         showSignedDocumentModal={showSignedDocumentModal}
         setShowSignedDocumentModal={setShowSignedDocumentModal}

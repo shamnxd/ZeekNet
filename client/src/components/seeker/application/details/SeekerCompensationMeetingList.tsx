@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign } from 'lucide-react';
 import type { CompensationMeeting } from '@/interfaces/seeker/application-details.types';
 
 interface SeekerCompensationMeetingListProps {
@@ -18,7 +17,6 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
     return (
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
             <h2 className="text-[20px] font-bold text-[#1f2937] mb-6 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-amber-600" />
                 Compensation Meetings
             </h2>
             <div className="space-y-3">
@@ -31,12 +29,11 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
 
                     let bgColor = '';
                     if (isCancelled) {
-                        bgColor = 'bg-gray-50 border-gray-200';
+                        bgColor = '!bg-gray-50 !border-gray-200';
                     } else if (isCompleted) {
-                        bgColor = 'bg-green-50 border-green-200';
+                        bgColor = '!bg-green-50 !border-green-200';
                     } else {
-                        
-                        bgColor = 'bg-white border-gray-200'; 
+                        bgColor = '!bg-white !border-gray-200';
                     }
 
                     return (
@@ -44,8 +41,7 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <p className="text-sm font-medium text-gray-900 capitalize">{meetingType}</p>
-                                        <Badge variant="outline" className="text-xs">{meetingType}</Badge>
+                                        <p className="text-sm font-bold capitalize">{meetingType}</p>
                                         {isCompleted && !isCancelled && (
                                             <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
                                                 Completed
@@ -66,14 +62,26 @@ export const SeekerCompensationMeetingList: React.FC<SeekerCompensationMeetingLi
                                         {formatDateTime(meeting.scheduledDate || meeting.createdAt)}
                                     </p>
                                 </div>
+                                {isScheduled && ((meeting.videoType === 'in-app' && meeting.webrtcRoomId) || meeting.meetingLink) && (
+                                    <button
+                                        onClick={() => {
+                                            if (meeting.videoType === 'in-app' && meeting.webrtcRoomId) {
+                                                window.open(`/video-call/${meeting.webrtcRoomId}`, '_blank');
+                                            } else if (meeting.meetingLink) {
+                                                window.open(meeting.meetingLink, '_blank');
+                                            }
+                                        }}
+                                        className="text-xs bg-[#4640DE] hover:bg-[#3730A3] text-white px-3 py-1.5 rounded-md font-medium transition-colors"
+                                    >
+                                        {meeting.videoType === 'in-app' ? 'Join Call' : 'Join Meeting'}
+                                    </button>
+                                )}
                             </div>
                             {meeting.location && (
                                 <p className="text-xs text-gray-500 mt-1">Location: {meeting.location}</p>
                             )}
-                            {meeting.meetingLink && (
-                                <a href={meeting.meetingLink} target="_blank" rel="noopener noreferrer" className="text-xs text-[#4640DE] hover:underline mt-1 block">
-                                    Meeting Link: {meeting.meetingLink}
-                                </a>
+                            {meeting.notes && (
+                                <p className="text-xs text-gray-500 mt-2 italic">Note: {meeting.notes}</p>
                             )}
                         </div>
                     );

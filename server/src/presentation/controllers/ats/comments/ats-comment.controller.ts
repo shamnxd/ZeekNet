@@ -34,9 +34,11 @@ export class ATSCommentController {
 
   getCommentsByApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
+      const { applicationId } = req.params;
+      const { stage } = req.query;
       const comments = await this.getCommentsByApplicationUseCase.execute({
-        applicationId: id,
+        applicationId,
+        stage: stage as string,
       });
 
       sendSuccessResponse(res, 'Comments retrieved successfully', comments);

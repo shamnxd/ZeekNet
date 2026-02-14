@@ -84,6 +84,7 @@ import { HandleStripeWebhookUseCase } from 'src/application/use-cases/payment/st
 import { CancelSubscriptionUseCase } from 'src/application/use-cases/subscription/cancel-subscription.use-case';
 import { ResumeSubscriptionUseCase } from 'src/application/use-cases/subscription/resume-subscription.use-case';
 import { ChangeSubscriptionPlanUseCase } from 'src/application/use-cases/subscription/change-subscription-plan.use-case';
+import { PreviewPlanChangeUseCase } from 'src/application/use-cases/subscription/preview-plan-change.use-case';
 import { RevertToDefaultPlanUseCase } from 'src/application/use-cases/subscription/revert-to-default-plan.use-case';
 import { GetBillingPortalUseCase } from 'src/application/use-cases/subscription/get-billing-portal.use-case';
 import { SubscriptionMiddleware } from 'src/presentation/middleware/subscription.middleware';
@@ -208,6 +209,8 @@ const resumeSubscriptionUseCase = new ResumeSubscriptionUseCase(stripeService, c
 
 const changeSubscriptionPlanUseCase = new ChangeSubscriptionPlanUseCase(stripeService, subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository, logger);
 
+const previewPlanChangeUseCase = new PreviewPlanChangeUseCase(subscriptionPlanRepository, companyProfileRepository, companySubscriptionRepository, jobPostingRepository);
+
 const getBillingPortalUseCase = new GetBillingPortalUseCase(stripeService, companyProfileRepository, companySubscriptionRepository);
 
 const subscriptionMiddleware = new SubscriptionMiddleware(companySubscriptionRepository, companyProfileRepository, subscriptionPlanRepository);
@@ -255,6 +258,7 @@ const getCompanyDashboardStatsUseCase = new GetCompanyDashboardStatsUseCase(
   atsInterviewRepository,
   chatMessageRepository,
   getCompanyIdByUserIdUseCase,
+  s3Service,
 );
 
 const companyProfileController = new CompanyProfileController(
@@ -327,6 +331,7 @@ const companySubscriptionController = new CompanySubscriptionController(
   resumeSubscriptionUseCase,
   changeSubscriptionPlanUseCase,
   getBillingPortalUseCase,
+  previewPlanChangeUseCase,
 );
 
 const companyCandidatesController = new CompanyCandidatesController(getCandidatesUseCase, getCandidateDetailsUseCase);

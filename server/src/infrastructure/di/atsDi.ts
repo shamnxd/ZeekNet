@@ -84,7 +84,7 @@ const scheduleInterviewUseCase = new ScheduleInterviewUseCase(
   emailTemplateService,
   loggerService,
 );
-const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, jobApplicationRepository, userRepository);
+const updateInterviewUseCase = new UpdateInterviewUseCase(interviewRepository, userRepository);
 
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(interviewRepository);
 const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
@@ -94,17 +94,20 @@ const assignTechnicalTaskUseCase = new AssignTechnicalTaskUseCase(
   userRepository,
   mailerService,
   emailTemplateService,
+  fileUploadService,
+  s3Service,
   loggerService,
 );
-const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository, userRepository);
+const updateTechnicalTaskUseCase = new UpdateTechnicalTaskUseCase(technicalTaskRepository, fileUploadService, s3Service);
 const deleteTechnicalTaskUseCase = new DeleteTechnicalTaskUseCase(technicalTaskRepository, jobApplicationRepository);
-const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository);
-const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, userRepository);
+const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(technicalTaskRepository, s3Service);
+const uploadOfferUseCase = new UploadOfferUseCase(offerRepository, jobApplicationRepository, userRepository, fileUploadService);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(offerRepository);
 
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
+  commentRepository,
 );
 const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   offerRepository,
@@ -116,11 +119,12 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   emailTemplateService,
   loggerService,
 );
-const addCommentUseCase = new AddCommentUseCase(commentRepository, userRepository);
+const addCommentUseCase = new AddCommentUseCase(commentRepository);
 
 const moveApplicationStageUseCase = new MoveApplicationStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
+  commentRepository,
   userRepository,
   mailerService,
   emailTemplateService,

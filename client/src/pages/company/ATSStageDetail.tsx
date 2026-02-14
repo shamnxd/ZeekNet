@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CompanyLayout from '@/components/layouts/CompanyLayout';
-import { ATSStage, STAGE_COLORS, ATSStageDisplayNames, SubStageDisplayNames } from '@/constants/ats-stages';
+import { ATSStage, STAGE_COLORS, ATSStageDisplayNames, STAGE_SUB_STAGES } from '@/constants/ats-stages';
 import { companyApi } from '@/api/company.api';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
-import type { ApplicationsKanbanResponse, ApplicationKanbanItem, ATSPipelineConfig } from '@/interfaces/ats/ats-pipeline.interface';
+import type { ApplicationsKanbanResponse, ApplicationKanbanItem } from '@/interfaces/ats/ats-pipeline.interface';
+import type { CompanySideApplication } from '@/interfaces/company/company-data.interface';
 import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,6 @@ const ATSStageDetail = () => {
   const jobId = searchParams.get('jobId');
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [pipelineConfig, setPipelineConfig] = useState<ATSPipelineConfig | null>(null);
   const [applicationsByStage, setApplicationsByStage] = useState<ApplicationsKanbanResponse>({});
   const [job, setJob] = useState<JobPostingResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,11 +26,7 @@ const ATSStageDetail = () => {
   const stageColor = STAGE_COLORS[decodedStage] || '#6B7280';
 
 
-  const allowedSubStages = pipelineConfig?.pipelineConfig[decodedStage] || [];
-  const subStages = allowedSubStages.map(key => ({
-    key,
-    label: SubStageDisplayNames[key] || key,
-  }));
+  const subStages = STAGE_SUB_STAGES[decodedStage] || [];
 
 
   useEffect(() => {
@@ -40,9 +36,8 @@ const ATSStageDetail = () => {
         setLoading(true);
 
 
-        const [jobRes, pipelineRes, applicationsRes] = await Promise.all([
+        const [jobRes, applicationsRes] = await Promise.all([
           companyApi.getJobPosting(jobId),
-          companyApi.getJobATSPipeline(jobId),
           companyApi.getJobApplicationsForKanban(jobId),
         ]);
 
@@ -50,17 +45,13 @@ const ATSStageDetail = () => {
           setJob(jobRes.data);
         }
 
-        if (pipelineRes.data) {
-          setPipelineConfig(pipelineRes.data);
-        }
 
         if (applicationsRes.data && applicationsRes.data.applications) {
           const applications = applicationsRes.data.applications;
 
           const groupedByStage: ApplicationsKanbanResponse = {};
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          applications.forEach((app: any) => {
+          applications.forEach((app: CompanySideApplication) => {
             const stage = app.stage;
             if (!groupedByStage[stage]) {
               groupedByStage[stage] = [];
@@ -68,13 +59,13 @@ const ATSStageDetail = () => {
 
             groupedByStage[stage].push({
               id: app.id,
-              seekerId: app.seeker_id,
+              seekerId: app.seeker_id || app.seekerId || '',
               seekerName: app.seeker_name,
               seekerAvatar: app.seeker_avatar,
               jobTitle: app.job_title,
               atsScore: app.score,
               subStage: app.sub_stage,
-              appliedDate: app.applied_date,
+              appliedDate: app.applied_date || '',
             });
           });
 

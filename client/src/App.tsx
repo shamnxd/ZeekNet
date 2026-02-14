@@ -10,7 +10,6 @@ import ResetPassword from './pages/auth/ResetPassword'
 import Verification from './pages/auth/Verification'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import CompanyDashboard from './pages/company/CompanyDashboard'
-import CompanyProfileSetup from './pages/company/CompanyProfileSetup'
 import PostJob from './pages/company/PostJob'
 import SeekerDashboard from './pages/seeker/SeekerDashboard'
 import SeekerProfile from './pages/seeker/SeekerProfile'
@@ -167,11 +166,7 @@ function App() {
               <CompanyDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/company/profile-setup" element={
-            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
-              <CompanyProfileSetup />
-            </ProtectedRoute>
-          } />
+
           <Route path="/company/post-job" element={
             <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
               <PostJob />

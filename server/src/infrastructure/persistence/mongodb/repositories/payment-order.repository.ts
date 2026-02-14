@@ -98,7 +98,6 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
       },
     ]);
 
-    // Format results to array of { month, amount }
     const earnings = result.map(item => ({
       month: item._id,
       amount: item.amount,

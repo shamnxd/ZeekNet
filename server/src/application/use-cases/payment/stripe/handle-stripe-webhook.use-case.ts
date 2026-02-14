@@ -37,11 +37,17 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _logger: ILogger,
     private readonly _revertToDefaultPlanUseCase: IRevertToDefaultPlanUseCase,
-  ) {}
+  ) { }
 
   async execute(data: HandleStripeWebhookRequestDto): Promise<{ received: boolean }> {
     const { payload, signature } = data;
     try {
+      this._logger.info('Stripe webhook received', {
+        payloadType: typeof payload,
+        isBuffer: Buffer.isBuffer(payload),
+        hasSignature: !!signature,
+      });
+
       const event: PaymentEvent = this._stripeService.constructWebhookEvent(payload, signature);
 
       switch (event.type) {
@@ -73,14 +79,14 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
   private async handleCheckoutSessionCompleted(session: PaymentSession): Promise<void> {
     try {
       const { companyId, planId, billingCycle } = session.metadata || {};
-      
+
       if (!companyId || !planId || !session.subscription) {
         this._logger.error('Missing required metadata in checkout session', { sessionId: session.id });
         return;
       }
 
-      const stripeSubscriptionId = typeof session.subscription === 'string' 
-        ? session.subscription 
+      const stripeSubscriptionId = typeof session.subscription === 'string'
+        ? session.subscription
         : session.subscription.id;
 
       const existingSubscriptionByStripeId = await this._companySubscriptionRepository.findByStripeSubscriptionId(stripeSubscriptionId);
@@ -99,7 +105,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
             this._logger.error(`Failed to cancel old Stripe subscription ${existingActiveSubscription.stripeSubscriptionId}`, error);
           }
         }
-        
+
         await this._companySubscriptionRepository.update(existingActiveSubscription.id, {
           isActive: false,
           stripeStatus: SubscriptionStatus.CANCELED,
@@ -141,7 +147,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
           });
 
           const activeJobs = allJobs.filter(job => job.status === JobStatus.ACTIVE);
-          
+
           activeJobs.sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
             const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -231,7 +237,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
             ? `Your subscription has been changed to ${plan.name}. ${unlistedCount} job(s) have been unlisted to comply with the new plan limit.`
             : `Your subscription has been changed to ${plan.name} successfully.`)
           : `Your ${plan.name} subscription has been activated successfully.`;
-        
+
         const notification = NotificationMapper.toEntity({
           userId: companyProfile.userId,
           title: existingActiveSubscription ? 'Subscription Plan Changed' : 'Subscription Activated',
@@ -272,7 +278,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
     }
 
     let subscription = await this._companySubscriptionRepository.findByStripeSubscriptionId(stripeSubscriptionId);
-    
+
     if (!subscription) {
       const stripeSubscription = await this._stripeService.getSubscription(stripeSubscriptionId);
       if (stripeSubscription?.metadata?.companyId && stripeSubscription.metadata.planId) {

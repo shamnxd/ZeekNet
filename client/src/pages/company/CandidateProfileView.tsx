@@ -2,28 +2,25 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import CompanyLayout from "@/components/layouts/CompanyLayout";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowLeft, ChevronRight, CheckCircle2, X } from "lucide-react";
 import { companyApi } from "@/api/company.api";
 import { chatApi } from "@/api/chat.api";
 import { atsService } from "@/services/ats.service";
 
-// Components
 import CandidateProfileSidebar from "./CandidateProfileSidebar";
 import CandidateProfileTabs from "./CandidateProfileTabs";
+import { LimitExceededDialog } from "@/components/company/dialogs/LimitExceededDialog";
 import { CandidateProfileModals } from "./CandidateProfileModals";
-
-// Stage Components
 import { CandidateInReviewStage } from "./CandidateInReviewStage";
+
 import { CandidateShortlistedStage } from "./CandidateShortlistedStage";
 import { CandidateInterviewStage } from "./CandidateInterviewStage";
 import { CandidateTechnicalTaskStage } from "./CandidateTechnicalTaskStage";
 import { CandidateCompensationStage } from "./CandidateCompensationStage";
 import { CandidateOfferStage } from "./CandidateOfferStage";
 
-// Constants & Types
 import { ATSStage, CompensationSubStage } from "@/constants/ats-stages";
 
-// Hooks
 import { useCandidateData } from "./hooks/useCandidateData";
 import { useCandidateModals } from "./hooks/useCandidateModals";
 import { useHiringStages } from "./hooks/useHiringStages";
@@ -45,11 +42,10 @@ const CandidateProfileView = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "resume" | "hiring">("profile");
   const [selectedStage, setSelectedStage] = useState<string>("");
 
-  // Use Custom Hooks
   const dataState = useCandidateData(currentId, isATSMode);
   const {
     candidateData, atsApplication, atsJob, interviews, technicalTasks,
-    offerDocuments, comments, loading, compensationData, compensationNotes,
+    offerDocuments, comments, loading, compensationData,
     compensationMeetings, currentOffer, showLimitExceededDialog, limitExceededData,
     reloadData, setAtsApplication, setCompensationData, setComments, setCompensationMeetings,
     setShowLimitExceededDialog
@@ -73,7 +69,7 @@ const CandidateProfileView = () => {
     showCompensationMeetingModal, setShowCompensationMeetingModal,
     selectedMeetingForEdit, setSelectedMeetingForEdit,
     showCreateOfferModal, setShowCreateOfferModal,
-    showEditOfferModal, // Removed unused setShowEditOfferModal
+    showEditOfferModal,
     showWithdrawOfferModal, setShowWithdrawOfferModal,
     withdrawReason, setWithdrawReason,
     withdrawOtherNote, setWithdrawOtherNote,
@@ -98,7 +94,6 @@ const CandidateProfileView = () => {
     }
   });
 
-  // Effect to sync selectedStage with active application stage when tab is 'hiring'
   useEffect(() => {
     if (activeTab === "hiring") {
       if (atsApplication?.stage) {
@@ -135,15 +130,13 @@ const CandidateProfileView = () => {
     });
   };
 
-  // Render content
   const renderStageContent = () => {
     if (!selectedStage) return null;
 
     if (selectedStage === "Applied" || selectedStage === "APPLIED") {
-      // Simple Render Logic for Applied Stage
       const actualStage = atsApplication?.stage;
       const isViewingApplied = selectedStage === "APPLIED" || selectedStage === "Applied";
-      const isInAppliedStage = actualStage === "APPLIED" || !actualStage;
+      const isInAppliedStage = actualStage === "applied" || !actualStage;
       const showActions = isViewingApplied && isInAppliedStage;
 
       return (
@@ -160,12 +153,11 @@ const CandidateProfileView = () => {
               <Button
                 type="button"
                 className="gap-2 bg-[#4640DE] hover:bg-[#3730A3]"
-                onClick={() => actions.handleUpdateStage(ATSStage.IN_REVIEW, "PROFILE_REVIEW")}
+                onClick={() => actions.handleUpdateStage(ATSStage.IN_REVIEW)}
               >
                 <ChevronRight className="h-4 w-4" />
                 Move to In Review
               </Button>
-              {/* Move to Another Stage button */}
               {(() => {
                 const currentStage = atsApplication?.stage as ATSStage;
                 if (!currentStage) return false;
@@ -188,41 +180,40 @@ const CandidateProfileView = () => {
       return (
         <CandidateInReviewStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
           comments={comments}
-          currentId={currentId}
-          onReload={reloadData}
+          onMoveToStage={actions.handleMoveToStage}
+          onUpdateStage={actions.handleUpdateStage}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
           onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
-          onUpdateStage={actions.handleUpdateStage}
+          getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.SHORTLISTED) {
       return (
         <CandidateShortlistedStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
           comments={comments}
-          currentId={currentId}
-          onReload={reloadData}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
           onSetShowScheduleModal={setShowScheduleModal}
+          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
+          onMoveToStage={actions.handleMoveToStage}
+          onUpdateStage={actions.handleUpdateStage}
+          getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.INTERVIEW) {
       return (
         <CandidateInterviewStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           selectedStage={selectedStage}
-          currentId={currentId}
           interviews={interviews}
           comments={comments}
-          onReload={reloadData}
           onSetShowScheduleModal={setShowScheduleModal}
           onSetShowCommentModal={setShowCommentModal}
           onSetSelectedInterviewForReschedule={setSelectedInterviewForReschedule}
@@ -235,7 +226,7 @@ const CandidateProfileView = () => {
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
-          hasNextStages={hasNextStages}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.TECHNICAL_TASK) {
@@ -243,7 +234,6 @@ const CandidateProfileView = () => {
         <CandidateTechnicalTaskStage
           atsApplication={atsApplication}
           selectedStage={selectedStage}
-          currentId={currentId}
           technicalTasks={technicalTasks}
           comments={comments}
           onSetShowAssignTaskModal={setShowAssignTaskModal}
@@ -252,44 +242,35 @@ const CandidateProfileView = () => {
           onSetSelectedTaskForReview={setSelectedTaskForReview}
           onSetShowFeedbackModal={setShowFeedbackModal}
           onSetShowMoveToStageModal={setShowMoveToStageModal}
-          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onRevokeTask={actions.handleRevokeTaskClick}
           onReviewTask={actions.handleReviewTask}
           onMoveToStage={actions.handleMoveToStage}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
-          hasNextStages={hasNextStages}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.COMPENSATION) {
       return (
         <CandidateCompensationStage
           atsApplication={atsApplication}
-          atsJob={atsJob}
           candidateData={candidateData}
           selectedStage={selectedStage}
-          currentId={currentId}
           compensationData={compensationData}
           compensationMeetings={compensationMeetings}
+          comments={comments}
+          onSetShowCommentModal={setShowCommentModal}
           onSetShowCompensationInitModal={setShowCompensationInitModal}
           onSetShowCompensationUpdateModal={setShowCompensationUpdateModal}
           onSetShowCompensationMeetingModal={setShowCompensationMeetingModal}
           onSetSelectedMeetingForEdit={setSelectedMeetingForEdit}
           onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onApproveCompensation={async () => {
-            // Basic approval logic if simple enough or move to actions
-            // The original code passed `onApproveCompensation`.
-            // I missed `handleApproveCompensation` in actions? 
-            // Let's stick with basic impl if missing or check actions.
-            // Actually, `handleApproveCompensation` was NOT in my actions list above?
-            // Checking... I missed it! 
-            // Logic: Update stage to APPROVED.
             if (!currentId) return;
             await companyApi.moveApplicationStage(currentId, {
               nextStage: ATSStage.COMPENSATION,
               subStage: CompensationSubStage.APPROVED,
-              comment: "Compensation Approved"
             });
             reloadData();
           }}
@@ -304,16 +285,17 @@ const CandidateProfileView = () => {
             reloadData();
           }}
           onMoveToStage={actions.handleMoveToStage}
+          onSetShowMoveToStageModal={setShowMoveToStageModal}
           onOpenChat={() => handleOpenChat()}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
           getNextStage={getNextStage}
+          isUpdating={actions.isUpdating}
         />
       );
     } else if (selectedStage === ATSStage.OFFER) {
       return (
         <CandidateOfferStage
-          atsApplication={atsApplication}
           atsJob={atsJob}
           selectedStage={selectedStage}
           currentOffer={currentOffer}
@@ -322,12 +304,43 @@ const CandidateProfileView = () => {
           onSetShowCreateOfferModal={setShowCreateOfferModal}
           onSetShowCommentModal={setShowCommentModal}
           onSetShowWithdrawOfferModal={setShowWithdrawOfferModal}
-          onSendReminder={actions.handleSendReminder}
+          onSetShowRejectConfirmDialog={setShowRejectConfirmDialog}
           onMarkAsHired={actions.handleMarkAsHired}
           formatDateTime={formatDateTime}
           isCurrentStage={isCurrentStage}
 
+          isUpdating={actions.isUpdating}
         />
+      );
+    } else if (selectedStage === ATSStage.HIRED) {
+      return (
+        <div className="bg-emerald-50 rounded-lg p-8 text-center border border-emerald-100">
+          <div className="inline-flex items-center justify-center p-3 bg-emerald-100 rounded-full mb-4">
+            <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+          </div>
+          <h3 className="text-xl font-bold text-emerald-900 mb-1">Candidate Hired</h3>
+          <p className="text-emerald-700 max-w-sm mx-auto text-sm">
+            This candidate has successfully completed the hiring process and has been marked as hired.
+          </p>
+        </div>
+      );
+    } else if (selectedStage === ATSStage.REJECTED) {
+      return (
+        <div className="bg-red-50 rounded-lg p-8 text-center border border-red-100">
+          <div className="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
+            <X className="h-8 w-8 text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-red-900 mb-1">Candidate Rejected</h3>
+          <p className="text-red-700 max-w-sm mx-auto text-sm mb-4">
+            This candidate has been rejected for this position.
+          </p>
+          {(atsApplication?.withdrawalReason || atsApplication?.rejection_reason) && (
+            <div className="mt-2 p-3 bg-white rounded-lg border border-red-200 inline-block text-left shadow-sm">
+              <p className="text-[10px] font-bold text-red-800 uppercase tracking-wider mb-1">Rejection Reason:</p>
+              <p className="text-xs text-red-700">{atsApplication?.withdrawalReason || atsApplication?.rejection_reason}</p>
+            </div>
+          )}
+        </div>
       );
     }
 
@@ -348,7 +361,25 @@ const CandidateProfileView = () => {
     );
   }
 
-  if (isATSMode && !atsApplication) {
+  if (isATSMode && (!atsApplication || atsApplication.is_blocked)) {
+    if (showLimitExceededDialog) {
+      return (
+        <CompanyLayout>
+          <div className="flex justify-center items-center h-[60vh]">
+            <LimitExceededDialog
+              open={true}
+              onOpenChange={(open) => {
+                setShowLimitExceededDialog(open);
+                if (!open) navigate("/company/ats");
+              }}
+              limitExceededData={limitExceededData}
+              title="Candidate View Limit Exceeded"
+              description="You have reached your candidate view limit for your current subscription plan. Upgrade to view more candidates."
+            />
+          </div>
+        </CompanyLayout>
+      );
+    }
     return (
       <CompanyLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
@@ -360,6 +391,24 @@ const CandidateProfileView = () => {
   }
 
   if (!isATSMode && !candidateData) {
+    if (showLimitExceededDialog) {
+      return (
+        <CompanyLayout>
+          <div className="flex justify-center items-center h-[60vh]">
+            <LimitExceededDialog
+              open={true}
+              onOpenChange={(open) => {
+                setShowLimitExceededDialog(open);
+                if (!open) navigate("/company/candidates");
+              }}
+              limitExceededData={limitExceededData}
+              title="Candidate View Limit Exceeded"
+              description="You have reached your candidate view limit for your current subscription plan. Upgrade to view more candidates."
+            />
+          </div>
+        </CompanyLayout>
+      );
+    }
     return (
       <CompanyLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
@@ -373,19 +422,19 @@ const CandidateProfileView = () => {
   }
 
   const candidateName = isATSMode
-    ? atsApplication?.seeker_name || atsApplication?.name || atsApplication?.full_name || atsApplication?.seeker?.name || "Candidate"
+    ? atsApplication?.seeker_name || atsApplication?.name || atsApplication?.full_name || "Candidate"
     : candidateData?.user.name || "Candidate";
   const candidateRole = isATSMode
-    ? atsApplication?.job?.title || atsApplication?.job?.job_title || atsJob?.title || "Applicant"
+    ? atsApplication?.job_title || atsJob?.title || "Applicant"
     : candidateData?.profile.headline;
   const candidateEmail = isATSMode
-    ? atsApplication?.email || atsApplication?.seeker?.email
+    ? atsApplication?.email
     : candidateData?.user.email;
   const candidatePhone = isATSMode
     ? atsApplication?.phone || candidateData?.profile?.phone || "-"
     : candidateData?.profile.phone;
   const candidateAvatar = isATSMode
-    ? atsApplication?.seeker_avatar || atsApplication?.seeker?.avatar
+    ? atsApplication?.seeker_avatar
     : candidateData?.profile.avatarFileName || candidateData?.profile.avatarUrl;
   const candidateScore = isATSMode ? atsApplication?.score || 0 : 0;
 
@@ -450,8 +499,6 @@ const CandidateProfileView = () => {
         currentId={currentId}
         atsApplication={atsApplication}
         atsJob={atsJob}
-        // ... pass all modal props ...
-        // Using spread for brevity in logic but explicit props for Component
         showScheduleModal={showScheduleModal}
         setShowScheduleModal={setShowScheduleModal}
         selectedInterviewForReschedule={selectedInterviewForReschedule}
@@ -484,7 +531,6 @@ const CandidateProfileView = () => {
         setSelectedMeetingForEdit={setSelectedMeetingForEdit}
 
         compensationData={compensationData}
-        compensationNotes={compensationNotes}
         compensationMeetings={compensationMeetings}
 
         showCreateOfferModal={showCreateOfferModal}
@@ -517,6 +563,7 @@ const CandidateProfileView = () => {
         handleScheduleCompensationMeeting={actions.handleScheduleCompensationMeeting}
         handleCreateOffer={actions.handleCreateOffer}
         reloadData={reloadData}
+        isUpdating={actions.isUpdating}
       />
     </CompanyLayout>
   );

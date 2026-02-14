@@ -35,27 +35,11 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
 
     const updateData: {
       status?: 'draft' | 'sent' | 'signed' | 'declined';
-      sentAt?: Date;
-      signedAt?: Date;
-      declinedAt?: Date;
       withdrawalReason?: string;
-      withdrawnBy?: string;
-      withdrawnByName?: string;
-      withdrawnAt?: Date;
     } = { status: data.status };
 
-    if (data.status === 'sent') {
-      updateData.sentAt = new Date();
-    } else if (data.status === 'signed') {
-      updateData.signedAt = new Date();
-    } else if (data.status === 'declined') {
-      updateData.declinedAt = new Date();
-      if (data.withdrawalReason) {
-        updateData.withdrawalReason = data.withdrawalReason;
-        updateData.withdrawnBy = data.performedBy;
-        updateData.withdrawnByName = data.performedByName;
-        updateData.withdrawnAt = new Date();
-      }
+    if (data.status === 'declined' && data.withdrawalReason) {
+      updateData.withdrawalReason = data.withdrawalReason;
     }
 
     const offer = await this._offerRepository.update(data.offerId, updateData);

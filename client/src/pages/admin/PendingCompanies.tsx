@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { 
+import {
   Eye,
   Download,
   CheckCircle,
@@ -24,6 +24,8 @@ import { adminApi } from '@/api/admin.api'
 import type { Company } from '@/interfaces/admin/admin-company.interface'
 import { publicApi } from '@/api/public.api'
 import { toast } from 'sonner'
+import { TableSkeleton } from '@/components/common/TableSkeleton'
+import { AdminPagination } from '@/components/common/AdminPagination'
 
 const PendingCompanies = () => {
   const [companies, setCompanies] = useState<Company[]>([])
@@ -39,13 +41,13 @@ const PendingCompanies = () => {
   const [industryFilter, setIndustryFilter] = useState('')
   const [categories, setCategories] = useState<string[]>([])
 
-  const fetchPendingCompanies = async () => {
+  const fetchPendingCompanies = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
 
       const response = await adminApi.getPendingCompanies()
-      
+
       if (response && response.data && response.data.companies) {
         setCompanies(response.data.companies as Company[])
       } else {
@@ -56,32 +58,32 @@ const PendingCompanies = () => {
     } finally {
       setLoading(false)
     }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      const response = await publicApi.getAllJobCategories({ limit: 100 })
-      if (response && response.data) {
-        setCategories(response.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch categories:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchPendingCompanies()
-    fetchCategories()
   }, [])
 
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await publicApi.getAllJobCategories({ limit: 100 })
+        if (response && response.data) {
+          setCategories(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      }
+    }
+    fetchPendingCompanies()
+    fetchCategories()
+  }, [fetchPendingCompanies])
+
   const filteredCompanies = companies.filter(company => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       company.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       company.industry?.toLowerCase().includes(searchTerm.toLowerCase())
-    
+
     const matchesStatus = !statusFilter || company.isVerified === statusFilter
     const matchesIndustry = !industryFilter || company.industry === industryFilter
-    
+
     return matchesSearch && matchesStatus && matchesIndustry
   })
 
@@ -103,13 +105,13 @@ const PendingCompanies = () => {
 
   const handleAcceptConfirm = async () => {
     if (!selectedCompany) return
-    
+
     try {
       await adminApi.verifyCompany({
         companyId: selectedCompany.id,
         isVerified: 'verified'
       })
-      
+
       toast.success(`Company ${selectedCompany.companyName || 'Unknown'} accepted successfully`)
       setAcceptDialogOpen(false)
       setSelectedCompany(null)
@@ -121,19 +123,19 @@ const PendingCompanies = () => {
 
   const handleRejectConfirm = async () => {
     if (!selectedCompany) return
-    
+
     if (!rejectionReason.trim()) {
       toast.error('Please provide a rejection reason')
       return
     }
-    
+
     try {
       await adminApi.verifyCompany({
         companyId: selectedCompany.id,
         isVerified: 'rejected',
         rejection_reason: rejectionReason.trim()
       })
-      
+
       toast.success(`Company ${selectedCompany.companyName || 'Unknown'} rejected successfully`)
       setRejectDialogOpen(false)
       setSelectedCompany(null)
@@ -181,7 +183,7 @@ const PendingCompanies = () => {
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium">Status</label>
-            <select 
+            <select
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={statusFilter}
               onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -193,7 +195,7 @@ const PendingCompanies = () => {
           </div>
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium">Industry</label>
-            <select 
+            <select
               className="px-3 py-2 border border-border rounded-md bg-background text-sm"
               value={industryFilter}
               onChange={(e) => handleFilterChange('industry', e.target.value)}
@@ -207,21 +209,9 @@ const PendingCompanies = () => {
         </div>
 
 
-        {loading && (
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500">Loading pending companies...</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-
-        {error && (
+        {loading ? (
+          <TableSkeleton columns={7} rows={5} />
+        ) : error ? (
           <Card className="border-0 shadow-md">
             <CardContent className="p-8">
               <div className="text-center">
@@ -232,96 +222,108 @@ const PendingCompanies = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : (
+          <>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border/50">
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Company</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Industry</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Organization</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Employees</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Status</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Submitted Date</th>
+                        <th className="text-left p-4 text-xs font-medium text-muted-foreground">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredCompanies.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="p-8 text-center text-gray-500">
+                            No pending companies found
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredCompanies.map((company) => (
+                          <tr key={company.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center space-x-3">
+                                <img
+                                  src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')}
+                                  alt={company.companyName || 'Company'}
+                                  className="h-10 w-10 rounded-full object-cover"
+                                />
+                                <div>
+                                  <p className="font-medium text-gray-900">{company.companyName || 'Unknown Company'}</p>
+                                  <p className="text-sm text-gray-500">{company.websiteLink}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-sm text-gray-700">{company.industry}</span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-sm text-gray-700">{company.organisation}</span>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-sm text-gray-700">{company.employeeCount}+</span>
+                            </td>
+                            <td className="p-4">
+                              <span className={`text-xs px-2 py-1 rounded-full ${company.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700'
+                                }`}>
+                                {company.isVerified === 'pending' ? 'Pending' : 'Rejected'}
+                              </span>
+                            </td>
+                            <td className="p-4 text-sm text-gray-700">
+                              {new Date(company.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                                  onClick={() => handleViewDetails(company)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  onClick={() => handleAccept(company)}
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleReject(company)}
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
 
-
-        {!loading && !error && (
-        <Card className="border-0 shadow-md">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border/50">
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Company</th>
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Industry</th>
-                      <th className="text-left p-4 text-xs font-medium text-muted-foreground">Organization</th>
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Employees</th>
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Submitted Date</th>
-                    <th className="text-left p-4 text-xs font-medium text-muted-foreground">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCompanies.map((company) => (
-                    <tr key={company.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center space-x-3">
-                          <img 
-                              src={company.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (company.companyName?.charAt(0) || 'C')} 
-                              alt={company.companyName || 'Company'}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                          <div>
-                              <p className="font-medium text-gray-900">{company.companyName || 'Unknown Company'}</p>
-                              <p className="text-sm text-gray-500">{company.websiteLink}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-gray-700">{company.industry}</span>
-                      </td>
-                      <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.organisation}</span>
-                      </td>
-                      <td className="p-4">
-                          <span className="text-sm text-gray-700">{company.employeeCount}+</span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                            company.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                            {company.isVerified === 'pending' ? 'Pending' : 'Rejected'}
-                          </span>
-                        </td>
-                        <td className="p-4 text-sm text-gray-700">
-                          {new Date(company.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-4">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                            variant="ghost" 
-                        size="sm"
-                            className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
-                            onClick={() => handleViewDetails(company)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                                             <Button
-                            variant="ghost" 
-                         size="sm"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                            onClick={() => handleAccept(company)}
-                       >
-                            <CheckCircle className="h-4 w-4" />
-                       </Button>
-                       <Button
-                            variant="ghost" 
-                         size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleReject(company)}
-                       >
-                            <XCircle className="h-4 w-4" />
-                       </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-                      </div>
-                    </CardContent>
-                  </Card>
+            <AdminPagination
+              totalPages={1}
+              totalItems={filteredCompanies.length}
+              itemsPerPage={filteredCompanies.length}
+            />
+          </>
         )}
 
 
@@ -340,8 +342,8 @@ const PendingCompanies = () => {
               {selectedCompany && (
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4">
-                    <img 
-                      src={selectedCompany.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (selectedCompany.companyName?.charAt(0) || 'C')} 
+                    <img
+                      src={selectedCompany.logo || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + (selectedCompany.companyName?.charAt(0) || 'C')}
                       alt={selectedCompany.companyName || 'Company'}
                       className="h-16 w-16 rounded-full object-cover"
                     />
@@ -351,7 +353,7 @@ const PendingCompanies = () => {
                       <p className="text-sm text-gray-500">Created: {new Date(selectedCompany.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Industry</label>
@@ -367,10 +369,9 @@ const PendingCompanies = () => {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700">Status</label>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                        selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                        }`}>
                         {selectedCompany.isVerified === 'pending' ? 'Pending' : 'Rejected'}
                       </span>
                     </div>
@@ -384,13 +385,12 @@ const PendingCompanies = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Verification Status</label>
                     <div className="mt-2">
-                      <span className={`text-sm px-3 py-1 rounded-full ${
-                        selectedCompany.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
+                      <span className={`text-sm px-3 py-1 rounded-full ${selectedCompany.isVerified === 'verified' ? 'bg-green-100 text-green-700' :
                         selectedCompany.isVerified === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
+                          'bg-red-100 text-red-700'
+                        }`}>
                         {selectedCompany.isVerified.charAt(0).toUpperCase() + selectedCompany.isVerified.slice(1)}
-                        </span>
+                      </span>
                     </div>
                   </div>
 
@@ -401,7 +401,7 @@ const PendingCompanies = () => {
                         <FileText className="h-5 w-5 text-gray-600" />
                         <h4 className="text-lg font-semibold text-gray-900">Verification Documents</h4>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 gap-4">
 
                         <div className="bg-gray-50 p-4 rounded-lg">
@@ -510,8 +510,8 @@ const PendingCompanies = () => {
                   Close
                 </Button>
                 <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="text-red-600 border-red-300 hover:bg-red-50"
                     onClick={() => {
                       setDetailsDialogOpen(false)
@@ -521,7 +521,7 @@ const PendingCompanies = () => {
                     <XCircle className="h-4 w-4 mr-2" />
                     Reject
                   </Button>
-                  <Button 
+                  <Button
                     className="bg-green-600 hover:bg-green-700"
                     onClick={() => {
                       setDetailsDialogOpen(false)
@@ -550,7 +550,7 @@ const PendingCompanies = () => {
               <Button variant="outline" onClick={() => setAcceptDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 className="bg-green-600 hover:bg-green-700"
                 onClick={handleAcceptConfirm}
               >
@@ -594,7 +594,7 @@ const PendingCompanies = () => {
               }}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 variant="destructive"
                 onClick={handleRejectConfirm}
                 disabled={!rejectionReason.trim()}

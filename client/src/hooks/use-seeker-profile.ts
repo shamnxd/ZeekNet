@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { toast } from 'sonner';
 import type { SeekerProfile as SeekerProfileType, Experience, Education } from '@/interfaces/seeker/seeker.interface';
 import { seekerApi } from '@/api/seeker.api';
@@ -10,8 +11,6 @@ import type { ComboboxOption } from '@/components/ui/combobox';
 export const useSeekerProfile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
-
     const [editBannerOpen, setEditBannerOpen] = useState(false);
     const [bannerCropperOpen, setBannerCropperOpen] = useState(false);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
@@ -22,7 +21,12 @@ export const useSeekerProfile = () => {
     const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
     const [deleteExperienceOpen, setDeleteExperienceOpen] = useState(false);
     const [experienceToDelete, setExperienceToDelete] = useState<string | null>(null);
-    const [experienceError, setExperienceError] = useState<string>('');
+    const [experienceErrors, setExperienceErrors] = useState<Record<string, string>>({});
+
+    const [techSearchTerm, setTechSearchTerm] = useState('');
+    const debouncedTechSearchTerm = useDebounce(techSearchTerm, 500);
+    const [skillsSearchTerm, setSkillsSearchTerm] = useState('');
+    const debouncedSkillsSearchTerm = useDebounce(skillsSearchTerm, 500);
     const [addEducationOpen, setAddEducationOpen] = useState(false);
     const [editEducationOpen, setEditEducationOpen] = useState(false);
     const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
@@ -33,16 +37,11 @@ export const useSeekerProfile = () => {
     const [skillToDelete, setSkillToDelete] = useState<string | null>(null);
     const [editDetailsOpen, setEditDetailsOpen] = useState(false);
     const [editSocialOpen, setEditSocialOpen] = useState(false);
-
-
     const [profile, setProfile] = useState<SeekerProfileType | null>(null);
     const [experiences, setExperiences] = useState<Experience[]>([]);
     const [education, setEducation] = useState<Education[]>([]);
-
-
     const [tempBannerImage, setTempBannerImage] = useState<string>('');
     const [tempProfileImage, setTempProfileImage] = useState<string>('');
-
     const [bannerImage, setBannerImage] = useState<string>('');
     const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
     const [profilePhoto, setProfilePhoto] = useState<string>('');
@@ -91,7 +90,8 @@ export const useSeekerProfile = () => {
     const [newLanguage, setNewLanguage] = useState('');
     const [editingPhone, setEditingPhone] = useState<string>('');
     const [editingEmail, setEditingEmail] = useState<string>('');
-    const [detailsError, setDetailsError] = useState<string>('');
+    const [detailsErrors, setDetailsErrors] = useState<Record<string, string>>({});
+    const [socialErrors, setSocialErrors] = useState<Record<string, string>>({});
 
     const SOCIAL_PLATFORMS = [
         { value: 'github', label: 'GitHub' },
@@ -188,9 +188,12 @@ export const useSeekerProfile = () => {
             const file = dataURLtoFile(croppedImage, `banner-${Date.now()}.png`);
             const response = await seekerApi.uploadBanner(file);
             if (response.success && response.data) {
-                setBannerImage(response.data.bannerUrl || croppedImage);
+                const newBannerUrl = response.data.bannerUrl || croppedImage;
+                setBannerImage(newBannerUrl);
+                if (profile) {
+                    setProfile({ ...profile, bannerUrl: newBannerUrl });
+                }
                 toast.success('Banner updated successfully');
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update banner');
             }
@@ -229,9 +232,12 @@ export const useSeekerProfile = () => {
             const file = dataURLtoFile(croppedImage, `avatar-${Date.now()}.png`);
             const response = await seekerApi.uploadAvatar(file);
             if (response.success && response.data) {
-                setProfilePhoto(response.data.avatarUrl || croppedImage);
+                const newAvatarUrl = response.data.avatarUrl || croppedImage;
+                setProfilePhoto(newAvatarUrl);
+                if (profile) {
+                    setProfile({ ...profile, avatarUrl: newAvatarUrl });
+                }
                 toast.success('Profile photo updated successfully');
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update profile photo');
             }
@@ -248,17 +254,28 @@ export const useSeekerProfile = () => {
         try {
             setSaving(true);
 
-            const response = await seekerApi.updateProfile({
+            const updatedProfileData = {
                 name: profileData.name,
                 headline: profileData.headline,
                 location: profileData.location,
-                dateOfBirth: profileData.dateOfBirth || undefined,
+                dateOfBirth: profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : undefined,
                 gender: profileData.gender || undefined,
-            });
+            };
+
+            const response = await seekerApi.updateProfile(updatedProfileData);
             if (response.success) {
+                if (profile) {
+                    const newProfile = { ...profile };
+                    if (updatedProfileData.name) newProfile.name = updatedProfileData.name;
+                    if (updatedProfileData.headline) newProfile.headline = updatedProfileData.headline;
+                    if (updatedProfileData.location) newProfile.location = updatedProfileData.location;
+                    if (updatedProfileData.gender) newProfile.gender = updatedProfileData.gender;
+                    if (updatedProfileData.dateOfBirth !== undefined) newProfile.dateOfBirth = updatedProfileData.dateOfBirth || null;
+
+                    setProfile(newProfile);
+                }
                 toast.success('Profile updated successfully');
                 setEditProfileOpen(false);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update profile');
             }
@@ -276,9 +293,11 @@ export const useSeekerProfile = () => {
                 summary: aboutData,
             });
             if (response.success) {
+                if (profile) {
+                    setProfile({ ...profile, summary: aboutData });
+                }
                 toast.success('About section updated successfully');
                 setEditAboutOpen(false);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update about section');
             }
@@ -289,8 +308,37 @@ export const useSeekerProfile = () => {
         }
     };
 
+    const validateExperience = (): Record<string, string> => {
+        const errors: Record<string, string> = {};
+        if (!experienceData.title.trim()) errors.title = 'Title is required';
+        if (!experienceData.company.trim()) errors.company = 'Company is required';
+        if (!experienceData.startDate) errors.startDate = 'Start date is required';
+        if (!experienceData.employmentType) errors.employmentType = 'Employment type is required';
+
+        if (!experienceData.isCurrent && experienceData.endDate) {
+            const start = new Date(experienceData.startDate);
+            const end = new Date(experienceData.endDate);
+            const today = new Date();
+            if (end < start) errors.endDate = 'End date cannot be before start date';
+            if (end > today) errors.endDate = 'End date cannot be in the future';
+        }
+
+        if (!experienceData.isCurrent && !experienceData.endDate) {
+            errors.endDate = 'End date is required for past experience';
+        }
+
+        return errors;
+    };
+
     const handleAddExperience = async () => {
-        setExperienceError('');
+        setExperienceErrors({});
+
+        const validationErrors = validateExperience();
+        if (Object.keys(validationErrors).length > 0) {
+            setExperienceErrors(validationErrors);
+            return;
+        }
+
         try {
             setSaving(true);
             const response = await seekerApi.addExperience({
@@ -304,9 +352,10 @@ export const useSeekerProfile = () => {
                 technologies: experienceData.technologies,
                 isCurrent: experienceData.isCurrent,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Experience added successfully');
                 setAddExperienceOpen(false);
+                setExperiences(prev => [response.data!, ...prev]);
                 setExperienceData({
                     title: '',
                     company: '',
@@ -318,15 +367,14 @@ export const useSeekerProfile = () => {
                     technologies: [],
                     isCurrent: false,
                 });
-                fetchProfileData();
             } else {
                 const msg = response.message || 'Failed to add experience';
-                setExperienceError(msg);
+                setExperienceErrors({ general: msg });
                 toast.error(msg);
             }
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to add experience';
-            setExperienceError(msg);
+            setExperienceErrors({ general: msg });
             toast.error(msg);
         } finally {
             setSaving(false);
@@ -335,7 +383,14 @@ export const useSeekerProfile = () => {
 
     const handleEditExperience = async () => {
         if (!editingExperienceId) return;
-        setExperienceError('');
+        setExperienceErrors({});
+
+        const validationErrors = validateExperience();
+        if (Object.keys(validationErrors).length > 0) {
+            setExperienceErrors(validationErrors);
+            return;
+        }
+
         try {
             setSaving(true);
             const response = await seekerApi.updateExperience(editingExperienceId, {
@@ -349,19 +404,19 @@ export const useSeekerProfile = () => {
                 technologies: experienceData.technologies,
                 isCurrent: experienceData.isCurrent,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Experience updated successfully');
                 setEditExperienceOpen(false);
+                setExperiences(prev => prev.map(exp => (exp.id === editingExperienceId || exp._id === editingExperienceId) ? response.data as Experience : exp));
                 setEditingExperienceId(null);
-                fetchProfileData();
             } else {
                 const msg = response.message || 'Failed to update experience';
-                setExperienceError(msg);
+                setExperienceErrors({ general: msg });
                 toast.error(msg);
             }
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update experience';
-            setExperienceError(msg);
+            setExperienceErrors({ general: msg });
             toast.error(msg);
         } finally {
             setSaving(false);
@@ -380,7 +435,7 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.removeExperience(experienceToDelete);
             if (response.success) {
                 toast.success('Experience removed successfully');
-                fetchProfileData();
+                setExperiences(prev => prev.filter(exp => exp.id !== experienceToDelete && exp._id !== experienceToDelete));
             } else {
                 toast.error(response.message || 'Failed to remove experience');
             }
@@ -404,9 +459,10 @@ export const useSeekerProfile = () => {
                 endDate: educationData.endDate || undefined,
                 grade: educationData.grade || undefined,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Education added successfully');
                 setAddEducationOpen(false);
+                setEducation(prev => [response.data!, ...prev]);
                 setEducationData({
                     school: '',
                     degree: '',
@@ -415,7 +471,6 @@ export const useSeekerProfile = () => {
                     endDate: '',
                     grade: '',
                 });
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to add education');
             }
@@ -438,11 +493,11 @@ export const useSeekerProfile = () => {
                 endDate: educationData.endDate || undefined,
                 grade: educationData.grade || undefined,
             });
-            if (response.success) {
+            if (response.success && response.data) {
                 toast.success('Education updated successfully');
                 setEditEducationOpen(false);
+                setEducation(prev => prev.map(edu => (edu.id === editingEducationId || edu._id === editingEducationId) ? response.data as Education : edu));
                 setEditingEducationId(null);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update education');
             }
@@ -465,7 +520,7 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.removeEducation(educationToDelete);
             if (response.success) {
                 toast.success('Education removed successfully');
-                fetchProfileData();
+                setEducation(prev => prev.filter(edu => edu.id !== educationToDelete && edu._id !== educationToDelete));
             } else {
                 toast.error(response.message || 'Failed to remove education');
             }
@@ -478,47 +533,67 @@ export const useSeekerProfile = () => {
         }
     };
 
-    const fetchSkills = async (searchTerm?: string) => {
-        try {
-            setSkillsLoading(true);
-            const response = await publicApi.getAllSkills({
-                limit: 20,
-                search: searchTerm,
-            });
-            if (response.success && response.data) {
-                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
-                    value: skillName,
-                    label: skillName,
-                }));
-                setSkillsOptions(options);
-            }
-        } catch (error) {
-            console.error('Failed to fetch skills:', error);
-        } finally {
-            setSkillsLoading(false);
-        }
+    const fetchSkills = (searchTerm: string = '') => {
+        setSkillsSearchTerm(searchTerm);
+        setSkillsLoading(true);
     };
 
-    const fetchTechnologies = async (searchTerm?: string) => {
-        try {
-            setTechnologyLoading(true);
-            const response = await publicApi.getAllSkills({
-                limit: 20,
-                search: searchTerm,
-            });
-            if (response.success && response.data) {
-                const options: ComboboxOption[] = response.data.map((skillName: string) => ({
-                    value: skillName,
-                    label: skillName,
-                }));
-                setTechnologyOptions(options);
+    useEffect(() => {
+        if (!addSkillOpen) return;
+
+        const loadSkills = async () => {
+            try {
+                setSkillsLoading(true);
+                const response = await publicApi.getAllSkills({
+                    limit: 20,
+                    search: debouncedSkillsSearchTerm,
+                });
+                if (response.success && response.data) {
+                    const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                        value: skillName,
+                        label: skillName,
+                    }));
+                    setSkillsOptions(options);
+                }
+            } catch (error) {
+                console.error('Failed to fetch skills:', error);
+            } finally {
+                setSkillsLoading(false);
             }
-        } catch (error) {
-            console.error('Failed to fetch technologies:', error);
-        } finally {
-            setTechnologyLoading(false);
-        }
+        };
+        loadSkills();
+    }, [debouncedSkillsSearchTerm, addSkillOpen]);
+
+    const fetchTechnologies = (searchTerm: string = '') => {
+        setTechSearchTerm(searchTerm);
+        setTechnologyLoading(true);
     };
+
+    useEffect(() => {
+        if (!addExperienceOpen && !editExperienceOpen) return;
+
+        const loadTechnologies = async () => {
+            try {
+                setTechnologyLoading(true);
+                const response = await publicApi.getAllSkills({
+                    limit: 20,
+                    search: debouncedTechSearchTerm,
+                });
+                if (response.success && response.data) {
+                    const options: ComboboxOption[] = response.data.map((skillName: string) => ({
+                        value: skillName,
+                        label: skillName,
+                    }));
+                    setTechnologyOptions(options);
+                }
+            } catch (error) {
+                console.error('Failed to fetch technologies:', error);
+            } finally {
+                setTechnologyLoading(false);
+            }
+        };
+        loadTechnologies();
+    }, [debouncedTechSearchTerm, addExperienceOpen, editExperienceOpen]);
 
     useEffect(() => {
         if (addSkillOpen) {
@@ -550,8 +625,10 @@ export const useSeekerProfile = () => {
             if (response.success) {
                 toast.success('Skills updated successfully');
                 setAddSkillOpen(false);
+                if (profile) {
+                    setProfile({ ...profile, skills: response.data || selectedSkills });
+                }
                 setSelectedSkills([]);
-                fetchProfileData();
             } else {
                 toast.error(response.message || 'Failed to update skills');
             }
@@ -575,7 +652,9 @@ export const useSeekerProfile = () => {
             const response = await seekerApi.updateSkills(updatedSkills);
             if (response.success) {
                 toast.success('Skill removed successfully');
-                fetchProfileData();
+                if (profile) {
+                    setProfile({ ...profile, skills: updatedSkills });
+                }
             } else {
                 toast.error(response.message || 'Failed to remove skill');
             }
@@ -595,15 +674,8 @@ export const useSeekerProfile = () => {
         }
         const trimmed = newLanguage.trim();
 
-        // Validate language - should not be just numbers
-        if (/^\d+$/.test(trimmed)) {
-            setDetailsError('Please enter a valid language name (numbers are not allowed)');
-            return;
-        }
-
-        // Validate language - should contain at least one letter
-        if (!/[a-zA-Z]/.test(trimmed)) {
-            setDetailsError('Please enter a valid language name');
+        if (!/^[a-zA-Z\s]+$/.test(trimmed)) {
+            setDetailsErrors({ language: 'Language name can only contain letters and spaces' });
             return;
         }
 
@@ -613,7 +685,7 @@ export const useSeekerProfile = () => {
         }
         setEditingLanguages([...editingLanguages, trimmed]);
         setNewLanguage('');
-        setDetailsError('');
+        setDetailsErrors({});
     };
 
     const handleRemoveLanguage = (language: string) => {
@@ -622,29 +694,34 @@ export const useSeekerProfile = () => {
 
     const handleEditDetails = async () => {
         if (!profile) return;
-        setDetailsError('');
+        setDetailsErrors({});
 
-        // Validate email
-        if (editingEmail && editingEmail.trim()) {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
-                setDetailsError('Please enter a valid email address');
-                return;
-            }
+        const errors: Record<string, string> = {};
+
+        if (!editingEmail.trim()) {
+            errors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editingEmail.trim())) {
+            errors.email = 'Please enter a valid email address';
         }
 
-        // Validate phone number - must have at least 10 digits and should not be just special characters
         if (editingPhone && editingPhone.trim()) {
-            const digitsOnly = editingPhone.replace(/\D/g, '');
+            const trimmedPhone = editingPhone.trim();
+            const digitsOnly = trimmedPhone.replace(/\D/g, '');
+
             if (digitsOnly.length < 10) {
-                setDetailsError('Please enter a valid phone number (at least 10 digits)');
-                return;
-            }
-            // Check if phone contains valid characters (digits, spaces, dashes, parentheses, plus)
-            if (!/^[\d\s\-()+]+$/.test(editingPhone.trim())) {
-                setDetailsError('Please enter a valid phone number');
-                return;
+                errors.phone = 'Phone number must be at least 10 digits';
+            } else if (!/^[\d\s\-()+]+$/.test(trimmedPhone)) {
+                errors.phone = 'Please enter a valid phone number';
+            } else if (trimmedPhone.startsWith('-')) {
+                errors.phone = 'Phone number cannot start with a minus sign';
             }
         }
+
+        if (Object.keys(errors).length > 0) {
+            setDetailsErrors(errors);
+            return;
+        }
+
         try {
             setSaving(true);
 
@@ -661,11 +738,6 @@ export const useSeekerProfile = () => {
             }
 
             if (editingEmail !== profile.email) {
-                if (!editingEmail.trim()) {
-                    toast.error('Email is required');
-                    setSaving(false);
-                    return;
-                }
                 updateData.email = editingEmail.trim();
                 hasChanges = true;
             }
@@ -687,9 +759,16 @@ export const useSeekerProfile = () => {
             if (hasChanges && updatePromises.length > 0) {
                 await Promise.all(updatePromises);
                 toast.success('Contact details updated successfully');
-                setDetailsError('');
+                setDetailsErrors({});
                 setEditDetailsOpen(false);
-                fetchProfileData();
+
+                if (profile) {
+                    const newProfile = { ...profile };
+                    if (updateData.phone) newProfile.phone = updateData.phone;
+                    if (updateData.email) newProfile.email = updateData.email;
+                    if (languagesChanged) newProfile.languages = editingLanguages;
+                    setProfile(newProfile);
+                }
             } else {
                 setEditDetailsOpen(false);
             }
@@ -704,21 +783,36 @@ export const useSeekerProfile = () => {
         if (!profile) return;
         try {
             setSaving(true);
+            setSocialErrors({});
 
-            // Validate URLs before processing
-            const invalidLinks = editingSocialLinks.filter(link => {
-                if (!link.name?.trim() || !link.link?.trim()) return false;
-                const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
-                try {
-                    new URL(urlToCheck);
-                    return false;
-                } catch {
-                    return true;
+            const newErrors: Record<string, string> = {};
+
+            editingSocialLinks.forEach((link, index) => {
+                if (!link.name?.trim() && !link.link?.trim()) {
+                    return;
+                }
+
+                if (!link.name?.trim()) {
+                    newErrors[`name-${index}`] = 'Platform name is required';
+                }
+
+                if (!link.link?.trim()) {
+                    newErrors[`link-${index}`] = 'URL is required';
+                } else {
+                    const urlToCheck = link.link.startsWith('http') ? link.link : `https://${link.link}`;
+                    try {
+                        const parsedUrl = new URL(urlToCheck);
+                        if (!parsedUrl.hostname.includes('.') || parsedUrl.hostname.endsWith('.')) {
+                            newErrors[`link-${index}`] = 'Please enter a valid URL with a domain extension (e.g., .com)';
+                        }
+                    } catch {
+                        newErrors[`link-${index}`] = 'Please enter a valid URL';
+                    }
                 }
             });
 
-            if (invalidLinks.length > 0) {
-                toast.error('Please enter valid URLs for all social links');
+            if (Object.keys(newErrors).length > 0) {
+                setSocialErrors(newErrors);
                 setSaving(false);
                 return;
             }
@@ -739,14 +833,16 @@ export const useSeekerProfile = () => {
                 socialLinks: validLinks,
             });
             if (response.success) {
+                if (profile) {
+                    setProfile({ ...profile, socialLinks: validLinks });
+                }
                 toast.success('Social links updated successfully');
                 setEditSocialOpen(false);
-                fetchProfileData();
             } else {
-                toast.error(response.message || 'Failed to update social links');
+                setSocialErrors({ general: response.message || 'Failed to update social links' });
             }
         } catch {
-            toast.error('Failed to update social links');
+            setSocialErrors({ general: 'Failed to update social links' });
         } finally {
             setSaving(false);
         }
@@ -755,10 +851,11 @@ export const useSeekerProfile = () => {
     useEffect(() => {
         if (editSocialOpen && profile) {
             const links = profile.socialLinks || [];
-
+            setSocialErrors({});
             setEditingSocialLinks(links.length > 0 ? links : [{ name: '', link: '' }]);
         }
         if (editDetailsOpen && profile) {
+            setDetailsErrors({});
             setEditingPhone(profile.phone || '');
             setEditingEmail(profile.email || '');
             setEditingLanguages(profile.languages || []);
@@ -850,12 +947,13 @@ export const useSeekerProfile = () => {
         handleEditProfile,
         handleEditAbout,
         handleAddExperience, handleEditExperience, handleRemoveExperience, confirmRemoveExperience,
-        experienceError, setExperienceError,
+        experienceErrors, setExperienceErrors,
         handleAddEducation, handleEditEducation, handleRemoveEducation, confirmRemoveEducation,
         handleAddSkill, handleRemoveSkill, confirmRemoveSkill,
         handleAddLanguage, handleRemoveLanguage,
         handleEditDetails, handleEditSocial,
-        detailsError, setDetailsError,
+        detailsErrors, setDetailsErrors,
+        socialErrors, setSocialErrors,
 
 
         formatDate, formatPeriod, isoToDateInput,

@@ -1,37 +1,44 @@
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
-import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
-import { NotFoundError } from 'src/domain/errors/errors';
+import { NotFoundError, BadRequestError } from 'src/domain/errors/errors';
 import { UpdateInterviewRequestDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
-import { ATSInterviewMapper } from 'src/application/mappers/ats/ats-interview.mapper';
 
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
-    private interviewRepository: IATSInterviewRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-
-    private userRepository: IUserRepository,
+    private _interviewRepository: IATSInterviewRepository,
+    private _userRepository: IUserRepository,
   ) { }
 
   async execute(data: UpdateInterviewRequestDto): Promise<ATSInterviewResponseDto> {
-    // Get user info for audit fields
-    const user = await this.userRepository.findById(data.userId);
+    const user = await this._userRepository.findById(data.userId);
     if (!user) {
       throw new NotFoundError('User not found');
-    }
-    const performedBy = data.userId;
-    const performedByName = user.email || user.name || 'Unknown User';
+    };
 
-    const existingInterview = await this.interviewRepository.findById(data.interviewId);
+    const existingInterview = await this._interviewRepository.findById(data.interviewId);
     if (!existingInterview) {
       throw new NotFoundError('Interview not found');
     }
 
-    const interview = await this.interviewRepository.update(data.interviewId, {
+    if (existingInterview.status === 'cancelled' && data.status === 'completed') {
+      throw new BadRequestError('Cannot mark a cancelled interview as completed');
+    }
+
+    if (existingInterview.status === 'completed' && data.status === 'cancelled') {
+      throw new BadRequestError('Cannot cancel a completed interview');
+    }
+
+    if (data.rating !== undefined && existingInterview.rating !== undefined) {
+      throw new BadRequestError('Interview rating has already been submitted');
+    }
+
+    if (data.feedback !== undefined && existingInterview.feedback !== undefined) {
+      throw new BadRequestError('Interview feedback has already been submitted');
+    }
+
+    const interview = await this._interviewRepository.update(data.interviewId, {
       status: data.status,
       rating: data.rating,
       feedback: data.feedback,
@@ -39,12 +46,6 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
 
     if (!interview) {
       throw new NotFoundError('Interview not found');
-    }
-
-
-    const application = await this.jobApplicationRepository.findById(existingInterview.applicationId);
-    if (application) {
-
     }
 
     return interview;

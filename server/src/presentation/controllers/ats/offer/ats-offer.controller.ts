@@ -33,6 +33,12 @@ export class ATSOfferController {
         ...validation.data,
         applicationId,
         performedBy: userId,
+        file: req.file ? {
+          buffer: req.file.buffer,
+          originalname: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+        } : undefined,
       });
 
       sendCreatedResponse(res, 'Offer uploaded successfully', offer);

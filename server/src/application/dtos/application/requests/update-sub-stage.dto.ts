@@ -5,6 +5,7 @@ export const UpdateSubStageDtoSchema = z.object({
   subStage: z.enum(ATS_SUB_STAGE_VALUES as [string, ...string[]], {
     errorMap: () => ({ message: 'Invalid sub-stage' }),
   }),
+  comment: z.string().optional(),
 });
 
 export type UpdateSubStageDto = z.infer<typeof UpdateSubStageDtoSchema> & {

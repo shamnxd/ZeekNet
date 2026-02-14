@@ -37,6 +37,7 @@ import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongo
 import { ATSOfferRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-offer.repository';
 import { ATSCompensationRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation.repository';
 import { ATSCompensationMeetingRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation-meeting.repository';
+import { ATSCommentRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-comment.repository';
 
 import { UpdateApplicationSubStageUseCase } from 'src/application/use-cases/application/pipeline/update-application-sub-stage.use-case';
 
@@ -70,6 +71,7 @@ const technicalTaskRepository = new ATSTechnicalTaskRepository();
 const offerRepository = new ATSOfferRepository();
 const compensationRepository = new ATSCompensationRepository();
 const compensationMeetingRepository = new ATSCompensationMeetingRepository();
+const commentRepository = new ATSCommentRepository();
 
 const atsService = new AtsService(env.GROQ_API_KEY);
 const resumeParserService = new ResumeParserService();
@@ -123,12 +125,13 @@ const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository, atsS
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
+  commentRepository,
 );
 
 
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(jobApplicationRepository, interviewRepository);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(jobApplicationRepository, technicalTaskRepository, s3Service);
-const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository, fileUploadService);
+const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository, fileUploadService, s3Service);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(jobApplicationRepository, offerRepository, s3Service, loggerService);
 const getCompensationByApplicationUseCase = new GetCompensationByApplicationUseCase(jobApplicationRepository, compensationRepository);
 const getCompensationMeetingsByApplicationUseCase = new GetCompensationMeetingsByApplicationUseCase(jobApplicationRepository, compensationMeetingRepository);

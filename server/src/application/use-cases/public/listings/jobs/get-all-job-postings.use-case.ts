@@ -37,6 +37,7 @@ export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
       salaryMax: query.salaryMax,
       location: query.location,
       search: query.search,
+      companyId: query.companyId,
     };
 
     const jobs = await this._jobPostingRepository.getAllJobsForPublic(projection, filters);

@@ -2,7 +2,10 @@ import type { ATSTechnicalTask, ATSOfferDocument } from "@/types/ats";
 
 export interface CompensationMeeting {
     id?: string;
+    title?: string;
     type: "call" | "online" | "in-person";
+    videoType?: "in-app" | "external";
+    webrtcRoomId?: string;
     scheduledDate: string;
     location?: string;
     meetingLink?: string;
@@ -25,6 +28,9 @@ export interface CompensationData {
     createdAt?: string;
     updatedAt?: string;
     notes?: string;
+    baseSalary?: string;
+    salaryFrequency?: string;
+    bonus?: string;
 }
 
 export type ExtendedATSTechnicalTask = ATSTechnicalTask & {

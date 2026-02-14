@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatATSStage } from '@/utils/formatters';
 import CompanyLayout from '../../components/layouts/CompanyLayout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
   ArrowRight,
@@ -12,6 +13,7 @@ import { companyApi } from '@/api/company.api'
 import { toast } from 'sonner'
 import FormDialog from '@/components/common/FormDialog'
 import { Input } from '@/components/ui/input'
+import { z } from 'zod'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,8 +27,9 @@ const CompanyDashboard = () => {
   const navigate = useNavigate()
   const { companyVerificationStatus, name } = useAppSelector((state) => state.auth)
   const [rejectionReason, setRejectionReason] = useState<string | null>(null)
-  const [reverifyOpen, setReverifyOpen] = useState(false)
-  const [reverifyStep, setReverifyStep] = useState<1 | 2 | 3>(1)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [profileStep, setProfileStep] = useState<1 | 2 | 3>(1)
+  const [profileMode, setProfileMode] = useState<'create' | 'reverify'>('create')
   const [stats, setStats] = useState<{
     activeJobs: number;
     totalJobs: number;
@@ -34,11 +37,21 @@ const CompanyDashboard = () => {
     upcomingInterviews: number;
     unreadMessages: number;
     newCandidatesCount?: number;
+    todayInterviews?: Array<{
+      id: string;
+      candidateName: string;
+      jobTitle: string;
+      interviewTitle: string;
+      interviewType: string;
+      scheduledTime: string;
+      status: string;
+      seekerProfileImage?: string;
+    }>;
   } | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
   const [applications, setApplications] = useState<CompanySideApplication[]>([])
   const [applicationsLoading, setApplicationsLoading] = useState(true)
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
+  const [selectedPeriod] = useState<'week' | 'month' | 'year'>('week')
   const [form, setForm] = useState({
     company_name: '',
     email: '',
@@ -57,7 +70,33 @@ const CompanyDashboard = () => {
   const [uploading, setUploading] = useState<{ logo: boolean; business_license: boolean }>({ logo: false, business_license: false })
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  // Helper function to convert employee count number to range
+  const step1Schema = z.object({
+    company_name: z.string().min(1, 'Company name is required').min(2, 'Company name must be at least 2 characters'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+    website: z.string().min(1, 'Website is required').refine((val) => {
+      try {
+        new URL(val.startsWith('http') ? val : `https://${val}`)
+        return true
+      } catch {
+        return false
+      }
+    }, 'Please enter a valid website URL'),
+    industry: z.string().min(1, 'Industry is required'),
+    organisation: z.string().min(1, 'Organisation type is required'),
+  })
+
+  const step2Schema = z.object({
+    location: z.string().min(1, 'Location is required').min(2, 'Location must be at least 2 characters'),
+    employees: z.string().min(1, 'Number of employees is required'),
+    description: z.string().min(1, 'Company description is required').min(10, 'Description must be at least 10 characters'),
+  })
+
+  const step3Schema = z.object({
+    tax_id: z.string().min(1, 'Tax ID is required').min(3, 'Tax ID must be at least 3 characters'),
+    business_license: z.string().optional()
+  })
+
+
   const convertEmployeeCountToRange = (count: string | number): string => {
     const num = typeof count === 'string' ? parseInt(count) : count;
     if (isNaN(num)) return '1-10';
@@ -70,20 +109,18 @@ const CompanyDashboard = () => {
   }
 
   const loadProfileForReverify = useCallback(async () => {
-    if (reverifyOpen) {
+    if (isProfileModalOpen && profileMode === 'reverify') {
       try {
         const resp = await companyApi.getCompleteProfile()
         if (resp.success && resp.data) {
           const data = resp.data!
           const p = data.profile
 
-          // Extract location from locations array
           const locationValue = data.locations?.[0]?.location ||
             data.locations?.[0]?.city ||
             data.locations?.[0]?.address ||
             '';
 
-          // Extract employee count - convert number to string
           const employeeValue = p.employee_count ? String(p.employee_count) : '';
 
           setForm({
@@ -111,7 +148,7 @@ const CompanyDashboard = () => {
         toast.error('Failed to load profile data')
       }
     }
-  }, [reverifyOpen])
+  }, [isProfileModalOpen, profileMode])
 
 
   useEffect(() => {
@@ -129,10 +166,10 @@ const CompanyDashboard = () => {
   }, [companyVerificationStatus, rejectionReason])
 
   useEffect(() => {
-    if (reverifyOpen) {
+    if (isProfileModalOpen) {
       loadProfileForReverify()
     }
-  }, [reverifyOpen, loadProfileForReverify])
+  }, [isProfileModalOpen, loadProfileForReverify])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -150,7 +187,6 @@ const CompanyDashboard = () => {
           setStats(response.data)
         }
       } catch {
-        // Silent fail - don't show toast for stats
       } finally {
         setStatsLoading(false)
       }
@@ -249,7 +285,27 @@ const CompanyDashboard = () => {
                 <Button
                   size="sm"
                   className="ml-4 bg-[#4640DE] hover:bg-[#3a35c7] text-white"
-                  onClick={() => navigate('/company/profile-setup')}
+                  onClick={() => {
+                    setProfileMode('create')
+                    setProfileStep(1)
+                    setValidationErrors({})
+                    setForm({
+                      company_name: '',
+                      email: '',
+                      website: '',
+                      website_link: '',
+                      industry: '',
+                      organisation: '',
+                      location: '',
+                      employees: '',
+                      description: '',
+                      about_us: '',
+                      logo: '',
+                      business_license: '',
+                      tax_id: ''
+                    })
+                    setIsProfileModalOpen(true)
+                  }}
                 >
                   Complete Registration
                 </Button>
@@ -274,9 +330,10 @@ const CompanyDashboard = () => {
                 </div>
                 {companyVerificationStatus === 'rejected' && (
                   <Button size="sm" variant="destructive" onClick={() => {
-                    setReverifyStep(1);
+                    setProfileMode('reverify')
+                    setProfileStep(1);
                     setValidationErrors({});
-                    setReverifyOpen(true);
+                    setIsProfileModalOpen(true);
                   }}>
                     Reverify
                   </Button>
@@ -321,86 +378,103 @@ const CompanyDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             { }
             <div className="lg:col-span-2">
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-bold text-gray-900">Application Summary</CardTitle>
-                      <CardDescription className="text-sm text-gray-600">Overview of your job applications</CardDescription>
-                    </div>
-                    <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'week' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('week')}
-                      >
-                        Week
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'month' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('month')}
-                      >
-                        Month
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={selectedPeriod === 'year' ? 'bg-white text-[#4640DE] font-semibold text-xs' : 'text-gray-600 text-xs'}
-                        onClick={() => setSelectedPeriod('year')}
-                      >
-                        Year
-                      </Button>
-                    </div>
-                  </div>
+              {/* Recent Applications Table */}
+              <Card className="bg-white border border-gray-200 rounded-lg h-full">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg font-bold text-gray-900">Recent Applications</CardTitle>
+                  <Button variant="ghost" className="text-sm text-[#4640DE]" onClick={() => navigate('/company/applicants')}>
+                    View All <ArrowRight className="ml-1 h-3 w-3" />
+                  </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    { }
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-1">Total Applications</p>
-                          <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-1">Active Jobs</p>
-                          <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-gray-500 uppercase bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3">Candidate</th>
+                          <th className="px-4 py-3">Role</th>
+                          <th className="px-4 py-3">Date</th>
+                          <th className="px-4 py-3">Stage</th>
+                          <th className="px-4 py-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {applicationsLoading ? (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-gray-500">Loading...</td>
+                          </tr>
+                        ) : applications.slice(0, 8).map((app) => (
+                          <tr key={app.id || app._id} className="border-b hover:bg-gray-50">
+                            <td className="px-4 py-4 font-medium text-gray-900 flex items-center gap-3">
+                              {app.seeker_avatar ? (
+                                <img src={app.seeker_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">{(app.seeker_name?.[0] || app.name?.[0] || '?')}</div>
+                              )}
+                              <div>
+                                <p className="font-semibold">{app.seeker_name || app.name || 'Unknown User'}</p>
+                                {app.is_blocked && <span className="text-[10px] text-red-600 bg-red-100 px-1.5 py-0.5 rounded font-medium">Blocked User</span>}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 text-gray-600 max-w-[150px] truncate" title={app.job_title || app.job?.title}>{app.job_title || app.job?.title || 'Unknown Role'}</td>
+                            <td className="px-4 py-4 text-gray-600">
+                              {app.applied_date ? new Date(app.applied_date).toLocaleDateString() :
+                                app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '-'}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold
+                              ${app.stage === 'hired' ? 'bg-green-100 text-green-800' :
+                                  app.stage === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-blue-100 text-blue-800'}`}>
+                                {formatATSStage(app.stage || 'Applied')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-[#4640DE] hover:text-[#3a35c7] hover:bg-blue-50"
+                                onClick={() => navigate(`/company/applicants/${app.id || app._id}`)}
+                              >
+                                View
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                        {!applicationsLoading && applications.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                              No recent applications found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            { }
+            {/* Right Column: Job Statistics */}
             <div className="space-y-4">
-              { }
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-gray-900">Open Jobs</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900">Job Statistics</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
-                    <p className="text-sm text-gray-600">Active Job Postings</p>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="p-3 bg-gray-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
+                      <p className="text-xs text-gray-500">Applications</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-lg text-center">
+                      <p className="text-2xl font-bold text-gray-900">{statsLoading ? '...' : (stats?.activeJobs || 0)}</p>
+                      <p className="text-xs text-gray-500">Active Jobs</p>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-gray-900">Application Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center mb-4">
-                    <p className="text-4xl font-bold text-gray-900 mb-1">{statsLoading ? '...' : (stats?.totalApplications || 0)}</p>
-                    <p className="text-sm text-gray-600">Total Applications</p>
+                  <div className="mb-2">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">Employment Type</p>
                   </div>
-
                   {!applicationsLoading && (
                     <>
                       <div className="flex items-center justify-center space-x-1 mb-4">
@@ -435,8 +509,54 @@ const CompanyDashboard = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Today's Schedule */}
+              <Card className="bg-white border border-gray-200 rounded-lg">
+                <CardHeader className="pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-bold text-gray-900">Today's Schedule</CardTitle>
+                    <span className="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-full">
+                      {new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  {stats?.todayInterviews && stats.todayInterviews.length > 0 ? (
+                    <div className="space-y-3">
+                      {stats.todayInterviews.map((interview) => (
+                        <div key={interview.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
+                          {interview.seekerProfileImage ? (
+                            <img src={interview.seekerProfileImage} alt={interview.candidateName} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-200">
+                              {interview.candidateName?.charAt(0) || '?'}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate" title={interview.interviewTitle}>{interview.interviewTitle}</p>
+                            <p className="text-xs text-gray-600 truncate">{interview.candidateName} • <span className="text-gray-500">{interview.jobTitle}</span></p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded capitalize ${interview.interviewType === 'online' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                }`}>
+                                {interview.interviewType}
+                              </span> • <p className="text-xs text-gray-500">{new Date(interview.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Calendar className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">No interviews scheduled for today</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
+
+
 
           {stats && (stats.newCandidatesCount || 0) > 0 && (
             <div className="mt-6">
@@ -466,63 +586,119 @@ const CompanyDashboard = () => {
       </div>
 
       <FormDialog
-        open={reverifyOpen}
+        disableOutsideClick={true}
+        open={isProfileModalOpen}
         onOpenChange={(open) => {
-          setReverifyOpen(open)
+          setIsProfileModalOpen(open)
           if (!open) {
             setValidationErrors({})
-            setReverifyStep(1)
+            setProfileStep(1)
           }
         }}
-        title="Reverify Company"
-        description="Update required details and resubmit for verification."
-        submitLabel={reverifyStep === 3 ? 'Submit Reapplication' : 'Next'}
+        title={profileMode === 'reverify' ? "Reverify Company" : "Complete Registration"}
+        description={profileMode === 'reverify' ? "Update required details and resubmit for verification." : "Enter your company details to complete registration."}
+        submitLabel={profileStep === 3 ? (profileMode === 'reverify' ? 'Submit Reapplication' : 'Create Profile') : 'Next'}
         onSubmit={async () => {
-          if (reverifyStep === 1) {
-            setReverifyStep(2)
-            return
-          }
-          if (reverifyStep === 2) {
-            setReverifyStep(3)
-            return
-          }
+          setValidationErrors({})
           try {
-            setValidationErrors({})
-            const resp = await companyApi.reapplyVerification({
-              company_name: form.company_name,
-              email: form.email,
-              website: form.website || form.website_link || '',
-              industry: form.industry,
-              organisation: form.organisation,
-              location: form.location,
-              employees: convertEmployeeCountToRange(form.employees),
-              description: form.description,
-              logo: form.logo || '',
-              business_license: form.business_license || '',
-              tax_id: form.tax_id,
-            })
-            if (resp.success) {
+            if (profileStep === 1) {
+              const result = step1Schema.safeParse({
+                company_name: form.company_name,
+                email: form.email,
+                website: form.website,
+                industry: form.industry,
+                organisation: form.organisation
+              })
 
-              dispatch(fetchCompanyProfileThunk()).catch(() => { })
-
-              toast.success('Reverification submitted. Status set to pending.')
-              setReverifyOpen(false)
-              setValidationErrors({})
-              setReverifyStep(1)
-            } else {
-              if (resp.errors && resp.errors.length > 0) {
-                const errorMap: Record<string, string> = {}
-                resp.errors.forEach(err => {
-                  errorMap[err.field] = err.message
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
                 })
-                setValidationErrors(errorMap)
-                toast.error(resp.message || 'Validation failed')
+                setValidationErrors(fieldErrors)
+                return
+              }
+              setProfileStep(2)
+              return
+            }
+            if (profileStep === 2) {
+              const result = step2Schema.safeParse({
+                location: form.location,
+                employees: form.employees,
+                description: form.description
+              })
+
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
+                })
+                setValidationErrors(fieldErrors)
+                return
+              }
+              setProfileStep(3)
+              return
+            }
+            if (profileStep === 3) {
+              const result = step3Schema.safeParse({
+                tax_id: form.tax_id,
+                business_license: form.business_license
+              })
+
+              if (!result.success) {
+                const fieldErrors: Record<string, string> = {}
+                result.error.issues.forEach((error) => {
+                  if (error.path[0]) fieldErrors[error.path[0] as string] = error.message
+                })
+                setValidationErrors(fieldErrors)
+                return
+              }
+
+              // Proceed with backend submission
+              const profileData = {
+                company_name: form.company_name,
+                email: form.email,
+                website: form.website || form.website_link || '',
+                industry: form.industry,
+                organisation: form.organisation,
+                location: form.location,
+                employees: convertEmployeeCountToRange(form.employees),
+                description: form.description,
+                logo: form.logo || '',
+                business_license: form.business_license || '',
+                tax_id: form.tax_id,
+              }
+
+              let resp;
+              if (profileMode === 'reverify') {
+                resp = await companyApi.reapplyVerification(profileData)
               } else {
-                toast.error(resp.message || 'Failed to submit reverification')
+                resp = await companyApi.createProfile(profileData)
+              }
+
+              if (resp.success) {
+
+                dispatch(fetchCompanyProfileThunk()).catch(() => { })
+
+                toast.success(profileMode === 'reverify' ? 'Reverification submitted. Status set to pending.' : 'Profile created successfully!')
+                setIsProfileModalOpen(false)
+                setValidationErrors({})
+                setProfileStep(1)
+              } else {
+                if (resp.errors && resp.errors.length > 0) {
+                  const errorMap: Record<string, string> = {}
+                  resp.errors.forEach(err => {
+                    errorMap[err.field] = err.message
+                  })
+                  setValidationErrors(errorMap)
+                  toast.error(resp.message || 'Validation failed')
+                } else {
+                  toast.error(resp.message || (profileMode === 'reverify' ? 'Failed to submit reverification' : 'Failed to create profile'))
+                }
               }
             }
           } catch {
-            toast.error('Failed to submit reverification')
+            toast.error(profileMode === 'reverify' ? 'Failed to submit reverification' : 'Failed to create profile')
           }
         }}
 
@@ -530,8 +706,36 @@ const CompanyDashboard = () => {
         maxWidth="lg"
       >
         <div className="space-y-4">
+          {/* Step Indicator */}
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 1 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">1</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 1 ? 'text-gray-900' : 'text-gray-500'}`}>Basic Info</span>
+            </div>
+
+            <div className={`w-12 h-0.5 ${profileStep >= 2 ? 'bg-[#4640DE]' : 'bg-gray-200'}`}></div>
+
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 2 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">2</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 2 ? 'text-gray-900' : 'text-gray-500'}`}>Details</span>
+            </div>
+
+            <div className={`w-12 h-0.5 ${profileStep >= 3 ? 'bg-[#4640DE]' : 'bg-gray-200'}`}></div>
+
+            <div className="flex items-center space-x-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${profileStep >= 3 ? 'bg-[#4640DE] text-white' : 'bg-gray-200 text-gray-500'}`}>
+                <span className="text-sm font-semibold">3</span>
+              </div>
+              <span className={`text-sm font-medium ${profileStep >= 3 ? 'text-gray-900' : 'text-gray-500'}`}>Documents</span>
+            </div>
+          </div>
+
           {/* Step 1: Basic Information */}
-          {reverifyStep === 1 && (
+          {profileStep === 1 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="company_name" className="text-sm mb-3 font-semibold">Company Name *</Label>
@@ -595,7 +799,7 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step 2: Company Details */}
-          {reverifyStep === 2 && (
+          {profileStep === 2 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -668,7 +872,7 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step 3: Documents */}
-          {reverifyStep === 3 && (
+          {profileStep === 3 && (
             <>
               <div>
                 <Label htmlFor="tax_id" className="text-sm mb-3 font-semibold">Tax ID / Registration Number *</Label>
@@ -731,13 +935,13 @@ const CompanyDashboard = () => {
           )}
 
           {/* Step indicator */}
-          {reverifyStep > 1 && (
+          {profileStep > 1 && (
             <div className="flex justify-center pt-2">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setReverifyStep((prev) => (prev - 1) as 1 | 2 | 3)}
+                onClick={() => setProfileStep((prev) => (prev - 1) as 1 | 2 | 3)}
                 className="text-sm"
               >
                 ← Previous Step

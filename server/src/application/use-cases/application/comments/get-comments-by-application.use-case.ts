@@ -8,7 +8,7 @@ export class GetCommentsByApplicationUseCase implements IGetCommentsByApplicatio
   constructor(private commentRepository: IATSCommentRepository) { }
 
   async execute(params: GetCommentsByApplicationParamsDto): Promise<ATSCommentResponseDto[]> {
-    const comments = await this.commentRepository.findByApplicationId(params.applicationId);
+    const comments = await this.commentRepository.findByApplicationId(params.applicationId, params.stage);
     return ATSCommentMapper.toResponseList(comments);
   }
 }

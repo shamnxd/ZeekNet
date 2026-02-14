@@ -4,7 +4,7 @@ import { companyApi } from "@/api/company.api";
 import { atsService } from "@/services/ats.service";
 import { toast } from "@/hooks/use-toast";
 import type { CandidateDetailsResponse } from "@/api/company.api";
-import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
+import type { CompanySideApplication, CompanySideApplicationDetail } from "@/interfaces/company/company-data.interface";
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type { ATSInterview, ATSComment } from "@/types/ats";
 import type {
@@ -42,7 +42,7 @@ export const useCandidateProfile = () => {
 
 
   const [atsApplication, setAtsApplication] =
-    useState<CompanySideApplication | null>(null);
+    useState<CompanySideApplicationDetail | null>(null);
   const [atsJob, setAtsJob] = useState<JobPostingResponse | null>(null);
   const [interviews, setInterviews] = useState<ATSInterview[]>([]);
   const [technicalTasks, setTechnicalTasks] = useState<
@@ -131,17 +131,19 @@ export const useCandidateProfile = () => {
       if (isATSMode) {
         const appRes = await companyApi.getApplicationDetails(currentId);
         if (appRes.data) {
-          const applicationData = appRes.data as Record<string, unknown>;
-          const mappedApplication: CompanySideApplication = {
-            id: getString(applicationData.id || applicationData._id),
+          const applicationData = appRes.data as unknown as Record<string, unknown>;
+          const mappedApplication: CompanySideApplicationDetail = {
+            id: getString(applicationData.id || applicationData._id) || "",
             _id: getString(applicationData.id || applicationData._id),
             jobId: getString(applicationData.job_id),
-            job_id: getString(applicationData.job_id),
+            job_id: getString(applicationData.job_id) || "",
+            jobTitle: getString(applicationData.job_title),
+            job_title: getString(applicationData.job_title) || "",
             seekerId: getString(applicationData.seeker_id),
             seeker_id: getString(applicationData.seeker_id),
             companyId: getString(applicationData.company_id),
             company_id: getString(applicationData.company_id),
-            stage: getString(applicationData.stage),
+            stage: (getString(applicationData.stage) as CompanySideApplication['stage']) || 'applied',
             subStage: getString(applicationData.sub_stage),
             sub_stage: getString(applicationData.sub_stage),
             resumeUrl: getString(applicationData.resume_url),
@@ -153,7 +155,7 @@ export const useCandidateProfile = () => {
             created_at: getString(applicationData.created_at),
             updatedAt: getString(applicationData.updated_at),
             updated_at: getString(applicationData.updated_at),
-            applied_date: getString(applicationData.applied_date),
+            applied_date: getString(applicationData.applied_date) || new Date().toISOString(),
             appliedAt: getString(applicationData.applied_date),
             seeker_name: getString(applicationData.seeker_name),
             seeker_avatar: getString(applicationData.seeker_avatar),

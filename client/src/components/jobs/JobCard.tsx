@@ -57,21 +57,27 @@ const JobCard = ({ job, onViewDetails }: JobCardProps) => {
     >
       <CardContent className="p-5">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#3570E2]/10 to-[#3570E2]/5 rounded-lg flex items-center justify-center flex-shrink-0 border border-[#3570E2]/10">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
             {companyLogo ? (
               <img
                 src={companyLogo}
                 alt={companyName}
-                className="w-10 h-10 rounded-lg object-cover"
+                className="w-12 h-12 rounded-lg object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerHTML = `<span class="text-[#3570E2] font-bold text-lg">${companyName.charAt(0).toUpperCase()}</span>`;
+                  e.currentTarget.parentElement!.innerHTML = `<div class="!bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center">
+                <span class="text-[#3570E2] font-bold text-xl">
+                  ${companyName.charAt(0).toUpperCase()}
+                </span>
+              </div>`;
                 }}
               />
             ) : (
-              <span className="text-[#3570E2] font-bold text-lg">
-                {companyName.charAt(0).toUpperCase()}
-              </span>
+              <div className="!bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center">
+                <span className="text-[#3570E2] font-bold text-xl">
+                  {companyName.charAt(0).toUpperCase()}
+                </span>
+              </div>
             )}
           </div>
           <div className="flex-1 min-w-0">
