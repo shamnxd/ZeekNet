@@ -4,6 +4,8 @@ export interface CompensationMeeting {
     id?: string;
     title?: string;
     type: "call" | "online" | "in-person";
+    videoType?: "in-app" | "external";
+    webrtcRoomId?: string;
     scheduledDate: string;
     location?: string;
     meetingLink?: string;

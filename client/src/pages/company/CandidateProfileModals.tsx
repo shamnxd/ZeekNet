@@ -77,7 +77,6 @@ interface CandidateProfileModalsProps {
   selectedMeetingForEdit: CompensationMeeting | null;
   setSelectedMeetingForEdit: (value: CompensationMeeting | null) => void;
   compensationData: CompensationData | null;
-  compensationNotes: Array<{ comment: string; note?: string; recruiterName?: string; createdAt: string; }>;
   compensationMeetings: CompensationMeeting[];
 
   // Offer
@@ -153,7 +152,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
     selectedMeetingForEdit,
     setSelectedMeetingForEdit,
     compensationData,
-    compensationNotes,
     showCreateOfferModal,
     setShowCreateOfferModal,
     showEditOfferModal,
@@ -335,12 +333,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
               companyProposed: compensationData.companyProposed,
               benefits: compensationData.benefits,
               expectedJoining: compensationData.expectedJoining,
-              notes:
-                compensationNotes.length > 0
-                  ? compensationNotes[0].comment ||
-                  compensationNotes[0].note ||
-                  ""
-                  : undefined,
             }
             : undefined
         }
@@ -354,14 +346,6 @@ export function CandidateProfileModals(props: CandidateProfileModalsProps) {
         candidateExpected={compensationData?.candidateExpected}
         existingBenefits={compensationData?.benefits}
         existingExpectedJoining={compensationData?.expectedJoining}
-        existingNotes={
-          compensationNotes.length > 0
-            ? compensationNotes[0].comment ||
-            compensationNotes[0].note ||
-            "" ||
-            undefined
-            : undefined
-        }
         onUpdate={handleUpdateCompensation}
       />
 

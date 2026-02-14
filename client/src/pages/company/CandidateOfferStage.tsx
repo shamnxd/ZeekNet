@@ -138,13 +138,23 @@ export const CandidateOfferStage = ({
                 <div className="bg-white rounded-lg p-6 border text-center">
                     <p className="text-gray-600 mb-4">Offer letter has not been prepared yet.</p>
                     {showActions && (
-                        <Button
-                            onClick={() => onSetShowCreateOfferModal(true)}
-                            className="bg-[#4640DE] hover:bg-[#3730A3]"
-                        >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Create & Prepare Offer
-                        </Button>
+                        <div className="flex justify-center gap-3">
+                            <Button
+                                onClick={() => onSetShowCreateOfferModal(true)}
+                                className="bg-[#4640DE] hover:bg-[#3730A3]"
+                            >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Create & Prepare Offer
+                            </Button>
+                            <Button
+                                onClick={onMarkAsHired}
+                                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                                disabled={isUpdating}
+                            >
+                                <UserCheck className="h-4 w-4" />
+                                Mark as Hired
+                            </Button>
+                        </div>
                     )}
                 </div>
             )}

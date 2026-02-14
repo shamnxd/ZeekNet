@@ -6,7 +6,7 @@ import { jobApplicationApi } from '@/api';
 import { atsService } from '@/services/ats.service';
 
 import type { ApiError } from '@/types/api-error.type';
-import type { ATSInterview } from '@/types/ats';
+import type { ATSInterview, ATSComment } from '@/types/ats'; // Added ATSComment
 import type { ExtendedATSTechnicalTask, ExtendedATSOfferDocument, CompensationMeeting } from '@/interfaces/seeker/application-details.types';
 
 export const useSeekerApplicationDetails = () => {
@@ -18,6 +18,7 @@ export const useSeekerApplicationDetails = () => {
     const [interviews, setInterviews] = useState<ATSInterview[]>([]);
     const [offers, setOffers] = useState<ExtendedATSOfferDocument[]>([]);
     const [compensationMeetings, setCompensationMeetings] = useState<CompensationMeeting[]>([]);
+    const [comments, setComments] = useState<ATSComment[]>([]); // Added state
 
 
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -60,11 +61,12 @@ export const useSeekerApplicationDetails = () => {
 
                 if (responseApplicationId && responseApplicationId !== 'undefined' && responseApplicationId !== 'null') {
                     try {
-                        const [tasksResponse, interviewsResponse, offersResponse, meetingsResponse] = await Promise.all([
+                        const [tasksResponse, interviewsResponse, offersResponse, meetingsResponse, commentsResponse] = await Promise.all([
                             atsService.getTechnicalTasksByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
                             atsService.getInterviewsByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
                             atsService.getOffersByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
-                            atsService.getCompensationMeetingsForSeeker(responseApplicationId).catch(() => [])
+                            atsService.getCompensationMeetingsForSeeker(responseApplicationId).catch(() => []),
+                            atsService.getCommentsByApplication(responseApplicationId).catch(() => ({ data: [] }))
                         ]);
                         setTechnicalTasks(tasksResponse.data || []);
                         setInterviews(interviewsResponse.data || []);
@@ -79,6 +81,7 @@ export const useSeekerApplicationDetails = () => {
                         }
                         setOffers(offersData);
                         setCompensationMeetings(Array.isArray(meetingsResponse) ? meetingsResponse : []);
+                        setComments(commentsResponse.data || []);
                     } catch (err) {
                         console.error('Failed to fetch tasks/interviews/offers:', err);
                     }
@@ -187,6 +190,7 @@ export const useSeekerApplicationDetails = () => {
         interviews,
         offers,
         compensationMeetings,
+        comments, // Added to return
 
 
         showSubmissionModal,

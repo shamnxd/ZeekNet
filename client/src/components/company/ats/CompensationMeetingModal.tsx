@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Video, MapPin, Phone } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Calendar, Video, MapPin, Phone, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CompensationMeeting {
@@ -14,7 +13,6 @@ interface CompensationMeeting {
     scheduledDate?: string;
     location?: string;
     meetingLink?: string;
-    notes?: string;
     status?: 'scheduled' | 'completed' | 'cancelled';
     completedAt?: string;
     createdAt?: string;
@@ -36,7 +34,6 @@ interface CompensationMeetingData {
     time: string;
     location?: string;
     meetingLink?: string;
-    notes?: string;
 }
 
 export const CompensationMeetingModal = ({
@@ -49,305 +46,293 @@ export const CompensationMeetingModal = ({
     const [formData, setFormData] = useState<CompensationMeetingData>({
         type: 'call',
         videoType: 'in-app',
-        date: '',
+        date: new Date().toISOString().split('T')[0],
         time: '',
         location: '',
-        meetingLink: '',
-        notes: ''
+        meetingLink: ''
     });
+
+    const [errors, setErrors] = useState<Partial<Record<keyof CompensationMeetingData, string>>>({});
 
     useEffect(() => {
         if (isOpen) {
+            setErrors({});
             if (meetingToEdit) {
-
-                let scheduledDate: Date
+                let scheduledDate: Date;
                 if (meetingToEdit.scheduledDate) {
-                    scheduledDate = new Date(meetingToEdit.scheduledDate)
+                    scheduledDate = new Date(meetingToEdit.scheduledDate);
 
-                    const year = scheduledDate.getFullYear()
-                    const month = String(scheduledDate.getMonth() + 1).padStart(2, '0')
-                    const day = String(scheduledDate.getDate()).padStart(2, '0')
-                    const hours = String(scheduledDate.getHours()).padStart(2, '0')
-                    const minutes = String(scheduledDate.getMinutes()).padStart(2, '0')
-
-                    const dateStr = `${year}-${month}-${day}`
-                    const timeStr = `${hours}:${minutes}`
+                    const year = scheduledDate.getFullYear();
+                    const month = String(scheduledDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(scheduledDate.getDate()).padStart(2, '0');
+                    const hours = String(scheduledDate.getHours()).padStart(2, '0');
+                    const minutes = String(scheduledDate.getMinutes()).padStart(2, '0');
 
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
                         videoType: meetingToEdit.videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
-                        date: dateStr,
-                        time: timeStr,
+                        date: `${year}-${month}-${day}`,
+                        time: `${hours}:${minutes}`,
                         location: meetingToEdit.location || '',
-                        meetingLink: meetingToEdit.meetingLink || '',
-                        notes: meetingToEdit.notes || ''
-                    })
+                        meetingLink: meetingToEdit.meetingLink || ''
+                    });
                 } else {
-
-                    const today = new Date().toISOString().split('T')[0]
                     setFormData({
                         type: (meetingToEdit.type || 'call') as 'call' | 'online' | 'in-person',
                         videoType: meetingToEdit.videoType || (meetingToEdit.meetingLink ? 'external' : 'in-app'),
-                        date: today,
+                        date: new Date().toISOString().split('T')[0],
                         time: '',
                         location: meetingToEdit.location || '',
-                        meetingLink: meetingToEdit.meetingLink || '',
-                        notes: meetingToEdit.notes || ''
-                    })
+                        meetingLink: meetingToEdit.meetingLink || ''
+                    });
                 }
             } else {
-
-                const today = new Date().toISOString().split('T')[0];
                 setFormData({
                     type: 'call',
                     videoType: 'in-app',
-                    date: today,
+                    date: new Date().toISOString().split('T')[0],
                     time: '',
                     location: '',
-                    meetingLink: '',
-                    notes: ''
+                    meetingLink: ''
                 });
             }
         }
     }, [isOpen, meetingToEdit]);
 
+    const validate = (): boolean => {
+        const newErrors: Partial<Record<keyof CompensationMeetingData, string>> = {};
+        let isValid = true;
+
+        if (!formData.date) {
+            newErrors.date = 'Date is required';
+            isValid = false;
+        }
+
+        if (!formData.time) {
+            newErrors.time = 'Time is required';
+            isValid = false;
+        }
+
+        if (formData.type === 'in-person' && !formData.location?.trim()) {
+            newErrors.location = 'Location is required for in-person meetings';
+            isValid = false;
+        }
+
+        if (formData.type === 'online' && formData.videoType === 'external' && !formData.meetingLink?.trim()) {
+            newErrors.meetingLink = 'Meeting link is required';
+            isValid = false;
+        } else if (formData.type === 'online' && formData.videoType === 'external' && formData.meetingLink) {
+            try {
+                new URL(formData.meetingLink);
+            } catch (e) {
+                newErrors.meetingLink = 'Please enter a valid URL';
+                isValid = false;
+            }
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleInputChange = (field: keyof CompensationMeetingData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.date || !formData.time) {
+        if (!validate()) {
             return;
         }
         onSchedule(formData);
-        onClose();
+        handleClose();
     };
 
     const handleClose = () => {
         setFormData({
             type: 'call',
             videoType: 'in-app',
-            date: '',
+            date: new Date().toISOString().split('T')[0],
             time: '',
             location: '',
-            meetingLink: '',
-            notes: ''
+            meetingLink: ''
         });
+        setErrors({});
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-                <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={handleClose} />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
-                >
-                    { }
-                    <div className="flex items-center justify-between p-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                                <Calendar className="w-5 h-5 text-amber-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-semibold text-foreground">{meetingToEdit ? 'Update Compensation Meeting' : 'Compensation Meeting'}</h2>
-                                <p className="text-sm text-muted-foreground">For {candidateName}</p>
-                            </div>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-amber-600" />
                         </div>
-                        <button
-                            onClick={handleClose}
-                            className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-muted-foreground" />
-                        </button>
+                        <div>
+                            <DialogTitle className="text-lg font-semibold">
+                                {meetingToEdit ? 'Update Compensation Meeting' : 'Schedule Compensation Meeting'}
+                            </DialogTitle>
+                            <DialogDescription>
+                                For <span className="font-medium text-foreground">{candidateName}</span>
+                            </DialogDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-4 py-2">
+                    {/* Meeting Type */}
+                    <div className="space-y-1.5">
+                        <Label>Meeting Type <span className="text-destructive">*</span></Label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {[
+                                { id: 'call', label: 'Call', icon: Phone },
+                                { id: 'online', label: 'Online', icon: Video },
+                                { id: 'in-person', label: 'In-person', icon: MapPin }
+                            ].map((type) => (
+                                <button
+                                    key={type.id}
+                                    type="button"
+                                    onClick={() => handleInputChange('type', type.id as any)}
+                                    className={cn(
+                                        "flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 transition-all",
+                                        formData.type === type.id
+                                            ? "border-[#4640DE] bg-[#4640DE]/5 text-[#4640DE]"
+                                            : "border-border hover:border-muted-foreground/30 text-muted-foreground"
+                                    )}
+                                >
+                                    <type.icon className="w-4 h-4" />
+                                    <span className="text-xs font-semibold">{type.label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    { }
-                    <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        <div className="space-y-2">
-                            <Label className="text-foreground">Meeting Type <span className="text-destructive">*</span></Label>
-                            <div className="grid grid-cols-3 gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: 'call' })}
-                                    className={cn(
-                                        "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
-                                        formData.type === 'call'
-                                            ? "border-amber-600 bg-amber-50 text-amber-700"
-                                            : "border-border hover:border-amber-200"
-                                    )}
-                                >
-                                    <Phone className="w-4 h-4" />
-                                    <span className="text-sm font-medium">Call</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: 'online' })}
-                                    className={cn(
-                                        "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
-                                        formData.type === 'online'
-                                            ? "border-amber-600 bg-amber-50 text-amber-700"
-                                            : "border-border hover:border-amber-200"
-                                    )}
-                                >
-                                    <Video className="w-4 h-4" />
-                                    <span className="text-sm font-medium">Online</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: 'in-person' })}
-                                    className={cn(
-                                        "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
-                                        formData.type === 'in-person'
-                                            ? "border-amber-600 bg-amber-50 text-amber-700"
-                                            : "border-border hover:border-amber-200"
-                                    )}
-                                >
-                                    <MapPin className="w-4 h-4" />
-                                    <span className="text-sm font-medium">In-person</span>
-                                </button>
-                            </div>
+                    {/* Date and Time */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="date">Date <span className="text-destructive">*</span></Label>
+                            <Input
+                                id="date"
+                                type="date"
+                                value={formData.date}
+                                onChange={(e) => handleInputChange('date', e.target.value)}
+                                className={cn(errors.date && "border-destructive focus-visible:ring-destructive")}
+                                min={new Date().toISOString().split('T')[0]}
+                            />
+                            {errors.date && <p className="text-xs text-destructive">{errors.date}</p>}
                         </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="date" className="text-foreground">
-                                    Date <span className="text-destructive">*</span>
-                                </Label>
-                                <Input
-                                    id="date"
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    className="w-full"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="time" className="text-foreground">
-                                    Time <span className="text-destructive">*</span>
-                                </Label>
-                                <Input
-                                    id="time"
-                                    type="time"
-                                    value={formData.time}
-                                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                    className="w-full"
-                                    required
-                                />
-                            </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="time">Time <span className="text-destructive">*</span></Label>
+                            <Input
+                                id="time"
+                                type="time"
+                                value={formData.time}
+                                onChange={(e) => handleInputChange('time', e.target.value)}
+                                className={cn(errors.time && "border-destructive focus-visible:ring-destructive")}
+                            />
+                            {errors.time && <p className="text-xs text-destructive">{errors.time}</p>}
                         </div>
+                    </div>
 
-                        {formData.type === 'online' && (
-                            <div className="space-y-3">
-                                <Label className="text-foreground">Video Meeting Type</Label>
+                    {/* Online Options */}
+                    {formData.type === 'online' && (
+                        <div className="space-y-3 p-3 bg-muted/40 rounded-lg border border-border/60">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Video Platform</Label>
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => setFormData({ ...formData, videoType: 'in-app', meetingLink: '' })}
+                                        onClick={() => {
+                                            handleInputChange('videoType', 'in-app');
+                                            handleInputChange('meetingLink', '');
+                                        }}
                                         className={cn(
-                                            "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
+                                            "flex items-center justify-center gap-2 p-2 rounded-md border transition-all text-xs",
                                             formData.videoType === 'in-app'
-                                                ? "border-amber-600 bg-amber-50 text-amber-700"
-                                                : "border-border hover:border-amber-200"
+                                                ? "border-[#4640DE] bg-white text-[#4640DE] shadow-sm"
+                                                : "bg-transparent border-transparent text-muted-foreground hover:bg-muted"
                                         )}
                                     >
-                                        <Video className="w-4 h-4" />
-                                        <span className="text-sm font-medium">In-App Video (P2P Recommended)</span>
+                                        In-App Video
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => setFormData({ ...formData, videoType: 'external' })}
+                                        onClick={() => handleInputChange('videoType', 'external')}
                                         className={cn(
-                                            "flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-colors",
+                                            "flex items-center justify-center gap-2 p-2 rounded-md border transition-all text-xs",
                                             formData.videoType === 'external'
-                                                ? "border-amber-600 bg-amber-50 text-amber-700"
-                                                : "border-border hover:border-amber-200"
+                                                ? "border-[#4640DE] bg-white text-[#4640DE] shadow-sm"
+                                                : "bg-transparent border-transparent text-muted-foreground hover:bg-muted"
                                         )}
                                     >
-                                        <Video className="w-4 h-4" />
-                                        <span className="text-sm font-medium">External Link</span>
+                                        External Link
                                     </button>
                                 </div>
-                                {formData.videoType === 'in-app' && (
-                                    <p className="text-sm text-muted-foreground">
-                                        The meeting will be conducted using our secure in-app peer-to-peer video calling feature. A unique room will be created automatically.
-                                    </p>
-                                )}
-                                {formData.videoType === 'external' && (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="meetingLink" className="text-foreground">
-                                            Meeting Link (Google Meet / Zoom)
-                                        </Label>
+                            </div>
+
+                            {formData.videoType === 'in-app' && (
+                                <p className="text-[11px] text-muted-foreground">
+                                    A secure meeting room will be automatically created using our in-app P2P video service.
+                                </p>
+                            )}
+
+                            {formData.videoType === 'external' && (
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="meetingLink" className="text-xs font-semibold">Meeting URL <span className="text-destructive">*</span></Label>
+                                    <div className="relative">
+                                        <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="meetingLink"
-                                            type="url"
-                                            placeholder="https://meet.google.com/... or https://zoom.us/j/..."
+                                            placeholder="https://zoom.us/j/..."
                                             value={formData.meetingLink}
-                                            onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
-                                            className="w-full"
+                                            onChange={(e) => handleInputChange('meetingLink', e.target.value)}
+                                            className={cn("pl-9 h-9 text-sm", errors.meetingLink && "border-destructive focus-visible:ring-destructive")}
                                         />
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                    {errors.meetingLink && <p className="text-xs text-destructive">{errors.meetingLink}</p>}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                        {formData.type === 'in-person' && (
-                            <div className="space-y-2">
-                                <Label htmlFor="location" className="text-foreground">
-                                    Location
-                                </Label>
+                    {/* In-Person Options */}
+                    {formData.type === 'in-person' && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="location">Meeting Location <span className="text-destructive">*</span></Label>
+                            <div className="relative">
+                                <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="location"
-                                    type="text"
-                                    placeholder="Office address or meeting room"
+                                    placeholder="e.g. Conference Room B"
                                     value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="w-full"
+                                    onChange={(e) => handleInputChange('location', e.target.value)}
+                                    className={cn("pl-9", errors.location && "border-destructive focus-visible:ring-destructive")}
                                 />
                             </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <Label htmlFor="notes" className="text-foreground">Notes / Outcome (Optional)</Label>
-                            <Textarea
-                                id="notes"
-                                placeholder="Add notes about the meeting or expected discussion points..."
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                rows={4}
-                                className="w-full resize-none"
-                            />
+                            {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
                         </div>
+                    )}
 
-                        { }
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleClose}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                className="gradient-primary text-primary-foreground hover:opacity-90"
-                                disabled={!formData.date || !formData.time}
-                            >
-                                {meetingToEdit ? 'Update Meeting' : 'Schedule Meeting'}
-                            </Button>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                    <DialogFooter className="pt-4 gap-2 sm:gap-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="bg-[#4640DE] hover:bg-[#3730A3]"
+                        >
+                            {meetingToEdit ? 'Update Meeting' : 'Schedule Meeting'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 };
-

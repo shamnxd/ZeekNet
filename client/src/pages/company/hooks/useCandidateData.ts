@@ -41,13 +41,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
 
     // Compensation state
     const [compensationData, setCompensationData] = useState<CompensationData | null>(null);
-    const [compensationNotes, setCompensationNotes] = useState<
-        Array<{
-            comment: string;
-            recruiterName?: string;
-            createdAt: string;
-        }>
-    >([]);
     const [compensationMeetings, setCompensationMeetings] = useState<
         CompensationMeeting[]
     >([]);
@@ -282,7 +275,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                     } else {
                         setCompensationData(null);
                         setCompensationMeetings([]);
-                        setCompensationNotes([]);
                     }
                 }
             } else {
@@ -343,7 +335,6 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
         loading,
         compensationData,
         setCompensationData,
-        compensationNotes,
         compensationMeetings,
         setCompensationMeetings,
         currentOffer,

@@ -21,7 +21,7 @@ import { CandidateCompensationStage } from "./CandidateCompensationStage";
 import { CandidateOfferStage } from "./CandidateOfferStage";
 
 // Constants & Types
-import { ATSStage } from "@/constants/ats-stages";
+import { ATSStage, CompensationSubStage } from "@/constants/ats-stages";
 
 // Hooks
 import { useCandidateData } from "./hooks/useCandidateData";
@@ -49,7 +49,7 @@ const CandidateProfileView = () => {
   const dataState = useCandidateData(currentId, isATSMode);
   const {
     candidateData, atsApplication, atsJob, interviews, technicalTasks,
-    offerDocuments, comments, loading, compensationData, compensationNotes,
+    offerDocuments, comments, loading, compensationData,
     compensationMeetings, currentOffer, showLimitExceededDialog, limitExceededData,
     reloadData, setAtsApplication, setCompensationData, setComments, setCompensationMeetings,
     setShowLimitExceededDialog
@@ -267,6 +267,8 @@ const CandidateProfileView = () => {
           selectedStage={selectedStage}
           compensationData={compensationData}
           compensationMeetings={compensationMeetings}
+          comments={comments}
+          onSetShowCommentModal={setShowCommentModal}
           onSetShowCompensationInitModal={setShowCompensationInitModal}
           onSetShowCompensationUpdateModal={setShowCompensationUpdateModal}
           onSetShowCompensationMeetingModal={setShowCompensationMeetingModal}
@@ -276,6 +278,7 @@ const CandidateProfileView = () => {
             if (!currentId) return;
             await companyApi.moveApplicationStage(currentId, {
               nextStage: ATSStage.COMPENSATION,
+              subStage: CompensationSubStage.APPROVED,
             });
             reloadData();
           }}
@@ -502,7 +505,6 @@ const CandidateProfileView = () => {
         setSelectedMeetingForEdit={setSelectedMeetingForEdit}
 
         compensationData={compensationData}
-        compensationNotes={compensationNotes}
         compensationMeetings={compensationMeetings}
 
         showCreateOfferModal={showCreateOfferModal}
