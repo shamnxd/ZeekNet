@@ -104,7 +104,12 @@ const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileReposito
 
 const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
-const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository);
+const verifyCompanyUseCase = new VerifyCompanyUseCase(
+  companyVerificationRepository,
+  subscriptionPlanRepository,
+  companySubscriptionRepository,
+  companyProfileRepository
+);
 
 const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
 
