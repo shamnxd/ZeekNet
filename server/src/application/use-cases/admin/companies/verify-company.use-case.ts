@@ -5,16 +5,27 @@ import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/com
 import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
 import { CompanySubscriptionMapper } from 'src/application/mappers/company/subscription/company-subscription.mapper';
 import { VerifyCompanyRequestDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
     private readonly _companyVerificationRepository: ICompanyVerificationRepository,
     private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(dto: VerifyCompanyRequestDto): Promise<void> {
     const { companyId, isVerified, rejection_reason: rejectionReason } = dto;
+
+    const company = await this._companyProfileRepository.findById(companyId);
+    if (!company) {
+      throw new Error('Company not found');
+    }
+
+    if (company.isVerified !== CompanyVerificationStatus.PENDING) {
+      throw new Error(`Company is already ${company.isVerified}. Only pending companies can be verified or rejected.`);
+    }
 
     await this._companyVerificationRepository.updateVerificationStatus(
       companyId,

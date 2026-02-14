@@ -107,16 +107,27 @@ const PendingCompanies = () => {
     if (!selectedCompany) return
 
     try {
-      await adminApi.verifyCompany({
+      const response = await adminApi.verifyCompany({
         companyId: selectedCompany.id,
         isVerified: 'verified'
       })
 
-      toast.success(`Company ${selectedCompany.companyName || 'Unknown'} accepted successfully`)
-      setAcceptDialogOpen(false)
-      setSelectedCompany(null)
-      fetchPendingCompanies()
-    } catch {
+      if (response.success) {
+        toast.success(`Company ${selectedCompany.companyName || 'Unknown'} accepted successfully`)
+        setAcceptDialogOpen(false)
+        setSelectedCompany(null)
+        fetchPendingCompanies()
+      } else {
+        toast.error(response.message || 'Failed to accept company')
+        // Close dialog if it was a status conflict
+        if (response.message?.includes('already')) {
+          setAcceptDialogOpen(false)
+          setSelectedCompany(null)
+          fetchPendingCompanies()
+        }
+      }
+    } catch (error) {
+      console.error('Error accepting company:', error)
       toast.error('Failed to accept company')
     }
   }
@@ -130,18 +141,29 @@ const PendingCompanies = () => {
     }
 
     try {
-      await adminApi.verifyCompany({
+      const response = await adminApi.verifyCompany({
         companyId: selectedCompany.id,
         isVerified: 'rejected',
         rejection_reason: rejectionReason.trim()
       })
 
-      toast.success(`Company ${selectedCompany.companyName || 'Unknown'} rejected successfully`)
-      setRejectDialogOpen(false)
-      setSelectedCompany(null)
-      setRejectionReason('')
-      fetchPendingCompanies()
-    } catch {
+      if (response.success) {
+        toast.success(`Company ${selectedCompany.companyName || 'Unknown'} rejected successfully`)
+        setRejectDialogOpen(false)
+        setSelectedCompany(null)
+        setRejectionReason('')
+        fetchPendingCompanies()
+      } else {
+        toast.error(response.message || 'Failed to reject company')
+        // Close dialog if it was a status conflict
+        if (response.message?.includes('already')) {
+          setRejectDialogOpen(false)
+          setSelectedCompany(null)
+          fetchPendingCompanies()
+        }
+      }
+    } catch (error) {
+      console.error('Error rejecting company:', error)
       toast.error('Failed to reject company')
     }
   }
