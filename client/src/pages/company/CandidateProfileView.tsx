@@ -10,10 +10,12 @@ import { atsService } from "@/services/ats.service";
 // Components
 import CandidateProfileSidebar from "./CandidateProfileSidebar";
 import CandidateProfileTabs from "./CandidateProfileTabs";
+import { LimitExceededDialog } from "@/components/company/dialogs/LimitExceededDialog";
 import { CandidateProfileModals } from "./CandidateProfileModals";
-
-// Stage Components
 import { CandidateInReviewStage } from "./CandidateInReviewStage";
+
+// ... existing imports ...
+
 import { CandidateShortlistedStage } from "./CandidateShortlistedStage";
 import { CandidateInterviewStage } from "./CandidateInterviewStage";
 import { CandidateTechnicalTaskStage } from "./CandidateTechnicalTaskStage";
@@ -370,6 +372,24 @@ const CandidateProfileView = () => {
   }
 
   if (isATSMode && (!atsApplication || atsApplication.is_blocked)) {
+    if (showLimitExceededDialog) {
+      return (
+        <CompanyLayout>
+          <div className="flex justify-center items-center h-[60vh]">
+            <LimitExceededDialog
+              open={true}
+              onOpenChange={(open) => {
+                setShowLimitExceededDialog(open);
+                if (!open) navigate("/company/ats");
+              }}
+              limitExceededData={limitExceededData}
+              title="Candidate View Limit Exceeded"
+              description="You have reached your candidate view limit for your current subscription plan. Upgrade to view more candidates."
+            />
+          </div>
+        </CompanyLayout>
+      );
+    }
     return (
       <CompanyLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
@@ -381,6 +401,24 @@ const CandidateProfileView = () => {
   }
 
   if (!isATSMode && !candidateData) {
+    if (showLimitExceededDialog) {
+      return (
+        <CompanyLayout>
+          <div className="flex justify-center items-center h-[60vh]">
+            <LimitExceededDialog
+              open={true}
+              onOpenChange={(open) => {
+                setShowLimitExceededDialog(open);
+                if (!open) navigate("/company/candidates");
+              }}
+              limitExceededData={limitExceededData}
+              title="Candidate View Limit Exceeded"
+              description="You have reached your candidate view limit for your current subscription plan. Upgrade to view more candidates."
+            />
+          </div>
+        </CompanyLayout>
+      );
+    }
     return (
       <CompanyLayout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">

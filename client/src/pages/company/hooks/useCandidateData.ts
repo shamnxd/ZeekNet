@@ -139,6 +139,14 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                         seekerId
                             ? companyApi.getCandidateDetails(seekerId).catch((e) => {
                                 console.error("Failed to fetch candidate details", e);
+                                const error = e as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number } } } };
+                                if (error.response?.status === 403 && error.response.data?.data?.limitExceeded) {
+                                    setShowLimitExceededDialog(true);
+                                    setLimitExceededData({
+                                        currentLimit: error.response.data.data.currentLimit || 0,
+                                        used: error.response.data.data.used || 0,
+                                    });
+                                }
                                 return { data: null };
                             })
                             : Promise.resolve({ data: null }),

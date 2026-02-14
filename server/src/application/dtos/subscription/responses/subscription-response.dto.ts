@@ -1,6 +1,7 @@
 export interface CompanySubscriptionResponseDto {
   id: string;
   companyId: string;
+  planId: string;
   plan: {
     id: string;
     name: string;
@@ -23,4 +24,6 @@ export interface CompanySubscriptionResponseDto {
   cancelAtPeriodEnd?: boolean;
   currentPeriodStart?: Date;
   currentPeriodEnd?: Date;
+  stripeSubscriptionId?: string;
+  stripeCustomerId?: string;
 }

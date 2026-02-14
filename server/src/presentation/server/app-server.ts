@@ -52,7 +52,7 @@ export class AppServer {
       }),
     );
 
-    this._app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
+    this._app.use('/api/webhook/stripe', express.raw({ type: '*/*' }));
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));

@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LimitExceededDialog } from '@/components/company/dialogs/LimitExceededDialog'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -87,6 +88,8 @@ const CompanyJobListing = () => {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
   const [additionalVacancies, setAdditionalVacancies] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false)
+  const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number; type?: string } | null>(null)
 
   const fetchJobs = useCallback(async (page: number = 1, limit: number = 10) => {
     try {
@@ -469,8 +472,22 @@ const CompanyJobListing = () => {
                                   } else {
                                     toast.error('Failed to update featured status')
                                   }
-                                } catch {
-                                  toast.error('Failed to update featured status')
+                                } catch (error: unknown) {
+                                  const apiError = error as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number; type?: string } } } };
+
+                                  if (apiError.response?.status === 403 && apiError.response.data?.data?.limitExceeded) {
+                                    setLimitExceededData({
+                                      currentLimit: apiError.response.data.data.currentLimit || 0,
+                                      used: apiError.response.data.data.used || 0,
+                                      type: apiError.response.data.data.type,
+                                    });
+                                    setShowLimitExceededDialog(true);
+                                    return;
+                                  }
+
+                                  toast.error('Failed to update featured status', {
+                                    description: apiError?.response?.data?.message || 'Please check your subscription plan.'
+                                  })
                                 }
                               }}
                               disabled={status === 'blocked' || status === 'closed'}
@@ -569,6 +586,14 @@ const CompanyJobListing = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <LimitExceededDialog
+        open={showLimitExceededDialog}
+        onOpenChange={setShowLimitExceededDialog}
+        limitExceededData={limitExceededData}
+        title="Featured Job Limit Exceeded"
+        description="You have reached your limit for featured jobs. Upgrade your plan to feature more jobs and get better visibility."
+      />
     </CompanyLayout>
   )
 }

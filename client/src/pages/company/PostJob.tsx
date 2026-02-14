@@ -12,6 +12,7 @@ import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";
+import { LimitExceededDialog } from "@/components/company/dialogs/LimitExceededDialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ATSStage } from "@/constants/ats-stages";
 
@@ -45,6 +46,9 @@ const PostJob = () => {
     totalVacancies: 1,
     isFeatured: false,
   });
+
+  const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
+  const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number; type?: string } | null>(null);
 
   const steps = [
     {
@@ -176,6 +180,18 @@ const PostJob = () => {
         });
       }
     } catch (error: unknown) {
+      const apiError = error as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number; type?: string } } } };
+
+      if (apiError.response?.status === 403 && apiError.response.data?.data?.limitExceeded) {
+        setLimitExceededData({
+          currentLimit: apiError.response.data.data.currentLimit || 0,
+          used: apiError.response.data.data.used || 0,
+          type: apiError.response.data.data.type,
+        });
+        setShowLimitExceededDialog(true);
+        return;
+      }
+
       let errorMessage = "Please try again later.";
 
       if (error && typeof error === 'object') {
@@ -315,6 +331,18 @@ const PostJob = () => {
             onSubmit={handleSubmit}
           />
         </div>
+
+        <LimitExceededDialog
+          open={showLimitExceededDialog}
+          onOpenChange={setShowLimitExceededDialog}
+          limitExceededData={limitExceededData}
+          title={limitExceededData?.type === 'featuredJob' ? "Featured Job Limit Exceeded" : "Job Post Limit Exceeded"}
+          description={
+            limitExceededData?.type === 'featuredJob'
+              ? "You have reached your limit for featured jobs. Upgrade your plan to feature more jobs and get better visibility."
+              : "You have reached your job posting limit for your current subscription plan. Upgrade to post more jobs."
+          }
+        />
       </div>
     </CompanyLayout>
   );

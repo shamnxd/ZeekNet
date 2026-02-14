@@ -320,6 +320,13 @@ export const companyApi = {
     })).data;
   },
 
+  async previewPlanChange(planId: string, billingCycle?: 'monthly' | 'yearly'): Promise<ApiEnvelope<import('@/interfaces/company/subscription/preview-plan-change.interface').PreviewPlanChangeResponse>> {
+    return (await api.post<ApiEnvelope<import('@/interfaces/company/subscription/preview-plan-change.interface').PreviewPlanChangeResponse>>(CompanyRoutes.SUBSCRIPTIONS_PREVIEW_CHANGE, {
+      planId,
+      billingCycle,
+    })).data;
+  },
+
   async getBillingPortalUrl(returnUrl: string): Promise<ApiEnvelope<BillingPortalResponse>> {
     return (await api.post<ApiEnvelope<BillingPortalResponse>>(CompanyRoutes.SUBSCRIPTIONS_BILLING_PORTAL, { returnUrl })).data;
   },

@@ -37,7 +37,7 @@ export class ATSOfferController {
           buffer: req.file.buffer,
           originalname: req.file.originalname,
           mimetype: req.file.mimetype,
-          size: req.file.size
+          size: req.file.size,
         } : undefined,
       });
 
