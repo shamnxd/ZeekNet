@@ -15,6 +15,7 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
   locations
 }) => {
   const [items, setItems] = useState<OfficeLocation[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -24,17 +25,37 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
         address: '',
         isHeadquarters: false
       }]);
+      setErrors({});
     }
   }, [isOpen, locations]);
 
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    items.forEach((item, index) => {
+      if (!item.officeName?.trim()) {
+        newErrors[`officeName-${index}`] = 'Office name is required';
+        isValid = false;
+      }
+      if (!item.location?.trim()) {
+        newErrors[`location-${index}`] = 'City/Location is required';
+        isValid = false;
+      }
+      if (!item.address?.trim()) {
+        newErrors[`address-${index}`] = 'Address is required';
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validItems = items.filter(item =>
-      typeof item.location === 'string' && item.location.trim() !== '' &&
-      typeof item.officeName === 'string' && item.officeName.trim() !== '' &&
-      typeof item.address === 'string' && item.address.trim() !== ''
-    );
-    onSave(validItems);
+    if (!validate()) return;
+    onSave(items);
     onClose();
   };
 
@@ -49,12 +70,26 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
 
   const removeItem = (index: number) => {
     setItems(prev => prev.filter((_, i) => i !== index));
+    // Also clean up errors for removed item
+    const newErrors = { ...errors };
+    delete newErrors[`officeName-${index}`];
+    delete newErrors[`location-${index}`];
+    delete newErrors[`address-${index}`];
+    setErrors(newErrors);
   };
 
   const updateItem = (index: number, field: keyof OfficeLocation, value: string | boolean) => {
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
+    // Clear error when user types
+    if (errors[`${field}-${index}`]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[`${field}-${index}`];
+        return next;
+      });
+    }
   };
 
   return (
@@ -90,7 +125,11 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
                       value={item.officeName}
                       onChange={(e) => updateItem(index, 'officeName', e.target.value)}
                       placeholder="e.g., Main Office, Branch Office"
+                      className={errors[`officeName-${index}`] ? 'border-red-500' : ''}
                     />
+                    {errors[`officeName-${index}`] && (
+                      <p className="text-xs text-red-500 mt-1">{errors[`officeName-${index}`]}</p>
+                    )}
                   </div>
 
                   <div>
@@ -100,7 +139,11 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
                       value={item.location}
                       onChange={(e) => updateItem(index, 'location', e.target.value)}
                       placeholder="e.g., New York, NY"
+                      className={errors[`location-${index}`] ? 'border-red-500' : ''}
                     />
+                    {errors[`location-${index}`] && (
+                      <p className="text-xs text-red-500 mt-1">{errors[`location-${index}`]}</p>
+                    )}
                   </div>
                 </div>
 
@@ -112,7 +155,11 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
                     onChange={(e) => updateItem(index, 'address', e.target.value)}
                     placeholder="Full address of the office"
                     rows={2}
+                    className={errors[`address-${index}`] ? 'border-red-500' : ''}
                   />
+                  {errors[`address-${index}`] && (
+                    <p className="text-xs text-red-500 mt-1">{errors[`address-${index}`]}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -141,5 +188,6 @@ const EditOfficeLocationDialog: React.FC<EditOfficeLocationDialogProps> = ({
     </Dialog>
   );
 };
+
 
 export default EditOfficeLocationDialog;
