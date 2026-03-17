@@ -48,6 +48,7 @@ const PostJob = () => {
   });
 
   const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number; type?: string } | null>(null);
 
   const steps = [
@@ -99,12 +100,13 @@ const PostJob = () => {
 
   const handleSubmit = async () => {
     try {
-      if (!jobData.title || jobData.title.length < 5) {
+      if (!jobData.title || jobData.title.length < 2) {
         toast.error("Validation failed", {
           description: "Title must be at least 2 characters",
         });
         return;
       }
+      setIsSubmitting(true);
 
       const selectedStages = (jobData.enabledStages && jobData.enabledStages.length > 0)
         ? jobData.enabledStages.filter((stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED)
@@ -179,7 +181,9 @@ const PostJob = () => {
           description: response.message || "Please try again later.",
         });
       }
+      setIsSubmitting(false);
     } catch (error: unknown) {
+      setIsSubmitting(false);
       const apiError = error as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number; type?: string } } } };
 
       if (apiError.response?.status === 403 && apiError.response.data?.data?.limitExceeded) {
@@ -329,6 +333,7 @@ const PostJob = () => {
             isFirstStep={currentStep === 1}
             isLastStep={currentStep === steps.length}
             onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         </div>
 
