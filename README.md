@@ -1,465 +1,149 @@
-<h1 align="center">ZeekNet – Job Portal Platform</h1>
+# 🚀 ZeekNet – Next-Gen Job Portal Platform
 
-<p align="center">
-  A full-stack, clean-architecture job portal built with <b>React, TypeScript, Node.js</b>, and <b>MongoDB</b>.
-</p>
+[![React 19](https://img.shields.io/badge/Frontend-React_19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-FF6600?logo=architecture&logoColor=white)](#-architecture)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Frontend-React_19-blue?logo=react" />
-  <img src="https://img.shields.io/badge/Backend-Node.js-green?logo=node.js" />
-  <img src="https://img.shields.io/badge/Database-MongoDB-brightgreen?logo=mongodb" />
-  <img src="https://img.shields.io/badge/TypeScript-Strict-blue?logo=typescript" />
-  <img src="https://img.shields.io/badge/Architecture-Clean-orange?logo=typescript" />
-</p>
+ZeekNet is a high-performance, full-stack job portal designed with **Clean Architecture** principles. It delivers a seamless experience for job seekers, companies, and administrators through a modular, scalable, and maintainable codebase.
 
 ---
 
-## 🏁 Overview
+## 🌟 Key Features
 
-**ZeekNet** is a scalable, real-time job portal that connects **job seekers**, **companies**, and **administrators** through a clean, modular architecture.  
-It’s built using **SOLID principles**, **dependency injection**, and a **clean separation of layers**, ensuring maintainability and scalability..
-
-### 🎭 Roles
-- **Job Seekers** → Find jobs, apply, and track applications  
-- **Companies** → Post openings, manage applicants, and verify their profile  
-- **Admin** → Monitor the platform, verify users, and manage system operations  
-
----
-
-## ✨ Core Features
-
-### 👤 For Job Seekers
-- 🔍 Advanced search and filters  
-- 📝 Manage job applications  
-- 🧩 Build a detailed professional profile  
-- 🔔 Real-time notifications  
-- 📊 Track job history and status  
+### 🔍 For Job Seekers
+- **Smart Search**: Advanced filtering by category, location, and salary.
+- **Application Tracking**: Real-time status updates on your job applications.
+- **Dynamic Profiles**: Build and showcase a professional digital resume.
+- **Real-time Messaging**: Communicate directly with employers via an integrated chat system.
 
 ### 🏢 For Companies
-- 💼 Create and manage job postings  
-- 👥 Review and shortlist applicants  
-- ✅ Company verification process  
-- 📈 View analytics and job stats  
-- 🔔 Get notified for new applicants  
+- **Unified Dashboard**: Manage job postings, applicants, and company settings.
+- **AI-Powered ATS**: Automated scoring and parsing for efficient candidate screening.
+- **Verification System**: Secure company verification to maintain platform trust.
+- **Subscription tiers**: Flexible plans integrated with **Stripe** for featured listings.
 
 ### 🛡️ For Administrators
-- 👮 Manage users and companies  
-- 📊 Platform analytics dashboard  
-- 🧰 Content moderation & system control  
-- 🧩 Configuration and maintenance  
-
-### 🌍 General
-- 🔐 JWT Authentication  
-- ☁️ AWS S3 File Storage  
-- ⚡ Real-time WebSocket (Socket.io)  
-- 🎨 Tailwind + Radix UI  
-- 🧠 Redux Toolkit for state management  
-- 📨 Email Notifications (Nodemailer)  
+- **Total Control**: Manage users, verifies companies, and moderates content.
+- **Analytics Hub**: Deep insights into platform growth and engagement.
+- **System Health**: Monitor live connections and background processes.
 
 ---
 
-## 🧩 Tech Stack
+## 🛠️ Technology Stack
 
-### 🖥️ Frontend
-| Technology | Purpose |
-|-------------|----------|
-| React 19 + Vite | UI & Dev Environment |
-| TypeScript | Type safety |
-| Tailwind CSS | Styling |
-| Redux Toolkit | State management |
-| React Hook Form | Form handling |
-| Zod | Validation |
-| Recharts | Visualization |
-| Radix UI | Headless UI components |
+### Frontend Ecosystem
+- **Core**: React 19, Vite, TypeScript
+- **State**: Redux Toolkit (RTK)
+- **Styling**: Tailwind CSS 4, Framer Motion
+- **UI Components**: Radix UI primitives, Lucide React icons
+- **Data Fetching**: Axios, Socket.io-client
 
-### ⚙️ Backend
-| Technology | Purpose |
-|-------------|----------|
-| Node.js + Express | Server |
-| MongoDB + Mongoose | Database |
-| Inversify | Dependency Injection |
-| JWT | Auth |
-| Socket.io | Real-time updates |
-| AWS S3 | File storage |
-| Winston | Logging |
-| Nodemailer | Email service |
+### Backend Infrastructure
+- **Runtime**: Node.js, Express
+- **Database**: MongoDB (Mongoose ODM), Redis (Caching)
+- **Real-time**: Socket.io
+- **Security**: JWT (Access/Refresh tokens), Zod validation
+- **Cloud**: AWS S3 (Media), Nodemailer (Emails), Stripe (Payments)
+- **Intelligence**: Groq AI integration for ATS capabilities
 
 ---
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Nodemon** - Auto-reload for development
+## 🏗️ Architecture
 
-## 🧱 Clean Architecture
+ZeekNet follows **Clean Architecture** to ensure the business logic remains independent of external frameworks.
 
-ZeekNet follows a **Clean Architecture** approach with clear separation of layers:
+```mermaid
+graph TD
+    subgraph Presentation
+        Controller --> UseCase
+        Routes --> Controller
+    end
+    subgraph Application
+        UseCase --> Entity
+        UseCase --> RepositoryInterface
+    end
+    subgraph Infrastructure
+        RepositoryImpl --> RepositoryInterface
+        RepositoryImpl --> DBModel
+    end
+```
+
+### Layer Responsibilities
+- **Presentation**: Express routes, controllers, and middleware.
+- **Application**: Business use cases and orchestration logic.
+- **Domain**: Pure business entities and domain interfaces.
+- **Infrastructure**: Database implementations and external API integrations.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js **v18+**
+- MongoDB instance (Local or Atlas)
+- Redis server (Optional for caching)
+
+### 1. Installation
+```bash
+# Clone the repository
+git clone https://github.com/shamnxd/ZeekNet.git
+cd ZeekNet
+
+# Install dependencies
+cd client && npm install
+cd ../server && npm install
+```
+
+### 2. Configuration
+Create a `.env` in `server/` and `.env.local` in `client/` following the variables provided in the source code.
+
+### 3. Execution
+```bash
+# Run both servers for development
+# Terminal 1 (Backend)
+cd server && npm run dev
+
+# Terminal 2 (Frontend)
+cd client && npm run dev
+```
+
+---
 
 ## 📁 Project Structure
 
-```
+```text
 ZeekNet/
-├── client/                          # React frontend application
-│   ├── src/
-│   │   ├── api/                    # API client modules
-│   │   ├── components/             # Reusable React components
-│   │   │   ├── common/            # Shared components
-│   │   │   ├── company/           # Company-specific components
-│   │   │   ├── jobs/              # Job-related components
-│   │   │   ├── headers/           # Header components
-│   │   │   ├── layouts/           # Layout components
-│   │   │   ├── notifications/     # Notification components
-│   │   │   └── ui/                # UI primitives
-│   │   ├── pages/                 # Page components
-│   │   │   ├── admin/             # Admin pages
-│   │   │   ├── auth/              # Authentication pages
-│   │   │   ├── company/           # Company pages
-│   │   │   └── seeker/            # Job seeker pages
-│   │   ├── contexts/              # React contexts
-│   │   ├── hooks/                 # Custom React hooks
-│   │   ├── store/                 # Redux store configuration
-│   │   ├── services/              # External services (Socket.io, etc)
-│   │   ├── constants/             # Application constants
-│   │   ├── types/                 # TypeScript type definitions
-│   │   ├── interfaces/            # TypeScript interfaces
-│   │   └── lib/                   # Utility functions
-│   ├── vite.config.ts             # Vite configuration
-│   ├── tsconfig.json              # TypeScript configuration
-│   └── package.json               # Frontend dependencies
-│
-├── server/                          # Node.js backend application
-│   ├── src/
-│   │   ├── application/           # Application layer
-│   │   │   ├── dto/              # Data transfer objects
-│   │   │   ├── mappers/          # Entity-to-DTO mappers
-│   │   │   └── use-cases/        # Business logic
-│   │   ├── domain/               # Domain layer
-│   │   │   ├── entities/         # Business entities
-│   │   │   ├── enums/            # Enumerations
-│   │   │   ├── errors/           # Custom errors
-│   │   │   └── interfaces/       # Domain interfaces
-│   │   ├── infrastructure/       # Infrastructure layer
-│   │   │   ├── config/          # Configuration files
-│   │   │   ├── database/        # MongoDB setup
-│   │   │   ├── di/              # Dependency injection
-│   │   │   ├── external-services/ # Third-party integrations
-│   │   │   ├── messaging/       # Message queue setup
-│   │   │   ├── security/        # Auth, encryption, etc
-│   │   │   ├── services/        # Infrastructure services
-│   │   │   └── socket/          # Socket.io setup
-│   │   ├── presentation/        # Presentation layer
-│   │   │   ├── controllers/     # API controllers
-│   │   │   ├── middleware/      # Express middleware
-│   │   │   ├── routes/          # API routes
-│   │   │   └── server/          # Express server setup
-│   │   └── shared/              # Shared utilities
-│   │       ├── services/
-│   │       ├── types/
-│   │       ├── utils/
-│   │       └── validation/
-│   ├── tsconfig.json            # TypeScript configuration
-│   ├── nodemon.json             # Nodemon configuration
-│   └── package.json             # Backend dependencies
-│
-└── README.md                        # This file
+├── client/          # Vite-powered React Frontend
+│   └── src/
+│       ├── api/     # Service layer for API calls
+│       ├── components/ # Atomic UI & Business components
+│       └── store/   # Redux logic
+└── server/          # Express-powered Backend
+    └── src/
+        ├── application/ # Use Case logic
+        ├── domain/      # Business Entities
+        ├── infrastructure/ # DB & Third-party services
+        └── presentation/ # Routes & Controllers
 ```
-
-## 📦 Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v16.0.0 or higher)
-- **npm** or **yarn** (v7.0.0 or higher)
-- **MongoDB** (v4.4 or higher)
-- **Git**
-
-### Optional
-- **Redis** (for caching)
-- **AWS Account** (for S3 file storage)
-
-## 🚀 Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/SPEC-X67/ZeekNet.git
-cd ZeekNet
-```
-
-### 2. Install Frontend Dependencies
-
-```bash
-cd client
-npm install
-cd ..
-```
-
-### 3. Install Backend Dependencies
-
-```bash
-cd server
-npm install
-cd ..
-```
-
-## ⚙️ Configuration
-
-### Backend Configuration
-
-Create a `.env` file in the `server` directory with the following variables:
-
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb://localhost:27017/zeeknet
-MONGODB_TEST_URI=mongodb://localhost:27017/zeeknet-test
-
-# JWT
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRY=7d
-
-# Email Service
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_email_password
-EMAIL_FROM=noreply@zeeknet.com
-
-# AWS S3
-AWS_REGION=your_aws_region
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_S3_BUCKET=your_bucket_name
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Redis (Optional)
-REDIS_URL=redis://localhost:6379
-
-# Frontend URL
-FRONTEND_URL=http://localhost:5173
-
-# Socket.io
-SOCKET_IO_ORIGIN=http://localhost:5173
-```
-
-### Frontend Configuration
-
-Create a `.env.local` file in the `client` directory:
-
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-```
-
-## 🏃 Running the Application
-
-### Development Mode
-
-#### Terminal 1 - Start Backend Server
-
-```bash
-cd server
-npm run dev
-```
-
-The backend will start on `http://localhost:5000`
-
-#### Terminal 2 - Start Frontend Development Server
-
-```bash
-cd client
-npm run dev
-```
-
-The frontend will start on `http://localhost:5173`
-
-### Production Mode
-
-#### Build Frontend
-
-```bash
-cd client
-npm run build
-```
-
-#### Build Backend
-
-```bash
-cd server
-npm run build
-```
-
-#### Start Backend (Production)
-
-```bash
-cd server
-npm start
-```
-
-## 💻 Development
-
-### Available Scripts
-
-#### Frontend
-
-```bash
-cd client
-
-# Start development server with HMR
-npm run dev
-
-# Build for production
-npm run build
-
-# Lint code
-npm run lint
-
-# Preview production build
-npm run preview
-```
-
-#### Backend
-
-```bash
-cd server
-
-# Start development server with auto-reload
-npm run dev
-
-# Build TypeScript
-npm run build
-
-# Start production server
-npm start
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
-# Run S3 tests
-npm run test:s3
-```
-
-### Code Style
-
-The project uses:
-- **ESLint** for code quality
-- **Prettier** for code formatting
-- **TypeScript** for type safety
-
-Make sure to follow these standards when contributing code.
-
-## 📚 API Documentation
-
-The API follows RESTful principles and includes the following main endpoints:
-
-### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
-- `POST /api/auth/refresh-token` - Refresh JWT token
-
-### Jobs
-- `GET /api/jobs` - Get all job listings
-- `GET /api/jobs/:id` - Get job details
-- `POST /api/jobs` - Create job posting (Company)
-- `PUT /api/jobs/:id` - Update job posting (Company)
-- `DELETE /api/jobs/:id` - Delete job posting (Company)
-
-### Applications
-- `GET /api/job-applications` - Get user applications
-- `POST /api/job-applications` - Apply for a job
-- `PUT /api/job-applications/:id/status` - Update application status
-
-### User Profiles
-- `GET /api/seeker/profile` - Get seeker profile
-- `PUT /api/seeker/profile` - Update seeker profile
-- `GET /api/company/profile` - Get company profile
-- `PUT /api/company/profile` - Update company profile
-
-### Notifications
-- `GET /api/notifications` - Get user notifications
-- `PUT /api/notifications/:id/read` - Mark notification as read
-
-### Admin
-- `GET /api/admin/users` - Get all users
-- `POST /api/admin/verify-company` - Verify company
-- `GET /api/admin/statistics` - Get platform statistics
-
-For detailed API documentation, refer to the controller files in `server/src/presentation/controllers/`
-
-## 🏗️ Project Architecture
-
-ZeekNet follows **Clean Architecture** principles with clear separation of concerns:
-
-### Layers
-
-1. **Presentation Layer** (`presentation/`)
-   - Handles HTTP requests and responses
-   - Route definitions
-   - Middleware (authentication, validation, error handling)
-
-2. **Application Layer** (`application/`)
-   - Use cases and business logic orchestration
-   - DTOs for data transfer
-   - Mappers for entity transformation
-
-3. **Domain Layer** (`domain/`)
-   - Business rules and entities
-   - Domain-specific errors
-   - Interfaces for contracts
-
-4. **Infrastructure Layer** (`infrastructure/`)
-   - External service integrations
-   - Database access
-   - Configuration management
-   - Security implementations
-
-5. **Shared Layer** (`shared/`)
-   - Common utilities
-   - Shared types and validation
-
-### Key Design Patterns
-
-- **Dependency Injection** - Using Inversify for loose coupling
-- **Repository Pattern** - Data access abstraction
-- **Use Case Pattern** - Encapsulation of business logic
-- **DTO Pattern** - Data transformation between layers
-- **Observer Pattern** - Real-time updates via WebSockets
-
-## 🤝 Contributing
-
-We welcome contributions to ZeekNet! Please follow these steps:
-
-1. Create a feature branch (`git checkout -b feature/your-feature`)
-2. Commit your changes (`git commit -am 'Add your feature'`)
-3. Push to the branch (`git push origin feature/your-feature`)
-4. Submit a Pull Request
-
-Please ensure your code:
-- Follows the project's code style
-- Passes linting checks (`npm run lint`)
-- Is properly typed with TypeScript
-- Includes appropriate comments and documentation
-
-## 📄 License
-
-This project is licensed under the ISC License - see the LICENSE file for details.
-
-## 👥 Support
-
-For questions, issues, or suggestions, please open an issue on the GitHub repository.
 
 ---
 
-**Happy coding! 🚀**
+## 🤝 Contributing
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-Built with ❤️ by the ZeekNet Team
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+Distributed under the **ISC License**. See `LICENSE` for more information.
+
+---
+<p align="center">Built with ⚡ by <b>Shamnad T</b></p>
+
