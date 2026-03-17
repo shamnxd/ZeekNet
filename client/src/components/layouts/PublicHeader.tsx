@@ -51,9 +51,7 @@ const PublicHeader = () => {
           <Link to="/companies" className={isActive('/companies') ? "text-primary font-medium" : "hover:text-primary transition"}>
             Companies
           </Link>
-          <Link to="/articles" className={isActive('/articles') ? "text-primary font-medium" : "hover:text-primary transition"}>
-            Articles
-          </Link>
+
         </div>
 
         <div className="flex items-center gap-4">
@@ -116,9 +114,7 @@ const PublicHeader = () => {
         <Link to="/companies" onClick={() => setMenuOpen(false)} className={isActive('/companies') ? "text-primary font-medium" : ""}>
           Companies
         </Link>
-        <Link to="/articles" onClick={() => setMenuOpen(false)} className={isActive('/articles') ? "text-primary font-medium" : ""}>
-          Articles
-        </Link>
+
 
         {!isAuthenticated && (
           <>
