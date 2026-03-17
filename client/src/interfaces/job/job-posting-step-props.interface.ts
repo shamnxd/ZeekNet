@@ -8,4 +8,5 @@ export interface JobPostingStepProps {
   isFirstStep: boolean
   isLastStep: boolean
   onSubmit: () => void
+  isSubmitting?: boolean
 }

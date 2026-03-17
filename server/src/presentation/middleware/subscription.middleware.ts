@@ -176,10 +176,9 @@ export class SubscriptionMiddleware {
             } as unknown as CreateInput<CompanySubscription>);
           }
         }
-      } else {
-        return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
-      }
-
+      } 
+      
+      // If we still don't have a subscription after trying to find/create default
       if (!subscription) {
         return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
       }

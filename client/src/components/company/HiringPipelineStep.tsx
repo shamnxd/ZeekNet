@@ -16,6 +16,7 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
     onPrevious,
     isLastStep,
     onSubmit,
+    isSubmitting = false,
     readOnly = false,
 }) => {
     const allStages = Object.values(ATSStage);
@@ -155,11 +156,18 @@ const HiringPipelineStep: React.FC<HiringPipelineStepProps> = ({
                 </Button>
                 <Button
                     onClick={handleNextAction}
-                    disabled={selectedStages.length === 0}
+                    disabled={selectedStages.length === 0 || isSubmitting}
                     variant="company"
                     className="w-[150px] h-10 bg-[#4640de] hover:bg-[#4640DE]/90 text-white text-sm font-bold rounded-lg disabled:opacity-50"
                 >
-                    {isLastStep ? "Finish" : "Next Step"}
+                    {isSubmitting ? (
+                        <>
+                            <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                            Processing...
+                        </>
+                    ) : (
+                        isLastStep ? "Finish" : "Next Step"
+                    )}
                 </Button>
             </div>
         </div>

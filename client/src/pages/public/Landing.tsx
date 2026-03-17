@@ -9,7 +9,6 @@ import {
   MapPin,
   Users,
   Star,
-  ArrowRight,
   CheckCircle,
   TrendingUp,
   Globe,
@@ -489,75 +488,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-20 bg-background">
-        <div className="container max-w-[1440px] mx-auto px-4 lg:px-16">
-          <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 px-2">
-              Recent Articles
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                image: "/person-typing.png",
-                title: "10 Tips to Improve Your Resume and Land Your Dream Job",
-                excerpt:
-                  "Learn the essential strategies to make your resume stand out from the competition.",
-                date: "Dec 15, 2024",
-              },
-              {
-                image: "/business-meeting-office.png",
-                title: "How to Ace Your Next Job Interview: A Complete Guide",
-                excerpt:
-                  "Master the art of interviewing with these proven techniques and strategies.",
-                date: "Dec 12, 2024",
-              },
-              {
-                image: "/remote-work-setup.png",
-                title: "The Future of Remote Work: Trends and Opportunities",
-                excerpt:
-                  "Explore the evolving landscape of remote work and how to thrive in it.",
-                date: "Dec 10, 2024",
-              },
-            ].map((article, index) => (
-              <Card
-                key={index}
-                className="overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 group hover:scale-[1.02]"
-              >
-                <div className="aspect-video bg-muted"></div>
-                <CardContent className="p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 text-balance">
-                    {article.title}
-                  </h3>
-                  <p className="text-muted-foreground text-xs sm:text-sm mb-4 text-pretty">
-                    {article.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {article.date}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="hover:bg-primary/10 hover:text-primary transition-all duration-300 text-xs sm:text-sm"
-                    >
-                      Read More <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4 ml-1" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="text-center mt-10 sm:mt-12">
-            <Button
-              variant="outline"
-              className="px-6 sm:px-8 bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 text-sm sm:text-base"
-            >
-              View More
-            </Button>
-          </div>
-        </div>
-      </section>
+
 
       {isAuthenticated && role !== UserRole.ADMIN && (
         <Link
