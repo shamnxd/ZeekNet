@@ -31,9 +31,6 @@ import { TokenController } from 'src/presentation/controllers/auth/token.control
 import { PasswordController } from 'src/presentation/controllers/auth/password.controller';
 import { RegistrationController } from 'src/presentation/controllers/auth/registration.controller';
 
-import { logger } from 'src/infrastructure/config/logger';
-
-
 const userRepository = new UserRepository();
 
 const passwordHasher = new BcryptPasswordHasher();

@@ -21,7 +21,7 @@ export class LoginController {
     if (!parsed.success) {
       return handleValidationError(formatZodErrors(parsed.error), next);
     }
-
+   
     try {
       const result = await this._loginUserUseCase.execute(parsed.data);
 
