@@ -98,10 +98,17 @@ jobs:
           # Pull latest images
           docker-compose pull
           
-          # Force clean restart (Fixes ContainerConfig error)
-          docker-compose stop server
-          docker-compose rm -f server
+          # Clean restart of the WHOLE STACK
+          # This ensures Mongo and Redis are always started alongside the server
+          docker-compose down
           docker-compose up -d
           
-          # Clean up
+          # Wait 10 seconds for DB and Redis to warm up
+          sleep 10
+          
+          # Show status of all containers
+          docker ps
+          
+          # Clean up old/unused images
           docker image prune -f
+
