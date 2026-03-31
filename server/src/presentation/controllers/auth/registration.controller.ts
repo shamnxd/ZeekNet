@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { RegisterDto } from 'src/application/dtos/auth/registration/register.dto';
 import { IRegisterUserUseCase } from 'src/domain/interfaces/use-cases/auth/registration/IRegisterUserUseCase';
-import { handleAsyncError, handleValidationError, sendCreatedResponse } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse } from 'src/shared/utils';
 
 export class RegistrationController {
   constructor(private readonly _registerUserUseCase: IRegisterUserUseCase) { }

@@ -1,4 +1,6 @@
 import { Response, NextFunction } from 'express';
+import { ValidationError } from 'src/domain/errors/errors';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetActiveSubscriptionUseCase';
 import { IGetPaymentHistoryUseCase } from 'src/domain/interfaces/use-cases/payment/history/IGetPaymentHistoryUseCase';
 import { ICreateCheckoutSessionUseCase } from 'src/domain/interfaces/use-cases/subscription/ICreateCheckoutSessionUseCase';
@@ -7,9 +9,7 @@ import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subs
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscription/IChangeSubscriptionPlanUseCase';
 import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetBillingPortalUseCase';
 import { IPreviewPlanChangeUseCase } from 'src/domain/interfaces/use-cases/subscription/IPreviewPlanChangeUseCase';
-import { ValidationError } from 'src/domain/errors/errors';
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils';
 
 export class CompanySubscriptionController {
   constructor(
@@ -21,7 +21,7 @@ export class CompanySubscriptionController {
     private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
     private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
     private readonly _previewPlanChangeUseCase: IPreviewPlanChangeUseCase,
-  ) { }
+  ) {}
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -29,11 +29,7 @@ export class CompanySubscriptionController {
 
       const subscription = await this._getActiveSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(
-        res,
-        subscription ? 'Active subscription found' : 'No active subscription',
-        subscription,
-      );
+      sendSuccessResponse(res, subscription ? 'Active subscription found' : 'No active subscription', subscription);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -85,11 +81,7 @@ export class CompanySubscriptionController {
 
       const subscription = await this._cancelSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(
-        res,
-        'Subscription will be canceled at the end of the billing period',
-        subscription,
-      );
+      sendSuccessResponse(res, 'Subscription will be canceled at the end of the billing period', subscription);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -172,6 +164,3 @@ export class CompanySubscriptionController {
     }
   };
 }
-
-
-

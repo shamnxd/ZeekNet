@@ -10,6 +10,8 @@ import { connectRedis } from 'src/infrastructure/persistence/redis/connection/re
 import { env } from 'src/infrastructure/config/env';
 import { logger } from 'src/infrastructure/config/logger';
 import { SocketServer } from 'src/infrastructure/external-services/socket/socket-server';
+import { APP_ROUTES } from 'src/shared/constants/routes';
+
 
 import { AuthRouter } from 'src/presentation/routes/auth-router';
 import { CompanyRouter } from 'src/presentation/routes/company-router';
@@ -47,7 +49,8 @@ export class AppServer {
       }),
     );
 
-    this._app.use('/api/webhook/stripe', express.raw({ type: '*/*' }));
+    this._app.use(APP_ROUTES.WEBHOOK_STRIPE, express.raw({ type: '*/*' }));
+
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));
@@ -81,16 +84,18 @@ export class AppServer {
       }),
     );
 
-    this._app.use('/api/auth', new AuthRouter().router);
-    this._app.use('/api/admin', new AdminRouter().router);
-    this._app.use('/api/company', new CompanyRouter().router);
-    this._app.use('/api/seeker', new SeekerRouter().router);
-    this._app.use('/api/public', new PublicRouter().router);
-    this._app.use('/api/notifications', notificationRouter.router);
-    this._app.use('/api/chat', chatRouter.router);
+    this._app.use(APP_ROUTES.AUTH.BASE, new AuthRouter().router);
+    this._app.use(APP_ROUTES.ADMIN.BASE, new AdminRouter().router);
+    this._app.use(APP_ROUTES.COMPANY.BASE, new CompanyRouter().router);
+    this._app.use(APP_ROUTES.SEEKER.BASE, new SeekerRouter().router);
+    this._app.use(APP_ROUTES.PUBLIC.BASE, new PublicRouter().router);
+    this._app.use(APP_ROUTES.NOTIFICATIONS.BASE, notificationRouter.router);
+    this._app.use(APP_ROUTES.CHAT.BASE, chatRouter.router);
 
-    this._app.post('/api/webhook/stripe', stripeWebhookController.handleWebhook);
-    logger.info('Stripe webhook endpoint configured at /api/webhook/stripe');
+
+    this._app.post(APP_ROUTES.WEBHOOK_STRIPE, stripeWebhookController.handleWebhook);
+    logger.info(`Stripe webhook endpoint configured at ${APP_ROUTES.WEBHOOK_STRIPE}`);
+
 
     this._app.use(errorHandler);
   }

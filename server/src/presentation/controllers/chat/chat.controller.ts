@@ -1,25 +1,16 @@
 import { Response, NextFunction } from 'express';
-
 import { CreateConversationRequestDtoSchema } from 'src/application/dtos/chat/requests/create-conversation-request.dto';
 import { SendMessageRequestDtoSchema } from 'src/application/dtos/chat/requests/send-message-request.dto';
 import { GetConversationsRequestDtoSchema } from 'src/application/dtos/chat/requests/get-conversations-request.dto';
 import { GetMessagesRequestDtoSchema } from 'src/application/dtos/chat/requests/get-messages-request.dto';
-
 import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/ICreateConversationUseCase';
 import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendMessageUseCase';
 import { IGetConversationsUseCase } from 'src/domain/interfaces/use-cases/chat/IGetConversationsUseCase';
 import { IGetMessagesUseCase } from 'src/domain/interfaces/use-cases/chat/IGetMessagesUseCase';
 import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat/IMarkMessagesAsReadUseCase';
 import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDeleteMessageUseCase';
-
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleAsyncError,
-  handleValidationError,
-  sendSuccessResponse,
-  validateUserId,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 
 export class ChatController {
   constructor(

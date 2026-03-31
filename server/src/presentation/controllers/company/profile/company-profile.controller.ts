@@ -1,14 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  sendCreatedResponse,
-  validateUserId,
-  sendNotFoundResponse,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
 import { SimpleUpdateCompanyProfileDto } from 'src/application/dtos/company/profile/info/requests/company-profile.dto';
 import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IUpdateCompanyProfileUseCase';
@@ -16,6 +7,7 @@ import { ICreateCompanyProfileFromDtoUseCase } from 'src/domain/interfaces/use-c
 import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyProfileWithJobPostingsUseCase';
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/profile/verification/IReapplyCompanyVerificationUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse, sendNotFoundResponse } from 'src/shared/utils';
 
 export class CompanyProfileController {
   constructor(

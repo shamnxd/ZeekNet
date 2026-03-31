@@ -7,9 +7,9 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IVerifyOtpUseCase';
 import { ValidationError } from 'src/domain/errors/errors';
 import { welcomeTemplate } from 'src/infrastructure/messaging/templates/welcome.template';
-import { getDashboardLink } from 'src/shared/utils/application/dashboard.utils';
 import { VerifyOtpRequestDto } from 'src/application/dtos/auth/verification/verify-otp.dto';
 import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
+import { getDashboardLink } from 'src/shared/utils';
 
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   constructor(

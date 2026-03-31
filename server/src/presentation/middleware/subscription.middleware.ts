@@ -4,7 +4,7 @@ import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/co
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { AuthenticatedRequest } from 'src/presentation/middleware/auth.middleware';
-import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from 'src/shared/utils';
 import { CreateInput } from 'src/domain/types/common.types';
 
 export class SubscriptionMiddleware {
@@ -176,8 +176,8 @@ export class SubscriptionMiddleware {
             } as unknown as CreateInput<CompanySubscription>);
           }
         }
-      } 
-      
+      }
+
       // If we still don't have a subscription after trying to find/create default
       if (!subscription) {
         return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');

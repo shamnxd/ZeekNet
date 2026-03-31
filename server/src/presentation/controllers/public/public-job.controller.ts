@@ -3,8 +3,7 @@ import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/publi
 import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetJobPostingForPublicUseCase';
 import { IGetFeaturedJobsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetFeaturedJobsUseCase';
 import { GetFeaturedJobsRequestSchema } from 'src/application/dtos/public/listings/jobs/requests/get-featured-jobs-request.dto';
-import { handleError, success, handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils';
 import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
 
 export class PublicJobController {
@@ -12,7 +11,7 @@ export class PublicJobController {
     private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
     private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
     private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
-  ) { }
+  ) {}
 
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -63,5 +62,3 @@ export class PublicJobController {
     }
   };
 }
-
-

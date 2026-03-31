@@ -4,8 +4,7 @@ import { VerifyOtpDto } from 'src/application/dtos/auth/verification/verify-otp.
 import { IRequestOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IRequestOtpUseCase';
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IVerifyOtpUseCase';
 import { ICookieService } from 'src/presentation/services/ICookieService';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
 
 export class OtpController {
   constructor(

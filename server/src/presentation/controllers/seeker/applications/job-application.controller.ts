@@ -1,16 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  sendCreatedResponse,
-  sendNotFoundResponse,
-  sendBadRequestResponse,
-  validateUserId,
-  badRequest,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, sendBadRequestResponse, validateUserId, formatZodErrors, badRequest } from 'src/shared/utils';
 import { IGetSeekerApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetSeekerApplicationDetailsUseCase';
 import { IGetApplicationsBySeekerUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/IGetApplicationsBySeekerUseCase';
 import { ICreateJobApplicationUseCase } from 'src/domain/interfaces/use-cases/seeker/applications/ICreateJobApplicationUseCase';
@@ -26,7 +16,7 @@ import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cas
 import { UploadedFile } from 'src/domain/types/common.types';
 import { CreateJobApplicationDto } from 'src/application/dtos/seeker/applications/requests/create-job-application.dto';
 import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
-import { ValidationError } from 'src/domain/errors/errors';
+
 
 export class SeekerJobApplicationController {
   constructor(
@@ -42,7 +32,7 @@ export class SeekerJobApplicationController {
     private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
     private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
     private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
-  ) { }
+  ) {}
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -55,10 +45,7 @@ export class SeekerJobApplicationController {
         return handleValidationError(formatZodErrors(parsedBody.error), next);
       }
 
-      const application = await this._createJobApplicationUseCase.execute(
-        { seekerId: userId, ...parsedBody.data },
-        req.file as unknown as UploadedFile,
-      );
+      const application = await this._createJobApplicationUseCase.execute({ seekerId: userId, ...parsedBody.data }, req.file as unknown as UploadedFile);
 
       sendCreatedResponse(res, 'Application submitted successfully', { id: application.id });
     } catch (error) {
@@ -115,9 +102,7 @@ export class SeekerJobApplicationController {
         return badRequest(res, 'Job ID is required');
       }
 
-
       if (!req.file.buffer) {
-
         return badRequest(res, 'File processing error');
       }
 

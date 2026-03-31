@@ -5,15 +5,14 @@ import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/adm
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IVerifyCompanyUseCase';
 import { GetCompaniesQueryDtoSchema } from 'src/application/dtos/admin/companies/requests/get-companies-query.dto';
 import { VerifyCompanyDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 
 export class AdminCompanyController {
   constructor(
-        private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
-        private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
-        private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
-        private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
+    private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
+    private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
+    private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
+    private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
   ) { }
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, validateUserId, badRequest } from 'src/shared/utils/presentation/controller.utils';
 import { ICreateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/ICreateSeekerProfileUseCase';
 import { IGetSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IGetSeekerProfileUseCase';
 import { IUpdateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IUpdateSeekerProfileUseCase';
@@ -18,8 +17,6 @@ import { IUploadResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/med
 import { IRemoveResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IRemoveResumeUseCase';
 import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IUploadAvatarUseCase';
 import { IUploadBannerUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IUploadBannerUseCase';
-import { CreateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
-import { UpdateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
 import { AddExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/add-experience-request.dto';
 import { UpdateExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/update-experience-request.dto';
 import { AddEducationRequestDto } from 'src/application/dtos/seeker/profile/education/requests/add-education-request.dto';
@@ -27,7 +24,7 @@ import { UpdateEducationRequestDto } from 'src/application/dtos/seeker/profile/e
 import { UploadResumeRequestDto } from 'src/application/dtos/seeker/media/requests/seeker-profile.dto';
 import { CreateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
 import { UpdateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, badRequest, handleValidationError } from 'src/shared/utils';
 
 export class SeekerProfileController {
   constructor(
@@ -48,9 +45,7 @@ export class SeekerProfileController {
     private readonly _removeResumeUseCase: IRemoveResumeUseCase,
     private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
     private readonly _uploadBannerUseCase: IUploadBannerUseCase,
-  ) { }
-
-
+  ) {}
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -288,4 +283,3 @@ export class SeekerProfileController {
     }
   };
 }
-

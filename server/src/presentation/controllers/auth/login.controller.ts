@@ -5,8 +5,7 @@ import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/session/
 import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IAdminLoginUseCase';
 import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IGoogleLoginUseCase';
 import { ICookieService } from 'src/presentation/services/ICookieService';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 
 export class LoginController {
   constructor(
@@ -21,7 +20,7 @@ export class LoginController {
     if (!parsed.success) {
       return handleValidationError(formatZodErrors(parsed.error), next);
     }
-   
+
     try {
       const result = await this._loginUserUseCase.execute(parsed.data);
 

@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { IGetAllSubscriptionPlansUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IGetAllSubscriptionPlansUseCase';
-import { handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { handleAsyncError, sendSuccessResponse } from 'src/shared/utils';
 
 export class CompanySubscriptionPlanController {
-  constructor(
-    private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
-  ) {}
+  constructor(private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase) {}
 
   getActiveSubscriptionPlans = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -16,5 +14,3 @@ export class CompanySubscriptionPlanController {
     }
   };
 }
-
-

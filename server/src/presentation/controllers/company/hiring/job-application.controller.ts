@@ -11,13 +11,7 @@ import { UpdateApplicationStageRequestDtoSchema } from 'src/application/dtos/app
 import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
 import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  validateUserId,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 
 export class CompanyJobApplicationController {
   constructor(

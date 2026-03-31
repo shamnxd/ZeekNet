@@ -1,17 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { IUploadBusinessLicenseUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadBusinessLicenseUseCase';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadWorkplacePictureUseCase';
 import { IDeleteImageUseCase } from 'src/domain/interfaces/use-cases/company/media/IDeleteImageUseCase';
 import { DeleteImageDtoSchema } from 'src/application/dtos/company/media/requests/delete-image.dto';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 
 export class CompanyUploadController {
   constructor(
     private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
     private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
     private readonly _deleteImageUseCase: IDeleteImageUseCase,
-  ) {}
+  ) { }
 
   uploadBusinessLicense = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

@@ -1,6 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { createSuccessResponse, createErrorResponse } from 'src/shared/utils/presentation/response.utils';
-import { ErrorHandler } from 'src/shared/utils/presentation/error.utils';
+import { createSuccessResponse, createErrorResponse, ErrorHandler } from './api.util';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
 import { logger } from 'src/infrastructure/config/logger';
@@ -88,4 +87,3 @@ export function sendInternalServerErrorResponse<T>(res: Response, message: strin
 export function sendNoContentResponse(res: Response): void {
   res.status(HttpStatus.NO_CONTENT).send();
 }
-

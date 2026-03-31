@@ -1,18 +1,11 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  sendCreatedResponse,
-  validateUserId,
-} from 'src/shared/utils/presentation/controller.utils';
 import { ICreateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/ICreateCompanyWorkplacePictureUseCase';
 import { IUpdateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUpdateCompanyWorkplacePictureUseCase';
 import { IDeleteCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IDeleteCompanyWorkplacePictureUseCase';
 import { IGetCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IGetCompanyWorkplacePictureUseCase';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from 'src/application/dtos/company/media/requests/company-workplace-pictures.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse } from 'src/shared/utils';
 
 export class CompanyWorkplacePictureController {
   constructor(
@@ -20,7 +13,7 @@ export class CompanyWorkplacePictureController {
     private readonly _updateCompanyWorkplacePictureUseCase: IUpdateCompanyWorkplacePictureUseCase,
     private readonly _deleteCompanyWorkplacePictureUseCase: IDeleteCompanyWorkplacePictureUseCase,
     private readonly _getCompanyWorkplacePictureUseCase: IGetCompanyWorkplacePictureUseCase,
-  ) {}
+  ) { }
 
   getCompanyWorkplacePictures = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -56,10 +49,10 @@ export class CompanyWorkplacePictureController {
     try {
       const userId = validateUserId(req);
       const { id } = req.params;
-      const picture = await this._updateCompanyWorkplacePictureUseCase.execute({ 
-        userId, 
-        pictureId: id, 
-        ...parsed.data, 
+      const picture = await this._updateCompanyWorkplacePictureUseCase.execute({
+        userId,
+        pictureId: id,
+        ...parsed.data,
       });
       sendSuccessResponse(res, 'Workplace picture updated successfully', picture);
     } catch (error) {
@@ -71,9 +64,9 @@ export class CompanyWorkplacePictureController {
     try {
       const userId = validateUserId(req);
       const { id } = req.params;
-      await this._deleteCompanyWorkplacePictureUseCase.execute({ 
-        userId, 
-        pictureId: id, 
+      await this._deleteCompanyWorkplacePictureUseCase.execute({
+        userId,
+        pictureId: id,
       });
       sendSuccessResponse(res, 'Workplace picture deleted successfully', null);
     } catch (error) {

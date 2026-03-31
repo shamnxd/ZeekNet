@@ -4,8 +4,7 @@ import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/pass
 import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IForgotPasswordUseCase';
 import { IChangePasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IChangePasswordUseCase';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { validateUserId, handleValidationError, sendSuccessResponse, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { z } from 'zod';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 
@@ -18,6 +17,8 @@ export class PasswordController {
     private readonly _cookieService: ICookieService,
   ) { }
 
+
+  // be - move zod schema to dtos
   forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = z.object({
       email: z.string().email('Invalid email address'),

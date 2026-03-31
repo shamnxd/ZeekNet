@@ -66,7 +66,6 @@ import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies
 import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
 import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
 
-
 const userRepository = new UserRepository();
 
 const companyProfileRepository = new CompanyProfileRepository();
@@ -92,10 +91,6 @@ const getAllUsersUseCase = new GetAllUsersUseCase(userRepository, seekerProfileR
 
 import { notificationService } from 'src/infrastructure/di/notificationDi';
 
-
-
-
-
 const blockUserUseCase = new BlockUserUseCase(userRepository, notificationService);
 
 const adminGetUserByIdUseCase = new GetUserByIdUseCase(userRepository, getSeekerProfileUseCase);
@@ -104,26 +99,11 @@ const getAllCompaniesUseCase = new GetAllCompaniesUseCase(companyProfileReposito
 
 const getCompaniesWithVerificationUseCase = new GetCompaniesWithVerificationUseCase(companyProfileRepository, companyVerificationRepository, s3Service);
 
-const verifyCompanyUseCase = new VerifyCompanyUseCase(
-  companyVerificationRepository,
-  subscriptionPlanRepository,
-  companySubscriptionRepository,
-  companyProfileRepository
-);
+const verifyCompanyUseCase = new VerifyCompanyUseCase(companyVerificationRepository, subscriptionPlanRepository, companySubscriptionRepository, companyProfileRepository);
 
 const getPendingCompaniesUseCase = new GetPendingCompaniesUseCase(getCompaniesWithVerificationUseCase);
 
-const getCompanyByIdUseCase = new GetCompanyByIdUseCase(
-  companyProfileRepository,
-  companyVerificationRepository,
-  jobPostingRepository,
-  companyContactRepository,
-  companyOfficeLocationRepository,
-  companyTechStackRepository,
-  companyBenefitsRepository,
-  companyWorkplacePicturesRepository,
-  s3Service,
-);
+const getCompanyByIdUseCase = new GetCompanyByIdUseCase(companyProfileRepository, companyVerificationRepository, jobPostingRepository, companyContactRepository, companyOfficeLocationRepository, companyTechStackRepository, companyBenefitsRepository, companyWorkplacePicturesRepository, s3Service);
 
 const adminGetAllJobsUseCase = new GetAllJobsUseCase(jobPostingRepository, s3Service);
 
@@ -165,7 +145,6 @@ const deleteJobRoleUseCase = new DeleteJobRoleUseCase(jobRoleRepository);
 
 const adminJobRoleController = new AdminJobRoleController(createJobRoleUseCase, getAllJobRolesUseCase, getJobRoleByIdUseCase, updateJobRoleUseCase, deleteJobRoleUseCase);
 
-
 const mailerService = new NodemailerService();
 import { EmailTemplateService } from 'src/infrastructure/messaging/email-template.service';
 const emailTemplateService = new EmailTemplateService();
@@ -174,47 +153,16 @@ const createSubscriptionPlanUseCase = new CreateSubscriptionPlanUseCase(subscrip
 const getAllSubscriptionPlansUseCase = new GetAllSubscriptionPlansUseCase(subscriptionPlanRepository);
 const getSubscriptionPlanByIdUseCase = new GetSubscriptionPlanByIdUseCase(subscriptionPlanRepository);
 
-const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(
-  subscriptionPlanRepository,
-  logger,
-  stripeService,
-  priceHistoryRepository,
-  mailerService,
-  emailTemplateService,
-);
+const updateSubscriptionPlanUseCase = new UpdateSubscriptionPlanUseCase(subscriptionPlanRepository, logger, stripeService, priceHistoryRepository, mailerService, emailTemplateService);
 
-const adminSubscriptionPlanController = new AdminSubscriptionPlanController(
-  createSubscriptionPlanUseCase,
-  getAllSubscriptionPlansUseCase,
-  getSubscriptionPlanByIdUseCase,
-  updateSubscriptionPlanUseCase,
-);
+const adminSubscriptionPlanController = new AdminSubscriptionPlanController(createSubscriptionPlanUseCase, getAllSubscriptionPlansUseCase, getSubscriptionPlanByIdUseCase, updateSubscriptionPlanUseCase);
 
 const getAllPaymentOrdersUseCase = new GetAllPaymentOrdersUseCase(paymentOrderRepository, companyProfileRepository, subscriptionPlanRepository);
 
 const adminPaymentOrderController = new AdminPaymentOrderController(getAllPaymentOrdersUseCase);
 
-const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(
-  companyProfileRepository,
-  seekerProfileRepository,
-  jobPostingRepository,
-  paymentOrderRepository,
-  userRepository,
-  s3Service,
-);
+const getAdminDashboardStatsUseCase = new GetAdminDashboardStatsUseCase(companyProfileRepository, seekerProfileRepository, jobPostingRepository, paymentOrderRepository, userRepository, s3Service);
 
 const adminDashboardController = new AdminDashboardController(getAdminDashboardStatsUseCase);
 
-export {
-  adminUserController,
-  adminCompanyController,
-  adminJobController,
-  adminJobCategoryController,
-  adminSkillController,
-  adminJobRoleController,
-  adminSubscriptionPlanController,
-  adminPaymentOrderController,
-  adminDashboardController,
-};
-
-
+export { adminUserController, adminCompanyController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController, adminDashboardController };

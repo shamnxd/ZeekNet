@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { sendBadRequestResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendBadRequestResponse } from 'src/shared/utils';
 
 const storage = multer.memoryStorage();
 
@@ -26,7 +26,7 @@ const resumeUpload = multer({
   storage: storage,
   fileFilter: resumeFileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, 
+    fileSize: 5 * 1024 * 1024,
   },
 });
 

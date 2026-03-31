@@ -4,7 +4,7 @@ import { IGetNotificationsUseCase } from 'src/domain/interfaces/use-cases/notifi
 import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { IMarkAllNotificationsAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { IGetUnreadNotificationCountUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
-import { sendSuccessResponse, handleAsyncError, validateUserId } from 'src/shared/utils/presentation/controller.utils';
+import { sendSuccessResponse, handleAsyncError, validateUserId } from 'src/shared/utils';
 
 export class NotificationController {
   constructor(
@@ -12,7 +12,7 @@ export class NotificationController {
     private readonly _markNotificationAsReadUseCase: IMarkNotificationAsReadUseCase,
     private readonly _markAllNotificationsAsReadUseCase: IMarkAllNotificationsAsReadUseCase,
     private readonly _getUnreadNotificationCountUseCase: IGetUnreadNotificationCountUseCase,
-  ) {}
+  ) { }
 
   getNotifications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {

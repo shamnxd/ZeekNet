@@ -3,8 +3,7 @@ import { GetCandidatesDto } from 'src/application/dtos/company/hiring/requests/g
 import { GetCandidateDetailsDto } from 'src/application/dtos/company/hiring/requests/get-candidate-details.dto';
 import { IGetCandidatesUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidatesUseCase';
 import { IGetCandidateDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidateDetailsUseCase';
-import { handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 
 export class CompanyCandidatesController {
   constructor(

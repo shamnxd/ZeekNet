@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { sendBadRequestResponse } from 'src/shared/utils/presentation/controller.utils';
+import { sendBadRequestResponse } from 'src/shared/utils';
 
 const storage = multer.memoryStorage();
 

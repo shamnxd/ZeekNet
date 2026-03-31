@@ -7,8 +7,7 @@ import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/att
 import { CreateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/create-job-role-request.dto';
 import { GetAllJobRolesQueryDtoSchema } from 'src/application/dtos/admin/attributes/job-roles/requests/get-all-job-roles-query.dto';
 import { UpdateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/update-job-role-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { created, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { created, formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 
 export class AdminJobRoleController {
   constructor(

@@ -1,5 +1,8 @@
 import { env } from 'src/infrastructure/config/env';
 
+/**
+ * Generates a dashboard link based on user role
+ */
 export function getDashboardLink(role: string): string {
   const baseUrl = env.FRONTEND_URL || 'http://localhost:3000';
   switch (role) {

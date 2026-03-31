@@ -1,19 +1,18 @@
-
 import mammoth from 'mammoth';
 import pdf = require('pdf-parse');
 import { ValidationError } from 'src/domain/errors/errors';
 import { logger } from 'src/infrastructure/config/logger';
 
+/**
+ * Utility for parsing text from PDF and DOCX files
+ */
 export class ResumeParser {
   static async parse(buffer: Buffer, mimeType: string): Promise<string> {
     try {
       if (mimeType === 'application/pdf') {
         const data = await pdf(buffer);
         return data.text;
-      } else if (
-        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        mimeType === 'application/msword'
-      ) {
+      } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/msword') {
         const result = await mammoth.extractRawText({ buffer });
         return result.value;
       } else {
@@ -25,4 +24,3 @@ export class ResumeParser {
     }
   }
 }
-
