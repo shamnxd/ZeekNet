@@ -22,7 +22,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
     private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
     private readonly _seekerEducationRepository: ISeekerEducationRepository,
     private readonly _s3Service: IS3Service,
-  ) {}
+  ) { }
 
   async execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto> {
     const { userId, applicationId } = data;
@@ -51,9 +51,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
       this._seekerProfileRepository.findOne({ userId: application.seekerId }),
     ]);
 
-    if (user?.isBlocked) {
-      throw new NotFoundError('Application not found');
-    }
+
 
     let experiences: Array<{ title: string; company: string; startDate: Date; endDate?: Date; location?: string; description?: string; }> = [];
     let education: Array<{ school: string; degree?: string; startDate: Date; endDate?: Date; location?: string; }> = [];
@@ -81,8 +79,8 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
 
     const [avatarUrl, resumeUrl] = await Promise.all([
       profile?.avatarFileName ? this._s3Service.getSignedUrl(profile.avatarFileName) : Promise.resolve(undefined),
-      application.resumeUrl && !application.resumeUrl.startsWith('http') 
-        ? this._s3Service.getSignedUrl(application.resumeUrl) 
+      application.resumeUrl && !application.resumeUrl.startsWith('http')
+        ? this._s3Service.getSignedUrl(application.resumeUrl)
         : Promise.resolve(application.resumeUrl),
     ]);
     return JobApplicationMapper.toDetailResponse(
@@ -101,6 +99,7 @@ export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCa
         gender: profile?.gender || undefined,
         experiences,
         education,
+        isBlocked: user?.isBlocked,
       },
       {
         title: job?.title,

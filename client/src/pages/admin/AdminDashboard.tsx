@@ -42,7 +42,7 @@ const AdminDashboard = () => {
         let endDate: string | undefined
 
         if (periodType === 'custom' && customStartDate && customEndDate) {
-          period = 'day' // Use day granularity for custom range
+          period = 'day'
           startDate = customStartDate.toISOString()
           endDate = customEndDate.toISOString()
         } else if (periodType === 'today') {

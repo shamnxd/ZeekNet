@@ -42,6 +42,8 @@ export interface CompanyJobPostingListItemDto {
   unpublishReason?: string;
   createdAt: Date;
   enabled_stages?: string[];
+  totalVacancies?: number;
+  filledVacancies?: number;
 }
 
 export interface PublicJobListItemDto {

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IAssignTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IAssignTechnicalTaskUseCase';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
@@ -14,6 +14,9 @@ import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemp
 import { AssignTechnicalTaskRequestDto } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
 import { ATSTechnicalTaskResponseDto } from 'src/application/dtos/application/task/responses/ats-technical-task-response.dto';
 import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technical-task.mapper';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { UploadedFile } from 'src/domain/types/common.types';
 
 export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
   constructor(
@@ -21,13 +24,22 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _userRepository: IUserRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
+    private readonly _fileUploadService: IFileUploadService,
+    private readonly _s3Service: IS3Service,
     private readonly _logger: ILogger,
   ) { }
 
-  async execute(dto: AssignTechnicalTaskRequestDto): Promise<ATSTechnicalTaskResponseDto> {
+  async execute(dto: AssignTechnicalTaskRequestDto, file?: UploadedFile): Promise<ATSTechnicalTaskResponseDto> {
+    let { documentUrl, documentFilename } = dto;
+
+    if (file) {
+      const uploadResult = await this._fileUploadService.uploadTaskDocument(file);
+      documentUrl = uploadResult.url;
+      documentFilename = uploadResult.filename;
+    }
 
     const task = ATSTechnicalTask.create({
       id: uuidv4(),
@@ -35,13 +47,12 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       title: dto.title,
       description: dto.description,
       deadline: dto.deadline,
-      documentUrl: dto.documentUrl,
-      documentFilename: dto.documentFilename,
+      documentUrl,
+      documentFilename,
       status: 'assigned',
     });
 
     const savedTask = await this._taskRepository.create(task);
-
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
@@ -62,18 +73,12 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       );
     }
 
-    await this._activityLoggerService.logTaskAssignedActivity({
-      applicationId: dto.applicationId,
-      taskId: savedTask.id,
-      taskTitle: dto.title,
-      deadline: dto.deadline,
-      stage: application.stage,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+    const response = ATSTechnicalTaskMapper.toResponse(savedTask);
+    if (response.documentUrl && !response.documentUrl.startsWith('http')) {
+      response.documentUrl = await this._s3Service.getSignedUrl(response.documentUrl);
+    }
 
-    return ATSTechnicalTaskMapper.toResponse(savedTask);
+    return response;
   }
 
   private async _sendTechnicalTaskAssignedEmail(

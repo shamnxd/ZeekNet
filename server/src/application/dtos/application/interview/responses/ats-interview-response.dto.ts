@@ -9,6 +9,8 @@ export interface ATSInterviewResponseDto {
   meetingLink?: string;
   location?: string;
   status: string;
+  rating?: number;
+  feedback?: string;
   createdAt: Date;
   updatedAt: Date;
 }

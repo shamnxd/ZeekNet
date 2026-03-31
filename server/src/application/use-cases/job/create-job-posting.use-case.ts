@@ -85,6 +85,7 @@ export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
       location: jobData.location,
       skillsRequired: jobData.skills_required,
       categoryIds: jobData.category_ids,
+      enabledStages: jobData.enabled_stages as import('src/domain/enums/ats-stage.enum').ATSStage[],
       isFeatured,
       totalVacancies: jobData.total_vacancies ?? 1,
     });

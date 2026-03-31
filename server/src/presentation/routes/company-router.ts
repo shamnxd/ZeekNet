@@ -90,6 +90,7 @@ export class CompanyRouter {
     this.router.post('/subscriptions/cancel', companySubscriptionController.cancelSubscription);
     this.router.post('/subscriptions/resume', companySubscriptionController.resumeSubscription);
     this.router.post('/subscriptions/change-plan', companySubscriptionController.changeSubscriptionPlan);
+    this.router.post('/subscriptions/preview-change', companySubscriptionController.previewPlanChange);
     this.router.post('/subscriptions/billing-portal', companySubscriptionController.getBillingPortal);
 
     this.router.post('/jobs', companyJobPostingController.createJobPosting);

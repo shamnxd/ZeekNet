@@ -28,6 +28,7 @@ export interface JobApplicationListResponseDto {
   stage: 'applied' | 'shortlisted' | 'interview' | 'rejected' | 'hired';
   sub_stage?: string;
   applied_date: string;
+  is_blocked?: boolean;
 }
 
 export interface JobApplicationDetailResponseDto {
@@ -78,10 +79,10 @@ export interface JobApplicationDetailResponseDto {
       period: string;
       location?: string;
     }>;
-    industry_knowledge?: string[];
     tools_technologies?: string[];
     other_skills?: string[];
   };
+  is_blocked?: boolean;
 }
 
 export interface PaginatedApplicationsResponseDto {

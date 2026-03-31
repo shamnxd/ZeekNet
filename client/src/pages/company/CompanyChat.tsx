@@ -9,6 +9,11 @@ import type { ChatMessageResponseDto, ConversationResponseDto } from '@/interfac
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import type { ChatMessagePayload, MessagesReadPayload, TypingPayload, MessageDeletedPayload } from '@/types/socket.types';
 import { toast } from 'sonner';
+import EmojiPicker from 'emoji-picker-react';
+import type { EmojiClickData } from 'emoji-picker-react';
+import { EmojiStyle } from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { RootState } from '@/store/store';
 
 const deriveDisplayName = (conversation: ConversationResponseDto, selfId: string | null) => {
   const other = conversation.participants.find((p) => p.userId !== selfId);
@@ -36,7 +41,7 @@ type UiConversation = ConversationResponseDto & { displayName: string; profileIm
 type UiMessage = ChatMessageResponseDto;
 
 const CompanyChat: React.FC = () => {
-  const { token, id: userId } = useAppSelector((s) => s.auth);
+  const { token, id: userId } = useAppSelector((s: RootState) => s.auth);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const chatIdParam = searchParams.get('chat');
@@ -51,7 +56,7 @@ const CompanyChat: React.FC = () => {
   const [conversations, setConversations] = useState<UiConversation[]>([]);
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [onlineUsers] = useState<Set<string>>(new Set());
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [replyingTo, setReplyingTo] = useState<UiMessage | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -90,7 +95,6 @@ const CompanyChat: React.FC = () => {
       ...c,
       displayName: deriveDisplayName(c, userId),
       profileImage: getOtherParticipantImage(c, userId),
-      subtitle: c.lastMessage?.content,
     }));
     setConversations(mapped);
 
@@ -261,16 +265,44 @@ const CompanyChat: React.FC = () => {
       );
     };
 
+    const onOnlineUsers = (userIds: string[]) => {
+      setOnlineUsers(new Set(userIds));
+    };
+
+    const onUserOnline = ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        next.add(userId);
+        return next;
+      });
+    };
+
+    const onUserOffline = ({ userId }: { userId: string }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+    };
+
     socketService.onMessageReceived(onMessage);
     socketService.onMessagesRead(onMessagesRead);
     socketService.onTyping(onTyping);
     socketService.onMessageDeleted(onMessageDeleted);
+    socketService.onOnlineUsers(onOnlineUsers);
+    socketService.onUserOnline(onUserOnline);
+    socketService.onUserOffline(onUserOffline);
+
+    socketService.requestOnlineUsers();
 
     return () => {
       socketService.offMessageReceived(onMessage);
       socketService.offMessagesRead(onMessagesRead);
       socketService.offTyping(onTyping);
       socketService.offMessageDeleted(onMessageDeleted);
+      socketService.offOnlineUsers(onOnlineUsers);
+      socketService.offUserOnline(onUserOnline);
+      socketService.offUserOffline(onUserOffline);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
@@ -317,7 +349,6 @@ const CompanyChat: React.FC = () => {
                 ...conversation,
                 displayName: deriveDisplayName(conversation, userId),
                 profileImage: getOtherParticipantImage(conversation, userId),
-                subtitle: conversation.lastMessage?.content,
               },
               ...prev,
             ];
@@ -471,17 +502,16 @@ const CompanyChat: React.FC = () => {
                         {conversation.lastMessage?.createdAt ? formatTime(new Date(conversation.lastMessage.createdAt)) : ''}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs text-[#4640DE] font-medium truncate">
-                        {conversation.subtitle || 'Chat'}
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-500 truncate flex-1">
+                        {conversation.lastMessage?.content || 'No messages yet'}
                       </p>
                       {conversation.participants.some((p) => p.userId === selfId && p.unreadCount > 0) && (
-                        <span className="bg-[#4640DE] text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                        <span className="bg-[#4640DE] text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center ml-2">
                           {conversation.participants.find((p) => p.userId === selfId)?.unreadCount}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 truncate">{conversation.lastMessage?.content}</p>
                   </div>
                 </div>
               ))}
@@ -529,7 +559,7 @@ const CompanyChat: React.FC = () => {
                         ) : onlineUsers.has(getOtherParticipant(selectedConversation, userId || '')) ? (
                           <span className="text-green-500">● Online</span>
                         ) : (
-                          selectedConversation.subtitle || 'Offline'
+                          <span>● Offline</span>
                         )}
                       </p>
                     </div>
@@ -704,7 +734,11 @@ const CompanyChat: React.FC = () => {
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <button className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640DE] transition-colors" title="Attach File">
+                      <button
+                        className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#4640DE] transition-colors"
+                        title="Attach File"
+                        onClick={() => toast.info('File attachment feature is coming soon!')}
+                      >
                         <Paperclip size={20} />
                       </button>
                       <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 focus-within:border-[#4640DE] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#4640DE]/10 transition-all">
@@ -719,9 +753,22 @@ const CompanyChat: React.FC = () => {
                           onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                           className="flex-1 bg-transparent border-none outline-none text-sm text-gray-900 placeholder:text-gray-500"
                         />
-                        <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#4640DE] transition-colors" title="Emoji">
-                          <Smile size={20} />
-                        </button>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#4640DE] transition-colors" title="Emoji">
+                              <Smile size={20} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0 border-none w-auto" side="top" align="end">
+                            <EmojiPicker
+                              emojiStyle={EmojiStyle.APPLE}
+                              previewConfig={{ showPreview: false }}
+                              onEmojiClick={(emojiData: EmojiClickData) => {
+                                setMessageText((prev) => prev + emojiData.emoji);
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
                       </div>
                       <button
                         className={`w-12 h-12 flex items-center justify-center bg-[#4640DE] text-white transition-all ${messageText.trim()

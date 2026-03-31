@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   IndianRupee,
   Briefcase,
   X
@@ -26,20 +26,33 @@ const salaryRanges = [
   { value: '10000000+', label: '₹1Cr+', min: 10000000, max: 999999999 },
 ];
 
-const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
-  const [selectedEmploymentTypes, setSelectedEmploymentTypes] = useState<string[]>([]);
-  const [selectedSalaryRange, setSelectedSalaryRange] = useState<{min: number, max: number} | null>(null);
+const SidebarFilters = ({ onSearch, loading = false, initialFilters }: SidebarFiltersProps) => {
+  const [selectedEmploymentTypes, setSelectedEmploymentTypes] = useState<string[]>(initialFilters?.employment_types || []);
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState<{ min: number, max: number } | null>(
+    initialFilters?.salary_min !== undefined && initialFilters?.salary_max !== undefined
+      ? { min: initialFilters.salary_min, max: initialFilters.salary_max }
+      : null
+  );
+
+  useEffect(() => {
+    setSelectedEmploymentTypes(initialFilters?.employment_types || []);
+    setSelectedSalaryRange(
+      initialFilters?.salary_min !== undefined && initialFilters?.salary_max !== undefined
+        ? { min: initialFilters.salary_min, max: initialFilters.salary_max }
+        : null
+    );
+  }, [initialFilters]);
 
   const handleEmploymentTypeToggle = (type: string) => {
-    setSelectedEmploymentTypes(prev => 
-      prev.includes(type) 
+    setSelectedEmploymentTypes(prev =>
+      prev.includes(type)
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
   };
 
-  const handleSalaryRangeSelect = (range: {min: number, max: number}) => {
-    setSelectedSalaryRange(prev => 
+  const handleSalaryRangeSelect = (range: { min: number, max: number }) => {
+    setSelectedSalaryRange(prev =>
       prev?.min === range.min && prev?.max === range.max ? null : range
     );
   };
@@ -50,12 +63,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
       salary_min: selectedSalaryRange?.min,
       salary_max: selectedSalaryRange?.max,
     };
-    
-    Object.keys(query).forEach(key => {
-      if (query[key as keyof JobPostingQuery] === undefined) {
-        delete query[key as keyof JobPostingQuery];
-      }
-    });
+
     onSearch(query);
   };
 
@@ -69,7 +77,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
 
   return (
     <div className="space-y-6">
-      {}
+      {/* Employment Type */}
       <div>
         <h3 className="text-[18px] font-medium text-[#141414] mb-4 flex items-center gap-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>
           <Briefcase className="w-4 h-4" />
@@ -80,11 +88,10 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
             <Badge
               key={type.value}
               variant={selectedEmploymentTypes.includes(type.value) ? "default" : "outline"}
-              className={`cursor-pointer transition-all text-sm ${
-                selectedEmploymentTypes.includes(type.value)
+              className={`cursor-pointer transition-all text-sm ${selectedEmploymentTypes.includes(type.value)
                   ? 'bg-[#3570E2] text-white border-[#3570E2]'
                   : 'hover:bg-gray-100 border-gray-200 text-[#394047]'
-              }`}
+                }`}
               onClick={() => handleEmploymentTypeToggle(type.value)}
             >
               {type.label}
@@ -93,7 +100,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       </div>
 
-      {}
+      {/* Salary Range */}
       <div>
         <h3 className="text-[18px] font-medium text-[#141414] mb-4 flex items-center gap-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>
           <IndianRupee className="w-4 h-4" />
@@ -109,7 +116,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
                 type="radio"
                 name="salary"
                 checked={selectedSalaryRange?.min === range.min && selectedSalaryRange?.max === range.max}
-                onChange={() => handleSalaryRangeSelect({min: range.min, max: range.max})}
+                onChange={() => handleSalaryRangeSelect({ min: range.min, max: range.max })}
                 className="w-4 h-4 border-gray-300 text-[#3570E2] focus:ring-[#3570E2] focus:ring-2"
               />
               <span className="text-[16px] text-[#394047]" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -120,7 +127,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       </div>
 
-      {}
+      {/* Active Filters */}
       {hasActiveFilters && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
@@ -161,7 +168,7 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
         </div>
       )}
 
-      {}
+      {/* Apply Button */}
       <Button
         onClick={handleApplyFilters}
         disabled={loading}
@@ -174,4 +181,5 @@ const SidebarFilters = ({ onSearch, loading = false }: SidebarFiltersProps) => {
 };
 
 export default SidebarFilters;
+
 

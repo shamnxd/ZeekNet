@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
 import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -20,7 +20,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     private jobApplicationRepository: IJobApplicationRepository,
     private jobPostingRepository: IJobPostingRepository,
     private userRepository: IUserRepository,
-    private activityLoggerService: IActivityLoggerService,
+
     private mailerService: IMailerService,
     private emailTemplateService: IEmailTemplateService,
     private logger: ILogger,
@@ -76,17 +76,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       );
     }
 
-    await this.activityLoggerService.logInterviewScheduledActivity({
-      applicationId: data.applicationId,
-      interviewId: savedInterview.id,
-      interviewTitle: data.title,
-      interviewType: data.type,
-      scheduledDate,
-      stage: application.stage,
-      subStage: application.subStage,
-      performedBy,
-      performedByName,
-    });
+
 
     return ATSInterviewMapper.toResponse(savedInterview);
   }

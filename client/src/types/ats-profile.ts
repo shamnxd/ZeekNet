@@ -1,4 +1,4 @@
-import { ATSStage } from "@/constants/ats-stages";
+
 import type { ATSTechnicalTask, ATSOfferDocument } from "@/types/ats";
 
 export interface ExtendedATSTechnicalTask extends ATSTechnicalTask {
@@ -26,19 +26,7 @@ export interface ExtendedATSOfferDocument extends ATSOfferDocument {
   employmentType?: string;
 }
 
-export interface ATSActivity {
-  id: string;
-  applicationId: string;
-  type: string;
-  title: string;
-  description: string;
-  performedBy: string;
-  performedByName: string;
-  stage?: ATSStage;
-  subStage?: string;
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-}
+
 
 export interface CompensationMeeting {
   id?: string;

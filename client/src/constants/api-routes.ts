@@ -73,6 +73,7 @@ export const CompanyRoutes = {
   SUBSCRIPTIONS_RESUME: '/api/company/subscriptions/resume',
   SUBSCRIPTIONS_PURCHASE: '/api/company/subscriptions/purchase',
   SUBSCRIPTIONS_CHANGE_PLAN: '/api/company/subscriptions/change-plan',
+  SUBSCRIPTIONS_PREVIEW_CHANGE: '/api/company/subscriptions/preview-change',
   SUBSCRIPTIONS_BILLING_PORTAL: '/api/company/subscriptions/billing-portal',
   JOBS: '/api/company/jobs',
   JOBS_ID: '/api/company/jobs/:id',

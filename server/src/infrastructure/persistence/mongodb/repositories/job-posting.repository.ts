@@ -64,6 +64,7 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
       location?: string;
       search?: string;
       isFeatured?: boolean;
+      companyId?: string;
     },
   ): Promise<Partial<JobPosting>[]> {
     const { CompanyProfileModel } = await import('../models/company-profile.model');
@@ -113,6 +114,10 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
 
     if (filters?.isFeatured !== undefined) {
       andConditions.push({ is_featured: filters.isFeatured });
+    }
+
+    if (filters?.companyId && Types.ObjectId.isValid(filters.companyId)) {
+      andConditions.push({ company_id: new Types.ObjectId(filters.companyId) });
     }
 
     if (filters?.search) {

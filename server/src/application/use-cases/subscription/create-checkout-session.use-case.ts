@@ -17,7 +17,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
     private readonly _companyProfileRepository: ICompanyProfileRepository,
     private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
     private readonly _userRepository: IUserRepository,
-  ) {}
+  ) { }
 
   async execute(data: CreateCheckoutSessionRequestDto): Promise<CreateCheckoutSessionResponseDto> {
     const { userId, planId, billingCycle, successUrl, cancelUrl } = data;
@@ -32,7 +32,7 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
       throw new NotFoundError('Company profile not found');
     }
 
-    
+
 
     const plan = await this._subscriptionPlanRepository.findById(planId);
     if (!plan) {
@@ -41,6 +41,10 @@ export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCa
 
     if (!plan.isActive) {
       throw new ValidationError('This subscription plan is not available');
+    }
+
+    if (plan.isDefault || plan.price === 0) {
+      throw new ValidationError('Checkout sessions are only available for paid plans. The default plan is automatically assigned.');
     }
 
     const priceId = billingCycle === BillingCycle.YEARLY ? plan.stripePriceIdYearly : plan.stripePriceIdMonthly;

@@ -19,7 +19,7 @@ import type { CompanySideApplication } from "@/interfaces/company/company-data.i
 import type { JobPostingResponse } from "@/interfaces/job/job-posting-response.interface";
 import type { ATSComment, ATSOfferDocument } from "@/types/ats";
 import type { ExtendedATSOfferDocument } from "@/types/ats-profile";
-import { formatDateTime } from "@/utils/formatters";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface OfferStageProps {
     atsApplication: CompanySideApplication | null;
@@ -56,7 +56,7 @@ export const OfferStage = ({
     const currentSubStageDisplayName =
         SubStageDisplayNames[currentSubStage] || currentSubStage;
 
-    
+
     const offer = currentOffer || offerDocuments[0] || null;
     const offerAmount =
         (offer as ExtendedATSOfferDocument)?.offerAmount || "";
@@ -68,14 +68,14 @@ export const OfferStage = ({
     const declineReason =
         (offer as ExtendedATSOfferDocument)?.declineReason || "";
 
-    
+
     const jobTitle = atsJob?.title || "N/A";
     const employmentType =
         (offer as ExtendedATSOfferDocument)?.employmentType || "full-time";
 
     return (
         <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-            {}
+            { }
             <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Offer Stage</h3>
                 {showActions && (
@@ -85,7 +85,7 @@ export const OfferStage = ({
                 )}
             </div>
 
-            {}
+            { }
             <div className="bg-white rounded-lg p-6 border">
                 <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <FileText className="h-5 w-5 text-green-600" />
@@ -135,7 +135,7 @@ export const OfferStage = ({
                 </div>
             </div>
 
-            {}
+            { }
             {currentSubStage === OfferSubStage.NOT_SENT && (
                 <div className="bg-white rounded-lg p-6 border text-center">
                     <p className="text-gray-600 mb-4">Offer not released yet</p>
@@ -273,7 +273,7 @@ export const OfferStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {currentSubStage !== OfferSubStage.NOT_SENT && offer && (
                 <div className="bg-white rounded-lg p-6 border">
                     <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -281,7 +281,7 @@ export const OfferStage = ({
                         Offer Documents
                     </h4>
                     <div className="space-y-4">
-                        {}
+                        { }
                         {(offer as ExtendedATSOfferDocument).documentUrl &&
                             (offer as ExtendedATSOfferDocument).documentFilename ? (
                             <div className="border rounded-lg p-4 flex items-center justify-between">
@@ -322,7 +322,7 @@ export const OfferStage = ({
                             </p>
                         )}
 
-                        {}
+                        { }
                         {currentSubStage === OfferSubStage.OFFER_ACCEPTED &&
                             (offer as ExtendedATSOfferDocument).signedDocumentUrl &&
                             (offer as ExtendedATSOfferDocument).signedDocumentFilename && (
@@ -366,7 +366,7 @@ export const OfferStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions && (
                 <div className="flex flex-col gap-3">
                     <Button
@@ -378,7 +378,7 @@ export const OfferStage = ({
                         Add Note
                     </Button>
 
-                    {}
+                    { }
                     {(currentSubStage === OfferSubStage.OFFER_SENT ||
                         currentSubStage === OfferSubStage.OFFER_ACCEPTED) && (
                             <Button
@@ -393,7 +393,7 @@ export const OfferStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions &&
                 comments.filter((c) => c.stage === ATSStage.OFFER).length > 0 && (
                     <div className="space-y-3 pt-4 border-t">
@@ -403,13 +403,10 @@ export const OfferStage = ({
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

@@ -6,7 +6,7 @@ import { jobApplicationApi } from '@/api';
 import { atsService } from '@/services/ats.service';
 
 import type { ApiError } from '@/types/api-error.type';
-import type { ATSInterview } from '@/types/ats';
+import type { ATSInterview, ATSComment } from '@/types/ats';
 import type { ExtendedATSTechnicalTask, ExtendedATSOfferDocument, CompensationMeeting } from '@/interfaces/seeker/application-details.types';
 
 export const useSeekerApplicationDetails = () => {
@@ -18,12 +18,11 @@ export const useSeekerApplicationDetails = () => {
     const [interviews, setInterviews] = useState<ATSInterview[]>([]);
     const [offers, setOffers] = useState<ExtendedATSOfferDocument[]>([]);
     const [compensationMeetings, setCompensationMeetings] = useState<CompensationMeeting[]>([]);
+    const [comments, setComments] = useState<ATSComment[]>([]);
 
-    
+
     const [showSubmissionModal, setShowSubmissionModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState<ExtendedATSTechnicalTask | null>(null);
-    const [showRescheduleInterviewModal, setShowRescheduleInterviewModal] = useState(false);
-    const [showRescheduleMeetingModal, setShowRescheduleMeetingModal] = useState(false);
     const [showSignedDocumentModal, setShowSignedDocumentModal] = useState(false);
     const [selectedOffer, setSelectedOffer] = useState<ExtendedATSOfferDocument | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -62,11 +61,12 @@ export const useSeekerApplicationDetails = () => {
 
                 if (responseApplicationId && responseApplicationId !== 'undefined' && responseApplicationId !== 'null') {
                     try {
-                        const [tasksResponse, interviewsResponse, offersResponse, meetingsResponse] = await Promise.all([
+                        const [tasksResponse, interviewsResponse, offersResponse, meetingsResponse, commentsResponse] = await Promise.all([
                             atsService.getTechnicalTasksByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
                             atsService.getInterviewsByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
                             atsService.getOffersByApplicationForSeeker(responseApplicationId).catch(() => ({ data: [] })),
-                            atsService.getCompensationMeetingsForSeeker(responseApplicationId).catch(() => [])
+                            atsService.getCompensationMeetingsForSeeker(responseApplicationId).catch(() => []),
+                            atsService.getCommentsByApplication(responseApplicationId).catch(() => ({ data: [] }))
                         ]);
                         setTechnicalTasks(tasksResponse.data || []);
                         setInterviews(interviewsResponse.data || []);
@@ -81,6 +81,7 @@ export const useSeekerApplicationDetails = () => {
                         }
                         setOffers(offersData);
                         setCompensationMeetings(Array.isArray(meetingsResponse) ? meetingsResponse : []);
+                        setComments(commentsResponse.data || []);
                     } catch (err) {
                         console.error('Failed to fetch tasks/interviews/offers:', err);
                     }
@@ -139,11 +140,11 @@ export const useSeekerApplicationDetails = () => {
         }
     };
 
-    const handleDeclineOffer = async () => {
+    const handleDeclineOffer = async (reason?: string) => {
         if (!offerToDecline) return;
         try {
             setDeclining(true);
-            await atsService.declineOffer(offerToDecline.applicationId, offerToDecline.offerId);
+            await atsService.declineOffer(offerToDecline.applicationId, offerToDecline.offerId, reason);
             toast.success('Offer declined');
             const offersResponse = await atsService.getOffersByApplicationForSeeker(offerToDecline.applicationId).catch(() => ({ data: [] }));
             const offersData = offersResponse?.data?.data || offersResponse?.data || offersResponse || [];
@@ -189,16 +190,13 @@ export const useSeekerApplicationDetails = () => {
         interviews,
         offers,
         compensationMeetings,
-        
-        
+        comments,
+
+
         showSubmissionModal,
         setShowSubmissionModal,
         selectedTask,
         setSelectedTask,
-        showRescheduleInterviewModal,
-        setShowRescheduleInterviewModal,
-        showRescheduleMeetingModal,
-        setShowRescheduleMeetingModal,
         showSignedDocumentModal,
         setShowSignedDocumentModal,
         selectedOffer,
@@ -212,12 +210,12 @@ export const useSeekerApplicationDetails = () => {
         setOfferToDecline,
         declining,
 
-        
+
         handleSubmitTask,
         handleUploadSignedDocument,
         handleDeclineOffer,
-        
-        
+
+
         formatDateTime,
         formatDate
     };

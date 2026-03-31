@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MessageSquare, X } from "lucide-react";
 import { ATSStage, STAGE_SUB_STAGES, OfferSubStage } from "@/constants/ats-stages";
-import { formatDateTime } from "@/utils/formatters";
-import { companyApi } from "@/api/company.api";
-import { toast } from "@/hooks/use-toast";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment } from "@/types/ats";
 
@@ -13,8 +11,7 @@ interface InReviewStageProps {
     comments: ATSComment[];
     currentId: string | undefined;
     isCurrentStage: (stage: string) => boolean;
-    handleUpdateStage: (stage: string, subStage?: string) => Promise<void>;
-    reloadData: () => Promise<void>;
+    onUpdateStage: (stage: string, subStage?: string) => Promise<void>;
     setShowCommentModal: (show: boolean) => void;
     setShowMoveToStageModal: (show: boolean) => void;
     hasNextStages: (currentStage: ATSStage | string) => boolean;
@@ -26,15 +23,14 @@ export const InReviewStage = ({
     comments,
     currentId,
     isCurrentStage,
-    handleUpdateStage,
-    reloadData,
+    onUpdateStage,
     setShowCommentModal,
     setShowMoveToStageModal,
     hasNextStages,
 }: InReviewStageProps) => {
     const currentSubStage = atsApplication?.subStage || "PROFILE_REVIEW";
     const subStages = STAGE_SUB_STAGES[ATSStage.IN_REVIEW] || [];
-    
+
     const showActions = isCurrentStage(selectedStage);
 
     return (
@@ -54,22 +50,19 @@ export const InReviewStage = ({
                 )}
             </div>
 
-            {}
-            {comments.filter((c) => c.stage === ATSStage.IN_REVIEW).length > 0 && (
+            { }
+            {comments.filter((c) => c.stage === ATSStage.IN_REVIEW || String(c.stage) === 'in_review').length > 0 && (
                 <div className="space-y-3">
                     <h4 className="font-medium text-gray-900">Comments</h4>
                     {comments
-                        .filter((c) => c.stage === ATSStage.IN_REVIEW)
+                        .filter((c) => c.stage === ATSStage.IN_REVIEW || String(c.stage) === 'in_review')
                         .map((comment, idx) => (
                             <div key={idx} className="bg-white rounded-lg p-4 border">
                                 <p className="text-sm text-gray-700">{comment.comment}</p>
-                                <p className="text-xs text-gray-500 mt-2">
-                                    by{" "}
-                                    {comment.recruiterName ||
-                                        comment.addedByName ||
-                                        comment.addedBy ||
-                                        "Recruiter"}{" "}
-                                    •{" "}
+                                <p className="text-xs text-blue-600 font-medium mt-1">
+                                    {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
                                     {formatDateTime(
                                         comment.createdAt || comment.timestamp || ""
                                     )}
@@ -79,23 +72,18 @@ export const InReviewStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions && (
                 <div className="flex flex-col gap-3">
                     {subStages.map((subStage, idx) => {
-                        
+
                         if (subStage.key === currentSubStage) return null;
 
-                        
-                        
-                        if (
-                            currentSubStage === "PENDING_DECISION" &&
-                            subStage.key === "PROFILE_REVIEW"
-                        )
-                            return null;
 
-                        
-                        
+
+
+
+
                         return (
                             <Button
                                 key={subStage.key}
@@ -106,31 +94,7 @@ export const InReviewStage = ({
                                     }`}
                                 onClick={async () => {
                                     if (!currentId) return;
-                                    try {
-                                        
-                                        await companyApi.updateApplicationSubStage(currentId, {
-                                            subStage: subStage.key,
-                                            comment: `Moved to ${subStage.label}`,
-                                        });
-                                        toast({
-                                            title: "Success",
-                                            description: `Moved to ${subStage.label}`,
-                                        });
-                                        await reloadData();
-                                    } catch (error: unknown) {
-                                        console.error("Failed to update sub-stage:", error);
-                                        toast({
-                                            title: "Error",
-                                            description:
-                                                (
-                                                    error as {
-                                                        response?: { data?: { message?: string } };
-                                                    }
-                                                )?.response?.data?.message ||
-                                                "Failed to update sub-stage.",
-                                            variant: "destructive",
-                                        });
-                                    }
+                                    await onUpdateStage(selectedStage, subStage.key);
                                 }}
                             >
                                 <ChevronRight className="h-4 w-4" />
@@ -139,13 +103,13 @@ export const InReviewStage = ({
                         );
                     })}
 
-                    {}
+                    { }
                     {currentSubStage === "PENDING_DECISION" && (
                         <div className="flex gap-3 pt-2 border-t">
                             <Button
                                 className="flex-1 gap-2 bg-[#4640DE] hover:bg-[#3730A3]"
                                 onClick={() =>
-                                    handleUpdateStage(
+                                    onUpdateStage(
                                         ATSStage.SHORTLISTED,
                                         "READY_FOR_INTERVIEW"
                                     )
@@ -154,7 +118,7 @@ export const InReviewStage = ({
                                 <ChevronRight className="h-4 w-4" />
                                 Move to Shortlisted
                             </Button>
-                            {}
+                            { }
                             {!(
                                 selectedStage === ATSStage.OFFER &&
                                 String(currentSubStage) === String(OfferSubStage.OFFER_SENT)
@@ -162,7 +126,7 @@ export const InReviewStage = ({
                                     <Button
                                         variant="destructive"
                                         className="flex-1 gap-2"
-                                        onClick={() => handleUpdateStage("REJECTED", "")}
+                                        onClick={() => onUpdateStage("REJECTED", "")}
                                     >
                                         <X className="h-4 w-4" />
                                         Reject
@@ -181,7 +145,7 @@ export const InReviewStage = ({
                             Add Comment
                         </Button>
 
-                        {}
+                        { }
                         {(() => {
                             const currentStage = atsApplication?.stage as ATSStage;
                             if (!currentStage) return false;

@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '@/api';
 import { PublicRoutes } from '@/constants/api-routes';
-import { 
-  Building2, 
-  MapPin, 
-  Users, 
-  Mail, 
-  Phone, 
+import {
+  Building2,
+  MapPin,
+  Users,
+  Mail,
+  Phone,
   Clock,
   MessageCircle,
   Flame,
@@ -99,16 +99,20 @@ export default function CompanyProfilePublic() {
 
   const fetchCompanyJobs = useCallback(async (page: number) => {
     try {
-      const response = await api.get<{ 
-        success: boolean; 
-        message: string; 
-        data: { 
-          jobs: JobPosting[]; 
-          hasMore: boolean;
-          total: number;
-        } 
+      const response = await api.get<{
+        success: boolean;
+        message: string;
+        data: {
+          jobs: JobPosting[];
+          pagination: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+          };
+        }
       }>(
-        `${PublicRoutes.COMPANIES}/${id}/jobs?page=${page}&limit=5`
+        `${PublicRoutes.JOBS}?company_id=${id}&page=${page}&limit=5`
       );
 
       if (response.data.success) {
@@ -117,7 +121,8 @@ export default function CompanyProfilePublic() {
         } else {
           setJobs(prev => [...prev, ...response.data.data.jobs]);
         }
-        setHasMoreJobs(response.data.data.hasMore);
+        const { pagination } = response.data.data;
+        setHasMoreJobs(pagination.page < pagination.totalPages);
         setJobsPage(page);
       }
     } catch (error) {
@@ -270,14 +275,14 @@ export default function CompanyProfilePublic() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                     {profile.companyName}
                     {profile.hasActiveSubscription && (
-                       <i className="fi fi-ss-shield-trust text-primary text-xl flex-shrink-0" />
+                      <i className="fi fi-ss-shield-trust text-primary text-xl flex-shrink-0" />
                     )}
                   </h1>
                   <div className="flex items-center gap-2 text-sm font-medium text-primary">
                     {profile.websiteLink ? (
-                      <a 
-                        href={profile.websiteLink.startsWith('http') ? profile.websiteLink : `https://${profile.websiteLink}`} 
-                        target="_blank" 
+                      <a
+                        href={profile.websiteLink.startsWith('http') ? profile.websiteLink : `https://${profile.websiteLink}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="hover:underline flex items-center gap-1"
                       >
@@ -350,10 +355,10 @@ export default function CompanyProfilePublic() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {}
+          { }
           <div className="lg:col-span-2 space-y-8">
-            
-            {}
+
+            { }
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 About us
@@ -363,14 +368,14 @@ export default function CompanyProfilePublic() {
               </p>
             </section>
 
-            {}
+            { }
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Contact</h3>
               {contact ? (
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-3">
                     {contact.twitterLink && (
-                      <a href={contact.twitterLink} target="_blank" rel="noopener noreferrer" 
+                      <a href={contact.twitterLink} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all text-sm font-medium text-gray-700">
                         <Twitter className="h-4 w-4" />
                         Twitter
@@ -391,10 +396,10 @@ export default function CompanyProfilePublic() {
                       </a>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-3">
                     {contact.phone && (
-                      <a href={`tel:${contact.phone}`} 
+                      <a href={`tel:${contact.phone}`}
                         className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all text-sm font-medium text-gray-700">
                         <Phone className="h-4 w-4" />
                         {contact.phone}
@@ -416,44 +421,44 @@ export default function CompanyProfilePublic() {
               )}
             </section>
 
-            {}
+            { }
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Workplace</h3>
               {workplacePictures.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div className="md:row-span-2 relative h-64 md:h-full rounded-xl overflow-hidden group">
-                      <img 
-                        src={workplacePictures[0].imageUrl} 
-                        alt={workplacePictures[0].caption || "Workplace"} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                      />
-                      {workplacePictures[0].caption && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                          <p className="text-white text-sm font-medium truncate">{workplacePictures[0].caption}</p>
-                        </div>
-                      )}
-                   </div>
-                   <div className="grid grid-cols-2 gap-4 h-64">
-                      {workplacePictures.slice(1, 5).map((picture) => (
-                        <div key={picture.id} className="relative rounded-xl overflow-hidden group">
-                           <img 
-                            src={picture.imageUrl} 
-                            alt={picture.caption || "Workplace"} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                          />
-                        </div>
-                      ))}
-                   </div>
+                  <div className="md:row-span-2 relative h-64 md:h-full rounded-xl overflow-hidden group">
+                    <img
+                      src={workplacePictures[0].imageUrl}
+                      alt={workplacePictures[0].caption || "Workplace"}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {workplacePictures[0].caption && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                        <p className="text-white text-sm font-medium truncate">{workplacePictures[0].caption}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 h-64">
+                    {workplacePictures.slice(1, 5).map((picture) => (
+                      <div key={picture.id} className="relative rounded-xl overflow-hidden group">
+                        <img
+                          src={picture.imageUrl}
+                          alt={picture.caption || "Workplace"}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                   <Building2 className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+                  <Building2 className="h-10 w-10 text-gray-300 mx-auto mb-3" />
                   <div className="text-gray-500 text-sm">No workplace pictures added yet</div>
                 </div>
               )}
             </section>
 
-            {}
+            { }
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Benefits</h3>
               {benefits.length > 0 ? (
@@ -479,7 +484,7 @@ export default function CompanyProfilePublic() {
               )}
             </section>
 
-            {}
+            { }
             <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Open Positions</h3>
@@ -487,13 +492,13 @@ export default function CompanyProfilePublic() {
                   {jobs.length} Active
                 </Badge>
               </div>
-              
+
               {jobs.length > 0 ? (
                 <div className="space-y-4">
                   {jobs.map((job) => (
-                    <div 
-                      key={job.id} 
-                      onClick={() => navigate(`/jobs/${job.id}`)} 
+                    <div
+                      key={job.id}
+                      onClick={() => navigate(`/jobs/${job.id}`)}
                       className="group border border-gray-100 bg-white rounded-xl p-5 hover:border-primary/20 hover:shadow-md transition-all cursor-pointer relative overflow-hidden"
                     >
                       <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -512,25 +517,20 @@ export default function CompanyProfilePublic() {
                                 {formatSalary(job.salary.min, job.salary.max)}
                               </span>
                             )}
-                             <span className="flex items-center gap-1.5 text-xs">
-                                <Clock className="w-3.5 h-3.5" />
-                                {getTimeAgo(job.createdAt)}
-                              </span>
+                            <span className="flex items-center gap-1.5 text-xs">
+                              <Clock className="w-3.5 h-3.5" />
+                              {getTimeAgo(job.createdAt)}
+                            </span>
                           </div>
-                        </div>
-                        <div className="flex-shrink-0">
-                           <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 hover:bg-primary/10">
-                             Apply Now
-                           </Button>
                         </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   {hasMoreJobs && (
-                      <Button variant="outline" onClick={loadMoreJobs} className="w-full mt-4 border-primary/20 text-primary hover:bg-primary/5">
-                        View More Jobs
-                      </Button>
+                    <Button variant="outline" onClick={loadMoreJobs} className="w-full mt-4 border-primary/20 text-primary hover:bg-primary/5">
+                      View More Jobs
+                    </Button>
                   )}
                 </div>
               ) : (
@@ -541,19 +541,19 @@ export default function CompanyProfilePublic() {
             </section>
           </div>
 
-          {}
+          { }
           <div className="space-y-8">
-            {}
+            { }
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Tech Stack</h3>
               {techStack.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {techStack.map((tech) => (
                     <div key={tech.id} className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-xl hover:bg-white hover:shadow-md transition-all w-[calc(33.33%-0.5rem)] border border-transparent hover:border-gray-100">
-                       <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center mb-2 text-lg font-bold text-gray-700 border border-gray-100">
-                          {tech.name.charAt(0).toUpperCase()}
-                       </div>
-                       <span className="text-xs font-medium text-center text-gray-600 line-clamp-1 w-full">{tech.name}</span>
+                      <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center mb-2 text-lg font-bold text-gray-700 border border-gray-100">
+                        {tech.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-xs font-medium text-center text-gray-600 line-clamp-1 w-full">{tech.name}</span>
                     </div>
                   ))}
                 </div>
@@ -564,7 +564,7 @@ export default function CompanyProfilePublic() {
               )}
             </div>
 
-            {}
+            { }
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Office Locations</h3>
               {locations.length > 0 ? (

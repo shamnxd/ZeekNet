@@ -218,13 +218,14 @@ export class SeekerJobApplicationController {
     try {
       const userId = validateUserId(req);
       const { offerId } = req.params;
-      const { status } = req.body;
+      const { status, withdrawalReason } = req.body;
 
       const updatedOffer = await this._updateOfferStatusUseCase.execute({
         performedBy: userId,
         performedByName: req.user?.email || 'Unknown User',
         offerId,
         status: status as 'signed' | 'declined',
+        withdrawalReason,
       });
 
       sendSuccessResponse(res, `Offer ${status === 'signed' ? 'accepted' : 'declined'} successfully`, updatedOffer);

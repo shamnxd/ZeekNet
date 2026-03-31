@@ -67,7 +67,7 @@ export interface ATSTechnicalTask {
   description: string;
   assignedDate?: string;
   deadline: string;
-  status: 'assigned' | 'submitted' | 'under_review' | 'completed' | 'cancelled';
+  status: 'assigned' | 'submitted' | 'under_review' | 'completed' | 'cancelled' | 'revoked';
   documentUrl?: string;
   documentFilename?: string;
   submissionUrl?: string;
@@ -117,8 +117,6 @@ export interface ATSComment {
   stage: ATSStage;
   subStage?: string;
   comment: string;
-  addedBy?: string;
-  addedByName?: string;
   recruiterName?: string;
   timestamp?: string;
   createdAt?: string;

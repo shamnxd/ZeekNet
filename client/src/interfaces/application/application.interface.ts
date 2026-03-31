@@ -1,6 +1,6 @@
 export interface Application {
-  id?: string 
-  _id?: string 
+  id?: string
+  _id?: string
   seeker_id?: string
   seeker_name?: string
   seeker_avatar?: string
@@ -14,6 +14,7 @@ export interface Application {
   company_logo?: string
   companyName?: string
   jobTitle?: string
+  is_blocked?: boolean
 }
 
 

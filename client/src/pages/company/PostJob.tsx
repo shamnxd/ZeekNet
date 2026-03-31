@@ -12,11 +12,12 @@ import { companyApi } from "../../api/company.api";
 import type { JobPostingRequest } from "@/interfaces/company/company-api.interface";
 import { toast } from "sonner";
 import { useAppSelector } from "@/hooks/useRedux";
+import { LimitExceededDialog } from "@/components/company/dialogs/LimitExceededDialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ATSStage } from "@/constants/ats-stages";
 
 type SelectableStage = Exclude<ATSStage, typeof ATSStage.HIRED | typeof ATSStage.REJECTED>;
-const REQUIRED_STAGES: SelectableStage[] = [ATSStage.SHORTLISTED, ATSStage.OFFER];
+const REQUIRED_STAGES: SelectableStage[] = [ATSStage.IN_REVIEW, ATSStage.SHORTLISTED, ATSStage.OFFER];
 const SELECTABLE_STAGES_DEFAULT: SelectableStage[] = Object.values(ATSStage).filter(
   (stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED
 );
@@ -45,6 +46,10 @@ const PostJob = () => {
     totalVacancies: 1,
     isFeatured: false,
   });
+
+  const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number; type?: string } | null>(null);
 
   const steps = [
     {
@@ -95,12 +100,13 @@ const PostJob = () => {
 
   const handleSubmit = async () => {
     try {
-      if (!jobData.title || jobData.title.length < 5) {
+      if (!jobData.title || jobData.title.length < 2) {
         toast.error("Validation failed", {
           description: "Title must be at least 2 characters",
         });
         return;
       }
+      setIsSubmitting(true);
 
       const selectedStages = (jobData.enabledStages && jobData.enabledStages.length > 0)
         ? jobData.enabledStages.filter((stage): stage is SelectableStage => stage !== ATSStage.HIRED && stage !== ATSStage.REJECTED)
@@ -120,7 +126,7 @@ const PostJob = () => {
         !REQUIRED_STAGES.every(stage => uniqueEnabledStages.includes(stage))
       ) {
         toast.error("Validation failed", {
-          description: "Select required hiring stages (Shortlisted & Offer)",
+          description: "Select required hiring stages (In Review, Shortlisted & Offer)",
         });
         return;
       }
@@ -175,7 +181,21 @@ const PostJob = () => {
           description: response.message || "Please try again later.",
         });
       }
+      setIsSubmitting(false);
     } catch (error: unknown) {
+      setIsSubmitting(false);
+      const apiError = error as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number; type?: string } } } };
+
+      if (apiError.response?.status === 403 && apiError.response.data?.data?.limitExceeded) {
+        setLimitExceededData({
+          currentLimit: apiError.response.data.data.currentLimit || 0,
+          used: apiError.response.data.data.used || 0,
+          type: apiError.response.data.data.type,
+        });
+        setShowLimitExceededDialog(true);
+        return;
+      }
+
       let errorMessage = "Please try again later.";
 
       if (error && typeof error === 'object') {
@@ -313,8 +333,21 @@ const PostJob = () => {
             isFirstStep={currentStep === 1}
             isLastStep={currentStep === steps.length}
             onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
           />
         </div>
+
+        <LimitExceededDialog
+          open={showLimitExceededDialog}
+          onOpenChange={setShowLimitExceededDialog}
+          limitExceededData={limitExceededData}
+          title={limitExceededData?.type === 'featuredJob' ? "Featured Job Limit Exceeded" : "Job Post Limit Exceeded"}
+          description={
+            limitExceededData?.type === 'featuredJob'
+              ? "You have reached your limit for featured jobs. Upgrade your plan to feature more jobs and get better visibility."
+              : "You have reached your job posting limit for your current subscription plan. Upgrade to post more jobs."
+          }
+        />
       </div>
     </CompanyLayout>
   );

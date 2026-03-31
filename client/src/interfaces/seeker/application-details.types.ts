@@ -28,10 +28,13 @@ export type ExtendedATSOfferDocument = ATSOfferDocument & {
 export interface CompensationMeeting {
     id?: string;
     type: string;
+    videoType?: 'in-app' | 'external';
+    webrtcRoomId?: string;
     scheduledDate: string;
     location?: string;
     meetingLink?: string;
     status?: string;
     completedAt?: string;
     createdAt: string;
+    notes?: string;
 }

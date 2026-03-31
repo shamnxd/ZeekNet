@@ -3,7 +3,7 @@ import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/appl
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
@@ -17,7 +17,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     private readonly _compensationRepository: IATSCompensationRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _addCommentUseCase: IAddCommentUseCase,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _userRepository: IUserRepository,
   ) { }
 
@@ -83,20 +83,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     const activityType = dto.approvedAt || dto.finalAgreed ? 'approved' : 'updated';
 
 
-    await this._activityLoggerService.logCompensationActivity({
-      applicationId: dto.applicationId,
-      type: activityType,
-      candidateExpected: dto.candidateExpected,
-      companyProposed: dto.companyProposed,
-      finalAgreed: dto.finalAgreed,
-      expectedJoining: dto.expectedJoining ? dto.expectedJoining.toISOString() : undefined,
-      benefits: dto.benefits,
-      approvedAt: updateData.approvedAt,
-      stage: ATSStage.COMPENSATION,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     if (dto.notes) {
       await this._addCommentUseCase.execute({

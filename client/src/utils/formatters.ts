@@ -69,3 +69,17 @@ export const formatPeriod = (startDate: string, endDate?: string, isCurrent?: bo
   }
   return start;
 };
+
+import { ATSStageDisplayNames, SubStageDisplayNames } from "@/constants/ats-stages";
+
+export const formatATSStage = (stage: string): string => {
+  if (!stage) return "Applied";
+  const upperStage = stage.toUpperCase();
+  return ATSStageDisplayNames[upperStage] || stage.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+};
+
+export const formatATSSubStage = (subStage: string): string => {
+  if (!subStage) return "";
+  const upperSubStage = subStage.toUpperCase();
+  return SubStageDisplayNames[upperSubStage] || subStage.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+};

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,7 +16,6 @@ import {
   Search,
   Eye,
   UserX,
-  Loader2
 } from 'lucide-react'
 import { adminApi } from '@/api/admin.api'
 import type { User, GetAllUsersParams } from '@/interfaces/admin/admin-user.interface'
@@ -24,6 +23,8 @@ import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { useDebounce } from '@/hooks/useDebounce'
 import type { UserWithDisplayData } from '@/interfaces/user.interface'
+import { AdminPagination } from '@/components/common/AdminPagination'
+import { TableSkeleton } from '@/components/common/TableSkeleton'
 
 const UserManagement = () => {
   const navigate = useNavigate()
@@ -33,28 +34,29 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [users, setUsers] = useState<UserWithDisplayData[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [pagination, setPagination] = useState({
-    page: 1,
     limit: 5,
     total: 0,
     totalPages: 0,
-    hasNext: false,
-    hasPrev: false
   })
   const [searchInput, setSearchInput] = useState('')
   const debouncedSearchTerm = useDebounce(searchInput, 500)
-  const [filters, setFilters] = useState<GetAllUsersParams>({
-    page: 1,
-    limit: 5,
+  const [filters, setFilters] = useState<Omit<GetAllUsersParams, 'page' | 'limit'>>({
     search: '',
     role: 'seeker',
     isBlocked: undefined
   })
 
-  const fetchUsers = async (params: GetAllUsersParams = { page: 1, limit: 5 }) => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await adminApi.getAllUsers(params)
+      const response = await adminApi.getAllUsers({
+        ...filters,
+        page: currentPage,
+        limit: pagination.limit
+      })
 
       if (response && response.data && response.data.users) {
         const transformedUsers: UserWithDisplayData[] = response.data.users.map((user: User) => ({
@@ -73,12 +75,9 @@ const UserManagement = () => {
 
         setUsers(transformedUsers)
         setPagination({
-          page: response.data.page || 1,
           limit: response.data.limit || 5,
           total: response.data.total || 0,
           totalPages: response.data.totalPages || 0,
-          hasNext: (response.data.page || 1) < (response.data.totalPages || 0),
-          hasPrev: (response.data.page || 1) > 1
         })
       }
     } catch (error) {
@@ -87,15 +86,19 @@ const UserManagement = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, pagination.limit, filters])
 
   useEffect(() => {
-    setFilters(prev => ({ ...prev, search: debouncedSearchTerm, page: 1 }))
-  }, [debouncedSearchTerm])
+    setFilters(prev => ({ ...prev, search: debouncedSearchTerm }))
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
+  }, [debouncedSearchTerm, setSearchParams])
 
   useEffect(() => {
-    fetchUsers(filters)
-  }, [filters])
+    fetchUsers()
+  }, [fetchUsers])
 
   const filteredUsers = users
 
@@ -112,24 +115,25 @@ const UserManagement = () => {
 
   const handleSearch = (searchTerm: string) => {
     setSearchInput(searchTerm)
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
   }
 
-  const handleFilterChange = (key: keyof GetAllUsersParams, value: unknown) => {
+  const handleFilterChange = (key: keyof Omit<GetAllUsersParams, 'page' | 'limit'>, value: unknown) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      page: 1,
       role: 'seeker'
     }))
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
   }
 
-  const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({
-      ...prev,
-      page: newPage,
-      role: 'seeker'
-    }))
-  }
+
 
   return (
     <AdminLayout>
@@ -185,11 +189,8 @@ const UserManagement = () => {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center">
-                        <div className="flex items-center justify-center space-x-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Loading job seekers...</span>
-                        </div>
+                      <td colSpan={6} className="p-0">
+                        <TableSkeleton columns={6} rows={pagination.limit} />
                       </td>
                     </tr>
                   ) : filteredUsers.length === 0 ? (
@@ -268,33 +269,12 @@ const UserManagement = () => {
         </Card>
 
 
-        {!loading && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} job seekers
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={!pagination.hasPrev}
-              >
-                Previous
-              </Button>
-              <span className="text-sm">
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={!pagination.hasNext}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+        {!loading && (
+          <AdminPagination
+            totalPages={pagination.totalPages}
+            totalItems={pagination.total}
+            itemsPerPage={pagination.limit}
+          />
         )}
 
 

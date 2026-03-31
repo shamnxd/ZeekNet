@@ -7,4 +7,8 @@ export interface IChatSocketService {
     emitMessageDeleted(message: ChatMessageResponseDto, conversation: ConversationResponseDto): void;
     emitMessagesRead(conversationId: string, readerId: string, otherParticipantId: string): void;
     emitTyping(conversationId: string, senderId: string, receiverId: string): void;
+    emitUserOnline(userId: string): void;
+    emitUserOffline(userId: string): void;
+    getOnlineUsers(): string[];
+    isUserOnline(userId: string): boolean;
 }

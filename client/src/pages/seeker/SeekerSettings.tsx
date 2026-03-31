@@ -109,28 +109,11 @@ function SeekerSettings() {
             >
               Login Details
             </TabsTrigger>
-            <TabsTrigger
-              value="notifications"
-              className="data-[state=active]:border-b-[3px] data-[state=active]:border-[#4640de] data-[state=active]:text-[#25324b] text-[#7c8493] rounded-none px-0 pb-2 font-['Epilogue',sans-serif] font-semibold text-[13px]"
-            >
-              Notifications
-            </TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="login" className="mt-0 p-6">
           <LoginDetailsCard />
-        </TabsContent>
-
-        <TabsContent value="notifications" className="mt-0 p-6">
-          <Card className="border border-[#d6ddeb] p-6">
-            <h3 className="font-['Epilogue',sans-serif] font-semibold text-[16px] text-[#25324b] mb-5">
-              Notification Preferences
-            </h3>
-            <p className="font-['Epilogue',sans-serif] text-[13px] text-[#515b6f]">
-              Manage your notification settings here.
-            </p>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

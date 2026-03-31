@@ -3,7 +3,7 @@ import { UploadedFile } from 'src/domain/types/common.types';
 
 export interface UploadSignedOfferDocumentDto {
   file: UploadedFile;
-  signedDocumentUrl?: string; // Optional if file is provided
+  signedDocumentUrl?: string;
   signedDocumentFilename?: string;
 }
 

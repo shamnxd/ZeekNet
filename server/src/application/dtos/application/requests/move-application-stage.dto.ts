@@ -7,6 +7,7 @@ export const MoveApplicationStageDtoSchema = z.object({
     errorMap: () => ({ message: 'Invalid stage' }),
   }),
   subStage: z.enum(ATS_SUB_STAGE_VALUES as [string, ...string[]]).optional(),
+  comment: z.string().optional(),
 });
 
 export type MoveApplicationStageDto = z.infer<typeof MoveApplicationStageDtoSchema> & {

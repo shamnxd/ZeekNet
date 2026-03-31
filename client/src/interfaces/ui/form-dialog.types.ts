@@ -37,6 +37,7 @@ export interface BasicFormDialogProps {
   isLoading?: boolean
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl'
   children: ReactNode
+  disableOutsideClick?: boolean
 }
 
 export interface AdvancedFormDialogProps {
@@ -51,6 +52,7 @@ export interface AdvancedFormDialogProps {
   cancelLabel?: string
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   children?: ReactNode
+  disableOutsideClick?: boolean
 }
 
 export type FormDialogProps = BasicFormDialogProps | AdvancedFormDialogProps

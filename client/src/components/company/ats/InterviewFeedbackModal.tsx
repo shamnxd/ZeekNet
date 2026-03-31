@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star } from 'lucide-react';
+import { Star, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Loader2 } from 'lucide-react';
 
 interface InterviewFeedbackModalProps {
     isOpen: boolean;
@@ -39,7 +40,7 @@ export const InterviewFeedbackModal = ({
         try {
             setIsSubmitting(true);
             await onSubmit(rating, feedback);
-            
+
             setRating(0);
             setFeedback('');
             onClose();
@@ -50,47 +51,29 @@ export const InterviewFeedbackModal = ({
         }
     };
 
-    if (!isOpen) return null;
-
     const displayRating = hoveredRating || rating;
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-                <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg"
-                >
-                    {}
-                    <div className="flex items-center justify-between p-5 border-b border-border">
-                        <div>
-                            <h2 className="text-lg font-semibold text-foreground">Add Interview Feedback</h2>
-                            <p className="text-sm text-muted-foreground mt-1">{interviewTitle}</p>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-muted-foreground" />
-                        </button>
-                    </div>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-lg">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Add Interview Feedback
+                    </DialogTitle>
+                    <p className="text-sm text-muted-foreground">
+                        For <span className="font-medium">{interviewTitle}</span>
+                    </p>
+                </DialogHeader>
 
-                    {}
-                    <form onSubmit={handleSubmit} className="p-5 space-y-6">
-                        {}
-                        <div>
-                            <Label className="text-sm font-medium text-foreground mb-3 block">
-                                Rating <span className="text-destructive">*</span>
-                            </Label>
-                            <div className="flex items-center gap-2">
+                <div className="py-4 space-y-6">
+                    {/* Rating Section */}
+                    <div className="space-y-3">
+                        <Label className="text-sm font-medium">
+                            Rating <span className="text-red-500">*</span>
+                        </Label>
+                        <div className="flex flex-col items-center justify-center p-4 bg-muted/30 rounded-lg border border-border/50">
+                            <div className="flex items-center gap-2 mb-2">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <button
                                         key={star}
@@ -98,63 +81,60 @@ export const InterviewFeedbackModal = ({
                                         onClick={() => setRating(star)}
                                         onMouseEnter={() => setHoveredRating(star)}
                                         onMouseLeave={() => setHoveredRating(0)}
-                                        className="focus:outline-none"
+                                        className="focus:outline-none transition-transform hover:scale-110"
                                     >
                                         <Star
-                                            className={`w-10 h-10 transition-colors ${
-                                                star <= displayRating
+                                            className={`w-8 h-8 transition-colors ${star <= displayRating
                                                     ? 'fill-yellow-400 text-yellow-400'
-                                                    : 'text-gray-300'
-                                            }`}
+                                                    : 'text-muted-foreground/30'
+                                                }`}
                                         />
                                     </button>
                                 ))}
                             </div>
-                            {displayRating > 0 && (
-                                <p className="text-sm text-muted-foreground mt-2">
-                                    {ratingLabels[displayRating]}
-                                </p>
-                            )}
+                            <p className={`text-sm font-medium transition-all ${displayRating > 0 ? 'text-primary' : 'text-muted-foreground'}`}>
+                                {displayRating > 0 ? ratingLabels[displayRating] : 'Select a rating'}
+                            </p>
                         </div>
+                    </div>
 
-                        {}
-                        <div>
-                            <Label htmlFor="feedback" className="text-sm font-medium text-foreground mb-2 block">
-                                Feedback Notes
-                            </Label>
-                            <Textarea
-                                id="feedback"
-                                value={feedback}
-                                onChange={(e) => setFeedback(e.target.value)}
-                                placeholder="Share your thoughts about the interview..."
-                                rows={6}
-                                className="resize-none"
-                            />
-                        </div>
+                    {/* Feedback Section */}
+                    <div className="space-y-2">
+                        <Label htmlFor="feedback" className="text-sm font-medium">
+                            Feedback Notes
+                        </Label>
+                        <Textarea
+                            id="feedback"
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                            placeholder="Share your thoughts about the candidate's performance, strengths, and areas for improvement..."
+                            rows={5}
+                            className="resize-none focus-visible:ring-primary"
+                        />
+                    </div>
+                </div>
 
-                        {}
-                        <div className="flex gap-3 pt-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={onClose}
-                                className="flex-1"
-                                disabled={isSubmitting}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                className="flex-1 bg-[#4640DE] hover:bg-[#3730A3]"
-                                disabled={!rating || isSubmitting}
-                            >
-                                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-                            </Button>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                <DialogFooter className="gap-2 sm:gap-0">
+                    <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={!rating || isSubmitting}
+                        className="bg-[#4640DE] hover:bg-[#3730A3]"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Submitting...
+                            </>
+                        ) : (
+                            'Submit Feedback'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

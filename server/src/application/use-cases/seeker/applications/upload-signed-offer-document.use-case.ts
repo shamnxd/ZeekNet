@@ -42,19 +42,15 @@ export class UploadSignedOfferDocumentUseCase implements IUploadSignedOfferDocum
     }
 
     let signedDocumentUrl = data.signedDocumentUrl;
-    let signedDocumentFilename = data.signedDocumentFilename;
 
     if (data.file) {
       const uploadResult = await this._fileUploadService.uploadOfferLetter(data.file, 'signed_document');
       signedDocumentUrl = uploadResult.url;
-      signedDocumentFilename = uploadResult.filename;
     }
 
     const updatedOffer = await this._offerRepository.update(offerId, {
       signedDocumentUrl,
-      signedDocumentFilename,
       status: 'signed',
-      signedAt: new Date(),
     });
 
     if (!updatedOffer) {

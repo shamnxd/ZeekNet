@@ -7,6 +7,7 @@ import { TrendingUp, Briefcase, Loader2 } from 'lucide-react';
 import { companyApi } from '@/api/company.api';
 import type { JobPostingResponse } from '@/interfaces/job/job-posting-response.interface';
 import type { ApplicationsKanbanResponse, ApplicationKanbanItem } from '@/interfaces/ats/ats-pipeline.interface';
+import type { CompanySideApplication } from '@/interfaces/company/company-data.interface';
 
 const ATSPanel = () => {
   const navigate = useNavigate();
@@ -60,13 +61,12 @@ const ATSPanel = () => {
         setLoadingApps(true);
 
 
-        const [pipelineResponse, applicationsResponse] = await Promise.all([
-          companyApi.getJobATSPipeline(selectedJobId),
+        const [applicationsResponse] = await Promise.all([
           companyApi.getJobApplicationsForKanban(selectedJobId),
         ]);
 
-        if (pipelineResponse.data) {
-          setEnabledStages(pipelineResponse.data.enabledStages as ATSStage[]);
+        if (selectedJob) {
+          setEnabledStages((selectedJob.enabled_stages || selectedJob.enabledStages || []) as ATSStage[]);
         }
 
         if (applicationsResponse.data && applicationsResponse.data.applications) {
@@ -74,8 +74,7 @@ const ATSPanel = () => {
 
           const groupedByStage: ApplicationsKanbanResponse = {};
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          applications.forEach((app: any) => {
+          applications.forEach((app: CompanySideApplication) => {
             const stage = app.stage;
             if (!groupedByStage[stage]) {
               groupedByStage[stage] = [];
@@ -83,13 +82,13 @@ const ATSPanel = () => {
 
             groupedByStage[stage].push({
               id: app.id,
-              seekerId: app.seeker_id,
+              seekerId: app.seeker_id || app.seekerId || '',
               seekerName: app.seeker_name,
               seekerAvatar: app.seeker_avatar,
               jobTitle: app.job_title,
               atsScore: app.score,
               subStage: app.sub_stage,
-              appliedDate: app.applied_date,
+              appliedDate: app.applied_date || '',
             });
           });
 
@@ -109,7 +108,7 @@ const ATSPanel = () => {
       setSearchParams({ jobId: selectedJobId });
       fetchPipelineAndApps();
     }
-  }, [selectedJobId, setSearchParams]);
+  }, [selectedJobId, setSearchParams, selectedJob]);
 
 
   const getCandidatesByStage = (stage: ATSStage): ApplicationKanbanItem[] => {

@@ -19,8 +19,7 @@ import {
   List,
   XCircle,
   RotateCcw,
-  Star,
-  Plus
+  Star
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -38,6 +37,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LimitExceededDialog } from '@/components/company/dialogs/LimitExceededDialog'
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -88,6 +88,8 @@ const CompanyJobListing = () => {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
   const [additionalVacancies, setAdditionalVacancies] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [showLimitExceededDialog, setShowLimitExceededDialog] = useState(false)
+  const [limitExceededData, setLimitExceededData] = useState<{ currentLimit: number; used: number; type?: string } | null>(null)
 
   const fetchJobs = useCallback(async (page: number = 1, limit: number = 10) => {
     try {
@@ -295,16 +297,9 @@ const CompanyJobListing = () => {
       <div className="min-h-screen bg-white">
         <div className="px-7 py-7">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold text-[#25324B]">
+            <h1 className="text-2xl !font-semibold !text-[#25324B]">
               Total Jobs : {pagination.total}
             </h1>
-            <Button
-              className="bg-[#4640DE] hover:bg-[#4640DE]/90"
-              onClick={() => navigate('/company/post-job')}
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Post a Job
-            </Button>
           </div>
 
           <div className="flex items-center gap-3 mb-5">
@@ -334,7 +329,7 @@ const CompanyJobListing = () => {
                 <div className="w-[149px]">Date Posted</div>
                 <div className="w-[128px]">Job Type</div>
                 <div className="w-[114px]">Applicants</div>
-                <div className="w-[98px]">Views</div>
+                <div className="w-[98px]">Vacancies</div>
               </div>
             </div>
 
@@ -362,7 +357,8 @@ const CompanyJobListing = () => {
                   const unpublishReason = job.unpublishReason ?? job.unpublish_reason;
                   const employmentTypes = job.employmentTypes ?? job.employment_types ?? [];
                   const applicationCount = job.applicationCount ?? job.application_count ?? 0;
-                  const viewCount = job.viewCount ?? job.view_count ?? 0;
+                  const totalVacancies = job.totalVacancies ?? job.total_vacancies ?? 0;
+                  const filledVacancies = job.filledVacancies ?? job.filled_vacancies ?? 0;
 
                   return (
                     <div
@@ -420,7 +416,9 @@ const CompanyJobListing = () => {
                       </div>
 
                       <div className="w-[98px] flex items-center justify-between">
-                        <span className="text-sm font-medium text-[#25324B]">{viewCount.toLocaleString()}</span>
+                        <span className="text-sm font-medium text-[#25324B]">
+                          {filledVacancies} / {totalVacancies}
+                        </span>
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -474,8 +472,22 @@ const CompanyJobListing = () => {
                                   } else {
                                     toast.error('Failed to update featured status')
                                   }
-                                } catch {
-                                  toast.error('Failed to update featured status')
+                                } catch (error: unknown) {
+                                  const apiError = error as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number; type?: string } } } };
+
+                                  if (apiError.response?.status === 403 && apiError.response.data?.data?.limitExceeded) {
+                                    setLimitExceededData({
+                                      currentLimit: apiError.response.data.data.currentLimit || 0,
+                                      used: apiError.response.data.data.used || 0,
+                                      type: apiError.response.data.data.type,
+                                    });
+                                    setShowLimitExceededDialog(true);
+                                    return;
+                                  }
+
+                                  toast.error('Failed to update featured status', {
+                                    description: apiError?.response?.data?.message || 'Please check your subscription plan.'
+                                  })
                                 }
                               }}
                               disabled={status === 'blocked' || status === 'closed'}
@@ -500,14 +512,14 @@ const CompanyJobListing = () => {
                   <span className="text-sm font-medium text-[#7C8493]">Showing {pagination.limit} jobs per page</span>
                   <div className="flex items-center gap-1">
                     <Button variant="outline" size="sm" className="p-1" onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page <= 1}>
-                      <ChevronLeft className="w-4 h-4 text-[#25324B]" />
+                      <ChevronLeft className="w-4 h-4 !text-[#25324B]" />
                     </Button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                         const pageNum = i + 1;
                         const isActive = pageNum === pagination.page;
                         return (
-                          <Button key={pageNum} variant="outline" size="sm" className={`px-2 py-1 ${isActive ? 'bg-[#4640DE] text-white border-[#4640DE]' : 'text-[#515B6F] border-[#D6DDEB]'}`} onClick={() => handlePageChange(pageNum)}>
+                          <Button key={pageNum} variant="outline" size="sm" className={`px-2 py-1 ${isActive ? '!bg-[#4640DE] !text-white !border-[#4640DE]' : '!text-[#515B6F] !border-[#D6DDEB]'}`} onClick={() => handlePageChange(pageNum)}>
                             {pageNum}
                           </Button>
                         );
@@ -574,6 +586,14 @@ const CompanyJobListing = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <LimitExceededDialog
+        open={showLimitExceededDialog}
+        onOpenChange={setShowLimitExceededDialog}
+        limitExceededData={limitExceededData}
+        title="Featured Job Limit Exceeded"
+        description="You have reached your limit for featured jobs. Upgrade your plan to feature more jobs and get better visibility."
+      />
     </CompanyLayout>
   )
 }

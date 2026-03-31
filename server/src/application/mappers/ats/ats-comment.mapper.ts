@@ -7,8 +7,6 @@ export class ATSCommentMapper {
       id: comment.id,
       applicationId: comment.applicationId,
       comment: comment.comment,
-      addedBy: comment.addedBy,
-      addedByName: comment.addedByName,
       stage: comment.stage,
       subStage: comment.subStage,
       createdAt: comment.createdAt,

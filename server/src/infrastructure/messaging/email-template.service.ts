@@ -1,18 +1,20 @@
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
-import { subscriptionMigrationTemplate } from 'src/infrastructure/messaging/templates/subscription-migration.template';
+import { priceChangeNotificationTemplate } from 'src/infrastructure/messaging/templates/price-change-notification.template';
 import { otpVerificationTemplate } from 'src/infrastructure/messaging/templates/otp-verification.template';
 import * as hiringTemplates from 'src/infrastructure/messaging/templates/hiring-process.templates';
 
 export class EmailTemplateService implements IEmailTemplateService {
-  getSubscriptionMigrationEmail(
+
+  getPriceChangeNotificationEmail(
     planName: string,
     oldPrice: number,
     newPrice: number,
     billingCycle: 'monthly' | 'yearly',
+    periodEnd: Date | undefined,
     companyName?: string,
   ): { subject: string; html: string } {
-    const subject = subscriptionMigrationTemplate.subject(planName);
-    const html = subscriptionMigrationTemplate.html(planName, oldPrice, newPrice, billingCycle, companyName);
+    const subject = priceChangeNotificationTemplate.subject(planName);
+    const html = priceChangeNotificationTemplate.html(planName, oldPrice, newPrice, billingCycle, periodEnd, companyName);
     return { subject, html };
   }
 

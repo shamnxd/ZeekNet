@@ -23,7 +23,7 @@ export interface ConversationDocument extends Document {
 
 const ParticipantSchema = new Schema<ConversationParticipantDocument>(
   {
-    user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     role: { type: String, enum: Object.values(UserRole), required: true },
     unread_count: { type: Number, default: 0 },
     last_read_at: { type: Date, default: null },
@@ -53,7 +53,7 @@ const ConversationSchema = new Schema<ConversationDocument>(
   },
 );
 
-ConversationSchema.index({ participant_ids: 1 }, { unique: true });
+ConversationSchema.index({ participant_ids: 1 });
 ConversationSchema.index({ updatedAt: -1 });
 ConversationSchema.index({ 'participants.user_id': 1, updatedAt: -1 });
 

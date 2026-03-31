@@ -18,7 +18,7 @@ import type { ActiveSubscriptionResponse } from '@/interfaces/company/subscripti
 import type { PaymentHistoryItem } from '@/interfaces/company/subscription/payment-history-item.interface';
 import type { CheckoutSessionResponse } from '@/interfaces/company/subscription/checkout-session-response.interface';
 import type { BillingPortalResponse } from '@/interfaces/company/subscription/billing-portal-response.interface';
-import type { ATSPipelineConfig, ApplicationsKanbanResponse, MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
+import type { MoveApplicationStageRequest, UpdateSubStageRequest } from '@/interfaces/ats/ats-pipeline.interface';
 
 export type {
   CompanyProfileData,
@@ -320,6 +320,13 @@ export const companyApi = {
     })).data;
   },
 
+  async previewPlanChange(planId: string, billingCycle?: 'monthly' | 'yearly'): Promise<ApiEnvelope<import('@/interfaces/company/subscription/preview-plan-change.interface').PreviewPlanChangeResponse>> {
+    return (await api.post<ApiEnvelope<import('@/interfaces/company/subscription/preview-plan-change.interface').PreviewPlanChangeResponse>>(CompanyRoutes.SUBSCRIPTIONS_PREVIEW_CHANGE, {
+      planId,
+      billingCycle,
+    })).data;
+  },
+
   async getBillingPortalUrl(returnUrl: string): Promise<ApiEnvelope<BillingPortalResponse>> {
     return (await api.post<ApiEnvelope<BillingPortalResponse>>(CompanyRoutes.SUBSCRIPTIONS_BILLING_PORTAL, { returnUrl })).data;
   },
@@ -342,12 +349,8 @@ export const companyApi = {
   },
 
 
-  async getJobATSPipeline(jobId: string): Promise<ApiEnvelope<ATSPipelineConfig>> {
-    const endpoint = CompanyRoutes.JOBS_ID_ATS_PIPELINE.replace(':jobId', jobId);
-    return (await api.get(endpoint)).data;
-  },
 
-  async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<ApplicationsKanbanResponse>> {
+  async getJobApplicationsForKanban(jobId: string): Promise<ApiEnvelope<{ applications: CompanySideApplication[] }>> {
     const endpoint = CompanyRoutes.JOBS_ID_APPLICATIONS.replace(':job_id', jobId);
     return (await api.get(endpoint)).data;
   },

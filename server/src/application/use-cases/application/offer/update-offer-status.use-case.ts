@@ -2,7 +2,7 @@ import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/appli
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IUpdateApplicationSubStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IUpdateApplicationSubStageUseCase';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSStage, OfferSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -21,7 +21,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _userRepository: IUserRepository,
     private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _mailerService: IMailerService,
     private readonly _emailTemplateService: IEmailTemplateService,
     private readonly _logger: ILogger,
@@ -35,27 +35,11 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
 
     const updateData: {
       status?: 'draft' | 'sent' | 'signed' | 'declined';
-      sentAt?: Date;
-      signedAt?: Date;
-      declinedAt?: Date;
       withdrawalReason?: string;
-      withdrawnBy?: string;
-      withdrawnByName?: string;
-      withdrawnAt?: Date;
     } = { status: data.status };
 
-    if (data.status === 'sent') {
-      updateData.sentAt = new Date();
-    } else if (data.status === 'signed') {
-      updateData.signedAt = new Date();
-    } else if (data.status === 'declined') {
-      updateData.declinedAt = new Date();
-      if (data.withdrawalReason) {
-        updateData.withdrawalReason = data.withdrawalReason;
-        updateData.withdrawnBy = data.performedBy;
-        updateData.withdrawnByName = data.performedByName;
-        updateData.withdrawnAt = new Date();
-      }
+    if (data.status === 'declined' && data.withdrawalReason) {
+      updateData.withdrawalReason = data.withdrawalReason;
     }
 
     const offer = await this._offerRepository.update(data.offerId, updateData);
@@ -86,18 +70,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       });
     }
 
-    if (data.status === 'signed' || data.status === 'declined') {
-      await this._activityLoggerService.logOfferActivity({
-        applicationId: existingOffer.applicationId,
-        offerId: offer.id,
-        status: data.status,
-        withdrawalReason: data.withdrawalReason,
-        stage: application.stage,
-        subStage: application.subStage,
-        performedBy: data.performedBy,
-        performedByName: data.performedByName,
-      });
-    }
+
 
     return ATSOfferMapper.toResponse(offer);
   }

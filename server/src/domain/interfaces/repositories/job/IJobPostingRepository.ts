@@ -15,6 +15,7 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
       location?: string;
       search?: string;
       isFeatured?: boolean;
+      companyId?: string;
     }
   ): Promise<Partial<JobPosting>[]>;
   getJobsByCompany(companyId: string, projection: Record<string, 1 | 0>): Promise<Partial<JobPosting>[]>;

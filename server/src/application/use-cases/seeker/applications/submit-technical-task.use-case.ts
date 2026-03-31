@@ -1,6 +1,7 @@
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { NotFoundError, AuthorizationError, ValidationError } from 'src/domain/errors/errors';
 import {
   SubmitTechnicalTaskDto,
@@ -14,6 +15,7 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
     private readonly _jobApplicationRepository: IJobApplicationRepository,
     private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
     private readonly _fileUploadService: IFileUploadService,
+    private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(
@@ -66,6 +68,16 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
       throw new NotFoundError('Failed to update task');
     }
 
-    return ATSTechnicalTaskMapper.toResponse(updatedTask);
+    const response = ATSTechnicalTaskMapper.toResponse(updatedTask);
+
+    if (response.documentUrl && !response.documentUrl.startsWith('http')) {
+      response.documentUrl = await this._s3Service.getSignedUrl(response.documentUrl);
+    }
+
+    if (response.submissionUrl && !response.submissionUrl.startsWith('http')) {
+      response.submissionUrl = await this._s3Service.getSignedUrl(response.submissionUrl);
+    }
+
+    return response;
   }
 }

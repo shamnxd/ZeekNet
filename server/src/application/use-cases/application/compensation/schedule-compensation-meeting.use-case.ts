@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
 import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
-import { IActivityLoggerService } from 'src/domain/interfaces/services/IActivityLoggerService';
+
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
@@ -15,7 +15,7 @@ export class ScheduleCompensationMeetingUseCase implements IScheduleCompensation
   constructor(
     private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
     private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _activityLoggerService: IActivityLoggerService,
+
     private readonly _userRepository: IUserRepository,
   ) { }
 
@@ -53,17 +53,7 @@ export class ScheduleCompensationMeetingUseCase implements IScheduleCompensation
     const created = await this._compensationMeetingRepository.create(meeting);
 
 
-    await this._activityLoggerService.logCompensationMeetingActivity({
-      applicationId: dto.applicationId,
-      meetingId: created.id,
-      type: 'scheduled',
-      meetingType: dto.type,
-      scheduledDate: scheduledDate,
-      stage: ATSStage.COMPENSATION,
-      subStage: application.subStage,
-      performedBy: dto.performedBy,
-      performedByName: performedByName,
-    });
+
 
     return ATSCompensationMeetingMapper.toResponse(created);
   }

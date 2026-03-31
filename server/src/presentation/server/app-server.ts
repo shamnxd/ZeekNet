@@ -16,13 +16,9 @@ import { CompanyRouter } from 'src/presentation/routes/company-router';
 import { AdminRouter } from 'src/presentation/routes/admin-router';
 import { SeekerRouter } from 'src/presentation/routes/seeker-router';
 import { PublicRouter } from 'src/presentation/routes/public-router';
-import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
 import { errorHandler } from 'src/presentation/middleware/error-handler';
-import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
-import { getUserByIdUseCase } from 'src/infrastructure/di/authDi';
 import { notificationRouter } from 'src/infrastructure/di/notificationDi';
 import { chatRouter } from 'src/infrastructure/di/chatDi';
-import { DateTimeUtil } from 'src/shared/utils/core/datetime.utils';
 import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
@@ -39,20 +35,19 @@ export class AppServer {
 
   public init(): void {
     this.configureMiddlewares();
-    this.configureRoutes();
+    this._configureRoutes();
   }
 
   private configureMiddlewares(): void {
     this._app.use(helmet());
-
     this._app.use(
       cors({
-        origin: env.FRONTEND_URL || 'http://localhost:5174',
+        origin: env.FRONTEND_URL || 'https://zeeknet.shamnadt.in',
         credentials: true,
       }),
     );
 
-    this._app.use('/api/webhook/stripe', express.raw({ type: 'application/json' }));
+    this._app.use('/api/webhook/stripe', express.raw({ type: '*/*' }));
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));
@@ -76,7 +71,7 @@ export class AppServer {
     }
   }
 
-  private configureRoutes(): void {
+  private _configureRoutes(): void {
 
     this._app.get('/health', (req, res) =>
       res.json({

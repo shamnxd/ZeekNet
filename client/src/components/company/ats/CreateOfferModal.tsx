@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, Upload, File as FileIcon, Trash2 } from 'lucide-react';
+import { FileText, Upload, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CreateOfferModalProps {
     isOpen: boolean;
@@ -23,7 +23,6 @@ interface OfferFormData {
     documentUrl?: string;
     documentFilename?: string;
     document?: File;
-    notes?: string;
 }
 
 export const CreateOfferModal = ({
@@ -41,15 +40,21 @@ export const CreateOfferModal = ({
         joiningDate: offerToEdit?.joiningDate || '',
         validityDate: offerToEdit?.validityDate || '',
         documentUrl: offerToEdit?.documentUrl,
-        documentFilename: offerToEdit?.documentFilename,
-        notes: offerToEdit?.notes || ''
+        documentFilename: offerToEdit?.documentFilename
     });
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [existingDocumentUrl, setExistingDocumentUrl] = useState<string | undefined>(offerToEdit?.documentUrl);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<{
+        offerAmount?: string;
+        joiningDate?: string;
+        validityDate?: string;
+    }>({});
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen) {
+            setIsSubmitting(false);
             if (offerToEdit) {
                 setFormData({
                     offerAmount: offerToEdit.offerAmount || '',
@@ -57,8 +62,7 @@ export const CreateOfferModal = ({
                     joiningDate: offerToEdit.joiningDate || '',
                     validityDate: offerToEdit.validityDate || '',
                     documentUrl: offerToEdit.documentUrl,
-                    documentFilename: offerToEdit.documentFilename,
-                    notes: offerToEdit.notes || ''
+                    documentFilename: offerToEdit.documentFilename
                 });
                 setExistingDocumentUrl(offerToEdit.documentUrl);
             } else {
@@ -68,8 +72,7 @@ export const CreateOfferModal = ({
                     joiningDate: '',
                     validityDate: '',
                     documentUrl: undefined,
-                    documentFilename: undefined,
-                    notes: ''
+                    documentFilename: undefined
                 });
                 setExistingDocumentUrl(undefined);
             }
@@ -80,19 +83,19 @@ export const CreateOfferModal = ({
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            
+
             const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!validTypes.includes(file.type)) {
                 alert('Please upload a PDF or DOC file');
                 return;
             }
-            
+
             if (file.size > 10 * 1024 * 1024) {
                 alert('File size must be less than 10MB');
                 return;
             }
             setSelectedFile(file);
-            
+
             const url = URL.createObjectURL(file);
             setFormData(prev => ({
                 ...prev,
@@ -117,17 +120,66 @@ export const CreateOfferModal = ({
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.offerAmount.trim() || !formData.joiningDate || !formData.validityDate) {
+        const newErrors: {
+            offerAmount?: string;
+            joiningDate?: string;
+            validityDate?: string;
+        } = {};
+        if (!formData.offerAmount.trim()) {
+            newErrors.offerAmount = 'Offer amount is required';
+        } else {
+            const amount = parseFloat(formData.offerAmount);
+            if (isNaN(amount) || amount <= 0) {
+                newErrors.offerAmount = 'Must be a valid amount greater than 0';
+            }
+        }
+
+        if (!formData.joiningDate) {
+            newErrors.joiningDate = 'Joining date is required';
+        }
+
+        if (!formData.validityDate) {
+            newErrors.validityDate = 'Offer validity date is required';
+        }
+
+        if (formData.joiningDate && formData.validityDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const joiningDate = new Date(formData.joiningDate);
+            const validityDate = new Date(formData.validityDate);
+
+            if (joiningDate < today) {
+                newErrors.joiningDate = 'Joining date cannot be in the past';
+            }
+            if (validityDate < today) {
+                newErrors.validityDate = 'Offer validity date cannot be in the past';
+            }
+
+            if (joiningDate <= validityDate && !newErrors.joiningDate && !newErrors.validityDate) {
+                newErrors.joiningDate = 'Joining date must be after the offer validity date';
+            }
+        }
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
-        
-        onCreate({
-            ...formData,
-            document: selectedFile || undefined
-        });
-        handleClose();
+        setErrors({});
+
+        try {
+            setIsSubmitting(true);
+            await onCreate({
+                ...formData,
+                document: selectedFile || undefined
+            });
+            handleClose();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleClose = () => {
@@ -141,232 +193,196 @@ export const CreateOfferModal = ({
             joiningDate: '',
             validityDate: '',
             documentUrl: undefined,
-            documentFilename: undefined,
-            notes: ''
+            documentFilename: undefined
         });
         setExistingDocumentUrl(undefined);
         onClose();
     };
 
-    if (!isOpen) return null;
-
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-                <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={handleClose} />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-hidden"
-                >
-                    {}
-                    <div className="flex items-center justify-between p-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                                <FileText className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-semibold text-foreground">
-                                    {isEditMode ? 'Edit Offer' : 'Create Offer'}
-                                </h2>
-                                <p className="text-sm text-muted-foreground">For {candidateName}</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleClose}
-                            className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-muted-foreground" />
-                        </button>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-lg">
+                        <FileText className="w-5 h-5 text-primary" />
+                        {isEditMode ? 'Edit Offer' : 'Create Offer'}
+                    </DialogTitle>
+                    <div className="text-sm text-muted-foreground">
+                        For <span className="font-medium text-foreground">{candidateName}</span> • {jobTitle}
+                    </div>
+                </DialogHeader>
+
+                <div className="space-y-4 py-2">
+                    {/* Offer Amount */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="offerAmount" className="text-sm font-medium">
+                            Salary / Offer Amount <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="offerAmount"
+                            value={formData.offerAmount}
+                            onChange={(e) => {
+                                setFormData({ ...formData, offerAmount: e.target.value });
+                                if (errors.offerAmount) setErrors(prev => ({ ...prev, offerAmount: undefined }));
+                            }}
+                            placeholder="e.g., ₹9 LPA or ₹900,000"
+                            className={`h-10 ${errors.offerAmount ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                        />
+                        {errors.offerAmount && (
+                            <p className="text-xs font-medium text-red-500">{errors.offerAmount}</p>
+                        )}
                     </div>
 
-                    {}
-                    <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        {}
-                        <div className="space-y-2">
-                            <Label className="text-foreground">Job Title</Label>
-                            <Input
-                                type="text"
-                                value={jobTitle}
-                                disabled
-                                className="w-full bg-muted"
-                            />
-                        </div>
+                    {/* Employment Type */}
+                    <div className="space-y-1.5">
+                        <Label className="text-sm font-medium">
+                            Employment Type <span className="text-red-500">*</span>
+                        </Label>
+                        <Select
+                            value={formData.employmentType}
+                            onValueChange={(val) => setFormData({ ...formData, employmentType: val })}
+                        >
+                            <SelectTrigger className="w-full h-10">
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="full-time">Full-time</SelectItem>
+                                <SelectItem value="part-time">Part-time</SelectItem>
+                                <SelectItem value="contract">Contract</SelectItem>
+                                <SelectItem value="internship">Internship</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                        {}
-                        <div className="space-y-2">
-                            <Label htmlFor="offerAmount" className="text-foreground">
-                                Salary / Offer Amount <span className="text-destructive">*</span>
+                    {/* Dates */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="joiningDate" className="text-sm font-medium">
+                                Joining Date <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                                id="offerAmount"
-                                type="text"
-                                placeholder="e.g., ₹9 LPA or ₹900000"
-                                value={formData.offerAmount}
-                                onChange={(e) => setFormData({ ...formData, offerAmount: e.target.value })}
-                                className="w-full"
-                                required
+                                id="joiningDate"
+                                type="date"
+                                value={formData.joiningDate}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, joiningDate: e.target.value });
+                                    if (errors.joiningDate) setErrors(prev => ({ ...prev, joiningDate: undefined }));
+                                }}
+                                className={`h-10 ${errors.joiningDate ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
+                            {errors.joiningDate && (
+                                <p className="text-xs font-medium text-red-500">{errors.joiningDate}</p>
+                            )}
                         </div>
-
-                        {}
-                        <div className="space-y-2">
-                            <Label htmlFor="employmentType" className="text-foreground">
-                                Employment Type <span className="text-destructive">*</span>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="validityDate" className="text-sm font-medium">
+                                Offer Validity <span className="text-red-500">*</span>
                             </Label>
-                            <select
-                                id="employmentType"
-                                value={formData.employmentType}
-                                onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
-                                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
-                                required
-                            >
-                                <option value="full-time">Full-time</option>
-                                <option value="part-time">Part-time</option>
-                                <option value="contract">Contract</option>
-                                <option value="internship">Internship</option>
-                            </select>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            {}
-                            <div className="space-y-2">
-                                <Label htmlFor="joiningDate" className="text-foreground">
-                                    Joining Date <span className="text-destructive">*</span>
-                                </Label>
-                                <Input
-                                    id="joiningDate"
-                                    type="date"
-                                    value={formData.joiningDate}
-                                    onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
-                                    className="w-full"
-                                    required
-                                />
-                            </div>
-
-                            {}
-                            <div className="space-y-2">
-                                <Label htmlFor="validityDate" className="text-foreground">
-                                    Offer Validity Date <span className="text-destructive">*</span>
-                                </Label>
-                                <Input
-                                    id="validityDate"
-                                    type="date"
-                                    value={formData.validityDate}
-                                    onChange={(e) => setFormData({ ...formData, validityDate: e.target.value })}
-                                    className="w-full"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {}
-                        <div className="space-y-2">
-                            <Label className="text-foreground">Offer Letter (PDF, DOC - Max 10MB)</Label>
-                            {existingDocumentUrl && !selectedFile && (
-                                <div className="border border-border rounded-lg p-4 bg-muted/50 flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <FileIcon className="w-5 h-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">{formData.documentFilename || 'Current Document'}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setExistingDocumentUrl(undefined);
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                documentUrl: undefined,
-                                                documentFilename: undefined
-                                            }));
-                                        }}
-                                        className="text-destructive hover:text-destructive/80 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            )}
-                            {!selectedFile && !existingDocumentUrl ? (
-                                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept=".pdf,.doc,.docx"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                        id="offer-file-upload"
-                                    />
-                                    <label
-                                        htmlFor="offer-file-upload"
-                                        className="cursor-pointer flex flex-col items-center gap-2"
-                                    >
-                                        <Upload className="w-8 h-8 text-muted-foreground" />
-                                        <span className="text-sm text-foreground">Click to upload or drag and drop</span>
-                                        <span className="text-xs text-muted-foreground">PDF, DOC, DOCX (Max 10MB)</span>
-                                    </label>
-                                </div>
-                            ) : (
-                                selectedFile && (
-                                    <div className="border border-border rounded-lg p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <FileIcon className="w-5 h-5 text-primary" />
-                                            <div>
-                                                <p className="text-sm font-medium text-foreground">{selectedFile.name}</p>
-                                                <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={removeFile}
-                                            className="text-destructive hover:text-destructive/80 transition-colors"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )
-                            )}
-                        </div>
-
-                        {}
-                        <div className="space-y-2">
-                            <Label htmlFor="notes" className="text-foreground">Notes (Optional)</Label>
-                            <Textarea
-                                id="notes"
-                                placeholder="Add any additional notes or instructions..."
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                rows={4}
-                                className="w-full resize-none"
+                            <Input
+                                id="validityDate"
+                                type="date"
+                                value={formData.validityDate}
+                                onChange={(e) => {
+                                    setFormData({ ...formData, validityDate: e.target.value });
+                                    if (errors.validityDate) setErrors(prev => ({ ...prev, validityDate: undefined }));
+                                }}
+                                className={`h-10 ${errors.validityDate ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                             />
+                            {errors.validityDate && (
+                                <p className="text-xs font-medium text-red-500">{errors.validityDate}</p>
+                            )}
                         </div>
+                    </div>
 
-                        {}
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleClose}
+                    {/* Document Upload */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium">Offer Letter (PDF, DOC - Max 10MB)</Label>
+
+                        {(existingDocumentUrl || selectedFile) ? (
+                            <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/40">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                                        <FileText className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium truncate">
+                                            {selectedFile ? selectedFile.name : (formData.documentFilename || 'Offer Document')}
+                                        </p>
+                                        {selectedFile && (
+                                            <p className="text-xs text-muted-foreground">
+                                                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                    onClick={selectedFile ? removeFile : () => {
+                                        setExistingDocumentUrl(undefined);
+                                        setFormData(prev => ({ ...prev, documentUrl: undefined, documentFilename: undefined }));
+                                    }}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <div
+                                className="border-2 border-dashed border-border rounded-xl p-8 hover:bg-muted/30 transition-all cursor-pointer text-center group"
+                                onClick={() => fileInputRef.current?.click()}
                             >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                className="gradient-primary text-primary-foreground hover:opacity-90"
-                                disabled={!formData.offerAmount.trim() || !formData.joiningDate || !formData.validityDate}
-                            >
-                                {isEditMode ? 'Update Offer' : 'Create & Send Offer'}
-                            </Button>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Upload className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium">
+                                            <span className="text-primary">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p className="text-xs text-muted-foreground px-4">
+                                            PDF, DOC or DOCX format. Maximum file size 10MB.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <DialogFooter className="gap-2 pt-4 border-t mt-2">
+                    <Button
+                        variant="outline"
+                        onClick={handleClose}
+                        disabled={isSubmitting}
+                        className="h-10"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="bg-[#4640DE] hover:bg-[#3730A3] h-10 px-6"
+                    >
+                        {isSubmitting ? (
+                            <div className="flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
+                            </div>
+                        ) : (
+                            isEditMode ? 'Update Offer' : 'Create Offer'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };

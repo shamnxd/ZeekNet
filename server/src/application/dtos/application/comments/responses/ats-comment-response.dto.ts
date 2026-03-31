@@ -4,8 +4,6 @@ export interface ATSCommentResponseDto {
   id: string;
   applicationId: string;
   comment: string;
-  addedBy: string;
-  addedByName: string;
   stage: ATSStage;
   subStage?: ATSSubStage;
   createdAt: Date;

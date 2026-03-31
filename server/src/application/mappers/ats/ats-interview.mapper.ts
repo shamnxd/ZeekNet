@@ -14,6 +14,8 @@ export class ATSInterviewMapper {
       meetingLink: interview.meetingLink,
       location: interview.location,
       status: interview.status,
+      rating: interview.rating,
+      feedback: interview.feedback,
       createdAt: interview.createdAt,
       updatedAt: interview.updatedAt,
     };

@@ -1,22 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import AdminLayout from '../../components/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import FormDialog from '@/components/common/FormDialog'
-import { 
-  Search, 
+import {
+  Search,
   Plus,
   Edit,
   Trash2,
-  ChevronLeft,
-  ChevronRight
 } from 'lucide-react'
 import type { Skill } from '@/interfaces/job/skill.interface'
 import { adminApi } from '@/api/admin.api'
 import { toast } from 'sonner'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import type { ApiError } from '@/types/api-error.type'
+import { AdminPagination } from '@/components/common/AdminPagination'
+import { TableSkeleton } from '@/components/common/TableSkeleton'
 
 const SkillManagement = () => {
   const [skills, setSkills] = useState<Skill[]>([])
@@ -27,24 +28,25 @@ const SkillManagement = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [skillName, setSkillName] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [totalPages, setTotalPages] = useState(1)
   const [totalSkills, setTotalSkills] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const itemsPerPage = 10
-  
+
   const fetchSkills = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      
-      const params = { 
-        page: currentPage, 
-        limit: itemsPerPage, 
-        search: searchTerm || undefined 
+
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm || undefined
       }
       const response = await adminApi.getAllSkills(params)
-      
+
       if (response.success && response.data && response.data.skills && Array.isArray(response.data.skills)) {
         const mappedSkills = response.data.skills.map(skill => ({
           id: skill.id,
@@ -96,9 +98,9 @@ const SkillManagement = () => {
 
     try {
       const response = await adminApi.createSkill({ name: skillName.trim() })
-      
+
       if (response.success && response.data) {
-        
+
         const newSkill = {
           id: response.data.id,
           name: response.data.name,
@@ -127,11 +129,11 @@ const SkillManagement = () => {
 
     try {
       const response = await adminApi.updateSkill(selectedSkill.id, { name: skillName.trim() })
-      
+
       if (response.success && response.data) {
-        
-        setSkills(prev => prev.map(skill => 
-          skill.id === selectedSkill.id 
+
+        setSkills(prev => prev.map(skill =>
+          skill.id === selectedSkill.id
             ? { ...skill, name: response.data!.name, updatedAt: response.data!.updatedAt }
             : skill
         ))
@@ -153,9 +155,9 @@ const SkillManagement = () => {
 
     try {
       const response = await adminApi.deleteSkill(selectedSkill.id)
-      
+
       if (response.success) {
-        
+
         setSkills(prev => prev.filter(skill => skill.id !== selectedSkill.id))
         setTotalSkills(prev => Math.max(0, prev - 1))
         toast.success('Skill deleted successfully')
@@ -172,11 +174,13 @@ const SkillManagement = () => {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value)
-    setCurrentPage(1)
+    setSearchParams(prev => {
+      prev.set('page', '1')
+      return prev
+    })
   }
 
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
+
 
   return (
     <AdminLayout>
@@ -201,20 +205,9 @@ const SkillManagement = () => {
           </div>
         </div>
 
-        {loading && (
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-8">
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
-                  <p className="mt-2 text-sm text-gray-500">Loading skills...</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {error && (
+        {loading ? (
+          <TableSkeleton columns={3} rows={itemsPerPage} />
+        ) : error ? (
           <Card className="border-0 shadow-md">
             <CardContent className="p-8">
               <div className="text-center">
@@ -225,114 +218,73 @@ const SkillManagement = () => {
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {!loading && !error && (
-          <Card className="border-0 shadow-md">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border/50">
-                      <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Created</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {skills.length === 0 ? (
-                      <tr>
-                        <td colSpan={3} className="p-8 text-center text-gray-500">
-                          No skills found
-                        </td>
+        ) : (
+          <>
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border/50">
+                        <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Created</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
                       </tr>
-                    ) : (
-                      skills.map((skill) => (
-                         <tr key={skill.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
-                          <td className="p-4">
-                            <p className="font-medium text-gray-800">{skill.name}</p>
-                          </td>
-                          <td className="p-4 text-sm text-gray-700">
-                            {new Date(skill.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center space-x-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                onClick={() => handleEdit(skill)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleDelete(skill)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                    </thead>
+                    <tbody>
+                      {skills.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="p-8 text-center text-gray-500">
+                            No skills found
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+                      ) : (
+                        skills.map((skill) => (
+                          <tr key={skill.id} className="border-b border-border/50 hover:bg-gray-50 transition-colors">
+                            <td className="p-4">
+                              <p className="font-medium text-gray-800">{skill.name}</p>
+                            </td>
+                            <td className="p-4 text-sm text-gray-700">
+                              {new Date(skill.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                  onClick={() => handleEdit(skill)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  onClick={() => handleDelete(skill)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <AdminPagination
+              totalPages={totalPages}
+              totalItems={totalSkills}
+              itemsPerPage={itemsPerPage}
+            />
+          </>
         )}
 
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Showing {startIndex + 1} to {Math.min(endIndex, totalSkills)} of {totalSkills} skills
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex items-center space-x-1"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Previous</span>
-              </Button>
-              
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 p-0 ${
-                      currentPage === page 
-                        ? 'bg-cyan-600 text-white hover:bg-cyan-700' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </div>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex items-center space-x-1"
-              >
-                <span>Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+
 
         <FormDialog
           isOpen={createDialogOpen}

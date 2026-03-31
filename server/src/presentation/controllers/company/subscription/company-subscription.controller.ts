@@ -6,6 +6,7 @@ import { ICancelSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subs
 import { IResumeSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IResumeSubscriptionUseCase';
 import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/subscription/IChangeSubscriptionPlanUseCase';
 import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetBillingPortalUseCase';
+import { IPreviewPlanChangeUseCase } from 'src/domain/interfaces/use-cases/subscription/IPreviewPlanChangeUseCase';
 import { ValidationError } from 'src/domain/errors/errors';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
@@ -19,6 +20,7 @@ export class CompanySubscriptionController {
     private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
     private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
     private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
+    private readonly _previewPlanChangeUseCase: IPreviewPlanChangeUseCase,
   ) { }
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -143,6 +145,28 @@ export class CompanySubscriptionController {
       });
 
       sendSuccessResponse(res, 'Billing portal session created', result);
+    } catch (error) {
+      handleAsyncError(error, next);
+    }
+  };
+
+  previewPlanChange = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = validateUserId(req);
+
+      const { planId, billingCycle } = req.body;
+
+      if (!planId) {
+        throw new ValidationError('Plan ID is required');
+      }
+
+      const result = await this._previewPlanChangeUseCase.execute({
+        userId,
+        newPlanId: planId,
+        billingCycle,
+      });
+
+      sendSuccessResponse(res, 'Plan change preview generated', result);
     } catch (error) {
       handleAsyncError(error, next);
     }

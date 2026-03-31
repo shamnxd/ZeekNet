@@ -2,6 +2,8 @@ export interface CompensationMeetingForSeekerDto {
   id: string;
   applicationId: string;
   type: string;
+  videoType?: 'in-app' | 'external';
+  webrtcRoomId?: string;
   scheduledDate: Date;
   location?: string;
   meetingLink?: string;

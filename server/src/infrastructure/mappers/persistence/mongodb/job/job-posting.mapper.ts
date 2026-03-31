@@ -1,13 +1,10 @@
-import { JobPosting, PopulatedCompany, ATSPipelineConfig } from 'src/domain/entities/job-posting.entity';
+import { JobPosting, PopulatedCompany } from 'src/domain/entities/job-posting.entity';
 import { JobPostingDocument } from 'src/infrastructure/persistence/mongodb/models/job-posting.model';
 import { Types } from 'mongoose';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { EmploymentType } from 'src/domain/enums/employment-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
-import { STAGE_TO_SUB_STAGES } from 'src/domain/utils/ats-pipeline.util';
 import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
-
-
 
 export class JobPostingMapper {
   static toEntity(doc: JobPostingDocument & { company_id?: Types.ObjectId | PopulatedCompany }): JobPosting {
@@ -38,7 +35,6 @@ export class JobPostingMapper {
       skillsRequired: doc.skills_required || [],
       categoryIds: doc.category_ids || [],
       enabledStages: doc.enabled_stages && doc.enabled_stages.length > 0 ? doc.enabled_stages : undefined,
-      atsPipelineConfig: doc.ats_pipeline_config || undefined,
       status: doc.status || JobStatus.ACTIVE,
       isFeatured: doc.is_featured || false,
       viewCount: doc.view_count || 0,
@@ -57,9 +53,9 @@ export class JobPostingMapper {
 
   static toDocument(entity: Partial<JobPosting> | Record<string, unknown>): Partial<JobPostingDocument> {
     const doc: Partial<JobPostingDocument> = {};
-    
+
     const input = entity as Record<string, unknown>;
-    
+
     if (input.companyId !== undefined) {
       doc.company_id = new Types.ObjectId(input.companyId as string);
     }
@@ -73,16 +69,16 @@ export class JobPostingMapper {
     } else if (input.nice_to_haves !== undefined) {
       doc.nice_to_haves = input.nice_to_haves as string[];
     }
-    
+
     if (input.benefits !== undefined) doc.benefits = input.benefits as string[];
     if (input.salary !== undefined) doc.salary = input.salary as { min: number; max: number };
-    
+
     if (input.employmentTypes !== undefined) {
       doc.employment_types = input.employmentTypes as EmploymentType[];
     } else if (input.employment_types !== undefined) {
       doc.employment_types = input.employment_types as EmploymentType[];
     }
-    
+
     if (input.location !== undefined) doc.location = input.location as string;
 
     if (input.skillsRequired !== undefined) {
@@ -96,29 +92,23 @@ export class JobPostingMapper {
     } else if (input.category_ids !== undefined) {
       doc.category_ids = input.category_ids as string[];
     }
-    
+
     if (input.enabledStages !== undefined) {
       let enabledStages = input.enabledStages as ATSStage[];
-      
+
       if (!enabledStages.includes(ATSStage.OFFER)) {
         enabledStages = [...enabledStages, ATSStage.OFFER];
       }
       doc.enabled_stages = enabledStages;
     } else if (input.enabled_stages !== undefined) {
       let enabledStages = input.enabled_stages as ATSStage[];
-      
+
       if (!enabledStages.includes(ATSStage.OFFER)) {
         enabledStages = [...enabledStages, ATSStage.OFFER];
       }
       doc.enabled_stages = enabledStages;
     }
-    
-    if (input.atsPipelineConfig !== undefined) {
-      doc.ats_pipeline_config = input.atsPipelineConfig as ATSPipelineConfig;
-    } else if (input.ats_pipeline_config !== undefined) {
-      doc.ats_pipeline_config = input.ats_pipeline_config as ATSPipelineConfig;
-    }
-    
+
     if (input.status !== undefined) {
       doc.status = input.status as JobStatus;
     }
@@ -128,50 +118,49 @@ export class JobPostingMapper {
     } else if (input.is_featured !== undefined) {
       doc.is_featured = input.is_featured as boolean;
     }
-    
+
     if (input.unpublishReason !== undefined) {
       doc.unpublish_reason = input.unpublishReason as string;
     } else if (input.unpublish_reason !== undefined) {
       doc.unpublish_reason = input.unpublish_reason as string;
     }
-    
+
     if (input.viewCount !== undefined) {
       doc.view_count = input.viewCount as number;
     } else if (input.view_count !== undefined) {
       doc.view_count = input.view_count as number;
     }
-    
+
     if (input.applicationCount !== undefined) {
       doc.application_count = input.applicationCount as number;
     } else if (input.application_count !== undefined) {
       doc.application_count = input.application_count as number;
     }
-    
+
     if (input.totalVacancies !== undefined) {
       doc.total_vacancies = input.totalVacancies as number;
     } else if (input.total_vacancies !== undefined) {
       doc.total_vacancies = input.total_vacancies as number;
     }
-    
+
     if (input.filledVacancies !== undefined) {
       doc.filled_vacancies = input.filledVacancies as number;
     } else if (input.filled_vacancies !== undefined) {
       doc.filled_vacancies = input.filled_vacancies as number;
     }
-    
+
     if (input.closureType !== undefined) {
       doc.closure_type = input.closureType as JobClosureType;
     } else if (input.closure_type !== undefined) {
       doc.closure_type = input.closure_type as JobClosureType;
     }
-    
+
     if (input.closedAt !== undefined) {
       doc.closed_at = input.closedAt as Date;
     } else if (input.closed_at !== undefined) {
       doc.closed_at = input.closed_at as Date;
     }
-    
+
     return doc;
   }
 }
-

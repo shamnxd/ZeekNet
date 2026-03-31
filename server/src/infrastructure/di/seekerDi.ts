@@ -37,9 +37,10 @@ import { ATSTechnicalTaskRepository } from 'src/infrastructure/persistence/mongo
 import { ATSOfferRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-offer.repository';
 import { ATSCompensationRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation.repository';
 import { ATSCompensationMeetingRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-compensation-meeting.repository';
-import { ATSActivityRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-activity.repository';
+import { ATSCommentRepository } from 'src/infrastructure/persistence/mongodb/repositories/ats-comment.repository';
+
 import { UpdateApplicationSubStageUseCase } from 'src/application/use-cases/application/pipeline/update-application-sub-stage.use-case';
-import { ActivityLoggerService } from 'src/application/services/activity-logger.service';
+
 import { AtsService } from 'src/infrastructure/external-services/ai/ats-groq.service';
 import { ResumeParserService } from 'src/infrastructure/services/resume-parser.service';
 import { env } from 'src/infrastructure/config/env';
@@ -70,8 +71,8 @@ const technicalTaskRepository = new ATSTechnicalTaskRepository();
 const offerRepository = new ATSOfferRepository();
 const compensationRepository = new ATSCompensationRepository();
 const compensationMeetingRepository = new ATSCompensationMeetingRepository();
-const activityRepository = new ATSActivityRepository();
-const activityLoggerService = new ActivityLoggerService(activityRepository);
+const commentRepository = new ATSCommentRepository();
+
 const atsService = new AtsService(env.GROQ_API_KEY);
 const resumeParserService = new ResumeParserService();
 const loggerService = new LoggerService();
@@ -124,13 +125,13 @@ const analyzeResumeUseCase = new AnalyzeResumeUseCase(jobPostingRepository, atsS
 const updateApplicationSubStageUseCase = new UpdateApplicationSubStageUseCase(
   jobApplicationRepository,
   jobPostingRepository,
-  activityLoggerService,
+  commentRepository,
 );
 
 
 const getInterviewsByApplicationUseCase = new GetInterviewsByApplicationUseCase(jobApplicationRepository, interviewRepository);
 const getTechnicalTasksByApplicationUseCase = new GetTechnicalTasksByApplicationUseCase(jobApplicationRepository, technicalTaskRepository, s3Service);
-const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository, fileUploadService);
+const submitTechnicalTaskUseCase = new SubmitTechnicalTaskUseCase(jobApplicationRepository, technicalTaskRepository, fileUploadService, s3Service);
 const getOffersByApplicationUseCase = new GetOffersByApplicationUseCase(jobApplicationRepository, offerRepository, s3Service, loggerService);
 const getCompensationByApplicationUseCase = new GetCompensationByApplicationUseCase(jobApplicationRepository, compensationRepository);
 const getCompensationMeetingsByApplicationUseCase = new GetCompensationMeetingsByApplicationUseCase(jobApplicationRepository, compensationMeetingRepository);
@@ -141,7 +142,6 @@ const updateOfferStatusUseCase = new UpdateOfferStatusUseCase(
   jobPostingRepository,
   userRepository,
   updateApplicationSubStageUseCase,
-  activityLoggerService,
   mailerService,
   emailTemplateService,
   loggerService,

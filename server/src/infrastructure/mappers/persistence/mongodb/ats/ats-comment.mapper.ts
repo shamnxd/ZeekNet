@@ -8,8 +8,6 @@ export class ATSCommentMapper {
       (doc._id as Types.ObjectId).toString(),
       doc.applicationId.toString(),
       doc.comment,
-      doc.addedBy.toString(),
-      doc.addedByName,
       doc.stage,
       doc.subStage,
       doc.createdAt,
@@ -20,8 +18,6 @@ export class ATSCommentMapper {
     return {
       applicationId: new Types.ObjectId(comment.applicationId),
       comment: comment.comment,
-      addedBy: new Types.ObjectId(comment.addedBy),
-      addedByName: comment.addedByName,
       stage: comment.stage,
       subStage: comment.subStage,
     };

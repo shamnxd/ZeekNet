@@ -26,7 +26,7 @@ const UserProfileDropdown: React.FC = () => {
     if (role === 'seeker') {
       seekerApi.getProfile().then((res) => {
         if (res.success && res.data?.avatarUrl) setAvatarUrl(res.data.avatarUrl);
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }, [role]);
 
@@ -98,7 +98,7 @@ const UserProfileDropdown: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            {profileImage && <AvatarImage src={profileImage} alt={name || 'Profile'} />}
+            {profileImage && <AvatarImage src={profileImage} alt={name || 'Profile'} className="object-cover h-full w-full" />}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {getInitials()}
             </AvatarFallback>

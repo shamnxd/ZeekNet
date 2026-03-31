@@ -4,12 +4,25 @@ const GetCompanyContactDto = z.object({
   userId: z.string(),
 });
 
+const urlSchema = z.string().optional().refine((val) => {
+  if (!val || val.trim() === '') return true;
+  try {
+    const url = val.startsWith('http') ? val : `https://${val}`;
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}, {
+  message: 'Invalid url',
+});
+
 const UpsertCompanyContactDto = z.object({
   userId: z.string(),
-  twitterLink: z.string().url().optional(),
-  facebookLink: z.string().url().optional(),
-  linkedin: z.string().url().optional(),
-  email: z.string().email().optional(),
+  twitterLink: urlSchema,
+  facebookLink: urlSchema,
+  linkedin: urlSchema,
+  email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
 });
 

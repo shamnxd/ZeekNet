@@ -36,6 +36,7 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
     cancelLabel = 'Cancel',
     maxWidth = 'md',
     children,
+    disableOutsideClick = false,
   } = props
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -52,11 +53,11 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
   const validateField = (field: FormField): string | null => {
     const value = field.value?.trim() || ''
     const validation = field.validation
-    
+
 
     if ((validation?.required || field.required) && !value) {
-      const message = typeof validation?.required === 'string' 
-        ? validation.required 
+      const message = typeof validation?.required === 'string'
+        ? validation.required
         : `${field.label} is required`
       return message
     }
@@ -89,12 +90,12 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
       const date = new Date(value)
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
 
       if (isNaN(date.getTime())) {
         return 'Please enter a valid date'
       }
-      
+
 
       if (validation?.validate) {
         const result = validation.validate(value)
@@ -126,7 +127,7 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
 
   const handleFieldChange = (field: FormField, value: string) => {
     field.onChange(value)
-    
+
 
     if (errors[field.id]) {
       setErrors(prev => ({ ...prev, [field.id]: '' }))
@@ -170,7 +171,7 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
     const commonProps = {
       id: field.id,
       value: field.value,
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         handleFieldChange(field, e.target.value),
       onBlur: () => handleFieldBlur(field.id, field),
       placeholder: field.placeholder,
@@ -219,38 +220,44 @@ const AdvancedFormDialog = (props: AdvancedFormDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${maxWidthClasses[maxWidth]}`}>
+      <DialogContent
+        className={`${maxWidthClasses[maxWidth]}`}
+        onInteractOutside={(e) => {
+          if (disableOutsideClick) {
+            e.preventDefault()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="!text-lg !font-bold">{title}</DialogTitle>
           {description && <DialogDescription className="!mb-2">{description}</DialogDescription>}
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {children}
-          
+
           {fields.map(renderField)}
 
           {fieldGroups.map((group, groupIndex) => (
-            <div 
-              key={groupIndex} 
-              className={`grid gap-4 ${
-                group.gridCols === 2 ? 'grid-cols-2' : 
-                group.gridCols === 3 ? 'grid-cols-3' : 
-                group.gridCols === 4 ? 'grid-cols-4' : 
-                'grid-cols-1'
-              }`}
+            <div
+              key={groupIndex}
+              className={`grid gap-4 ${group.gridCols === 2 ? 'grid-cols-2' :
+                group.gridCols === 3 ? 'grid-cols-3' :
+                  group.gridCols === 4 ? 'grid-cols-4' :
+                    'grid-cols-1'
+                }`}
             >
               {group.fields.map(renderField)}
             </div>
           ))}
         </div>
-        
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {cancelLabel}
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             className="bg-cyan-600 hover:bg-cyan-700"
             disabled={hasErrors && Object.keys(touched).length > 0}
           >
@@ -275,6 +282,7 @@ const BasicFormDialog = (props: BasicFormDialogProps) => {
     isLoading = false,
     maxWidth = 'md',
     children,
+    disableOutsideClick = false,
   } = props
 
   const maxWidthClasses = {
@@ -290,7 +298,14 @@ const BasicFormDialog = (props: BasicFormDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={maxWidthClasses[maxWidth]}>
+      <DialogContent
+        className={maxWidthClasses[maxWidth]}
+        onInteractOutside={(e) => {
+          if (disableOutsideClick) {
+            e.preventDefault()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -299,15 +314,15 @@ const BasicFormDialog = (props: BasicFormDialogProps) => {
           {children}
         </div>
         <DialogFooter>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             disabled={isLoading}
           >
             {cancelText}
           </Button>
-          <Button 
-            onClick={onConfirm} 
+          <Button
+            onClick={onConfirm}
             variant={confirmVariant}
             disabled={isLoading}
             className={confirmVariant === 'default' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}

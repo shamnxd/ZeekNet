@@ -19,7 +19,7 @@ import {
 } from "@/constants/ats-stages";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment, ATSInterview } from "@/types/ats";
-import { formatDateTime } from "@/utils/formatters";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface InterviewStageProps {
     interviewSummary: {
@@ -72,12 +72,12 @@ export const InterviewStage = ({
         interviewSummary;
     const currentSubStage =
         atsApplication?.subStage || InterviewSubStage.NOT_SCHEDULED;
-    
+
     const showActions = isCurrentStage(selectedStage);
 
     return (
         <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-            {}
+            { }
             <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Interview Stage
@@ -98,7 +98,7 @@ export const InterviewStage = ({
                 )}
             </div>
 
-            {}
+            { }
             <div className="bg-white rounded-lg p-4 border">
                 <div className="flex items-center justify-between mb-3">
                     <div>
@@ -140,7 +140,7 @@ export const InterviewStage = ({
                 </div>
             </div>
 
-            {}
+            { }
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-gray-900">Interview Timeline</h4>
@@ -244,7 +244,7 @@ export const InterviewStage = ({
                                     )}
                                 </div>
 
-                                {}
+                                { }
                                 {showActions && (
                                     <div className="mt-3 pt-3 border-t flex gap-2 flex-wrap">
                                         {interview.status === "scheduled" && (
@@ -329,7 +329,7 @@ export const InterviewStage = ({
                 </div>
             </div>
 
-            {}
+            { }
             {showActions && (
                 <div className="flex flex-col gap-3">
                     <Button
@@ -341,7 +341,7 @@ export const InterviewStage = ({
                         Add Comment
                     </Button>
 
-                    {}
+                    { }
                     {currentSubStage === InterviewSubStage.EVALUATION_PENDING &&
                         (() => {
                             const nextStage = atsApplication?.stage
@@ -362,7 +362,7 @@ export const InterviewStage = ({
                             );
                         })()}
 
-                    {}
+                    { }
                     {atsApplication?.stage &&
                         hasNextStages(atsApplication.stage as ATSStage) && (
                             <Button
@@ -377,7 +377,7 @@ export const InterviewStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {showActions &&
                 comments.filter((c) => c.stage === ATSStage.INTERVIEW).length > 0 && (
                     <div className="space-y-3 pt-4 border-t">
@@ -387,13 +387,10 @@ export const InterviewStage = ({
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

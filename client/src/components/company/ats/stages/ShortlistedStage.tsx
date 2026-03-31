@@ -4,9 +4,7 @@ import { Calendar, MessageSquare, ChevronRight } from "lucide-react";
 import { ATSStage } from "@/constants/ats-stages";
 import type { CompanySideApplication } from "@/interfaces/company/company-data.interface";
 import type { ATSComment } from "@/types/ats";
-import { formatDateTime } from "@/utils/formatters";
-import { companyApi } from "@/api/company.api";
-import { toast } from "@/hooks/use-toast";
+import { formatDateTime, formatATSStage, formatATSSubStage } from "@/utils/formatters";
 
 interface ShortlistedStageProps {
     atsApplication: CompanySideApplication | null;
@@ -14,11 +12,11 @@ interface ShortlistedStageProps {
     isCurrentStage: (stage: string) => boolean;
     setShowScheduleModal: (show: boolean) => void;
     currentId: string | undefined;
-    reloadData: () => Promise<void>;
     setShowCommentModal: (show: boolean) => void;
     setShowMoveToStageModal: (show: boolean) => void;
     hasNextStages: (currentStage: ATSStage | string) => boolean;
     comments: ATSComment[];
+    onUpdateStage: (stage: string, subStage?: string) => Promise<void>;
 }
 
 export const ShortlistedStage = ({
@@ -27,11 +25,11 @@ export const ShortlistedStage = ({
     isCurrentStage,
     setShowScheduleModal,
     currentId,
-    reloadData,
     setShowCommentModal,
     setShowMoveToStageModal,
     hasNextStages,
     comments,
+    onUpdateStage,
 }: ShortlistedStageProps) => {
     const currentSubStage = atsApplication?.subStage || "READY_FOR_INTERVIEW";
     const showActions = isCurrentStage(selectedStage);
@@ -56,7 +54,7 @@ export const ShortlistedStage = ({
                 )}
             </div>
 
-            {}
+            { }
             {showActions && (
                 <div className="flex flex-col gap-3">
                     <Button
@@ -67,7 +65,7 @@ export const ShortlistedStage = ({
                         Schedule Interview
                     </Button>
 
-                    {}
+                    { }
                     <div className="flex gap-2">
                         {currentSubStage === "READY_FOR_INTERVIEW" && (
                             <Button
@@ -76,30 +74,7 @@ export const ShortlistedStage = ({
                                 className="flex-1"
                                 onClick={async () => {
                                     if (!currentId) return;
-                                    try {
-                                        await companyApi.updateApplicationSubStage(currentId, {
-                                            subStage: "CONTACTED",
-                                            comment: "Candidate contacted",
-                                        });
-                                        toast({
-                                            title: "Success",
-                                            description: "Marked as Contacted",
-                                        });
-                                        await reloadData();
-                                    } catch (error: unknown) {
-                                        console.error("Failed to update sub-stage:", error);
-                                        toast({
-                                            title: "Error",
-                                            description:
-                                                (
-                                                    error as {
-                                                        response?: { data?: { message?: string } };
-                                                    }
-                                                )?.response?.data?.message ||
-                                                "Failed to update sub-stage.",
-                                            variant: "destructive",
-                                        });
-                                    }
+                                    await onUpdateStage(selectedStage, "CONTACTED");
                                 }}
                             >
                                 Mark as Contacted
@@ -112,30 +87,7 @@ export const ShortlistedStage = ({
                                 className="flex-1"
                                 onClick={async () => {
                                     if (!currentId) return;
-                                    try {
-                                        await companyApi.updateApplicationSubStage(currentId, {
-                                            subStage: "AWAITING_RESPONSE",
-                                            comment: "Awaiting candidate response",
-                                        });
-                                        toast({
-                                            title: "Success",
-                                            description: "Marked as Awaiting Response",
-                                        });
-                                        await reloadData();
-                                    } catch (error: unknown) {
-                                        console.error("Failed to update sub-stage:", error);
-                                        toast({
-                                            title: "Error",
-                                            description:
-                                                (
-                                                    error as {
-                                                        response?: { data?: { message?: string } };
-                                                    }
-                                                )?.response?.data?.message ||
-                                                "Failed to update sub-stage.",
-                                            variant: "destructive",
-                                        });
-                                    }
+                                    await onUpdateStage(selectedStage, "AWAITING_RESPONSE");
                                 }}
                             >
                                 Mark Awaiting Response
@@ -153,7 +105,7 @@ export const ShortlistedStage = ({
                             Add Comment
                         </Button>
 
-                        {}
+                        { }
                         {(() => {
                             const currentStage = atsApplication?.stage as ATSStage;
                             if (!currentStage) return false;
@@ -172,7 +124,7 @@ export const ShortlistedStage = ({
                 </div>
             )}
 
-            {}
+            { }
             {comments.filter((c) => c.stage === ATSStage.SHORTLISTED).length >
                 0 && (
                     <div className="space-y-3 pt-4 border-t">
@@ -182,13 +134,10 @@ export const ShortlistedStage = ({
                             .map((comment, idx) => (
                                 <div key={idx} className="bg-white rounded-lg p-4 border">
                                     <p className="text-sm text-gray-700">{comment.comment}</p>
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        by{" "}
-                                        {comment.recruiterName ||
-                                            comment.addedByName ||
-                                            comment.addedBy ||
-                                            "Recruiter"}{" "}
-                                        •{" "}
+                                    <p className="text-xs text-blue-600 font-medium mt-1">
+                                        {formatATSStage(comment.stage)} {comment.subStage ? `• ${formatATSSubStage(comment.subStage)}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
                                         {formatDateTime(
                                             comment.createdAt || comment.timestamp || ""
                                         )}

@@ -28,7 +28,7 @@ export class JobApplicationMapper {
       resumeUrl: data.resumeUrl || '',
       resumeFilename: data.resumeFilename || '',
       stage: data.stage || ATSStage.IN_REVIEW,
-      subStage: InReviewSubStage.PROFILE_REVIEW, 
+      subStage: InReviewSubStage.PROFILE_REVIEW,
       appliedDate: data.appliedDate || new Date(),
       score: data.score ?? -1,
     };
@@ -41,9 +41,10 @@ export class JobApplicationMapper {
       jobTitle?: string;
       companyName?: string;
       companyLogo?: string;
+      isBlocked?: boolean;
     } | JobPosting | null,
   ): JobApplicationListResponseDto {
-    const data = (additionalData || {}) as { seekerName?: string; seekerAvatar?: string; jobTitle?: string; title?: string; companyName?: string; companyLogo?: string };
+    const data = (additionalData || {}) as { seekerName?: string; seekerAvatar?: string; jobTitle?: string; title?: string; companyName?: string; companyLogo?: string; isBlocked?: boolean };
     return {
       id: application.id,
       seeker_id: data?.seekerName ? application.seekerId : undefined,
@@ -54,9 +55,10 @@ export class JobApplicationMapper {
       company_name: data?.companyName,
       company_logo: data?.companyLogo,
       score: application.score,
-      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', 
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired',
       sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
+      is_blocked: data?.isBlocked,
     };
   }
 
@@ -89,6 +91,7 @@ export class JobApplicationMapper {
         endDate?: Date;
         location?: string;
       }>;
+      isBlocked?: boolean;
     },
     jobData?: {
       title?: string;
@@ -117,11 +120,11 @@ export class JobApplicationMapper {
       resume_url: signedResumeUrl || application.resumeUrl,
       resume_filename: application.resumeFilename,
       score: application.score,
-      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired', 
+      stage: application.stage as unknown as 'rejected' | 'applied' | 'shortlisted' | 'interview' | 'hired',
       sub_stage: application.subStage,
       applied_date: application.appliedDate.toISOString(),
       rejection_reason: application.rejectionReason,
-      interviews: [], 
+      interviews: [],
       full_name: seekerData?.name,
       date_of_birth: seekerData?.date_of_birth,
       gender: seekerData?.gender,
@@ -148,6 +151,7 @@ export class JobApplicationMapper {
           })),
         }
         : undefined,
+      is_blocked: seekerData?.isBlocked,
     };
   }
 

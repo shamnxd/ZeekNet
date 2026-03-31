@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Video, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Loader2, Video, MapPin, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Interview {
@@ -22,11 +26,12 @@ interface ScheduleInterviewModalProps {
     isOpen: boolean;
     onClose: () => void;
     candidateName: string;
-    onSchedule: (data: InterviewFormData, interviewId?: string) => void;
+    onSchedule: (data: InterviewFormData, interviewId?: string) => Promise<void>;
     interviewToReschedule?: Interview;
+    isLoading?: boolean;
 }
 
-interface InterviewFormData {
+export interface InterviewFormData {
     title: string;
     type: 'online' | 'offline';
     videoType?: 'in-app' | 'external';
@@ -42,7 +47,8 @@ export const ScheduleInterviewModal = ({
     onClose,
     candidateName,
     onSchedule,
-    interviewToReschedule
+    interviewToReschedule,
+    isLoading: externalIsLoading = false
 }: ScheduleInterviewModalProps) => {
     const [formData, setFormData] = useState<InterviewFormData>({
         title: '',
@@ -55,257 +61,286 @@ export const ScheduleInterviewModal = ({
         notes: ''
     });
 
+    const [errors, setErrors] = useState<Partial<Record<keyof InterviewFormData, string>>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    React.useEffect(() => {
-        if (interviewToReschedule && isOpen && interviewToReschedule.scheduledDate) {
-            const scheduledDate = new Date(interviewToReschedule.scheduledDate);
-            setFormData({
-                title: interviewToReschedule.title || '',
-                type: interviewToReschedule.type || 'online',
-                videoType: (interviewToReschedule as { videoType?: 'in-app' | 'external' }).videoType || (interviewToReschedule.meetingLink ? 'external' : 'in-app'),
-                date: scheduledDate.toISOString().split('T')[0] || '',
-                time: scheduledDate.toTimeString().slice(0, 5) || '',
-                location: interviewToReschedule.location || '',
-                meetingLink: interviewToReschedule.meetingLink || '',
-                notes: ''
-            });
-        } else if (!interviewToReschedule && isOpen) {
+    const isLoading = externalIsLoading || isSubmitting;
 
-            setFormData({
-                title: '',
-                type: 'online',
-                videoType: 'in-app',
-                date: '',
-                time: '',
-                location: '',
-                meetingLink: '',
-                notes: ''
-            });
+    useEffect(() => {
+        if (isOpen) {
+            setErrors({});
+            setIsSubmitting(false);
+
+            if (interviewToReschedule && interviewToReschedule.scheduledDate) {
+                const scheduledDate = new Date(interviewToReschedule.scheduledDate);
+                setFormData({
+                    title: interviewToReschedule.title || '',
+                    type: interviewToReschedule.type || 'online',
+                    videoType: (interviewToReschedule as { videoType?: 'in-app' | 'external' }).videoType || (interviewToReschedule.meetingLink ? 'external' : 'in-app'),
+                    date: scheduledDate.toISOString().split('T')[0] || '',
+                    time: scheduledDate.toTimeString().slice(0, 5) || '',
+                    location: interviewToReschedule.location || '',
+                    meetingLink: interviewToReschedule.meetingLink || '',
+                    notes: ''
+                });
+            } else {
+                setFormData({
+                    title: '',
+                    type: 'online',
+                    videoType: 'in-app',
+                    date: '',
+                    time: '',
+                    location: '',
+                    meetingLink: '',
+                    notes: ''
+                });
+            }
         }
     }, [interviewToReschedule, isOpen]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSchedule(formData, interviewToReschedule?.id);
-        onClose();
+    const validate = (): boolean => {
+        const newErrors: Partial<Record<keyof InterviewFormData, string>> = {};
+        let isValid = true;
+
+        if (!formData.title.trim()) {
+            newErrors.title = 'Interview title is required';
+            isValid = false;
+        }
+
+        if (!formData.date) {
+            newErrors.date = 'Date is required';
+            isValid = false;
+        }
+
+        if (!formData.time) {
+            newErrors.time = 'Time is required';
+            isValid = false;
+        }
+
+        if (formData.type === 'offline' && !formData.location?.trim()) {
+            newErrors.location = 'Location is required for in-person interviews';
+            isValid = false;
+        }
+
+        if (formData.type === 'online' && formData.videoType === 'external' && !formData.meetingLink?.trim()) {
+            newErrors.meetingLink = 'Meeting link is required';
+            isValid = false;
+        } else if (formData.type === 'online' && formData.videoType === 'external' && formData.meetingLink) {
+            try {
+                new URL(formData.meetingLink);
+            } catch {
+                newErrors.meetingLink = 'Please enter a valid URL';
+                isValid = false;
+            }
+        }
+
+        setErrors(newErrors);
+        return isValid;
     };
 
-    if (!isOpen) return null;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validate()) {
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            await onSchedule(formData, interviewToReschedule?.id);
+            onClose();
+        } catch (error) {
+            console.error('Failed to schedule interview:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleInputChange = (field: keyof InterviewFormData, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-                <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={onClose} />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative bg-card rounded-2xl border border-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden"
-                >
-                    { }
-                    <div className="flex items-center justify-between p-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-stage-interview/20 flex items-center justify-center">
-                                <Calendar className="w-5 h-5 text-stage-interview" />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-semibold text-foreground">
-                                    {interviewToReschedule ? 'Reschedule Interview' : 'Schedule Interview'}
-                                </h2>
-                                <p className="text-sm text-muted-foreground">For {candidateName}</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
-                        >
-                            <X className="w-5 h-5 text-muted-foreground" />
-                        </button>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-lg">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        {interviewToReschedule ? 'Reschedule Interview' : 'Schedule Interview'}
+                    </DialogTitle>
+                    <p className="text-sm text-muted-foreground">
+                        For <span className="font-medium">{candidateName}</span>
+                    </p>
+                </DialogHeader>
+
+                <div className="py-2 space-y-4">
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="title" className="text-sm">
+                            Title <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            id="title"
+                            value={formData.title}
+                            onChange={(e) => handleInputChange('title', e.target.value)}
+                            placeholder="e.g., Technical Round 1"
+                            className={cn("h-9", errors.title && "border-red-500 focus-visible:ring-red-500")}
+                        />
+                        {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                     </div>
 
-                    { }
-                    <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        { }
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Interview Title
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                placeholder="e.g., Technical Interview - Round 1"
-                                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                required
-                            />
-                        </div>
+                    {/* Interview Type */}
+                    <div className="space-y-1.5">
+                        <Label className="text-sm">Type</Label>
+                        <Select
+                            value={formData.type}
+                            onValueChange={(val: 'online' | 'offline') => setFormData(prev => ({ ...prev, type: val }))}
+                        >
+                            <SelectTrigger className="w-full h-9">
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="online">
+                                    <div className="flex items-center gap-2">
+                                        <Video className="h-4 w-4" />
+                                        <span>Online</span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="offline">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        <span>In-Person</span>
+                                    </div>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                        { }
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Interview Type
-                            </label>
-                            <div className="flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: 'online' })}
-                                    className={cn(
-                                        "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
-                                        formData.type === 'online'
-                                            ? "border-primary bg-primary text-primary-foreground"
-                                            : "border-border hover:border-primary/50 text-muted-foreground"
-                                    )}
+                    {/* Online Specific Options */}
+                    {formData.type === 'online' && (
+                        <div className="space-y-3 p-3 bg-muted/40 rounded-md border border-border/40">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-muted-foreground">Platform</Label>
+                                <Select
+                                    value={formData.videoType}
+                                    onValueChange={(val: 'in-app' | 'external') => {
+                                        setFormData(prev => ({ ...prev, videoType: val, meetingLink: '' }));
+                                        setErrors(prev => ({ ...prev, meetingLink: undefined }));
+                                    }}
                                 >
-                                    <Video className="w-4 h-4" />
-                                    <span className="font-medium">Online</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, type: 'offline' })}
-                                    className={cn(
-                                        "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
-                                        formData.type === 'offline'
-                                            ? "border-primary bg-primary text-primary-foreground"
-                                            : "border-border hover:border-primary/50 text-muted-foreground"
-                                    )}
-                                >
-                                    <MapPin className="w-4 h-4" />
-                                    <span className="font-medium">In-Person</span>
-                                </button>
+                                    <SelectTrigger className="w-full h-8 text-sm">
+                                        <SelectValue placeholder="Select platform" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="in-app">In-App Video (Recommended)</SelectItem>
+                                        <SelectItem value="external">External Link (Zoom, etc.)</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        </div>
 
-                        { }
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1.5">
-                                    Date
-                                </label>
-                                <input
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1.5">
-                                    Time
-                                </label>
-                                <input
-                                    type="time"
-                                    value={formData.time}
-                                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        { }
-                        {formData.type === 'online' && (
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1.5">
-                                    Video Meeting Type
-                                </label>
-                                <div className="flex gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, videoType: 'in-app', meetingLink: '' })}
-                                        className={cn(
-                                            "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
-                                            formData.videoType === 'in-app'
-                                                ? "border-primary bg-primary text-primary-foreground"
-                                                : "border-border hover:border-primary/50 text-muted-foreground"
-                                        )}
-                                    >
-                                        <Video className="w-4 h-4" />
-                                        <span className="font-medium">In-App Video (P2P Recommended)</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, videoType: 'external' })}
-                                        className={cn(
-                                            "flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2",
-                                            formData.videoType === 'external'
-                                                ? "border-primary bg-primary text-primary-foreground"
-                                                : "border-border hover:border-primary/50 text-muted-foreground"
-                                        )}
-                                    >
-                                        <Video className="w-4 h-4" />
-                                        <span className="font-medium">External Link</span>
-                                    </button>
-                                </div>
-                                {formData.videoType === 'in-app' && (
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        The interview will be conducted using our secure in-app peer-to-peer video calling feature. A unique room will be created automatically.
-                                    </p>
-                                )}
-                                {formData.videoType === 'external' && (
-                                    <div className="mt-3">
-                                        <label className="block text-sm font-medium text-foreground mb-1.5">
-                                            Meeting Link (Google Meet / Zoom)
-                                        </label>
-                                        <input
-                                            type="url"
+                            {formData.videoType === 'external' && (
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="meetingLink" className="text-xs font-medium text-muted-foreground">
+                                        Meeting URL <span className="text-red-500">*</span>
+                                    </Label>
+                                    <div className="relative">
+                                        <Globe className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+                                        <Input
+                                            id="meetingLink"
                                             value={formData.meetingLink}
-                                            onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
-                                            placeholder="https://meet.google.com/... or https://zoom.us/j/..."
-                                            className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                            onChange={(e) => handleInputChange('meetingLink', e.target.value)}
+                                            placeholder="https://..."
+                                            className={cn("pl-8 h-8 text-sm", errors.meetingLink && "border-red-500 focus-visible:ring-red-500")}
                                         />
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                    {errors.meetingLink && <p className="text-xs text-red-500">{errors.meetingLink}</p>}
+                                </div>
+                            )}
 
-                        { }
-                        {formData.type === 'offline' && (
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-1.5">
-                                    Location
-                                </label>
-                                <input
-                                    type="text"
+                            {formData.videoType === 'in-app' && (
+                                <p className="text-xs text-muted-foreground px-1">
+                                    Secure P2P video room will be created automatically.
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Offline Specific Options */}
+                    {formData.type === 'offline' && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="location" className="text-sm">
+                                Address <span className="text-red-500">*</span>
+                            </Label>
+                            <div className="relative">
+                                <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="location"
                                     value={formData.location}
-                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    placeholder="e.g., 123 Main St, Conference Room A"
-                                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    onChange={(e) => handleInputChange('location', e.target.value)}
+                                    placeholder="Conference Room A"
+                                    className={cn("pl-9 h-9", errors.location && "border-red-500 focus-visible:ring-red-500")}
                                 />
                             </div>
-                        )}
+                            {errors.location && <p className="text-xs text-red-500">{errors.location}</p>}
+                        </div>
+                    )}
 
-                        { }
-                        <div>
-                            <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Notes (Optional)
-                            </label>
-                            <textarea
-                                value={formData.notes}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                placeholder="Any additional notes for the interview..."
-                                rows={3}
-                                className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                    {/* Date and Time */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="date" className="text-sm">
+                                Date <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="date"
+                                type="date"
+                                value={formData.date}
+                                onChange={(e) => handleInputChange('date', e.target.value)}
+                                min={new Date().toISOString().split('T')[0]}
+                                className={cn("h-9", errors.date && "border-red-500 focus-visible:ring-red-500")}
                             />
+                            {errors.date && <p className="text-xs text-red-500">{errors.date}</p>}
                         </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="time" className="text-sm">
+                                Time <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="time"
+                                type="time"
+                                value={formData.time}
+                                onChange={(e) => handleInputChange('time', e.target.value)}
+                                className={cn("h-9", errors.time && "border-red-500 focus-visible:ring-red-500")}
+                            />
+                            {errors.time && <p className="text-xs text-red-500">{errors.time}</p>}
+                        </div>
+                    </div>
+                </div>
 
-                        { }
-                        <div className="flex gap-3 pt-2">
-                            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-                                Cancel
-                            </Button>
-                            <Button type="submit" className="flex-1 gradient-primary text-primary-foreground hover:opacity-90">
-                                {interviewToReschedule ? 'Reschedule Interview' : 'Schedule Interview'}
-                            </Button>
-                        </div>
-                    </form>
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
+                <DialogFooter className="gap-2 sm:gap-0 pt-2">
+                    <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
+                        Cancel
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="bg-[#4640DE] hover:bg-[#3730A3]"
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                {interviewToReschedule ? 'Saving...' : 'Scheduling...'}
+                            </>
+                        ) : (
+                            interviewToReschedule ? 'Reschedule' : 'Schedule'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };

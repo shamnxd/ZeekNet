@@ -4,8 +4,6 @@ import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 export interface IATSCommentDocument extends Document {
   applicationId: mongoose.Types.ObjectId;
   comment: string;
-  addedBy: mongoose.Types.ObjectId;
-  addedByName: string;
   stage: ATSStage;
   subStage?: ATSSubStage;
   createdAt: Date;
@@ -23,15 +21,6 @@ const ATSCommentSchema = new Schema<IATSCommentDocument>(
       type: String,
       required: true,
     },
-    addedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    addedByName: {
-      type: String,
-      required: true,
-    },
     stage: {
       type: String,
       enum: Object.values(ATSStage),
@@ -43,6 +32,7 @@ const ATSCommentSchema = new Schema<IATSCommentDocument>(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
+    strict: false,
   },
 );
 

@@ -56,11 +56,21 @@ export class SocketServer implements ISocketServer {
   private _setupEventHandlers(): void {
     this._io.on('connection', (socket: Socket) => {
       const userId = socket.data.userId;
-      logger.info(`Socket connected: ${socket.id} for user: ${userId} `);
+      logger.info(`Socket connected: ${socket.id} for user: ${userId}`);
 
-      socket.join(`user:${userId} `);
+      socket.join(`user:${userId}`);
       socketConnectionManager.registerConnection(userId, socket.id);
       notificationService.registerUser(userId, socket.id);
+
+      // Notify others this user is online
+      chatSocketService.emitUserOnline(userId);
+
+      // Send current online users to this user
+      socket.emit('get_online_users', chatSocketService.getOnlineUsers());
+
+      socket.on('request_online_users', () => {
+        socket.emit('get_online_users', chatSocketService.getOnlineUsers());
+      });
 
       socket.on(
         'send_message',
@@ -107,7 +117,7 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          socket.join(`conversation:${conversationId} `);
+          socket.join(`conversation:${conversationId}`);
           callback?.({ success: true });
         },
       );
@@ -157,7 +167,7 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          socket.join(`webrtc:${roomId} `);
+          socket.join(`webrtc:${roomId}`);
 
 
           if (!this._webrtcRooms.has(roomId)) {
@@ -167,9 +177,9 @@ export class SocketServer implements ISocketServer {
 
 
           const otherParticipants = Array.from(this._webrtcRooms.get(roomId)!).filter(id => id !== socket.id);
-          socket.to(`webrtc:${roomId} `).emit('webrtc:user-joined', { socketId: socket.id, userId, userName });
+          socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', { socketId: socket.id, userId, userName });
 
-          logger.info(`User ${userId} (${userName || 'Unknown'}) joined WebRTC room: ${roomId} `);
+          logger.info(`User ${userId} (${userName || 'Unknown'}) joined WebRTC room: ${roomId}`);
           callback?.({ success: true, participants: otherParticipants.length });
         } catch (error) {
           logger.error('Error handling webrtc:join-room:', error);
@@ -187,7 +197,7 @@ export class SocketServer implements ISocketServer {
           if (targetSocketId) {
             socket.to(targetSocketId).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           } else {
-            socket.to(`webrtc:${roomId} `).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:offer', { offer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:offer:', error);
@@ -204,7 +214,7 @@ export class SocketServer implements ISocketServer {
           if (targetSocketId) {
             socket.to(targetSocketId).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           } else {
-            socket.to(`webrtc:${roomId} `).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:answer', { answer, socketId: socket.id, ...rest });
           }
         } catch (error) {
           logger.error('Error handling webrtc:answer:', error);
@@ -223,7 +233,7 @@ export class SocketServer implements ISocketServer {
             socket.to(targetSocketId).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           } else {
 
-            socket.to(`webrtc:${roomId} `).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:ice-candidate', { candidate, socketId: socket.id });
           }
         } catch (error) {
           logger.error('Error handling webrtc:ice-candidate:', error);
@@ -234,7 +244,7 @@ export class SocketServer implements ISocketServer {
         try {
           const { roomId, type, enabled } = payload || {};
           if (!roomId) return;
-          socket.to(`webrtc:${roomId} `).emit('webrtc:media-toggle', { type, enabled, socketId: socket.id });
+          socket.to(`webrtc:${roomId}`).emit('webrtc:media-toggle', { type, enabled, socketId: socket.id });
         } catch (error) {
           logger.error('Error handling webrtc:media-toggle:', error);
         }
@@ -247,7 +257,7 @@ export class SocketServer implements ISocketServer {
             return;
           }
 
-          socket.leave(`webrtc:${roomId} `);
+          socket.leave(`webrtc:${roomId}`);
 
 
           const roomParticipants = this._webrtcRooms.get(roomId);
@@ -257,26 +267,31 @@ export class SocketServer implements ISocketServer {
               this._webrtcRooms.delete(roomId);
             } else {
 
-              socket.to(`webrtc:${roomId} `).emit('webrtc:user-left', { socketId: socket.id });
+              socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
             }
           }
 
-          logger.info(`User ${userId} left WebRTC room: ${roomId} `);
+          logger.info(`User ${userId} left WebRTC room: ${roomId}`);
         } catch (error) {
           logger.error('Error handling webrtc:leave-room:', error);
         }
       });
 
       socket.on('disconnect', () => {
-        logger.info(`Socket disconnected: ${socket.id} for user: ${userId} `);
+        logger.info(`Socket disconnected: ${socket.id} for user: ${userId}`);
         socketConnectionManager.unregisterConnection(userId, socket.id);
         notificationService.unregisterUser(userId);
+
+        // If no more sockets for this user, notify others they are offline
+        if (!chatSocketService.isUserOnline(userId)) {
+          chatSocketService.emitUserOffline(userId);
+        }
 
 
         this._webrtcRooms.forEach((participants, roomId) => {
           if (participants.has(socket.id)) {
             participants.delete(socket.id);
-            socket.to(`webrtc:${roomId} `).emit('webrtc:user-left', { socketId: socket.id });
+            socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', { socketId: socket.id });
             if (participants.size === 0) {
               this._webrtcRooms.delete(roomId);
             }

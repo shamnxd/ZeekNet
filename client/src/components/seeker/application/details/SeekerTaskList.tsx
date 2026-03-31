@@ -21,8 +21,8 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
     if (technicalTasks.length === 0) return null;
 
     return (
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-6">
-            <h2 className="text-[20px] font-bold text-[#1f2937] mb-6">Technical Tasks</h2>
+        <div className="bg-white rounded-xl border !border-[#e5e7eb] shadow-sm p-6">
+            <h2 className="text-[20px] font-bold !text-[#1f2937] mb-6">Technical Tasks</h2>
             <div className="space-y-4">
                 {technicalTasks.map((task) => {
                     const taskStatus = task.status || 'assigned';
@@ -38,10 +38,10 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
                                     <div className="flex items-center gap-4 text-[13px] text-[#6b7280]">
                                         <span>Due: {task.deadline ? formatDate(task.deadline) : 'No deadline'}</span>
                                         <Badge className={
-                                            isAssigned ? 'bg-blue-100 text-blue-700' :
-                                                isSubmitted ? 'bg-yellow-100 text-yellow-700' :
-                                                    isUnderReview ? 'bg-purple-100 text-purple-700' :
-                                                        'bg-green-100 text-green-700'
+                                            isAssigned ? '!bg-blue-100 !text-blue-700' :
+                                                isSubmitted ? '!bg-yellow-100 !text-yellow-700' :
+                                                    isUnderReview ? '!bg-purple-100 !text-purple-700' :
+                                                        '!bg-green-100 !text-green-700'
                                         }>
                                             {isAssigned ? 'Assigned' :
                                                 isSubmitted ? 'Submitted' :
@@ -79,7 +79,7 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
                                 <div className="mt-4 pt-4 border-t border-[#e5e7eb]">
                                     <Button
                                         onClick={() => onTaskSubmit(task)}
-                                        className="bg-[#4640DE] hover:bg-[#3730A3] gap-2"
+                                        className="!bg-[#4640DE] !hover:bg-[#3730A3] gap-2"
                                     >
                                         <Upload className="h-4 w-4" />
                                         Submit Task
@@ -98,7 +98,7 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
                                                 href={task.submissionUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-[#4640de] hover:underline flex items-center gap-1"
+                                                className="!text-[#4640de] hover:underline flex items-center gap-1"
                                             >
                                                 {task.submissionFilename || 'Submission File'}
                                                 <ExternalLink className="h-3 w-3" />
@@ -113,7 +113,7 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
                                                 href={task.submissionLink}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-[#4640de] hover:underline flex items-center gap-1"
+                                                className="!text-[#4640de] hover:underline flex items-center gap-1"
                                             >
                                                 View Submission Link
                                                 <ExternalLink className="h-3 w-3" />
@@ -123,13 +123,13 @@ export const SeekerTaskList: React.FC<SeekerTaskListProps> = ({
 
                                     {task.submissionNote && (
                                         <div className="mt-3 pt-3 border-t border-[#e5e7eb]">
-                                            <p className="text-[12px] font-medium text-[#1f2937] mb-1">Notes:</p>
-                                            <p className="text-[13px] text-[#374151] whitespace-pre-wrap">{task.submissionNote}</p>
+                                            <p className="text-[12px] font-medium !text-[#1f2937] mb-1">Notes:</p>
+                                            <p className="text-[13px] !text-[#374151] whitespace-pre-wrap">{task.submissionNote}</p>
                                         </div>
                                     )}
 
                                     {task.submittedAt && (
-                                        <p className="text-[12px] text-[#9ca3af] mt-2">
+                                        <p className="text-[12px] !text-[#9ca3af] mt-2">
                                             Submitted: {formatDateTime(task.submittedAt)}
                                         </p>
                                     )}

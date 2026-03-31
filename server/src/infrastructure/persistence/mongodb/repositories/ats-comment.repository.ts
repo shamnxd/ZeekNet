@@ -18,12 +18,19 @@ export class ATSCommentRepository implements IATSCommentRepository {
     return doc ? ATSCommentMapper.toEntity(doc) : null;
   }
 
-  async findByApplicationId(applicationId: string): Promise<ATSComment[]> {
+  async findByApplicationId(applicationId: string, stage?: string): Promise<ATSComment[]> {
     if (!Types.ObjectId.isValid(applicationId)) {
       return [];
     }
-    const docs = await ATSCommentModel.find({ applicationId: new Types.ObjectId(applicationId) })
+
+    const query: Record<string, unknown> = { applicationId: new Types.ObjectId(applicationId) };
+    if (stage) {
+      query.stage = stage;
+    }
+
+    const docs = await ATSCommentModel.find(query)
       .sort({ createdAt: -1 });
+
     return docs.map(doc => ATSCommentMapper.toEntity(doc));
   }
 

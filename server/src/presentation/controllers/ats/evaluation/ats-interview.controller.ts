@@ -39,7 +39,9 @@ export class ATSInterviewController {
   };
 
   updateInterview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    const validation = UpdateInterviewDtoSchema.safeParse(req.body);
+    const bodySchema = UpdateInterviewDtoSchema.omit({ interviewId: true, userId: true });
+    const validation = bodySchema.safeParse(req.body);
+
     if (!validation.success) {
       return handleValidationError(formatZodErrors(validation.error), next);
     }

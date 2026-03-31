@@ -19,7 +19,7 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
     private readonly _seekerProfileRepository: ISeekerProfileRepository,
     private readonly _jobPostingRepository: IJobPostingRepository,
     private readonly _s3Service: IS3Service,
-  ) {}
+  ) { }
 
   async execute(data: ApplicationFiltersRequestDto): Promise<PaginatedApplicationsResponseDto> {
     const { userId, ...filters } = data;
@@ -34,8 +34,8 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
 
     const query: Record<string, unknown> = { company_id: companyProfile.id };
     if (filters.stage) query.stage = filters.stage;
-    
-    
+
+
     if (filters.min_score !== undefined || filters.max_score !== undefined) {
       query.score = {};
       if (filters.min_score !== undefined) {
@@ -60,19 +60,18 @@ export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompan
         this._jobPostingRepository.findById(app.jobId),
         this._seekerProfileRepository.findOne({ userId: app.seekerId }),
       ]);
-      
-      if (user?.isBlocked) {
-        continue;
-      }
-      
-      const avatarUrl = profile?.avatarFileName 
-        ? await this._s3Service.getSignedUrl(profile.avatarFileName) 
+
+
+
+      const avatarUrl = profile?.avatarFileName
+        ? await this._s3Service.getSignedUrl(profile.avatarFileName)
         : undefined;
       applications.push(
         JobApplicationMapper.toListResponse(app, {
           seekerName: user?.name,
           seekerAvatar: avatarUrl,
           jobTitle: job?.title,
+          isBlocked: user?.isBlocked,
         }),
       );
     }
