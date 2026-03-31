@@ -30,14 +30,14 @@ const PublicHeader = () => {
       <nav className="z-30 flex items-center justify-between w-full py-4 px-6 md:px-16 lg:px-24 xl:px-32 backdrop-blur text-slate-800 text-sm">
         <Link to="/">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
+            <div className="w-11 h-11 shrink-0 rounded-full overflow-hidden flex items-center justify-center">
               <img
-                src="/blue.png"
+                src="/ilogo.png"
                 alt="ZeekNet Logo"
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="text-xl font-bold text-gray-900">ZeekNet</span>
+            <span className="text-xl font-semibold text-gray-900">ZeekNet</span>
           </div>
         </Link>
 
