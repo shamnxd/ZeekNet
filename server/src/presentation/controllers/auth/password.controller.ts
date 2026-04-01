@@ -8,15 +8,19 @@ import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessRe
 import { z } from 'zod';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { SUCCESS, AUTH, VALIDATION } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class PasswordController {
   constructor(
-    private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
-    private readonly _resetPasswordUseCase: IResetPasswordUseCase,
-    private readonly _changePasswordUseCase: IChangePasswordUseCase,
-    private readonly _logoutUseCase: ILogoutUseCase,
-    private readonly _cookieService: ICookieService,
+    @inject(TYPES.ForgotPasswordUseCase) private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
+    @inject(TYPES.ResetPasswordUseCase) private readonly _resetPasswordUseCase: IResetPasswordUseCase,
+    @inject(TYPES.ChangePasswordUseCase) private readonly _changePasswordUseCase: IChangePasswordUseCase,
+    @inject(TYPES.LogoutUseCase) private readonly _logoutUseCase: ILogoutUseCase,
+    @inject(TYPES.CookieService) private readonly _cookieService: ICookieService,
   ) { }
+
 
 
   // be - move zod schema to dtos

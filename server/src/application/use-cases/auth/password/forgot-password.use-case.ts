@@ -3,11 +3,16 @@ import { IPasswordResetService } from 'src/domain/interfaces/services/IPasswordR
 import { IForgotPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IForgotPasswordUseCase';
 import { NotFoundError } from 'src/domain/errors/errors';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _passwordResetService: IPasswordResetService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.PasswordResetService) private readonly _passwordResetService: IPasswordResetService,
   ) { }
+
 
   async execute(email: string): Promise<void> {
     const user = await this._userRepository.findOne({ email });

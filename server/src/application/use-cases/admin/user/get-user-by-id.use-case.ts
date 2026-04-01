@@ -5,12 +5,16 @@ import { NotFoundError } from 'src/domain/errors/errors';
 import { UserResponseDto } from 'src/application/dtos/auth/user/user-response.dto';
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 import { UserRole } from 'src/domain/enums/user-role.enum';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetUserByIdUseCase implements IAdminGetUserByIdUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.GetSeekerProfileUseCase) private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
   ) { }
+
 
   async execute(userId: string): Promise<UserResponseDto> {
     const user = await this._userRepository.findById(userId);

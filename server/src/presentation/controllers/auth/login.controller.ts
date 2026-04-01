@@ -7,14 +7,18 @@ import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/sessio
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { AUTH } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class LoginController {
   constructor(
-    private readonly _loginUserUseCase: ILoginUserUseCase,
-    private readonly _adminLoginUseCase: IAdminLoginUseCase,
-    private readonly _googleLoginUseCase: IGoogleLoginUseCase,
-    private readonly _cookieService: ICookieService,
+    @inject(TYPES.LoginUserUseCase) private readonly _loginUserUseCase: ILoginUserUseCase,
+    @inject(TYPES.AdminLoginUseCase) private readonly _adminLoginUseCase: IAdminLoginUseCase,
+    @inject(TYPES.GoogleLoginUseCase) private readonly _googleLoginUseCase: IGoogleLoginUseCase,
+    @inject(TYPES.CookieService) private readonly _cookieService: ICookieService,
   ) { }
+
 
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = LoginDto.safeParse(req.body);

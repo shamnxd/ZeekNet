@@ -11,14 +11,19 @@ import { VerifyOtpRequestDto } from 'src/application/dtos/auth/verification/veri
 import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
 import { getDashboardLink } from 'src/shared/utils';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   constructor(
-    private readonly _otpService: IOtpService,
-    private readonly _tokenService: ITokenService,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _mailerService: IMailerService,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
+
 
   async execute(params: VerifyOtpRequestDto): Promise<LoginResponseDto> {
     const { email, code } = params;

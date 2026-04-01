@@ -1,8 +1,11 @@
 import { Response } from 'express';
 import { env } from 'src/infrastructure/config/env';
 import { ICookieService } from 'src/presentation/services/ICookieService';
+import { injectable } from 'inversify';
 
+@injectable()
 export class CookieService implements ICookieService {
+
   private readonly _cookieName: string = env.COOKIE_NAME_REFRESH;
 
   private readonly _refreshTokenCookieOptions = {

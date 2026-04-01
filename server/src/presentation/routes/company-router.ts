@@ -20,7 +20,14 @@ import {
   atsPipelineController,
 } from 'src/infrastructure/di/atsDi';
 import { APP_ROUTES } from 'src/shared/constants/routes';
-import { userRepository, getUserByIdUseCase } from 'src/infrastructure/di/authDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+
+const getUserByIdUseCase = container.get<GetUserByIdUseCase>(TYPES.GetUserByIdUseCase);
+const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+
 import { ATSRouter } from './ats.routes';
 
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';

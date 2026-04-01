@@ -1,8 +1,19 @@
 import { Router } from 'express';
-import { registrationController, loginController, tokenController, passwordController, otpController } from 'src/infrastructure/di/authDi';
 import { APP_ROUTES } from 'src/shared/constants/routes';
-
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { RegistrationController } from 'src/presentation/controllers/auth/registration.controller';
+import { LoginController } from 'src/presentation/controllers/auth/login.controller';
+import { TokenController } from 'src/presentation/controllers/auth/token.controller';
+import { PasswordController } from 'src/presentation/controllers/auth/password.controller';
+import { OtpController } from 'src/presentation/controllers/auth/otp.controller';
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+
+const registrationController = container.get<RegistrationController>(TYPES.RegistrationController);
+const loginController = container.get<LoginController>(TYPES.LoginController);
+const tokenController = container.get<TokenController>(TYPES.TokenController);
+const passwordController = container.get<PasswordController>(TYPES.PasswordController);
+const otpController = container.get<OtpController>(TYPES.OtpController);
 
 export class AuthRouter {
   public router: Router;
@@ -27,4 +38,3 @@ export class AuthRouter {
     this.router.post(APP_ROUTES.AUTH.OTP_VERIFY, otpController.verify);
   }
 }
-

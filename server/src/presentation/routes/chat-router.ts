@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { chatController, chatUserRepository } from 'src/infrastructure/di/chatDi';
-import { getUserByIdUseCase } from 'src/infrastructure/di/authDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
+
+const getUserByIdUseCase = container.get<GetUserByIdUseCase>(TYPES.GetUserByIdUseCase);
+
 import { APP_ROUTES } from 'src/shared/constants/routes';
 
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';

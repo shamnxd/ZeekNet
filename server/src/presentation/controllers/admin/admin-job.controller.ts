@@ -16,7 +16,7 @@ export class AdminJobController {
     private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
     private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
     private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
-  ) { }
+  ) {}
 
   getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = GetAllJobsQueryDto.safeParse(req.query);
@@ -76,4 +76,3 @@ export class AdminJobController {
     }
   };
 }
-

@@ -8,14 +8,18 @@ import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
 import { SUCCESS, AUTH, ERROR } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class TokenController {
   constructor(
-    private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
-    private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
-    private readonly _tokenService: ITokenService,
-    private readonly _cookieService: ICookieService,
+    @inject(TYPES.RefreshTokenUseCase) private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
+    @inject(TYPES.GetUserByIdUseCase) private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.CookieService) private readonly _cookieService: ICookieService,
   ) { }
+
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const cookieName = env.COOKIE_NAME_REFRESH;

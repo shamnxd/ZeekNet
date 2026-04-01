@@ -1,13 +1,16 @@
 import { Model, Document as MongooseDocument, FilterQuery } from 'mongoose';
 import { Types } from 'mongoose';
 import { CreateInput } from 'src/domain/types/common.types';
+import { injectable } from 'inversify';
 
+@injectable()
 export abstract class RepositoryBase<T, TDocument extends MongooseDocument> {
-  constructor(protected model: Model<TDocument>) {}
+
+  constructor(protected model: Model<TDocument>) { }
 
   async create(data: CreateInput<T>): Promise<T> {
     const documentData = this.mapToDocument(data as Partial<T>);
-    
+
     const document = new this.model({
       ...documentData,
       createdAt: new Date(),

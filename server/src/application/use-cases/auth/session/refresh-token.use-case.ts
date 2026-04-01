@@ -6,12 +6,17 @@ import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/sessi
 import { AuthenticationError, NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _tokenService: ITokenService,
-    private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
   ) { }
+
 
   async execute(refreshToken: string): Promise<LoginResponseDto> {
     const payload = this._tokenService.verifyRefresh(refreshToken);

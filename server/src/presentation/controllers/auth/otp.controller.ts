@@ -6,13 +6,17 @@ import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verifica
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
 import { AUTH, SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class OtpController {
   constructor(
-    private readonly _requestOtpUseCase: IRequestOtpUseCase,
-    private readonly _verifyOtpUseCase: IVerifyOtpUseCase,
-    private readonly _cookieService: ICookieService,
+    @inject(TYPES.RequestOtpUseCase) private readonly _requestOtpUseCase: IRequestOtpUseCase,
+    @inject(TYPES.VerifyOtpUseCase) private readonly _verifyOtpUseCase: IVerifyOtpUseCase,
+    @inject(TYPES.CookieService) private readonly _cookieService: ICookieService,
   ) { }
+
 
   request = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = RequestOtpDto.safeParse(req.body);

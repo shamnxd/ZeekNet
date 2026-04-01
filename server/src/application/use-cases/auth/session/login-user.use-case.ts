@@ -10,16 +10,21 @@ import { ILoginUserUseCase } from 'src/domain/interfaces/use-cases/auth/session/
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 import { LoginRequestDto } from 'src/application/dtos/auth/session/login.dto';
 import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _tokenService: ITokenService,
-    private readonly _otpService: IOtpService,
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
   ) { }
+
+
 
   async execute(params: LoginRequestDto): Promise<LoginResponseDto> {
     const { email, password } = params;
