@@ -6,6 +6,7 @@ import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/
 import { UploadOfferSchema } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
 import { UpdateOfferStatusDtoSchema } from 'src/application/dtos/application/offer/requests/update-offer-status.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ATSOfferController {
   constructor(
@@ -38,7 +39,7 @@ export class ATSOfferController {
         } : undefined,
       });
 
-      sendCreatedResponse(res, 'Offer uploaded successfully', offer);
+      sendCreatedResponse(res, SUCCESS.CREATED('Offer'), offer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -61,7 +62,7 @@ export class ATSOfferController {
         performedByName: 'Unknown',
       });
 
-      sendSuccessResponse(res, 'Offer status updated successfully', offer);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Offer status'), offer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -73,12 +74,13 @@ export class ATSOfferController {
 
       const offers = await this._getOffersByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Offers retrieved successfully', offers);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Offers'), offers);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

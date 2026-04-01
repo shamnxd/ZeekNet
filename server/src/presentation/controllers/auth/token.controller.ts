@@ -7,6 +7,7 @@ import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/sessi
 import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
+import { SUCCESS, AUTH, ERROR } from 'src/shared/constants/messages';
 
 export class TokenController {
   constructor(
@@ -22,7 +23,7 @@ export class TokenController {
     const refreshToken = fromCookie || req.body?.refreshToken;
 
     if (!refreshToken || typeof refreshToken !== 'string') {
-      return handleValidationError('Invalid refresh token', next);
+      return handleValidationError(AUTH.INVALID_CREDENTIALS, next);
     }
 
     try {
@@ -30,9 +31,9 @@ export class TokenController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'Token refreshed', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, SUCCESS.ACTION('Token refresh'), result.user, result.tokens.accessToken);
       } else {
-        sendSuccessResponse(res, 'Token refreshed', result.user, undefined);
+        sendSuccessResponse(res, SUCCESS.ACTION('Token refresh'), result.user, undefined);
       }
     } catch (error) {
       handleAsyncError(error, next);
@@ -45,19 +46,20 @@ export class TokenController {
       const user = await this._getUserByIdUseCase.execute(userId);
 
       if (!user) {
-        return handleValidationError('User not found', next);
+        return handleValidationError(ERROR.NOT_FOUND('User'), next);
       }
 
       if (user.isBlocked) {
-        return sendErrorResponse(res, 'User account is blocked', null, 403);
+        return sendErrorResponse(res, AUTH.ACCOUNT_BLOCKED, null, 403);
       }
 
       const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role as UserRole });
 
-      sendSuccessResponse(res, 'Authenticated', user, accessToken);
+      sendSuccessResponse(res, SUCCESS.ACTION('Authentication check'), user, accessToken);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 

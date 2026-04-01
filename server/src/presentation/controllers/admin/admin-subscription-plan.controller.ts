@@ -7,6 +7,7 @@ import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscripti
 import { GetAllSubscriptionPlansDto } from 'src/application/dtos/admin/subscription/requests/get-all-subscription-plans-query.dto';
 import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/update-subscription-plan-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminSubscriptionPlanController {
   constructor(
@@ -24,7 +25,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const plan = await this._createSubscriptionPlanUseCase.execute(parsed.data);
-      sendCreatedResponse(res, 'Subscription plan created successfully', plan);
+      sendCreatedResponse(res, SUCCESS.CREATED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -38,7 +39,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const result = await this._getAllSubscriptionPlansUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Subscription plans retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Subscription plans'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -48,7 +49,7 @@ export class AdminSubscriptionPlanController {
     try {
       const { id } = req.params;
       const plan = await this._getSubscriptionPlanByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Subscription plan retrieved successfully', plan);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -63,11 +64,10 @@ export class AdminSubscriptionPlanController {
 
     try {
       const plan = await this._updateSubscriptionPlanUseCase.execute(parsedBody.data);
-      sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
-
-
 }
+

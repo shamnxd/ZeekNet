@@ -6,6 +6,7 @@ import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-ca
 import { ScheduleInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
 import { UpdateInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ATSInterviewController {
   constructor(
@@ -28,7 +29,7 @@ export class ATSInterviewController {
         userId,
       });
 
-      sendCreatedResponse(res, 'Interview scheduled successfully', interview);
+      sendCreatedResponse(res, SUCCESS.CREATED('Interview'), interview);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -52,7 +53,7 @@ export class ATSInterviewController {
         userId,
       });
 
-      sendSuccessResponse(res, 'Interview updated successfully', interview);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Interview'), interview);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -64,9 +65,10 @@ export class ATSInterviewController {
 
       const interviews = await this.getInterviewsByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Interviews retrieved successfully', interviews);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Interviews'), interviews);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

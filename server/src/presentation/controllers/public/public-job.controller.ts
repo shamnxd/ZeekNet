@@ -5,13 +5,14 @@ import { IGetFeaturedJobsUseCase } from 'src/domain/interfaces/use-cases/public/
 import { GetFeaturedJobsRequestSchema } from 'src/application/dtos/public/listings/jobs/requests/get-featured-jobs-request.dto';
 import { formatZodErrors, handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils';
 import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class PublicJobController {
   constructor(
     private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
     private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
     private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
-  ) {}
+  ) { }
 
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -30,7 +31,7 @@ export class PublicJobController {
       };
 
       const result = await this._getAllJobPostingsUseCase.execute(filters);
-      sendSuccessResponse(res, 'Job postings retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job postings'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -42,7 +43,7 @@ export class PublicJobController {
 
       const userId = (req as Request & { user?: { id: string } }).user?.id;
       const result = await this._getJobPostingForPublicUseCase.execute(jobId, userId);
-      sendSuccessResponse(res, 'Job posting retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job posting'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,9 +57,10 @@ export class PublicJobController {
 
     try {
       const result = await this._getFeaturedJobsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Featured job postings retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Featured job postings'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

@@ -6,6 +6,7 @@ import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/com
 import { GetCompaniesQueryDtoSchema } from 'src/application/dtos/admin/companies/requests/get-companies-query.dto';
 import { VerifyCompanyDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminCompanyController {
   constructor(
@@ -23,7 +24,7 @@ export class AdminCompanyController {
 
     try {
       const result = await this._getAllCompaniesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Companies retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Companies'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -32,7 +33,7 @@ export class AdminCompanyController {
   getPendingCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this._getPendingCompaniesUseCase.execute();
-      sendSuccessResponse(res, 'Pending companies retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Pending companies'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -42,7 +43,7 @@ export class AdminCompanyController {
     try {
       const { id } = req.params;
       const company = await this._getCompanyByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Company retrieved successfully', company);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company'), company);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,10 +57,11 @@ export class AdminCompanyController {
 
     try {
       await this._verifyCompanyUseCase.execute(parsed.data);
-      const message = `Company ${parsed.data.isVerified} successfully`;
-      sendSuccessResponse(res, message, null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Company verification'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+

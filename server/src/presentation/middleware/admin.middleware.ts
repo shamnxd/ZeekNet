@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticationError, AuthorizationError } from 'src/domain/errors/errors';
 import { UserRole } from 'src/domain/enums/user-role.enum';
+import { AUTH, ERROR } from 'src/shared/constants/messages';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -15,11 +16,11 @@ export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: Nex
   try {
     const user = req.user;
     if (!user) {
-      throw new AuthenticationError('Authentication required');
+      throw new AuthenticationError(ERROR.UNAUTHORIZED);
     }
 
     if (user.role !== UserRole.ADMIN) {
-      throw new AuthorizationError('Admin access required');
+      throw new AuthorizationError(AUTH.ADMIN_REQUIRED);
     }
 
     next();
@@ -27,3 +28,4 @@ export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: Nex
     next(error);
   }
 };
+

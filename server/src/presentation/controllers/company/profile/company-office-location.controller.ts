@@ -6,6 +6,7 @@ import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-c
 import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IDeleteCompanyOfficeLocationUseCase';
 import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IGetCompanyOfficeLocationUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, sendCreatedResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyOfficeLocationController {
   constructor(
@@ -19,7 +20,7 @@ export class CompanyOfficeLocationController {
     try {
       const userId = validateUserId(req);
       const locations = await this._getCompanyOfficeLocationUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company office locations retrieved successfully', locations);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company office locations'), locations);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -34,7 +35,7 @@ export class CompanyOfficeLocationController {
     try {
       const userId = validateUserId(req);
       const location = await this._createCompanyOfficeLocationUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Office location created successfully', location);
+      sendCreatedResponse(res, SUCCESS.CREATED('Office location'), location);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -49,7 +50,7 @@ export class CompanyOfficeLocationController {
     try {
       const userId = validateUserId(req);
       const location = await this._updateCompanyOfficeLocationUseCase.execute({ userId, ...parsed.data });
-      sendSuccessResponse(res, 'Office location updated successfully', location);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Office location'), location);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -60,9 +61,10 @@ export class CompanyOfficeLocationController {
       const userId = validateUserId(req);
       const { id } = req.params;
       await this._deleteCompanyOfficeLocationUseCase.execute({ userId, locationId: id });
-      sendSuccessResponse(res, 'Office location deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Office location'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

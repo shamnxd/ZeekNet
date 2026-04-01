@@ -25,6 +25,7 @@ import { UploadResumeRequestDto } from 'src/application/dtos/seeker/media/reques
 import { CreateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
 import { UpdateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
 import { formatZodErrors, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, badRequest, handleValidationError } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
 export class SeekerProfileController {
   constructor(
@@ -45,7 +46,7 @@ export class SeekerProfileController {
     private readonly _removeResumeUseCase: IRemoveResumeUseCase,
     private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
     private readonly _uploadBannerUseCase: IUploadBannerUseCase,
-  ) {}
+  ) { }
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -60,7 +61,7 @@ export class SeekerProfileController {
 
       const profile = await this._createSeekerProfileUseCase.execute({ ...parsed.data, userId });
 
-      sendCreatedResponse(res, 'Seeker profile created successfully', profile);
+      sendCreatedResponse(res, SUCCESS.CREATED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -70,7 +71,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const profile = await this._getSeekerProfileUseCase.execute(userId);
-      sendSuccessResponse(res, 'Seeker profile retrieved successfully', profile);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -89,7 +90,7 @@ export class SeekerProfileController {
 
       const profile = await this._updateSeekerProfileUseCase.execute({ ...parsed.data, userId });
 
-      sendSuccessResponse(res, 'Seeker profile updated successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -102,7 +103,7 @@ export class SeekerProfileController {
 
       const experience = await this._addExperienceUseCase.execute({ ...dto, userId });
 
-      sendCreatedResponse(res, 'Experience added successfully', experience);
+      sendCreatedResponse(res, SUCCESS.CREATED('Experience'), experience);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -112,7 +113,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const experiences = await this._getExperiencesUseCase.execute(userId);
-      sendSuccessResponse(res, 'Experiences retrieved successfully', experiences);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Experiences'), experiences);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -126,7 +127,7 @@ export class SeekerProfileController {
 
       const experience = await this._updateExperienceUseCase.execute({ ...dto, userId, experienceId });
 
-      sendSuccessResponse(res, 'Experience updated successfully', experience);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Experience'), experience);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -138,7 +139,7 @@ export class SeekerProfileController {
       const { experienceId } = req.params;
 
       await this._removeExperienceUseCase.execute(userId, experienceId);
-      sendSuccessResponse(res, 'Experience removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Experience'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -151,7 +152,7 @@ export class SeekerProfileController {
 
       const education = await this._addEducationUseCase.execute(userId, dto);
 
-      sendCreatedResponse(res, 'Education added successfully', education);
+      sendCreatedResponse(res, SUCCESS.CREATED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -161,7 +162,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const education = await this._getEducationUseCase.execute(userId);
-      sendSuccessResponse(res, 'Education retrieved successfully', education);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -175,7 +176,7 @@ export class SeekerProfileController {
 
       const education = await this._updateEducationUseCase.execute({ ...dto, userId, educationId });
 
-      sendSuccessResponse(res, 'Education updated successfully', education);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -187,7 +188,7 @@ export class SeekerProfileController {
       const { educationId } = req.params;
 
       await this._removeEducationUseCase.execute(userId, educationId);
-      sendSuccessResponse(res, 'Education removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Education'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -199,7 +200,7 @@ export class SeekerProfileController {
       const { skills } = req.body;
 
       const updatedSkills = await this._updateSkillsUseCase.execute(userId, skills);
-      sendSuccessResponse(res, 'Skills updated successfully', updatedSkills);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Skills'), updatedSkills);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -211,7 +212,7 @@ export class SeekerProfileController {
       const { languages } = req.body;
 
       const updatedLanguages = await this._updateLanguagesUseCase.execute(userId, languages);
-      sendSuccessResponse(res, 'Languages updated successfully', updatedLanguages);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Languages'), updatedLanguages);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -224,7 +225,7 @@ export class SeekerProfileController {
 
       const resume = await this._uploadResumeUseCase.execute({ ...dto, userId });
 
-      sendCreatedResponse(res, 'Resume uploaded successfully', resume);
+      sendCreatedResponse(res, SUCCESS.CREATED('Resume'), resume);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -235,7 +236,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       await this._removeResumeUseCase.execute(userId);
-      sendSuccessResponse(res, 'Resume removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Resume'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -246,7 +247,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       if (!req.file) {
-        return badRequest(res, 'No image file provided');
+        return badRequest(res, VALIDATION.REQUIRED('Avatar file'));
       }
 
       const profile = await this._uploadAvatarUseCase.execute({
@@ -256,7 +257,7 @@ export class SeekerProfileController {
         mimeType: req.file.mimetype,
       });
 
-      sendSuccessResponse(res, 'Avatar uploaded successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Avatar'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -267,7 +268,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       if (!req.file) {
-        return badRequest(res, 'No image file provided');
+        return badRequest(res, VALIDATION.REQUIRED('Banner file'));
       }
 
       const profile = await this._uploadBannerUseCase.execute({
@@ -277,9 +278,10 @@ export class SeekerProfileController {
         mimeType: req.file.mimetype,
       });
 
-      sendSuccessResponse(res, 'Banner uploaded successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Banner'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

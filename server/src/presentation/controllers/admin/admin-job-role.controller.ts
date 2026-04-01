@@ -8,6 +8,7 @@ import { CreateJobRoleDto } from 'src/application/dtos/admin/attributes/job-role
 import { GetAllJobRolesQueryDtoSchema } from 'src/application/dtos/admin/attributes/job-roles/requests/get-all-job-roles-query.dto';
 import { UpdateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/update-job-role-request.dto';
 import { created, formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminJobRoleController {
   constructor(
@@ -26,7 +27,7 @@ export class AdminJobRoleController {
 
     try {
       const jobRole = await this._createJobRoleUseCase.execute(parsed.data);
-      created(res, jobRole, 'Job role created successfully');
+      created(res, jobRole, SUCCESS.CREATED('Job role'));
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -40,7 +41,7 @@ export class AdminJobRoleController {
 
     try {
       const result = await this._getAllJobRolesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Job roles retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job roles'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -50,7 +51,7 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       const jobRole = await this._getJobRoleByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Job role retrieved successfully', jobRole);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job role'), jobRole);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -65,7 +66,7 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       const jobRole = await this._updateJobRoleUseCase.execute(id, parsedBody.data);
-      sendSuccessResponse(res, 'Job role updated successfully', jobRole);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job role'), jobRole);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -75,12 +76,13 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       await this._deleteJobRoleUseCase.execute(id);
-      sendSuccessResponse(res, 'Job role deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job role'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

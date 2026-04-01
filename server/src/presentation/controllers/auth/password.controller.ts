@@ -7,6 +7,7 @@ import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { z } from 'zod';
 import { ICookieService } from 'src/presentation/services/ICookieService';
+import { SUCCESS, AUTH, VALIDATION } from 'src/shared/constants/messages';
 
 export class PasswordController {
   constructor(
@@ -21,7 +22,7 @@ export class PasswordController {
   // be - move zod schema to dtos
   forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = z.object({
-      email: z.string().email('Invalid email address'),
+      email: z.string().email(VALIDATION.INVALID_EMAIL),
     }).safeParse(req.body);
 
     if (!parsed.success) {
@@ -30,7 +31,8 @@ export class PasswordController {
 
     try {
       await this._forgotPasswordUseCase.execute(parsed.data.email);
-      sendSuccessResponse(res, 'Password reset link has been sent to your email.', null);
+      sendSuccessResponse(res, AUTH.PASSWORD_RESET_SENT, null);
+
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -38,8 +40,8 @@ export class PasswordController {
 
   resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = z.object({
-      token: z.string().min(1, 'Token is required'),
-      newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+      token: z.string().min(1, VALIDATION.REQUIRED('Token')),
+      newPassword: z.string().min(6, VALIDATION.MIN_LENGTH('New password', 6)),
     }).safeParse(req.body);
 
     if (!parsed.success) {
@@ -48,7 +50,7 @@ export class PasswordController {
 
     try {
       await this._resetPasswordUseCase.execute(parsed.data.token, parsed.data.newPassword);
-      sendSuccessResponse(res, 'Password has been reset successfully', null);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Password'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,8 +58,8 @@ export class PasswordController {
 
   changePassword = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     const parsed = z.object({
-      currentPassword: z.string().min(1, 'Current password is required'),
-      newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+      currentPassword: z.string().min(1, VALIDATION.REQUIRED('Current password')),
+      newPassword: z.string().min(6, VALIDATION.MIN_LENGTH('New password', 6)),
     }).safeParse(req.body);
 
     if (!parsed.success) {
@@ -67,7 +69,7 @@ export class PasswordController {
     try {
       const userId = validateUserId(req);
       await this._changePasswordUseCase.execute(userId, parsed.data.currentPassword, parsed.data.newPassword);
-      sendSuccessResponse(res, 'Password has been updated successfully', null);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Password'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -78,10 +80,11 @@ export class PasswordController {
       const userId = validateUserId(req);
       await this._logoutUseCase.execute(userId);
       this._cookieService.clearRefreshToken(res);
-      sendSuccessResponse(res, 'Logged out', null);
+      sendSuccessResponse(res, AUTH.LOGOUT_SUCCESS, null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 

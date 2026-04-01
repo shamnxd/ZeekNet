@@ -8,6 +8,7 @@ import { AssignTechnicalTaskSchema } from 'src/application/dtos/application/task
 import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/task/IGetTechnicalTasksByApplicationUseCase';
 import { UpdateTechnicalTaskSchema } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ATSTechnicalTaskController {
   constructor(
@@ -35,7 +36,7 @@ export class ATSTechnicalTaskController {
         performedBy: userId,
       }, req.file as unknown as UploadedFile);
 
-      sendCreatedResponse(res, 'Technical task assigned successfully', task);
+      sendCreatedResponse(res, SUCCESS.CREATED('Technical task'), task);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -57,7 +58,7 @@ export class ATSTechnicalTaskController {
         performedBy: userId,
       }, req.file as unknown as UploadedFile);
 
-      sendSuccessResponse(res, 'Technical task updated successfully', task);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Technical task'), task);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -69,7 +70,7 @@ export class ATSTechnicalTaskController {
 
       const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Technical tasks retrieved successfully', tasks);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Technical tasks'), tasks);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -86,12 +87,13 @@ export class ATSTechnicalTaskController {
         performedByName: 'Unknown', // TODO: ADD performedByName 
       });
 
-      sendSuccessResponse(res, 'Technical task deleted successfully', { id });
+      sendSuccessResponse(res, SUCCESS.DELETED('Technical task'), { id });
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

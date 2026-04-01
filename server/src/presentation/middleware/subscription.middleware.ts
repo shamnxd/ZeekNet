@@ -6,8 +6,10 @@ import { CompanySubscription } from 'src/domain/entities/company-subscription.en
 import { AuthenticatedRequest } from 'src/presentation/middleware/auth.middleware';
 import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse } from 'src/shared/utils';
 import { CreateInput } from 'src/domain/types/common.types';
+import { ERROR, AUTH, SUBSCRIPTION } from 'src/shared/constants/messages';
 
 export class SubscriptionMiddleware {
+
   constructor(
     private _companySubscriptionRepository: ICompanySubscriptionRepository,
     private _companyProfileRepository: ICompanyProfileRepository,
@@ -19,14 +21,16 @@ export class SubscriptionMiddleware {
       const userId = req.user?.userId;
 
       if (!userId) {
-        return sendUnauthorizedResponse(res, 'User not authenticated');
+        return sendUnauthorizedResponse(res, ERROR.UNAUTHORIZED);
       }
+
 
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
-        return sendNotFoundResponse(res, 'Company profile not found');
+        return sendNotFoundResponse(res, ERROR.NOT_FOUND('Company profile'));
       }
+
 
       let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
@@ -58,8 +62,9 @@ export class SubscriptionMiddleware {
             isDefault: true,
           });
         } else {
-          return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
+          return sendForbiddenResponse(res, SUBSCRIPTION.NO_ACTIVE_SUBSCRIPTION);
         }
+
       }
 
       (req as AuthenticatedRequest & { subscription: typeof subscription }).subscription = subscription;
@@ -75,12 +80,16 @@ export class SubscriptionMiddleware {
       const subscription = (req as AuthenticatedRequest & { subscription?: CompanySubscription }).subscription;
 
       if (!subscription) {
-        return sendForbiddenResponse(res, 'No active subscription found');
+        return sendForbiddenResponse(res, SUBSCRIPTION.NO_ACTIVE_SUBSCRIPTION);
       }
 
+
       if (!subscription.canPostJob()) {
-        return sendForbiddenResponse(res, `You have reached your job posting limit of ${subscription.jobPostLimit} jobs. Please upgrade your plan.`, {
+        const limit = subscription.jobPostLimit ?? 0;
+        return sendForbiddenResponse(res, SUBSCRIPTION.LIMIT_EXCEEDED(limit, 'job posting'), {
+
           limitExceeded: true,
+
           currentLimit: subscription.jobPostLimit,
           used: subscription.jobPostsUsed,
           type: 'jobPost',
@@ -103,12 +112,16 @@ export class SubscriptionMiddleware {
       }
 
       if (!subscription) {
-        return sendForbiddenResponse(res, 'No active subscription found');
+        return sendForbiddenResponse(res, SUBSCRIPTION.NO_ACTIVE_SUBSCRIPTION);
       }
 
+
       if (!subscription.canPostFeaturedJob()) {
-        return sendForbiddenResponse(res, `You have reached your featured job limit of ${subscription.featuredJobLimit} featured jobs. Please upgrade your plan.`, {
+        const limit = subscription.featuredJobLimit ?? 0;
+        return sendForbiddenResponse(res, SUBSCRIPTION.LIMIT_EXCEEDED(limit, 'featured job'), {
+
           limitExceeded: true,
+
           currentLimit: subscription.featuredJobLimit,
           used: subscription.featuredJobsUsed,
           type: 'featuredJob',
@@ -126,14 +139,16 @@ export class SubscriptionMiddleware {
       const userId = req.user?.userId;
 
       if (!userId) {
-        return sendUnauthorizedResponse(res, 'User not authenticated');
+        return sendUnauthorizedResponse(res, ERROR.UNAUTHORIZED);
       }
+
 
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
       if (!companyProfile) {
-        return sendNotFoundResponse(res, 'Company profile not found');
+        return sendNotFoundResponse(res, ERROR.NOT_FOUND('Company profile'));
       }
+
 
       let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
@@ -180,15 +195,17 @@ export class SubscriptionMiddleware {
 
       // If we still don't have a subscription after trying to find/create default
       if (!subscription) {
-        return sendForbiddenResponse(res, 'No active subscription found. Please subscribe to a plan to continue.');
+        return sendForbiddenResponse(res, SUBSCRIPTION.NO_ACTIVE_SUBSCRIPTION);
       }
+
 
       const plan = await this._subscriptionPlanRepository.findById(subscription.planId);
       const applicantAccessLimit = plan?.applicantAccessLimit || subscription.applicantAccessLimit || -1;
 
       if (!subscription.canViewCandidate(applicantAccessLimit)) {
-        return sendForbiddenResponse(res, `You have reached your candidate view limit of ${applicantAccessLimit} views. Please upgrade your plan to view more candidates.`, {
+        return sendForbiddenResponse(res, SUBSCRIPTION.LIMIT_EXCEEDED(applicantAccessLimit, 'candidate view'), {
           limitExceeded: true,
+
           currentLimit: applicantAccessLimit,
           used: subscription.applicantAccessUsed,
         });

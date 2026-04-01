@@ -5,6 +5,7 @@ import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/
 import { IMarkAllNotificationsAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { IGetUnreadNotificationCountUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { sendSuccessResponse, handleAsyncError, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class NotificationController {
   constructor(
@@ -21,7 +22,7 @@ export class NotificationController {
       const skip = parseInt(req.query.skip as string) || 0;
 
       const notifications = await this._getNotificationsUseCase.execute(userId, limit, skip);
-      sendSuccessResponse(res, 'Notifications retrieved successfully', notifications);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Notifications'), notifications);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -33,7 +34,7 @@ export class NotificationController {
       const notificationId = req.params.id;
 
       const notification = await this._markNotificationAsReadUseCase.execute(userId, notificationId);
-      sendSuccessResponse(res, 'Notification marked as read', notification);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Notification read status'), notification);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -44,7 +45,7 @@ export class NotificationController {
       const userId = validateUserId(req);
 
       await this._markAllNotificationsAsReadUseCase.execute(userId);
-      sendSuccessResponse(res, 'All notifications marked as read', null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Clearing all notifications'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -55,11 +56,12 @@ export class NotificationController {
       const userId = validateUserId(req);
 
       const count = await this._getUnreadNotificationCountUseCase.execute(userId);
-      sendSuccessResponse(res, 'Unread count retrieved successfully', { count });
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Unread count'), { count });
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 

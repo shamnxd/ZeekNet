@@ -1,4 +1,5 @@
 import { ValidationError } from 'src/domain/errors/errors';
+import { ERROR } from 'src/shared/constants/messages';
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -38,6 +39,7 @@ export class ErrorHandler {
     if (error instanceof Error) {
       return error;
     }
-    return new Error('An unexpected error occurred');
+    return new Error(ERROR.INTERNAL_SERVER);
   }
 }
+

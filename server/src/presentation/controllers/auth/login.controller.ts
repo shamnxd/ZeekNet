@@ -6,6 +6,7 @@ import { IAdminLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session
 import { IGoogleLoginUseCase } from 'src/domain/interfaces/use-cases/auth/session/IGoogleLoginUseCase';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { AUTH } from 'src/shared/constants/messages';
 
 export class LoginController {
   constructor(
@@ -26,9 +27,9 @@ export class LoginController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'Login successful', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, AUTH.LOGIN_SUCCESS, result.user, result.tokens.accessToken);
       } else {
-        sendSuccessResponse(res, 'Login successful, verification required', result.user);
+        sendSuccessResponse(res, `${AUTH.LOGIN_SUCCESS}. ${AUTH.VERIFICATION_REQUIRED}`, result.user);
       }
     } catch (error) {
       handleAsyncError(error, next);
@@ -46,9 +47,9 @@ export class LoginController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'Admin login successful', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, AUTH.LOGIN_SUCCESS, result.user, result.tokens.accessToken);
       } else {
-        sendSuccessResponse(res, 'Admin login successful', result.user);
+        sendSuccessResponse(res, AUTH.LOGIN_SUCCESS, result.user);
       }
     } catch (error) {
       handleAsyncError(error, next);
@@ -66,13 +67,15 @@ export class LoginController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'Login successful', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, AUTH.LOGIN_SUCCESS, result.user, result.tokens.accessToken);
       } else {
-        sendSuccessResponse(res, 'Login successful', result.user);
+        sendSuccessResponse(res, AUTH.LOGIN_SUCCESS, result.user);
       }
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+
 

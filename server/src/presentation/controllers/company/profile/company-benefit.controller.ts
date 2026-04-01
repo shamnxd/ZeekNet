@@ -6,6 +6,7 @@ import { IDeleteCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/co
 import { IGetCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/IGetCompanyBenefitUseCase';
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from 'src/application/dtos/company/profile/benefits/requests/company-benefits.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyBenefitController {
   constructor(
@@ -19,7 +20,7 @@ export class CompanyBenefitController {
     try {
       const userId = validateUserId(req);
       const benefits = await this._getCompanyBenefitUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company benefits retrieved successfully', benefits);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company benefits'), benefits);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -34,7 +35,7 @@ export class CompanyBenefitController {
     try {
       const userId = validateUserId(req);
       const benefit = await this._createCompanyBenefitUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Benefit created successfully', benefit);
+      sendCreatedResponse(res, SUCCESS.CREATED('Benefit'), benefit);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -50,7 +51,7 @@ export class CompanyBenefitController {
     try {
       const userId = validateUserId(req);
       const benefit = await this._updateCompanyBenefitUseCase.execute({ userId, ...parsed.data });
-      sendSuccessResponse(res, 'Benefit updated successfully', benefit);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Benefit'), benefit);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -61,9 +62,10 @@ export class CompanyBenefitController {
       const userId = validateUserId(req);
       const { id } = req.params;
       await this._deleteCompanyBenefitUseCase.execute({ userId, benefitId: id });
-      sendSuccessResponse(res, 'Benefit deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Benefit'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

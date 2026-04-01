@@ -16,6 +16,8 @@ import { IUploadSignedOfferDocumentUseCase } from 'src/domain/interfaces/use-cas
 import { UploadedFile } from 'src/domain/types/common.types';
 import { CreateJobApplicationDto } from 'src/application/dtos/seeker/applications/requests/create-job-application.dto';
 import { ApplicationFiltersDto } from 'src/application/dtos/company/hiring/requests/application-filters.dto';
+import { SUCCESS, VALIDATION, ERROR } from 'src/shared/constants/messages';
+
 
 
 export class SeekerJobApplicationController {
@@ -32,7 +34,7 @@ export class SeekerJobApplicationController {
     private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
     private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
     private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
-  ) {}
+  ) { }
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -47,7 +49,7 @@ export class SeekerJobApplicationController {
 
       const application = await this._createJobApplicationUseCase.execute({ seekerId: userId, ...parsedBody.data }, req.file as unknown as UploadedFile);
 
-      sendCreatedResponse(res, 'Application submitted successfully', { id: application.id });
+      sendCreatedResponse(res, SUCCESS.CREATED('Job application'), { id: application.id });
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -70,7 +72,7 @@ export class SeekerJobApplicationController {
         limit: filters.data.limit,
       });
 
-      sendSuccessResponse(res, 'Applications retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -83,7 +85,7 @@ export class SeekerJobApplicationController {
 
       const response = await this._getApplicationDetailsUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Application details retrieved successfully', response);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Application details'), response);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -94,21 +96,22 @@ export class SeekerJobApplicationController {
       const userId = validateUserId(req);
 
       if (!req.file) {
-        return badRequest(res, 'Resume file is required');
+        return badRequest(res, VALIDATION.REQUIRED('Resume file'));
       }
 
       const { job_id } = req.body;
       if (!job_id) {
-        return badRequest(res, 'Job ID is required');
+        return badRequest(res, VALIDATION.REQUIRED('Job ID'));
       }
 
       if (!req.file.buffer) {
-        return badRequest(res, 'File processing error');
+        return badRequest(res, ERROR.FILE_PROCESSING_ERROR);
       }
 
       const result = await this._analyzeResumeUseCase.execute(job_id, req.file.buffer, req.file.mimetype);
 
-      sendSuccessResponse(res, 'Resume analyzed successfully', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Resume analysis'), result);
+
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -121,7 +124,7 @@ export class SeekerJobApplicationController {
 
       const interviews = await this._getInterviewsByApplicationUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Interviews retrieved successfully', interviews);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Interviews'), interviews);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -134,7 +137,7 @@ export class SeekerJobApplicationController {
 
       const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Technical tasks retrieved successfully', tasks);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Technical tasks'), tasks);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -154,7 +157,7 @@ export class SeekerJobApplicationController {
         submissionNote,
       });
 
-      sendSuccessResponse(res, 'Task submitted successfully', result);
+      sendSuccessResponse(res, SUCCESS.CREATED('Technical task submission'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -167,7 +170,7 @@ export class SeekerJobApplicationController {
 
       const offers = await this._getOffersByApplicationUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Offers retrieved successfully', offers);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Offers'), offers);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -180,7 +183,7 @@ export class SeekerJobApplicationController {
 
       const compensation = await this._getCompensationByApplicationUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Compensation retrieved successfully', compensation);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation'), compensation);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -193,7 +196,7 @@ export class SeekerJobApplicationController {
 
       const meetings = await this._getCompensationMeetingsByApplicationUseCase.execute(userId, id);
 
-      sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation meetings'), meetings);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -213,7 +216,7 @@ export class SeekerJobApplicationController {
         withdrawalReason,
       });
 
-      sendSuccessResponse(res, `Offer ${status === 'signed' ? 'accepted' : 'declined'} successfully`, updatedOffer);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Offer status'), updatedOffer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -226,16 +229,17 @@ export class SeekerJobApplicationController {
       const { offerId } = req.params;
 
       if (!req.file) {
-        return sendBadRequestResponse(res, 'Signed document file is required');
+        return sendBadRequestResponse(res, VALIDATION.REQUIRED('Signed document file'));
       }
 
       const updatedOffer = await this._uploadSignedOfferDocumentUseCase.execute(userId, userName, offerId, {
         file: req.file as unknown as UploadedFile,
       });
 
-      sendSuccessResponse(res, 'Signed document uploaded successfully', updatedOffer);
+      sendSuccessResponse(res, SUCCESS.CREATED('Signed document'), updatedOffer);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

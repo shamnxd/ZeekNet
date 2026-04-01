@@ -4,6 +4,7 @@ import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/
 import { IGetCommentsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/comments/IGetCommentsByApplicationUseCase';
 import { AddCommentRequestDtoSchema } from 'src/application/dtos/application/comments/requests/add-comment-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ATSCommentController {
   constructor(
@@ -25,7 +26,7 @@ export class ATSCommentController {
         userId,
       });
 
-      sendCreatedResponse(res, 'Comment added successfully', comment);
+      sendCreatedResponse(res, SUCCESS.CREATED('Comment'), comment);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -40,11 +41,10 @@ export class ATSCommentController {
         stage: stage as string,
       });
 
-      sendSuccessResponse(res, 'Comments retrieved successfully', comments);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Comments'), comments);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
-
-
 }
+

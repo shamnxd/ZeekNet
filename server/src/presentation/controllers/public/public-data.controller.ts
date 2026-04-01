@@ -6,6 +6,7 @@ import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/
 import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetSeekerCompaniesUseCase';
 import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetPublicCompanyProfileUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class PublicDataController {
   constructor(
@@ -16,12 +17,10 @@ export class PublicDataController {
     private readonly _getPublicCompanyProfileUseCase: IGetPublicCompanyProfileUseCase,
   ) { }
 
-
-
   getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const skills = await this._getPublicSkillsUseCase.execute();
-      sendSuccessResponse(res, 'Skills retrieved successfully', skills);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Skills'), skills);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -30,7 +29,7 @@ export class PublicDataController {
   getAllJobCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const categories = await this._getPublicJobCategoriesUseCase.execute();
-      sendSuccessResponse(res, 'Job categories retrieved successfully', categories);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job categories'), categories);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -41,7 +40,7 @@ export class PublicDataController {
       const search = (req.query.search as string) || '';
       const limit = parseInt(req.query.limit as string) || 1000;
       const jobRoles = await this._getPublicJobRolesUseCase.execute(search, limit);
-      sendSuccessResponse(res, 'Job roles retrieved successfully', jobRoles);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job roles'), jobRoles);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,7 +55,7 @@ export class PublicDataController {
 
       const result = await this._getSeekerCompaniesUseCase.execute(parsed.data);
 
-      sendSuccessResponse(res, 'Companies retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Companies'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -66,9 +65,10 @@ export class PublicDataController {
     try {
       const { id } = req.params;
       const result = await this._getPublicCompanyProfileUseCase.execute(id);
-      sendSuccessResponse(res, 'Company profile retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company profile'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

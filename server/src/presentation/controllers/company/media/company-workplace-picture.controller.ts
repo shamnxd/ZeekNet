@@ -6,6 +6,7 @@ import { IDeleteCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use
 import { IGetCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IGetCompanyWorkplacePictureUseCase';
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from 'src/application/dtos/company/media/requests/company-workplace-pictures.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyWorkplacePictureController {
   constructor(
@@ -19,7 +20,7 @@ export class CompanyWorkplacePictureController {
     try {
       const userId = validateUserId(req);
       const pictures = await this._getCompanyWorkplacePictureUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company workplace pictures retrieved successfully', pictures);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Workplace pictures'), pictures);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -34,7 +35,7 @@ export class CompanyWorkplacePictureController {
     try {
       const userId = validateUserId(req);
       const picture = await this._createCompanyWorkplacePictureUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Workplace picture created successfully', picture);
+      sendCreatedResponse(res, SUCCESS.CREATED('Workplace picture'), picture);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -54,7 +55,7 @@ export class CompanyWorkplacePictureController {
         pictureId: id,
         ...parsed.data,
       });
-      sendSuccessResponse(res, 'Workplace picture updated successfully', picture);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Workplace picture'), picture);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -68,11 +69,12 @@ export class CompanyWorkplacePictureController {
         userId,
         pictureId: id,
       });
-      sendSuccessResponse(res, 'Workplace picture deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Workplace picture'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 

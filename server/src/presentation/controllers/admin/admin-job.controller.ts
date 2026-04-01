@@ -7,6 +7,7 @@ import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/ad
 import { UpdateJobStatusRequestDtoSchema } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 import { GetAllJobsQueryDto } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminJobController {
   constructor(
@@ -25,7 +26,7 @@ export class AdminJobController {
 
     try {
       const result = await this._getAllJobsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Jobs retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Jobs'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -35,7 +36,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       const job = await this._getJobByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Job retrieved successfully', job);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job'), job);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -50,8 +51,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       await this._updateJobStatusUseCase.execute(id, parsedBody.data);
-      const message = `Job status updated to '${parsedBody.data.status}' successfully`;
-      sendSuccessResponse(res, message, null);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job status'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -61,7 +61,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       await this._deleteJobUseCase.execute(id);
-      sendSuccessResponse(res, 'Job deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -70,9 +70,10 @@ export class AdminJobController {
   getJobStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const stats = await this._getJobStatsUseCase.execute();
-      sendSuccessResponse(res, 'Job statistics retrieved successfully', stats);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job statistics'), stats);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

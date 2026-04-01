@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IGetCompanyDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/company/dashboard/IGetCompanyDashboardStatsUseCase';
 import { handleAsyncError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyDashboardController {
   constructor(private readonly _getCompanyDashboardStatsUseCase: IGetCompanyDashboardStatsUseCase) { }
@@ -10,9 +11,10 @@ export class CompanyDashboardController {
     try {
       const userId = validateUserId(req);
       const stats = await this._getCompanyDashboardStatsUseCase.execute(userId);
-      sendSuccessResponse(res, 'Company dashboard stats retrieved successfully', stats);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company dashboard stats'), stats);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

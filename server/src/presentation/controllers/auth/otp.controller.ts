@@ -5,6 +5,7 @@ import { IRequestOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verific
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IVerifyOtpUseCase';
 import { ICookieService } from 'src/presentation/services/ICookieService';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
+import { AUTH, SUCCESS } from 'src/shared/constants/messages';
 
 export class OtpController {
   constructor(
@@ -21,14 +22,14 @@ export class OtpController {
 
     try {
       await this._requestOtpUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'OTP sent successfully', null);
+      sendSuccessResponse(res, AUTH.OTP_SENT, null);
     } catch (error: unknown) {
       if (error instanceof Error && error.message.includes('Please wait before requesting another OTP')) {
-        sendErrorResponse(res, 'Please wait 30 seconds before requesting another OTP', null, 429);
+        sendErrorResponse(res, AUTH.OTP_WAIT, null, 429);
         return;
       }
       if (error instanceof Error && error.message === 'User already verified') {
-        sendSuccessResponse(res, 'User already verified', null);
+        sendSuccessResponse(res, AUTH.ALREADY_VERIFIED, null);
         return;
       }
       handleAsyncError(error, next);
@@ -46,10 +47,11 @@ export class OtpController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'OTP verified successfully', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, AUTH.OTP_VERIFIED, result.user, result.tokens.accessToken);
       }
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

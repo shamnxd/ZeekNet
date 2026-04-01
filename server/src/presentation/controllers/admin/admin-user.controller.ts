@@ -5,6 +5,7 @@ import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/user/
 import { BlockUserDto } from 'src/application/dtos/admin/user/requests/block-user-request.dto';
 import { GetUsersQueryDtoSchema } from 'src/application/dtos/admin/user/requests/get-users-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminUserController {
   constructor(
@@ -21,7 +22,7 @@ export class AdminUserController {
 
     try {
       const result = await this._getAllUsersUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Users retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Users'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -31,7 +32,7 @@ export class AdminUserController {
     try {
       const { id } = req.params;
       const user = await this._getUserByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'User retrieved successfully', user);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('User'), user);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -45,10 +46,12 @@ export class AdminUserController {
 
     try {
       await this._blockUserUseCase.execute(parsed.data);
-      const message = `User ${parsed.data.isBlocked ? 'blocked' : 'unblocked'} successfully`;
-      sendSuccessResponse(res, message, null);
+      const action = parsed.data.isBlocked ? 'blocking' : 'unblocking';
+      sendSuccessResponse(res, SUCCESS.ACTION(`User ${action}`), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+

@@ -8,6 +8,8 @@ import { IGetCompanyProfileWithJobPostingsUseCase } from 'src/domain/interfaces/
 import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-cases/company/profile/verification/IReapplyCompanyVerificationUseCase';
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse, sendNotFoundResponse } from 'src/shared/utils';
+import { SUCCESS, VALIDATION, ERROR } from 'src/shared/constants/messages';
+
 
 export class CompanyProfileController {
   constructor(
@@ -28,7 +30,7 @@ export class CompanyProfileController {
       const userId = validateUserId(req);
       const profile = await this._createCompanyProfileFromDtoUseCase.execute({ userId, ...parsed.data });
 
-      sendCreatedResponse(res, 'Company profile created successfully', profile);
+      sendCreatedResponse(res, SUCCESS.CREATED('Company profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -44,7 +46,7 @@ export class CompanyProfileController {
       const userId = validateUserId(req);
       const companyProfile = await this._updateCompanyProfileUseCase.execute({ userId, ...parsed.data });
 
-      sendSuccessResponse(res, 'Company profile updated successfully', companyProfile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Company profile'), companyProfile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -54,7 +56,7 @@ export class CompanyProfileController {
     try {
       const userId = validateUserId(req);
       const responseData = await this._getCompanyProfileWithJobPostingsUseCase.execute(userId);
-      sendSuccessResponse(res, 'Company profile retrieved successfully', responseData);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company profile'), responseData);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -64,9 +66,10 @@ export class CompanyProfileController {
     try {
       const { profileId } = req.params;
       if (!profileId) {
-        return sendNotFoundResponse(res, 'Profile ID is required');
+        return sendNotFoundResponse(res, VALIDATION.REQUIRED('Profile ID'));
       }
-      sendNotFoundResponse(res, 'Method not implemented');
+      sendNotFoundResponse(res, ERROR.NOT_IMPLEMENTED);
+
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -97,7 +100,7 @@ export class CompanyProfileController {
       };
       const updatedProfile = await this._reapplyCompanyVerificationUseCase.execute(reapplicationData);
 
-      sendSuccessResponse(res, 'Verification reapplication submitted successfully. Your application is now under review.', updatedProfile);
+      sendSuccessResponse(res, SUCCESS.ACTION('Verification reapplication submittion'), updatedProfile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -108,7 +111,7 @@ export class CompanyProfileController {
       const file = req.file;
 
       if (!file) {
-        return handleValidationError('No logo uploaded', next);
+        return handleValidationError(VALIDATION.REQUIRED('Logo'), next);
       }
 
       const userId = validateUserId(req as AuthenticatedRequest);
@@ -118,12 +121,14 @@ export class CompanyProfileController {
         mimetype: file.mimetype,
         userId,
       });
-      sendSuccessResponse(res, 'Logo uploaded successfully', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Logo upload'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+
 
 
 

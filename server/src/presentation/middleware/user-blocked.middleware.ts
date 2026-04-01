@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/user/IAuthGetUserByIdUseCase';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { sendForbiddenResponse, validateUserId } from 'src/shared/utils';
-
+import { AUTH } from 'src/shared/constants/messages';
 
 export class UserBlockedMiddleware {
   constructor(
@@ -19,7 +19,7 @@ export class UserBlockedMiddleware {
       }
 
       if (user.isBlocked) {
-        sendForbiddenResponse(res, 'User account is blocked. Please contact support for assistance.');
+        sendForbiddenResponse(res, AUTH.ACCOUNT_BLOCKED);
         return;
       }
 
@@ -29,4 +29,5 @@ export class UserBlockedMiddleware {
     }
   };
 }
+
 

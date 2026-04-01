@@ -11,8 +11,10 @@ import { UpdateCompensationSchema } from 'src/application/dtos/application/compe
 import { ScheduleCompensationMeetingSchema } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
 import { UpdateCompensationMeetingStatusSchema } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS, ERROR } from 'src/shared/constants/messages';
 
 export class ATSCompensationController {
+
   constructor(
     private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
     private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
@@ -38,7 +40,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendCreatedResponse(res, 'Compensation discussion initiated successfully', created);
+      sendCreatedResponse(res, SUCCESS.CREATED('Compensation discussion'), created);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -60,7 +62,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendSuccessResponse(res, 'Compensation updated successfully', updated);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Compensation'), updated);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -73,10 +75,11 @@ export class ATSCompensationController {
       const compensation = await this._getCompensationUseCase.execute(applicationId);
 
       if (!compensation) {
-        throw new Error('Compensation record not found');
+        throw new Error(ERROR.NOT_FOUND('Compensation record'));
       }
 
-      sendSuccessResponse(res, 'Compensation retrieved successfully', compensation);
+
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation'), compensation);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -98,7 +101,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendCreatedResponse(res, 'Compensation meeting scheduled successfully', created);
+      sendCreatedResponse(res, SUCCESS.CREATED('Compensation meeting'), created);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -110,7 +113,7 @@ export class ATSCompensationController {
 
       const meetings = await this._getCompensationMeetingsUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation meetings'), meetings);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -133,12 +136,13 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendSuccessResponse(res, 'Meeting status updated successfully', updated);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Meeting status'), updated);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

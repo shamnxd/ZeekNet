@@ -7,6 +7,7 @@ import { IGetJobATSPipelineUseCase } from 'src/domain/interfaces/use-cases/appli
 import { IGetJobApplicationsForKanbanUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobApplicationsForKanbanUseCase';
 import { MoveApplicationStageDtoSchema } from 'src/application/dtos/application/requests/move-application-stage.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ATSPipelineController {
   constructor(
@@ -21,7 +22,7 @@ export class ATSPipelineController {
       const { jobId } = req.params;
       const userId = validateUserId(req);
       const pipeline = await this._getJobPipelineUseCase.execute({ jobId, userId });
-      sendSuccessResponse(res, 'Pipeline retrieved successfully', pipeline);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Pipeline'), pipeline);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -32,7 +33,7 @@ export class ATSPipelineController {
       const { jobId } = req.params;
       const userId = validateUserId(req);
       const applications = await this._getJobApplicationsForKanbanUseCase.execute({ jobId, userId });
-      sendSuccessResponse(res, 'Applications retrieved successfully', applications);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Applications'), applications);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,7 +57,7 @@ export class ATSPipelineController {
         ...validationResult.data,
       });
 
-      sendSuccessResponse(res, 'Application stage moved successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application stage'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -80,12 +81,13 @@ export class ATSPipelineController {
         ...validationResult.data,
       });
 
-      sendSuccessResponse(res, 'Application sub-stage updated successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application sub-stage'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

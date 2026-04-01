@@ -6,6 +6,7 @@ import { IDeleteCompanyTechStackUseCase } from 'src/domain/interfaces/use-cases/
 import { IGetCompanyTechStackUseCase } from 'src/domain/interfaces/use-cases/company/profile/stack/IGetCompanyTechStackUseCase';
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from 'src/application/dtos/company/profile/stack/requests/company-tech-stack.dto';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, formatZodErrors } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyTechStackController {
   constructor(
@@ -13,13 +14,13 @@ export class CompanyTechStackController {
     private readonly _updateCompanyTechStackUseCase: IUpdateCompanyTechStackUseCase,
     private readonly _deleteCompanyTechStackUseCase: IDeleteCompanyTechStackUseCase,
     private readonly _getCompanyTechStackUseCase: IGetCompanyTechStackUseCase,
-  ) {}
+  ) { }
 
   getCompanyTechStacks = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
       const techStacks = await this._getCompanyTechStackUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company tech stacks retrieved successfully', techStacks);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company tech stacks'), techStacks);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -34,7 +35,7 @@ export class CompanyTechStackController {
     try {
       const userId = validateUserId(req);
       const techStack = await this._createCompanyTechStackUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Tech stack created successfully', techStack);
+      sendCreatedResponse(res, SUCCESS.CREATED('Tech stack'), techStack);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -49,7 +50,7 @@ export class CompanyTechStackController {
     try {
       const userId = validateUserId(req);
       const techStack = await this._updateCompanyTechStackUseCase.execute({ userId, ...parsed.data });
-      sendSuccessResponse(res, 'Tech stack updated successfully', techStack);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Tech stack'), techStack);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -60,9 +61,10 @@ export class CompanyTechStackController {
       const userId = validateUserId(req);
       const { id } = req.params;
       await this._deleteCompanyTechStackUseCase.execute({ userId, techStackId: id });
-      sendSuccessResponse(res, 'Tech stack deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Tech stack'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

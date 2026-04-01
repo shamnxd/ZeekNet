@@ -8,6 +8,7 @@ import { CreateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-
 import { GetAllJobCategoriesQueryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/get-all-job-categories-query.dto';
 import { UpdateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminJobCategoryController {
   constructor(
@@ -25,7 +26,7 @@ export class AdminJobCategoryController {
     }
     try {
       const category = await this._createJobCategoryUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Category created successfully', category);
+      sendSuccessResponse(res, SUCCESS.CREATED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -38,7 +39,7 @@ export class AdminJobCategoryController {
     }
     try {
       const result = await this._getAllJobCategoriesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Categories retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job categories'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -48,7 +49,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       const category = await this._getJobCategoryByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Category retrieved successfully', category);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -62,7 +63,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       const category = await this._updateJobCategoryUseCase.execute(id, parsedBody.data);
-      sendSuccessResponse(res, 'Category updated successfully', category);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -72,7 +73,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       await this._deleteJobCategoryUseCase.execute(id);
-      sendSuccessResponse(res, 'Category deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job category'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }

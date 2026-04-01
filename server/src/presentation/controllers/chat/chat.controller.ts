@@ -11,6 +11,7 @@ import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat
 import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDeleteMessageUseCase';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class ChatController {
   constructor(
@@ -37,7 +38,7 @@ export class ChatController {
         participantId: parsed.data.participantId,
       });
 
-      sendSuccessResponse(res, 'Conversation ready', conversation);
+      sendSuccessResponse(res, SUCCESS.ACTION('Conversation setup'), conversation);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -58,7 +59,7 @@ export class ChatController {
         senderId: userId,
       });
 
-      sendSuccessResponse(res, 'Message sent successfully', result);
+      sendSuccessResponse(res, SUCCESS.CREATED('Message'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -80,7 +81,7 @@ export class ChatController {
 
       const result = await this._getConversationsUseCase.execute(parsed.data);
 
-      sendSuccessResponse(res, 'Conversations retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Conversations'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -104,7 +105,7 @@ export class ChatController {
 
       const result = await this._getMessagesUseCase.execute(parsed.data);
 
-      sendSuccessResponse(res, 'Messages retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Messages'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -120,7 +121,7 @@ export class ChatController {
         conversationId,
       });
 
-      sendSuccessResponse(res, 'Messages marked as read', null);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Messages read status'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -136,7 +137,7 @@ export class ChatController {
         messageId,
       });
 
-      sendSuccessResponse(res, 'Message deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Message'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }

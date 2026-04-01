@@ -10,6 +10,7 @@ import { IChangeSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/
 import { IGetBillingPortalUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetBillingPortalUseCase';
 import { IPreviewPlanChangeUseCase } from 'src/domain/interfaces/use-cases/subscription/IPreviewPlanChangeUseCase';
 import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
 export class CompanySubscriptionController {
   constructor(
@@ -21,7 +22,7 @@ export class CompanySubscriptionController {
     private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
     private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
     private readonly _previewPlanChangeUseCase: IPreviewPlanChangeUseCase,
-  ) {}
+  ) { }
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -29,7 +30,7 @@ export class CompanySubscriptionController {
 
       const subscription = await this._getActiveSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(res, subscription ? 'Active subscription found' : 'No active subscription', subscription);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Active subscription'), subscription);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -41,7 +42,7 @@ export class CompanySubscriptionController {
 
       const paymentOrders = await this._getPaymentHistoryUseCase.execute(userId);
 
-      sendSuccessResponse(res, 'Payment history retrieved successfully', paymentOrders);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Payment history'), paymentOrders);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -54,11 +55,11 @@ export class CompanySubscriptionController {
       const { planId, billingCycle, successUrl, cancelUrl } = req.body;
 
       if (!planId) {
-        throw new ValidationError('Plan ID is required');
+        throw new ValidationError(VALIDATION.REQUIRED('Plan ID'));
       }
 
       if (!successUrl || !cancelUrl) {
-        throw new ValidationError('Success and cancel URLs are required');
+        throw new ValidationError(VALIDATION.REQUIRED('Success and cancel URLs'));
       }
 
       const result = await this._createCheckoutSessionUseCase.execute({
@@ -69,7 +70,7 @@ export class CompanySubscriptionController {
         cancelUrl,
       });
 
-      sendSuccessResponse(res, 'Checkout session created', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Checkout session creation'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -81,7 +82,7 @@ export class CompanySubscriptionController {
 
       const subscription = await this._cancelSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(res, 'Subscription will be canceled at the end of the billing period', subscription);
+      sendSuccessResponse(res, SUCCESS.ACTION('Subscription cancellation'), subscription);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -93,7 +94,7 @@ export class CompanySubscriptionController {
 
       const subscription = await this._resumeSubscriptionUseCase.execute(userId);
 
-      sendSuccessResponse(res, 'Subscription resumed successfully', subscription);
+      sendSuccessResponse(res, SUCCESS.ACTION('Subscription resumption'), subscription);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -106,7 +107,7 @@ export class CompanySubscriptionController {
       const { planId, billingCycle } = req.body;
 
       if (!planId) {
-        throw new ValidationError('New plan ID is required');
+        throw new ValidationError(VALIDATION.REQUIRED('New plan ID'));
       }
 
       const result = await this._changeSubscriptionPlanUseCase.execute({
@@ -115,7 +116,7 @@ export class CompanySubscriptionController {
         billingCycle,
       });
 
-      sendSuccessResponse(res, 'Subscription plan changed successfully', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Subscription plan change'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -128,7 +129,7 @@ export class CompanySubscriptionController {
       const { returnUrl } = req.body;
 
       if (!returnUrl) {
-        throw new ValidationError('Return URL is required');
+        throw new ValidationError(VALIDATION.REQUIRED('Return URL'));
       }
 
       const result = await this._getBillingPortalUseCase.execute({
@@ -136,7 +137,7 @@ export class CompanySubscriptionController {
         returnUrl,
       });
 
-      sendSuccessResponse(res, 'Billing portal session created', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Billing portal session creation'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -149,7 +150,7 @@ export class CompanySubscriptionController {
       const { planId, billingCycle } = req.body;
 
       if (!planId) {
-        throw new ValidationError('Plan ID is required');
+        throw new ValidationError(VALIDATION.REQUIRED('Plan ID'));
       }
 
       const result = await this._previewPlanChangeUseCase.execute({
@@ -158,9 +159,10 @@ export class CompanySubscriptionController {
         billingCycle,
       });
 
-      sendSuccessResponse(res, 'Plan change preview generated', result);
+      sendSuccessResponse(res, SUCCESS.ACTION('Plan change preview generation'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

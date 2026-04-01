@@ -4,6 +4,7 @@ import { GetCandidateDetailsDto } from 'src/application/dtos/company/hiring/requ
 import { IGetCandidatesUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidatesUseCase';
 import { IGetCandidateDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidateDetailsUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyCandidatesController {
   constructor(
@@ -19,7 +20,7 @@ export class CompanyCandidatesController {
 
     try {
       const result = await this._getCandidatesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Candidates retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Candidates'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -33,11 +34,12 @@ export class CompanyCandidatesController {
 
     try {
       const result = await this._getCandidateDetailsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Candidate details retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Candidate details'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 

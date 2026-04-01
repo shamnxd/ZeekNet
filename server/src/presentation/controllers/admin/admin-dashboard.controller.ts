@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { IGetAdminDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/admin/analytics/IGetAdminDashboardStatsUseCase';
 import { GetAdminDashboardStatsQueryDto } from 'src/application/dtos/admin/analytics/requests/get-admin-dashboard-stats-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminDashboardController {
   constructor(
@@ -17,9 +18,10 @@ export class AdminDashboardController {
       }
 
       const stats = await this.getAdminDashboardStatsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Admin dashboard statistics retrieved successfully', stats);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Admin dashboard statistics'), stats);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

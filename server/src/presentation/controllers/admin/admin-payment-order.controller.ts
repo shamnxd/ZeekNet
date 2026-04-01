@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { IGetAllPaymentOrdersUseCase } from 'src/domain/interfaces/use-cases/admin/payments/IGetAllPaymentOrdersUseCase';
 import { GetAllPaymentOrdersDto } from 'src/application/dtos/admin/payments/requests/payment-order.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class AdminPaymentOrderController {
   constructor(
@@ -16,9 +17,10 @@ export class AdminPaymentOrderController {
 
     try {
       const result = await this._getAllPaymentOrdersUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Payment orders retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Payment orders'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

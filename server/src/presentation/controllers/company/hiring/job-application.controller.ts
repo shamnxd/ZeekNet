@@ -12,6 +12,7 @@ import { UpdateScoreDto } from 'src/application/dtos/application/requests/update
 import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
 export class CompanyJobApplicationController {
   constructor(
@@ -33,7 +34,7 @@ export class CompanyJobApplicationController {
 
     try {
       const result = await this._getApplicationsByCompanyUseCase.execute({ ...parsed.data, userId });
-      sendSuccessResponse(res, 'Company applications retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -49,7 +50,7 @@ export class CompanyJobApplicationController {
     }
 
     if (!job_id) {
-      return handleValidationError('Job ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Job ID'), next);
     }
 
     try {
@@ -58,7 +59,7 @@ export class CompanyJobApplicationController {
         ...parsed.data,
         userId,
       });
-      sendSuccessResponse(res, 'Job applications retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -68,12 +69,12 @@ export class CompanyJobApplicationController {
     const userId = validateUserId(req);
     const { id } = req.params;
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
 
     try {
       const response = await this._getApplicationDetailsUseCase.execute({ userId, applicationId: id });
-      sendSuccessResponse(res, 'Application details retrieved successfully', response);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Application details'), response);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -85,7 +86,7 @@ export class CompanyJobApplicationController {
     const bodyParsed = UpdateApplicationStageRequestDtoSchema.safeParse(req.body);
 
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
     if (!bodyParsed.success) {
       return handleValidationError(formatZodErrors(bodyParsed.error), next);
@@ -98,7 +99,7 @@ export class CompanyJobApplicationController {
         ...bodyParsed.data,
       });
 
-      sendSuccessResponse(res, 'Application stage updated successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application stage'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -110,7 +111,7 @@ export class CompanyJobApplicationController {
     const bodyParsed = UpdateScoreDto.safeParse(req.body);
 
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
     if (!bodyParsed.success) {
       return handleValidationError(formatZodErrors(bodyParsed.error), next);
@@ -123,7 +124,7 @@ export class CompanyJobApplicationController {
         score: bodyParsed.data.score,
       });
 
-      sendSuccessResponse(res, 'Application score updated successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application score'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -142,7 +143,7 @@ export class CompanyJobApplicationController {
         companyId: userId,
       });
 
-      sendSuccessResponse(res, 'Applications updated successfully', result);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -152,7 +153,7 @@ export class CompanyJobApplicationController {
     const userId = validateUserId(req);
     const { id } = req.params;
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
 
     try {
@@ -161,12 +162,14 @@ export class CompanyJobApplicationController {
         applicationId: id,
       });
 
-      sendSuccessResponse(res, 'Candidate marked as hired successfully', null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Hiring candidate'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+
 
 
 

@@ -4,6 +4,7 @@ import { UpdateCompanyContactDto } from 'src/application/dtos/company/profile/co
 import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/profile/contacts/IGetCompanyContactUseCase';
 import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/profile/contacts/IUpsertCompanyContactUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
 export class CompanyContactController {
   constructor(
@@ -15,7 +16,7 @@ export class CompanyContactController {
     try {
       const userId = validateUserId(req);
       const contact = await this._getCompanyContactUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company contact retrieved successfully', contact);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company contact'), contact);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -32,10 +33,11 @@ export class CompanyContactController {
     try {
       const userId = validateUserId(req);
       const contact = await this._upsertCompanyContactUseCase.execute({ userId, ...parsed.data });
-      const message = contact.id ? 'Company contact updated successfully' : 'Company contact created successfully';
+      const message = contact.id ? SUCCESS.UPDATED('Company contact') : SUCCESS.CREATED('Company contact');
       sendSuccessResponse(res, message, contact);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
