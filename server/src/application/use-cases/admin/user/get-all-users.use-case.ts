@@ -1,17 +1,20 @@
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
-import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { IGetAllUsersUseCase } from 'src/domain/interfaces/use-cases/admin/user/IGetAllUsersUseCase';
 import { GetUsersQueryDto } from 'src/application/dtos/admin/user/requests/get-users-query.dto';
 import { PaginatedUsersResultDto } from 'src/application/dtos/admin/user/responses/paginated-users-result.dto';
 import { UserRole } from 'src/domain/enums/user-role.enum';
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllUsersUseCase implements IGetAllUsersUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _s3Service: S3Service,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(options: GetUsersQueryDto): Promise<PaginatedUsersResultDto> {

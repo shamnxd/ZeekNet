@@ -5,9 +5,12 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { UpdateJobStatusRequestDto } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase {
-  constructor(private readonly _jobPostingRepository: IJobPostingRepository) { }
+  constructor(@inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository) { }
 
   async execute(jobId: string, dto: UpdateJobStatusRequestDto): Promise<JobPostingResponseDto> {
     const { status, unpublish_reason: unpublishReason } = dto;

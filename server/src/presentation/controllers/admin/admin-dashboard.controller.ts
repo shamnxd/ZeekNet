@@ -3,10 +3,13 @@ import { IGetAdminDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/
 import { GetAdminDashboardStatsQueryDto } from 'src/application/dtos/admin/analytics/requests/get-admin-dashboard-stats-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminDashboardController {
   constructor(
-    private getAdminDashboardStatsUseCase: IGetAdminDashboardStatsUseCase,
+    @inject(TYPES.GetAdminDashboardStatsUseCase) private getAdminDashboardStatsUseCase: IGetAdminDashboardStatsUseCase,
   ) { }
 
   getDashboardStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

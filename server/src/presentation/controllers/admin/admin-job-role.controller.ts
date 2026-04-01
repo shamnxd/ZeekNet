@@ -9,14 +9,17 @@ import { GetAllJobRolesQueryDtoSchema } from 'src/application/dtos/admin/attribu
 import { UpdateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/update-job-role-request.dto';
 import { created, formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobRoleController {
   constructor(
-    private readonly _createJobRoleUseCase: ICreateJobRoleUseCase,
-    private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
-    private readonly _getJobRoleByIdUseCase: IGetJobRoleByIdUseCase,
-    private readonly _updateJobRoleUseCase: IUpdateJobRoleUseCase,
-    private readonly _deleteJobRoleUseCase: IDeleteJobRoleUseCase,
+    @inject(TYPES.CreateJobRoleUseCase) private readonly _createJobRoleUseCase: ICreateJobRoleUseCase,
+    @inject(TYPES.GetAllJobRolesUseCase) private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
+    @inject(TYPES.GetJobRoleByIdUseCase) private readonly _getJobRoleByIdUseCase: IGetJobRoleByIdUseCase,
+    @inject(TYPES.UpdateJobRoleUseCase) private readonly _updateJobRoleUseCase: IUpdateJobRoleUseCase,
+    @inject(TYPES.DeleteJobRoleUseCase) private readonly _deleteJobRoleUseCase: IDeleteJobRoleUseCase,
   ) { }
 
   createJobRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

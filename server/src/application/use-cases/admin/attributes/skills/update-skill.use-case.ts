@@ -5,9 +5,12 @@ import { BadRequestError, ConflictError, InternalServerError, NotFoundError } fr
 import { UpdateSkillRequestDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
 import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/responses/skill-response.dto';
 import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class UpdateSkillUseCase implements IUpdateSkillUseCase {
-  constructor(private readonly _skillRepository: ISkillRepository) { }
+  constructor(@inject(TYPES.SkillRepository) private readonly _skillRepository: ISkillRepository) { }
 
   async execute(skillId: string, dto: UpdateSkillRequestDto): Promise<SkillResponseDto> {
     const { name } = dto;

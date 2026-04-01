@@ -1,9 +1,18 @@
 import { Router, RequestHandler } from 'express';
-import { adminUserController, adminCompanyController, adminJobController, adminJobCategoryController, adminSkillController, adminJobRoleController, adminSubscriptionPlanController, adminPaymentOrderController, adminDashboardController } from 'src/infrastructure/di/adminDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
 import { APP_ROUTES } from 'src/shared/constants/routes';
-
 import { requireAdmin } from 'src/presentation/middleware/admin.middleware';
 import { authenticateToken } from 'src/presentation/middleware/auth.middleware';
+import { AdminUserController } from 'src/presentation/controllers/admin/admin-user.controller';
+import { AdminCompanyController } from 'src/presentation/controllers/admin/admin-company.controller';
+import { AdminJobController } from 'src/presentation/controllers/admin/admin-job.controller';
+import { AdminJobCategoryController } from 'src/presentation/controllers/admin/admin-job-category.controller';
+import { AdminSkillController } from 'src/presentation/controllers/admin/admin-skill.controller';
+import { AdminJobRoleController } from 'src/presentation/controllers/admin/admin-job-role.controller';
+import { AdminSubscriptionPlanController } from 'src/presentation/controllers/admin/admin-subscription-plan.controller';
+import { AdminPaymentOrderController } from 'src/presentation/controllers/admin/admin-payment-order.controller';
+import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
 
 export class AdminRouter {
   public router: Router;
@@ -14,6 +23,16 @@ export class AdminRouter {
   }
 
   private _initializeRoutes(): void {
+    const adminUserController = container.get<AdminUserController>(TYPES.AdminUserController);
+    const adminCompanyController = container.get<AdminCompanyController>(TYPES.AdminCompanyController);
+    const adminJobController = container.get<AdminJobController>(TYPES.AdminJobController);
+    const adminJobCategoryController = container.get<AdminJobCategoryController>(TYPES.AdminJobCategoryController);
+    const adminSkillController = container.get<AdminSkillController>(TYPES.AdminSkillController);
+    const adminJobRoleController = container.get<AdminJobRoleController>(TYPES.AdminJobRoleController);
+    const adminSubscriptionPlanController = container.get<AdminSubscriptionPlanController>(TYPES.AdminSubscriptionPlanController);
+    const adminPaymentOrderController = container.get<AdminPaymentOrderController>(TYPES.AdminPaymentOrderController);
+    const adminDashboardController = container.get<AdminDashboardController>(TYPES.AdminDashboardController);
+
     this.router.use(authenticateToken);
     this.router.use(requireAdmin as RequestHandler);
 

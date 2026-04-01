@@ -2,9 +2,12 @@ import { IJobRoleRepository } from 'src/domain/interfaces/repositories/job-role/
 import { IGetAllJobRolesUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/job-roles/IGetAllJobRolesUseCase';
 import { PaginatedJobRolesResultDto } from 'src/application/dtos/admin/attributes/job-roles/responses/paginated-job-roles-result.dto';
 import { JobRoleMapper } from 'src/application/mappers/job/job-role.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllJobRolesUseCase implements IGetAllJobRolesUseCase {
-  constructor(private readonly _jobRoleRepository: IJobRoleRepository) {}
+  constructor(@inject(TYPES.JobRoleRepository) private readonly _jobRoleRepository: IJobRoleRepository) {}
 
   async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobRolesResultDto> {
     const query: Record<string, unknown> = {};

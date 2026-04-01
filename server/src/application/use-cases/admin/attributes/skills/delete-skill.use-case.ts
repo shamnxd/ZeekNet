@@ -2,9 +2,12 @@ import { ISkillRepository } from 'src/domain/interfaces/repositories/skill/ISkil
 import { IDeleteSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attributes/skills/IDeleteSkillUseCase';
 import { AppError } from 'src/domain/errors/errors';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class DeleteSkillUseCase implements IDeleteSkillUseCase {
-  constructor(private readonly _skillRepository: ISkillRepository) {}
+  constructor(@inject(TYPES.SkillRepository) private readonly _skillRepository: ISkillRepository) {}
 
   async execute(skillId: string): Promise<boolean> {
     const skill = await this._skillRepository.findById(skillId);

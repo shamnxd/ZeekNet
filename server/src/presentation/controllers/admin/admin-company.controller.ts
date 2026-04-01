@@ -7,13 +7,16 @@ import { GetCompaniesQueryDtoSchema } from 'src/application/dtos/admin/companies
 import { VerifyCompanyDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminCompanyController {
   constructor(
-    private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
-    private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
-    private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
-    private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
+    @inject(TYPES.GetAllCompaniesUseCase) private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
+    @inject(TYPES.GetPendingCompaniesUseCase) private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
+    @inject(TYPES.GetCompanyByIdUseCase) private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
+    @inject(TYPES.VerifyCompanyUseCase) private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
   ) { }
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

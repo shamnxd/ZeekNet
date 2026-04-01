@@ -7,12 +7,15 @@ import { GetAllPaymentOrdersRequestDto } from 'src/application/dtos/admin/paymen
 import { GetAllPaymentOrdersResponseDto } from 'src/application/dtos/admin/payments/responses/get-all-payment-orders-response.dto';
 
 import { PaymentMapper } from 'src/application/mappers/payment/payment.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllPaymentOrdersUseCase implements IGetAllPaymentOrdersUseCase {
   constructor(
-    private _paymentOrderRepository: IPaymentOrderRepository,
-    private _companyProfileRepository: ICompanyProfileRepository,
-    private _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.PaymentOrderRepository) private _paymentOrderRepository: IPaymentOrderRepository,
+    @inject(TYPES.CompanyProfileRepository) private _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) {}
 
   async execute(query: GetAllPaymentOrdersRequestDto): Promise<GetAllPaymentOrdersResponseDto> {

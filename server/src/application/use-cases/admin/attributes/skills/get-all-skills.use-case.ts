@@ -2,9 +2,12 @@ import { IGetAllSkillsUseCase } from 'src/domain/interfaces/use-cases/admin/attr
 import { ISkillRepository } from 'src/domain/interfaces/repositories/skill/ISkillRepository';
 import { PaginatedSkillsResultDto } from 'src/application/dtos/admin/attributes/skills/responses/paginated-skills-result.dto';
 import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllSkillsUseCase implements IGetAllSkillsUseCase {
-  constructor(private readonly _skillRepository: ISkillRepository) {}
+  constructor(@inject(TYPES.SkillRepository) private readonly _skillRepository: ISkillRepository) {}
 
   async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedSkillsResultDto> {
     const query: Record<string, unknown> = {};

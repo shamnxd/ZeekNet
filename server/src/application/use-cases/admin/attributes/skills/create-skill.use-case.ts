@@ -6,9 +6,12 @@ import { CreateInput } from 'src/domain/types/common.types';
 import { CreateSkillRequestDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
 import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/responses/skill-response.dto';
 import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CreateSkillUseCase implements ICreateSkillUseCase {
-  constructor(private readonly _skillRepository: ISkillRepository) { }
+  constructor(@inject(TYPES.SkillRepository) private readonly _skillRepository: ISkillRepository) { }
 
   async execute(dto: CreateSkillRequestDto): Promise<SkillResponseDto> {
     const { name } = dto;

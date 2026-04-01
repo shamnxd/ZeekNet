@@ -65,6 +65,82 @@ export const TYPES = {
   GetSeekerProfileUseCase: Symbol.for('GetSeekerProfileUseCase'),
   ChatSocketService: Symbol.for('ChatSocketService'),
   SocketConnectionManager: Symbol.for('SocketConnectionManager'),
+
+  // Repositories - Admin extras
+  CompanyVerificationRepository: Symbol.for('CompanyVerificationRepository'),
+  JobCategoryRepository: Symbol.for('JobCategoryRepository'),
+  SkillRepository: Symbol.for('SkillRepository'),
+  JobRoleRepository: Symbol.for('JobRoleRepository'),
+  SubscriptionPlanRepository: Symbol.for('SubscriptionPlanRepository'),
+  CompanySubscriptionRepository: Symbol.for('CompanySubscriptionRepository'),
+  PaymentOrderRepository: Symbol.for('PaymentOrderRepository'),
+  PriceHistoryRepository: Symbol.for('PriceHistoryRepository'),
+  CompanyContactRepository: Symbol.for('CompanyContactRepository'),
+  CompanyOfficeLocationRepository: Symbol.for('CompanyOfficeLocationRepository'),
+  CompanyTechStackRepository: Symbol.for('CompanyTechStackRepository'),
+  CompanyBenefitsRepository: Symbol.for('CompanyBenefitsRepository'),
+  CompanyWorkplacePicturesRepository: Symbol.for('CompanyWorkplacePicturesRepository'),
+
+  // Use Cases - Admin Users
+  GetAllUsersUseCase: Symbol.for('GetAllUsersUseCase'),
+  BlockUserUseCase: Symbol.for('BlockUserUseCase'),
+  AdminGetUserByIdUseCase: Symbol.for('AdminGetUserByIdUseCase'),
+
+  // Use Cases - Admin Companies
+  GetAllCompaniesUseCase: Symbol.for('GetAllCompaniesUseCase'),
+  GetCompaniesWithVerificationUseCase: Symbol.for('GetCompaniesWithVerificationUseCase'),
+  VerifyCompanyUseCase: Symbol.for('VerifyCompanyUseCase'),
+  GetPendingCompaniesUseCase: Symbol.for('GetPendingCompaniesUseCase'),
+  GetCompanyByIdUseCase: Symbol.for('GetCompanyByIdUseCase'),
+
+  // Use Cases - Admin Jobs
+  AdminGetAllJobsUseCase: Symbol.for('AdminGetAllJobsUseCase'),
+  AdminGetJobByIdUseCase: Symbol.for('AdminGetJobByIdUseCase'),
+  AdminUpdateJobStatusUseCase: Symbol.for('AdminUpdateJobStatusUseCase'),
+  AdminDeleteJobUseCase: Symbol.for('AdminDeleteJobUseCase'),
+  AdminGetJobStatsUseCase: Symbol.for('AdminGetJobStatsUseCase'),
+
+  // Use Cases - Admin Attributes
+  CreateJobCategoryUseCase: Symbol.for('CreateJobCategoryUseCase'),
+  GetAllJobCategoriesUseCase: Symbol.for('GetAllJobCategoriesUseCase'),
+  GetJobCategoryByIdUseCase: Symbol.for('GetJobCategoryByIdUseCase'),
+  UpdateJobCategoryUseCase: Symbol.for('UpdateJobCategoryUseCase'),
+  DeleteJobCategoryUseCase: Symbol.for('DeleteJobCategoryUseCase'),
+  CreateSkillUseCase: Symbol.for('CreateSkillUseCase'),
+  GetAllSkillsUseCase: Symbol.for('GetAllSkillsUseCase'),
+  GetSkillByIdUseCase: Symbol.for('GetSkillByIdUseCase'),
+  UpdateSkillUseCase: Symbol.for('UpdateSkillUseCase'),
+  DeleteSkillUseCase: Symbol.for('DeleteSkillUseCase'),
+  CreateJobRoleUseCase: Symbol.for('CreateJobRoleUseCase'),
+  GetAllJobRolesUseCase: Symbol.for('GetAllJobRolesUseCase'),
+  GetJobRoleByIdUseCase: Symbol.for('GetJobRoleByIdUseCase'),
+  UpdateJobRoleUseCase: Symbol.for('UpdateJobRoleUseCase'),
+  DeleteJobRoleUseCase: Symbol.for('DeleteJobRoleUseCase'),
+
+  // Use Cases - Admin Subscription
+  CreateSubscriptionPlanUseCase: Symbol.for('CreateSubscriptionPlanUseCase'),
+  GetAllSubscriptionPlansUseCase: Symbol.for('GetAllSubscriptionPlansUseCase'),
+  GetSubscriptionPlanByIdUseCase: Symbol.for('GetSubscriptionPlanByIdUseCase'),
+  UpdateSubscriptionPlanUseCase: Symbol.for('UpdateSubscriptionPlanUseCase'),
+  GetAllPaymentOrdersUseCase: Symbol.for('GetAllPaymentOrdersUseCase'),
+
+  // Use Cases - Admin Dashboard
+  GetAdminDashboardStatsUseCase: Symbol.for('GetAdminDashboardStatsUseCase'),
+
+  // Controllers - Admin
+  AdminUserController: Symbol.for('AdminUserController'),
+  AdminCompanyController: Symbol.for('AdminCompanyController'),
+  AdminJobController: Symbol.for('AdminJobController'),
+  AdminJobCategoryController: Symbol.for('AdminJobCategoryController'),
+  AdminSkillController: Symbol.for('AdminSkillController'),
+  AdminJobRoleController: Symbol.for('AdminJobRoleController'),
+  AdminSubscriptionPlanController: Symbol.for('AdminSubscriptionPlanController'),
+  AdminPaymentOrderController: Symbol.for('AdminPaymentOrderController'),
+  AdminDashboardController: Symbol.for('AdminDashboardController'),
+
+  // Services - Admin extras
+  NotificationService: Symbol.for('NotificationService'),
+  StripeService: Symbol.for('StripeService'),
 } as const;
 
 

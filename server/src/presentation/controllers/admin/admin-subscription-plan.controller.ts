@@ -8,13 +8,16 @@ import { GetAllSubscriptionPlansDto } from 'src/application/dtos/admin/subscript
 import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/update-subscription-plan-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminSubscriptionPlanController {
   constructor(
-    private readonly _createSubscriptionPlanUseCase: ICreateSubscriptionPlanUseCase,
-    private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
-    private readonly _getSubscriptionPlanByIdUseCase: IGetSubscriptionPlanByIdUseCase,
-    private readonly _updateSubscriptionPlanUseCase: IUpdateSubscriptionPlanUseCase,
+    @inject(TYPES.CreateSubscriptionPlanUseCase) private readonly _createSubscriptionPlanUseCase: ICreateSubscriptionPlanUseCase,
+    @inject(TYPES.GetAllSubscriptionPlansUseCase) private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
+    @inject(TYPES.GetSubscriptionPlanByIdUseCase) private readonly _getSubscriptionPlanByIdUseCase: IGetSubscriptionPlanByIdUseCase,
+    @inject(TYPES.UpdateSubscriptionPlanUseCase) private readonly _updateSubscriptionPlanUseCase: IUpdateSubscriptionPlanUseCase,
   ) { }
 
   createSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

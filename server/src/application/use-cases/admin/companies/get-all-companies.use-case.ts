@@ -3,11 +3,14 @@ import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/co
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { GetCompaniesQueryDto } from 'src/application/dtos/admin/companies/requests/get-companies-query.dto';
 import { PaginatedCompaniesResultDto } from 'src/application/dtos/admin/companies/responses/paginated-companies-result.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllCompaniesUseCase implements IGetAllCompaniesUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesResultDto> {

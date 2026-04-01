@@ -5,9 +5,12 @@ import { ICreateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin
 import { CreateJobCategoryRequestDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/create-job-category-request.dto';
 import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
 import { JobCategoryMapper } from 'src/application/mappers/job/job-category.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CreateJobCategoryUseCase implements ICreateJobCategoryUseCase {
-  constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
+  constructor(@inject(TYPES.JobCategoryRepository) private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
   async execute(dto: CreateJobCategoryRequestDto): Promise<JobCategoryResponseDto> {
     const { name } = dto;

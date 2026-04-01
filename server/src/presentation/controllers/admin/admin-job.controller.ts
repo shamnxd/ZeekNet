@@ -8,14 +8,17 @@ import { UpdateJobStatusRequestDtoSchema } from 'src/application/dtos/admin/job/
 import { GetAllJobsQueryDto } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobController {
   constructor(
-    private readonly _getAllJobsUseCase: IAdminGetAllJobsUseCase,
-    private readonly _getJobByIdUseCase: IAdminGetJobByIdUseCase,
-    private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
-    private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
-    private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
+    @inject(TYPES.AdminGetAllJobsUseCase) private readonly _getAllJobsUseCase: IAdminGetAllJobsUseCase,
+    @inject(TYPES.AdminGetJobByIdUseCase) private readonly _getJobByIdUseCase: IAdminGetJobByIdUseCase,
+    @inject(TYPES.AdminUpdateJobStatusUseCase) private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
+    @inject(TYPES.AdminDeleteJobUseCase) private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
+    @inject(TYPES.AdminGetJobStatsUseCase) private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
   ) {}
 
   getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

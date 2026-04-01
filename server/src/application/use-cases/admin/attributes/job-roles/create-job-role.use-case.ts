@@ -6,9 +6,12 @@ import { CreateInput } from 'src/domain/types/common.types';
 import { CreateJobRoleRequestDto } from 'src/application/dtos/admin/attributes/job-roles/requests/create-job-role-request.dto';
 import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-roles/responses/job-role-response.dto';
 import { JobRoleMapper } from 'src/application/mappers/job/job-role.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CreateJobRoleUseCase implements ICreateJobRoleUseCase {
-  constructor(private readonly _jobRoleRepository: IJobRoleRepository) { }
+  constructor(@inject(TYPES.JobRoleRepository) private readonly _jobRoleRepository: IJobRoleRepository) { }
 
   async execute(dto: CreateJobRoleRequestDto): Promise<JobRoleResponseDto> {
     const { name } = dto;

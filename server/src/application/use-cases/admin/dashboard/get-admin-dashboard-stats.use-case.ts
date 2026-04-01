@@ -8,15 +8,18 @@ import { IGetAdminDashboardStatsUseCase } from 'src/domain/interfaces/use-cases/
 import { GetAdminDashboardStatsQueryDto } from 'src/application/dtos/admin/analytics/requests/get-admin-dashboard-stats-query.dto';
 
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUseCase {
   constructor(
-    private _companyRepository: ICompanyProfileRepository,
-    private _seekerRepository: ISeekerProfileRepository,
-    private _jobRepository: IJobPostingRepository,
-    private _paymentRepository: IPaymentOrderRepository,
-    private _userRepository: IUserRepository,
-    private _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private _companyRepository: ICompanyProfileRepository,
+    @inject(TYPES.SeekerProfileRepository) private _seekerRepository: ISeekerProfileRepository,
+    @inject(TYPES.JobPostingRepository) private _jobRepository: IJobPostingRepository,
+    @inject(TYPES.PaymentOrderRepository) private _paymentRepository: IPaymentOrderRepository,
+    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
+    @inject(TYPES.S3Service) private _s3Service: IS3Service,
   ) { }
 
   async execute(query: GetAdminDashboardStatsQueryDto): Promise<AdminDashboardStatsResponseDto> {

@@ -6,12 +6,15 @@ import { BlockUserDto } from 'src/application/dtos/admin/user/requests/block-use
 import { GetUsersQueryDtoSchema } from 'src/application/dtos/admin/user/requests/get-users-query.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminUserController {
   constructor(
-    private readonly _getAllUsersUseCase: IGetAllUsersUseCase,
-    private readonly _getUserByIdUseCase: IAdminGetUserByIdUseCase,
-    private readonly _blockUserUseCase: IBlockUserUseCase,
+    @inject(TYPES.GetAllUsersUseCase) private readonly _getAllUsersUseCase: IGetAllUsersUseCase,
+    @inject(TYPES.AdminGetUserByIdUseCase) private readonly _getUserByIdUseCase: IAdminGetUserByIdUseCase,
+    @inject(TYPES.BlockUserUseCase) private readonly _blockUserUseCase: IBlockUserUseCase,
   ) { }
 
   getAllUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -12,15 +12,18 @@ import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/sub
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 import { PaymentSubscription } from 'src/domain/types/payment/payment-types';
+import { injectable, inject, optional } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
   constructor(
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _logger: ILogger,
-    private readonly _stripeService?: IStripeService,
-    private readonly _priceHistoryRepository?: IPriceHistoryRepository,
-    private readonly _mailerService?: IMailerService,
-    private readonly _emailTemplateService?: IEmailTemplateService,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
+    @inject(TYPES.StripeService) @optional() private readonly _stripeService?: IStripeService,
+    @inject(TYPES.PriceHistoryRepository) @optional() private readonly _priceHistoryRepository?: IPriceHistoryRepository,
+    @inject(TYPES.MailerService) @optional() private readonly _mailerService?: IMailerService,
+    @inject(TYPES.EmailTemplateService) @optional() private readonly _emailTemplateService?: IEmailTemplateService,
   ) { }
 
   async execute(dto: UpdateSubscriptionPlanDto): Promise<SubscriptionPlan> {

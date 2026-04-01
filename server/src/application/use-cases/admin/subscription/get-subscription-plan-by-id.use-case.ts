@@ -2,9 +2,12 @@ import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/
 import { SubscriptionPlan } from 'src/domain/entities/subscription-plan.entity';
 import { IGetSubscriptionPlanByIdUseCase } from 'src/domain/interfaces/use-cases/admin/subscription/IGetSubscriptionPlanByIdUseCase';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetSubscriptionPlanByIdUseCase implements IGetSubscriptionPlanByIdUseCase {
-  constructor(private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository) {}
+  constructor(@inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository) {}
 
   async execute(planId: string): Promise<SubscriptionPlan> {
     const plan = await this._subscriptionPlanRepository.findById(planId);

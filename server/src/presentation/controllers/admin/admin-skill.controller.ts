@@ -9,14 +9,17 @@ import { GetAllSkillsDto } from 'src/application/dtos/admin/attributes/skills/re
 import { UpdateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminSkillController {
   constructor(
-    private readonly _createSkillUseCase: ICreateSkillUseCase,
-    private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
-    private readonly _getSkillByIdUseCase: IGetSkillByIdUseCase,
-    private readonly _updateSkillUseCase: IUpdateSkillUseCase,
-    private readonly _deleteSkillUseCase: IDeleteSkillUseCase,
+    @inject(TYPES.CreateSkillUseCase) private readonly _createSkillUseCase: ICreateSkillUseCase,
+    @inject(TYPES.GetAllSkillsUseCase) private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
+    @inject(TYPES.GetSkillByIdUseCase) private readonly _getSkillByIdUseCase: IGetSkillByIdUseCase,
+    @inject(TYPES.UpdateSkillUseCase) private readonly _updateSkillUseCase: IUpdateSkillUseCase,
+    @inject(TYPES.DeleteSkillUseCase) private readonly _deleteSkillUseCase: IDeleteSkillUseCase,
   ) { }
 
   createSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

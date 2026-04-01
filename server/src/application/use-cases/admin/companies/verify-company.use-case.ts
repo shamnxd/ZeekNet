@@ -6,13 +6,16 @@ import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.
 import { CompanySubscriptionMapper } from 'src/application/mappers/company/subscription/company-subscription.mapper';
 import { VerifyCompanyRequestDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(dto: VerifyCompanyRequestDto): Promise<void> {

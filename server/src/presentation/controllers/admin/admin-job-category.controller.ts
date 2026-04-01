@@ -9,14 +9,17 @@ import { GetAllJobCategoriesQueryDto } from 'src/application/dtos/admin/attribut
 import { UpdateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobCategoryController {
   constructor(
-    private readonly _createJobCategoryUseCase: ICreateJobCategoryUseCase,
-    private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
-    private readonly _getJobCategoryByIdUseCase: IGetJobCategoryByIdUseCase,
-    private readonly _updateJobCategoryUseCase: IUpdateJobCategoryUseCase,
-    private readonly _deleteJobCategoryUseCase: IDeleteJobCategoryUseCase,
+    @inject(TYPES.CreateJobCategoryUseCase) private readonly _createJobCategoryUseCase: ICreateJobCategoryUseCase,
+    @inject(TYPES.GetAllJobCategoriesUseCase) private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
+    @inject(TYPES.GetJobCategoryByIdUseCase) private readonly _getJobCategoryByIdUseCase: IGetJobCategoryByIdUseCase,
+    @inject(TYPES.UpdateJobCategoryUseCase) private readonly _updateJobCategoryUseCase: IUpdateJobCategoryUseCase,
+    @inject(TYPES.DeleteJobCategoryUseCase) private readonly _deleteJobCategoryUseCase: IDeleteJobCategoryUseCase,
   ) { }
 
   createJobCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

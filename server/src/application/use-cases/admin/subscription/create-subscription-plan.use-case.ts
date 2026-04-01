@@ -10,13 +10,16 @@ import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscripti
 import { CreateInput } from 'src/domain/types/common.types';
 import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
 import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/subscription-plan.mapper';
+import { injectable, inject, optional } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _logger: ILogger,
-    private readonly _stripeService?: IStripeService,
-    private readonly _priceHistoryRepository?: IPriceHistoryRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
+    @inject(TYPES.StripeService) @optional() private readonly _stripeService?: IStripeService,
+    @inject(TYPES.PriceHistoryRepository) @optional() private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
 
   async execute(data: CreateSubscriptionPlanDto): Promise<SubscriptionPlan> {

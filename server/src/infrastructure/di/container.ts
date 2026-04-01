@@ -82,12 +82,111 @@ import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDel
 import { DeleteMessageUseCase } from 'src/application/use-cases/chat/delete-message.use-case';
 import { ChatController } from 'src/presentation/controllers/chat/chat.controller';
 
+// Admin Module Imports
+import { CompanyProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-profile.repository';
+import { CompanyVerificationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-verification.repository';
+import { JobPostingRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-posting.repository';
+import { JobCategoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-category.repository';
+import { SkillRepository } from 'src/infrastructure/persistence/mongodb/repositories/skill.repository';
+import { JobRoleRepository } from 'src/infrastructure/persistence/mongodb/repositories/job-role.repository';
+import { SubscriptionPlanRepository } from 'src/infrastructure/persistence/mongodb/repositories/subscription-plan.repository';
+import { CompanySubscriptionRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-subscription.repository';
+import { PaymentOrderRepository } from 'src/infrastructure/persistence/mongodb/repositories/payment-order.repository';
+import { SeekerProfileRepository } from 'src/infrastructure/persistence/mongodb/repositories/seeker-profile.repository';
+import { PriceHistoryRepository } from 'src/infrastructure/persistence/mongodb/repositories/price-history.repository';
+import { CompanyContactRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-contact.repository';
+import { CompanyOfficeLocationRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-office-location.repository';
+import { CompanyTechStackRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-tech-stack.repository';
+import { CompanyBenefitsRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-benefits.repository';
+import { CompanyWorkplacePicturesRepository } from 'src/infrastructure/persistence/mongodb/repositories/company-workplace-pictures.repository';
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { ICompanyVerificationRepository } from 'src/domain/interfaces/repositories/company/ICompanyVerificationRepository';
+import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
+import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
+import { IPaymentOrderRepository } from 'src/domain/interfaces/repositories/payment/IPaymentOrderRepository';
+import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
+import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
+import { IPriceHistoryRepository } from 'src/domain/interfaces/repositories/price-history/IPriceHistoryRepository';
+import { ICompanyContactRepository } from 'src/domain/interfaces/repositories/company/ICompanyContactRepository';
+import { ICompanyOfficeLocationRepository } from 'src/domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
+import { ICompanyTechStackRepository } from 'src/domain/interfaces/repositories/company/ICompanyTechStackRepository';
+import { ICompanyBenefitsRepository } from 'src/domain/interfaces/repositories/company/ICompanyBenefitsRepository';
+import { ICompanyWorkplacePicturesRepository } from 'src/domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
+import { ILogger } from 'src/domain/interfaces/services/ILogger';
+import { logger } from 'src/infrastructure/config/logger';
+import { IStripeService } from 'src/domain/interfaces/services/IStripeService';
+import { INotificationService } from 'src/domain/interfaces/services/INotificationService';
+import { notificationService } from 'src/infrastructure/di/notificationDi';
+import { stripeService } from 'src/infrastructure/di/companyDi';
+// Admin Use Cases
+import { GetAllUsersUseCase } from 'src/application/use-cases/admin/user/get-all-users.use-case';
+import { BlockUserUseCase } from 'src/application/use-cases/admin/user/block-user.use-case';
+import { GetUserByIdUseCase as AdminGetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
+import { GetAllCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-all-companies.use-case';
+import { GetCompaniesWithVerificationUseCase } from 'src/application/use-cases/admin/companies/get-companies-with-verification.use-case';
+import { VerifyCompanyUseCase } from 'src/application/use-cases/admin/companies/verify-company.use-case';
+import { GetPendingCompaniesUseCase } from 'src/application/use-cases/admin/companies/get-pending-companies.use-case';
+import { GetCompanyByIdUseCase } from 'src/application/use-cases/admin/companies/get-company-by-id.use-case';
+import { GetAllJobsUseCase } from 'src/application/use-cases/admin/job/get-all-jobs.use-case';
+import { AdminGetJobByIdUseCase } from 'src/application/use-cases/admin/job/get-job-by-id.use-case';
+import { AdminUpdateJobStatusUseCase } from 'src/application/use-cases/admin/job/update-job-status.use-case';
+import { AdminDeleteJobUseCase } from 'src/application/use-cases/admin/job/delete-job.use-case';
+import { AdminGetJobStatsUseCase } from 'src/application/use-cases/admin/analytics/get-job-stats.use-case';
+import { CreateJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/create-job-category.use-case';
+import { GetAllJobCategoriesUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/get-all-job-categories.use-case';
+import { GetJobCategoryByIdUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/get-job-category-by-id.use-case';
+import { UpdateJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/update-job-category.use-case';
+import { DeleteJobCategoryUseCase } from 'src/application/use-cases/admin/attributes/job-categorys/delete-job-category.use-case';
+import { CreateSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/create-skill.use-case';
+import { GetAllSkillsUseCase } from 'src/application/use-cases/admin/attributes/skills/get-all-skills.use-case';
+import { GetSkillByIdUseCase } from 'src/application/use-cases/admin/attributes/skills/get-skill-by-id.use-case';
+import { UpdateSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/update-skill.use-case';
+import { DeleteSkillUseCase } from 'src/application/use-cases/admin/attributes/skills/delete-skill.use-case';
+import { CreateJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/create-job-role.use-case';
+import { GetAllJobRolesUseCase } from 'src/application/use-cases/admin/attributes/job-roles/get-all-job-roles.use-case';
+import { GetJobRoleByIdUseCase } from 'src/application/use-cases/admin/attributes/job-roles/get-job-role-by-id.use-case';
+import { UpdateJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/update-job-role.use-case';
+import { DeleteJobRoleUseCase } from 'src/application/use-cases/admin/attributes/job-roles/delete-job-role.use-case';
+import { CreateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/subscription/create-subscription-plan.use-case';
+import { GetAllSubscriptionPlansUseCase } from 'src/application/use-cases/admin/subscription/get-all-subscription-plans.use-case';
+import { GetSubscriptionPlanByIdUseCase } from 'src/application/use-cases/admin/subscription/get-subscription-plan-by-id.use-case';
+import { UpdateSubscriptionPlanUseCase } from 'src/application/use-cases/admin/subscription/update-subscription-plan.use-case';
+import { GetAllPaymentOrdersUseCase } from 'src/application/use-cases/admin/payments/get-all-payment-orders.use-case';
+import { GetAdminDashboardStatsUseCase } from 'src/application/use-cases/admin/dashboard/get-admin-dashboard-stats.use-case';
+// Admin Controllers
+import { AdminUserController } from 'src/presentation/controllers/admin/admin-user.controller';
+import { AdminCompanyController } from 'src/presentation/controllers/admin/admin-company.controller';
+import { AdminJobController } from 'src/presentation/controllers/admin/admin-job.controller';
+import { AdminJobCategoryController } from 'src/presentation/controllers/admin/admin-job-category.controller';
+import { AdminSkillController } from 'src/presentation/controllers/admin/admin-skill.controller';
+import { AdminJobRoleController } from 'src/presentation/controllers/admin/admin-job-role.controller';
+import { AdminSubscriptionPlanController } from 'src/presentation/controllers/admin/admin-subscription-plan.controller';
+import { AdminPaymentOrderController } from 'src/presentation/controllers/admin/admin-payment-order.controller';
+import { AdminDashboardController } from 'src/presentation/controllers/admin/admin-dashboard.controller';
+
 const container = new Container();
 
 // Repositories
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 container.bind<IConversationRepository>(TYPES.ConversationRepository).to(ConversationRepository);
 container.bind<IMessageRepository>(TYPES.ChatMessageRepository).to(ChatMessageRepository);
+container.bind<ICompanyProfileRepository>(TYPES.CompanyProfileRepository).to(CompanyProfileRepository);
+container.bind<ICompanyVerificationRepository>(TYPES.CompanyVerificationRepository).to(CompanyVerificationRepository);
+container.bind<IJobPostingRepository>(TYPES.JobPostingRepository).to(JobPostingRepository);
+container.bind<ISeekerProfileRepository>(TYPES.SeekerProfileRepository).to(SeekerProfileRepository);
+container.bind<IPaymentOrderRepository>(TYPES.PaymentOrderRepository).to(PaymentOrderRepository);
+container.bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository).to(SubscriptionPlanRepository);
+container.bind<ICompanySubscriptionRepository>(TYPES.CompanySubscriptionRepository).to(CompanySubscriptionRepository);
+container.bind<IPriceHistoryRepository>(TYPES.PriceHistoryRepository).to(PriceHistoryRepository);
+container.bind<ICompanyContactRepository>(TYPES.CompanyContactRepository).to(CompanyContactRepository);
+container.bind<ICompanyOfficeLocationRepository>(TYPES.CompanyOfficeLocationRepository).to(CompanyOfficeLocationRepository);
+container.bind<ICompanyTechStackRepository>(TYPES.CompanyTechStackRepository).to(CompanyTechStackRepository);
+container.bind<ICompanyBenefitsRepository>(TYPES.CompanyBenefitsRepository).to(CompanyBenefitsRepository);
+container.bind<ICompanyWorkplacePicturesRepository>(TYPES.CompanyWorkplacePicturesRepository).to(CompanyWorkplacePicturesRepository);
+// Attribute Repositories
+container.bind<JobCategoryRepository>(TYPES.JobCategoryRepository).to(JobCategoryRepository);
+container.bind<SkillRepository>(TYPES.SkillRepository).to(SkillRepository);
+container.bind<JobRoleRepository>(TYPES.JobRoleRepository).to(JobRoleRepository);
 
 // Services
 container.bind<ITokenService>(TYPES.TokenService).to(JwtTokenService);
@@ -101,6 +200,9 @@ container.bind<ICookieService>(TYPES.CookieService).to(CookieService);
 container.bind<IS3Service>(TYPES.S3Service).to(S3Service);
 container.bind<ChatSocketService>(TYPES.ChatSocketService).to(ChatSocketService).inSingletonScope();
 container.bind<ISocketConnectionManager>(TYPES.SocketConnectionManager).toDynamicValue((context) => context.container.get(TYPES.ChatSocketService));
+container.bind<ILogger>(TYPES.LoggerService).toConstantValue(logger);
+container.bind<INotificationService>(TYPES.NotificationService).toConstantValue(notificationService as unknown as INotificationService);
+container.bind<IStripeService>(TYPES.StripeService).toConstantValue(stripeService as unknown as IStripeService);
 
 // Use Cases
 container.bind<IGetSeekerProfileUseCase>(TYPES.GetSeekerProfileUseCase).toConstantValue(getSeekerProfileUseCase);
@@ -122,6 +224,41 @@ container.bind<IGetConversationsUseCase>(TYPES.GetConversationsUseCase).to(GetCo
 container.bind<IGetMessagesUseCase>(TYPES.GetMessagesUseCase).to(GetMessagesUseCase);
 container.bind<IMarkMessagesAsReadUseCase>(TYPES.MarkMessagesAsReadUseCase).to(MarkMessagesAsReadUseCase);
 container.bind<IDeleteMessageUseCase>(TYPES.DeleteMessageUseCase).to(DeleteMessageUseCase);
+// Admin Use Cases
+container.bind<GetAllUsersUseCase>(TYPES.GetAllUsersUseCase).to(GetAllUsersUseCase);
+container.bind<BlockUserUseCase>(TYPES.BlockUserUseCase).to(BlockUserUseCase);
+container.bind<AdminGetUserByIdUseCase>(TYPES.AdminGetUserByIdUseCase).to(AdminGetUserByIdUseCase);
+container.bind<GetAllCompaniesUseCase>(TYPES.GetAllCompaniesUseCase).to(GetAllCompaniesUseCase);
+container.bind<GetCompaniesWithVerificationUseCase>(TYPES.GetCompaniesWithVerificationUseCase).to(GetCompaniesWithVerificationUseCase);
+container.bind<VerifyCompanyUseCase>(TYPES.VerifyCompanyUseCase).to(VerifyCompanyUseCase);
+container.bind<GetPendingCompaniesUseCase>(TYPES.GetPendingCompaniesUseCase).to(GetPendingCompaniesUseCase);
+container.bind<GetCompanyByIdUseCase>(TYPES.GetCompanyByIdUseCase).to(GetCompanyByIdUseCase);
+container.bind<GetAllJobsUseCase>(TYPES.AdminGetAllJobsUseCase).to(GetAllJobsUseCase);
+container.bind<AdminGetJobByIdUseCase>(TYPES.AdminGetJobByIdUseCase).to(AdminGetJobByIdUseCase);
+container.bind<AdminUpdateJobStatusUseCase>(TYPES.AdminUpdateJobStatusUseCase).to(AdminUpdateJobStatusUseCase);
+container.bind<AdminDeleteJobUseCase>(TYPES.AdminDeleteJobUseCase).to(AdminDeleteJobUseCase);
+container.bind<AdminGetJobStatsUseCase>(TYPES.AdminGetJobStatsUseCase).to(AdminGetJobStatsUseCase);
+container.bind<CreateJobCategoryUseCase>(TYPES.CreateJobCategoryUseCase).to(CreateJobCategoryUseCase);
+container.bind<GetAllJobCategoriesUseCase>(TYPES.GetAllJobCategoriesUseCase).to(GetAllJobCategoriesUseCase);
+container.bind<GetJobCategoryByIdUseCase>(TYPES.GetJobCategoryByIdUseCase).to(GetJobCategoryByIdUseCase);
+container.bind<UpdateJobCategoryUseCase>(TYPES.UpdateJobCategoryUseCase).to(UpdateJobCategoryUseCase);
+container.bind<DeleteJobCategoryUseCase>(TYPES.DeleteJobCategoryUseCase).to(DeleteJobCategoryUseCase);
+container.bind<CreateSkillUseCase>(TYPES.CreateSkillUseCase).to(CreateSkillUseCase);
+container.bind<GetAllSkillsUseCase>(TYPES.GetAllSkillsUseCase).to(GetAllSkillsUseCase);
+container.bind<GetSkillByIdUseCase>(TYPES.GetSkillByIdUseCase).to(GetSkillByIdUseCase);
+container.bind<UpdateSkillUseCase>(TYPES.UpdateSkillUseCase).to(UpdateSkillUseCase);
+container.bind<DeleteSkillUseCase>(TYPES.DeleteSkillUseCase).to(DeleteSkillUseCase);
+container.bind<CreateJobRoleUseCase>(TYPES.CreateJobRoleUseCase).to(CreateJobRoleUseCase);
+container.bind<GetAllJobRolesUseCase>(TYPES.GetAllJobRolesUseCase).to(GetAllJobRolesUseCase);
+container.bind<GetJobRoleByIdUseCase>(TYPES.GetJobRoleByIdUseCase).to(GetJobRoleByIdUseCase);
+container.bind<UpdateJobRoleUseCase>(TYPES.UpdateJobRoleUseCase).to(UpdateJobRoleUseCase);
+container.bind<DeleteJobRoleUseCase>(TYPES.DeleteJobRoleUseCase).to(DeleteJobRoleUseCase);
+container.bind<CreateSubscriptionPlanUseCase>(TYPES.CreateSubscriptionPlanUseCase).to(CreateSubscriptionPlanUseCase);
+container.bind<GetAllSubscriptionPlansUseCase>(TYPES.GetAllSubscriptionPlansUseCase).to(GetAllSubscriptionPlansUseCase);
+container.bind<GetSubscriptionPlanByIdUseCase>(TYPES.GetSubscriptionPlanByIdUseCase).to(GetSubscriptionPlanByIdUseCase);
+container.bind<UpdateSubscriptionPlanUseCase>(TYPES.UpdateSubscriptionPlanUseCase).to(UpdateSubscriptionPlanUseCase);
+container.bind<GetAllPaymentOrdersUseCase>(TYPES.GetAllPaymentOrdersUseCase).to(GetAllPaymentOrdersUseCase);
+container.bind<GetAdminDashboardStatsUseCase>(TYPES.GetAdminDashboardStatsUseCase).to(GetAdminDashboardStatsUseCase);
 
 
 // Controllers
@@ -131,5 +268,15 @@ container.bind<OtpController>(TYPES.OtpController).to(OtpController);
 container.bind<TokenController>(TYPES.TokenController).to(TokenController);
 container.bind<PasswordController>(TYPES.PasswordController).to(PasswordController);
 container.bind<ChatController>(TYPES.ChatController).to(ChatController);
+// Admin Controllers
+container.bind<AdminUserController>(TYPES.AdminUserController).to(AdminUserController);
+container.bind<AdminCompanyController>(TYPES.AdminCompanyController).to(AdminCompanyController);
+container.bind<AdminJobController>(TYPES.AdminJobController).to(AdminJobController);
+container.bind<AdminJobCategoryController>(TYPES.AdminJobCategoryController).to(AdminJobCategoryController);
+container.bind<AdminSkillController>(TYPES.AdminSkillController).to(AdminSkillController);
+container.bind<AdminJobRoleController>(TYPES.AdminJobRoleController).to(AdminJobRoleController);
+container.bind<AdminSubscriptionPlanController>(TYPES.AdminSubscriptionPlanController).to(AdminSubscriptionPlanController);
+container.bind<AdminPaymentOrderController>(TYPES.AdminPaymentOrderController).to(AdminPaymentOrderController);
+container.bind<AdminDashboardController>(TYPES.AdminDashboardController).to(AdminDashboardController);
 
 export { container };

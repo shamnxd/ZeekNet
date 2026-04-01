@@ -2,11 +2,14 @@ import { IBlockUserUseCase } from 'src/domain/interfaces/use-cases/admin/user/IB
 import { INotificationService } from 'src/domain/interfaces/services/INotificationService';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { BlockUserRequestDto } from 'src/application/dtos/admin/user/requests/block-user-request.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class BlockUserUseCase implements IBlockUserUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _notificationService: INotificationService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
   ) { }
 
   async execute(params: BlockUserRequestDto): Promise<void> {
