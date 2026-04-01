@@ -6,13 +6,17 @@ import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { MarkMessagesAsReadDto } from 'src/application/dtos/chat/requests/mark-messages-as-read.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
   constructor(
-    private readonly _messageRepository: IMessageRepository,
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _chatSocketService: IChatSocketService,
+    @inject(TYPES.ChatMessageRepository) private readonly _messageRepository: IMessageRepository,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.ChatSocketService) private readonly _chatSocketService: IChatSocketService,
   ) { }
+
 
   async execute(input: MarkMessagesAsReadDto): Promise<ConversationResponseDto> {
     const { userId, conversationId } = input;

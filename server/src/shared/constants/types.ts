@@ -11,6 +11,9 @@ export const TYPES = {
   CompanyProfileRepository: Symbol.for('CompanyProfileRepository'),
   JobPostingRepository: Symbol.for('JobPostingRepository'),
   JobApplicationRepository: Symbol.for('JobApplicationRepository'),
+  ConversationRepository: Symbol.for('ConversationRepository'),
+  ChatMessageRepository: Symbol.for('ChatMessageRepository'),
+
 
   // Use Cases - Auth
   LoginUserUseCase: Symbol.for('LoginUserUseCase'),
@@ -22,14 +25,27 @@ export const TYPES = {
   ResetPasswordUseCase: Symbol.for('ResetPasswordUseCase'),
   RefreshTokenUseCase: Symbol.for('RefreshTokenUseCase'),
 
+  // Use Cases - Chat
+  SendMessageUseCase: Symbol.for('SendMessageUseCase'),
+  GetConversationsUseCase: Symbol.for('GetConversationsUseCase'),
+  GetMessagesUseCase: Symbol.for('GetMessagesUseCase'),
+  MarkMessagesAsReadUseCase: Symbol.for('MarkMessagesAsReadUseCase'),
+  CreateConversationUseCase: Symbol.for('CreateConversationUseCase'),
+  DeleteMessageUseCase: Symbol.for('DeleteMessageUseCase'),
+
   // Controllers - Auth
+
   LoginController: Symbol.for('LoginController'),
   RegistrationController: Symbol.for('RegistrationController'),
   OtpController: Symbol.for('OtpController'),
   PasswordController: Symbol.for('PasswordController'),
   TokenController: Symbol.for('TokenController'),
 
+  // Controllers - Chat
+  ChatController: Symbol.for('ChatController'),
+
   // Services
+
   TokenService: Symbol.for('TokenService'),
   CookieService: Symbol.for('CookieService'),
   MailerService: Symbol.for('MailerService'),
@@ -47,7 +63,10 @@ export const TYPES = {
   LogoutUseCase: Symbol.for('LogoutUseCase'),
   RequestOtpUseCase: Symbol.for('RequestOtpUseCase'),
   GetSeekerProfileUseCase: Symbol.for('GetSeekerProfileUseCase'),
+  ChatSocketService: Symbol.for('ChatSocketService'),
+  SocketConnectionManager: Symbol.for('SocketConnectionManager'),
 } as const;
+
 
 
 

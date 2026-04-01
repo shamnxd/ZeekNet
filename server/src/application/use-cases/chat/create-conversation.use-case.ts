@@ -7,12 +7,16 @@ import { CreateInput } from 'src/domain/types/common.types';
 import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { CreateConversationDto } from 'src/application/dtos/chat/requests/create-conversation.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
+
 
   async execute(input: CreateConversationDto): Promise<ConversationResponseDto> {
     const { creatorId, participantId } = input;

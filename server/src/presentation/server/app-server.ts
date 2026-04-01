@@ -18,9 +18,9 @@ import { CompanyRouter } from 'src/presentation/routes/company-router';
 import { AdminRouter } from 'src/presentation/routes/admin-router';
 import { SeekerRouter } from 'src/presentation/routes/seeker-router';
 import { PublicRouter } from 'src/presentation/routes/public-router';
+import { ChatRouter } from 'src/presentation/routes/chat-router';
 import { errorHandler } from 'src/presentation/middleware/error-handler';
 import { notificationRouter } from 'src/infrastructure/di/notificationDi';
-import { chatRouter } from 'src/infrastructure/di/chatDi';
 import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
 
 export class AppServer {
@@ -90,7 +90,7 @@ export class AppServer {
     this._app.use(APP_ROUTES.SEEKER.BASE, new SeekerRouter().router);
     this._app.use(APP_ROUTES.PUBLIC.BASE, new PublicRouter().router);
     this._app.use(APP_ROUTES.NOTIFICATIONS.BASE, notificationRouter.router);
-    this._app.use(APP_ROUTES.CHAT.BASE, chatRouter.router);
+    this._app.use(APP_ROUTES.CHAT.BASE, new ChatRouter().router);
 
 
     this._app.post(APP_ROUTES.WEBHOOK_STRIPE, stripeWebhookController.handleWebhook);

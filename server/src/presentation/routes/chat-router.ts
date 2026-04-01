@@ -1,10 +1,14 @@
 import { Router } from 'express';
-import { chatController, chatUserRepository } from 'src/infrastructure/di/chatDi';
 import { container } from 'src/infrastructure/di/container';
 import { TYPES } from 'src/shared/constants/types';
+import { ChatController } from 'src/presentation/controllers/chat/chat.controller';
+import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
 
+const chatController = container.get<ChatController>(TYPES.ChatController);
+const chatUserRepository = container.get<IUserRepository>(TYPES.UserRepository);
 const getUserByIdUseCase = container.get<GetUserByIdUseCase>(TYPES.GetUserByIdUseCase);
+
 
 import { APP_ROUTES } from 'src/shared/constants/routes';
 

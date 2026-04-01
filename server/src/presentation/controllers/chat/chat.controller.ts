@@ -12,16 +12,20 @@ import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDel
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class ChatController {
   constructor(
-    private readonly _createConversationUseCase: ICreateConversationUseCase,
-    private readonly _sendMessageUseCase: ISendMessageUseCase,
-    private readonly _getConversationsUseCase: IGetConversationsUseCase,
-    private readonly _getMessagesUseCase: IGetMessagesUseCase,
-    private readonly _markMessagesAsReadUseCase: IMarkMessagesAsReadUseCase,
-    private readonly _deleteMessageUseCase: IDeleteMessageUseCase,
+    @inject(TYPES.CreateConversationUseCase) private readonly _createConversationUseCase: ICreateConversationUseCase,
+    @inject(TYPES.SendMessageUseCase) private readonly _sendMessageUseCase: ISendMessageUseCase,
+    @inject(TYPES.GetConversationsUseCase) private readonly _getConversationsUseCase: IGetConversationsUseCase,
+    @inject(TYPES.GetMessagesUseCase) private readonly _getMessagesUseCase: IGetMessagesUseCase,
+    @inject(TYPES.MarkMessagesAsReadUseCase) private readonly _markMessagesAsReadUseCase: IMarkMessagesAsReadUseCase,
+    @inject(TYPES.DeleteMessageUseCase) private readonly _deleteMessageUseCase: IDeleteMessageUseCase,
   ) { }
+
 
   createConversation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {

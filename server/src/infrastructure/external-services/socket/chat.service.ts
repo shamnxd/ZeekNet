@@ -3,9 +3,12 @@ import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketSe
 import { ISocketConnectionManager } from 'src/domain/interfaces/services/ISocketConnectionManager';
 import { ChatMessageResponseDto } from 'src/application/dtos/chat/responses/chat-message-response.dto';
 import { ConversationResponseDto } from 'src/application/dtos/chat/responses/conversation-response.dto';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ChatSocketService implements IChatSocketService, ISocketConnectionManager {
   private io: SocketIOServer | null = null;
+
   private _userSockets: Map<string, Set<string>> = new Map();
 
   setIO(io: SocketIOServer): void {

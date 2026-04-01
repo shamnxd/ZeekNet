@@ -10,14 +10,18 @@ import { SendMessageResponseDto } from 'src/application/dtos/chat/responses/send
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.mapper';
 import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _messageRepository: IMessageRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _chatSocketService: IChatSocketService,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.ChatMessageRepository) private readonly _messageRepository: IMessageRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ChatSocketService) private readonly _chatSocketService: IChatSocketService,
   ) { }
+
 
   async execute(input: SendMessageDto): Promise<SendMessageResponseDto> {
     const { senderId, receiverId, content, conversationId, replyToMessageId } = input;

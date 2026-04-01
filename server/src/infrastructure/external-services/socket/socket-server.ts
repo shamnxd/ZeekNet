@@ -2,16 +2,22 @@ import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { JwtTokenService } from 'src/infrastructure/security/jwt-token-service';
 import { notificationService } from 'src/infrastructure/di/notificationDi';
-import {
-  chatSocketService,
-  socketConnectionManager,
-  sendMessageUseCase,
-  markMessagesAsReadUseCase,
-  chatConversationRepository,
-} from 'src/infrastructure/di/chatDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketService';
+import { ISocketConnectionManager } from 'src/domain/interfaces/services/ISocketConnectionManager';
+import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendMessageUseCase';
+import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat/IMarkMessagesAsReadUseCase';
+import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
 import { logger } from 'src/infrastructure/config/logger';
 import { env } from 'src/infrastructure/config/env';
 import { ISocketServer } from 'src/domain/interfaces/services/ISocketServer';
+
+const chatSocketService = container.get<IChatSocketService>(TYPES.ChatSocketService);
+const socketConnectionManager = container.get<ISocketConnectionManager>(TYPES.SocketConnectionManager);
+const sendMessageUseCase = container.get<ISendMessageUseCase>(TYPES.SendMessageUseCase);
+const markMessagesAsReadUseCase = container.get<IMarkMessagesAsReadUseCase>(TYPES.MarkMessagesAsReadUseCase);
+const chatConversationRepository = container.get<IConversationRepository>(TYPES.ConversationRepository);
 
 export class SocketServer implements ISocketServer {
   private _io: SocketIOServer;

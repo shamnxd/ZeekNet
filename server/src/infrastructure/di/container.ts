@@ -58,10 +58,36 @@ import { OtpController } from 'src/presentation/controllers/auth/otp.controller'
 import { TokenController } from 'src/presentation/controllers/auth/token.controller';
 import { PasswordController } from 'src/presentation/controllers/auth/password.controller';
 
+// Chat Module Imports
+import { IConversationRepository } from 'src/domain/interfaces/repositories/chat/IConversationRepository';
+import { ConversationRepository } from 'src/infrastructure/persistence/mongodb/repositories/conversation.repository';
+import { IMessageRepository } from 'src/domain/interfaces/repositories/chat/IMessageRepository';
+import { ChatMessageRepository } from 'src/infrastructure/persistence/mongodb/repositories/chat-message.repository';
+import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { S3Service } from 'src/infrastructure/external-services/s3/s3.service';
+import { IChatSocketService } from 'src/domain/interfaces/services/IChatSocketService';
+import { ISocketConnectionManager } from 'src/domain/interfaces/services/ISocketConnectionManager';
+import { ChatSocketService } from 'src/infrastructure/external-services/socket/chat.service';
+import { ICreateConversationUseCase } from 'src/domain/interfaces/use-cases/chat/ICreateConversationUseCase';
+import { CreateConversationUseCase } from 'src/application/use-cases/chat/create-conversation.use-case';
+import { ISendMessageUseCase } from 'src/domain/interfaces/use-cases/chat/ISendMessageUseCase';
+import { SendMessageUseCase } from 'src/application/use-cases/chat/send-message.use-case';
+import { IGetConversationsUseCase } from 'src/domain/interfaces/use-cases/chat/IGetConversationsUseCase';
+import { GetConversationsUseCase } from 'src/application/use-cases/chat/get-conversations.use-case';
+import { IGetMessagesUseCase } from 'src/domain/interfaces/use-cases/chat/IGetMessagesUseCase';
+import { GetMessagesUseCase } from 'src/application/use-cases/chat/get-messages.use-case';
+import { IMarkMessagesAsReadUseCase } from 'src/domain/interfaces/use-cases/chat/IMarkMessagesAsReadUseCase';
+import { MarkMessagesAsReadUseCase } from 'src/application/use-cases/chat/mark-messages-as-read.use-case';
+import { IDeleteMessageUseCase } from 'src/domain/interfaces/use-cases/chat/IDeleteMessageUseCase';
+import { DeleteMessageUseCase } from 'src/application/use-cases/chat/delete-message.use-case';
+import { ChatController } from 'src/presentation/controllers/chat/chat.controller';
+
 const container = new Container();
 
 // Repositories
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
+container.bind<IConversationRepository>(TYPES.ConversationRepository).to(ConversationRepository);
+container.bind<IMessageRepository>(TYPES.ChatMessageRepository).to(ChatMessageRepository);
 
 // Services
 container.bind<ITokenService>(TYPES.TokenService).to(JwtTokenService);
@@ -72,6 +98,9 @@ container.bind<IOtpService>(TYPES.OtpService).to(RedisOtpService);
 container.bind<IPasswordResetService>(TYPES.PasswordResetService).to(PasswordResetServiceImpl);
 container.bind<IGoogleTokenVerifier>(TYPES.GoogleTokenVerifier).to(GoogleAuthTokenVerifier);
 container.bind<ICookieService>(TYPES.CookieService).to(CookieService);
+container.bind<IS3Service>(TYPES.S3Service).to(S3Service);
+container.bind<ChatSocketService>(TYPES.ChatSocketService).to(ChatSocketService).inSingletonScope();
+container.bind<ISocketConnectionManager>(TYPES.SocketConnectionManager).toDynamicValue((context) => context.container.get(TYPES.ChatSocketService));
 
 // Use Cases
 container.bind<IGetSeekerProfileUseCase>(TYPES.GetSeekerProfileUseCase).toConstantValue(getSeekerProfileUseCase);
@@ -87,6 +116,12 @@ container.bind<IVerifyOtpUseCase>(TYPES.VerifyOtpUseCase).to(VerifyOtpUseCase);
 container.bind<IRefreshTokenUseCase>(TYPES.RefreshTokenUseCase).to(RefreshTokenUseCase);
 container.bind<ILogoutUseCase>(TYPES.LogoutUseCase).to(LogoutUseCase);
 container.bind<IAuthGetUserByIdUseCase>(TYPES.GetUserByIdUseCase).to(GetUserByIdUseCase);
+container.bind<ICreateConversationUseCase>(TYPES.CreateConversationUseCase).to(CreateConversationUseCase);
+container.bind<ISendMessageUseCase>(TYPES.SendMessageUseCase).to(SendMessageUseCase);
+container.bind<IGetConversationsUseCase>(TYPES.GetConversationsUseCase).to(GetConversationsUseCase);
+container.bind<IGetMessagesUseCase>(TYPES.GetMessagesUseCase).to(GetMessagesUseCase);
+container.bind<IMarkMessagesAsReadUseCase>(TYPES.MarkMessagesAsReadUseCase).to(MarkMessagesAsReadUseCase);
+container.bind<IDeleteMessageUseCase>(TYPES.DeleteMessageUseCase).to(DeleteMessageUseCase);
 
 
 // Controllers
@@ -95,5 +130,6 @@ container.bind<RegistrationController>(TYPES.RegistrationController).to(Registra
 container.bind<OtpController>(TYPES.OtpController).to(OtpController);
 container.bind<TokenController>(TYPES.TokenController).to(TokenController);
 container.bind<PasswordController>(TYPES.PasswordController).to(PasswordController);
+container.bind<ChatController>(TYPES.ChatController).to(ChatController);
 
 export { container };

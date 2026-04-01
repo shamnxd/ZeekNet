@@ -5,12 +5,16 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { PaginatedConversationsResponseDto } from 'src/application/dtos/chat/responses/paginated-conversations-response.dto';
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { GetConversationsDto } from 'src/application/dtos/chat/requests/get-conversations.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetConversationsUseCase implements IGetConversationsUseCase {
   constructor(
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
+
 
   async execute(input: GetConversationsDto): Promise<PaginatedConversationsResponseDto> {
     const { userId, page, limit } = input;

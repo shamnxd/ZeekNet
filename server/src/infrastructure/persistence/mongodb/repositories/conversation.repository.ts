@@ -10,11 +10,14 @@ import { ConversationPersistenceMapper } from 'src/infrastructure/mappers/persis
 import { UserRole } from 'src/domain/enums/user-role.enum';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { CreateInput } from 'src/domain/types/common.types';
+import { injectable, inject, optional } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 
 export class ConversationRepository extends RepositoryBase<Conversation, ConversationDocument>
-  implements IConversationRepository
-{
-  constructor(private readonly _s3Service?: IS3Service) {
+  implements IConversationRepository {
+  constructor(@inject(TYPES.S3Service) @optional() private readonly _s3Service?: IS3Service) {
     super(ConversationModel);
   }
 
@@ -71,7 +74,7 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
   }
 
   async findByParticipants(userAId: string, userBId: string): Promise<Conversation | null> {
-    
+
     if (!Types.ObjectId.isValid(userAId) || !Types.ObjectId.isValid(userBId)) {
       return null;
     }
@@ -131,7 +134,7 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
   private async _getEnrichedParticipants(doc: ConversationDocument): Promise<Map<string, { name: string; profileImage: string | null }>> {
     const detailsMap = new Map<string, { name: string; profileImage: string | null }>();
 
-    
+
     const isPopulatedUser = (u: unknown): u is { _id: Types.ObjectId; isBlocked?: boolean; role?: string; name?: string } => {
       return typeof u === 'object' && u !== null && '_id' in u;
     };
@@ -139,16 +142,16 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
     await Promise.all(
       doc.participants.map(async (participant: ConversationDocument['participants'][0]) => {
         const user = participant.user_id;
-        
-        
+
+
         const userId = isPopulatedUser(user) ? String(user._id) : String(participant.user_id);
-        
+
         let profileImage: string | null = null;
         let name = 'Unknown';
 
-        
+
         if (isPopulatedUser(user)) {
-          const populatedUser = user as { _id: Types.ObjectId; isBlocked?: boolean; role?: string; name?: string }; 
+          const populatedUser = user as { _id: Types.ObjectId; isBlocked?: boolean; role?: string; name?: string };
           if (populatedUser.isBlocked) {
             name = 'User Not Found';
           } else if (populatedUser.role) {
@@ -156,20 +159,20 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
               const SeekerProfileModel = this.model.db.model('SeekerProfile');
               const seekerProfile = await SeekerProfileModel.findOne({ userId: populatedUser._id }, 'avatarFileName').lean() as { avatarFileName?: string } | null;
               const avatarKey = seekerProfile?.avatarFileName || null;
-              
+
               profileImage = avatarKey && this._s3Service ? await this._s3Service.getSignedUrl(avatarKey) : avatarKey;
               name = populatedUser.name || 'Unknown';
             } else if (populatedUser.role === 'company') {
               const CompanyProfileModel = this.model.db.model('CompanyProfile');
               const companyProfile = await CompanyProfileModel.findOne({ userId: String(populatedUser._id) }, 'companyName logo').lean() as { companyName?: string; logo?: string } | null;
               const logoKey = companyProfile?.logo || null;
-              
+
               profileImage = logoKey && this._s3Service ? await this._s3Service.getSignedUrl(logoKey) : logoKey;
               name = companyProfile?.companyName || 'Unknown';
             }
           }
         }
-        
+
         detailsMap.set(userId, { name, profileImage });
       }),
     );
@@ -212,7 +215,7 @@ export class ConversationRepository extends RepositoryBase<Conversation, Convers
     if (!Types.ObjectId.isValid(conversationId)) return;
 
     await ConversationModel.updateOne(
-      { 
+      {
         _id: new Types.ObjectId(conversationId),
         'last_message.message_id': new Types.ObjectId(messageId),
       },
