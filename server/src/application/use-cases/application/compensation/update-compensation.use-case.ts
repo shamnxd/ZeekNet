@@ -1,24 +1,26 @@
-
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IAddCommentUseCase } from 'src/domain/interfaces/use-cases/application/comments/IAddCommentUseCase';
 
-import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { UpdateCompensationRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
 import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
 import { ATSCompensationMapper } from 'src/application/mappers/ats/ats-compensation.mapper';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
   constructor(
-    private readonly _compensationRepository: IATSCompensationRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _addCommentUseCase: IAddCommentUseCase,
-
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ATSCompensationRepository) private readonly _compensationRepository: IATSCompensationRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATS_AddCommentUseCase) private readonly _addCommentUseCase: IAddCommentUseCase,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
 
   async execute(dto: UpdateCompensationRequestDto): Promise<ATSCompensationResponseDto> {
@@ -30,7 +32,7 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const currentUser = await this._userRepository.findById(dto.performedBy);
@@ -76,14 +78,8 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     const updated = await this._compensationRepository.update(dto.applicationId, updateData);
 
     if (!updated) {
-      throw new NotFoundError('Failed to update compensation');
+      throw new NotFoundError(ERROR.FAILED_TO('update compensation'));
     }
-
-
-    const activityType = dto.approvedAt || dto.finalAgreed ? 'approved' : 'updated';
-
-
-
 
     if (dto.notes) {
       await this._addCommentUseCase.execute({
@@ -97,4 +93,3 @@ export class UpdateCompensationUseCase implements IUpdateCompensationUseCase {
     return ATSCompensationMapper.toResponse(updated) as ATSCompensationResponseDto;
   }
 }
-

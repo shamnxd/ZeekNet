@@ -7,6 +7,8 @@ import { ConversationMapper } from 'src/application/mappers/chat/conversation.ma
 import { GetConversationsDto } from 'src/application/dtos/chat/requests/get-conversations.dto';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class GetConversationsUseCase implements IGetConversationsUseCase {
@@ -21,7 +23,7 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
 
     const user = await this._userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
 
     const result = await this._conversationRepository.getUserConversations(userId, { page, limit });

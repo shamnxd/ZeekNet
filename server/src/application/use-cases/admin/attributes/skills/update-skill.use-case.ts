@@ -7,6 +7,8 @@ import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/r
 import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class UpdateSkillUseCase implements IUpdateSkillUseCase {
@@ -16,26 +18,26 @@ export class UpdateSkillUseCase implements IUpdateSkillUseCase {
     const { name } = dto;
 
     if (!name || !name.trim()) {
-      throw new BadRequestError('Skill name is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Skill name'));
     }
 
     const normalizedName = name.trim();
     const existingSkill = await this._skillRepository.findById(skillId);
 
     if (!existingSkill) {
-      throw new NotFoundError('Skill not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Skill'));
     }
 
     const skillWithSameName = await this._skillRepository.findByName(normalizedName);
 
     if (skillWithSameName && skillWithSameName.id !== skillId) {
-      throw new ConflictError('Skill with this name already exists');
+      throw new ConflictError(ERROR.ALREADY_EXISTS('Skill with this name'));
     }
 
     const updatedSkill = await this._skillRepository.update(skillId, { name: normalizedName });
 
     if (!updatedSkill) {
-      throw new InternalServerError('Failed to update skill');
+      throw new InternalServerError(ERROR.FAILED_TO('update skill'));
     }
 
     return SkillMapper.toResponse(updatedSkill);

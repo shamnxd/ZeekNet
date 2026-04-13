@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IStripeService } from 'src/domain/interfaces/services/IStripeService';
 import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
@@ -10,33 +13,34 @@ import { CreateCheckoutSessionRequestDto } from 'src/application/dtos/subscripti
 import { CreateCheckoutSessionResponseDto } from 'src/application/dtos/subscription/responses/checkout-session-response.dto';
 import { StripeCheckoutMapper } from 'src/application/mappers/payment/stripe/stripe-checkout.mapper';
 
+@injectable()
 export class CreateCheckoutSessionUseCase implements ICreateCheckoutSessionUseCase {
   constructor(
-    private readonly _stripeService: IStripeService,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.StripeService) private readonly _stripeService: IStripeService,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
 
   async execute(data: CreateCheckoutSessionRequestDto): Promise<CreateCheckoutSessionResponseDto> {
     const { userId, planId, billingCycle, successUrl, cancelUrl } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const user = await this._userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
 
 
     const plan = await this._subscriptionPlanRepository.findById(planId);
     if (!plan) {
-      throw new NotFoundError('Subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Subscription plan'));
     }
 
     if (!plan.isActive) {

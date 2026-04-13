@@ -6,17 +6,22 @@ import {
   IGetInterviewsByApplicationUseCase, 
 } from 'src/domain/interfaces/use-cases/seeker/applications/IGetInterviewsByApplicationUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetInterviewsByApplicationUseCase implements IGetInterviewsByApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _interviewRepository: IATSInterviewRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSInterviewRepository) private readonly _interviewRepository: IATSInterviewRepository,
   ) {}
 
   async execute(userId: string, applicationId: string): Promise<InterviewForSeekerDto[]> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {

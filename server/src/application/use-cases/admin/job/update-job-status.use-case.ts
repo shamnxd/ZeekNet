@@ -7,6 +7,7 @@ import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
 @injectable()
 export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase {
@@ -18,7 +19,7 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     const updateData: { status: JobStatus; unpublishReason?: string } = {
@@ -34,7 +35,7 @@ export class AdminUpdateJobStatusUseCase implements IAdminUpdateJobStatusUseCase
     const updatedJob = await this._jobPostingRepository.update(jobId, updateData);
 
     if (!updatedJob) {
-      throw new InternalServerError('Failed to update job status');
+      throw new InternalServerError(ERROR.FAILED_TO('update job status'));
     }
 
     return JobPostingMapper.toResponse(updatedJob);

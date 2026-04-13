@@ -1,25 +1,30 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, BadRequestError } from 'src/domain/errors/errors';
 import { UpdateInterviewRequestDto } from 'src/application/dtos/application/interview/requests/update-interview.dto';
 import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
   constructor(
-    private _interviewRepository: IATSInterviewRepository,
-    private _userRepository: IUserRepository,
+    @inject(TYPES.ATSInterviewRepository) private _interviewRepository: IATSInterviewRepository,
+    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
   ) { }
 
   async execute(data: UpdateInterviewRequestDto): Promise<ATSInterviewResponseDto> {
     const user = await this._userRepository.findById(data.userId);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     };
 
     const existingInterview = await this._interviewRepository.findById(data.interviewId);
     if (!existingInterview) {
-      throw new NotFoundError('Interview not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Interview'));
     }
 
     if (existingInterview.status === 'cancelled' && data.status === 'completed') {
@@ -45,10 +50,9 @@ export class UpdateInterviewUseCase implements IUpdateInterviewUseCase {
     });
 
     if (!interview) {
-      throw new NotFoundError('Interview not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Interview'));
     }
 
     return interview;
   }
 }
-

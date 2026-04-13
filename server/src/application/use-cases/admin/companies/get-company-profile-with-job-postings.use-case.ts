@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileUseCase';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { EmploymentType } from 'src/domain/enums/employment-type.enum';
@@ -8,19 +10,22 @@ import { CompanyProfileWithDetailsResponseDto } from 'src/application/dtos/compa
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetCompanyProfileWithJobPostingsUseCase implements IGetCompanyProfileWithJobPostingsUseCase {
   constructor(
-    private readonly _getCompanyProfileUseCase: IGetCompanyProfileUseCase,
-    private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.GetCompanyProfileUseCase) private readonly _getCompanyProfileUseCase: IGetCompanyProfileUseCase,
+    @inject(TYPES.GetCompanyJobPostingsUseCase) private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(userId: string): Promise<CompanyProfileWithDetailsResponseDto> {
     const companyProfile = await this._getCompanyProfileUseCase.execute(userId);
 
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const jobPostingsQuery = {

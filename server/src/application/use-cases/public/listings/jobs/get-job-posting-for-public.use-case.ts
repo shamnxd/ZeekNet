@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -10,34 +12,37 @@ import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(jobId: string, userId?: string): Promise<JobPostingDetailResponseDto> {
     if (!jobId || jobId === 'undefined') {
-      throw new BadRequestError('Job ID is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Job ID'));
     }
 
     const jobPosting = await this._jobPostingRepository.findById(jobId);
 
     if (!jobPosting) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (jobPosting.status === 'blocked') {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (jobPosting.status !== 'active') {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     await this._jobPostingRepository.update(jobId, { 
@@ -89,7 +94,7 @@ export class GetJobPostingForPublicUseCase implements IGetJobPostingForPublicUse
     
     const user = await this._userRepository.findById(companyProfile.userId);
     if (user && user.isBlocked) {
-      throw new NotFoundError('Job posting not found'); 
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting')); 
     }
 
     

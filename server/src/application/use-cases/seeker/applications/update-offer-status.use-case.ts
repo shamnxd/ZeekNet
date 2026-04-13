@@ -9,10 +9,15 @@ export interface IUpdateOfferStatusUseCase {
   execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOfferResponseDto>;
 }
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _offerRepository: IATSOfferRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSOfferRepository) private readonly _offerRepository: IATSOfferRepository,
   ) {}
 
   async execute(userId: string, offerId: string, status: 'signed' | 'declined'): Promise<ATSOfferResponseDto> {
@@ -22,12 +27,12 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
 
     const offer = await this._offerRepository.findById(offerId);
     if (!offer) {
-      throw new NotFoundError('Offer not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Offer'));
     }
 
     const application = await this._jobApplicationRepository.findById(offer.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {
@@ -47,7 +52,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
     const updatedOffer = await this._offerRepository.update(offerId, updateData);
 
     if (!updatedOffer) {
-      throw new NotFoundError('Failed to update offer');
+      throw new NotFoundError(ERROR.FAILED_TO('update offer'));
     }
 
     return ATSOfferMapper.toResponse(updatedOffer);

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IStripeService } from 'src/domain/interfaces/services/IStripeService';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
@@ -19,6 +21,8 @@ import { CompanySubscriptionResponseMapper } from 'src/application/mappers/compa
 import { PaymentMapper } from 'src/application/mappers/payment/payment.mapper';
 import { NotificationMapper } from 'src/application/mappers/notification/notification.mapper';
 import { StripeEventMapper } from 'src/application/mappers/payment/stripe/stripe-event.mapper';
+import { ERROR } from 'src/shared/constants/messages';
+
 import {
   PaymentEvent,
   PaymentSession,
@@ -26,17 +30,18 @@ import {
   PaymentSubscription,
 } from 'src/domain/types/payment/payment-types';
 
+@injectable()
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
   constructor(
-    private readonly _stripeService: IStripeService,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _paymentOrderRepository: IPaymentOrderRepository,
-    private readonly _notificationRepository: INotificationRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _logger: ILogger,
-    private readonly _revertToDefaultPlanUseCase: IRevertToDefaultPlanUseCase,
+    @inject(TYPES.StripeService) private readonly _stripeService: IStripeService,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.PaymentOrderRepository) private readonly _paymentOrderRepository: IPaymentOrderRepository,
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
+    @inject(TYPES.RevertToDefaultPlanUseCase) private readonly _revertToDefaultPlanUseCase: IRevertToDefaultPlanUseCase,
   ) { }
 
   async execute(data: HandleStripeWebhookRequestDto): Promise<{ received: boolean }> {
@@ -115,13 +120,13 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhookUseCase {
 
       const stripeSubscription = await this._stripeService.getSubscription(stripeSubscriptionId);
       if (!stripeSubscription) {
-        this._logger.error('Failed to get Stripe subscription', { stripeSubscriptionId });
+        this._logger.error(ERROR.FAILED_TO('get Stripe subscription'), { stripeSubscriptionId });
         return;
       }
 
       const plan = await this._subscriptionPlanRepository.findById(planId);
       if (!plan) {
-        this._logger.error('Plan not found', { planId });
+        this._logger.error(ERROR.NOT_FOUND('Plan'), { planId });
         return;
       }
 

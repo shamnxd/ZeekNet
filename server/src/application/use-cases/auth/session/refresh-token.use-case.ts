@@ -8,6 +8,8 @@ import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
@@ -22,7 +24,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
     const payload = this._tokenService.verifyRefresh(refreshToken);
     const user = await this._userRepository.findById(payload.sub);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
     if (!user.refreshToken) {
       throw new AuthenticationError('Invalid refresh token');

@@ -13,6 +13,8 @@ import { getDashboardLink } from 'src/shared/utils';
 
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
@@ -35,7 +37,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
 
     const user = await this._userRepository.findOne({ email });
     if (!user) {
-      throw new ValidationError('User not found');
+      throw new ValidationError(ERROR.NOT_FOUND('User'));
     }
 
     await this._userRepository.update(user.id, { isVerified: true });

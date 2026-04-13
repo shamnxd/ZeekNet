@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IStripeService } from 'src/domain/interfaces/services/IStripeService';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -14,22 +17,23 @@ import { SubscriptionStatus } from 'src/domain/enums/subscription-status.enum';
 import { CompanySubscriptionMapper } from 'src/application/mappers/company/subscription/company-subscription.mapper';
 import { PaymentSubscription } from 'src/domain/types/payment/payment-types';
 
+@injectable()
 export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUseCase {
   constructor(
-    private readonly _stripeService: IStripeService,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _logger: ILogger,
+    @inject(TYPES.StripeService) private readonly _stripeService: IStripeService,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) {}
 
   async execute(data: ChangeSubscriptionPlanRequestDto): Promise<ChangeSubscriptionResult> {
     const { userId, newPlanId, billingCycle } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
@@ -43,7 +47,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
 
     const newPlan = await this._subscriptionPlanRepository.findById(newPlanId);
     if (!newPlan) {
-      throw new NotFoundError('New subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('New subscription plan'));
     }
 
     if (!newPlan.isActive) {
@@ -138,7 +142,7 @@ export class ChangeSubscriptionPlanUseCase implements IChangeSubscriptionPlanUse
     );
 
     if (!updatedSubscription) {
-      throw new Error('Failed to update subscription');
+      throw new Error(ERROR.FAILED_TO('update subscription'));
     }
 
     if (unlistedCount > 0) {

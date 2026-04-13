@@ -7,28 +7,34 @@ import { EducationResponseDto } from 'src/application/dtos/seeker/profile/info/r
 import { UpdateEducationRequestDto } from 'src/application/dtos/seeker/profile/education/requests/update-education-request.dto';
 import { IUpdateEducationUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/education/IUpdateEducationUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class UpdateEducationUseCase implements IUpdateEducationUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _seekerEducationRepository: ISeekerEducationRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerEducationRepository) private readonly _seekerEducationRepository: ISeekerEducationRepository,
   ) {}
 
   async execute(dto: UpdateEducationRequestDto): Promise<EducationResponseDto> {
     const { userId, educationId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
-      throw new NotFoundError('Seeker profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Seeker profile'));
     }
 
     const existingEducation = await this._seekerEducationRepository.findById(educationId);
     
     if (!existingEducation) {
-      throw new NotFoundError('Education not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Education'));
     }
 
     const userEducation = await this._seekerEducationRepository.findBySeekerProfileId(profile.id);
     if (!userEducation.find(edu => edu.id === educationId)) {
-      throw new NotFoundError('Education not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Education'));
     }
 
     const updateData = SeekerProfileMapper.toEducationUpdateEntity(dto);
@@ -41,7 +47,7 @@ export class UpdateEducationUseCase implements IUpdateEducationUseCase {
     const updatedEducation = await this._seekerEducationRepository.update(educationId, updateData);
     
     if (!updatedEducation) {
-      throw new NotFoundError('Failed to update education');
+      throw new NotFoundError(ERROR.FAILED_TO('update education'));
     }
     
     return SeekerProfileMapper.educationToResponse(updatedEducation);

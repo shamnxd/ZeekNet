@@ -7,18 +7,23 @@ import {
   IGetTechnicalTasksByApplicationUseCase, 
 } from 'src/domain/interfaces/use-cases/seeker/applications/IGetTechnicalTasksByApplicationUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetTechnicalTasksByApplicationUseCase implements IGetTechnicalTasksByApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSTechnicalTaskRepository) private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(userId: string, applicationId: string): Promise<TechnicalTaskForSeekerDto[]> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {

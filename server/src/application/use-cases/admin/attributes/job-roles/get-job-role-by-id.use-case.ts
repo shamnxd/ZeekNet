@@ -6,6 +6,8 @@ import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-ro
 import { JobRoleMapper } from 'src/application/mappers/job/job-role.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class GetJobRoleByIdUseCase implements IGetJobRoleByIdUseCase {
@@ -15,7 +17,7 @@ export class GetJobRoleByIdUseCase implements IGetJobRoleByIdUseCase {
     const jobRole = await this._jobRoleRepository.findById(jobRoleId);
     
     if (!jobRole) {
-      throw new NotFoundError('Job role not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job role'));
     }
 
     return JobRoleMapper.toResponse(jobRole);

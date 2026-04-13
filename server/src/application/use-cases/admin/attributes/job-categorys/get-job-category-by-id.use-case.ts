@@ -6,6 +6,8 @@ import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/jo
 import { JobCategoryMapper } from 'src/application/mappers/job/job-category.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class GetJobCategoryByIdUseCase implements IGetJobCategoryByIdUseCase {
@@ -15,7 +17,7 @@ export class GetJobCategoryByIdUseCase implements IGetJobCategoryByIdUseCase {
     const category = await this._jobCategoryRepository.findById(id);
     
     if (!category) {
-      throw new NotFoundError('Category not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Category'));
     }
 
     return JobCategoryMapper.toResponse(category);

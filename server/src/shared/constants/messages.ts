@@ -31,6 +31,7 @@ export const SUCCESS = {
 export const ERROR = {
   INTERNAL_SERVER: 'An unexpected error occurred',
   NOT_FOUND: (entity: string) => `${entity} not found`,
+  FAILED_TO: (action: string) => `Failed to ${action}`,
   UNAUTHORIZED: 'Authentication required',
   FORBIDDEN: 'Access denied',
   ALREADY_EXISTS: (entity: string) => `${entity} already exists`,
@@ -39,6 +40,20 @@ export const ERROR = {
   FILE_PROCESSING_ERROR: 'File processing error',
   MISSING_TOKEN: 'Missing or invalid token',
   INVALID_TOKEN: 'Invalid or expired token',
+} as const;
+
+export const COMPANY = {
+  USER_ID_REQUIRED: 'User ID is required',
+  ONLY_REJECTED_CAN_REAPPLY: 'Only rejected companies can reapply for verification',
+  FAILED_TO_RETRIEVE_UPDATED_PROFILE: 'Failed to retrieve updated profile',
+} as const;
+
+export const TECHNICAL_TASK = {
+  CANNOT_MARK_CANCELLED_AS_COMPLETED: 'Cannot mark a cancelled task as completed',
+  CANNOT_CANCEL_COMPLETED: 'Cannot cancel a completed task',
+  CANNOT_CANCEL_UNDER_REVIEW: 'Cannot cancel a task that is already under review',
+  RATING_ALREADY_SUBMITTED: 'Technical task rating has already been submitted',
+  FEEDBACK_ALREADY_SUBMITTED: 'Technical task feedback has already been submitted',
 } as const;
 
 /**

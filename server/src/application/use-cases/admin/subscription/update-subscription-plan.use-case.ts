@@ -14,6 +14,8 @@ import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemp
 import { PaymentSubscription } from 'src/domain/types/payment/payment-types';
 import { injectable, inject, optional } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUseCase {
@@ -31,7 +33,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
     const existingPlan = await this._subscriptionPlanRepository.findById(planId);
 
     if (!existingPlan) {
-      throw new NotFoundError('Subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Subscription plan'));
     }
 
     if (data.name !== undefined) {
@@ -42,7 +44,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
 
       const planWithSameName = await this._subscriptionPlanRepository.findByName(normalizedName);
       if (planWithSameName && planWithSameName.id !== planId) {
-        throw new ConflictError('Subscription plan with this name already exists');
+        throw new ConflictError(ERROR.ALREADY_EXISTS('Subscription plan with this name'));
       }
       data.name = normalizedName;
     }
@@ -199,7 +201,7 @@ export class UpdateSubscriptionPlanUseCase implements IUpdateSubscriptionPlanUse
           this._logger.info(`Created new prices for plan ${existingPlan.name} - Monthly: ${newMonthlyPriceId}, Yearly: ${newYearlyPriceId ?? 'none'}`);
         } catch (error) {
           this._logger.error(`Failed to create new prices for plan ${existingPlan.name}`, error);
-          throw new InternalServerError('Failed to update plan prices in Stripe');
+          throw new InternalServerError(ERROR.FAILED_TO('update plan prices in Stripe'));
         }
       }
     }

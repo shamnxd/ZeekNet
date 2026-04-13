@@ -1,13 +1,16 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyBenefitsRepository } from 'src/domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { IDeleteCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/IDeleteCompanyBenefitUseCase';
 import { DeleteCompanyBenefitsRequestDto } from 'src/application/dtos/company/profile/benefits/requests/company-benefits.dto';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
 
+@injectable()
 export class DeleteCompanyBenefitUseCase implements IDeleteCompanyBenefitUseCase {
   constructor(
-    private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyBenefitsRepository) private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(dto: DeleteCompanyBenefitsRequestDto): Promise<void> {

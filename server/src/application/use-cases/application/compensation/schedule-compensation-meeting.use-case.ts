@@ -1,29 +1,31 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { v4 as uuidv4 } from 'uuid';
 import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
 import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
-import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { ScheduleCompensationMeetingRequestDto } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
 import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
 import { ATSCompensationMeetingMapper } from 'src/application/mappers/ats/ats-compensation-meeting.mapper';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
+@injectable()
 export class ScheduleCompensationMeetingUseCase implements IScheduleCompensationMeetingUseCase {
   constructor(
-    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ATSCompensationMeetingRepository) private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
 
   async execute(dto: ScheduleCompensationMeetingRequestDto): Promise<ATSCompensationMeetingResponseDto> {
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const currentUser = await this._userRepository.findById(dto.performedBy);
@@ -51,9 +53,6 @@ export class ScheduleCompensationMeetingUseCase implements IScheduleCompensation
     });
 
     const created = await this._compensationMeetingRepository.create(meeting);
-
-
-
 
     return ATSCompensationMeetingMapper.toResponse(created);
   }

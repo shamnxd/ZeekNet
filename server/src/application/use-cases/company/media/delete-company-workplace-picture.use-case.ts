@@ -1,12 +1,15 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyWorkplacePicturesRepository } from 'src/domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
 import { IDeleteCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IDeleteCompanyWorkplacePictureUseCase';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
 
+@injectable()
 export class DeleteCompanyWorkplacePictureUseCase implements IDeleteCompanyWorkplacePictureUseCase {
   constructor(
-    private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(data: { userId: string; pictureId: string }): Promise<void> {

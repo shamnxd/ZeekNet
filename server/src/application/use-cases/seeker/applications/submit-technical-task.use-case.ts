@@ -10,12 +10,17 @@ import {
 import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technical-task.mapper';
 import { ATSTechnicalTaskResponseDto } from 'src/application/dtos/application/task/responses/ats-technical-task-response.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
-    private readonly _fileUploadService: IFileUploadService,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSTechnicalTaskRepository) private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(
@@ -26,7 +31,7 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
   ): Promise<ATSTechnicalTaskResponseDto> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {
@@ -35,7 +40,7 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
 
     const task = await this._technicalTaskRepository.findById(taskId);
     if (!task) {
-      throw new NotFoundError('Technical task not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Technical task'));
     }
 
     if (task.applicationId !== applicationId) {
@@ -65,7 +70,7 @@ export class SubmitTechnicalTaskUseCase implements ISubmitTechnicalTaskUseCase {
     });
 
     if (!updatedTask) {
-      throw new NotFoundError('Failed to update task');
+      throw new NotFoundError(ERROR.FAILED_TO('update task'));
     }
 
     const response = ATSTechnicalTaskMapper.toResponse(updatedTask);

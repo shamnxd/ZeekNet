@@ -8,6 +8,8 @@ import { SkillResponseDto } from 'src/application/dtos/admin/attributes/skills/r
 import { SkillMapper } from 'src/application/mappers/skill/skill.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class CreateSkillUseCase implements ICreateSkillUseCase {
@@ -17,14 +19,14 @@ export class CreateSkillUseCase implements ICreateSkillUseCase {
     const { name } = dto;
 
     if (!name || !name.trim()) {
-      throw new BadRequestError('Skill name is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Skill name'));
     }
 
     const normalizedName = name.trim();
     const existingSkill = await this._skillRepository.findByName(normalizedName);
 
     if (existingSkill) {
-      throw new ConflictError('Skill with this name already exists');
+      throw new ConflictError(ERROR.ALREADY_EXISTS('Skill with this name'));
     }
 
     const skill = await this._skillRepository.create({ name: normalizedName } as CreateInput<Skill>);

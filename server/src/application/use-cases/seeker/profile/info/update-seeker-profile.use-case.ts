@@ -8,11 +8,17 @@ import { SeekerProfileResponseDto } from 'src/application/dtos/seeker/profile/in
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { UpdateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _s3Service: IS3Service,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) {}
 
   async execute(dto: UpdateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto> {
@@ -20,7 +26,7 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     const existingProfile = await this._seekerProfileRepository.findOne({ userId });
     
     if (!existingProfile) {
-      throw new NotFoundError('Seeker profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Seeker profile'));
     }
 
     if (dto.name !== undefined) {
@@ -35,7 +41,7 @@ export class UpdateSeekerProfileUseCase implements IUpdateSeekerProfileUseCase {
     const updatedProfile = await this._seekerProfileRepository.update(existingProfile.id, updateData);
     
     if (!updatedProfile) {
-      throw new NotFoundError('Failed to update seeker profile');
+      throw new NotFoundError(ERROR.FAILED_TO('update seeker profile'));
     }
     
     return SeekerProfileMapper.toResponse(updatedProfile, this._s3Service);

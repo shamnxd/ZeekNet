@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
@@ -10,20 +13,21 @@ import { Types } from 'mongoose';
 import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 
+@injectable()
 export class CreateJobPostingUseCase implements ICreateJobPostingUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.GetCompanyProfileByUserIdUseCase) private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) { }
 
   async execute(data: CreateJobPostingRequestDto): Promise<JobPostingResponseDto> {
     const { userId, ...jobData } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);

@@ -9,6 +9,8 @@ import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.map
 import { DeleteMessageDto } from 'src/application/dtos/chat/requests/delete-message.dto';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class DeleteMessageUseCase implements IDeleteMessageUseCase {
@@ -24,7 +26,7 @@ export class DeleteMessageUseCase implements IDeleteMessageUseCase {
 
     const message = await this._messageRepository.findById(messageId);
     if (!message) {
-      throw new Error('Message not found');
+      throw new Error(ERROR.NOT_FOUND('Message'));
     }
 
     if (message.senderId.toString() !== userId) {

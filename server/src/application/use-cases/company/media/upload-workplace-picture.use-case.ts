@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { ValidationError } from 'src/domain/errors/errors';
 import { UploadWorkplacePictureResult } from 'src/application/dtos/company/media/responses/upload-workplace-picture-result.dto';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadWorkplacePictureUseCase';
 import { UploadWorkplacePictureDto } from 'src/application/dtos/company/media/requests/upload-workplace-picture.dto';
 
+@injectable()
 export class UploadWorkplacePictureUseCase implements IUploadWorkplacePictureUseCase {
-  constructor(private readonly _s3Service: IS3Service) { }
+  constructor(@inject(TYPES.S3Service) private readonly _s3Service: IS3Service) { }
 
   async execute(dto: UploadWorkplacePictureDto): Promise<UploadWorkplacePictureResult> {
     const { buffer, originalname, mimetype } = dto;

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { v4 as uuidv4 } from 'uuid';
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
 import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/IATSInterviewRepository';
@@ -13,17 +15,19 @@ import { ScheduleInterviewRequestDto } from 'src/application/dtos/application/in
 import { ATSInterviewResponseDto } from 'src/application/dtos/application/interview/responses/ats-interview-response.dto';
 import { ATSInterviewMapper } from 'src/application/mappers/ats/ats-interview.mapper';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
   constructor(
-    private interviewRepository: IATSInterviewRepository,
-    private jobApplicationRepository: IJobApplicationRepository,
-    private jobPostingRepository: IJobPostingRepository,
-    private userRepository: IUserRepository,
+    @inject(TYPES.ATSInterviewRepository) private interviewRepository: IATSInterviewRepository,
+    @inject(TYPES.JobApplicationRepository) private jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private userRepository: IUserRepository,
 
-    private mailerService: IMailerService,
-    private emailTemplateService: IEmailTemplateService,
-    private logger: ILogger,
+    @inject(TYPES.MailerService) private mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.LoggerService) private logger: ILogger,
   ) { }
 
   async execute(data: ScheduleInterviewRequestDto): Promise<ATSInterviewResponseDto> {
@@ -35,7 +39,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
     // Get user info for audit fields
     const user = await this.userRepository.findById(data.userId);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
     const performedBy = data.userId;
     const performedByName = user.email || user.name || 'Unknown User';
@@ -62,7 +66,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
 
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this.jobPostingRepository.findById(application.jobId);
@@ -105,7 +109,7 @@ export class ScheduleInterviewUseCase implements IScheduleInterviewUseCase {
       );
       await this.mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      this.logger.error('Failed to send interview scheduled email:', error);
+      this.logger.error(ERROR.FAILED_TO('send interview scheduled email:'), error);
     }
   }
 }

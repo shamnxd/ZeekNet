@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetPublicCompanyProfileUseCase';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -14,25 +16,28 @@ import { CompanyBenefits } from 'src/domain/entities/company-benefits.entity';
 import { CompanyOfficeLocation } from 'src/domain/entities/company-office-location.entity';
 import { CompanyTechStack } from 'src/domain/entities/company-tech-stack.entity';
 import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetPublicCompanyProfileUseCase implements IGetPublicCompanyProfileUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _subscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _contactRepository: ICompanyContactRepository,
-    private readonly _officeLocationRepository: ICompanyOfficeLocationRepository,
-    private readonly _techStackRepository: ICompanyTechStackRepository,
-    private readonly _benefitsRepository: ICompanyBenefitsRepository,
-    private readonly _workplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _subscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyContactRepository) private readonly _contactRepository: ICompanyContactRepository,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _officeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.CompanyTechStackRepository) private readonly _techStackRepository: ICompanyTechStackRepository,
+    @inject(TYPES.CompanyBenefitsRepository) private readonly _benefitsRepository: ICompanyBenefitsRepository,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _workplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(companyId: string): Promise<unknown> {
     const company = await this._companyProfileRepository.findById(companyId);
 
     if (!company || company.isVerified !== CompanyVerificationStatus.VERIFIED || company.isBlocked) {
-      throw new NotFoundError('Company not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company'));
     }
 
 

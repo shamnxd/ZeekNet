@@ -5,17 +5,22 @@ import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 import { JobApplicationDetailResponseDto } from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetSeekerApplicationDetailsUseCase implements IGetSeekerApplicationDetailsUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
   ) {}
 
   async execute(userId: string, applicationId: string): Promise<JobApplicationDetailResponseDto> {
     const seekerId = userId;
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== seekerId) {

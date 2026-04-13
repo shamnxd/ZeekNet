@@ -14,6 +14,8 @@ import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { NotFoundError } from 'src/domain/errors/errors';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
@@ -33,7 +35,7 @@ export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
     const company = await this._companyProfileRepository.findById(companyId);
 
     if (!company) {
-      throw new NotFoundError('Company not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company'));
     }
 
     const [

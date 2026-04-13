@@ -3,6 +3,8 @@ import { IDeleteJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/att
 import { NotFoundError, InternalServerError } from 'src/domain/errors/errors';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class DeleteJobRoleUseCase implements IDeleteJobRoleUseCase {
@@ -12,13 +14,13 @@ export class DeleteJobRoleUseCase implements IDeleteJobRoleUseCase {
     const jobRole = await this._jobRoleRepository.findById(jobRoleId);
     
     if (!jobRole) {
-      throw new NotFoundError('Job role not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job role'));
     }
 
     const deleted = await this._jobRoleRepository.delete(jobRoleId);
     
     if (!deleted) {
-      throw new InternalServerError('Failed to delete job role');
+      throw new InternalServerError(ERROR.FAILED_TO('delete job role'));
     }
 
     return true;

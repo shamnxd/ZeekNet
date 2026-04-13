@@ -8,13 +8,19 @@ import { NotFoundError } from 'src/domain/errors/errors';
 import { SeekerProfileMapper } from 'src/application/mappers/seeker/seeker-profile.mapper';
 import { SeekerProfileResponseDto } from 'src/application/dtos/seeker/profile/info/responses/seeker-profile-response.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
-    private readonly _seekerEducationRepository: ISeekerEducationRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerExperienceRepository) private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
+    @inject(TYPES.SeekerEducationRepository) private readonly _seekerEducationRepository: ISeekerEducationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(userId: string): Promise<SeekerProfileResponseDto> {
@@ -22,7 +28,7 @@ export class GetSeekerProfileUseCase implements IGetSeekerProfileUseCase {
     const user = await this._userRepository.findById(userId);
     
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
 
     let profile = await this._seekerProfileRepository.findOne({ userId });

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -12,16 +14,19 @@ import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
 import { CloseJobDto } from 'src/application/dtos/company/job/requests/close-job.dto';
 import { ICloseJobManuallyUseCase } from 'src/domain/interfaces/use-cases/job/ICloseJobManuallyUseCase';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(dto: CloseJobDto): Promise<void> {
@@ -29,12 +34,12 @@ export class CloseJobManuallyUseCase implements ICloseJobManuallyUseCase {
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const job = await this._jobPostingRepository.findById(jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (job.companyId !== companyProfile.id) {

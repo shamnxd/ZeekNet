@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetFeaturedJobsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetFeaturedJobsUseCase';
 import { GetFeaturedJobsRequestDto } from 'src/application/dtos/public/listings/jobs/requests/get-featured-jobs-request.dto';
@@ -8,10 +10,11 @@ import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 import { PublicJobListItemDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 
+@injectable()
 export class GetFeaturedJobsUseCase implements IGetFeaturedJobsUseCase {
   constructor(
-        private readonly _jobPostingRepository: IJobPostingRepository,
-        private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(dto: GetFeaturedJobsRequestDto): Promise<GetFeaturedJobsResponseDto> {

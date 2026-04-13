@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetSeekerCompaniesUseCase } from 'src/domain/interfaces/use-cases/public/listings/companys/IGetSeekerCompaniesUseCase';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -5,13 +7,13 @@ import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositori
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
 
-
+@injectable()
 export class GetSeekerCompaniesUseCase implements IGetSeekerCompaniesUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _subscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _subscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
 

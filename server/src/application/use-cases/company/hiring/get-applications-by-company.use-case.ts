@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
@@ -11,22 +14,23 @@ import type { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 import { JobApplicationListResponseDto, PaginatedApplicationsResponseDto } from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
 
+@injectable()
 export class GetApplicationsByCompanyUseCase implements IGetApplicationsByCompanyUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(data: ApplicationFiltersRequestDto): Promise<PaginatedApplicationsResponseDto> {
     const { userId, ...filters } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const page = filters.page || 1;

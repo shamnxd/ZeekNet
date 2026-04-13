@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyTechStackRepository } from 'src/domain/interfaces/repositories/company/ICompanyTechStackRepository';
 import { UpdateCompanyTechStackRequestDto } from 'src/application/dtos/company/profile/stack/requests/company-tech-stack.dto';
 import { NotFoundError, AuthorizationError } from 'src/domain/errors/errors';
@@ -6,10 +8,11 @@ import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/ad
 import { CompanyTechStackResponseDto } from 'src/application/dtos/company/profile/stack/responses/company-tech-stack-response.dto';
 import { CompanyTechStackMapper } from 'src/application/mappers/company/profile/company-tech-stack.mapper';
 
+@injectable()
 export class UpdateCompanyTechStackUseCase implements IUpdateCompanyTechStackUseCase {
   constructor(
-    private readonly _companyTechStackRepository: ICompanyTechStackRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyTechStackRepository) private readonly _companyTechStackRepository: ICompanyTechStackRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) { }
 
   async execute(dto: UpdateCompanyTechStackRequestDto): Promise<CompanyTechStackResponseDto> {
@@ -28,5 +31,3 @@ export class UpdateCompanyTechStackUseCase implements IUpdateCompanyTechStackUse
     return CompanyTechStackMapper.toResponse(updatedTechStack);
   }
 }
-
-

@@ -8,6 +8,8 @@ import { ConversationMapper } from 'src/application/mappers/chat/conversation.ma
 import { MarkMessagesAsReadDto } from 'src/application/dtos/chat/requests/mark-messages-as-read.dto';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
@@ -23,7 +25,7 @@ export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
 
     const conversation = await this._conversationRepository.findById(conversationId);
     if (!conversation) {
-      throw new NotFoundError('Conversation not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Conversation'));
     }
 
     const participantIds = conversation.participants.map((p) => p.userId);

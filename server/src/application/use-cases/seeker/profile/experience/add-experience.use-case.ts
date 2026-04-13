@@ -6,10 +6,16 @@ import { SeekerProfileMapper } from 'src/application/mappers/seeker/seeker-profi
 import { ExperienceResponseDto } from 'src/application/dtos/seeker/profile/info/responses/seeker-profile-response.dto';
 import { AddExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/add-experience-request.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class AddExperienceUseCase implements IAddExperienceUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerExperienceRepository) private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
   ) {}
 
   async execute(dto: AddExperienceRequestDto): Promise<ExperienceResponseDto> {
@@ -23,7 +29,7 @@ export class AddExperienceUseCase implements IAddExperienceUseCase {
     
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
-      throw new NotFoundError('Seeker profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Seeker profile'));
     }
 
     if (endDate && endDate < startDate) {

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyBenefitsRepository } from 'src/domain/interfaces/repositories/company/ICompanyBenefitsRepository';
 import { CompanyBenefits } from 'src/domain/entities/company-benefits.entity';
 import { CreateCompanyBenefitsRequestDto } from 'src/application/dtos/company/profile/benefits/requests/company-benefits.dto';
@@ -6,10 +8,11 @@ import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/ad
 import { CompanyBenefitResponseDto } from 'src/application/dtos/company/profile/benefits/responses/company-benefit-response.dto';
 import { CompanyBenefitMapper } from 'src/application/mappers/company/profile/company-benefit.mapper';
 
+@injectable()
 export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase {
   constructor(
-    private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyBenefitsRepository) private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(data: CreateCompanyBenefitsRequestDto): Promise<CompanyBenefitResponseDto> {
@@ -20,5 +23,3 @@ export class CreateCompanyBenefitUseCase implements ICreateCompanyBenefitUseCase
     return CompanyBenefitMapper.toResponse(created);
   }
 }
-
-

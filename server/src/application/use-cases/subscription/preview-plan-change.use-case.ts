@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
@@ -9,29 +12,30 @@ import { IPreviewPlanChangeUseCase } from 'src/domain/interfaces/use-cases/subsc
 import { BillingCycle } from 'src/domain/enums/billing-cycle.enum';
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 
+@injectable()
 export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
   constructor(
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
   ) { }
 
   async execute(data: PreviewPlanChangeRequestDto): Promise<PreviewPlanChangeResponseDto> {
     const { userId, newPlanId, billingCycle } = data;
 
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
 
     const newPlan = await this._subscriptionPlanRepository.findById(newPlanId);
     if (!newPlan) {
-      throw new NotFoundError('New subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('New subscription plan'));
     }
 
     if (!newPlan.isActive) {
@@ -76,7 +80,7 @@ export class PreviewPlanChangeUseCase implements IPreviewPlanChangeUseCase {
     // Get current plan
     const currentPlan = await this._subscriptionPlanRepository.findById(subscription.planId);
     if (!currentPlan) {
-      throw new NotFoundError('Current subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Current subscription plan'));
     }
 
     // Check if same plan

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { UpdateCompanyJobPostingDto } from 'src/application/dtos/company/job/requests/update-company-job-posting.dto';
 import { NotFoundError, InternalServerError, ValidationError, AuthorizationError } from 'src/domain/errors/errors';
@@ -7,11 +9,14 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
 import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.GetCompanyProfileByUserIdUseCase) private readonly _getCompanyProfileByUserIdUseCase: IGetCompanyProfileByUserIdUseCase,
   ) { }
 
   async execute(dto: UpdateCompanyJobPostingDto): Promise<JobPostingResponseDto> {
@@ -19,13 +24,13 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
 
     const companyProfile = await this._getCompanyProfileByUserIdUseCase.execute(userId);
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     // Authorization Check
@@ -51,7 +56,7 @@ export class UpdateJobPostingUseCase implements IUpdateJobPostingUseCase {
     const updatedJob = await this._jobPostingRepository.update(jobId, updates);
 
     if (!updatedJob) {
-      throw new InternalServerError('Failed to update job posting');
+      throw new InternalServerError(ERROR.FAILED_TO('update job posting'));
     }
 
     return JobPostingMapper.toResponse(updatedJob);

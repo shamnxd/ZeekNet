@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
@@ -6,11 +8,14 @@ import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 
 import { ReopenJobRequestDto } from 'src/application/dtos/company/job/requests/reopen-job-request.dto';
 import { IReopenJobUseCase } from 'src/domain/interfaces/use-cases/job/IReopenJobUseCase';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class ReopenJobUseCase implements IReopenJobUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(dto: ReopenJobRequestDto): Promise<void> {
@@ -23,12 +28,12 @@ export class ReopenJobUseCase implements IReopenJobUseCase {
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const job = await this._jobPostingRepository.findById(jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (job.companyId !== companyProfile.id) {

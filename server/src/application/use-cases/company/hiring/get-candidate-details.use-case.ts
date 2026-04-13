@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetCandidateDetailsUseCase, CandidateDetails } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidateDetailsUseCase';
 import { SeekerProfile } from 'src/domain/entities/seeker-profile.entity';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
@@ -7,32 +9,35 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetCandidateDetailsUseCase implements IGetCandidateDetailsUseCase {
   constructor(
-    private readonly seekerProfileRepository: ISeekerProfileRepository,
-    private readonly seekerExperienceRepository: ISeekerExperienceRepository,
-    private readonly seekerEducationRepository: ISeekerEducationRepository,
-    private readonly userRepository: IUserRepository,
-    private readonly s3Service: IS3Service,
-    private readonly logger: ILogger,
+    @inject(TYPES.SeekerProfileRepository) private readonly seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerExperienceRepository) private readonly seekerExperienceRepository: ISeekerExperienceRepository,
+    @inject(TYPES.SeekerEducationRepository) private readonly seekerEducationRepository: ISeekerEducationRepository,
+    @inject(TYPES.UserRepository) private readonly userRepository: IUserRepository,
+    @inject(TYPES.S3Service) private readonly s3Service: IS3Service,
+    @inject(TYPES.LoggerService) private readonly logger: ILogger,
   ) { }
 
   async execute(params: { id: string }): Promise<CandidateDetails> {
     const candidateId = params.id;
     if (!candidateId) {
-      throw new NotFoundError('Candidate ID is required');
+      throw new NotFoundError(VALIDATION.REQUIRED('Candidate ID'));
     }
 
     const profile = await this.seekerProfileRepository.findById(candidateId);
     if (!profile) {
-      throw new NotFoundError('Candidate not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Candidate'));
     }
 
     const userId = profile.userId;
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new NotFoundError('User data not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User data'));
     }
 
     const experiences = await this.seekerExperienceRepository.findBySeekerProfileId(candidateId);

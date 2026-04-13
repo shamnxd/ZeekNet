@@ -7,28 +7,34 @@ import { SeekerProfileMapper } from 'src/application/mappers/seeker/seeker-profi
 import { ExperienceResponseDto } from 'src/application/dtos/seeker/profile/info/responses/seeker-profile-response.dto';
 import { UpdateExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/update-experience-request.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerExperienceRepository) private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
   ) {}
 
   async execute(dto: UpdateExperienceRequestDto): Promise<ExperienceResponseDto> {
     const { userId, experienceId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
-      throw new NotFoundError('Seeker profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Seeker profile'));
     }
 
     const existingExperience = await this._seekerExperienceRepository.findById(experienceId);
     
     if (!existingExperience) {
-      throw new NotFoundError('Experience not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Experience'));
     }
 
     const userExperiences = await this._seekerExperienceRepository.findBySeekerProfileId(profile.id);
     if (!userExperiences.find(exp => exp.id === experienceId)) {
-      throw new NotFoundError('Experience not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Experience'));
     }
 
     const updateData = SeekerProfileMapper.toExperienceUpdateEntity(dto);
@@ -48,7 +54,7 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
     const updatedExperience = await this._seekerExperienceRepository.update(experienceId, updateData);
     
     if (!updatedExperience) {
-      throw new NotFoundError('Failed to update experience');
+      throw new NotFoundError(ERROR.FAILED_TO('update experience'));
     }
     
     return SeekerProfileMapper.experienceToResponse(updatedExperience);

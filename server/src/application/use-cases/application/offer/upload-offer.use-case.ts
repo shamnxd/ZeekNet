@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { v4 as uuidv4 } from 'uuid';
 import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUploadOfferUseCase';
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
@@ -9,15 +12,15 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { UploadOfferRequestDto } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
 import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
 import { ATSOfferMapper } from 'src/application/mappers/ats/ats-offer.mapper';
-
 import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 
+@injectable()
 export class UploadOfferUseCase implements IUploadOfferUseCase {
   constructor(
-    private readonly _offerRepository: IATSOfferRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.ATSOfferRepository) private readonly _offerRepository: IATSOfferRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
   ) { }
 
   async execute(dto: UploadOfferRequestDto): Promise<ATSOfferResponseDto> {
@@ -40,7 +43,7 @@ export class UploadOfferUseCase implements IUploadOfferUseCase {
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     return ATSOfferMapper.toResponse(savedOffer);

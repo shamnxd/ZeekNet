@@ -8,6 +8,8 @@ import { JobRoleResponseDto } from 'src/application/dtos/admin/attributes/job-ro
 import { JobRoleMapper } from 'src/application/mappers/job/job-role.mapper';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class CreateJobRoleUseCase implements ICreateJobRoleUseCase {
@@ -17,14 +19,14 @@ export class CreateJobRoleUseCase implements ICreateJobRoleUseCase {
     const { name } = dto;
 
     if (!name || !name.trim()) {
-      throw new BadRequestError('Job role name is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Job role name'));
     }
 
     const normalizedName = name.trim();
     const existingJobRole = await this._jobRoleRepository.findByName(normalizedName);
 
     if (existingJobRole) {
-      throw new ConflictError('Job role with this name already exists');
+      throw new ConflictError(ERROR.ALREADY_EXISTS('Job role with this name'));
     }
 
     const jobRole = await this._jobRoleRepository.create({ name: normalizedName } as CreateInput<JobRole>);

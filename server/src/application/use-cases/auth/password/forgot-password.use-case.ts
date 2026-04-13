@@ -5,6 +5,8 @@ import { NotFoundError } from 'src/domain/errors/errors';
 
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
@@ -17,7 +19,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   async execute(email: string): Promise<void> {
     const user = await this._userRepository.findOne({ email });
     if (!user) {
-      throw new NotFoundError('Email not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Email'));
     }
     const token = await this._passwordResetService.generateResetToken(user.id, user.email);
     await this._passwordResetService.sendResetEmail(user.email, token);

@@ -8,6 +8,8 @@ import { VerifyCompanyRequestDto } from 'src/application/dtos/admin/companies/re
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
 
 @injectable()
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
@@ -23,7 +25,7 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
 
     const company = await this._companyProfileRepository.findById(companyId);
     if (!company) {
-      throw new Error('Company not found');
+      throw new Error(ERROR.NOT_FOUND('Company'));
     }
 
     if (company.isVerified !== CompanyVerificationStatus.PENDING) {

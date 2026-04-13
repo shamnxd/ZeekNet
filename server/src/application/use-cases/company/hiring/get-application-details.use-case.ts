@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -12,35 +15,36 @@ import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 import { JobApplicationDetailResponseDto } from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
 
+@injectable()
 export class GetApplicationDetailsUseCase implements IGetApplicationDetailsUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
-    private readonly _seekerEducationRepository: ISeekerEducationRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerExperienceRepository) private readonly _seekerExperienceRepository: ISeekerExperienceRepository,
+    @inject(TYPES.SeekerEducationRepository) private readonly _seekerEducationRepository: ISeekerEducationRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(data: GetApplicationDetailsRequestDto): Promise<JobApplicationDetailResponseDto> {
     const { userId, applicationId } = data;
-    if (!userId) throw new Error('User ID is required');
-    if (!applicationId) throw new Error('Application ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
+    if (!applicationId) throw new Error(VALIDATION.REQUIRED('Application ID'));
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
     if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only view applications for your own job postings');

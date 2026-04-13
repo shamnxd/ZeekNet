@@ -3,6 +3,7 @@ import { IAdminDeleteJobUseCase } from 'src/domain/interfaces/use-cases/admin/jo
 import { NotFoundError } from 'src/domain/errors/errors';
 import { injectable, inject } from 'inversify';
 import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
 @injectable()
 export class AdminDeleteJobUseCase implements IAdminDeleteJobUseCase {
@@ -12,7 +13,7 @@ export class AdminDeleteJobUseCase implements IAdminDeleteJobUseCase {
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     await this._jobPostingRepository.delete(jobId);

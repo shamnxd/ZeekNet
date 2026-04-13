@@ -1,8 +1,11 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ISkillRepository } from 'src/domain/interfaces/repositories/skill/ISkillRepository';
 import { IGetPublicSkillsUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicSkillsUseCase';
 
+@injectable()
 export class GetPublicSkillsUseCase implements IGetPublicSkillsUseCase {
-  constructor(private readonly _skillRepository: ISkillRepository) {}
+  constructor(@inject(TYPES.SkillRepository) private readonly _skillRepository: ISkillRepository) {}
 
   async execute(): Promise<string[]> {
     const result = await this._skillRepository.paginate({}, {

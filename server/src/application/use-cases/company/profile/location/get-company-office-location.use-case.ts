@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyOfficeLocationRepository } from 'src/domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
 import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IGetCompanyOfficeLocationUseCase';
 import { GetCompanyOfficeLocationRequestDto } from 'src/application/dtos/company/profile/location/requests/company-office-location.dto';
@@ -5,10 +7,11 @@ import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/ad
 import { CompanyLocationResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
 import { CompanyOfficeLocationMapper } from 'src/application/mappers/company/profile/company-office-location.mapper';
 
+@injectable()
 export class GetCompanyOfficeLocationUseCase implements IGetCompanyOfficeLocationUseCase {
   constructor(
-    private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(dto: GetCompanyOfficeLocationRequestDto): Promise<CompanyLocationResponseDto[]> {
