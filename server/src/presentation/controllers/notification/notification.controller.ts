@@ -1,18 +1,23 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { IGetNotificationsUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
-import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
-import { IMarkAllNotificationsAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
-import { IGetUnreadNotificationCountUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import {
+  IGetNotificationsUseCase,
+  IMarkNotificationAsReadUseCase,
+  IMarkAllNotificationsAsReadUseCase,
+  IGetUnreadNotificationCountUseCase,
+} from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { sendSuccessResponse, handleAsyncError, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class NotificationController {
   constructor(
-    private readonly _getNotificationsUseCase: IGetNotificationsUseCase,
-    private readonly _markNotificationAsReadUseCase: IMarkNotificationAsReadUseCase,
-    private readonly _markAllNotificationsAsReadUseCase: IMarkAllNotificationsAsReadUseCase,
-    private readonly _getUnreadNotificationCountUseCase: IGetUnreadNotificationCountUseCase,
+    @inject(TYPES.GetNotificationsUseCase) private readonly _getNotificationsUseCase: IGetNotificationsUseCase,
+    @inject(TYPES.MarkNotificationAsReadUseCase) private readonly _markNotificationAsReadUseCase: IMarkNotificationAsReadUseCase,
+    @inject(TYPES.MarkAllNotificationsAsReadUseCase) private readonly _markAllNotificationsAsReadUseCase: IMarkAllNotificationsAsReadUseCase,
+    @inject(TYPES.GetUnreadNotificationCountUseCase) private readonly _getUnreadNotificationCountUseCase: IGetUnreadNotificationCountUseCase,
   ) { }
 
   getNotifications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

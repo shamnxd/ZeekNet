@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUploadOfferUseCase';
@@ -8,11 +10,12 @@ import { UpdateOfferStatusDtoSchema } from 'src/application/dtos/application/off
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSOfferController {
   constructor(
-    private readonly _uploadOfferUseCase: IUploadOfferUseCase,
-    private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
-    private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
+    @inject(TYPES.ATS_UploadOfferUseCase) private readonly _uploadOfferUseCase: IUploadOfferUseCase,
+    @inject(TYPES.ATS_UpdateOfferStatusUseCase) private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
+    @inject(TYPES.ATS_GetOffersByApplicationUseCase) private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
   ) { }
 
   uploadOffer = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -80,7 +83,3 @@ export class ATSOfferController {
     }
   };
 }
-
-
-
-

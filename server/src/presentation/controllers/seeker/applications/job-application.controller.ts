@@ -20,20 +20,24 @@ import { SUCCESS, VALIDATION, ERROR } from 'src/shared/constants/messages';
 
 
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class SeekerJobApplicationController {
   constructor(
-    private readonly _createJobApplicationUseCase: ICreateJobApplicationUseCase,
-    private readonly _getApplicationsBySeekerUseCase: IGetApplicationsBySeekerUseCase,
-    private readonly _getApplicationDetailsUseCase: IGetSeekerApplicationDetailsUseCase,
-    private readonly _analyzeResumeUseCase: IAnalyzeResumeUseCase,
-    private readonly _getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
-    private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
-    private readonly _submitTechnicalTaskUseCase: ISubmitTechnicalTaskUseCase,
-    private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
-    private readonly _getCompensationByApplicationUseCase: IGetCompensationByApplicationUseCase,
-    private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
-    private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
-    private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
+    @inject(TYPES.CreateJobApplicationUseCase) private readonly _createJobApplicationUseCase: ICreateJobApplicationUseCase,
+    @inject(TYPES.GetApplicationsBySeekerUseCase) private readonly _getApplicationsBySeekerUseCase: IGetApplicationsBySeekerUseCase,
+    @inject(TYPES.GetSeekerApplicationDetailsUseCase) private readonly _getApplicationDetailsUseCase: IGetSeekerApplicationDetailsUseCase,
+    @inject(TYPES.AnalyzeResumeUseCase) private readonly _analyzeResumeUseCase: IAnalyzeResumeUseCase,
+    @inject(TYPES.GetInterviewsByApplicationUseCase) private readonly _getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
+    @inject(TYPES.GetTechnicalTasksByApplicationUseCase) private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
+    @inject(TYPES.SubmitTechnicalTaskUseCase) private readonly _submitTechnicalTaskUseCase: ISubmitTechnicalTaskUseCase,
+    @inject(TYPES.GetOffersByApplicationUseCase) private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
+    @inject(TYPES.GetCompensationByApplicationUseCase) private readonly _getCompensationByApplicationUseCase: IGetCompensationByApplicationUseCase,
+    @inject(TYPES.GetCompensationMeetingsByApplicationUseCase) private readonly _getCompensationMeetingsByApplicationUseCase: IGetCompensationMeetingsByApplicationUseCase,
+    @inject(TYPES.UpdateOfferStatusUseCase) private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
+    @inject(TYPES.UploadSignedOfferDocumentUseCase) private readonly _uploadSignedOfferDocumentUseCase: IUploadSignedOfferDocumentUseCase,
   ) { }
 
   createApplication = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

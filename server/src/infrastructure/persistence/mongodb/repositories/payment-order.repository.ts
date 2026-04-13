@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { IPaymentOrderRepository } from 'src/domain/interfaces/repositories/payment/IPaymentOrderRepository';
 import { PaymentOrder } from 'src/domain/entities/payment-order.entity';
 import { PaymentOrderModel, PaymentOrderDocument } from 'src/infrastructure/persistence/mongodb/models/payment-order.model';
@@ -5,6 +6,7 @@ import { PaymentOrderMapper } from 'src/infrastructure/mappers/persistence/mongo
 import { Types } from 'mongoose';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
+@injectable()
 export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, PaymentOrderDocument> implements IPaymentOrderRepository {
   constructor() {
     super(PaymentOrderModel);
@@ -266,4 +268,5 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
     return docs.map(doc => PaymentOrderMapper.toEntity(doc));
   }
 }
+
 

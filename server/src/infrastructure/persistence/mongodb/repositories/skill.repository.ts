@@ -1,9 +1,11 @@
+import { injectable } from 'inversify';
 import { ISkillRepository, SkillQueryFilters, PaginatedSkills } from 'src/domain/interfaces/repositories/skill/ISkillRepository';
 import { Skill } from 'src/domain/entities/skill.entity';
 import { SkillModel, SkillDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/skill.model';
 import { SkillMapper } from 'src/infrastructure/mappers/persistence/mongodb/skill/skill.mapper';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
+@injectable()
 export class SkillRepository extends RepositoryBase<Skill, ModelDocument> implements ISkillRepository {
   constructor() {
     super(SkillModel);
@@ -25,4 +27,5 @@ export class SkillRepository extends RepositoryBase<Skill, ModelDocument> implem
     return doc ? this.mapToEntity(doc) : null;
   }
 }
+
 

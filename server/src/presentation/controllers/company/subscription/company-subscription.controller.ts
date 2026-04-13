@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { ValidationError } from 'src/domain/errors/errors';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetActiveSubscriptionUseCase';
@@ -12,16 +14,17 @@ import { IPreviewPlanChangeUseCase } from 'src/domain/interfaces/use-cases/subsc
 import { sendSuccessResponse, validateUserId, handleAsyncError } from 'src/shared/utils';
 import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanySubscriptionController {
   constructor(
-    private readonly _getActiveSubscriptionUseCase: IGetActiveSubscriptionUseCase,
-    private readonly _getPaymentHistoryUseCase: IGetPaymentHistoryUseCase,
-    private readonly _createCheckoutSessionUseCase: ICreateCheckoutSessionUseCase,
-    private readonly _cancelSubscriptionUseCase: ICancelSubscriptionUseCase,
-    private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
-    private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
-    private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
-    private readonly _previewPlanChangeUseCase: IPreviewPlanChangeUseCase,
+    @inject(TYPES.GetActiveSubscriptionUseCase) private readonly _getActiveSubscriptionUseCase: IGetActiveSubscriptionUseCase,
+    @inject(TYPES.GetPaymentHistoryUseCase) private readonly _getPaymentHistoryUseCase: IGetPaymentHistoryUseCase,
+    @inject(TYPES.CreateCheckoutSessionUseCase) private readonly _createCheckoutSessionUseCase: ICreateCheckoutSessionUseCase,
+    @inject(TYPES.CancelSubscriptionUseCase) private readonly _cancelSubscriptionUseCase: ICancelSubscriptionUseCase,
+    @inject(TYPES.ResumeSubscriptionUseCase) private readonly _resumeSubscriptionUseCase: IResumeSubscriptionUseCase,
+    @inject(TYPES.ChangeSubscriptionPlanUseCase) private readonly _changeSubscriptionPlanUseCase: IChangeSubscriptionPlanUseCase,
+    @inject(TYPES.GetBillingPortalUseCase) private readonly _getBillingPortalUseCase: IGetBillingPortalUseCase,
+    @inject(TYPES.PreviewPlanChangeUseCase) private readonly _previewPlanChangeUseCase: IPreviewPlanChangeUseCase,
   ) { }
 
   getActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

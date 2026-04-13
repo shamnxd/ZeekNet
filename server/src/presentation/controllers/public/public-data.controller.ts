@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { GetSeekerCompaniesDtoSchema } from 'src/application/dtos/public/requests/get-seeker-companies.dto';
 import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobRolesUseCase';
 import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobCategoriesUseCase';
@@ -8,13 +10,14 @@ import { IGetPublicCompanyProfileUseCase } from 'src/domain/interfaces/use-cases
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class PublicDataController {
   constructor(
-    private readonly _getPublicSkillsUseCase: IGetPublicSkillsUseCase,
-    private readonly _getPublicJobCategoriesUseCase: IGetPublicJobCategoriesUseCase,
-    private readonly _getPublicJobRolesUseCase: IGetPublicJobRolesUseCase,
-    private readonly _getSeekerCompaniesUseCase: IGetSeekerCompaniesUseCase,
-    private readonly _getPublicCompanyProfileUseCase: IGetPublicCompanyProfileUseCase,
+    @inject(TYPES.GetPublicSkillsUseCase) private readonly _getPublicSkillsUseCase: IGetPublicSkillsUseCase,
+    @inject(TYPES.GetPublicJobCategoriesUseCase) private readonly _getPublicJobCategoriesUseCase: IGetPublicJobCategoriesUseCase,
+    @inject(TYPES.GetPublicJobRolesUseCase) private readonly _getPublicJobRolesUseCase: IGetPublicJobRolesUseCase,
+    @inject(TYPES.GetSeekerCompaniesUseCase) private readonly _getSeekerCompaniesUseCase: IGetSeekerCompaniesUseCase,
+    @inject(TYPES.GetPublicCompanyProfileUseCase) private readonly _getPublicCompanyProfileUseCase: IGetPublicCompanyProfileUseCase,
   ) { }
 
   getAllSkills = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

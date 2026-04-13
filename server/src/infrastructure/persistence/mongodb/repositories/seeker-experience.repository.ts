@@ -5,7 +5,9 @@ import { Types } from 'mongoose';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { SeekerExperienceMapper } from 'src/infrastructure/mappers/persistence/mongodb/seeker/seeker-experience.mapper';
 
+import { injectable } from 'inversify';
 
+@injectable()
 export class SeekerExperienceRepository extends RepositoryBase<Experience, SeekerExperienceDocument> implements ISeekerExperienceRepository {
   constructor() {
     super(SeekerExperienceModel);

@@ -2,6 +2,9 @@ import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { logger as winstonLogger } from 'src/infrastructure/config/logger';
 
 
+import { injectable } from 'inversify';
+
+@injectable()
 export class LoggerService implements ILogger {
   info(message: string, meta?: Record<string, unknown>): void {
     winstonLogger.info(message, meta);

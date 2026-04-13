@@ -8,13 +8,16 @@ import { IGetJobApplicationsForKanbanUseCase } from 'src/domain/interfaces/use-c
 import { MoveApplicationStageDtoSchema } from 'src/application/dtos/application/requests/move-application-stage.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class ATSPipelineController {
   constructor(
-    private _getJobPipelineUseCase: IGetJobATSPipelineUseCase,
-    private _getJobApplicationsForKanbanUseCase: IGetJobApplicationsForKanbanUseCase,
-    private _moveApplicationStageUseCase: IMoveApplicationStageUseCase,
-    private _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
+    @inject(TYPES.ATS_GetJobATSPipelineUseCase) private _getJobPipelineUseCase: IGetJobATSPipelineUseCase,
+    @inject(TYPES.ATS_GetJobApplicationsForKanbanUseCase) private _getJobApplicationsForKanbanUseCase: IGetJobApplicationsForKanbanUseCase,
+    @inject(TYPES.ATS_MoveApplicationStageUseCase) private _moveApplicationStageUseCase: IMoveApplicationStageUseCase,
+    @inject(TYPES.UpdateApplicationSubStageUseCase) private _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
   ) { }
 
   getJobPipeline = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -87,7 +90,3 @@ export class ATSPipelineController {
     }
   };
 }
-
-
-
-

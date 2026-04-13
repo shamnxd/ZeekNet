@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { PipelineStage } from 'mongoose';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { SeekerProfile } from 'src/domain/entities/seeker-profile.entity';
@@ -5,6 +6,7 @@ import { SeekerProfileModel, SeekerProfileDocument as ModelDocument } from 'src/
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { SeekerProfileMapper } from 'src/infrastructure/mappers/persistence/mongodb/seeker/seeker-profile.mapper';
 
+@injectable()
 export class SeekerProfileRepository extends RepositoryBase<SeekerProfile, ModelDocument> implements ISeekerProfileRepository {
   constructor() {
     super(SeekerProfileModel);
@@ -102,4 +104,5 @@ export class SeekerProfileRepository extends RepositoryBase<SeekerProfile, Model
     return SeekerProfileModel.countDocuments();
   }
 }
+
 

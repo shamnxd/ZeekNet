@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetAllJobPostingsUseCase';
 import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetJobPostingForPublicUseCase';
 import { IGetFeaturedJobsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetFeaturedJobsUseCase';
@@ -7,11 +9,12 @@ import { formatZodErrors, handleAsyncError, sendSuccessResponse, handleValidatio
 import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class PublicJobController {
   constructor(
-    private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
-    private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
-    private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
+    @inject(TYPES.GetAllJobPostingsUseCase) private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
+    @inject(TYPES.GetJobPostingForPublicUseCase) private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
+    @inject(TYPES.GetFeaturedJobsUseCase) private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
   ) { }
 
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

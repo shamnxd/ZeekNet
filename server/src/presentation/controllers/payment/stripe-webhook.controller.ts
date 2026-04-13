@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
-import { HandleStripeWebhookUseCase } from 'src/application/use-cases/payment/stripe/handle-stripe-webhook.use-case';
+import { IHandleStripeWebhookUseCase } from 'src/domain/interfaces/use-cases/payment/stripe/IHandleStripeWebhookUseCase';
 import { logger } from 'src/infrastructure/config/logger';
 import { sendSuccessResponse, sendBadRequestResponse } from 'src/shared/utils';
 import { SUCCESS, VALIDATION, ERROR } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class StripeWebhookController {
-  constructor(private readonly _handleStripeWebhookUseCase: HandleStripeWebhookUseCase) { }
+  constructor(@inject(TYPES.HandleStripeWebhookUseCase) private readonly _handleStripeWebhookUseCase: IHandleStripeWebhookUseCase) { }
 
   handleWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {

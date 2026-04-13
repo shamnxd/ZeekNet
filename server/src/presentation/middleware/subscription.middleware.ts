@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
@@ -8,12 +10,13 @@ import { sendUnauthorizedResponse, sendNotFoundResponse, sendForbiddenResponse }
 import { CreateInput } from 'src/domain/types/common.types';
 import { ERROR, AUTH, SUBSCRIPTION } from 'src/shared/constants/messages';
 
+@injectable()
 export class SubscriptionMiddleware {
 
   constructor(
-    private _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private _companyProfileRepository: ICompanyProfileRepository,
-    private _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) { }
 
   checkActiveSubscription = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

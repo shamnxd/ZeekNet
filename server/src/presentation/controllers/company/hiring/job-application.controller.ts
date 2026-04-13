@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationScoreUseCase';
 import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationStageUseCase';
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationDetailsUseCase';
@@ -14,15 +16,16 @@ import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanyJobApplicationController {
   constructor(
-    private readonly _getApplicationsByJobUseCase: IGetApplicationsByJobUseCase,
-    private readonly _getApplicationsByCompanyUseCase: IGetApplicationsByCompanyUseCase,
-    private readonly _getApplicationDetailsUseCase: IGetApplicationDetailsUseCase,
-    private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
-    private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
-    private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
-    private readonly _markCandidateHiredUseCase: IMarkCandidateHiredUseCase,
+    @inject(TYPES.GetApplicationsByJobUseCase) private readonly _getApplicationsByJobUseCase: IGetApplicationsByJobUseCase,
+    @inject(TYPES.GetApplicationsByCompanyUseCase) private readonly _getApplicationsByCompanyUseCase: IGetApplicationsByCompanyUseCase,
+    @inject(TYPES.GetCompanyApplicationDetailsUseCase) private readonly _getApplicationDetailsUseCase: IGetApplicationDetailsUseCase,
+    @inject(TYPES.CompanyUpdateApplicationStageUseCase) private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
+    @inject(TYPES.UpdateApplicationScoreUseCase) private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
+    @inject(TYPES.BulkUpdateApplicationsUseCase) private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
+    @inject(TYPES.MarkCandidateHiredUseCase) private readonly _markCandidateHiredUseCase: IMarkCandidateHiredUseCase,
   ) { }
 
   getCompanyApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

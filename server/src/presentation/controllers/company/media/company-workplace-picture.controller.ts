@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { ICreateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/ICreateCompanyWorkplacePictureUseCase';
@@ -7,13 +8,15 @@ import { IGetCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-ca
 import { CreateCompanyWorkplacePicturesDto, UpdateCompanyWorkplacePicturesDto } from 'src/application/dtos/company/media/requests/company-workplace-pictures.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyWorkplacePictureController {
   constructor(
-    private readonly _createCompanyWorkplacePictureUseCase: ICreateCompanyWorkplacePictureUseCase,
-    private readonly _updateCompanyWorkplacePictureUseCase: IUpdateCompanyWorkplacePictureUseCase,
-    private readonly _deleteCompanyWorkplacePictureUseCase: IDeleteCompanyWorkplacePictureUseCase,
-    private readonly _getCompanyWorkplacePictureUseCase: IGetCompanyWorkplacePictureUseCase,
+    @inject(TYPES.CreateCompanyWorkplacePictureUseCase) private readonly _createCompanyWorkplacePictureUseCase: ICreateCompanyWorkplacePictureUseCase,
+    @inject(TYPES.UpdateCompanyWorkplacePictureUseCase) private readonly _updateCompanyWorkplacePictureUseCase: IUpdateCompanyWorkplacePictureUseCase,
+    @inject(TYPES.DeleteCompanyWorkplacePictureUseCase) private readonly _deleteCompanyWorkplacePictureUseCase: IDeleteCompanyWorkplacePictureUseCase,
+    @inject(TYPES.GetCompanyWorkplacePictureUseCase) private readonly _getCompanyWorkplacePictureUseCase: IGetCompanyWorkplacePictureUseCase,
   ) { }
 
   getCompanyWorkplacePictures = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

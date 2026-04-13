@@ -3,8 +3,12 @@ import { ValidationError } from 'src/domain/errors/errors';
 import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 import { UploadedFile } from 'src/domain/types/common.types';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class FileUploadService implements IFileUploadService {
-  constructor(private readonly _s3Service: IS3Service) { }
+  constructor(@inject(TYPES.S3Service) private readonly _s3Service: IS3Service) { }
 
   private _validateFileType(mimetype: string, filename: string): void {
     const allowedTypes = [

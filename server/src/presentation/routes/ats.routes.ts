@@ -1,16 +1,21 @@
 import { Router } from 'express';
-import {
-  atsInterviewController,
-  atsTechnicalTaskController,
-  atsOfferController,
-  atsCommentController,
-  atsCompensationController,
-
-} from 'src/infrastructure/di/atsDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { ATSInterviewController } from 'src/presentation/controllers/ats/evaluation/ats-interview.controller';
+import { ATSTechnicalTaskController } from 'src/presentation/controllers/ats/evaluation/ats-technical-task.controller';
+import { ATSOfferController } from 'src/presentation/controllers/ats/offer/ats-offer.controller';
+import { ATSCommentController } from 'src/presentation/controllers/ats/comments/ats-comment.controller';
+import { ATSCompensationController } from 'src/presentation/controllers/ats/offer/ats-compensation.controller';
 import { APP_ROUTES } from 'src/shared/constants/routes';
 
 import { authenticateToken, authorizeRoles } from 'src/presentation/middleware/auth.middleware';
 import { uploadDocument } from 'src/presentation/middleware/upload-document.middleware';
+
+const atsInterviewController = container.get<ATSInterviewController>(TYPES.ATSInterviewController);
+const atsTechnicalTaskController = container.get<ATSTechnicalTaskController>(TYPES.ATSTechnicalTaskController);
+const atsOfferController = container.get<ATSOfferController>(TYPES.ATSOfferController);
+const atsCommentController = container.get<ATSCommentController>(TYPES.ATSCommentController);
+const atsCompensationController = container.get<ATSCompensationController>(TYPES.ATSCompensationController);
 
 export class ATSRouter {
   public router: Router;
@@ -48,4 +53,3 @@ export class ATSRouter {
     this.router.put(APP_ROUTES.ATS.COMPENSATION_MEETING_STATUS, atsCompensationController.updateCompensationMeetingStatus);
   }
 }
-

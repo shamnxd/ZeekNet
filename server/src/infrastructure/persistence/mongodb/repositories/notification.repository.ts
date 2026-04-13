@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { NotificationModel, NotificationDocument } from 'src/infrastructure/persistence/mongodb/models/notification.model';
 import { INotificationRepository, CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
 import { Notification } from 'src/domain/entities/notification.entity';
@@ -5,6 +6,7 @@ import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositor
 import { Types } from 'mongoose';
 import { NotificationMapper } from 'src/infrastructure/mappers/persistence/mongodb/notification/notification.mapper';
 
+@injectable()
 export class NotificationRepository extends RepositoryBase<Notification, NotificationDocument> implements INotificationRepository {
   constructor() {
     super(NotificationModel);
@@ -25,5 +27,6 @@ export class NotificationRepository extends RepositoryBase<Notification, Notific
     );
   }
 }
+
 
 

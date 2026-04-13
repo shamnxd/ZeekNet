@@ -27,25 +27,29 @@ import { UpdateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker
 import { formatZodErrors, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, badRequest, handleValidationError } from 'src/shared/utils';
 import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class SeekerProfileController {
   constructor(
-    private readonly _createSeekerProfileUseCase: ICreateSeekerProfileUseCase,
-    private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
-    private readonly _updateSeekerProfileUseCase: IUpdateSeekerProfileUseCase,
-    private readonly _addExperienceUseCase: IAddExperienceUseCase,
-    private readonly _getExperiencesUseCase: IGetExperiencesUseCase,
-    private readonly _updateExperienceUseCase: IUpdateExperienceUseCase,
-    private readonly _removeExperienceUseCase: IRemoveExperienceUseCase,
-    private readonly _addEducationUseCase: IAddEducationUseCase,
-    private readonly _getEducationUseCase: IGetEducationUseCase,
-    private readonly _updateEducationUseCase: IUpdateEducationUseCase,
-    private readonly _removeEducationUseCase: IRemoveEducationUseCase,
-    private readonly _updateSkillsUseCase: IUpdateSkillsUseCase,
-    private readonly _updateLanguagesUseCase: IUpdateLanguagesUseCase,
-    private readonly _uploadResumeUseCase: IUploadResumeUseCase,
-    private readonly _removeResumeUseCase: IRemoveResumeUseCase,
-    private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
-    private readonly _uploadBannerUseCase: IUploadBannerUseCase,
+    @inject(TYPES.CreateSeekerProfileUseCase) private readonly _createSeekerProfileUseCase: ICreateSeekerProfileUseCase,
+    @inject(TYPES.GetSeekerProfileUseCase) private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
+    @inject(TYPES.UpdateSeekerProfileUseCase) private readonly _updateSeekerProfileUseCase: IUpdateSeekerProfileUseCase,
+    @inject(TYPES.AddExperienceUseCase) private readonly _addExperienceUseCase: IAddExperienceUseCase,
+    @inject(TYPES.GetExperiencesUseCase) private readonly _getExperiencesUseCase: IGetExperiencesUseCase,
+    @inject(TYPES.UpdateExperienceUseCase) private readonly _updateExperienceUseCase: IUpdateExperienceUseCase,
+    @inject(TYPES.RemoveExperienceUseCase) private readonly _removeExperienceUseCase: IRemoveExperienceUseCase,
+    @inject(TYPES.AddEducationUseCase) private readonly _addEducationUseCase: IAddEducationUseCase,
+    @inject(TYPES.GetEducationUseCase) private readonly _getEducationUseCase: IGetEducationUseCase,
+    @inject(TYPES.UpdateEducationUseCase) private readonly _updateEducationUseCase: IUpdateEducationUseCase,
+    @inject(TYPES.RemoveEducationUseCase) private readonly _removeEducationUseCase: IRemoveEducationUseCase,
+    @inject(TYPES.UpdateSkillsUseCase) private readonly _updateSkillsUseCase: IUpdateSkillsUseCase,
+    @inject(TYPES.UpdateLanguagesUseCase) private readonly _updateLanguagesUseCase: IUpdateLanguagesUseCase,
+    @inject(TYPES.UploadResumeUseCase) private readonly _uploadResumeUseCase: IUploadResumeUseCase,
+    @inject(TYPES.RemoveResumeUseCase) private readonly _removeResumeUseCase: IRemoveResumeUseCase,
+    @inject(TYPES.UploadAvatarUseCase) private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
+    @inject(TYPES.UploadBannerUseCase) private readonly _uploadBannerUseCase: IUploadBannerUseCase,
   ) { }
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

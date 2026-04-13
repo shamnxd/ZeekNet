@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { ICreateCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/company/profile/benefits/ICreateCompanyBenefitUseCase';
@@ -7,13 +8,15 @@ import { IGetCompanyBenefitUseCase } from 'src/domain/interfaces/use-cases/compa
 import { CreateCompanyBenefitsDto, UpdateCompanyBenefitsDto } from 'src/application/dtos/company/profile/benefits/requests/company-benefits.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyBenefitController {
   constructor(
-    private readonly _createCompanyBenefitUseCase: ICreateCompanyBenefitUseCase,
-    private readonly _updateCompanyBenefitUseCase: IUpdateCompanyBenefitUseCase,
-    private readonly _deleteCompanyBenefitUseCase: IDeleteCompanyBenefitUseCase,
-    private readonly _getCompanyBenefitUseCase: IGetCompanyBenefitUseCase,
+    @inject(TYPES.CreateCompanyBenefitUseCase) private readonly _createCompanyBenefitUseCase: ICreateCompanyBenefitUseCase,
+    @inject(TYPES.UpdateCompanyBenefitUseCase) private readonly _updateCompanyBenefitUseCase: IUpdateCompanyBenefitUseCase,
+    @inject(TYPES.DeleteCompanyBenefitUseCase) private readonly _deleteCompanyBenefitUseCase: IDeleteCompanyBenefitUseCase,
+    @inject(TYPES.GetCompanyBenefitUseCase) private readonly _getCompanyBenefitUseCase: IGetCompanyBenefitUseCase,
   ) { }
 
   getCompanyBenefits = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

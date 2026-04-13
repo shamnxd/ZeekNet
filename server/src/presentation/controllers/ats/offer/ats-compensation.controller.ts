@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
@@ -13,15 +15,16 @@ import { UpdateCompensationMeetingStatusSchema } from 'src/application/dtos/appl
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS, ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSCompensationController {
 
   constructor(
-    private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
-    private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
-    private readonly _getCompensationUseCase: IGetCompensationUseCase,
-    private readonly _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
-    private readonly _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
-    private readonly _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
+    @inject(TYPES.ATS_InitiateCompensationUseCase) private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
+    @inject(TYPES.ATS_UpdateCompensationUseCase) private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
+    @inject(TYPES.ATS_GetCompensationUseCase) private readonly _getCompensationUseCase: IGetCompensationUseCase,
+    @inject(TYPES.ATS_ScheduleCompensationMeetingUseCase) private readonly _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
+    @inject(TYPES.ATS_GetCompensationMeetingsUseCase) private readonly _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
+    @inject(TYPES.ATS_UpdateCompensationMeetingStatusUseCase) private readonly _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
   ) { }
 
   initiateCompensation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -142,7 +145,3 @@ export class ATSCompensationController {
     }
   };
 }
-
-
-
-

@@ -20,8 +20,10 @@ import { SeekerRouter } from 'src/presentation/routes/seeker-router';
 import { PublicRouter } from 'src/presentation/routes/public-router';
 import { ChatRouter } from 'src/presentation/routes/chat-router';
 import { errorHandler } from 'src/presentation/middleware/error-handler';
-import { notificationRouter } from 'src/infrastructure/di/notificationDi';
-import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { NotificationRouter } from 'src/presentation/routes/notification-router';
+import { StripeWebhookController } from 'src/presentation/controllers/payment/stripe-webhook.controller';
 
 export class AppServer {
   private _app: express.Application;
@@ -89,10 +91,12 @@ export class AppServer {
     this._app.use(APP_ROUTES.COMPANY.BASE, new CompanyRouter().router);
     this._app.use(APP_ROUTES.SEEKER.BASE, new SeekerRouter().router);
     this._app.use(APP_ROUTES.PUBLIC.BASE, new PublicRouter().router);
+    const notificationRouter = container.get<NotificationRouter>(TYPES.NotificationRouter);
     this._app.use(APP_ROUTES.NOTIFICATIONS.BASE, notificationRouter.router);
     this._app.use(APP_ROUTES.CHAT.BASE, new ChatRouter().router);
 
 
+    const stripeWebhookController = container.get<StripeWebhookController>(TYPES.StripeWebhookController);
     this._app.post(APP_ROUTES.WEBHOOK_STRIPE, stripeWebhookController.handleWebhook);
     logger.info(`Stripe webhook endpoint configured at ${APP_ROUTES.WEBHOOK_STRIPE}`);
 

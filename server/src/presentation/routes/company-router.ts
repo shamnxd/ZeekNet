@@ -1,32 +1,24 @@
 import { Router } from 'express';
-import {
-  companyProfileController,
-  companyContactController,
-  companyTechStackController,
-  companyOfficeLocationController,
-  companyBenefitController,
-  companyWorkplacePictureController,
-  companyUploadController,
-  companyJobPostingController,
-  companyJobApplicationController,
-  companySubscriptionPlanController,
-  companySubscriptionController,
-  companyCandidatesController,
-  companyDashboardController,
-  companyProfileRepository,
-  subscriptionMiddleware,
-} from 'src/infrastructure/di/companyDi';
-import {
-  atsPipelineController,
-} from 'src/infrastructure/di/atsDi';
 import { APP_ROUTES } from 'src/shared/constants/routes';
 import { container } from 'src/infrastructure/di/container';
 import { TYPES } from 'src/shared/constants/types';
+import { ATSPipelineController } from 'src/presentation/controllers/ats/pipeline/ats-pipeline.controller';
 import { GetUserByIdUseCase } from 'src/application/use-cases/admin/user/get-user-by-id.use-case';
-import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-
-const getUserByIdUseCase = container.get<GetUserByIdUseCase>(TYPES.GetUserByIdUseCase);
-const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { CompanyProfileController } from 'src/presentation/controllers/company/profile/company-profile.controller';
+import { CompanyContactController } from 'src/presentation/controllers/company/profile/company-contact.controller';
+import { CompanyTechStackController } from 'src/presentation/controllers/company/profile/company-tech-stack.controller';
+import { CompanyOfficeLocationController } from 'src/presentation/controllers/company/profile/company-office-location.controller';
+import { CompanyBenefitController } from 'src/presentation/controllers/company/profile/company-benefit.controller';
+import { CompanyWorkplacePictureController } from 'src/presentation/controllers/company/media/company-workplace-picture.controller';
+import { CompanyUploadController } from 'src/presentation/controllers/company/media/company-upload.controller';
+import { CompanyJobPostingController } from 'src/presentation/controllers/company/jobs/company-job-posting.controller';
+import { CompanyJobApplicationController } from 'src/presentation/controllers/company/hiring/job-application.controller';
+import { CompanySubscriptionPlanController } from 'src/presentation/controllers/company/subscription/company-subscription-plan.controller';
+import { CompanySubscriptionController } from 'src/presentation/controllers/company/subscription/company-subscription.controller';
+import { CompanyCandidatesController } from 'src/presentation/controllers/company/hiring/company-candidates.controller';
+import { CompanyDashboardController } from 'src/presentation/controllers/company/dashboard/company-dashboard.controller';
+import { SubscriptionMiddleware } from 'src/presentation/middleware/subscription.middleware';
 
 import { ATSRouter } from './ats.routes';
 
@@ -35,6 +27,23 @@ import { uploadSingle } from 'src/presentation/middleware/upload.middleware';
 import { UserBlockedMiddleware } from 'src/presentation/middleware/user-blocked.middleware';
 import { CompanyVerificationMiddleware } from 'src/presentation/middleware/company-verification.middleware';
 
+const getUserByIdUseCase = container.get<GetUserByIdUseCase>(TYPES.GetUserByIdUseCase);
+const atsPipelineController = container.get<ATSPipelineController>(TYPES.ATSPipelineController);
+const companyProfileRepository = container.get<ICompanyProfileRepository>(TYPES.CompanyProfileRepository);
+const companyProfileController = container.get<CompanyProfileController>(TYPES.CompanyProfileController);
+const companyContactController = container.get<CompanyContactController>(TYPES.CompanyContactController);
+const companyTechStackController = container.get<CompanyTechStackController>(TYPES.CompanyTechStackController);
+const companyOfficeLocationController = container.get<CompanyOfficeLocationController>(TYPES.CompanyOfficeLocationController);
+const companyBenefitController = container.get<CompanyBenefitController>(TYPES.CompanyBenefitController);
+const companyWorkplacePictureController = container.get<CompanyWorkplacePictureController>(TYPES.CompanyWorkplacePictureController);
+const companyUploadController = container.get<CompanyUploadController>(TYPES.CompanyUploadController);
+const companyJobPostingController = container.get<CompanyJobPostingController>(TYPES.CompanyJobPostingController);
+const companyJobApplicationController = container.get<CompanyJobApplicationController>(TYPES.CompanyJobApplicationController);
+const companySubscriptionPlanController = container.get<CompanySubscriptionPlanController>(TYPES.CompanySubscriptionPlanController);
+const companySubscriptionController = container.get<CompanySubscriptionController>(TYPES.CompanySubscriptionController);
+const companyCandidatesController = container.get<CompanyCandidatesController>(TYPES.CompanyCandidatesController);
+const companyDashboardController = container.get<CompanyDashboardController>(TYPES.CompanyDashboardController);
+const subscriptionMiddleware = container.get<SubscriptionMiddleware>(TYPES.SubscriptionMiddleware);
 
 export class CompanyRouter {
   public router: Router;
@@ -132,5 +141,3 @@ export class CompanyRouter {
     this.router.get(APP_ROUTES.COMPANY.CANDIDATE_DETAIL, subscriptionMiddleware.checkCanViewCandidate, companyCandidatesController.getCandidateDetails);
   }
 }
-
-

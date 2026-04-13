@@ -3,7 +3,9 @@ import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/reposit
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
 import { ATSCompensationMeetingModel, IATSCompensationMeetingDocument } from 'src/infrastructure/persistence/mongodb/models/ats-compensation-meeting.model';
 import { ATSCompensationMeetingMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-compensation-meeting.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ATSCompensationMeetingRepository implements IATSCompensationMeetingRepository {
   async create(meeting: ATSCompensationMeeting): Promise<ATSCompensationMeeting> {
     const doc = await ATSCompensationMeetingModel.create(ATSCompensationMeetingMapper.toDocument(meeting));

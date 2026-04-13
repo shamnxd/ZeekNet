@@ -3,11 +3,15 @@ import { ATSScoreResult, JobDetails, CandidateData } from 'src/domain/types/ats.
 import { GroqService } from './groq-client.service';
 
 
+import { injectable } from 'inversify';
+import { env } from 'src/infrastructure/config/env';
+
+@injectable()
 export class AtsService implements IAtsService {
   private groqService: GroqService;
 
-  constructor(apiKey: string) {
-    this.groqService = new GroqService(apiKey);
+  constructor() {
+    this.groqService = new GroqService(env.GROQ_API_KEY as string);
   }
 
   async calculateATSScore(jobDetails: JobDetails, candidateData: CandidateData): Promise<ATSScoreResult> {

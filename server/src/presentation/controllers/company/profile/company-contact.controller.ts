@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { UpdateCompanyContactDto } from 'src/application/dtos/company/profile/contacts/requests/company-contact.dto';
@@ -5,11 +6,13 @@ import { IGetCompanyContactUseCase } from 'src/domain/interfaces/use-cases/compa
 import { IUpsertCompanyContactUseCase } from 'src/domain/interfaces/use-cases/company/profile/contacts/IUpsertCompanyContactUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyContactController {
   constructor(
-    private readonly _getCompanyContactUseCase: IGetCompanyContactUseCase,
-    private readonly _upsertCompanyContactUseCase: IUpsertCompanyContactUseCase,
+    @inject(TYPES.GetCompanyContactUseCase) private readonly _getCompanyContactUseCase: IGetCompanyContactUseCase,
+    @inject(TYPES.UpsertCompanyContactUseCase) private readonly _upsertCompanyContactUseCase: IUpsertCompanyContactUseCase,
   ) { }
 
   getCompanyContact = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

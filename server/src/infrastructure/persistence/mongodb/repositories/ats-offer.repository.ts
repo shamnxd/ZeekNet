@@ -3,7 +3,9 @@ import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATS
 import { ATSOffer } from 'src/domain/entities/ats-offer.entity';
 import { ATSOfferModel } from 'src/infrastructure/persistence/mongodb/models/ats-offer.model';
 import { ATSOfferMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-offer.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ATSOfferRepository implements IATSOfferRepository {
   async create(offer: ATSOffer): Promise<ATSOffer> {
     const doc = await ATSOfferModel.create(ATSOfferMapper.toDocument(offer));

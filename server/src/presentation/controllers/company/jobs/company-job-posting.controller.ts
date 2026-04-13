@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
 import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
 import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
@@ -17,17 +19,18 @@ import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanyJobPostingController {
   constructor(
-    private readonly _createJobPostingUseCase: ICreateJobPostingUseCase,
-    private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
-    private readonly _updateJobPostingUseCase: IUpdateJobPostingUseCase,
-    private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
-    private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
-    private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
-    private readonly _closeJobManuallyUseCase: ICloseJobManuallyUseCase,
-    private readonly _reopenJobUseCase: IReopenJobUseCase,
-    private readonly _toggleFeaturedJobUseCase: IToggleFeaturedJobUseCase,
+    @inject(TYPES.CreateJobPostingUseCase) private readonly _createJobPostingUseCase: ICreateJobPostingUseCase,
+    @inject(TYPES.GetCompanyJobPostingsUseCase) private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
+    @inject(TYPES.UpdateJobPostingUseCase) private readonly _updateJobPostingUseCase: IUpdateJobPostingUseCase,
+    @inject(TYPES.DeleteJobPostingUseCase) private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
+    @inject(TYPES.UpdateJobStatusUseCase) private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
+    @inject(TYPES.GetCompanyJobPostingUseCase) private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
+    @inject(TYPES.CloseJobManuallyUseCase) private readonly _closeJobManuallyUseCase: ICloseJobManuallyUseCase,
+    @inject(TYPES.ReopenJobUseCase) private readonly _reopenJobUseCase: IReopenJobUseCase,
+    @inject(TYPES.ToggleFeaturedJobUseCase) private readonly _toggleFeaturedJobUseCase: IToggleFeaturedJobUseCase,
   ) { }
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

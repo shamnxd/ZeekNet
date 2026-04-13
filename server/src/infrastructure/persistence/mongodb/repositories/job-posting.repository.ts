@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { JobPostingModel, JobPostingDocument } from 'src/infrastructure/persistence/mongodb/models/job-posting.model';
@@ -6,6 +7,7 @@ import { JobPostingMapper } from 'src/infrastructure/mappers/persistence/mongodb
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
 
+@injectable()
 export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingDocument> implements IJobPostingRepository {
   constructor() {
     super(JobPostingModel);
@@ -254,3 +256,4 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return count;
   }
 }
+

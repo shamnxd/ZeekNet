@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { ICreateCompanyTechStackUseCase } from 'src/domain/interfaces/use-cases/company/profile/stack/ICreateCompanyTechStackUseCase';
@@ -7,13 +8,15 @@ import { IGetCompanyTechStackUseCase } from 'src/domain/interfaces/use-cases/com
 import { CreateCompanyTechStackDto, UpdateCompanyTechStackDto } from 'src/application/dtos/company/profile/stack/requests/company-tech-stack.dto';
 import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, formatZodErrors } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyTechStackController {
   constructor(
-    private readonly _createCompanyTechStackUseCase: ICreateCompanyTechStackUseCase,
-    private readonly _updateCompanyTechStackUseCase: IUpdateCompanyTechStackUseCase,
-    private readonly _deleteCompanyTechStackUseCase: IDeleteCompanyTechStackUseCase,
-    private readonly _getCompanyTechStackUseCase: IGetCompanyTechStackUseCase,
+    @inject(TYPES.CreateCompanyTechStackUseCase) private readonly _createCompanyTechStackUseCase: ICreateCompanyTechStackUseCase,
+    @inject(TYPES.UpdateCompanyTechStackUseCase) private readonly _updateCompanyTechStackUseCase: IUpdateCompanyTechStackUseCase,
+    @inject(TYPES.DeleteCompanyTechStackUseCase) private readonly _deleteCompanyTechStackUseCase: IDeleteCompanyTechStackUseCase,
+    @inject(TYPES.GetCompanyTechStackUseCase) private readonly _getCompanyTechStackUseCase: IGetCompanyTechStackUseCase,
   ) { }
 
   getCompanyTechStacks = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

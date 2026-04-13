@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { SimpleCompanyProfileDto } from 'src/application/dtos/company/requests/create-company.dto';
@@ -9,15 +10,16 @@ import { IReapplyCompanyVerificationUseCase } from 'src/domain/interfaces/use-ca
 import { IUploadLogoUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadLogoUseCase';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse, sendNotFoundResponse } from 'src/shared/utils';
 import { SUCCESS, VALIDATION, ERROR } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
-
+@injectable()
 export class CompanyProfileController {
   constructor(
-    private readonly _createCompanyProfileFromDtoUseCase: ICreateCompanyProfileFromDtoUseCase,
-    private readonly _updateCompanyProfileUseCase: IUpdateCompanyProfileUseCase,
-    private readonly _getCompanyProfileWithJobPostingsUseCase: IGetCompanyProfileWithJobPostingsUseCase,
-    private readonly _reapplyCompanyVerificationUseCase: IReapplyCompanyVerificationUseCase,
-    private readonly _uploadLogoUseCase: IUploadLogoUseCase,
+    @inject(TYPES.CreateCompanyProfileFromDtoUseCase) private readonly _createCompanyProfileFromDtoUseCase: ICreateCompanyProfileFromDtoUseCase,
+    @inject(TYPES.UpdateCompanyProfileUseCase) private readonly _updateCompanyProfileUseCase: IUpdateCompanyProfileUseCase,
+    @inject(TYPES.GetCompanyProfileWithJobPostingsUseCase) private readonly _getCompanyProfileWithJobPostingsUseCase: IGetCompanyProfileWithJobPostingsUseCase,
+    @inject(TYPES.ReapplyCompanyVerificationUseCase) private readonly _reapplyCompanyVerificationUseCase: IReapplyCompanyVerificationUseCase,
+    @inject(TYPES.UploadLogoUseCase) private readonly _uploadLogoUseCase: IUploadLogoUseCase,
   ) { }
 
   createCompanyProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {

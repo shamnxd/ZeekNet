@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
 import { UploadedFile } from 'src/domain/types/common.types';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
@@ -10,12 +12,13 @@ import { UpdateTechnicalTaskSchema } from 'src/application/dtos/application/task
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSTechnicalTaskController {
   constructor(
-    private readonly _assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
-    private readonly _updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
-    private readonly _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
-    private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
+    @inject(TYPES.ATS_AssignTechnicalTaskUseCase) private readonly _assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
+    @inject(TYPES.ATS_UpdateTechnicalTaskUseCase) private readonly _updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
+    @inject(TYPES.ATS_DeleteTechnicalTaskUseCase) private readonly _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
+    @inject(TYPES.ATS_GetTechnicalTasksByApplicationUseCase) private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
   ) { }
 
   assignTechnicalTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -93,7 +96,3 @@ export class ATSTechnicalTaskController {
     }
   };
 }
-
-
-
-

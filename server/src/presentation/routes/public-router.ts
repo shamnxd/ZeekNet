@@ -1,8 +1,14 @@
 import { Router } from 'express';
-import { publicJobController, publicDataController } from 'src/infrastructure/di/publicDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { PublicJobController } from 'src/presentation/controllers/public/public-job.controller';
+import { PublicDataController } from 'src/presentation/controllers/public/public-data.controller';
 import { APP_ROUTES } from 'src/shared/constants/routes';
 
 import { optionalAuthentication } from 'src/presentation/middleware/auth.middleware';
+
+const publicJobController = container.get<PublicJobController>(TYPES.PublicJobController);
+const publicDataController = container.get<PublicDataController>(TYPES.PublicDataController);
 
 export class PublicRouter {
   public router: Router;
@@ -24,5 +30,4 @@ export class PublicRouter {
     this.router.get(APP_ROUTES.PUBLIC.COMPANY_DETAIL, publicDataController.getCompanyProfile);
   }
 }
-
 

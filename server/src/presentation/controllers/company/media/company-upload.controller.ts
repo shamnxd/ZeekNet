@@ -1,3 +1,4 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
 import { IUploadBusinessLicenseUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadBusinessLicenseUseCase';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadWorkplacePictureUseCase';
@@ -5,12 +6,14 @@ import { IDeleteImageUseCase } from 'src/domain/interfaces/use-cases/company/med
 import { DeleteImageDtoSchema } from 'src/application/dtos/company/media/requests/delete-image.dto';
 import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
 import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyUploadController {
   constructor(
-    private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
-    private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
-    private readonly _deleteImageUseCase: IDeleteImageUseCase,
+    @inject(TYPES.UploadBusinessLicenseUseCase) private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
+    @inject(TYPES.UploadWorkplacePictureUseCase) private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
+    @inject(TYPES.DeleteImageUseCase) private readonly _deleteImageUseCase: IDeleteImageUseCase,
   ) { }
 
   uploadBusinessLicense = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

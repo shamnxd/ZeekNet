@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
@@ -8,11 +10,12 @@ import { UpdateInterviewDtoSchema } from 'src/application/dtos/application/inter
 import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
 import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSInterviewController {
   constructor(
-    private scheduleInterviewUseCase: IScheduleInterviewUseCase,
-    private updateInterviewUseCase: IUpdateInterviewUseCase,
-    private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
+    @inject(TYPES.ATS_ScheduleInterviewUseCase) private scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    @inject(TYPES.ATS_UpdateInterviewUseCase) private updateInterviewUseCase: IUpdateInterviewUseCase,
+    @inject(TYPES.ATS_GetInterviewsByApplicationUseCase) private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
   ) { }
 
   scheduleInterview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -71,4 +74,3 @@ export class ATSInterviewController {
     }
   };
 }
-
