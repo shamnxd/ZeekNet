@@ -344,8 +344,10 @@ export const companyApi = {
     return (await api.get(endpoint)).data;
   },
 
-  async getCandidateDetails(id: string): Promise<ApiEnvelope<CandidateDetailsResponse>> {
-    return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`)).data;
+  async getCandidateDetails(id: string, context?: 'discovery' | 'application'): Promise<ApiEnvelope<CandidateDetailsResponse>> {
+    return (await api.get(`${CompanyRoutes.CANDIDATES}/${id}`, {
+      params: context ? { context } : undefined,
+    })).data;
   },
 
 

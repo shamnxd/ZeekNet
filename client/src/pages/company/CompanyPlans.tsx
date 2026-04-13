@@ -81,6 +81,9 @@ const CompanyPlans = () => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
   const [showDowngradeDialog, setShowDowngradeDialog] = useState(false)
   const [showLateralDialog, setShowLateralDialog] = useState(false)
+  const hasManageablePaidSubscription = Boolean(
+    activeSubscription?.stripeSubscriptionId && !activeSubscription?.plan?.isDefault
+  )
 
   const fetchBillingHistory = useCallback(async () => {
     try {
@@ -659,7 +662,7 @@ const CompanyPlans = () => {
             </div>
 
             <div className="pt-4 border-t border-gray-100 space-y-3">
-              {activeSubscription?.stripeStatus && (
+              {hasManageablePaidSubscription && (
                 <>
                   <Button
                     onClick={handleOpenBillingPortal}

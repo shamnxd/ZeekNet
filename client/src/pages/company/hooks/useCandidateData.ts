@@ -114,7 +114,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                             })
                             : Promise.resolve({ data: null }),
                         seekerId
-                            ? companyApi.getCandidateDetails(seekerId).catch((e) => {
+                            ? companyApi.getCandidateDetails(seekerId, 'application').catch((e) => {
                                 console.error("Failed to fetch candidate details", e);
                                 const error = e as { response?: { status?: number; data?: { message?: string; data?: { limitExceeded?: boolean; currentLimit?: number; used?: number } } } };
                                 if (error.response?.status === 403 && error.response.data?.data?.limitExceeded) {
@@ -260,7 +260,7 @@ export const useCandidateData = (currentId: string | undefined, isATSMode: boole
                 }
             } else {
                 try {
-                    const candRes = await companyApi.getCandidateDetails(currentId);
+                    const candRes = await companyApi.getCandidateDetails(currentId, 'discovery');
                     if (candRes.data) {
                         setCandidateData(candRes.data);
                     }

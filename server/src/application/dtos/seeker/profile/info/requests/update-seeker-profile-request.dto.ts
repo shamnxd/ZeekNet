@@ -5,6 +5,10 @@ const SocialLinkSchema = z.object({
   link: z.string().url('Please enter a valid URL'),
 });
 
+const DateStringSchema = z
+  .string()
+  .refine((value) => !Number.isNaN(Date.parse(value)), 'Please enter a valid date of birth');
+
 export const UpdateSeekerProfileRequestDtoSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   headline: z.string().max(100, 'Headline must not exceed 100 characters').optional(),
@@ -12,7 +16,7 @@ export const UpdateSeekerProfileRequestDtoSchema = z.object({
   location: z.string().max(100, 'Location must not exceed 100 characters').optional(),
   phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/, 'Please enter a valid phone number').optional(),
   email: z.string().email('Please enter a valid email address').optional(),
-  dateOfBirth: z.string().date('Please enter a valid date of birth').optional(),
+  dateOfBirth: DateStringSchema.optional(),
   gender: z.string().max(50, 'Gender must not exceed 50 characters').optional(),
   skills: z.array(z.string()).optional(),
   languages: z.array(z.string()).optional(),
