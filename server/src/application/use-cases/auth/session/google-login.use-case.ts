@@ -11,17 +11,21 @@ import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemp
 import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
 import { GoogleLoginRequestDto } from 'src/application/dtos/auth/session/google-login.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GoogleLoginUseCase implements IGoogleLoginUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _tokenService: ITokenService,
-    private readonly _googleVerifier: IGoogleTokenVerifier,
-    private readonly _otpService: IOtpService,
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.GoogleTokenVerifier) private readonly _googleVerifier: IGoogleTokenVerifier,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
   ) { }
+
 
   async execute(params: GoogleLoginRequestDto): Promise<LoginResponseDto> {
     const { idToken } = params;

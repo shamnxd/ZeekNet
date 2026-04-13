@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { BulkUpdateApplicationsRequestDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
@@ -7,10 +10,11 @@ import { NotFoundError } from 'src/domain/errors/errors';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { IBulkUpdateApplicationsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IBulkUpdateApplicationsUseCase';
 
+@injectable()
 export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(dto: BulkUpdateApplicationsRequestDto): Promise<BulkUpdateApplicationsResponseDto> {
@@ -18,7 +22,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
     const companyId = companyProfile.id;
 
@@ -34,7 +38,7 @@ export class BulkUpdateApplicationsUseCase implements IBulkUpdateApplicationsUse
           failed++;
           errors.push({
             application_id: applicationId,
-            error: 'Application not found',
+            error: ERROR.NOT_FOUND('Application'),
           });
           continue;
         }

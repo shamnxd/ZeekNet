@@ -9,17 +9,22 @@ export interface IGetCompensationByApplicationUseCase {
   execute(userId: string, applicationId: string): Promise<ATSCompensationResponseDto | null>;
 }
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetCompensationByApplicationUseCase implements IGetCompensationByApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _compensationRepository: IATSCompensationRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSCompensationRepository) private readonly _compensationRepository: IATSCompensationRepository,
   ) {}
 
   async execute(userId: string, applicationId: string): Promise<ATSCompensationResponseDto | null> {
     const application = await this._jobApplicationRepository.findById(applicationId);
     
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {

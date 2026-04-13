@@ -12,13 +12,18 @@ import {
 import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
 import { ATSOfferMapper } from 'src/application/mappers/ats/ats-offer.mapper';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class UploadSignedOfferDocumentUseCase implements IUploadSignedOfferDocumentUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _offerRepository: IATSOfferRepository,
-    private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
-    private readonly _fileUploadService: IFileUploadService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSOfferRepository) private readonly _offerRepository: IATSOfferRepository,
+    @inject(TYPES.UpdateApplicationSubStageUseCase) private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(
@@ -29,12 +34,12 @@ export class UploadSignedOfferDocumentUseCase implements IUploadSignedOfferDocum
   ): Promise<ATSOfferResponseDto> {
     const offer = await this._offerRepository.findById(offerId);
     if (!offer) {
-      throw new NotFoundError('Offer not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Offer'));
     }
 
     const application = await this._jobApplicationRepository.findById(offer.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {
@@ -54,7 +59,7 @@ export class UploadSignedOfferDocumentUseCase implements IUploadSignedOfferDocum
     });
 
     if (!updatedOffer) {
-      throw new NotFoundError('Failed to update offer');
+      throw new NotFoundError(ERROR.FAILED_TO('update offer'));
     }
 
     if (application.stage === ATSStage.OFFER) {

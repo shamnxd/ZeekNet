@@ -13,11 +13,16 @@ import { JobApplicationMapper } from 'src/application/mappers/job-application/jo
 import { ATSComment } from 'src/domain/entities/ats-comment.entity';
 import { v4 as uuidv4 } from 'uuid';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubStageUseCase {
   constructor(
-    private jobApplicationRepository: IJobApplicationRepository,
-    private jobPostingRepository: IJobPostingRepository,
-    private commentRepository: IATSCommentRepository,
+    @inject(TYPES.JobApplicationRepository) private jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.ATSCommentRepository) private commentRepository: IATSCommentRepository,
   ) { }
 
   async execute(dto: UpdateSubStageDto): Promise<JobApplication> {
@@ -31,13 +36,13 @@ export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubSt
 
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
 
     const job = await this.jobPostingRepository.findById(application.jobId);
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
 
@@ -55,7 +60,7 @@ export class UpdateApplicationSubStageUseCase implements IUpdateApplicationSubSt
     });
 
     if (!updatedApplication) {
-      throw new NotFoundError('Failed to update application');
+      throw new NotFoundError(ERROR.FAILED_TO('update application'));
     }
 
     // Create comment for substage change if reason provided

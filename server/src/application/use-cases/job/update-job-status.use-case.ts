@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
@@ -11,12 +14,13 @@ import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/job-posting-response.dto';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
+@injectable()
 export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) { }
 
   async execute(dto: UpdateJobStatusDto): Promise<JobPostingResponseDto> {
@@ -24,7 +28,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     const existingJob = await this._jobPostingRepository.findById(jobId);
 
     if (!existingJob) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     if (existingJob.status === JobStatus.BLOCKED) {
@@ -42,7 +46,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     if (userId && newStatus === JobStatus.ACTIVE && oldStatus !== JobStatus.ACTIVE) {
       const companyProfile = await this._companyProfileRepository.findOne({ userId });
       if (!companyProfile) {
-        throw new NotFoundError('Company profile not found');
+        throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
       }
 
       let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);
@@ -117,7 +121,7 @@ export class UpdateJobStatusUseCase implements IUpdateJobStatusUseCase {
     const updatedJob = await this._jobPostingRepository.update(jobId, { status });
 
     if (!updatedJob) {
-      throw new InternalServerError('Failed to update job status');
+      throw new InternalServerError(ERROR.FAILED_TO('update job status'));
     }
 
     return JobPostingMapper.toResponse(updatedJob);

@@ -2,9 +2,12 @@ import { IGetAllJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/adm
 import { IJobCategoryRepository } from 'src/domain/interfaces/repositories/job-category/IJobCategoryRepository';
 import { PaginatedJobCategoriesResultDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/paginated-job-categories-result.dto';
 import { JobCategoryMapper } from 'src/application/mappers/job/job-category.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllJobCategoriesUseCase implements IGetAllJobCategoriesUseCase {
-  constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
+  constructor(@inject(TYPES.JobCategoryRepository) private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
   async execute(options: { page?: number; limit?: number; search?: string }): Promise<PaginatedJobCategoriesResultDto> {
     const query: Record<string, unknown> = {};

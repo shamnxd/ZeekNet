@@ -1,32 +1,29 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  sendCreatedResponse,
-  validateUserId,
-} from 'src/shared/utils/presentation/controller.utils';
 import { CreateCompanyOfficeLocationDto, UpdateCompanyOfficeLocationDto } from 'src/application/dtos/company/profile/location/requests/company-office-location.dto';
 import { ICreateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/ICreateCompanyOfficeLocationUseCase';
 import { IUpdateCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IUpdateCompanyOfficeLocationUseCase';
 import { IDeleteCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IDeleteCompanyOfficeLocationUseCase';
 import { IGetCompanyOfficeLocationUseCase } from 'src/domain/interfaces/use-cases/company/profile/location/IGetCompanyOfficeLocationUseCase';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, sendCreatedResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyOfficeLocationController {
   constructor(
-    private readonly _createCompanyOfficeLocationUseCase: ICreateCompanyOfficeLocationUseCase,
-    private readonly _updateCompanyOfficeLocationUseCase: IUpdateCompanyOfficeLocationUseCase,
-    private readonly _deleteCompanyOfficeLocationUseCase: IDeleteCompanyOfficeLocationUseCase,
-    private readonly _getCompanyOfficeLocationUseCase: IGetCompanyOfficeLocationUseCase,
+    @inject(TYPES.CreateCompanyOfficeLocationUseCase) private readonly _createCompanyOfficeLocationUseCase: ICreateCompanyOfficeLocationUseCase,
+    @inject(TYPES.UpdateCompanyOfficeLocationUseCase) private readonly _updateCompanyOfficeLocationUseCase: IUpdateCompanyOfficeLocationUseCase,
+    @inject(TYPES.DeleteCompanyOfficeLocationUseCase) private readonly _deleteCompanyOfficeLocationUseCase: IDeleteCompanyOfficeLocationUseCase,
+    @inject(TYPES.GetCompanyOfficeLocationUseCase) private readonly _getCompanyOfficeLocationUseCase: IGetCompanyOfficeLocationUseCase,
   ) { }
 
   getCompanyOfficeLocations = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = validateUserId(req);
       const locations = await this._getCompanyOfficeLocationUseCase.execute({ userId });
-      sendSuccessResponse(res, 'Company office locations retrieved successfully', locations);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company office locations'), locations);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -41,7 +38,7 @@ export class CompanyOfficeLocationController {
     try {
       const userId = validateUserId(req);
       const location = await this._createCompanyOfficeLocationUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Office location created successfully', location);
+      sendCreatedResponse(res, SUCCESS.CREATED('Office location'), location);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,7 +53,7 @@ export class CompanyOfficeLocationController {
     try {
       const userId = validateUserId(req);
       const location = await this._updateCompanyOfficeLocationUseCase.execute({ userId, ...parsed.data });
-      sendSuccessResponse(res, 'Office location updated successfully', location);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Office location'), location);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -67,9 +64,10 @@ export class CompanyOfficeLocationController {
       const userId = validateUserId(req);
       const { id } = req.params;
       await this._deleteCompanyOfficeLocationUseCase.execute({ userId, locationId: id });
-      sendSuccessResponse(res, 'Office location deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Office location'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

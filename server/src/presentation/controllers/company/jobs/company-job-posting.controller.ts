@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { CreateJobPostingRequestDtoSchema } from 'src/application/dtos/admin/job/requests/create-job-posting-request.dto';
 import { UpdateJobPostingDto } from 'src/application/dtos/admin/job/requests/update-job-posting-request.dto';
 import { JobPostingQueryDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
@@ -14,26 +16,21 @@ import { ICloseJobManuallyUseCase } from 'src/domain/interfaces/use-cases/job/IC
 import { IReopenJobUseCase } from 'src/domain/interfaces/use-cases/job/IReopenJobUseCase';
 import { IToggleFeaturedJobUseCase } from 'src/domain/interfaces/use-cases/job/IToggleFeaturedJobUseCase';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  validateUserId,
-  sendCreatedResponse,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId, sendCreatedResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanyJobPostingController {
   constructor(
-    private readonly _createJobPostingUseCase: ICreateJobPostingUseCase,
-    private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
-    private readonly _updateJobPostingUseCase: IUpdateJobPostingUseCase,
-    private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
-    private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
-    private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
-    private readonly _closeJobManuallyUseCase: ICloseJobManuallyUseCase,
-    private readonly _reopenJobUseCase: IReopenJobUseCase,
-    private readonly _toggleFeaturedJobUseCase: IToggleFeaturedJobUseCase,
+    @inject(TYPES.CreateJobPostingUseCase) private readonly _createJobPostingUseCase: ICreateJobPostingUseCase,
+    @inject(TYPES.GetCompanyJobPostingsUseCase) private readonly _getCompanyJobPostingsUseCase: IGetCompanyJobPostingsUseCase,
+    @inject(TYPES.UpdateJobPostingUseCase) private readonly _updateJobPostingUseCase: IUpdateJobPostingUseCase,
+    @inject(TYPES.DeleteJobPostingUseCase) private readonly _deleteJobPostingUseCase: IDeleteJobPostingUseCase,
+    @inject(TYPES.UpdateJobStatusUseCase) private readonly _updateJobStatusUseCase: IUpdateJobStatusUseCase,
+    @inject(TYPES.GetCompanyJobPostingUseCase) private readonly _getCompanyJobPostingUseCase: IGetCompanyJobPostingUseCase,
+    @inject(TYPES.CloseJobManuallyUseCase) private readonly _closeJobManuallyUseCase: ICloseJobManuallyUseCase,
+    @inject(TYPES.ReopenJobUseCase) private readonly _reopenJobUseCase: IReopenJobUseCase,
+    @inject(TYPES.ToggleFeaturedJobUseCase) private readonly _toggleFeaturedJobUseCase: IToggleFeaturedJobUseCase,
   ) { }
 
   createJobPosting = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -46,7 +43,7 @@ export class CompanyJobPostingController {
 
     try {
       const responseDto = await this._createJobPostingUseCase.execute({ userId, ...parsed.data });
-      sendCreatedResponse(res, 'Job posting created successfully', responseDto);
+      sendCreatedResponse(res, SUCCESS.CREATED('Job posting'), responseDto);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -58,7 +55,7 @@ export class CompanyJobPostingController {
       const { id } = req.params;
       const responseDto = await this._getCompanyJobPostingUseCase.execute({ jobId: id, userId });
 
-      sendSuccessResponse(res, 'Job posting retrieved successfully', responseDto);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job posting'), responseDto);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -74,7 +71,7 @@ export class CompanyJobPostingController {
     try {
       const result = await this._getCompanyJobPostingsUseCase.execute({ userId, ...parsed.data });
 
-      sendSuccessResponse(res, 'Company job postings retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company job postings'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -95,7 +92,7 @@ export class CompanyJobPostingController {
         ...bodyParsed.data,
       });
 
-      sendSuccessResponse(res, 'Job posting updated successfully', responseDto);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job posting'), responseDto);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -107,7 +104,7 @@ export class CompanyJobPostingController {
       const { id } = req.params;
       await this._deleteJobPostingUseCase.execute({ jobId: id, userId });
 
-      sendSuccessResponse(res, 'Job posting deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job posting'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -129,7 +126,7 @@ export class CompanyJobPostingController {
         userId,
       });
 
-      sendSuccessResponse(res, `Job status updated to '${bodyParsed.data.status}' successfully`, responseDto);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job status'), responseDto);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -141,7 +138,7 @@ export class CompanyJobPostingController {
       const { id } = req.params;
       await this._closeJobManuallyUseCase.execute({ userId, jobId: id });
 
-      sendSuccessResponse(res, 'Job closed successfully. All remaining candidates have been notified.', null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Job closure'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -165,7 +162,7 @@ export class CompanyJobPostingController {
         additionalVacancies,
       });
 
-      sendSuccessResponse(res, `Job reopened successfully with ${additionalVacancies} additional ${additionalVacancies === 1 ? 'vacancy' : 'vacancies'}.`, null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Job reopening'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -178,9 +175,11 @@ export class CompanyJobPostingController {
 
       const responseDto = await this._toggleFeaturedJobUseCase.execute({ userId, jobId: id });
 
-      sendSuccessResponse(res, 'Job featured status updated successfully', responseDto);
+      sendSuccessResponse(res, SUCCESS.ACTION('Update job featured status'), responseDto);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+

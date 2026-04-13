@@ -7,16 +7,19 @@ import { IUpdateSkillUseCase } from 'src/domain/interfaces/use-cases/admin/attri
 import { CreateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/create-skill-request.dto';
 import { GetAllSkillsDto } from 'src/application/dtos/admin/attributes/skills/requests/get-all-skills-query.dto';
 import { UpdateSkillDto } from 'src/application/dtos/admin/attributes/skills/requests/update-skill-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminSkillController {
   constructor(
-    private readonly _createSkillUseCase: ICreateSkillUseCase,
-    private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
-    private readonly _getSkillByIdUseCase: IGetSkillByIdUseCase,
-    private readonly _updateSkillUseCase: IUpdateSkillUseCase,
-    private readonly _deleteSkillUseCase: IDeleteSkillUseCase,
+    @inject(TYPES.CreateSkillUseCase) private readonly _createSkillUseCase: ICreateSkillUseCase,
+    @inject(TYPES.GetAllSkillsUseCase) private readonly _getAllSkillsUseCase: IGetAllSkillsUseCase,
+    @inject(TYPES.GetSkillByIdUseCase) private readonly _getSkillByIdUseCase: IGetSkillByIdUseCase,
+    @inject(TYPES.UpdateSkillUseCase) private readonly _updateSkillUseCase: IUpdateSkillUseCase,
+    @inject(TYPES.DeleteSkillUseCase) private readonly _deleteSkillUseCase: IDeleteSkillUseCase,
   ) { }
 
   createSkill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -27,7 +30,7 @@ export class AdminSkillController {
 
     try {
       const skill = await this._createSkillUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Skill created successfully', skill);
+      sendSuccessResponse(res, SUCCESS.CREATED('Skill'), skill);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -41,7 +44,7 @@ export class AdminSkillController {
 
     try {
       const result = await this._getAllSkillsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Skills retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Skills'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -51,7 +54,7 @@ export class AdminSkillController {
     try {
       const { id } = req.params;
       const skill = await this._getSkillByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Skill retrieved successfully', skill);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Skill'), skill);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -66,7 +69,7 @@ export class AdminSkillController {
     try {
       const { id } = req.params;
       const skill = await this._updateSkillUseCase.execute(id, parsedBody.data);
-      sendSuccessResponse(res, 'Skill updated successfully', skill);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Skill'), skill);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -76,9 +79,10 @@ export class AdminSkillController {
     try {
       const { id } = req.params;
       await this._deleteSkillUseCase.execute(id);
-      sendSuccessResponse(res, 'Skill deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Skill'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+

@@ -1,19 +1,24 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { INotificationRepository } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
 import { NotificationResponseDto } from 'src/application/dtos/notification/management/responses/notification-response.dto';
 import { NotificationMapper } from 'src/application/mappers/notification/notification.mapper';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { IMarkNotificationAsReadUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUseCase {
   constructor(
-    private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepository: INotificationRepository,
   ) {}
 
   async execute(userId: string, notificationId: string): Promise<NotificationResponseDto | null> {
     const notification = await this._notificationRepository.findById(notificationId);
     
     if (!notification) {
-      throw new NotFoundError('Notification not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Notification'));
     }
 
     if (notification.userId !== userId) {
@@ -30,7 +35,7 @@ export class MarkNotificationAsReadUseCase implements IMarkNotificationAsReadUse
     });
 
     if (!updatedNotification) {
-      throw new NotFoundError('Failed to update notification');
+      throw new NotFoundError(ERROR.FAILED_TO('update notification'));
     }
 
     return NotificationMapper.toResponse(updatedNotification);

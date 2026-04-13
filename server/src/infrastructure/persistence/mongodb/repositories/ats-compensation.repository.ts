@@ -3,7 +3,9 @@ import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/a
 import { ATSCompensation } from 'src/domain/entities/ats-compensation.entity';
 import { ATSCompensationModel } from 'src/infrastructure/persistence/mongodb/models/ats-compensation.model';
 import { ATSCompensationMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-compensation.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ATSCompensationRepository implements IATSCompensationRepository {
   async create(compensation: ATSCompensation): Promise<ATSCompensation> {
     const doc = await ATSCompensationModel.create(ATSCompensationMapper.toDocument(compensation));

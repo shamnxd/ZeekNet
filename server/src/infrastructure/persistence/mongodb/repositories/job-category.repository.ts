@@ -1,9 +1,11 @@
+import { injectable } from 'inversify';
 import { IJobCategoryRepository, JobCategoryQueryFilters, PaginatedJobCategories } from 'src/domain/interfaces/repositories/job-category/IJobCategoryRepository';
 import { JobCategory } from 'src/domain/entities/job-category.entity';
 import { JobCategoryModel, JobCategoryDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/job-category.model';
 import { JobCategoryMapper } from 'src/infrastructure/mappers/persistence/mongodb/job/job-category.mapper';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
+@injectable()
 export class JobCategoryRepository extends RepositoryBase<JobCategory, ModelDocument> implements IJobCategoryRepository {
   constructor() {
     super(JobCategoryModel);
@@ -25,4 +27,5 @@ export class JobCategoryRepository extends RepositoryBase<JobCategory, ModelDocu
     return doc ? this.mapToEntity(doc) : null;
   }
 }
+
 

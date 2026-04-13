@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetCompanyDashboardStatsUseCase, CompanyDashboardStats } from 'src/domain/interfaces/use-cases/company/dashboard/IGetCompanyDashboardStatsUseCase';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
@@ -12,14 +14,15 @@ import { SeekerProfileModel } from 'src/infrastructure/persistence/mongodb/model
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { Types } from 'mongoose';
 
+@injectable()
 export class GetCompanyDashboardStatsUseCase implements IGetCompanyDashboardStatsUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _atsInterviewRepository: IATSInterviewRepository,
-    private readonly _messageRepository: IMessageRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSInterviewRepository) private readonly _atsInterviewRepository: IATSInterviewRepository,
+    @inject(TYPES.ChatMessageRepository) private readonly _messageRepository: IMessageRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(userId: string): Promise<CompanyDashboardStats> {

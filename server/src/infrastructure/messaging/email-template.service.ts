@@ -2,8 +2,11 @@ import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemp
 import { priceChangeNotificationTemplate } from 'src/infrastructure/messaging/templates/price-change-notification.template';
 import { otpVerificationTemplate } from 'src/infrastructure/messaging/templates/otp-verification.template';
 import * as hiringTemplates from 'src/infrastructure/messaging/templates/hiring-process.templates';
+import { injectable } from 'inversify';
 
+@injectable()
 export class EmailTemplateService implements IEmailTemplateService {
+
 
   getPriceChangeNotificationEmail(
     planName: string,

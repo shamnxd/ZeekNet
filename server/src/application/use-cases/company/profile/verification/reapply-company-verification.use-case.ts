@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from 'src/domain/interfaces/repositories/company/ICompanyVerificationRepository';
 import { ICompanyOfficeLocationRepository } from 'src/domain/interfaces/repositories/company/ICompanyOfficeLocationRepository';
@@ -6,26 +8,29 @@ import { CompanyProfileResponseDto } from 'src/application/dtos/company/profile/
 import { ReapplyVerificationRequestDto } from 'src/application/dtos/company/profile/verification/requests/reapply-verification-request.dto';
 import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.enum';
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
+import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
+import { COMPANY, ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerificationUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
   ) { }
 
   async execute(data: ReapplyVerificationRequestDto): Promise<CompanyProfileResponseDto> {
     const { userId, company_name, email, website, industry, organisation, location, employees, description, logo, tax_id, business_license } = data;
 
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(COMPANY.USER_ID_REQUIRED);
 
     const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
-      throw new Error('Company profile not found');
+      throw new Error(ERROR.NOT_FOUND('Company profile'));
     }
 
     if (existingProfile.isVerified !== CompanyVerificationStatus.REJECTED) {
-      throw new Error('Only rejected companies can reapply for verification');
+      throw new Error(COMPANY.ONLY_REJECTED_CAN_REAPPLY);
     }
 
     const profileUpdates: Partial<{
@@ -80,7 +85,7 @@ export class ReapplyCompanyVerificationUseCase implements IReapplyCompanyVerific
 
     const updatedProfile = await this._companyProfileRepository.findOne({ userId });
     if (!updatedProfile) {
-      throw new Error('Failed to retrieve updated profile');
+      throw new Error(COMPANY.FAILED_TO_RETRIEVE_UPDATED_PROFILE);
     }
 
     return CompanyProfileMapper.toResponse(updatedProfile, verification);

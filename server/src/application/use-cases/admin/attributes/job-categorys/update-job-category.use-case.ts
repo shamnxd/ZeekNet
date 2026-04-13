@@ -5,32 +5,37 @@ import { IUpdateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin
 import { UpdateJobCategoryRequestDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
 import { JobCategoryResponseDto } from 'src/application/dtos/admin/attributes/job-categorys/responses/job-category-response.dto';
 import { JobCategoryMapper } from 'src/application/mappers/job/job-category.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class UpdateJobCategoryUseCase implements IUpdateJobCategoryUseCase {
-  constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
+  constructor(@inject(TYPES.JobCategoryRepository) private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
   async execute(id: string, dto: UpdateJobCategoryRequestDto): Promise<JobCategoryResponseDto> {
     const { name } = dto;
     
     if (!name || !name.trim()) {
-      throw new BadRequestError('Category name is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Category name'));
     }
 
     const category = await this._jobCategoryRepository.findById(id);
     if (!category) {
-      throw new NotFoundError('Category not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Category'));
     }
 
     const normalizedName = name.trim();
     const existingCategory = await this._jobCategoryRepository.findByName(normalizedName);
     
     if (existingCategory && existingCategory.id !== id) {
-      throw new ConflictError('Category with this name already exists');
+      throw new ConflictError(ERROR.ALREADY_EXISTS('Category with this name'));
     }
 
     const updated = await this._jobCategoryRepository.update(id, { name: normalizedName });
     if (!updated) {
-      throw new InternalServerError('Failed to update category');
+      throw new InternalServerError(ERROR.FAILED_TO('update category'));
     }
 
     return JobCategoryMapper.toResponse(updated);

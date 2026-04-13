@@ -5,18 +5,22 @@ import { JobPostingResponseDto } from 'src/application/dtos/admin/job/responses/
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class AdminGetJobByIdUseCase implements IAdminGetJobByIdUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(jobId: string): Promise<JobPostingResponseDto> {
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     const response = JobPostingMapper.toResponse(job);

@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { CompanySubscription } from 'src/domain/entities/company-subscription.entity';
 import { CompanySubscriptionModel } from 'src/infrastructure/persistence/mongodb/models/company-subcription.model';
@@ -7,6 +8,7 @@ import { CompanySubscriptionDocument } from 'src/infrastructure/persistence/mong
 import { Types } from 'mongoose';
 import { CreateInput } from 'src/domain/types/common.types';
 
+@injectable()
 export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscription, CompanySubscriptionDocument> implements ICompanySubscriptionRepository {
   constructor() {
     super(CompanySubscriptionModel);
@@ -139,4 +141,5 @@ export class CompanySubscriptionRepository extends RepositoryBase<CompanySubscri
     return doc ? CompanySubscriptionMapper.toEntity(doc) : null;
   }
 }
+
 

@@ -6,10 +6,14 @@ import { SeekerProfileMapper } from 'src/application/mappers/seeker/seeker-profi
 import { SeekerProfileResponseDto } from 'src/application/dtos/seeker/profile/info/responses/seeker-profile-response.dto';
 import { CreateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class CreateSeekerProfileUseCase implements ICreateSeekerProfileUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(dto: CreateSeekerProfileRequestDto): Promise<SeekerProfileResponseDto> {

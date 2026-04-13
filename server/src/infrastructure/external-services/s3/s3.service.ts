@@ -2,10 +2,13 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } fro
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { env } from 'src/infrastructure/config/env';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { injectable } from 'inversify';
 
+@injectable()
 export class S3Service implements IS3Service {
   private _s3Client: S3Client;
   private _bucketName: string;
+
 
   constructor() {
     this._s3Client = new S3Client({

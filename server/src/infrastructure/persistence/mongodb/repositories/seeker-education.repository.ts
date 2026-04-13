@@ -5,7 +5,9 @@ import { Types } from 'mongoose';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { SeekerEducationMapper } from 'src/infrastructure/mappers/persistence/mongodb/seeker/seeker-education.mapper';
 
+import { injectable } from 'inversify';
 
+@injectable()
 export class SeekerEducationRepository extends RepositoryBase<Education, SeekerEducationDocument> implements ISeekerEducationRepository {
   constructor() {
     super(SeekerEducationModel);

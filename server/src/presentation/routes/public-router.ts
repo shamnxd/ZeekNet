@@ -1,7 +1,14 @@
 import { Router } from 'express';
-import { publicJobController, publicDataController } from 'src/infrastructure/di/publicDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { PublicJobController } from 'src/presentation/controllers/public/public-job.controller';
+import { PublicDataController } from 'src/presentation/controllers/public/public-data.controller';
+import { APP_ROUTES } from 'src/shared/constants/routes';
 
 import { optionalAuthentication } from 'src/presentation/middleware/auth.middleware';
+
+const publicJobController = container.get<PublicJobController>(TYPES.PublicJobController);
+const publicDataController = container.get<PublicDataController>(TYPES.PublicDataController);
 
 export class PublicRouter {
   public router: Router;
@@ -12,15 +19,15 @@ export class PublicRouter {
   }
 
   private _initializeRoutes(): void {
-    this.router.get('/jobs', publicJobController.getAllJobPostings);
-    this.router.get('/jobs/:id', optionalAuthentication, publicJobController.getJobPosting);
-    this.router.get('/featured-jobs', publicJobController.getFeaturedJobs);
+    this.router.get(APP_ROUTES.PUBLIC.JOBS, publicJobController.getAllJobPostings);
+    this.router.get(APP_ROUTES.PUBLIC.JOB_DETAIL, optionalAuthentication, publicJobController.getJobPosting);
+    this.router.get(APP_ROUTES.PUBLIC.FEATURED_JOBS, publicJobController.getFeaturedJobs);
 
-    this.router.get('/skills', publicDataController.getAllSkills);
-    this.router.get('/job-categories', publicDataController.getAllJobCategories);
-    this.router.get('/job-roles', publicDataController.getAllJobRoles);
-    this.router.get('/companies', publicDataController.getAllCompanies);
-    this.router.get('/companies/:id', publicDataController.getCompanyProfile);
+    this.router.get(APP_ROUTES.PUBLIC.SKILLS, publicDataController.getAllSkills);
+    this.router.get(APP_ROUTES.PUBLIC.JOB_CATEGORIES, publicDataController.getAllJobCategories);
+    this.router.get(APP_ROUTES.PUBLIC.JOB_ROLES, publicDataController.getAllJobRoles);
+    this.router.get(APP_ROUTES.PUBLIC.COMPANIES, publicDataController.getAllCompanies);
+    this.router.get(APP_ROUTES.PUBLIC.COMPANY_DETAIL, publicDataController.getCompanyProfile);
   }
 }
 

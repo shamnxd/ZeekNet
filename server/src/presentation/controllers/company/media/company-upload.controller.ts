@@ -1,28 +1,31 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
-import { handleValidationError, handleAsyncError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { IUploadBusinessLicenseUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadBusinessLicenseUseCase';
 import { IUploadWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadWorkplacePictureUseCase';
 import { IDeleteImageUseCase } from 'src/domain/interfaces/use-cases/company/media/IDeleteImageUseCase';
 import { DeleteImageDtoSchema } from 'src/application/dtos/company/media/requests/delete-image.dto';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class CompanyUploadController {
   constructor(
-    private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
-    private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
-    private readonly _deleteImageUseCase: IDeleteImageUseCase,
-  ) {}
+    @inject(TYPES.UploadBusinessLicenseUseCase) private readonly _uploadBusinessLicenseUseCase: IUploadBusinessLicenseUseCase,
+    @inject(TYPES.UploadWorkplacePictureUseCase) private readonly _uploadWorkplacePictureUseCase: IUploadWorkplacePictureUseCase,
+    @inject(TYPES.DeleteImageUseCase) private readonly _deleteImageUseCase: IDeleteImageUseCase,
+  ) { }
 
   uploadBusinessLicense = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const file = req.file;
 
       if (!file) {
-        return handleValidationError('No business license uploaded', next);
+        return handleValidationError(VALIDATION.REQUIRED('Business license'), next);
       }
 
       const result = await this._uploadBusinessLicenseUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
-      sendSuccessResponse(res, 'Business license uploaded successfully', result);
+      sendSuccessResponse(res, SUCCESS.CREATED('Business license'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -33,11 +36,11 @@ export class CompanyUploadController {
       const file = req.file;
 
       if (!file) {
-        return handleValidationError('No workplace picture uploaded', next);
+        return handleValidationError(VALIDATION.REQUIRED('Workplace picture'), next);
       }
 
       const result = await this._uploadWorkplacePictureUseCase.execute({ buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype });
-      sendSuccessResponse(res, 'Workplace picture uploaded successfully', result);
+      sendSuccessResponse(res, SUCCESS.CREATED('Workplace picture'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -51,10 +54,11 @@ export class CompanyUploadController {
 
     try {
       await this._deleteImageUseCase.execute(parsed.data.imageUrl);
-      sendSuccessResponse(res, 'Image deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Image'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 

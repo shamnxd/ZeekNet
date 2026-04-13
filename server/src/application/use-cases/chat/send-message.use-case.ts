@@ -10,20 +10,26 @@ import { SendMessageResponseDto } from 'src/application/dtos/chat/responses/send
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.mapper';
 import { SendMessageDto } from 'src/application/dtos/chat/requests/send-message.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _messageRepository: IMessageRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _chatSocketService: IChatSocketService,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.ChatMessageRepository) private readonly _messageRepository: IMessageRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ChatSocketService) private readonly _chatSocketService: IChatSocketService,
   ) { }
+
 
   async execute(input: SendMessageDto): Promise<SendMessageResponseDto> {
     const { senderId, receiverId, content, conversationId, replyToMessageId } = input;
 
     if (!content || !content.trim()) {
-      throw new ValidationError('Message content is required');
+      throw new ValidationError(VALIDATION.REQUIRED('Message content'));
     }
 
     if (senderId === receiverId) {
@@ -35,8 +41,8 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       this._userRepository.findById(receiverId),
     ]);
 
-    if (!sender) throw new NotFoundError('Sender not found');
-    if (!receiver) throw new NotFoundError('Recipient not found');
+    if (!sender) throw new NotFoundError(ERROR.NOT_FOUND('Sender'));
+    if (!receiver) throw new NotFoundError(ERROR.NOT_FOUND('Recipient'));
 
     if (sender.isBlocked) {
       throw new AuthorizationError('Your account has been blocked. You cannot send messages.');
@@ -48,7 +54,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
 
     const conversation = await this._conversationRepository.findById(conversationId);
     if (!conversation) {
-      throw new NotFoundError('Conversation not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Conversation'));
     }
 
     const participantIds = conversation.participants.map((p) => p.userId);

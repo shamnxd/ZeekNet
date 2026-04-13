@@ -6,19 +6,26 @@ import { otpVerificationTemplate } from 'src/infrastructure/messaging/templates/
 import { RequestOtpRequestDto } from 'src/application/dtos/auth/verification/request-otp.use-case';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class RequestOtpUseCase implements IRequestOtpUseCase {
   constructor(
-        private readonly _otpService: IOtpService,
-        private readonly _mailerService: IMailerService,
-        private readonly _userRepository: IUserRepository,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
+
 
   async execute(params: RequestOtpRequestDto): Promise<void> {
     const { email } = params;
 
     const user = await this._userRepository.findOne({ email });
     if (!user) {
-      throw new ValidationError('User not found');
+      throw new ValidationError(ERROR.NOT_FOUND('User'));
     }
 
     if (user.isVerified) {

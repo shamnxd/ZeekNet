@@ -6,17 +6,20 @@ import { IAdminGetJobStatsUseCase } from 'src/domain/interfaces/use-cases/admin/
 import { IAdminUpdateJobStatusUseCase } from 'src/domain/interfaces/use-cases/admin/job/IAdminUpdateJobStatusUseCase';
 import { UpdateJobStatusRequestDtoSchema } from 'src/application/dtos/admin/job/requests/update-job-status-request.dto';
 import { GetAllJobsQueryDto } from 'src/application/dtos/admin/job/requests/get-all-jobs-query.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobController {
   constructor(
-    private readonly _getAllJobsUseCase: IAdminGetAllJobsUseCase,
-    private readonly _getJobByIdUseCase: IAdminGetJobByIdUseCase,
-    private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
-    private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
-    private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
-  ) { }
+    @inject(TYPES.AdminGetAllJobsUseCase) private readonly _getAllJobsUseCase: IAdminGetAllJobsUseCase,
+    @inject(TYPES.AdminGetJobByIdUseCase) private readonly _getJobByIdUseCase: IAdminGetJobByIdUseCase,
+    @inject(TYPES.AdminUpdateJobStatusUseCase) private readonly _updateJobStatusUseCase: IAdminUpdateJobStatusUseCase,
+    @inject(TYPES.AdminDeleteJobUseCase) private readonly _deleteJobUseCase: IAdminDeleteJobUseCase,
+    @inject(TYPES.AdminGetJobStatsUseCase) private readonly _getJobStatsUseCase: IAdminGetJobStatsUseCase,
+  ) {}
 
   getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const parsed = GetAllJobsQueryDto.safeParse(req.query);
@@ -26,7 +29,7 @@ export class AdminJobController {
 
     try {
       const result = await this._getAllJobsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Jobs retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Jobs'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -36,7 +39,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       const job = await this._getJobByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Job retrieved successfully', job);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job'), job);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -51,8 +54,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       await this._updateJobStatusUseCase.execute(id, parsedBody.data);
-      const message = `Job status updated to '${parsedBody.data.status}' successfully`;
-      sendSuccessResponse(res, message, null);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job status'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -62,7 +64,7 @@ export class AdminJobController {
     try {
       const { id } = req.params;
       await this._deleteJobUseCase.execute(id);
-      sendSuccessResponse(res, 'Job deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -71,7 +73,7 @@ export class AdminJobController {
   getJobStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const stats = await this._getJobStatsUseCase.execute();
-      sendSuccessResponse(res, 'Job statistics retrieved successfully', stats);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job statistics'), stats);
     } catch (error) {
       handleAsyncError(error, next);
     }

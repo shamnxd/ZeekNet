@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ISubscriptionPlanRepository } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -12,21 +14,24 @@ import { IRevertToDefaultPlanUseCase } from 'src/domain/interfaces/use-cases/sub
 import { JobStatus } from 'src/domain/enums/job-status.enum';
 import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
 import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
   constructor(
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _notificationRepository: INotificationRepository,
-    private readonly _logger: ILogger,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(companyId: string): Promise<CompanySubscriptionResponseDto> {
     const defaultPlan = await this._subscriptionPlanRepository.findDefault();
     if (!defaultPlan) {
-      throw new NotFoundError('Default subscription plan not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Default subscription plan'));
     }
 
     let currentSubscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyId);
@@ -96,7 +101,7 @@ export class RevertToDefaultPlanUseCase implements IRevertToDefaultPlanUseCase {
     });
 
     if (!updatedSubscription) {
-      throw new Error('Failed to update subscription to default plan');
+      throw new Error(ERROR.FAILED_TO('update subscription to default plan'));
     }
 
     const companyProfile = await this._companyProfileRepository.findById(companyId);

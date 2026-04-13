@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { createSuccessResponse, createErrorResponse } from 'src/shared/utils/presentation/response.utils';
-import { ErrorHandler } from 'src/shared/utils/presentation/error.utils';
+import { createSuccessResponse, createErrorResponse, ErrorHandler } from './api.util';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { HttpStatus } from 'src/domain/enums/http-status.enum';
 import { logger } from 'src/infrastructure/config/logger';
+import { ERROR } from 'src/shared/constants/messages';
 
 export function extractUserId(req: AuthenticatedRequest): string | null {
   return req.user?.id || null;
@@ -12,7 +12,7 @@ export function extractUserId(req: AuthenticatedRequest): string | null {
 export function validateUserId(req: AuthenticatedRequest): string {
   const userId = extractUserId(req);
   if (!userId) {
-    throw ErrorHandler.createValidationError('User ID not found');
+    throw ErrorHandler.createValidationError(ERROR.NOT_FOUND('User ID'));
   }
   return userId;
 }
@@ -57,7 +57,7 @@ export function handleError(res: Response, error: unknown): void {
   } else if (error instanceof Error) {
     sendErrorResponse(res, error.message, null, HttpStatus.INTERNAL_SERVER_ERROR);
   } else {
-    sendErrorResponse(res, 'Internal server error', null, HttpStatus.INTERNAL_SERVER_ERROR);
+    sendErrorResponse(res, ERROR.INTERNAL_SERVER, null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -69,11 +69,11 @@ export function sendBadRequestResponse<T>(res: Response, message: string, data?:
   sendErrorResponse(res, message, data, HttpStatus.BAD_REQUEST);
 }
 
-export function sendUnauthorizedResponse<T>(res: Response, message: string = 'Unauthorized', data?: T): void {
+export function sendUnauthorizedResponse<T>(res: Response, message: string = ERROR.UNAUTHORIZED, data?: T): void {
   sendErrorResponse(res, message, data, HttpStatus.UNAUTHORIZED);
 }
 
-export function sendForbiddenResponse<T>(res: Response, message: string = 'Forbidden', data?: T): void {
+export function sendForbiddenResponse<T>(res: Response, message: string = ERROR.FORBIDDEN, data?: T): void {
   sendErrorResponse(res, message, data, HttpStatus.FORBIDDEN);
 }
 
@@ -81,7 +81,7 @@ export function sendConflictResponse<T>(res: Response, message: string, data?: T
   sendErrorResponse(res, message, data, HttpStatus.CONFLICT);
 }
 
-export function sendInternalServerErrorResponse<T>(res: Response, message: string = 'Internal server error', data?: T): void {
+export function sendInternalServerErrorResponse<T>(res: Response, message: string = ERROR.INTERNAL_SERVER, data?: T): void {
   sendErrorResponse(res, message, data, HttpStatus.INTERNAL_SERVER_ERROR);
 }
 

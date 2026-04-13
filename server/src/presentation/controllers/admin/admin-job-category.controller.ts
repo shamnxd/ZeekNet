@@ -7,16 +7,19 @@ import { IUpdateJobCategoryUseCase } from 'src/domain/interfaces/use-cases/admin
 import { CreateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/create-job-category-request.dto';
 import { GetAllJobCategoriesQueryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/get-all-job-categories-query.dto';
 import { UpdateJobCategoryDto } from 'src/application/dtos/admin/attributes/job-categorys/requests/update-job-category-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobCategoryController {
   constructor(
-    private readonly _createJobCategoryUseCase: ICreateJobCategoryUseCase,
-    private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
-    private readonly _getJobCategoryByIdUseCase: IGetJobCategoryByIdUseCase,
-    private readonly _updateJobCategoryUseCase: IUpdateJobCategoryUseCase,
-    private readonly _deleteJobCategoryUseCase: IDeleteJobCategoryUseCase,
+    @inject(TYPES.CreateJobCategoryUseCase) private readonly _createJobCategoryUseCase: ICreateJobCategoryUseCase,
+    @inject(TYPES.GetAllJobCategoriesUseCase) private readonly _getAllJobCategoriesUseCase: IGetAllJobCategoriesUseCase,
+    @inject(TYPES.GetJobCategoryByIdUseCase) private readonly _getJobCategoryByIdUseCase: IGetJobCategoryByIdUseCase,
+    @inject(TYPES.UpdateJobCategoryUseCase) private readonly _updateJobCategoryUseCase: IUpdateJobCategoryUseCase,
+    @inject(TYPES.DeleteJobCategoryUseCase) private readonly _deleteJobCategoryUseCase: IDeleteJobCategoryUseCase,
   ) { }
 
   createJobCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -26,7 +29,7 @@ export class AdminJobCategoryController {
     }
     try {
       const category = await this._createJobCategoryUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Category created successfully', category);
+      sendSuccessResponse(res, SUCCESS.CREATED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -39,7 +42,7 @@ export class AdminJobCategoryController {
     }
     try {
       const result = await this._getAllJobCategoriesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Categories retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job categories'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -49,7 +52,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       const category = await this._getJobCategoryByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Category retrieved successfully', category);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -63,7 +66,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       const category = await this._updateJobCategoryUseCase.execute(id, parsedBody.data);
-      sendSuccessResponse(res, 'Category updated successfully', category);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job category'), category);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -73,7 +76,7 @@ export class AdminJobCategoryController {
     try {
       const { id } = req.params;
       await this._deleteJobCategoryUseCase.execute(id);
-      sendSuccessResponse(res, 'Category deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job category'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }

@@ -5,15 +5,18 @@ import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/adm
 import { IVerifyCompanyUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IVerifyCompanyUseCase';
 import { GetCompaniesQueryDtoSchema } from 'src/application/dtos/admin/companies/requests/get-companies-query.dto';
 import { VerifyCompanyDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminCompanyController {
   constructor(
-        private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
-        private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
-        private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
-        private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
+    @inject(TYPES.GetAllCompaniesUseCase) private readonly _getAllCompaniesUseCase: IGetAllCompaniesUseCase,
+    @inject(TYPES.GetPendingCompaniesUseCase) private readonly _getPendingCompaniesUseCase: IGetPendingCompaniesUseCase,
+    @inject(TYPES.GetCompanyByIdUseCase) private readonly _getCompanyByIdUseCase: IGetCompanyByIdUseCase,
+    @inject(TYPES.VerifyCompanyUseCase) private readonly _verifyCompanyUseCase: IVerifyCompanyUseCase,
   ) { }
 
   getAllCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -24,7 +27,7 @@ export class AdminCompanyController {
 
     try {
       const result = await this._getAllCompaniesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Companies retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Companies'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -33,7 +36,7 @@ export class AdminCompanyController {
   getPendingCompanies = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this._getPendingCompaniesUseCase.execute();
-      sendSuccessResponse(res, 'Pending companies retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Pending companies'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -43,7 +46,7 @@ export class AdminCompanyController {
     try {
       const { id } = req.params;
       const company = await this._getCompanyByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Company retrieved successfully', company);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company'), company);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -57,10 +60,11 @@ export class AdminCompanyController {
 
     try {
       await this._verifyCompanyUseCase.execute(parsed.data);
-      const message = `Company ${parsed.data.isVerified} successfully`;
-      sendSuccessResponse(res, message, null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Company verification'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+

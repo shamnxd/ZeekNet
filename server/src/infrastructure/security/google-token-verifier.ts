@@ -1,8 +1,11 @@
 import { OAuth2Client } from 'google-auth-library';
 import { IGoogleProfile, IGoogleTokenVerifier } from 'src/domain/interfaces/services/IGoogleTokenVerifier';
 import { env } from 'src/infrastructure/config/env';
+import { injectable } from 'inversify';
 
+@injectable()
 export class GoogleAuthTokenVerifier implements IGoogleTokenVerifier {
+
   private _client = new OAuth2Client(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);
 
   async verifyIdToken(idToken: string): Promise<IGoogleProfile> {

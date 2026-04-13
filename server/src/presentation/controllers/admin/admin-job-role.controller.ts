@@ -7,16 +7,19 @@ import { IUpdateJobRoleUseCase } from 'src/domain/interfaces/use-cases/admin/att
 import { CreateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/create-job-role-request.dto';
 import { GetAllJobRolesQueryDtoSchema } from 'src/application/dtos/admin/attributes/job-roles/requests/get-all-job-roles-query.dto';
 import { UpdateJobRoleDto } from 'src/application/dtos/admin/attributes/job-roles/requests/update-job-role-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { created, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { created, formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminJobRoleController {
   constructor(
-    private readonly _createJobRoleUseCase: ICreateJobRoleUseCase,
-    private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
-    private readonly _getJobRoleByIdUseCase: IGetJobRoleByIdUseCase,
-    private readonly _updateJobRoleUseCase: IUpdateJobRoleUseCase,
-    private readonly _deleteJobRoleUseCase: IDeleteJobRoleUseCase,
+    @inject(TYPES.CreateJobRoleUseCase) private readonly _createJobRoleUseCase: ICreateJobRoleUseCase,
+    @inject(TYPES.GetAllJobRolesUseCase) private readonly _getAllJobRolesUseCase: IGetAllJobRolesUseCase,
+    @inject(TYPES.GetJobRoleByIdUseCase) private readonly _getJobRoleByIdUseCase: IGetJobRoleByIdUseCase,
+    @inject(TYPES.UpdateJobRoleUseCase) private readonly _updateJobRoleUseCase: IUpdateJobRoleUseCase,
+    @inject(TYPES.DeleteJobRoleUseCase) private readonly _deleteJobRoleUseCase: IDeleteJobRoleUseCase,
   ) { }
 
   createJobRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -27,7 +30,7 @@ export class AdminJobRoleController {
 
     try {
       const jobRole = await this._createJobRoleUseCase.execute(parsed.data);
-      created(res, jobRole, 'Job role created successfully');
+      created(res, jobRole, SUCCESS.CREATED('Job role'));
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -41,7 +44,7 @@ export class AdminJobRoleController {
 
     try {
       const result = await this._getAllJobRolesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Job roles retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job roles'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -51,7 +54,7 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       const jobRole = await this._getJobRoleByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Job role retrieved successfully', jobRole);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job role'), jobRole);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -66,7 +69,7 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       const jobRole = await this._updateJobRoleUseCase.execute(id, parsedBody.data);
-      sendSuccessResponse(res, 'Job role updated successfully', jobRole);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Job role'), jobRole);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -76,12 +79,13 @@ export class AdminJobRoleController {
     try {
       const { id } = req.params;
       await this._deleteJobRoleUseCase.execute(id);
-      sendSuccessResponse(res, 'Job role deleted successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Job role'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 
 

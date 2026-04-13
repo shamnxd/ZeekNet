@@ -6,16 +6,22 @@ import { ResumeMetaResponseDto } from 'src/application/dtos/seeker/profile/info/
 import { UploadResumeRequestDto } from 'src/application/dtos/seeker/media/requests/seeker-profile.dto';
 import { IUploadResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IUploadResumeUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class UploadResumeUseCase implements IUploadResumeUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
   ) {}
 
   async execute(dto: UploadResumeRequestDto): Promise<ResumeMetaResponseDto> {
     const { userId } = dto;
     const profile = await this._seekerProfileRepository.findOne({ userId });
     if (!profile) {
-      throw new NotFoundError('Seeker profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Seeker profile'));
     }
 
     const allowedExtensions = ['.pdf', '.doc', '.docx'];

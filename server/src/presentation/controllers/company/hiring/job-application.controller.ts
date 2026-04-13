@@ -1,4 +1,6 @@
+import { injectable, inject } from 'inversify';
 import { Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateApplicationScoreUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationScoreUseCase';
 import { IUpdateApplicationStageUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IUpdateApplicationStageUseCase';
 import { IGetApplicationDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetApplicationDetailsUseCase';
@@ -11,23 +13,19 @@ import { UpdateApplicationStageRequestDtoSchema } from 'src/application/dtos/app
 import { UpdateScoreDto } from 'src/application/dtos/application/requests/update-score.dto';
 import { BulkUpdateApplicationsDto } from 'src/application/dtos/company/hiring/requests/bulk-update-applications.dto';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import {
-  handleValidationError,
-  handleAsyncError,
-  sendSuccessResponse,
-  validateUserId,
-} from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanyJobApplicationController {
   constructor(
-    private readonly _getApplicationsByJobUseCase: IGetApplicationsByJobUseCase,
-    private readonly _getApplicationsByCompanyUseCase: IGetApplicationsByCompanyUseCase,
-    private readonly _getApplicationDetailsUseCase: IGetApplicationDetailsUseCase,
-    private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
-    private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
-    private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
-    private readonly _markCandidateHiredUseCase: IMarkCandidateHiredUseCase,
+    @inject(TYPES.GetApplicationsByJobUseCase) private readonly _getApplicationsByJobUseCase: IGetApplicationsByJobUseCase,
+    @inject(TYPES.GetApplicationsByCompanyUseCase) private readonly _getApplicationsByCompanyUseCase: IGetApplicationsByCompanyUseCase,
+    @inject(TYPES.GetCompanyApplicationDetailsUseCase) private readonly _getApplicationDetailsUseCase: IGetApplicationDetailsUseCase,
+    @inject(TYPES.CompanyUpdateApplicationStageUseCase) private readonly _updateApplicationStageUseCase: IUpdateApplicationStageUseCase,
+    @inject(TYPES.UpdateApplicationScoreUseCase) private readonly _updateApplicationScoreUseCase: IUpdateApplicationScoreUseCase,
+    @inject(TYPES.BulkUpdateApplicationsUseCase) private readonly _bulkUpdateApplicationsUseCase: IBulkUpdateApplicationsUseCase,
+    @inject(TYPES.MarkCandidateHiredUseCase) private readonly _markCandidateHiredUseCase: IMarkCandidateHiredUseCase,
   ) { }
 
   getCompanyApplications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -39,7 +37,7 @@ export class CompanyJobApplicationController {
 
     try {
       const result = await this._getApplicationsByCompanyUseCase.execute({ ...parsed.data, userId });
-      sendSuccessResponse(res, 'Company applications retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Company applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -55,7 +53,7 @@ export class CompanyJobApplicationController {
     }
 
     if (!job_id) {
-      return handleValidationError('Job ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Job ID'), next);
     }
 
     try {
@@ -64,7 +62,7 @@ export class CompanyJobApplicationController {
         ...parsed.data,
         userId,
       });
-      sendSuccessResponse(res, 'Job applications retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -74,12 +72,12 @@ export class CompanyJobApplicationController {
     const userId = validateUserId(req);
     const { id } = req.params;
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
 
     try {
       const response = await this._getApplicationDetailsUseCase.execute({ userId, applicationId: id });
-      sendSuccessResponse(res, 'Application details retrieved successfully', response);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Application details'), response);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -91,7 +89,7 @@ export class CompanyJobApplicationController {
     const bodyParsed = UpdateApplicationStageRequestDtoSchema.safeParse(req.body);
 
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
     if (!bodyParsed.success) {
       return handleValidationError(formatZodErrors(bodyParsed.error), next);
@@ -104,7 +102,7 @@ export class CompanyJobApplicationController {
         ...bodyParsed.data,
       });
 
-      sendSuccessResponse(res, 'Application stage updated successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application stage'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -116,7 +114,7 @@ export class CompanyJobApplicationController {
     const bodyParsed = UpdateScoreDto.safeParse(req.body);
 
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
     if (!bodyParsed.success) {
       return handleValidationError(formatZodErrors(bodyParsed.error), next);
@@ -129,7 +127,7 @@ export class CompanyJobApplicationController {
         score: bodyParsed.data.score,
       });
 
-      sendSuccessResponse(res, 'Application score updated successfully', application);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Application score'), application);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -148,7 +146,7 @@ export class CompanyJobApplicationController {
         companyId: userId,
       });
 
-      sendSuccessResponse(res, 'Applications updated successfully', result);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Applications'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -158,7 +156,7 @@ export class CompanyJobApplicationController {
     const userId = validateUserId(req);
     const { id } = req.params;
     if (!id) {
-      return handleValidationError('Application ID is required', next);
+      return handleValidationError(VALIDATION.REQUIRED('Application ID'), next);
     }
 
     try {
@@ -167,12 +165,14 @@ export class CompanyJobApplicationController {
         applicationId: id,
       });
 
-      sendSuccessResponse(res, 'Candidate marked as hired successfully', null);
+      sendSuccessResponse(res, SUCCESS.ACTION('Hiring candidate'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
+
 
 
 

@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { ValidationError } from 'src/domain/errors/errors';
 import { IUploadBusinessLicenseUseCase } from 'src/domain/interfaces/use-cases/company/media/IUploadBusinessLicenseUseCase';
 import { UploadBusinessLicenseResult } from 'src/application/dtos/company/media/responses/upload-business-license-result.dto';
 import { UploadBusinessLicenseDto } from 'src/application/dtos/company/media/requests/upload-business-license.dto';
 
+@injectable()
 export class UploadBusinessLicenseUseCase implements IUploadBusinessLicenseUseCase {
-  constructor(private readonly _s3Service: IS3Service) { }
+  constructor(@inject(TYPES.S3Service) private readonly _s3Service: IS3Service) { }
 
   async execute(dto: UploadBusinessLicenseDto): Promise<UploadBusinessLicenseResult> {
     const { buffer, originalname, mimetype } = dto;

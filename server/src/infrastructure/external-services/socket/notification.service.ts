@@ -1,14 +1,17 @@
+import { injectable, inject } from 'inversify';
 import { Server as SocketIOServer } from 'socket.io';
+import { TYPES } from 'src/shared/constants/types';
 import { CreateNotificationData } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
-import { ICreateNotificationUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
+import { ICreateNotificationUseCase } from 'src/domain/interfaces/use-cases/notification/management/ICreateNotificationUseCase';
 import { INotificationService } from 'src/domain/interfaces/services/INotificationService';
 
+@injectable()
 export class NotificationService implements INotificationService {
   private io: SocketIOServer | null = null;
   private userSockets: Map<string, string> = new Map();
 
   constructor(
-    private readonly createNotificationUseCase: ICreateNotificationUseCase,
+    @inject(TYPES.CreateNotificationUseCase) private readonly createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
   setIO(io: SocketIOServer): void {

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IUpdateTechnicalTaskUseCase';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
 import { NotFoundError, BadRequestError } from 'src/domain/errors/errors';
@@ -7,39 +9,42 @@ import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technica
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 import { UploadedFile } from 'src/domain/types/common.types';
+import { ATSTechnicalTask } from 'src/domain/entities/ats-technical-task.entity';
+import { ERROR, TECHNICAL_TASK } from 'src/shared/constants/messages';
 
+@injectable()
 export class UpdateTechnicalTaskUseCase implements IUpdateTechnicalTaskUseCase {
   constructor(
-    private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
-    private readonly _fileUploadService: IFileUploadService,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.ATSTechnicalTaskRepository) private readonly _technicalTaskRepository: IATSTechnicalTaskRepository,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(dto: UpdateTechnicalTaskRequestDto, file?: UploadedFile): Promise<ATSTechnicalTaskResponseDto> {
 
     const existingTask = await this._technicalTaskRepository.findById(dto.taskId);
     if (!existingTask) {
-      throw new NotFoundError('Technical task not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Technical task'));
     }
 
     if (existingTask.status === 'cancelled' && dto.status === 'completed') {
-      throw new BadRequestError('Cannot mark a cancelled task as completed');
+      throw new BadRequestError(TECHNICAL_TASK.CANNOT_MARK_CANCELLED_AS_COMPLETED);
     }
 
     if (existingTask.status === 'completed' && dto.status === 'cancelled') {
-      throw new BadRequestError('Cannot cancel a completed task');
+      throw new BadRequestError(TECHNICAL_TASK.CANNOT_CANCEL_COMPLETED);
     }
 
     if (existingTask.status === 'under_review' && dto.status === 'cancelled') {
-      throw new BadRequestError('Cannot cancel a task that is already under review');
+      throw new BadRequestError(TECHNICAL_TASK.CANNOT_CANCEL_UNDER_REVIEW);
     }
 
     if (dto.rating !== undefined && existingTask.rating !== undefined) {
-      throw new BadRequestError('Technical task rating has already been submitted');
+      throw new BadRequestError(TECHNICAL_TASK.RATING_ALREADY_SUBMITTED);
     }
 
     if (dto.feedback !== undefined && existingTask.feedback !== undefined) {
-      throw new BadRequestError('Technical task feedback has already been submitted');
+      throw new BadRequestError(TECHNICAL_TASK.FEEDBACK_ALREADY_SUBMITTED);
     }
 
     let { documentUrl, documentFilename } = dto;
@@ -76,7 +81,7 @@ export class UpdateTechnicalTaskUseCase implements IUpdateTechnicalTaskUseCase {
     const task = await this._technicalTaskRepository.update(dto.taskId, updateData);
 
     if (!task) {
-      throw new NotFoundError('Technical task not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Technical task'));
     }
 
     const response = ATSTechnicalTaskMapper.toResponse(task);

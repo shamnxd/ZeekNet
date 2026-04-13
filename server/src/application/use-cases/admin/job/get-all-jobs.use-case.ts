@@ -5,11 +5,14 @@ import { GetAllJobsQueryDtoType } from 'src/application/dtos/admin/job/requests/
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 import { AdminJobListResponseDto } from 'src/application/dtos/admin/job/responses/admin-job-response.dto';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetAllJobsUseCase implements IAdminGetAllJobsUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(query: GetAllJobsQueryDtoType): Promise<AdminJobListResponseDto> {

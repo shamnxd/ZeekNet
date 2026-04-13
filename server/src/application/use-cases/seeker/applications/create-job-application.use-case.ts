@@ -21,19 +21,25 @@ import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadSe
 import { UploadedFile } from 'src/domain/types/common.types';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _notificationService: INotificationService,
-    private readonly _resumeParserService: IResumeParserService,
-    private readonly _calculateATSScoreUseCase: ICalculateATSScoreUseCase,
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
-    private readonly _fileUploadService: IFileUploadService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
+    @inject(TYPES.ResumeParserService) private readonly _resumeParserService: IResumeParserService,
+    @inject(TYPES.CalculateATSScoreUseCase) private readonly _calculateATSScoreUseCase: ICalculateATSScoreUseCase,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(
@@ -65,7 +71,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     }
 
     if (!resumeUrl || !resumeFilename) {
-      throw new ValidationError('Resume is required');
+      throw new ValidationError(VALIDATION.REQUIRED('Resume'));
     }
 
     const application = await this._createApplication(seekerId!, {
@@ -97,12 +103,12 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
 
   private async _validateSeeker(seekerId?: string): Promise<User> {
     if (!seekerId) {
-      throw new Error('Seeker ID is required');
+      throw new Error(VALIDATION.REQUIRED('Seeker ID'));
     }
 
     const user = await this._userRepository.findById(seekerId);
     if (!user) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('User'));
     }
 
     if (!user.isVerified) {
@@ -117,7 +123,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     const job = await this._jobPostingRepository.findById(jobId);
 
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (job.status === 'closed') {
@@ -169,7 +175,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
     try {
       return await this._resumeParserService.parse(resumeBuffer, mimeType);
     } catch (error) {
-      this._logger.error('Failed to parse resume for ATS scoring:', error);
+      this._logger.error(ERROR.FAILED_TO('parse resume for ATS scoring:'), error);
       return '';
     }
   }
@@ -229,7 +235,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       });
     } catch (error) {
 
-      this._logger.error('Failed to send notification to company:', error);
+      this._logger.error(ERROR.FAILED_TO('send notification to company:'), error);
     }
   }
 
@@ -247,7 +253,7 @@ export class CreateJobApplicationUseCase implements ICreateJobApplicationUseCase
       );
       await this._mailerService.sendMail(email, subject, html);
     } catch (error) {
-      this._logger.error('Failed to send application received email to candidate:', error);
+      this._logger.error(ERROR.FAILED_TO('send application received email to candidate:'), error);
     }
   }
 }

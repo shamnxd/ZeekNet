@@ -1,23 +1,24 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
-
+import { UploadedFile } from 'src/domain/types/common.types';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IAssignTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IAssignTechnicalTaskUseCase';
 import { IUpdateTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IUpdateTechnicalTaskUseCase';
 import { IDeleteTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IDeleteTechnicalTaskUseCase';
-import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/task/IGetTechnicalTasksByApplicationUseCase';
-
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { AssignTechnicalTaskSchema } from 'src/application/dtos/application/task/requests/assign-technical-task.dto';
+import { IGetTechnicalTasksByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/task/IGetTechnicalTasksByApplicationUseCase';
 import { UpdateTechnicalTaskSchema } from 'src/application/dtos/application/task/requests/update-technical-task.dto';
-import { UploadedFile } from 'src/domain/types/common.types';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSTechnicalTaskController {
   constructor(
-    private readonly _assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
-    private readonly _updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
-    private readonly _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
-    private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
+    @inject(TYPES.ATS_AssignTechnicalTaskUseCase) private readonly _assignTechnicalTaskUseCase: IAssignTechnicalTaskUseCase,
+    @inject(TYPES.ATS_UpdateTechnicalTaskUseCase) private readonly _updateTechnicalTaskUseCase: IUpdateTechnicalTaskUseCase,
+    @inject(TYPES.ATS_DeleteTechnicalTaskUseCase) private readonly _deleteTechnicalTaskUseCase: IDeleteTechnicalTaskUseCase,
+    @inject(TYPES.ATS_GetTechnicalTasksByApplicationUseCase) private readonly _getTechnicalTasksByApplicationUseCase: IGetTechnicalTasksByApplicationUseCase,
   ) { }
 
   assignTechnicalTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -38,7 +39,7 @@ export class ATSTechnicalTaskController {
         performedBy: userId,
       }, req.file as unknown as UploadedFile);
 
-      sendCreatedResponse(res, 'Technical task assigned successfully', task);
+      sendCreatedResponse(res, SUCCESS.CREATED('Technical task'), task);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -60,7 +61,7 @@ export class ATSTechnicalTaskController {
         performedBy: userId,
       }, req.file as unknown as UploadedFile);
 
-      sendSuccessResponse(res, 'Technical task updated successfully', task);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Technical task'), task);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -72,7 +73,7 @@ export class ATSTechnicalTaskController {
 
       const tasks = await this._getTechnicalTasksByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Technical tasks retrieved successfully', tasks);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Technical tasks'), tasks);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -89,12 +90,9 @@ export class ATSTechnicalTaskController {
         performedByName: 'Unknown', // TODO: ADD performedByName 
       });
 
-      sendSuccessResponse(res, 'Technical task deleted successfully', { id });
+      sendSuccessResponse(res, SUCCESS.DELETED('Technical task'), { id });
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
-
-
-

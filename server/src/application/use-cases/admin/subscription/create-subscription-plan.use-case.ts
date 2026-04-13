@@ -10,22 +10,27 @@ import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscripti
 import { CreateInput } from 'src/domain/types/common.types';
 import { SubscriptionPlanResponseDto } from 'src/application/dtos/admin/subscription/responses/subscription-plan-response.dto';
 import { SubscriptionPlanMapper } from 'src/application/mappers/subscription/subscription-plan.mapper';
+import { injectable, inject, optional } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUseCase {
   constructor(
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _logger: ILogger,
-    private readonly _stripeService?: IStripeService,
-    private readonly _priceHistoryRepository?: IPriceHistoryRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
+    @inject(TYPES.StripeService) @optional() private readonly _stripeService?: IStripeService,
+    @inject(TYPES.PriceHistoryRepository) @optional() private readonly _priceHistoryRepository?: IPriceHistoryRepository,
   ) {}
 
   async execute(data: CreateSubscriptionPlanDto): Promise<SubscriptionPlan> {
     if (!data.name || !data.name.trim()) {
-      throw new BadRequestError('Plan name is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Plan name'));
     }
 
     if (!data.description || !data.description.trim()) {
-      throw new BadRequestError('Plan description is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('Plan description'));
     }
 
     if (data.isDefault) {
@@ -56,7 +61,7 @@ export class CreateSubscriptionPlanUseCase implements ICreateSubscriptionPlanUse
     const existingPlan = await this._subscriptionPlanRepository.findByName(normalizedName);
     
     if (existingPlan) {
-      throw new ConflictError('Subscription plan with this name already exists');
+      throw new ConflictError(ERROR.ALREADY_EXISTS('Subscription plan with this name'));
     }
 
     if (data.isPopular) {

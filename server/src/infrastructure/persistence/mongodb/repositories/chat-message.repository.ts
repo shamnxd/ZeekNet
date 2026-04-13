@@ -4,13 +4,16 @@ import { IMessageRepository, MessageQueryOptions } from 'src/domain/interfaces/r
 import { ChatMessageModel, ChatMessageDocument } from 'src/infrastructure/persistence/mongodb/models/chat-message.model';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { ChatMessagePersistenceMapper } from 'src/infrastructure/mappers/persistence/mongodb/chat/chat-message.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ChatMessageRepository
   extends RepositoryBase<ChatMessage, ChatMessageDocument>
   implements IMessageRepository {
   constructor() {
     super(ChatMessageModel);
   }
+
 
   protected mapToEntity(document: ChatMessageDocument): ChatMessage {
     return ChatMessagePersistenceMapper.toEntity(document);

@@ -1,34 +1,37 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IMoveApplicationStageUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IMoveApplicationStageUseCase';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IATSCommentRepository } from 'src/domain/interfaces/repositories/ats/IATSCommentRepository';
 
-import { JobApplication } from 'src/domain/entities/job-application.entity';
 import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
-import { getDefaultSubStage, isValidSubStageForStage, STAGE_TO_SUB_STAGES } from 'src/domain/utils/ats-pipeline.util';
+import { getDefaultSubStage, isValidSubStageForStage } from 'src/domain/utils/ats-pipeline.util';
 import { MoveApplicationStageDto } from 'src/application/dtos/application/requests/move-application-stage.dto';
+import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
 import { IMailerService } from 'src/domain/interfaces/services/IMailerService';
 import { IEmailTemplateService } from 'src/domain/interfaces/services/IEmailTemplateService';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
-import { JobApplicationResponseDto } from 'src/application/dtos/application/responses/job-application-response.dto';
 import { JobApplicationMapper } from 'src/application/mappers/job-application/job-application.mapper';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
 import { ATSComment } from 'src/domain/entities/ats-comment.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase {
   constructor(
-    private jobApplicationRepository: IJobApplicationRepository,
-    private jobPostingRepository: IJobPostingRepository,
-    private commentRepository: IATSCommentRepository,
-    private userRepository: IUserRepository,
-    private mailerService: IMailerService,
-    private emailTemplateService: IEmailTemplateService,
-    private logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.ATSCommentRepository) private commentRepository: IATSCommentRepository,
+    @inject(TYPES.UserRepository) private userRepository: IUserRepository,
+    @inject(TYPES.MailerService) private mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.LoggerService) private logger: ILogger,
   ) { }
 
-  async execute(dto: MoveApplicationStageDto): Promise<JobApplication> {
+  async execute(dto: MoveApplicationStageDto): Promise<JobApplicationResponseDto> {
     const data = {
       applicationId: dto.applicationId,
       nextStage: dto.nextStage as ATSStage,
@@ -40,12 +43,12 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
 
     const application = await this.jobApplicationRepository.findById(data.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this.jobPostingRepository.findById(application.jobId);
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     if (!job.enabledStages.includes(data.nextStage)) {
@@ -72,7 +75,6 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
     }
 
     const previousStage = application.stage;
-    const previousSubStage = application.subStage;
 
     const updatedApplication = await this.jobApplicationRepository.update(data.applicationId, {
       stage: data.nextStage,
@@ -80,10 +82,9 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
     });
 
     if (!updatedApplication) {
-      throw new NotFoundError('Failed to update application');
+      throw new NotFoundError(ERROR.FAILED_TO('update application'));
     }
 
-    // Create comment for stage/substage change if reason provided
     if (data.comment) {
       const comment = ATSComment.create({
         id: uuidv4(),
@@ -121,7 +122,7 @@ export class MoveApplicationStageUseCase implements IMoveApplicationStageUseCase
 
       await this.mailerService.sendMail(user.email, emailContent.subject, emailContent.html);
     } catch (error) {
-      this.logger.error('Failed to send stage change email:', error);
+      this.logger.error(ERROR.FAILED_TO('send stage change email:'), error);
     }
   }
 }

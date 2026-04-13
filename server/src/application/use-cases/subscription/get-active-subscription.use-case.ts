@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanySubscriptionRepository } from 'src/domain/interfaces/repositories/subscription/ICompanySubscriptionRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -7,20 +9,23 @@ import { NotFoundError } from 'src/domain/errors/errors';
 import { IGetActiveSubscriptionUseCase } from 'src/domain/interfaces/use-cases/subscription/IGetActiveSubscriptionUseCase';
 import { CompanySubscriptionResponseDto } from 'src/application/dtos/subscription/responses/subscription-response.dto';
 import { CompanySubscriptionResponseMapper } from 'src/application/mappers/company/subscription/company-subscription-response.mapper';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetActiveSubscriptionUseCase implements IGetActiveSubscriptionUseCase {
   constructor(
-    private _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private _companyProfileRepository: ICompanyProfileRepository,
-    private _jobPostingRepository: IJobPostingRepository,
-    private _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private _subscriptionPlanRepository: ISubscriptionPlanRepository,
   ) { }
 
   async execute(userId: string): Promise<CompanySubscriptionResponseDto | null> {
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
 
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     let subscription = await this._companySubscriptionRepository.findActiveByCompanyId(companyProfile.id);

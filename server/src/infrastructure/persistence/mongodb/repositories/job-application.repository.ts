@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 import type { IJobApplicationRepository, PaginatedApplications } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import type { JobApplication } from 'src/domain/entities/job-application.entity';
@@ -6,6 +7,7 @@ import { JobApplicationMapper } from 'src/infrastructure/mappers/persistence/mon
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import type { JobApplicationDocument } from 'src/infrastructure/persistence/mongodb/models/job-application.model';
 
+@injectable()
 export class JobApplicationRepository extends RepositoryBase<JobApplication, JobApplicationDocument> implements IJobApplicationRepository {
   constructor() {
     super(JobApplicationModel);
@@ -27,4 +29,5 @@ export class JobApplicationRepository extends RepositoryBase<JobApplication, Job
   
   
 }
+
 

@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { v4 as uuidv4 } from 'uuid';
 import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
 import { IATSCompensationRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationRepository';
@@ -16,18 +18,20 @@ import { InitiateCompensationRequestDto } from 'src/application/dtos/application
 import { ATSCompensationResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation.response.dto';
 import { ATSCompensationMapper } from 'src/application/mappers/ats/ats-compensation.mapper';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class InitiateCompensationUseCase implements IInitiateCompensationUseCase {
   constructor(
-    private readonly _compensationRepository: IATSCompensationRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _addCommentUseCase: IAddCommentUseCase,
+    @inject(TYPES.ATSCompensationRepository) private readonly _compensationRepository: IATSCompensationRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ATS_AddCommentUseCase) private readonly _addCommentUseCase: IAddCommentUseCase,
 
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(dto: InitiateCompensationRequestDto): Promise<ATSCompensationResponseDto> {
@@ -40,7 +44,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this._jobPostingRepository.findById(application.jobId);
@@ -77,7 +81,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
     }
 
     if (!created) {
-      throw new Error('Failed to create compensation');
+      throw new Error(ERROR.FAILED_TO('create compensation'));
     }
 
     return ATSCompensationMapper.toResponse(created) as ATSCompensationResponseDto;
@@ -99,7 +103,7 @@ export class InitiateCompensationUseCase implements IInitiateCompensationUseCase
       );
       await this._mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      this._logger.error('Failed to send compensation initiated email:', error);
+      this._logger.error(ERROR.FAILED_TO('send compensation initiated email:'), error);
     }
   }
 }

@@ -1,29 +1,30 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
-import { z } from 'zod';
-
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IInitiateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IInitiateCompensationUseCase';
 import { IUpdateCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationUseCase';
 import { IGetCompensationUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationUseCase';
 import { IScheduleCompensationMeetingUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IScheduleCompensationMeetingUseCase';
 import { IGetCompensationMeetingsUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IGetCompensationMeetingsUseCase';
 import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
-
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { InitiateCompensationSchema } from 'src/application/dtos/application/compensation/requests/initiate-compensation.dto';
 import { UpdateCompensationSchema } from 'src/application/dtos/application/compensation/requests/update-compensation.dto';
 import { ScheduleCompensationMeetingSchema } from 'src/application/dtos/application/compensation/requests/schedule-compensation-meeting.dto';
 import { UpdateCompensationMeetingStatusSchema } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS, ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSCompensationController {
+
   constructor(
-    private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
-    private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
-    private readonly _getCompensationUseCase: IGetCompensationUseCase,
-    private readonly _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
-    private readonly _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
-    private readonly _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
+    @inject(TYPES.ATS_InitiateCompensationUseCase) private readonly _initiateCompensationUseCase: IInitiateCompensationUseCase,
+    @inject(TYPES.ATS_UpdateCompensationUseCase) private readonly _updateCompensationUseCase: IUpdateCompensationUseCase,
+    @inject(TYPES.ATS_GetCompensationUseCase) private readonly _getCompensationUseCase: IGetCompensationUseCase,
+    @inject(TYPES.ATS_ScheduleCompensationMeetingUseCase) private readonly _scheduleCompensationMeetingUseCase: IScheduleCompensationMeetingUseCase,
+    @inject(TYPES.ATS_GetCompensationMeetingsUseCase) private readonly _getCompensationMeetingsUseCase: IGetCompensationMeetingsUseCase,
+    @inject(TYPES.ATS_UpdateCompensationMeetingStatusUseCase) private readonly _updateCompensationMeetingStatusUseCase: IUpdateCompensationMeetingStatusUseCase,
   ) { }
 
   initiateCompensation = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -42,7 +43,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendCreatedResponse(res, 'Compensation discussion initiated successfully', created);
+      sendCreatedResponse(res, SUCCESS.CREATED('Compensation discussion'), created);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -64,7 +65,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendSuccessResponse(res, 'Compensation updated successfully', updated);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Compensation'), updated);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -77,10 +78,11 @@ export class ATSCompensationController {
       const compensation = await this._getCompensationUseCase.execute(applicationId);
 
       if (!compensation) {
-        throw new Error('Compensation record not found');
+        throw new Error(ERROR.NOT_FOUND('Compensation record'));
       }
 
-      sendSuccessResponse(res, 'Compensation retrieved successfully', compensation);
+
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation'), compensation);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -102,7 +104,7 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendCreatedResponse(res, 'Compensation meeting scheduled successfully', created);
+      sendCreatedResponse(res, SUCCESS.CREATED('Compensation meeting'), created);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -114,7 +116,7 @@ export class ATSCompensationController {
 
       const meetings = await this._getCompensationMeetingsUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Compensation meetings retrieved successfully', meetings);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Compensation meetings'), meetings);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -137,12 +139,9 @@ export class ATSCompensationController {
         performedBy: userId,
       });
 
-      sendSuccessResponse(res, 'Meeting status updated successfully', updated);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Meeting status'), updated);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
-
-
-

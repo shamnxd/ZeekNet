@@ -1,17 +1,20 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetAllJobPostingsUseCase';
 import { IGetJobPostingForPublicUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetJobPostingForPublicUseCase';
 import { IGetFeaturedJobsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetFeaturedJobsUseCase';
 import { GetFeaturedJobsRequestSchema } from 'src/application/dtos/public/listings/jobs/requests/get-featured-jobs-request.dto';
-import { handleError, success, handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils';
 import { JobPostingQueryRequestDto } from 'src/application/dtos/admin/job/requests/get-job-postings-query.dto';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class PublicJobController {
   constructor(
-    private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
-    private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
-    private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
+    @inject(TYPES.GetAllJobPostingsUseCase) private readonly _getAllJobPostingsUseCase: IGetAllJobPostingsUseCase,
+    @inject(TYPES.GetJobPostingForPublicUseCase) private readonly _getJobPostingForPublicUseCase: IGetJobPostingForPublicUseCase,
+    @inject(TYPES.GetFeaturedJobsUseCase) private readonly _getFeaturedJobsUseCase: IGetFeaturedJobsUseCase,
   ) { }
 
   getAllJobPostings = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -31,7 +34,7 @@ export class PublicJobController {
       };
 
       const result = await this._getAllJobPostingsUseCase.execute(filters);
-      sendSuccessResponse(res, 'Job postings retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job postings'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -43,7 +46,7 @@ export class PublicJobController {
 
       const userId = (req as Request & { user?: { id: string } }).user?.id;
       const result = await this._getJobPostingForPublicUseCase.execute(jobId, userId);
-      sendSuccessResponse(res, 'Job posting retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Job posting'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -57,11 +60,10 @@ export class PublicJobController {
 
     try {
       const result = await this._getFeaturedJobsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Featured job postings retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Featured job postings'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
-
 

@@ -1,21 +1,23 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateCompensationMeetingStatusUseCase } from 'src/domain/interfaces/use-cases/application/compensation/IUpdateCompensationMeetingStatusUseCase';
 import { IATSCompensationMeetingRepository } from 'src/domain/interfaces/repositories/ats/IATSCompensationMeetingRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 
 import { ATSCompensationMeeting } from 'src/domain/entities/ats-compensation-meeting.entity';
-import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
 import { UpdateCompensationMeetingStatusRequestDto } from 'src/application/dtos/application/compensation/requests/update-compensation-meeting-status.dto';
 import { ATSCompensationMeetingResponseDto } from 'src/application/dtos/application/compensation/responses/ats-compensation-meeting-response.dto';
 import { ATSCompensationMeetingMapper } from 'src/application/mappers/ats/ats-compensation-meeting.mapper';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensationMeetingStatusUseCase {
   constructor(
-    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ATSCompensationMeetingRepository) private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
 
   async execute(dto: UpdateCompensationMeetingStatusRequestDto): Promise<ATSCompensationMeetingResponseDto> {
@@ -25,7 +27,7 @@ export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensati
 
     const meeting = await this._compensationMeetingRepository.findById(dto.meetingId);
     if (!meeting) {
-      throw new NotFoundError('Meeting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Meeting'));
     }
 
     if (meeting.applicationId !== dto.applicationId) {
@@ -35,7 +37,7 @@ export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensati
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const currentUser = await this._userRepository.findById(dto.performedBy);
@@ -52,11 +54,8 @@ export class UpdateCompensationMeetingStatusUseCase implements IUpdateCompensati
     const updated = await this._compensationMeetingRepository.update(dto.meetingId, updateData);
 
     if (!updated) {
-      throw new NotFoundError('Failed to update meeting status');
+      throw new NotFoundError(ERROR.FAILED_TO('update meeting status'));
     }
-
-
-
 
     return ATSCompensationMeetingMapper.toResponse(updated);
   }

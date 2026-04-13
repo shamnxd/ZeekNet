@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, sendSuccessResponse, sendCreatedResponse, sendNotFoundResponse, validateUserId, badRequest } from 'src/shared/utils/presentation/controller.utils';
 import { ICreateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/ICreateSeekerProfileUseCase';
 import { IGetSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IGetSeekerProfileUseCase';
 import { IUpdateSeekerProfileUseCase } from 'src/domain/interfaces/use-cases/seeker/profile/info/IUpdateSeekerProfileUseCase';
@@ -18,8 +17,6 @@ import { IUploadResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/med
 import { IRemoveResumeUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IRemoveResumeUseCase';
 import { IUploadAvatarUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IUploadAvatarUseCase';
 import { IUploadBannerUseCase } from 'src/domain/interfaces/use-cases/seeker/media/IUploadBannerUseCase';
-import { CreateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
-import { UpdateSeekerProfileRequestDto } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
 import { AddExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/add-experience-request.dto';
 import { UpdateExperienceRequestDto } from 'src/application/dtos/seeker/profile/experience/requests/update-experience-request.dto';
 import { AddEducationRequestDto } from 'src/application/dtos/seeker/profile/education/requests/add-education-request.dto';
@@ -27,30 +24,33 @@ import { UpdateEducationRequestDto } from 'src/application/dtos/seeker/profile/e
 import { UploadResumeRequestDto } from 'src/application/dtos/seeker/media/requests/seeker-profile.dto';
 import { CreateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/create-seeker-profile-request.dto';
 import { UpdateSeekerProfileRequestDtoSchema } from 'src/application/dtos/seeker/profile/info/requests/update-seeker-profile-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, sendSuccessResponse, sendCreatedResponse, validateUserId, badRequest, handleValidationError } from 'src/shared/utils';
+import { SUCCESS, VALIDATION } from 'src/shared/constants/messages';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class SeekerProfileController {
   constructor(
-    private readonly _createSeekerProfileUseCase: ICreateSeekerProfileUseCase,
-    private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
-    private readonly _updateSeekerProfileUseCase: IUpdateSeekerProfileUseCase,
-    private readonly _addExperienceUseCase: IAddExperienceUseCase,
-    private readonly _getExperiencesUseCase: IGetExperiencesUseCase,
-    private readonly _updateExperienceUseCase: IUpdateExperienceUseCase,
-    private readonly _removeExperienceUseCase: IRemoveExperienceUseCase,
-    private readonly _addEducationUseCase: IAddEducationUseCase,
-    private readonly _getEducationUseCase: IGetEducationUseCase,
-    private readonly _updateEducationUseCase: IUpdateEducationUseCase,
-    private readonly _removeEducationUseCase: IRemoveEducationUseCase,
-    private readonly _updateSkillsUseCase: IUpdateSkillsUseCase,
-    private readonly _updateLanguagesUseCase: IUpdateLanguagesUseCase,
-    private readonly _uploadResumeUseCase: IUploadResumeUseCase,
-    private readonly _removeResumeUseCase: IRemoveResumeUseCase,
-    private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
-    private readonly _uploadBannerUseCase: IUploadBannerUseCase,
+    @inject(TYPES.CreateSeekerProfileUseCase) private readonly _createSeekerProfileUseCase: ICreateSeekerProfileUseCase,
+    @inject(TYPES.GetSeekerProfileUseCase) private readonly _getSeekerProfileUseCase: IGetSeekerProfileUseCase,
+    @inject(TYPES.UpdateSeekerProfileUseCase) private readonly _updateSeekerProfileUseCase: IUpdateSeekerProfileUseCase,
+    @inject(TYPES.AddExperienceUseCase) private readonly _addExperienceUseCase: IAddExperienceUseCase,
+    @inject(TYPES.GetExperiencesUseCase) private readonly _getExperiencesUseCase: IGetExperiencesUseCase,
+    @inject(TYPES.UpdateExperienceUseCase) private readonly _updateExperienceUseCase: IUpdateExperienceUseCase,
+    @inject(TYPES.RemoveExperienceUseCase) private readonly _removeExperienceUseCase: IRemoveExperienceUseCase,
+    @inject(TYPES.AddEducationUseCase) private readonly _addEducationUseCase: IAddEducationUseCase,
+    @inject(TYPES.GetEducationUseCase) private readonly _getEducationUseCase: IGetEducationUseCase,
+    @inject(TYPES.UpdateEducationUseCase) private readonly _updateEducationUseCase: IUpdateEducationUseCase,
+    @inject(TYPES.RemoveEducationUseCase) private readonly _removeEducationUseCase: IRemoveEducationUseCase,
+    @inject(TYPES.UpdateSkillsUseCase) private readonly _updateSkillsUseCase: IUpdateSkillsUseCase,
+    @inject(TYPES.UpdateLanguagesUseCase) private readonly _updateLanguagesUseCase: IUpdateLanguagesUseCase,
+    @inject(TYPES.UploadResumeUseCase) private readonly _uploadResumeUseCase: IUploadResumeUseCase,
+    @inject(TYPES.RemoveResumeUseCase) private readonly _removeResumeUseCase: IRemoveResumeUseCase,
+    @inject(TYPES.UploadAvatarUseCase) private readonly _uploadAvatarUseCase: IUploadAvatarUseCase,
+    @inject(TYPES.UploadBannerUseCase) private readonly _uploadBannerUseCase: IUploadBannerUseCase,
   ) { }
-
-
 
   createSeekerProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -65,7 +65,7 @@ export class SeekerProfileController {
 
       const profile = await this._createSeekerProfileUseCase.execute({ ...parsed.data, userId });
 
-      sendCreatedResponse(res, 'Seeker profile created successfully', profile);
+      sendCreatedResponse(res, SUCCESS.CREATED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -75,7 +75,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const profile = await this._getSeekerProfileUseCase.execute(userId);
-      sendSuccessResponse(res, 'Seeker profile retrieved successfully', profile);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -94,7 +94,7 @@ export class SeekerProfileController {
 
       const profile = await this._updateSeekerProfileUseCase.execute({ ...parsed.data, userId });
 
-      sendSuccessResponse(res, 'Seeker profile updated successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Seeker profile'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -107,7 +107,7 @@ export class SeekerProfileController {
 
       const experience = await this._addExperienceUseCase.execute({ ...dto, userId });
 
-      sendCreatedResponse(res, 'Experience added successfully', experience);
+      sendCreatedResponse(res, SUCCESS.CREATED('Experience'), experience);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -117,7 +117,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const experiences = await this._getExperiencesUseCase.execute(userId);
-      sendSuccessResponse(res, 'Experiences retrieved successfully', experiences);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Experiences'), experiences);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -131,7 +131,7 @@ export class SeekerProfileController {
 
       const experience = await this._updateExperienceUseCase.execute({ ...dto, userId, experienceId });
 
-      sendSuccessResponse(res, 'Experience updated successfully', experience);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Experience'), experience);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -143,7 +143,7 @@ export class SeekerProfileController {
       const { experienceId } = req.params;
 
       await this._removeExperienceUseCase.execute(userId, experienceId);
-      sendSuccessResponse(res, 'Experience removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Experience'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -156,7 +156,7 @@ export class SeekerProfileController {
 
       const education = await this._addEducationUseCase.execute(userId, dto);
 
-      sendCreatedResponse(res, 'Education added successfully', education);
+      sendCreatedResponse(res, SUCCESS.CREATED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -166,7 +166,7 @@ export class SeekerProfileController {
     try {
       const userId = validateUserId(req);
       const education = await this._getEducationUseCase.execute(userId);
-      sendSuccessResponse(res, 'Education retrieved successfully', education);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -180,7 +180,7 @@ export class SeekerProfileController {
 
       const education = await this._updateEducationUseCase.execute({ ...dto, userId, educationId });
 
-      sendSuccessResponse(res, 'Education updated successfully', education);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Education'), education);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -192,7 +192,7 @@ export class SeekerProfileController {
       const { educationId } = req.params;
 
       await this._removeEducationUseCase.execute(userId, educationId);
-      sendSuccessResponse(res, 'Education removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Education'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -204,7 +204,7 @@ export class SeekerProfileController {
       const { skills } = req.body;
 
       const updatedSkills = await this._updateSkillsUseCase.execute(userId, skills);
-      sendSuccessResponse(res, 'Skills updated successfully', updatedSkills);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Skills'), updatedSkills);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -216,7 +216,7 @@ export class SeekerProfileController {
       const { languages } = req.body;
 
       const updatedLanguages = await this._updateLanguagesUseCase.execute(userId, languages);
-      sendSuccessResponse(res, 'Languages updated successfully', updatedLanguages);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Languages'), updatedLanguages);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -229,7 +229,7 @@ export class SeekerProfileController {
 
       const resume = await this._uploadResumeUseCase.execute({ ...dto, userId });
 
-      sendCreatedResponse(res, 'Resume uploaded successfully', resume);
+      sendCreatedResponse(res, SUCCESS.CREATED('Resume'), resume);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -240,7 +240,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       await this._removeResumeUseCase.execute(userId);
-      sendSuccessResponse(res, 'Resume removed successfully', null);
+      sendSuccessResponse(res, SUCCESS.DELETED('Resume'), null);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -251,7 +251,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       if (!req.file) {
-        return badRequest(res, 'No image file provided');
+        return badRequest(res, VALIDATION.REQUIRED('Avatar file'));
       }
 
       const profile = await this._uploadAvatarUseCase.execute({
@@ -261,7 +261,7 @@ export class SeekerProfileController {
         mimeType: req.file.mimetype,
       });
 
-      sendSuccessResponse(res, 'Avatar uploaded successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Avatar'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -272,7 +272,7 @@ export class SeekerProfileController {
       const userId = validateUserId(req);
 
       if (!req.file) {
-        return badRequest(res, 'No image file provided');
+        return badRequest(res, VALIDATION.REQUIRED('Banner file'));
       }
 
       const profile = await this._uploadBannerUseCase.execute({
@@ -282,7 +282,7 @@ export class SeekerProfileController {
         mimeType: req.file.mimetype,
       });
 
-      sendSuccessResponse(res, 'Banner uploaded successfully', profile);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Banner'), profile);
     } catch (error) {
       handleAsyncError(error, next);
     }

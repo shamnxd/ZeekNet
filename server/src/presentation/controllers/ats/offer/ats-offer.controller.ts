@@ -1,20 +1,21 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
-
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IUploadOfferUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUploadOfferUseCase';
 import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUpdateOfferStatusUseCase';
 import { IGetOffersByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/offer/IGetOffersByApplicationUseCase';
-
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
 import { UploadOfferSchema } from 'src/application/dtos/application/offer/requests/upload-offer.dto';
 import { UpdateOfferStatusDtoSchema } from 'src/application/dtos/application/offer/requests/update-offer-status.dto';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSOfferController {
   constructor(
-    private readonly _uploadOfferUseCase: IUploadOfferUseCase,
-    private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
-    private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
+    @inject(TYPES.ATS_UploadOfferUseCase) private readonly _uploadOfferUseCase: IUploadOfferUseCase,
+    @inject(TYPES.ATS_UpdateOfferStatusUseCase) private readonly _updateOfferStatusUseCase: IUpdateOfferStatusUseCase,
+    @inject(TYPES.ATS_GetOffersByApplicationUseCase) private readonly _getOffersByApplicationUseCase: IGetOffersByApplicationUseCase,
   ) { }
 
   uploadOffer = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -41,7 +42,7 @@ export class ATSOfferController {
         } : undefined,
       });
 
-      sendCreatedResponse(res, 'Offer uploaded successfully', offer);
+      sendCreatedResponse(res, SUCCESS.CREATED('Offer'), offer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -64,7 +65,7 @@ export class ATSOfferController {
         performedByName: 'Unknown',
       });
 
-      sendSuccessResponse(res, 'Offer status updated successfully', offer);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Offer status'), offer);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -76,12 +77,9 @@ export class ATSOfferController {
 
       const offers = await this._getOffersByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Offers retrieved successfully', offers);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Offers'), offers);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
-
-
-

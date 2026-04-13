@@ -3,7 +3,9 @@ import { IATSCommentRepository } from 'src/domain/interfaces/repositories/ats/IA
 import { ATSComment } from 'src/domain/entities/ats-comment.entity';
 import { ATSCommentModel } from 'src/infrastructure/persistence/mongodb/models/ats-comment.model';
 import { ATSCommentMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-comment.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ATSCommentRepository implements IATSCommentRepository {
   async create(comment: ATSComment): Promise<ATSComment> {
     const doc = await ATSCommentModel.create(ATSCommentMapper.toDocument(comment));

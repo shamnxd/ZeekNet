@@ -1,21 +1,21 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { Response, NextFunction } from 'express';
-
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IScheduleInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IScheduleInterviewUseCase';
 import { IUpdateInterviewUseCase } from 'src/domain/interfaces/use-cases/application/interview/IUpdateInterviewUseCase';
 import { IGetInterviewsByApplicationUseCase } from 'src/domain/interfaces/use-cases/application/interview/IGetInterviewsByApplicationUseCase';
-
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { sendSuccessResponse, sendCreatedResponse, validateUserId, handleValidationError, handleAsyncError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { HttpStatus } from 'src/domain/enums/http-status.enum';
 import { ScheduleInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/schedule-interview.dto';
 import { UpdateInterviewDtoSchema } from 'src/application/dtos/application/interview/requests/update-interview.dto';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse, validateUserId } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class ATSInterviewController {
   constructor(
-    private scheduleInterviewUseCase: IScheduleInterviewUseCase,
-    private updateInterviewUseCase: IUpdateInterviewUseCase,
-    private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
+    @inject(TYPES.ATS_ScheduleInterviewUseCase) private scheduleInterviewUseCase: IScheduleInterviewUseCase,
+    @inject(TYPES.ATS_UpdateInterviewUseCase) private updateInterviewUseCase: IUpdateInterviewUseCase,
+    @inject(TYPES.ATS_GetInterviewsByApplicationUseCase) private getInterviewsByApplicationUseCase: IGetInterviewsByApplicationUseCase,
   ) { }
 
   scheduleInterview = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -32,7 +32,7 @@ export class ATSInterviewController {
         userId,
       });
 
-      sendCreatedResponse(res, 'Interview scheduled successfully', interview);
+      sendCreatedResponse(res, SUCCESS.CREATED('Interview'), interview);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -56,7 +56,7 @@ export class ATSInterviewController {
         userId,
       });
 
-      sendSuccessResponse(res, 'Interview updated successfully', interview);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Interview'), interview);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -68,7 +68,7 @@ export class ATSInterviewController {
 
       const interviews = await this.getInterviewsByApplicationUseCase.execute(applicationId);
 
-      sendSuccessResponse(res, 'Interviews retrieved successfully', interviews);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Interviews'), interviews);
     } catch (error) {
       handleAsyncError(error, next);
     }

@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -7,15 +10,16 @@ import { IGetCompanyJobPostingsUseCase } from 'src/domain/interfaces/use-cases/j
 import { PaginatedCompanyJobPostingsDto } from 'src/application/dtos/job/responses/paginated-company-job-postings.dto';
 import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper';
 
+@injectable()
 export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(data: JobPostingQueryRequestDto): Promise<PaginatedCompanyJobPostingsDto> {
     const { userId, ...query } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     let companyProfile = null;
     if (query.company_id) {
       companyProfile = await this._companyProfileRepository.findById(query.company_id);
@@ -25,7 +29,7 @@ export class GetCompanyJobPostingsUseCase implements IGetCompanyJobPostingsUseCa
     }
 
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const projection = {

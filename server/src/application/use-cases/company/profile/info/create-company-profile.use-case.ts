@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { VALIDATION } from 'src/shared/constants/messages';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyContactRepository } from 'src/domain/interfaces/repositories/company/ICompanyContactRepository';
 import { ICompanyVerificationRepository } from 'src/domain/interfaces/repositories/company/ICompanyVerificationRepository';
@@ -13,19 +16,20 @@ import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 import { CompanyContact } from 'src/domain/entities/company-contact.entity';
 import { CompanyProfileResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
 
+@injectable()
 export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyContactRepository: ICompanyContactRepository,
-    private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyContactRepository) private readonly _companyContactRepository: ICompanyContactRepository,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
   ) { }
 
   async execute(data: CreateCompanyProfileRequestDtoType): Promise<CompanyProfileResponseDto> {
     const { userId, ...profileData } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const profile = await this._companyProfileRepository.create(
       CompanyProfileMapper.toEntity({
         userId,
@@ -86,6 +90,3 @@ export class CreateCompanyProfileUseCase implements ICreateCompanyProfileUseCase
     return CompanyProfileMapper.toResponse(profile, verification);
   }
 }
-
-
-

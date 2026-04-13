@@ -1,8 +1,11 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobRoleRepository } from 'src/domain/interfaces/repositories/job-role/IJobRoleRepository';
 import { IGetPublicJobRolesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobRolesUseCase';
 
+@injectable()
 export class GetPublicJobRolesUseCase implements IGetPublicJobRolesUseCase {
-  constructor(private readonly _jobRoleRepository: IJobRoleRepository) { }
+  constructor(@inject(TYPES.JobRoleRepository) private readonly _jobRoleRepository: IJobRoleRepository) { }
 
   async execute(search: string = '', limit: number = 1000): Promise<string[]> {
     const filter: Record<string, unknown> = {};

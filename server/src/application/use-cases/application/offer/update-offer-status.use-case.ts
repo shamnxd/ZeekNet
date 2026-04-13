@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IUpdateOfferStatusUseCase } from 'src/domain/interfaces/use-cases/application/offer/IUpdateOfferStatusUseCase';
 import { IATSOfferRepository } from 'src/domain/interfaces/repositories/ats/IATSOfferRepository';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
@@ -13,24 +15,26 @@ import { UpdateOfferStatusRequestDto } from 'src/application/dtos/application/of
 import { ATSOfferResponseDto } from 'src/application/dtos/application/offer/responses/ats-offer-response.dto';
 import { ATSOfferMapper } from 'src/application/mappers/ats/ats-offer.mapper';
 import { ILogger } from 'src/domain/interfaces/services/ILogger';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
   constructor(
-    private readonly _offerRepository: IATSOfferRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
+    @inject(TYPES.ATSOfferRepository) private readonly _offerRepository: IATSOfferRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.UpdateApplicationSubStageUseCase) private readonly _updateApplicationSubStageUseCase: IUpdateApplicationSubStageUseCase,
 
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(data: UpdateOfferStatusRequestDto): Promise<ATSOfferResponseDto> {
     const existingOffer = await this._offerRepository.findById(data.offerId);
     if (!existingOffer) {
-      throw new NotFoundError('Offer not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Offer'));
     }
 
     const updateData: {
@@ -44,12 +48,12 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
 
     const offer = await this._offerRepository.update(data.offerId, updateData);
     if (!offer) {
-      throw new NotFoundError('Offer not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Offer'));
     }
 
     const application = await this._jobApplicationRepository.findById(existingOffer.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this._jobPostingRepository.findById(application.jobId);
@@ -70,8 +74,6 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       });
     }
 
-
-
     return ATSOfferMapper.toResponse(offer);
   }
 
@@ -91,7 +93,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       );
       await this._mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      this._logger.error('Failed to send offer extended email:', error);
+      this._logger.error(ERROR.FAILED_TO('send offer extended email:'), error);
     }
   }
 
@@ -111,7 +113,7 @@ export class UpdateOfferStatusUseCase implements IUpdateOfferStatusUseCase {
       );
       await this._mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      this._logger.error('Failed to send offer accepted email:', error);
+      this._logger.error(ERROR.FAILED_TO('send offer accepted email:'), error);
     }
   }
 }

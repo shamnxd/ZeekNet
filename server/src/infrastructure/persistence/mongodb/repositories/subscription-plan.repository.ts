@@ -1,9 +1,11 @@
+import { injectable } from 'inversify';
 import { ISubscriptionPlanRepository, SubscriptionPlanQueryOptions, PaginatedSubscriptionPlans } from 'src/domain/interfaces/repositories/subscription-plan/ISubscriptionPlanRepository';
 import { SubscriptionPlan } from 'src/domain/entities/subscription-plan.entity';
 import { SubscriptionPlanModel, SubscriptionPlanDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/subscription-plan.model';
 import { SubscriptionPlanMapper } from 'src/infrastructure/mappers/persistence/mongodb/subscriptions/subscription-plan.mapper';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 
+@injectable()
 export class SubscriptionPlanRepository extends RepositoryBase<SubscriptionPlan, ModelDocument> implements ISubscriptionPlanRepository {
   constructor() {
     super(SubscriptionPlanModel);
@@ -121,4 +123,5 @@ export class SubscriptionPlanRepository extends RepositoryBase<SubscriptionPlan,
     return doc ? this.mapToEntity(doc) : null;
   }
 }
+
 

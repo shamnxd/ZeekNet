@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyContactRepository } from 'src/domain/interfaces/repositories/company/ICompanyContactRepository';
 import { ICompanyTechStackRepository } from 'src/domain/interfaces/repositories/company/ICompanyTechStackRepository';
@@ -9,15 +11,16 @@ import { IGetCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/compa
 import { GetCompanyProfileResponseDto } from 'src/application/dtos/company/profile/info/responses/company-profile-response.dto';
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 
+@injectable()
 export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyContactRepository: ICompanyContactRepository,
-    private readonly _companyTechStackRepository: ICompanyTechStackRepository,
-    private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
-    private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
-    private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyContactRepository) private readonly _companyContactRepository: ICompanyContactRepository,
+    @inject(TYPES.CompanyTechStackRepository) private readonly _companyTechStackRepository: ICompanyTechStackRepository,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _companyOfficeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.CompanyBenefitsRepository) private readonly _companyBenefitsRepository: ICompanyBenefitsRepository,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
   ) {}
 
   async execute(userId: string): Promise<GetCompanyProfileResponseDto | null> {
@@ -44,6 +47,3 @@ export class GetCompanyProfileUseCase implements IGetCompanyProfileUseCase {
     });
   }
 }
-
-
-

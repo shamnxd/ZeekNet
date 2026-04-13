@@ -6,17 +6,22 @@ import {
   IGetCompensationMeetingsByApplicationUseCase,
 } from 'src/domain/interfaces/use-cases/seeker/applications/IGetCompensationMeetingsByApplicationUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetCompensationMeetingsByApplicationUseCase implements IGetCompensationMeetingsByApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSCompensationMeetingRepository) private readonly _compensationMeetingRepository: IATSCompensationMeetingRepository,
   ) { }
 
   async execute(userId: string, applicationId: string): Promise<CompensationMeetingForSeekerDto[]> {
     const application = await this._jobApplicationRepository.findById(applicationId);
 
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {

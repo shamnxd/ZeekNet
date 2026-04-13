@@ -1,8 +1,11 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { ITokenPayload, ITokenService } from 'src/domain/interfaces/services/ITokenService';
 import { env } from 'src/infrastructure/config/env';
+import { injectable } from 'inversify';
 
+@injectable()
 export class JwtTokenService implements ITokenService {
+
   signAccess(payload: ITokenPayload): string {
     return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
       expiresIn: env.JWT_ACCESS_EXPIRES_IN,

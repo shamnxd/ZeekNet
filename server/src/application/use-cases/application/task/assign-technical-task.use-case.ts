@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { v4 as uuidv4 } from 'uuid';
 import { IAssignTechnicalTaskUseCase } from 'src/domain/interfaces/use-cases/application/task/IAssignTechnicalTaskUseCase';
 import { IATSTechnicalTaskRepository } from 'src/domain/interfaces/repositories/ats/IATSTechnicalTaskRepository';
@@ -17,19 +19,21 @@ import { ATSTechnicalTaskMapper } from 'src/application/mappers/ats/ats-technica
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { IFileUploadService } from 'src/domain/interfaces/services/IFileUploadService';
 import { UploadedFile } from 'src/domain/types/common.types';
+import { ERROR } from 'src/shared/constants/messages';
 
+@injectable()
 export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
   constructor(
-    private readonly _taskRepository: IATSTechnicalTaskRepository,
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.ATSTechnicalTaskRepository) private readonly _taskRepository: IATSTechnicalTaskRepository,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
 
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
-    private readonly _fileUploadService: IFileUploadService,
-    private readonly _s3Service: IS3Service,
-    private readonly _logger: ILogger,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.FileUploadService) private readonly _fileUploadService: IFileUploadService,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(dto: AssignTechnicalTaskRequestDto, file?: UploadedFile): Promise<ATSTechnicalTaskResponseDto> {
@@ -56,7 +60,7 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
 
     const application = await this._jobApplicationRepository.findById(dto.applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const currentUser = await this._userRepository.findById(dto.performedBy);
@@ -103,7 +107,7 @@ export class AssignTechnicalTaskUseCase implements IAssignTechnicalTaskUseCase {
       );
       await this._mailerService.sendMail(user.email, subject, html);
     } catch (error) {
-      this._logger.error('Failed to send technical task assigned email:', error);
+      this._logger.error(ERROR.FAILED_TO('send technical task assigned email:'), error);
     }
   }
 }

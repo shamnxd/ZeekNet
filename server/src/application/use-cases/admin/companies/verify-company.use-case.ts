@@ -6,13 +6,18 @@ import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.
 import { CompanySubscriptionMapper } from 'src/application/mappers/company/subscription/company-subscription.mapper';
 import { VerifyCompanyRequestDto } from 'src/application/dtos/admin/companies/requests/verify-company-request.dto';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
   constructor(
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
-    private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.SubscriptionPlanRepository) private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.CompanySubscriptionRepository) private readonly _companySubscriptionRepository: ICompanySubscriptionRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
   ) { }
 
   async execute(dto: VerifyCompanyRequestDto): Promise<void> {
@@ -20,7 +25,7 @@ export class VerifyCompanyUseCase implements IVerifyCompanyUseCase {
 
     const company = await this._companyProfileRepository.findById(companyId);
     if (!company) {
-      throw new Error('Company not found');
+      throw new Error(ERROR.NOT_FOUND('Company'));
     }
 
     if (company.isVerified !== CompanyVerificationStatus.PENDING) {

@@ -1,15 +1,21 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { VALIDATION } from 'src/shared/constants/messages';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { BadRequestError } from 'src/domain/errors/errors';
 import { IGetCompanyProfileByUserIdUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IGetCompanyProfileByUserIdUseCase';
 import { CompanyProfileResponseDto } from 'src/application/dtos/company/profile/info/responses/company-response.dto';
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 
+@injectable()
 export class GetCompanyProfileByUserIdUseCase implements IGetCompanyProfileByUserIdUseCase {
-  constructor(private readonly _companyProfileRepository: ICompanyProfileRepository) {}
+  constructor(
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+  ) {}
 
   async execute(userId: string): Promise<CompanyProfileResponseDto | null> {
     if (!userId) {
-      throw new BadRequestError('User ID is required');
+      throw new BadRequestError(VALIDATION.REQUIRED('User ID'));
     }
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });

@@ -6,15 +6,18 @@ import { IUpdateSubscriptionPlanUseCase } from 'src/domain/interfaces/use-cases/
 import { CreateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/create-subscription-plan-request.dto';
 import { GetAllSubscriptionPlansDto } from 'src/application/dtos/admin/subscription/requests/get-all-subscription-plans-query.dto';
 import { UpdateSubscriptionPlanDto } from 'src/application/dtos/admin/subscription/requests/update-subscription-plan-request.dto';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
-import { handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils/presentation/controller.utils';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendCreatedResponse, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class AdminSubscriptionPlanController {
   constructor(
-    private readonly _createSubscriptionPlanUseCase: ICreateSubscriptionPlanUseCase,
-    private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
-    private readonly _getSubscriptionPlanByIdUseCase: IGetSubscriptionPlanByIdUseCase,
-    private readonly _updateSubscriptionPlanUseCase: IUpdateSubscriptionPlanUseCase,
+    @inject(TYPES.CreateSubscriptionPlanUseCase) private readonly _createSubscriptionPlanUseCase: ICreateSubscriptionPlanUseCase,
+    @inject(TYPES.GetAllSubscriptionPlansUseCase) private readonly _getAllSubscriptionPlansUseCase: IGetAllSubscriptionPlansUseCase,
+    @inject(TYPES.GetSubscriptionPlanByIdUseCase) private readonly _getSubscriptionPlanByIdUseCase: IGetSubscriptionPlanByIdUseCase,
+    @inject(TYPES.UpdateSubscriptionPlanUseCase) private readonly _updateSubscriptionPlanUseCase: IUpdateSubscriptionPlanUseCase,
   ) { }
 
   createSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -25,7 +28,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const plan = await this._createSubscriptionPlanUseCase.execute(parsed.data);
-      sendCreatedResponse(res, 'Subscription plan created successfully', plan);
+      sendCreatedResponse(res, SUCCESS.CREATED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -39,7 +42,7 @@ export class AdminSubscriptionPlanController {
 
     try {
       const result = await this._getAllSubscriptionPlansUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Subscription plans retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Subscription plans'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -49,7 +52,7 @@ export class AdminSubscriptionPlanController {
     try {
       const { id } = req.params;
       const plan = await this._getSubscriptionPlanByIdUseCase.execute(id);
-      sendSuccessResponse(res, 'Subscription plan retrieved successfully', plan);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -64,11 +67,10 @@ export class AdminSubscriptionPlanController {
 
     try {
       const plan = await this._updateSubscriptionPlanUseCase.execute(parsedBody.data);
-      sendSuccessResponse(res, 'Subscription plan updated successfully', plan);
+      sendSuccessResponse(res, SUCCESS.UPDATED('Subscription plan'), plan);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
-
-
 }
+

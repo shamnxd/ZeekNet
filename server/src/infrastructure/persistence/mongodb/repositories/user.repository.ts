@@ -4,8 +4,11 @@ import { UserModel, UserDocument } from 'src/infrastructure/persistence/mongodb/
 import { UserMapper } from 'src/infrastructure/mappers/persistence/mongodb/auth/user.mapper';
 import { Types } from 'mongoose';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
+import { injectable } from 'inversify';
 
+@injectable()
 export class UserRepository extends RepositoryBase<User, UserDocument> implements IUserRepository {
+
   constructor() {
     super(UserModel);
   }
@@ -20,7 +23,7 @@ export class UserRepository extends RepositoryBase<User, UserDocument> implement
 
   async findByIds(ids: string[]): Promise<User[]> {
     const validIds = ids.filter(id => Types.ObjectId.isValid(id));
-    
+
     if (validIds.length === 0) {
       return [];
     }

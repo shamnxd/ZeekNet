@@ -1,8 +1,11 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobCategoryRepository } from 'src/domain/interfaces/repositories/job-category/IJobCategoryRepository';
 import { IGetPublicJobCategoriesUseCase } from 'src/domain/interfaces/use-cases/public/attributes/IGetPublicJobCategoriesUseCase';
 
+@injectable()
 export class GetPublicJobCategoriesUseCase implements IGetPublicJobCategoriesUseCase {
-  constructor(private readonly _jobCategoryRepository: IJobCategoryRepository) {}
+  constructor(@inject(TYPES.JobCategoryRepository) private readonly _jobCategoryRepository: IJobCategoryRepository) {}
 
   async execute(): Promise<string[]> {
     const result = await this._jobCategoryRepository.paginate({}, {

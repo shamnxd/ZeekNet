@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { ICompanyWorkplacePicturesRepository } from 'src/domain/interfaces/repositories/company/ICompanyWorkplacePicturesRepository';
 import { CompanyWorkplacePictures } from 'src/domain/entities/company-workplace-pictures.entity';
 import { ICreateCompanyWorkplacePictureUseCase } from 'src/domain/interfaces/use-cases/company/media/ICreateCompanyWorkplacePictureUseCase';
@@ -5,10 +7,11 @@ import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/ad
 import { CompanyWorkplacePictureResponseDto } from 'src/application/dtos/company/media/responses/company-workplace-picture-response.dto';
 import { CompanyWorkplacePictureMapper } from 'src/application/mappers/company/media/company-workplace-picture.mapper';
 
+@injectable()
 export class CreateCompanyWorkplacePictureUseCase implements ICreateCompanyWorkplacePictureUseCase {
   constructor(
-    private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _companyWorkplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private readonly _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(data: { userId: string; pictureUrl: string; caption?: string }): Promise<CompanyWorkplacePictureResponseDto> {
@@ -19,5 +22,3 @@ export class CreateCompanyWorkplacePictureUseCase implements ICreateCompanyWorkp
     return CompanyWorkplacePictureMapper.toResponse(createdPicture);
   }
 }
-
-

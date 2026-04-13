@@ -7,18 +7,25 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { IVerifyOtpUseCase } from 'src/domain/interfaces/use-cases/auth/verification/IVerifyOtpUseCase';
 import { ValidationError } from 'src/domain/errors/errors';
 import { welcomeTemplate } from 'src/infrastructure/messaging/templates/welcome.template';
-import { getDashboardLink } from 'src/shared/utils/application/dashboard.utils';
 import { VerifyOtpRequestDto } from 'src/application/dtos/auth/verification/verify-otp.dto';
 import { LoginResponseDto } from 'src/application/dtos/auth/session/login-response.dto';
+import { getDashboardLink } from 'src/shared/utils';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class VerifyOtpUseCase implements IVerifyOtpUseCase {
   constructor(
-    private readonly _otpService: IOtpService,
-    private readonly _tokenService: ITokenService,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _mailerService: IMailerService,
-    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
   ) { }
+
 
   async execute(params: VerifyOtpRequestDto): Promise<LoginResponseDto> {
     const { email, code } = params;
@@ -30,7 +37,7 @@ export class VerifyOtpUseCase implements IVerifyOtpUseCase {
 
     const user = await this._userRepository.findOne({ email });
     if (!user) {
-      throw new ValidationError('User not found');
+      throw new ValidationError(ERROR.NOT_FOUND('User'));
     }
 
     await this._userRepository.update(user.id, { isVerified: true });

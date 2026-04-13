@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { IPriceHistoryRepository } from 'src/domain/interfaces/repositories/price-history/IPriceHistoryRepository';
 import { PriceHistory, PriceType } from 'src/domain/entities/price-history.entity';
 import { PriceHistoryModel, PriceHistoryDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/price-history.model';
@@ -7,6 +8,7 @@ import { Types } from 'mongoose';
 import { RepositoryBase } from 'src/infrastructure/persistence/mongodb/repositories/base-repository';
 import { CreateInput } from 'src/domain/types/common.types';
 
+@injectable()
 export class PriceHistoryRepository extends RepositoryBase<PriceHistory, ModelDocument> implements IPriceHistoryRepository {
   constructor() {
     super(PriceHistoryModel);
@@ -115,4 +117,5 @@ export class PriceHistoryRepository extends RepositoryBase<PriceHistory, ModelDo
     );
   }
 }
+
 

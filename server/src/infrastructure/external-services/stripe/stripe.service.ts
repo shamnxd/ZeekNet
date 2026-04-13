@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import Stripe from 'stripe';
 import {
   IStripeService,
@@ -21,6 +22,7 @@ import { logger } from 'src/infrastructure/config/logger';
 import { env } from 'src/infrastructure/config/env';
 import { StripeWebApiMapper } from 'src/infrastructure/external-services/stripe/mappers/stripe-web-api.mapper';
 
+@injectable()
 export class StripeService implements IStripeService {
   private _stripe: Stripe;
   private _webhookSecret: string;

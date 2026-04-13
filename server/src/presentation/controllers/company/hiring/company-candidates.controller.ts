@@ -1,15 +1,18 @@
+import { injectable, inject } from 'inversify';
 import { Request, Response, NextFunction } from 'express';
+import { TYPES } from 'src/shared/constants/types';
 import { GetCandidatesDto } from 'src/application/dtos/company/hiring/requests/get-candidates.dto';
 import { GetCandidateDetailsDto } from 'src/application/dtos/company/hiring/requests/get-candidate-details.dto';
 import { IGetCandidatesUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidatesUseCase';
 import { IGetCandidateDetailsUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidateDetailsUseCase';
-import { handleAsyncError, sendSuccessResponse, handleValidationError } from 'src/shared/utils/presentation/controller.utils';
-import { formatZodErrors } from 'src/shared/utils/presentation/zod-error-formatter.util';
+import { formatZodErrors, handleAsyncError, handleValidationError, sendSuccessResponse } from 'src/shared/utils';
+import { SUCCESS } from 'src/shared/constants/messages';
 
+@injectable()
 export class CompanyCandidatesController {
   constructor(
-    private readonly _getCandidatesUseCase: IGetCandidatesUseCase,
-    private readonly _getCandidateDetailsUseCase: IGetCandidateDetailsUseCase,
+    @inject(TYPES.GetCandidatesUseCase) private readonly _getCandidatesUseCase: IGetCandidatesUseCase,
+    @inject(TYPES.GetCandidateDetailsUseCase) private readonly _getCandidateDetailsUseCase: IGetCandidateDetailsUseCase,
   ) { }
 
   getCandidates = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -20,7 +23,7 @@ export class CompanyCandidatesController {
 
     try {
       const result = await this._getCandidatesUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Candidates retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Candidates'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
@@ -34,11 +37,12 @@ export class CompanyCandidatesController {
 
     try {
       const result = await this._getCandidateDetailsUseCase.execute(parsed.data);
-      sendSuccessResponse(res, 'Candidate details retrieved successfully', result);
+      sendSuccessResponse(res, SUCCESS.RETRIEVED('Candidate details'), result);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 
 

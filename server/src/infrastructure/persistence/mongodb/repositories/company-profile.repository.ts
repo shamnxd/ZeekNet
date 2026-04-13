@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 import { CompanyProfileModel, CompanyProfileDocument as ModelDocument } from 'src/infrastructure/persistence/mongodb/models/company-profile.model';
@@ -21,6 +22,7 @@ interface PopulatedCompanyDocument extends Omit<ModelDocument, 'userId'> {
   userId: PopulatedUser | null;
 }
 
+@injectable()
 export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, ModelDocument> implements ICompanyProfileRepository {
   constructor() {
     super(CompanyProfileModel);
@@ -225,4 +227,5 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
     return [];
   }
 }
+
 

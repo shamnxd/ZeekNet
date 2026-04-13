@@ -8,19 +8,24 @@ import {
   IGetOffersByApplicationUseCase,
 } from 'src/domain/interfaces/use-cases/seeker/applications/IGetOffersByApplicationUseCase';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
+
+@injectable()
 export class GetOffersByApplicationUseCase implements IGetOffersByApplicationUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _offerRepository: IATSOfferRepository,
-    private readonly _s3Service: IS3Service,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.ATSOfferRepository) private readonly _offerRepository: IATSOfferRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(userId: string, applicationId: string): Promise<OfferForSeekerDto[]> {
     const application = await this._jobApplicationRepository.findById(applicationId);
 
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     if (application.seekerId !== userId) {

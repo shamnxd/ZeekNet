@@ -1,3 +1,5 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IGetAllJobPostingsUseCase } from 'src/domain/interfaces/use-cases/public/listings/jobs/IGetAllJobPostingsUseCase';
 import { JobPostingFilters } from 'src/application/dtos/admin/job/requests/job-posting-filters.dto';
@@ -7,10 +9,11 @@ import { JobPostingMapper } from 'src/application/mappers/job/job-posting.mapper
 import { JobPosting } from 'src/domain/entities/job-posting.entity';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
+@injectable()
 export class GetAllJobPostingsUseCase implements IGetAllJobPostingsUseCase {
   constructor(
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(query: JobPostingFilters): Promise<PaginatedPublicJobsDto> {

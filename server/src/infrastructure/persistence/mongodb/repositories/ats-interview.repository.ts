@@ -3,7 +3,9 @@ import { IATSInterviewRepository } from 'src/domain/interfaces/repositories/ats/
 import { ATSInterview } from 'src/domain/entities/ats-interview.entity';
 import { ATSInterviewModel } from 'src/infrastructure/persistence/mongodb/models/ats-interview.model';
 import { ATSInterviewMapper } from 'src/infrastructure/mappers/persistence/mongodb/ats/ats-interview.mapper';
+import { injectable } from 'inversify';
 
+@injectable()
 export class ATSInterviewRepository implements IATSInterviewRepository {
   async create(interview: ATSInterview): Promise<ATSInterview> {
     const doc = await ATSInterviewModel.create(ATSInterviewMapper.toDocument(interview));

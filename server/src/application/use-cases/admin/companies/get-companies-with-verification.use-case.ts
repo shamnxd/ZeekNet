@@ -6,12 +6,15 @@ import { PaginatedCompaniesWithVerificationResultDto } from 'src/application/dto
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetCompaniesWithVerificationUseCase implements IGetCompaniesWithVerificationUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(options: GetCompaniesQueryDto): Promise<PaginatedCompaniesWithVerificationResultDto> {

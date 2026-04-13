@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { INotificationRepository } from 'src/domain/interfaces/repositories/notification/INotificationRepository';
 import { IGetNotificationsUseCase } from 'src/domain/interfaces/use-cases/notification/management/INotificationUseCases';
 import { NotificationResponseDto } from 'src/application/dtos/notification/management/responses/notification-response.dto';
 import { NotificationMapper } from 'src/application/mappers/notification/notification.mapper';
 
+@injectable()
 export class GetNotificationsUseCase implements IGetNotificationsUseCase {
   constructor(
-    private readonly _notificationRepository: INotificationRepository,
+    @inject(TYPES.NotificationRepository) private readonly _notificationRepository: INotificationRepository,
   ) {}
 
   async execute(userId: string, limit: number, skip: number): Promise<NotificationResponseDto[]> {

@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
@@ -10,14 +13,15 @@ import { JobClosureType } from 'src/domain/enums/job-closure-type.enum';
 import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { IMarkCandidateHiredUseCase, MarkCandidateHiredDto } from 'src/domain/interfaces/use-cases/company/hiring/IMarkCandidateHiredUseCase';
 
+@injectable()
 export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _mailerService: IMailerService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(dto: MarkCandidateHiredDto): Promise<void> {
@@ -25,17 +29,17 @@ export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
 
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
     if (job.companyId !== companyProfile.id) {
@@ -75,7 +79,7 @@ export class MarkCandidateHiredUseCase implements IMarkCandidateHiredUseCase {
   private async autoCloseJob(jobId: string, hiredApplicationId: string): Promise<void> {
     const job = await this._jobPostingRepository.findById(jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
 
 

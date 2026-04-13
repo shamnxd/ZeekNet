@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR, VALIDATION } from 'src/shared/constants/messages';
 import { SimpleUpdateCompanyProfileRequestDto } from 'src/application/dtos/company/profile/info/requests/company-profile.dto';
 import { ICompanyProfileRepository } from 'src/domain/interfaces/repositories/company/ICompanyProfileRepository';
 import { ICompanyVerificationRepository } from 'src/domain/interfaces/repositories/company/ICompanyVerificationRepository';
@@ -7,19 +10,20 @@ import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { IUpdateCompanyProfileUseCase } from 'src/domain/interfaces/use-cases/company/profile/info/IUpdateCompanyProfileUseCase';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 
+@injectable()
 export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(data: SimpleUpdateCompanyProfileRequestDto): Promise<CompanyProfileResponseDto> {
     const { userId, ...profileData } = data;
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error(VALIDATION.REQUIRED('User ID'));
     const existingProfile = await this._companyProfileRepository.findOne({ userId });
     if (!existingProfile) {
-      throw new Error('Company profile not found');
+      throw new Error(ERROR.NOT_FOUND('Company profile'));
     }
     const updateData = CompanyProfileMapper.toUpdateEntity(profileData);
 
@@ -27,7 +31,7 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
     if (Object.keys(updateData).length > 0) {
       const result = await this._companyProfileRepository.update(existingProfile.id, updateData);
       if (!result) {
-        throw new Error('Failed to update profile');
+        throw new Error(ERROR.FAILED_TO('update profile'));
       }
       updatedProfile = result;
     } else {
@@ -51,6 +55,3 @@ export class UpdateCompanyProfileUseCase implements IUpdateCompanyProfileUseCase
     return CompanyProfileMapper.toResponse(updatedProfile, verification, { logo: logoUrl, banner: bannerUrl, businessLicense: businessLicenseUrl });
   }
 }
-
-
-

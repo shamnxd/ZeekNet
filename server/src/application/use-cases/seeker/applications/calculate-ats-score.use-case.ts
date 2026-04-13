@@ -23,11 +23,15 @@ export interface ICalculateATSScoreUseCase {
 }
 
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class CalculateATSScoreUseCase implements ICalculateATSScoreUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _atsService: IAtsService,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.AtsService) private readonly _atsService: IAtsService,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(input: CalculateATSScoreInput): Promise<void> {

@@ -10,16 +10,20 @@ import { connectRedis } from 'src/infrastructure/persistence/redis/connection/re
 import { env } from 'src/infrastructure/config/env';
 import { logger } from 'src/infrastructure/config/logger';
 import { SocketServer } from 'src/infrastructure/external-services/socket/socket-server';
+import { APP_ROUTES } from 'src/shared/constants/routes';
+
 
 import { AuthRouter } from 'src/presentation/routes/auth-router';
 import { CompanyRouter } from 'src/presentation/routes/company-router';
 import { AdminRouter } from 'src/presentation/routes/admin-router';
 import { SeekerRouter } from 'src/presentation/routes/seeker-router';
 import { PublicRouter } from 'src/presentation/routes/public-router';
+import { ChatRouter } from 'src/presentation/routes/chat-router';
 import { errorHandler } from 'src/presentation/middleware/error-handler';
-import { notificationRouter } from 'src/infrastructure/di/notificationDi';
-import { chatRouter } from 'src/infrastructure/di/chatDi';
-import { stripeWebhookController } from 'src/infrastructure/di/companyDi';
+import { container } from 'src/infrastructure/di/container';
+import { TYPES } from 'src/shared/constants/types';
+import { NotificationRouter } from 'src/presentation/routes/notification-router';
+import { StripeWebhookController } from 'src/presentation/controllers/payment/stripe-webhook.controller';
 
 export class AppServer {
   private _app: express.Application;
@@ -47,7 +51,8 @@ export class AppServer {
       }),
     );
 
-    this._app.use('/api/webhook/stripe', express.raw({ type: '*/*' }));
+    this._app.use(APP_ROUTES.WEBHOOK_STRIPE, express.raw({ type: '*/*' }));
+
 
     this._app.use(express.json({ limit: '10mb' }));
     this._app.use(express.urlencoded({ extended: true }));
@@ -81,16 +86,20 @@ export class AppServer {
       }),
     );
 
-    this._app.use('/api/auth', new AuthRouter().router);
-    this._app.use('/api/admin', new AdminRouter().router);
-    this._app.use('/api/company', new CompanyRouter().router);
-    this._app.use('/api/seeker', new SeekerRouter().router);
-    this._app.use('/api/public', new PublicRouter().router);
-    this._app.use('/api/notifications', notificationRouter.router);
-    this._app.use('/api/chat', chatRouter.router);
+    this._app.use(APP_ROUTES.AUTH.BASE, new AuthRouter().router);
+    this._app.use(APP_ROUTES.ADMIN.BASE, new AdminRouter().router);
+    this._app.use(APP_ROUTES.COMPANY.BASE, new CompanyRouter().router);
+    this._app.use(APP_ROUTES.SEEKER.BASE, new SeekerRouter().router);
+    this._app.use(APP_ROUTES.PUBLIC.BASE, new PublicRouter().router);
+    const notificationRouter = container.get<NotificationRouter>(TYPES.NotificationRouter);
+    this._app.use(APP_ROUTES.NOTIFICATIONS.BASE, notificationRouter.router);
+    this._app.use(APP_ROUTES.CHAT.BASE, new ChatRouter().router);
 
-    this._app.post('/api/webhook/stripe', stripeWebhookController.handleWebhook);
-    logger.info('Stripe webhook endpoint configured at /api/webhook/stripe');
+
+    const stripeWebhookController = container.get<StripeWebhookController>(TYPES.StripeWebhookController);
+    this._app.post(APP_ROUTES.WEBHOOK_STRIPE, stripeWebhookController.handleWebhook);
+    logger.info(`Stripe webhook endpoint configured at ${APP_ROUTES.WEBHOOK_STRIPE}`);
+
 
     this._app.use(errorHandler);
   }

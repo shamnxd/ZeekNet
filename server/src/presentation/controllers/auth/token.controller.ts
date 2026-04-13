@@ -1,20 +1,25 @@
+import { env } from 'src/infrastructure/config/env';
+import { UserRole } from 'src/domain/enums/user-role.enum';
 import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
 import { IAuthGetUserByIdUseCase } from 'src/domain/interfaces/use-cases/auth/user/IAuthGetUserByIdUseCase';
 import { IRefreshTokenUseCase } from 'src/domain/interfaces/use-cases/auth/session/IRefreshTokenUseCase';
 import { ITokenService } from 'src/domain/interfaces/services/ITokenService';
 import { ICookieService } from 'src/presentation/services/ICookieService';
-import { AuthenticatedRequest } from 'src/shared/types/authenticated-request';
-import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils/presentation/controller.utils';
-import { UserRole } from 'src/domain/enums/user-role.enum';
-import { env } from 'src/infrastructure/config/env';
+import { handleValidationError, handleAsyncError, validateUserId, sendSuccessResponse, sendErrorResponse } from 'src/shared/utils';
+import { SUCCESS, AUTH, ERROR } from 'src/shared/constants/messages';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class TokenController {
   constructor(
-    private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
-    private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
-    private readonly _tokenService: ITokenService,
-    private readonly _cookieService: ICookieService,
+    @inject(TYPES.RefreshTokenUseCase) private readonly _refreshTokenUseCase: IRefreshTokenUseCase,
+    @inject(TYPES.GetUserByIdUseCase) private readonly _getUserByIdUseCase: IAuthGetUserByIdUseCase,
+    @inject(TYPES.TokenService) private readonly _tokenService: ITokenService,
+    @inject(TYPES.CookieService) private readonly _cookieService: ICookieService,
   ) { }
+
 
   refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const cookieName = env.COOKIE_NAME_REFRESH;
@@ -22,7 +27,7 @@ export class TokenController {
     const refreshToken = fromCookie || req.body?.refreshToken;
 
     if (!refreshToken || typeof refreshToken !== 'string') {
-      return handleValidationError('Invalid refresh token', next);
+      return handleValidationError(AUTH.INVALID_CREDENTIALS, next);
     }
 
     try {
@@ -30,9 +35,9 @@ export class TokenController {
 
       if (result.tokens) {
         this._cookieService.setRefreshToken(res, result.tokens.refreshToken);
-        sendSuccessResponse(res, 'Token refreshed', result.user, result.tokens.accessToken);
+        sendSuccessResponse(res, SUCCESS.ACTION('Token refresh'), result.user, result.tokens.accessToken);
       } else {
-        sendSuccessResponse(res, 'Token refreshed', result.user, undefined);
+        sendSuccessResponse(res, SUCCESS.ACTION('Token refresh'), result.user, undefined);
       }
     } catch (error) {
       handleAsyncError(error, next);
@@ -45,19 +50,20 @@ export class TokenController {
       const user = await this._getUserByIdUseCase.execute(userId);
 
       if (!user) {
-        return handleValidationError('User not found', next);
+        return handleValidationError(ERROR.NOT_FOUND('User'), next);
       }
 
       if (user.isBlocked) {
-        return sendErrorResponse(res, 'User account is blocked', null, 403);
+        return sendErrorResponse(res, AUTH.ACCOUNT_BLOCKED, null, 403);
       }
 
       const accessToken = this._tokenService.signAccess({ sub: user.id, role: user.role as UserRole });
 
-      sendSuccessResponse(res, 'Authenticated', user, accessToken);
+      sendSuccessResponse(res, SUCCESS.ACTION('Authentication check'), user, accessToken);
     } catch (error) {
       handleAsyncError(error, next);
     }
   };
 }
+
 

@@ -10,14 +10,19 @@ import { UserMapper } from 'src/application/mappers/auth/user.mapper';
 import { RegisterResponseDto } from 'src/application/dtos/auth/registration/register-response.dto';
 import { RegisterRequestDto } from 'src/application/dtos/auth/registration/register.dto';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
-    private readonly _userRepository: IUserRepository,
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _otpService: IOtpService,
-    private readonly _mailerService: IMailerService,
-    private readonly _emailTemplateService: IEmailTemplateService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.OtpService) private readonly _otpService: IOtpService,
+    @inject(TYPES.MailerService) private readonly _mailerService: IMailerService,
+    @inject(TYPES.EmailTemplateService) private readonly _emailTemplateService: IEmailTemplateService,
   ) { }
+
 
   async execute(params: RegisterRequestDto): Promise<RegisterResponseDto> {
     const { email, password } = params;

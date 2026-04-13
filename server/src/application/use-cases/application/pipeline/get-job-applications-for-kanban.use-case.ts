@@ -1,30 +1,33 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { IGetJobApplicationsForKanbanUseCase } from 'src/domain/interfaces/use-cases/application/pipeline/IGetJobApplicationsForKanbanUseCase';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
 import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRepository';
 import { NotFoundError, ValidationError } from 'src/domain/errors/errors';
-import { ATSStage } from 'src/domain/enums/ats-stage.enum';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { GetJobApplicationsKanbanDto } from 'src/application/dtos/application/requests/get-job-applications-kanban.dto';
 import { IGetCompanyIdByUserIdUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompanyIdByUserIdUseCase';
 import { JobApplicationsKanbanResponseDto } from 'src/application/dtos/application/pipeline/responses/job-applications-kanban-response.dto';
 
+@injectable()
 export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsForKanbanUseCase {
   constructor(
-    private _jobApplicationRepository: IJobApplicationRepository,
-    private _jobPostingRepository: IJobPostingRepository,
-    private _userRepository: IUserRepository,
-    private _seekerProfileRepository: ISeekerProfileRepository,
-    private _s3Service: IS3Service,
-    private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
+    @inject(TYPES.JobApplicationRepository) private _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
+    @inject(TYPES.SeekerProfileRepository) private _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.S3Service) private _s3Service: IS3Service,
+    @inject(TYPES.GetCompanyIdByUserIdUseCase) private _getCompanyIdByUserIdUseCase: IGetCompanyIdByUserIdUseCase,
   ) {}
 
   async execute(dto: GetJobApplicationsKanbanDto): Promise<JobApplicationsKanbanResponseDto> {
     const companyId = await this._getCompanyIdByUserIdUseCase.execute(dto.userId);
     const job = await this._jobPostingRepository.findById(dto.jobId);
     if (!job) {
-      throw new NotFoundError('Job not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job'));
     }
 
     if (job.companyId !== companyId) {
@@ -92,4 +95,3 @@ export class GetJobApplicationsForKanbanUseCase implements IGetJobApplicationsFo
     return grouped;
   }
 }
-

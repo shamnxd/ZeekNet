@@ -7,20 +7,26 @@ import { DeleteMessageResponseDto } from 'src/application/dtos/chat/responses/de
 import { ConversationMapper } from 'src/application/mappers/chat/conversation.mapper';
 import { ChatMessageMapper } from 'src/application/mappers/chat/chat-message.mapper';
 import { DeleteMessageDto } from 'src/application/dtos/chat/requests/delete-message.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class DeleteMessageUseCase implements IDeleteMessageUseCase {
   constructor(
-    private readonly _messageRepository: IMessageRepository,
-    private readonly _conversationRepository: IConversationRepository,
-    private readonly _chatSocketService: IChatSocketService,
+    @inject(TYPES.ChatMessageRepository) private readonly _messageRepository: IMessageRepository,
+    @inject(TYPES.ConversationRepository) private readonly _conversationRepository: IConversationRepository,
+    @inject(TYPES.ChatSocketService) private readonly _chatSocketService: IChatSocketService,
   ) { }
+
 
   async execute(input: DeleteMessageDto): Promise<DeleteMessageResponseDto | null> {
     const { userId, messageId } = input;
 
     const message = await this._messageRepository.findById(messageId);
     if (!message) {
-      throw new Error('Message not found');
+      throw new Error(ERROR.NOT_FOUND('Message'));
     }
 
     if (message.senderId.toString() !== userId) {

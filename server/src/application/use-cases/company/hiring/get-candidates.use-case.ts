@@ -1,11 +1,14 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 import { IGetCandidatesUseCase } from 'src/domain/interfaces/use-cases/company/hiring/IGetCandidatesUseCase';
 import { ISeekerProfileRepository } from 'src/domain/interfaces/repositories/seeker/ISeekerProfileRepository';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 
+@injectable()
 export class GetCandidatesUseCase implements IGetCandidatesUseCase {
   constructor(
-    private readonly _seekerProfileRepository: ISeekerProfileRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.SeekerProfileRepository) private readonly _seekerProfileRepository: ISeekerProfileRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) {}
 
   async execute(options: {

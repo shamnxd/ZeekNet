@@ -12,25 +12,30 @@ import { CompanyWithVerificationResult } from 'src/application/dtos/admin/compan
 import { CompanyProfileMapper } from 'src/application/mappers/company/profile/company-profile.mapper';
 import { IS3Service } from 'src/domain/interfaces/services/IS3Service';
 import { NotFoundError } from 'src/domain/errors/errors';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 
+
+@injectable()
 export class GetCompanyByIdUseCase implements IGetCompanyByIdUseCase {
   constructor(
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _companyVerificationRepository: ICompanyVerificationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyContactRepository: ICompanyContactRepository,
-    private readonly _officeLocationRepository: ICompanyOfficeLocationRepository,
-    private readonly _techStackRepository: ICompanyTechStackRepository,
-    private readonly _benefitsRepository: ICompanyBenefitsRepository,
-    private readonly _workplacePicturesRepository: ICompanyWorkplacePicturesRepository,
-    private readonly _s3Service: IS3Service,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.CompanyVerificationRepository) private readonly _companyVerificationRepository: ICompanyVerificationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyContactRepository) private readonly _companyContactRepository: ICompanyContactRepository,
+    @inject(TYPES.CompanyOfficeLocationRepository) private readonly _officeLocationRepository: ICompanyOfficeLocationRepository,
+    @inject(TYPES.CompanyTechStackRepository) private readonly _techStackRepository: ICompanyTechStackRepository,
+    @inject(TYPES.CompanyBenefitsRepository) private readonly _benefitsRepository: ICompanyBenefitsRepository,
+    @inject(TYPES.CompanyWorkplacePicturesRepository) private readonly _workplacePicturesRepository: ICompanyWorkplacePicturesRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
   ) { }
 
   async execute(companyId: string): Promise<CompanyWithVerificationResult> {
     const company = await this._companyProfileRepository.findById(companyId);
 
     if (!company) {
-      throw new NotFoundError('Company not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company'));
     }
 
     const [

@@ -4,12 +4,17 @@ import { IUserRepository } from 'src/domain/interfaces/repositories/user/IUserRe
 import { IResetPasswordUseCase } from 'src/domain/interfaces/use-cases/auth/password/IResetPasswordUseCase';
 import { ValidationError } from 'src/domain/errors/errors';
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
   constructor(
-    private readonly _passwordHasher: IPasswordHasher,
-    private readonly _passwordResetService: IPasswordResetService,
-    private readonly _userRepository: IUserRepository,
-  ) {}
+    @inject(TYPES.PasswordHasher) private readonly _passwordHasher: IPasswordHasher,
+    @inject(TYPES.PasswordResetService) private readonly _passwordResetService: IPasswordResetService,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+  ) { }
+
 
   async execute(token: string, newPassword: string): Promise<void> {
     const resetData = await this._passwordResetService.getResetToken(token);

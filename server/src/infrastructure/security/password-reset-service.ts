@@ -12,8 +12,13 @@ interface PasswordResetToken {
   expiresAt: string;
 }
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+
+@injectable()
 export class PasswordResetServiceImpl implements IPasswordResetService {
-  constructor(private readonly _mailerService: IMailerService) {}
+  constructor(@inject(TYPES.MailerService) private readonly _mailerService: IMailerService) { }
+
 
   async generateResetToken(userId: string, email: string): Promise<string> {
     const token = randomBytes(32).toString('hex');

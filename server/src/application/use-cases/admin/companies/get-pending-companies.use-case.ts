@@ -2,9 +2,12 @@ import { CompanyVerificationStatus } from 'src/domain/enums/verification-status.
 import { IGetPendingCompaniesUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetPendingCompaniesUseCase';
 import { IGetCompaniesWithVerificationUseCase } from 'src/domain/interfaces/use-cases/admin/companies/IGetCompaniesWithVerificationUseCase';
 import { PaginatedCompaniesWithVerificationResultDto } from 'src/application/dtos/admin/companies/responses/paginated-companies-with-verification-result.dto';
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
 
+@injectable()
 export class GetPendingCompaniesUseCase implements IGetPendingCompaniesUseCase {
-  constructor(private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
+  constructor(@inject(TYPES.GetCompaniesWithVerificationUseCase) private readonly _getCompaniesWithVerificationUseCase: IGetCompaniesWithVerificationUseCase) {}
 
   async execute(): Promise<PaginatedCompaniesWithVerificationResultDto> {
     return await this._getCompaniesWithVerificationUseCase.execute({

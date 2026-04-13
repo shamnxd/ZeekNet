@@ -1,4 +1,7 @@
-interface ApiResponse<T = unknown> {
+import { ValidationError } from 'src/domain/errors/errors';
+import { ERROR } from 'src/shared/constants/messages';
+
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data: T;
@@ -26,3 +29,17 @@ export const createErrorResponse = <T>(message: string, data: T = null as T): Ap
     data,
   };
 };
+
+export class ErrorHandler {
+  static createValidationError(message: string): ValidationError {
+    return new ValidationError(message);
+  }
+
+  static handleAsyncError(error: unknown): Error {
+    if (error instanceof Error) {
+      return error;
+    }
+    return new Error(ERROR.INTERNAL_SERVER);
+  }
+}
+

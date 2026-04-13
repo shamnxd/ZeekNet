@@ -1,3 +1,6 @@
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { ERROR } from 'src/shared/constants/messages';
 import { IJobApplicationRepository } from 'src/domain/interfaces/repositories/job-application/IJobApplicationRepository';
 import { ATSStage, ATSSubStage } from 'src/domain/enums/ats-stage.enum';
 import { IJobPostingRepository } from 'src/domain/interfaces/repositories/job/IJobPostingRepository';
@@ -11,12 +14,13 @@ import { JobApplicationMapper } from 'src/application/mappers/job-application/jo
 import { JobApplicationListResponseDto } from 'src/application/dtos/seeker/applications/responses/job-application-response.dto';
 import { UpdateApplicationStageDto } from 'src/application/dtos/application/requests/update-application-stage.dto';
 
+@injectable()
 export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _notificationService: INotificationService,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.NotificationService) private readonly _notificationService: INotificationService,
   ) {}
 
   async execute(dto: UpdateApplicationStageDto): Promise<JobApplicationListResponseDto> {
@@ -24,17 +28,17 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     
     const companyProfile = await this._companyProfileRepository.findOne({ userId });
     if (!companyProfile) {
-      throw new NotFoundError('Company profile not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Company profile'));
     }
 
     const application = await this._jobApplicationRepository.findById(applicationId);
     if (!application) {
-      throw new NotFoundError('Application not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Application'));
     }
 
     const job = await this._jobPostingRepository.findById(application.jobId);
     if (!job) {
-      throw new NotFoundError('Job posting not found');
+      throw new NotFoundError(ERROR.NOT_FOUND('Job posting'));
     }
     if (job.companyId !== companyProfile.id) {
       throw new ValidationError('You can only update applications for your own job postings');
@@ -51,7 +55,7 @@ export class UpdateApplicationStageUseCase implements IUpdateApplicationStageUse
     const updatedApplication = await this._jobApplicationRepository.update(applicationId, updateData as Partial<JobApplication>);
 
     if (!updatedApplication) {
-      throw new NotFoundError('Failed to update application stage');
+      throw new NotFoundError(ERROR.FAILED_TO('update application stage'));
     }
 
     const stageMessages: Record<string, { title: string; message: string }> = {

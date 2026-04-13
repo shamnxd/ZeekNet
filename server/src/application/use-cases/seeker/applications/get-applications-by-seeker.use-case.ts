@@ -12,19 +12,25 @@ import { JobApplication } from 'src/domain/entities/job-application.entity';
 import { CompanyProfile } from 'src/domain/entities/company-profile.entity';
 
 
+import { injectable, inject } from 'inversify';
+import { TYPES } from 'src/shared/constants/types';
+import { VALIDATION } from 'src/shared/constants/messages';
+
+
+@injectable()
 export class GetApplicationsBySeekerUseCase implements IGetApplicationsBySeekerUseCase {
   constructor(
-    private readonly _jobApplicationRepository: IJobApplicationRepository,
-    private readonly _jobPostingRepository: IJobPostingRepository,
-    private readonly _companyProfileRepository: ICompanyProfileRepository,
-    private readonly _userRepository: IUserRepository,
-    private readonly _s3Service: IS3Service,
-    private readonly _logger: ILogger,
+    @inject(TYPES.JobApplicationRepository) private readonly _jobApplicationRepository: IJobApplicationRepository,
+    @inject(TYPES.JobPostingRepository) private readonly _jobPostingRepository: IJobPostingRepository,
+    @inject(TYPES.CompanyProfileRepository) private readonly _companyProfileRepository: ICompanyProfileRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepository: IUserRepository,
+    @inject(TYPES.S3Service) private readonly _s3Service: IS3Service,
+    @inject(TYPES.LoggerService) private readonly _logger: ILogger,
   ) { }
 
   async execute(data: GetApplicationsBySeekerRequestDto): Promise<PaginatedApplicationsResponseDto> {
     const { seekerId, ...filters } = data;
-    if (!seekerId) throw new Error('Seeker ID is required');
+    if (!seekerId) throw new Error(VALIDATION.REQUIRED('Seeker ID'));
 
     const page = filters.page || 1;
     const limit = filters.limit || 10;
