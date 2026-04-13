@@ -263,7 +263,7 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
               }
             }}
             onBlur={() => {
-              setTimeout(() => setShowJobRoleSuggestions(false), 200);
+              setTimeout(() => setShowJobRoleSuggestions(false), 300);
             }}
             className={`w-full h-11 px-4 py-3 border rounded-[10px] ${errors.title ? 'border-red-500' : 'border-[#D6DDEB]'}`}
           />
@@ -276,6 +276,10 @@ const JobInformationStep: React.FC<JobPostingStepProps> = ({
               {jobRolesOptions.map((role) => (
                 <div
                   key={role.value}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleJobRoleSelect(role.value);
+                  }}
                   onClick={() => handleJobRoleSelect(role.value)}
                   className="px-4 py-2 hover:bg-[#F8F9FF] cursor-pointer text-sm text-[#25324B]"
                 >

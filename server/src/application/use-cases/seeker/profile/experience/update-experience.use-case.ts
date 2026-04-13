@@ -38,9 +38,14 @@ export class UpdateExperienceUseCase implements IUpdateExperienceUseCase {
     }
 
     const updateData = SeekerProfileMapper.toExperienceUpdateEntity(dto);
+    if (dto.isCurrent === true) {
+      updateData.endDate = undefined;
+    }
 
     const startDate = updateData.startDate || existingExperience.startDate;
-    const endDate = updateData.endDate !== undefined ? updateData.endDate : existingExperience.endDate;
+    const endDate = dto.isCurrent === true
+      ? undefined
+      : (updateData.endDate !== undefined ? updateData.endDate : existingExperience.endDate);
     const isCurrent = updateData.isCurrent !== undefined ? updateData.isCurrent : existingExperience.isCurrent;
 
     if (endDate && endDate < startDate) {

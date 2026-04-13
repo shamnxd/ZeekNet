@@ -139,6 +139,11 @@ export class SubscriptionMiddleware {
 
   checkCanViewCandidate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
+      const accessContext = typeof req.query.context === 'string' ? req.query.context : undefined;
+      if (accessContext === 'application') {
+        return next();
+      }
+
       const userId = req.user?.userId;
 
       if (!userId) {
