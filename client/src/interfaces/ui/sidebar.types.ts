@@ -1,1 +1,1 @@
-export type SeekerSidebarPage = 'dashboard' | 'profile' | 'applications' | 'settings' | 'messages';
+export type SeekerSidebarPage = 'dashboard' | 'profile' | 'applications' | 'settings' | 'messages' | 'help-center';

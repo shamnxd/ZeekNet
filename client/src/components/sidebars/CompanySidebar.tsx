@@ -101,6 +101,10 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
       navigate(path)
       return
     }
+    if (path === '/company/help') {
+      navigate(path)
+      return
+    }
 
     if (companyVerificationStatus === 'not_created') {
       toast.error('Complete Registration Required', {
@@ -125,13 +129,6 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
         description: 'Please complete and verify your company profile before posting jobs.',
       })
       navigate('/company/profile')
-      return
-    }
-
-    if (path === '/company/help') {
-      toast.info('Coming Soon', {
-        description: 'Help center is under development.',
-      })
       return
     }
 

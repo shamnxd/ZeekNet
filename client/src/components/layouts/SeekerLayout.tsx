@@ -45,6 +45,7 @@ const SeekerLayout = ({ children }: SeekerLayoutProps) => {
     if (path.includes('/applications')) return 'applications';
     if (path.includes('/messages')) return 'messages';
     if (path.includes('/settings')) return 'settings';
+    if (path.includes('/help-center')) return 'help-center';
     return 'dashboard';
   };
 
@@ -67,6 +68,9 @@ const SeekerLayout = ({ children }: SeekerLayoutProps) => {
         break;
       case 'settings':
         navigate('/seeker/settings');
+        break;
+      case 'help-center':
+        navigate('/seeker/help-center');
         break;
     }
   };

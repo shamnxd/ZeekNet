@@ -151,10 +151,14 @@ function SeekerSidebar({ currentPage, onNavigate, isCollapsed = false, onToggle 
               </button>
 
               <button
+                onClick={() => onNavigate('help-center')}
                 title={isCollapsed ? 'Help Center' : ''}
-                className={`w-full flex items-center transition-all duration-200 group ${isCollapsed ? 'justify-center p-3 rounded-xl' : 'gap-3 px-3 py-3 rounded-xl'} text-[14px] font-medium text-[#374151] hover:bg-[#f3f4f6] hover:text-[#1f2937]`}
+                className={`w-full flex items-center transition-all duration-200 group ${isCollapsed ? 'justify-center p-3 rounded-xl' : 'gap-3 px-3 py-3 rounded-xl'} text-[14px] font-medium ${currentPage === 'help-center'
+                  ? 'bg-gradient-to-r from-[#4640de] to-[#6366f1] text-white shadow-lg shadow-[#4640de]/25'
+                  : 'text-[#374151] hover:bg-[#f3f4f6] hover:text-[#1f2937]'
+                  }`}
               >
-                <HelpCircle className={`w-5 h-5 flex-shrink-0 text-[#6b7280] group-hover:text-[#4640de]`} />
+                <HelpCircle className={`w-5 h-5 flex-shrink-0 ${currentPage === 'help-center' ? 'text-white' : 'text-[#6b7280] group-hover:text-[#4640de]'}`} />
                 {!isCollapsed && <span>Help Center</span>}
               </button>
             </div>
