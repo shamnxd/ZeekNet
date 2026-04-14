@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Mail, ShieldCheck, FileText, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 const seekerFaqs = [
   {
@@ -38,6 +38,18 @@ const seekerFaqs = [
 ];
 
 const SeekerHelpCenter: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredFaqs = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return seekerFaqs;
+    return seekerFaqs.filter(
+      (faq) =>
+        faq.question.toLowerCase().includes(query) ||
+        faq.answer.toLowerCase().includes(query)
+    );
+  }, [searchTerm]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -47,56 +59,22 @@ const SeekerHelpCenter: React.FC = () => {
         </p>
       </div>
 
-      <Card className="p-6 border border-[#d6ddeb]">
-        <h2 className="text-lg font-semibold text-[#25324b] mb-4">Getting Started</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-lg border border-[#e4e7ec] p-4 bg-white">
-            <div className="flex items-center gap-2 mb-2 text-[#4640de]">
-              <FileText className="w-4 h-4" />
-              <p className="font-medium text-sm">Complete Your Profile</p>
-            </div>
-            <p className="text-sm text-[#515b6f]">
-              Add your headline, skills, experience, and resume to improve visibility to companies.
-            </p>
-          </div>
-          <div className="rounded-lg border border-[#e4e7ec] p-4 bg-white">
-            <div className="flex items-center gap-2 mb-2 text-[#4640de]">
-              <MessageSquare className="w-4 h-4" />
-              <p className="font-medium text-sm">Use Messages Effectively</p>
-            </div>
-            <p className="text-sm text-[#515b6f]">
-              Keep replies professional and quick to increase your chance of moving forward.
-            </p>
-          </div>
+      <div className="">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8493]" />
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search FAQs..."
+            className="pl-9"
+          />
         </div>
-      </Card>
+      </div>
 
-      <Card className="p-6 border border-[#d6ddeb]">
-        <h2 className="text-lg font-semibold text-[#25324b] mb-4">Profile Improvement Checklist</h2>
-        <div className="space-y-3 text-sm text-[#515b6f]">
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-            <span>Use a clear headline with role, tech stack, and experience focus.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-            <span>Keep experience dates and responsibilities accurate and up to date.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-            <span>Add skills that match the jobs you apply for most frequently.</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-            <span>Check applications regularly and respond to recruiter messages quickly.</span>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6 border border-[#d6ddeb]">
+      <div className="">
         <h2 className="text-lg font-semibold text-[#25324b] mb-4">Frequently Asked Questions</h2>
         <div className="space-y-3">
-          {seekerFaqs.map((faq) => (
+          {filteredFaqs.map((faq) => (
             <details key={faq.question} className="group rounded-lg border border-[#e4e7ec] bg-white">
               <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-[#25324b] flex items-center justify-between">
                 {faq.question}
@@ -105,26 +83,11 @@ const SeekerHelpCenter: React.FC = () => {
               <p className="px-4 pb-4 text-sm text-[#515b6f]">{faq.answer}</p>
             </details>
           ))}
+          {filteredFaqs.length === 0 && (
+            <p className="text-sm text-[#7c8493]">No FAQs found for your search.</p>
+          )}
         </div>
-      </Card>
-
-      <Card className="p-6 border border-[#d6ddeb]">
-        <h2 className="text-lg font-semibold text-[#25324b] mb-4">Contact Support</h2>
-        <div className="space-y-3 text-sm text-[#515b6f]">
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4 text-[#4640de]" />
-            <span>Email: support@zeeknet.shamnadt.in</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#4640de]" />
-            <span>Support Hours: Monday to Saturday, 9:00 AM - 6:00 PM IST</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#4640de]" />
-            <span>For account safety concerns, mention "Security" in your subject line.</span>
-          </div>
-        </div>
-      </Card>
+      </div>
     </div>
   );
 };
