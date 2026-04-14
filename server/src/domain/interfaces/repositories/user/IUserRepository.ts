@@ -5,4 +5,5 @@ export interface IUserRepository extends IBaseRepository<User> {
   findByIds(ids: string[]): Promise<User[]>;
   countVerified(): Promise<number>;
   countByRole(role: 'seeker' | 'company'): Promise<number>;
+  countByRoleAndDateRange(role: 'seeker' | 'company', startDate: Date, endDate: Date): Promise<number>;
 }

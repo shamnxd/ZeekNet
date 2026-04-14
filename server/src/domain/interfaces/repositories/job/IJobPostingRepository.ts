@@ -22,7 +22,11 @@ export interface IJobPostingRepository extends IBaseRepository<JobPosting> {
   getAllJobsForAdmin(): Promise<JobPosting[]>;
   countActiveJobsByCompany(companyId: string): Promise<number>;
   countTotal(): Promise<number>;
+  countTotalByDateRange(startDate: Date, endDate: Date): Promise<number>;
   countActive(): Promise<number>;
+  countUnlisted(): Promise<number>;
+  countBlocked(): Promise<number>;
+  countClosed(): Promise<number>;
   countExpired(): Promise<number>;
   findRecent(limit: number): Promise<JobPosting[]>;
   countJobsCreatedAfter(companyId: string, date: Date): Promise<number>;

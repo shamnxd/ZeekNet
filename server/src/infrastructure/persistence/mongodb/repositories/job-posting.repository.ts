@@ -221,8 +221,26 @@ export class JobPostingRepository extends RepositoryBase<JobPosting, JobPostingD
     return JobPostingModel.countDocuments();
   }
 
+  async countTotalByDateRange(startDate: Date, endDate: Date): Promise<number> {
+    return JobPostingModel.countDocuments({
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+  }
+
   async countActive(): Promise<number> {
     return JobPostingModel.countDocuments({ status: 'active' });
+  }
+
+  async countUnlisted(): Promise<number> {
+    return JobPostingModel.countDocuments({ status: 'unlisted' });
+  }
+
+  async countBlocked(): Promise<number> {
+    return JobPostingModel.countDocuments({ status: 'blocked' });
+  }
+
+  async countClosed(): Promise<number> {
+    return JobPostingModel.countDocuments({ status: 'closed' });
   }
 
   async countExpired(): Promise<number> {

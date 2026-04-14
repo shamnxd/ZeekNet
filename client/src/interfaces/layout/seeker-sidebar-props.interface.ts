@@ -1,4 +1,4 @@
-type Page = 'dashboard' | 'profile' | 'applications' | 'settings' | 'messages';
+type Page = 'dashboard' | 'profile' | 'applications' | 'settings' | 'messages' | 'help-center';
 
 export interface SeekerSidebarProps {
   currentPage: Page;

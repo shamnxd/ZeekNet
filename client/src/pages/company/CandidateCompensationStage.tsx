@@ -80,13 +80,16 @@ export const CandidateCompensationStage = ({
   const showActions = isCurrentStage(selectedStage);
 
   let currentSubStage: CompensationSubStage = CompensationSubStage.NOT_INITIATED;
+  const validCompensationMeetings = compensationMeetings.filter(
+    (meeting): meeting is CompensationMeeting => Boolean(meeting)
+  );
 
   const appSubStageRaw = atsApplication?.sub_stage || atsApplication?.subStage;
   const isApproved = String(appSubStageRaw || '').toLowerCase() === 'approved' || !!compensationData?.approvedAt;
 
   if (isApproved) {
     currentSubStage = CompensationSubStage.APPROVED;
-  } else if (compensationMeetings.length > 0) {
+  } else if (validCompensationMeetings.length > 0) {
     currentSubStage = CompensationSubStage.NEGOTIATION_ONGOING;
   } else if (compensationData) {
     currentSubStage = CompensationSubStage.INITIATED;
@@ -133,7 +136,11 @@ export const CandidateCompensationStage = ({
             >
               {currentSubStage === CompensationSubStage.APPROVED
                 ? 'Offer Approved'
-                : currentSubStage === CompensationSubStage.NEGOTIATION_ONGOING && compensationMeetings.every(m => m.status === 'completed' || m.status === 'cancelled')
+                : currentSubStage === CompensationSubStage.NEGOTIATION_ONGOING &&
+                  validCompensationMeetings.every(
+                    (meeting) =>
+                      meeting.status === 'completed' || meeting.status === 'cancelled'
+                  )
                   ? 'Negotiation Completed'
                   : subStages.find((s) => s.key === currentSubStage)?.label || (currentSubStage as string)}
             </Badge>

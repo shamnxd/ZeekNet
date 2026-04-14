@@ -24,12 +24,49 @@ export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUse
 
   async execute(query: GetAdminDashboardStatsQueryDto): Promise<AdminDashboardStatsResponseDto> {
     const { period, startDate, endDate } = query;
+    const now = new Date();
+
+    const getRange = (): { start: Date; end: Date } | null => {
+      if (period === 'all') return null;
+      if (startDate && endDate) return { start: startDate, end: endDate };
+
+      switch (period) {
+      case 'day':
+        return {
+          start: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0),
+          end: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999),
+        };
+      case 'week':
+        return {
+          start: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6, 0, 0, 0, 0),
+          end: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999),
+        };
+      case 'month':
+        return {
+          start: new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0),
+          end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999),
+        };
+      case 'year':
+        return {
+          start: new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0),
+          end: new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999),
+        };
+      default:
+        return null;
+      }
+    };
+
+    const selectedRange = getRange();
+
     const [
       totalCompanies,
       pendingCompaniesCount,
       totalCandidates,
       totalJobs,
       activeJobs,
+      unlistedJobs,
+      blockedJobs,
+      closedJobs,
       expiredJobs,
       earnings,
       earningsOverview,
@@ -38,13 +75,26 @@ export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUse
       totalVerifiedUsers,
       pendingCompaniesData,
     ] = await Promise.all([
-      this._companyRepository.countTotal(),
-      this._companyRepository.countByVerificationStatus('pending'),
-      this._userRepository.countByRole('seeker'),
-      this._jobRepository.countTotal(),
+      selectedRange
+        ? this._companyRepository.countTotalByDateRange(selectedRange.start, selectedRange.end)
+        : this._companyRepository.countTotal(),
+      selectedRange
+        ? this._companyRepository.countByVerificationStatusAndDateRange('pending', selectedRange.start, selectedRange.end)
+        : this._companyRepository.countByVerificationStatus('pending'),
+      selectedRange
+        ? this._userRepository.countByRoleAndDateRange('seeker', selectedRange.start, selectedRange.end)
+        : this._userRepository.countByRole('seeker'),
+      selectedRange
+        ? this._jobRepository.countTotalByDateRange(selectedRange.start, selectedRange.end)
+        : this._jobRepository.countTotal(),
       this._jobRepository.countActive(),
+      this._jobRepository.countUnlisted(),
+      this._jobRepository.countBlocked(),
+      this._jobRepository.countClosed(),
       this._jobRepository.countExpired(),
-      this._paymentRepository.sumTotalEarnings(),
+      selectedRange
+        ? this._paymentRepository.sumEarningsByDateRange(selectedRange.start, selectedRange.end)
+        : this._paymentRepository.sumTotalEarnings(),
       this._paymentRepository.getEarningsByPeriod(period, startDate, endDate),
       this._jobRepository.findRecent(5),
       this._paymentRepository.findRecent(5),
@@ -59,6 +109,9 @@ export class GetAdminDashboardStatsUseCase implements IGetAdminDashboardStatsUse
         totalCompanies,
         totalVerifiedUsers,
         activeJobs,
+        unlistedJobs,
+        blockedJobs,
+        closedJobs,
         expiredJobs,
         pendingCompanies: pendingCompaniesCount,
         allJobs: totalJobs,

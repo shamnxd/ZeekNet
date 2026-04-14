@@ -648,7 +648,7 @@ export const adminApi = {
   },
 
   getDashboardStats: async (params?: {
-    period?: 'day' | 'week' | 'month' | 'year';
+    period?: 'all' | 'day' | 'week' | 'month' | 'year';
     startDate?: string;
     endDate?: string;
   }): Promise<{

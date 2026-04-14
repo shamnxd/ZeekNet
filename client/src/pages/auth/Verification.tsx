@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -104,8 +104,8 @@ const useOtpInput = (length: number = 6) => {
 const useCountdown = (initialSeconds: number = 0) => {
   const [countdown, setCountdown] = useState(initialSeconds)
 
-  const start = (seconds: number) => setCountdown(seconds)
-  const reset = () => setCountdown(0)
+  const start = useCallback((seconds: number) => setCountdown(seconds), [])
+  const reset = useCallback(() => setCountdown(0), [])
 
   useEffect(() => {
     if (countdown > 0) {
@@ -164,7 +164,14 @@ const Verification = () => {
   const [verificationSuccess, setVerificationSuccess] = useState(false)
 
   const otp = useOtpInput(6)
-  const countdown = useCountdown()
+  const { countdown: cooldownSeconds, start: startCooldown, formatTime: formatCooldownTime } = useCountdown()
+
+  useEffect(() => {
+    // Enforce cooldown immediately because OTP is already sent before landing here.
+    if (email) {
+      startCooldown(30)
+    }
+  }, [email, startCooldown])
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -209,7 +216,7 @@ const Verification = () => {
   }
 
   const handleResendOTP = async () => {
-    if (countdown.countdown > 0) return
+    if (cooldownSeconds > 0) return
 
     setIsResending(true)
     setError(null)
@@ -222,7 +229,7 @@ const Verification = () => {
           description: 'A new verification code has been sent to your email.',
           duration: 3000,
         })
-        countdown.start(60)
+        startCooldown(60)
       } else {
         const errorMsg = res.message || 'Failed to send OTP'
         setError(errorMsg)
@@ -236,7 +243,7 @@ const Verification = () => {
       if (err && typeof err === 'object' && 'response' in err) {
         const response = (err as { response: { status: number } }).response;
         if (response.status === 429) {
-          countdown.start(30)
+          startCooldown(30)
         }
       }
     } finally {
@@ -310,7 +317,7 @@ const Verification = () => {
     <Button
       variant="link"
       onClick={handleResendOTP}
-      disabled={countdown.countdown > 0 || isVerifying || isResending}
+      disabled={cooldownSeconds > 0 || isVerifying || isResending}
       className="text-sm"
     >
       {isResending ? (
@@ -318,10 +325,10 @@ const Verification = () => {
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Sending...
         </>
-      ) : countdown.countdown > 0 ? (
+      ) : cooldownSeconds > 0 ? (
         <>
           <Clock className="mr-2 h-4 w-4" />
-          Resend in {countdown.formatTime(countdown.countdown)}
+          Resend in {formatCooldownTime(cooldownSeconds)}
         </>
       ) : (
         <>

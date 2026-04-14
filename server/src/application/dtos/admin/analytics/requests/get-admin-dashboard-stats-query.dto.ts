@@ -1,6 +1,6 @@
 import { z } from 'zod';
 export const GetAdminDashboardStatsQueryDto = z.object({
-  period: z.enum(['day', 'week', 'month', 'year']).optional().default('month'),
+  period: z.enum(['all', 'day', 'week', 'month', 'year']).optional().default('all'),
   startDate: z.string().datetime().optional().transform(val => val ? new Date(val) : undefined),
   endDate: z.string().datetime().optional().transform(val => val ? new Date(val) : undefined),
 }).refine(

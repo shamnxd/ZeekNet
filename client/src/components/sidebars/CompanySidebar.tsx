@@ -42,6 +42,11 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
       icon: Home,
     },
     {
+      title: 'Hiring Board',
+      href: '/company/ats',
+      icon: KanbanSquare
+    },
+    {
       title: 'Post a Job',
       href: '/company/post-job',
       icon: Plus
@@ -65,11 +70,6 @@ const CompanySidebar = ({ isCollapsed = false, onToggle }: CompanySidebarProps) 
       title: 'All Applicants',
       href: '/company/applicants',
       icon: Users
-    },
-    {
-      title: 'ATS Pipeline',
-      href: '/company/ats',
-      icon: KanbanSquare
     },
     {
       title: 'Job Listing',
