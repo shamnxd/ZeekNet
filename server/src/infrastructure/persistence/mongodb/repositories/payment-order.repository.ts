@@ -81,6 +81,20 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
     return result.length > 0 ? result[0].total : 0;
   }
 
+  async sumEarningsByDateRange(startDate: Date, endDate: Date): Promise<number> {
+    const result = await PaymentOrderModel.aggregate([
+      {
+        $match: {
+          status: 'completed',
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+
+    return result.length > 0 ? result[0].total : 0;
+  }
+
   async getMonthlyEarnings(year: number): Promise<{ month: number; amount: number }[]> {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
@@ -116,127 +130,56 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
   }
 
   async getEarningsByPeriod(
-    period: 'day' | 'week' | 'month' | 'year',
+    period: 'all' | 'day' | 'week' | 'month' | 'year',
     startDate?: Date,
     endDate?: Date,
   ): Promise<{ label: string; value: number }[]> {
     const now = new Date();
-    let start: Date;
-    let end: Date = endDate || now;
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // Determine date range based on period
-    if (startDate && endDate) {
-      start = startDate;
-      end = endDate;
-    } else {
-      switch (period) {
-      case 'day':
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-        break;
-      case 'week':
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 27);
-        break;
-      case 'month':
-        start = new Date(now.getFullYear(), 0, 1);
-        end = new Date(now.getFullYear(), 11, 31);
-        break;
-      case 'year':
-        start = new Date(now.getFullYear() - 4, 0, 1);
-        break;
-      default:
-        start = new Date(now.getFullYear(), 0, 1);
+    // day => hourly for current day/custom day
+    if (period === 'day') {
+      const start = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const end = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+      const result = await PaymentOrderModel.aggregate([
+        { $match: { status: 'completed', createdAt: { $gte: start, $lte: end } } },
+        {
+          $group: {
+            _id: { hour: { $hour: '$createdAt' } },
+            amount: { $sum: '$amount' },
+          },
+        },
+      ]);
+
+      const hourlyData: { label: string; value: number }[] = [];
+      for (let hour = 0; hour < 24; hour++) {
+        const existing = result.find(item => item._id.hour === hour);
+        hourlyData.push({ label: `${hour.toString().padStart(2, '0')}:00`, value: existing ? existing.amount : 0 });
       }
+      return hourlyData;
     }
 
-    type GroupFormat =
-      | { year: { $year: string }; month: { $month: string }; day: { $dayOfMonth: string } }
-      | { year: { $year: string }; week: { $week: string } }
-      | { $month: string }
-      | { $year: string };
+    // week => daily (last 7 days or custom)
+    if (period === 'week') {
+      const start = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6, 0, 0, 0, 0);
+      const end = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-    let groupFormat: GroupFormat;
-    let labelFormat: (date: Date) => string;
-
-    switch (period) {
-    case 'day':
-      groupFormat = {
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' },
-        day: { $dayOfMonth: '$createdAt' },
-      };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${monthNames[date.getMonth()]} ${date.getDate()}`;
-      };
-      break;
-    case 'week':
-      groupFormat = {
-        year: { $year: '$createdAt' },
-        week: { $week: '$createdAt' },
-      };
-      labelFormat = (date: Date) => `Week ${Math.ceil(date.getDate() / 7)}`;
-      break;
-    case 'month':
-      groupFormat = { $month: '$createdAt' };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return monthNames[date.getMonth()];
-      };
-      break;
-    case 'year':
-      groupFormat = { $year: '$createdAt' };
-      labelFormat = (date: Date) => date.getFullYear().toString();
-      break;
-    default:
-      groupFormat = { $month: '$createdAt' };
-      labelFormat = (date: Date) => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return monthNames[date.getMonth()];
-      };
-    }
-
-    const result = await PaymentOrderModel.aggregate([
-      {
-        $match: {
-          status: 'completed',
-          createdAt: { $gte: start, $lte: end },
+      const result = await PaymentOrderModel.aggregate([
+        { $match: { status: 'completed', createdAt: { $gte: start, $lte: end } } },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+              day: { $dayOfMonth: '$createdAt' },
+            },
+            amount: { $sum: '$amount' },
+          },
         },
-      },
-      {
-        $group: {
-          _id: groupFormat,
-          amount: { $sum: '$amount' },
-        },
-      },
-      { $sort: { '_id': 1 } },
-    ]);
+      ]);
 
-    // Format results based on period
-    if (period === 'month') {
-      const monthlyData: { label: string; value: number }[] = [];
-      for (let i = 1; i <= 12; i++) {
-        const existing = result.find(item => item._id === i);
-        const date = new Date(now.getFullYear(), i - 1, 1);
-        monthlyData.push({
-          label: labelFormat(date),
-          value: existing ? existing.amount : 0,
-        });
-      }
-      return monthlyData;
-    } else if (period === 'year') {
-      const yearlyData: { label: string; value: number }[] = [];
-      const startYear = start.getFullYear();
-      const endYear = end.getFullYear();
-      for (let year = startYear; year <= endYear; year++) {
-        const existing = result.find(item => item._id === year);
-        yearlyData.push({
-          label: year.toString(),
-          value: existing ? existing.amount : 0,
-        });
-      }
-      return yearlyData;
-    } else if (period === 'day') {
-      const dailyData: { label: string; value: number }[] = [];
+      const data: { label: string; value: number }[] = [];
       const currentDate = new Date(start);
       while (currentDate <= end) {
         const existing = result.find(item =>
@@ -244,20 +187,92 @@ export class PaymentOrderRepository extends RepositoryBase<PaymentOrder, Payment
           item._id.month === currentDate.getMonth() + 1 &&
           item._id.day === currentDate.getDate(),
         );
-        dailyData.push({
-          label: labelFormat(new Date(currentDate)),
+        data.push({
+          label: `${monthNames[currentDate.getMonth()]} ${currentDate.getDate()}`,
           value: existing ? existing.amount : 0,
         });
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      return dailyData;
-    } else {
-      // week
-      return result.map(item => ({
-        label: `Week ${item._id.week}`,
-        value: item.amount,
-      }));
+      return data;
     }
+
+    // month => daily for month
+    if (period === 'month') {
+      const start = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      const end = endDate ? new Date(endDate) : new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      const result = await PaymentOrderModel.aggregate([
+        { $match: { status: 'completed', createdAt: { $gte: start, $lte: end } } },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+              day: { $dayOfMonth: '$createdAt' },
+            },
+            amount: { $sum: '$amount' },
+          },
+        },
+      ]);
+
+      const daysInMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+      const data: { label: string; value: number }[] = [];
+      for (let day = 1; day <= daysInMonth; day++) {
+        const existing = result.find(item =>
+          item._id.year === start.getFullYear() &&
+          item._id.month === start.getMonth() + 1 &&
+          item._id.day === day,
+        );
+        data.push({ label: day.toString(), value: existing ? existing.amount : 0 });
+      }
+      return data;
+    }
+
+    // all => year-wise for all time
+    if (period === 'all') {
+      const result = await PaymentOrderModel.aggregate([
+        { $match: { status: 'completed' } },
+        {
+          $group: {
+            _id: { year: { $year: '$createdAt' } },
+            amount: { $sum: '$amount' },
+          },
+        },
+        { $sort: { '_id.year': 1 } },
+      ]);
+
+      if (result.length === 0) return [];
+
+      const startYear = result[0]._id.year as number;
+      const endYear = result[result.length - 1]._id.year as number;
+      const data: { label: string; value: number }[] = [];
+      for (let year = startYear; year <= endYear; year++) {
+        const existing = result.find(item => item._id.year === year);
+        data.push({ label: year.toString(), value: existing ? existing.amount : 0 });
+      }
+      return data;
+    }
+
+    // year => monthly for selected/current year
+    const start = startDate ? new Date(startDate) : new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+    const end = endDate ? new Date(endDate) : new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+
+    const result = await PaymentOrderModel.aggregate([
+      { $match: { status: 'completed', createdAt: { $gte: start, $lte: end } } },
+      {
+        $group: {
+          _id: { month: { $month: '$createdAt' } },
+          amount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const data: { label: string; value: number }[] = [];
+    for (let month = 1; month <= 12; month++) {
+      const existing = result.find(item => item._id.month === month);
+      data.push({ label: monthNames[month - 1], value: existing ? existing.amount : 0 });
+    }
+    return data;
   }
 
   async findRecent(limit: number): Promise<PaymentOrder[]> {

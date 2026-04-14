@@ -219,8 +219,25 @@ export class CompanyProfileRepository extends RepositoryBase<CompanyProfile, Mod
     return CompanyProfileModel.countDocuments();
   }
 
+  async countTotalByDateRange(startDate: Date, endDate: Date): Promise<number> {
+    return CompanyProfileModel.countDocuments({
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+  }
+
   async countByVerificationStatus(status: 'pending' | 'rejected' | 'verified'): Promise<number> {
     return CompanyProfileModel.countDocuments({ isVerified: status });
+  }
+
+  async countByVerificationStatusAndDateRange(
+    status: 'pending' | 'rejected' | 'verified',
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    return CompanyProfileModel.countDocuments({
+      isVerified: status,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
   }
 
   async getLocationStats(): Promise<{ country: string; count: number }[]> {

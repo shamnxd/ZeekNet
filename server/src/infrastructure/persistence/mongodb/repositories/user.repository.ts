@@ -42,5 +42,12 @@ export class UserRepository extends RepositoryBase<User, UserDocument> implement
   async countByRole(role: 'seeker' | 'company'): Promise<number> {
     return UserModel.countDocuments({ role });
   }
+
+  async countByRoleAndDateRange(role: 'seeker' | 'company', startDate: Date, endDate: Date): Promise<number> {
+    return UserModel.countDocuments({
+      role,
+      createdAt: { $gte: startDate, $lte: endDate },
+    });
+  }
 }
 

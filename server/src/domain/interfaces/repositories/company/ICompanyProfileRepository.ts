@@ -14,6 +14,8 @@ export interface ICompanyProfileRepository extends IBaseRepository<CompanyProfil
   }): Promise<{ companies: CompanyProfile[]; total: number }>;
   findByIds(ids: string[]): Promise<CompanyProfile[]>;
   countTotal(): Promise<number>;
+  countTotalByDateRange(startDate: Date, endDate: Date): Promise<number>;
   countByVerificationStatus(status: 'pending' | 'rejected' | 'verified'): Promise<number>;
+  countByVerificationStatusAndDateRange(status: 'pending' | 'rejected' | 'verified', startDate: Date, endDate: Date): Promise<number>;
   getLocationStats(): Promise<{ country: string; count: number }[]>;
 }

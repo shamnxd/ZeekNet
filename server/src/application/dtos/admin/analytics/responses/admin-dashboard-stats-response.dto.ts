@@ -5,6 +5,9 @@ export class AdminDashboardStatsResponseDto {
     totalCompanies: number;
     totalVerifiedUsers: number;
     activeJobs: number;
+    unlistedJobs: number;
+    blockedJobs: number;
+    closedJobs: number;
     expiredJobs: number;
     pendingCompanies: number;
     allJobs: number;
