@@ -10,41 +10,73 @@ import {
   Users,
   Building2,
   Briefcase,
-  UserCheck,
   Eye,
-  Info,
-  AlertCircle,
   IndianRupee,
   Loader2,
   CalendarIcon
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { DateRange } from 'react-day-picker'
 import { adminApi } from '@/api/admin.api'
 import type { AdminDashboardStats } from '@/interfaces/admin/admin-dashboard-stats.interface'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  XAxis
+} from 'recharts'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig
+} from '@/components/ui/chart'
+
+type PeriodType = 'all' | 'today' | 'week' | 'month' | 'year' | 'custom'
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
 
   const [dashboardData, setDashboardData] = useState<AdminDashboardStats | null>(null)
+  const [allTimeDashboardData, setAllTimeDashboardData] = useState<AdminDashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [periodType, setPeriodType] = useState<'today' | 'week' | 'month' | 'year' | 'custom'>('month')
-  const [customStartDate, setCustomStartDate] = useState<Date | undefined>()
-  const [customEndDate, setCustomEndDate] = useState<Date | undefined>()
+  const [periodType, setPeriodType] = useState<PeriodType>('all')
+  const [customRange, setCustomRange] = useState<DateRange | undefined>()
 
   useEffect(() => {
+    const fetchAllTime = async () => {
+      try {
+        const response = await adminApi.getDashboardStats({ period: 'all' })
+        if (response.success && response.data) {
+          setAllTimeDashboardData(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch all-time dashboard stats', error)
+      }
+    }
+
     const fetchStats = async () => {
       setIsLoading(true)
       try {
-        let period: 'day' | 'week' | 'month' | 'year' = 'month'
+        let period: 'all' | 'day' | 'week' | 'month' | 'year' = 'all'
         let startDate: string | undefined
         let endDate: string | undefined
 
-        if (periodType === 'custom' && customStartDate && customEndDate) {
-          period = 'day'
-          startDate = customStartDate.toISOString()
-          endDate = customEndDate.toISOString()
+        if (periodType === 'custom' && customRange?.from && customRange?.to) {
+          period = 'week'
+          const from = new Date(customRange.from)
+          from.setHours(0, 0, 0, 0)
+          const to = new Date(customRange.to)
+          to.setHours(23, 59, 59, 999)
+          startDate = from.toISOString()
+          endDate = to.toISOString()
         } else if (periodType === 'today') {
           period = 'day'
           const today = new Date()
@@ -56,6 +88,8 @@ const AdminDashboard = () => {
           period = 'month'
         } else if (periodType === 'year') {
           period = 'year'
+        } else if (periodType === 'all') {
+          period = 'all'
         }
 
         const response = await adminApi.getDashboardStats({ period, startDate, endDate })
@@ -69,10 +103,14 @@ const AdminDashboard = () => {
       }
     }
 
-    if (periodType !== 'custom' || (customStartDate && customEndDate)) {
+    if (!allTimeDashboardData) {
+      fetchAllTime()
+    }
+
+    if (periodType !== 'custom' || (customRange?.from && customRange?.to)) {
       fetchStats()
     }
-  }, [periodType, customStartDate, customEndDate])
+  }, [periodType, customRange, allTimeDashboardData])
 
   if (isLoading) {
     return (
@@ -84,46 +122,153 @@ const AdminDashboard = () => {
     )
   }
 
-  const stats = [
-    { label: 'Earnings', value: `₹ ${dashboardData?.stats?.earnings || 0}`, icon: IndianRupee, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600', info: true },
-    { label: 'Total Candidates', value: dashboardData?.stats?.totalCandidates || 0, icon: Users, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Total Companies', value: dashboardData?.stats?.totalCompanies || 0, icon: Building2, color: 'bg-cyan-100 text-cyan-600', iconColor: 'text-cyan-600' },
-    { label: 'Total Verified Users', value: dashboardData?.stats?.totalVerifiedUsers || 0, icon: UserCheck, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Active Jobs', value: dashboardData?.stats?.activeJobs || 0, icon: Briefcase, color: 'bg-green-100 text-green-600', iconColor: 'text-green-600' },
-    { label: 'Expired Jobs', value: dashboardData?.stats?.expiredJobs || 0, icon: Briefcase, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-yellow-600' },
-    { label: 'Pending Company', value: dashboardData?.stats?.pendingCompanies || 0, icon: AlertCircle, color: 'bg-red-100 text-red-600', iconColor: 'text-red-600', clickable: true, route: '/admin/pending-companies' },
-    { label: 'All Jobs', value: dashboardData?.stats?.allJobs || 0, icon: Briefcase, color: 'bg-blue-100 text-blue-600', iconColor: 'text-blue-600', clickable: true, route: '/admin/jobs' }
-  ]
-
   const recentJobs = dashboardData?.recentJobs || []
   const recentOrders = dashboardData?.recentOrders || []
+
+  // Filtered stats (changes with period filter)
+  const totalCandidates = dashboardData?.stats?.totalCandidates || 0
+  const totalCompanies = dashboardData?.stats?.totalCompanies || 0
+  const activeJobs = dashboardData?.stats?.activeJobs || 0
+  const totalJobs = dashboardData?.stats?.allJobs || 0
+  const pendingCompanies = dashboardData?.stats?.pendingCompanies || 0
+  const earnings = dashboardData?.stats?.earnings || 0
+  const verifiedCompanies = Math.max((dashboardData?.stats?.totalCompanies || 0) - (dashboardData?.stats?.pendingCompanies || 0), 0)
+
+  // All-time stats (used for Pie + Job Postings charts regardless of filter)
+  const allTimeStats = allTimeDashboardData?.stats || dashboardData?.stats
+  const allTimeVerifiedCompanies = Math.max((allTimeStats?.totalCompanies || 0) - (allTimeStats?.pendingCompanies || 0), 0)
+  const unlistedJobs = allTimeStats?.unlistedJobs || 0
+  const blockedJobs = allTimeStats?.blockedJobs || 0
+  const closedJobs = allTimeStats?.closedJobs || 0
+  const allTimeActiveJobs = allTimeStats?.activeJobs || 0
+  const allTimeTotalJobs = allTimeStats?.allJobs || 0
+
+  const periodSuffix = periodType === 'all'
+    ? ''
+    : periodType === 'today'
+      ? ' (Today)'
+      : periodType === 'week'
+        ? ' (This Week)'
+        : periodType === 'month'
+          ? ' (This Month)'
+          : periodType === 'year'
+            ? ' (This Year)'
+            : ' (Custom Range)'
+
+  const summaryStats = [
+    { label: `Earnings${periodSuffix}`, value: `₹ ${earnings}`, icon: IndianRupee, color: 'bg-cyan-100 text-cyan-700' },
+    { label: `Total Candidates${periodSuffix}`, value: totalCandidates, icon: Users, color: 'bg-amber-100 text-amber-700' },
+    { label: `Total Companies${periodSuffix}`, value: totalCompanies, icon: Building2, color: 'bg-indigo-100 text-indigo-700' },
+    { label: 'Active Jobs', value: activeJobs, icon: Briefcase, color: 'bg-green-100 text-green-700' },
+    { label: `Total Job Posted${periodSuffix}`, value: totalJobs, icon: Briefcase, color: 'bg-blue-100 text-blue-700' },
+    { label: 'Pending Companies', value: pendingCompanies, icon: Building2, color: 'bg-rose-100 text-rose-700' },
+    { label: `Verified Companies${periodSuffix}`, value: verifiedCompanies, icon: Building2, color: 'bg-violet-100 text-violet-700' },
+    { label: `Total Candidate Count${periodSuffix}`, value: totalCandidates, icon: Users, color: 'bg-cyan-100 text-cyan-700' }
+  ]
+  const earningsOverview = dashboardData?.charts?.earningsOverview || []
+  const earningsChartData = earningsOverview.map((point) => ({
+    label: point.label,
+    value: point.value,
+  }))
+  const earningsChartConfig = {
+    value: {
+      label: 'Earnings',
+      color: 'hsl(var(--chart-1))',
+    },
+  } satisfies ChartConfig
+
+  const pieData = [
+    { key: 'candidates', label: 'Candidates', visitors: allTimeStats?.totalCandidates || 0, fill: '#06b6d4' },
+    { key: 'companies', label: 'Companies', visitors: allTimeStats?.totalCompanies || 0, fill: '#6366f1' },
+    { key: 'verifiedCompanies', label: 'Verified Companies', visitors: allTimeVerifiedCompanies, fill: '#10b981' },
+  ]
+  const pieChartConfig = {
+    visitors: { label: 'Count' },
+    candidates: { label: 'Candidates', color: 'hsl(var(--chart-2))' },
+    companies: { label: 'Companies', color: 'hsl(var(--chart-3))' },
+    verifiedCompanies: { label: 'Verified Companies', color: 'hsl(var(--chart-4))' },
+  } satisfies ChartConfig
+
+  const jobsBars = [
+    { label: 'Active Jobs', value: allTimeActiveJobs, color: 'bg-emerald-500' },
+    { label: 'Unlisted Jobs', value: unlistedJobs, color: 'bg-slate-500' },
+    { label: 'Blocked Jobs', value: blockedJobs, color: 'bg-rose-500' },
+    { label: 'Total Jobs', value: allTimeTotalJobs, color: 'bg-blue-500' },
+    { label: 'Closed Jobs', value: closedJobs, color: 'bg-amber-500' }
+  ]
+  const jobsChartConfig = {
+    value: { label: 'Jobs', color: 'hsl(var(--chart-5))' },
+  } satisfies ChartConfig
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <Select value={periodType} onValueChange={(value: PeriodType) => setPeriodType(value)}>
+              <SelectTrigger className="w-[190px]">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {periodType === 'custom' && (
+              <div className="flex gap-2 items-center">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-[280px] justify-start text-left font-normal',
+                        !customRange?.from && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {customRange?.from ? (
+                        customRange.to ? (
+                          `${format(customRange.from, 'PPP')} - ${format(customRange.to, 'PPP')}`
+                        ) : (
+                          format(customRange.from, 'PPP')
+                        )
+                      ) : (
+                        'Pick date range'
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="range"
+                      selected={customRange}
+                      onSelect={setCustomRange}
+                      numberOfMonths={2}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, index) => (
-            <Card
-              key={index}
-              className={`hover:shadow-lg transition-all duration-200 border-0 shadow-md ${stat.clickable ? 'cursor-pointer hover:scale-105' : ''
-                }`}
-              onClick={() => stat.clickable && stat.route && navigate(stat.route)}
-            >
-              <CardContent className="p-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
+          {summaryStats.map((stat) => (
+            <Card key={stat.label} className="border-0 shadow-sm overflow-hidden">
+              <CardContent className="p-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-1 mb-1">
-                      <p className="text-xs font-medium text-gray-600">{stat.label}</p>
-                      {stat.info && <Info className="h-3 w-3 text-gray-400" />}
-                    </div>
-                    <p className="text-xl font-bold text-gray-800">{stat.value}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-600 leading-tight break-words">{stat.label}</p>
+                    <p className="text-lg font-bold text-gray-800">{stat.value}</p>
                   </div>
-                  <div className={`p-2 rounded-lg ${stat.color} shadow-sm`}>
-                    <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
+                  <div className={`p-2 rounded-md ${stat.color}`}>
+                    <stat.icon className="h-4 w-4" />
                   </div>
                 </div>
               </CardContent>
@@ -131,101 +276,119 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full mx-auto">
-          <Card className="border-0 shadow-md">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-gray-800">Your Earnings Overview</CardTitle>
-                <div className="flex gap-2 items-center">
-                  <Select value={periodType} onValueChange={(value: 'today' | 'week' | 'month' | 'year' | 'custom') => setPeriodType(value)}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select period" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="today">Today</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
-                      <SelectItem value="year">This Year</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {periodType === 'custom' && (
-                    <div className="flex gap-2 items-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-[140px] justify-start text-left font-normal",
-                              !customStartDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {customStartDate ? format(customStartDate, "PPP") : "Start date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={customStartDate}
-                            onSelect={setCustomStartDate}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-
-                      <span className="text-gray-500">to</span>
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-[140px] justify-start text-left font-normal",
-                              !customEndDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {customEndDate ? format(customEndDate, "PPP") : "End date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={customEndDate}
-                            onSelect={setCustomEndDate}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  )}
-                </div>
-              </div>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-2 auto-rows-fr">
+          <Card className="border-0 shadow-sm h-full overflow-hidden">
+            <CardHeader className="pb-1.5">
+              <CardTitle className="text-sm font-semibold text-gray-800">Earnings Trend (Line)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-end justify-center space-x-3">
-                {[
-                  ...(dashboardData?.charts?.earningsOverview || []).map(data => ({
-                    ...data,
-                    height: (data.value / (Math.max(...(dashboardData?.charts?.earningsOverview || []).map(d => d.value), 100))) * 200 // dynamic height
-                  }))
-                ].map((data, idx) => (
-                  <div key={idx} className="flex flex-col items-center">
-                    <div className="w-8 bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-lg shadow-sm" style={{ height: `${data.height}px` }}></div>
-                    <span className="text-xs font-medium text-gray-600 mt-2">{data.label}</span>
-                    <span className="text-xs text-gray-500">{data.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-center mt-6">
-                <div className="w-3 h-3 bg-cyan-500 rounded-full mr-2"></div>
-                <span className="text-sm font-medium text-gray-600">Earnings (in thousands)</span>
+            <CardContent className="pt-0 pb-2 flex flex-col min-h-[230px]">
+              <ChartContainer config={earningsChartConfig} className="h-36 w-full">
+                <AreaChart data={earningsChartData}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis dataKey="label" tickLine={false} tickMargin={6} axisLine={false} fontSize={10} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area
+                    dataKey="value"
+                    type="monotone"
+                    stroke="#06b6d4"
+                    fill="#06b6d4"
+                    fillOpacity={0.2}
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ChartContainer>
+              <div className="mt-auto text-xs text-gray-700 font-medium flex items-center justify-between">
+                <span className="flex items-center gap-1"><IndianRupee className="h-3 w-3" /> Earnings</span>
+                <span>₹ {dashboardData?.stats?.earnings || 0}</span>
               </div>
             </CardContent>
           </Card>
 
+          <Card className="border-0 shadow-sm h-full overflow-hidden">
+            <CardHeader className="pb-1.5">
+              <CardTitle className="text-sm font-semibold text-gray-800">People & Companies (Pie)</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 pb-2 flex flex-col min-h-[230px]">
+              <ChartContainer config={pieChartConfig} className="mx-auto h-32 w-full">
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent hideLabel nameKey="label" />} />
+                  <Pie
+                    data={pieData}
+                    dataKey="visitors"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={34}
+                    outerRadius={56}
+                    paddingAngle={3}
+                  >
+                    {pieData.map((entry) => (
+                      <Cell key={entry.key} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+              <div className="space-y-1 mt-auto">
+                {pieData.map((item) => (
+                  <div key={item.key} className="flex items-center justify-between text-xs text-gray-700">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
+                      {item.label}
+                    </span>
+                    <span className="font-semibold">{item.visitors}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm h-full overflow-hidden">
+            <CardHeader className="pb-1.5">
+              <CardTitle className="text-sm font-semibold text-gray-800">Job Postings (Bar)</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 pb-2 flex flex-col min-h-[230px]">
+              <ChartContainer config={jobsChartConfig} className="h-32 w-full">
+                <BarChart data={jobsBars.map((bar) => ({ name: bar.label, value: bar.value }))}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    fontSize={8}
+                    tickMargin={2}
+                    tickFormatter={(value) => value.replace(' Jobs', '')}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="value" radius={4}>
+                    {jobsBars.map((bar) => (
+                      <Cell key={bar.label} fill={
+                        bar.label.includes('Active') ? '#10b981'
+                          : bar.label.includes('Unlisted') ? '#64748b'
+                            : bar.label.includes('Blocked') ? '#f43f5e'
+                              : bar.label.includes('Closed') ? '#f59e0b'
+                                : '#3b82f6'
+                      } />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+              <div className="space-y-1 mt-2">
+                {jobsBars.map((bar) => (
+                  <div key={bar.label} className="flex items-center justify-between text-xs text-gray-700">
+                    <span>{bar.label}</span>
+                    <span className="font-semibold">{bar.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-auto text-xs text-gray-700 font-medium flex items-center justify-between">
+                <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> Total Job Postings</span>
+                <span>{totalJobs}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -262,7 +425,7 @@ const AdminDashboard = () => {
                         variant="ghost"
                         size="sm"
                         className="text-blue-600 hover:bg-blue-50"
-                        onClick={() => navigate(`/admin/companies/${company.id}`)}
+                        onClick={() => navigate(`/admin/company-profile-view/${company.id}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         <span className="text-xs">Verify</span>
@@ -277,9 +440,7 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
