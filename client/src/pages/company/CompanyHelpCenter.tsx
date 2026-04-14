@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import CompanyLayout from '@/components/layouts/CompanyLayout';
-import { Card } from '@/components/ui/card';
-import { Mail, ShieldCheck, FileText, MessageSquare, Clock, Briefcase, CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 const companyFaqs = [
   {
@@ -39,6 +39,18 @@ const companyFaqs = [
 ];
 
 const CompanyHelpCenter: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredFaqs = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return companyFaqs;
+    return companyFaqs.filter(
+      (faq) =>
+        faq.question.toLowerCase().includes(query) ||
+        faq.answer.toLowerCase().includes(query)
+    );
+  }, [searchTerm]);
+
   return (
     <CompanyLayout>
       <div className="space-y-6">
@@ -49,56 +61,22 @@ const CompanyHelpCenter: React.FC = () => {
           </p>
         </div>
 
-        <Card className="p-6 border border-[#d6ddeb]">
-          <h2 className="text-lg font-semibold text-[#25324b] mb-4">Getting Started</h2>
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-lg border border-[#e4e7ec] p-4 bg-white">
-              <div className="flex items-center gap-2 mb-2 text-[#4640de]">
-                <Briefcase className="w-4 h-4" />
-                <p className="font-medium text-sm">Post Jobs Effectively</p>
-              </div>
-              <p className="text-sm text-[#515b6f]">
-                Add clear titles, requirements, and hiring stages to attract better applicants.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#e4e7ec] p-4 bg-white">
-              <div className="flex items-center gap-2 mb-2 text-[#4640de]">
-                <MessageSquare className="w-4 h-4" />
-                <p className="font-medium text-sm">Manage Communication</p>
-              </div>
-              <p className="text-sm text-[#515b6f]">
-                Use Messages and ATS comments to keep candidate communication organized.
-              </p>
-            </div>
+        <div className="">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7c8493]" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search FAQs..."
+              className="pl-9"
+            />
           </div>
-        </Card>
+        </div>
 
-        <Card className="p-6 border border-[#d6ddeb]">
-          <h2 className="text-lg font-semibold text-[#25324b] mb-4">Best Practice Checklist</h2>
-          <div className="space-y-3 text-sm text-[#515b6f]">
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-              <span>Keep job titles specific and searchable (example: Frontend Developer - React).</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-              <span>Review applicants daily and move ATS stages consistently to keep pipeline healthy.</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-              <span>Use structured interview and task feedback before making final hiring decisions.</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#4640de] mt-0.5" />
-              <span>Track plan usage in Billing so posting and candidate discovery are not interrupted.</span>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 border border-[#d6ddeb]">
+        <div className="">
           <h2 className="text-lg font-semibold text-[#25324b] mb-4">Frequently Asked Questions</h2>
           <div className="space-y-3">
-            {companyFaqs.map((faq) => (
+            {filteredFaqs.map((faq) => (
               <details key={faq.question} className="group rounded-lg border border-[#e4e7ec] bg-white">
                 <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-[#25324b] flex items-center justify-between">
                   {faq.question}
@@ -107,30 +85,11 @@ const CompanyHelpCenter: React.FC = () => {
                 <p className="px-4 pb-4 text-sm text-[#515b6f]">{faq.answer}</p>
               </details>
             ))}
+            {filteredFaqs.length === 0 && (
+              <p className="text-sm text-[#7c8493]">No FAQs found for your search.</p>
+            )}
           </div>
-        </Card>
-
-        <Card className="p-6 border border-[#d6ddeb]">
-          <h2 className="text-lg font-semibold text-[#25324b] mb-4">Contact Support</h2>
-          <div className="space-y-3 text-sm text-[#515b6f]">
-            <div className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#4640de]" />
-              <span>Email: support@zeeknet.shamnadt.in</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#4640de]" />
-              <span>Support Hours: Monday to Saturday, 9:00 AM - 6:00 PM IST</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#4640de]" />
-              <span>For billing/security requests, add "Billing" or "Security" in email subject.</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#4640de]" />
-              <span>Share job ID or candidate ID in tickets for faster support.</span>
-            </div>
-          </div>
-        </Card>
+        </div>
       </div>
     </CompanyLayout>
   );

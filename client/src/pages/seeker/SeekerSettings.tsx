@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -44,7 +43,7 @@ function LoginDetailsCard() {
   };
 
   return (
-    <Card className="border border-[#d6ddeb] p-6">
+    <div className="!rounded-full p-6">
       <h3 className="font-['Epilogue',sans-serif] font-semibold text-[16px] text-[#25324b] mb-5">
         Login Details
       </h3>
@@ -93,7 +92,7 @@ function LoginDetailsCard() {
           {loading ? 'Updating...' : 'Update Password'}
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
 

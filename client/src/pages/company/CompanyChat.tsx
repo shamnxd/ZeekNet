@@ -440,7 +440,7 @@ const CompanyChat: React.FC = () => {
 
   return (
     <CompanyLayout>
-      <div className="fixed top-20 bottom-0 left-[235px] right-0 grid grid-cols-[380px_1fr] bg-gray-50">
+      <div className="h-[calc(100vh-9.5rem)] min-h-[620px] grid grid-cols-1 md:grid-cols-[380px_1fr] bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
         { }
         <div className={`bg-white border-r border-gray-200 flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           { }
